@@ -100,6 +100,11 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         public void onUnminimized(@NonNull Bundle extras) throws RemoteException {
             TestCustomTabsCallback.this.onUnminimized(extras);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     /* package */ ICustomTabsCallback getStub() {

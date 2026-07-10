@@ -17,8 +17,10 @@ package androidx.ink.geometry.compose {
     method @KotlinOnly public static androidx.compose.ui.graphics.Matrix populateMatrix(androidx.ink.geometry.AffineTransform, androidx.compose.ui.graphics.Matrix out);
     method @BytecodeOnly public static float[] populateMatrix-EL8BTi8(androidx.ink.geometry.AffineTransform, float[]);
     method public static androidx.compose.ui.geometry.MutableRect populateMutableRect(androidx.ink.geometry.Box, androidx.compose.ui.geometry.MutableRect out);
-    method @InaccessibleFromJava public static androidx.compose.ui.graphics.Matrix toMatrix(androidx.ink.geometry.AffineTransform);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset toOffset(androidx.ink.geometry.Vec);
+    method @KotlinOnly public static androidx.compose.ui.graphics.Matrix toMatrix(androidx.ink.geometry.AffineTransform);
+    method @BytecodeOnly public static float[] toMatrix(androidx.ink.geometry.AffineTransform);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset toOffset(androidx.ink.geometry.Vec);
+    method @BytecodeOnly public static long toOffset(androidx.ink.geometry.Vec);
     method public static androidx.compose.ui.geometry.Rect toRect(androidx.ink.geometry.Box);
   }
 

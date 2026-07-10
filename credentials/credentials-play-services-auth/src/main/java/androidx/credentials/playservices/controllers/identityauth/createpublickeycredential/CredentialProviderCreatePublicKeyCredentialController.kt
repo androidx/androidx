@@ -43,12 +43,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 import org.json.JSONException
 
 /** A controller to handle the CreatePublicKeyCredential flow with play services. */
 @Suppress("deprecation")
-internal class CredentialProviderCreatePublicKeyCredentialController(private val context: Context) :
+internal class CredentialProviderCreatePublicKeyCredentialController(context: Context) :
     CredentialProviderController<
         CreatePublicKeyCredentialRequest,
         PublicKeyCredentialCreationOptions,
@@ -56,6 +57,8 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         CreateCredentialResponse,
         CreateCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -74,22 +77,25 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             createCredentialExceptionTypeToException,
                         executor = executor,
-                        callback = callback,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
-                )
-                    return
-                handleResponse(
-                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
-                    resultCode,
-                    resultData.getParcelable(RESULT_DATA_TAG),
-                )
+                ) {
+                    handleResponse(
+                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        resultCode,
+                        resultData.getParcelable(RESULT_DATA_TAG),
+                        currentCallback,
+                    )
+                }
+                callback = emptyCallback()
             }
         }
 
@@ -122,6 +128,7 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
         }
+        val context = contextReference.get() ?: return
         Fido.getFido2ApiClient(context)
             .getRegisterPendingIntent(fidoRegistrationRequest)
             .addOnSuccessListener { result: PendingIntent ->
@@ -168,7 +175,12 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         )
     }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(
+        uniqueRequestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
+    ) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.w(
                 TAG,
@@ -181,7 +193,7 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
             maybeReportErrorResultCodeCreate(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e -> this.executor.execute { this.callback.onError(e) } },
+                { e -> this.executor.execute { callback.onError(e) } },
                 cancellationSignal,
             )
         )
@@ -192,7 +204,7 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
                 return
             }
             this.executor.execute {
-                this.callback.onError(
+                callback.onError(
                     CreatePublicKeyCredentialDomException(
                         UnknownError(),
                         "Upon handling create public key credential response, fido module giving" +
@@ -214,7 +226,7 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         try {
             val response = this.convertResponseToCredentialManager(cred)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                this.executor.execute { this.callback.onResult(response) }
+                this.executor.execute { callback.onResult(response) }
             }
         } catch (e: JSONException) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
@@ -239,7 +251,8 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
     public override fun convertRequestToPlayServices(
         request: CreatePublicKeyCredentialRequest
     ): PublicKeyCredentialCreationOptions {
-        return PublicKeyCredentialControllerUtility.convert(request, context)
+        val context = contextReference.get()
+        return PublicKeyCredentialControllerUtility.convert(request, requireNotNull(context))
     }
 
     @VisibleForTesting

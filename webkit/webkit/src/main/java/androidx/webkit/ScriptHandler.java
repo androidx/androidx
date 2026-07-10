@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import androidx.annotation.RequiresFeature;
 import androidx.annotation.UiThread;
 
 /**
@@ -32,7 +31,5 @@ public interface ScriptHandler {
      */
     // UI thread not currently enforced, but required
     @UiThread
-    @RequiresFeature(name = WebViewFeature.DOCUMENT_START_SCRIPT,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     void remove();
 }

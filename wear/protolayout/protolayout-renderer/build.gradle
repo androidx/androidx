@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,12 +25,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.7.0")
@@ -45,22 +42,26 @@ dependencies {
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.wear:wear:1.3.0")
     implementation("androidx.vectordrawable:vectordrawable-seekable:1.0.0")
+    implementation("com.google.errorprone:error_prone_annotations:2.36.0")
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
     testImplementation("androidx.collection:collection:1.4.2")
     testImplementation(libs.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation("org.robolectric:annotations:4.15")
+    testImplementation("org.robolectric:shadows-framework:4.15")
 }
 
 android {
     namespace = "androidx.wear.protolayout.renderer"
 
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
 }
 

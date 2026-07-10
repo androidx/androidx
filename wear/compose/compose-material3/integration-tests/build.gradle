@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,7 +27,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -41,6 +39,7 @@ dependencies {
 
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material3"))
+    implementation(project(":wear:compose:compose-navigation"))
     implementation(project(":wear:compose:compose-material3-samples"))
     implementation(project(":wear:compose:integration-tests:demos:common"))
     implementation("androidx.compose.material:material-icons-core:1.6.7")
@@ -54,9 +53,9 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     aaptOptions {
         noCompress "ttf"

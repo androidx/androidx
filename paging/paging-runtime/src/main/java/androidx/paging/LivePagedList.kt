@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName")
+
 package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor

@@ -29,6 +29,7 @@ import org.robolectric.shadows.ShadowSystemProperties
 
 /** Unit tests for [DefaultDevicePerformance]. */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class DefaultDevicePerformanceTest {
 
     @Test

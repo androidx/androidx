@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
  * documentation for samples of this.
  *
  * [content] should typically be an [Icon], using an icon from
- * [androidx.compose.material.icons.Icons]. If using a custom icon, note that the typical size for
- * the internal icon is 24 x 24 dp.
+ * [androidx.compose.material.internal.Icons]. If using a custom icon, note that the typical size
+ * for the internal icon is 24 x 24 dp.
  *
  * @sample androidx.compose.material.samples.IconButtonSample
  * @param onClick the lambda to be invoked when this icon is pressed

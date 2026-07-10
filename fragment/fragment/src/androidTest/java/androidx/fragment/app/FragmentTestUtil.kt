@@ -20,7 +20,6 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -168,7 +167,6 @@ fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.()
     clearTargets()
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
     assertThat(fragment.enterTransition.enteringTargets).isEmpty()
     assertThat(fragment.enterTransition.exitingTargets).isEmpty()

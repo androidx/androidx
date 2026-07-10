@@ -23,12 +23,15 @@ import static org.junit.Assert.assertTrue;
 import static java.util.Arrays.asList;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.Uri;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.core.content.IntentCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -69,6 +72,30 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
                 activity.getComponentName());
         assertEquals(intent.getParcelableExtra(ShareCompat.EXTRA_CALLING_ACTIVITY_INTEROP),
                 activity.getComponentName());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testBuilderProperties() {
+        final String title = "title";
+
+        Context context = mActivityTestRule.getActivity().getApplicationContext();
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        ShareCompat.IntentBuilder intentBuilder = new ShareCompat.IntentBuilder(context)
+                .setChooserTitle(title)
+                .setIntentSender(pendingIntent.getIntentSender());
+        Intent intent = intentBuilder.createChooserIntent();
+        assertEquals(title, intent.getStringExtra(Intent.EXTRA_TITLE));
+        IntentSender intentSender =
+                IntentCompat.getParcelableExtra(intent, Intent.EXTRA_CHOOSER_RESULT_INTENT_SENDER,
+                        IntentSender.class);
+        if (intentSender == null) {
+            intentSender = IntentCompat.getParcelableExtra(intent,
+                    Intent.EXTRA_CHOSEN_COMPONENT_INTENT_SENDER,
+                    IntentSender.class);
+        }
+        assertEquals(pendingIntent.getIntentSender(), intentSender);
     }
 
     @SuppressWarnings("deprecation")

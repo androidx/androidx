@@ -17,9 +17,12 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 
@@ -28,11 +31,24 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to measure the length of the text */
-public class TextLength extends Operation {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TextLength extends Operation
+        implements VariableSupport, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_LENGTH;
     private static final String CLASS_NAME = "TextLength";
     public int mLengthId;
+
     public int mTextId;
+
+    @Override
+    public int getId() {
+        return mLengthId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mLengthId = id;
+    }
 
     public TextLength(int lengthId, int textId) {
         this.mLengthId = lengthId;
@@ -88,9 +104,9 @@ public class TextLength extends Operation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int lengthId = buffer.readInt();
-        int textId = buffer.readInt();
-        operations.add(new TextLength(lengthId, textId));
+        int id = buffer.declareId();
+        int textId = buffer.readId();
+        operations.add(new TextLength(id, textId));
     }
 
     /**
@@ -99,15 +115,23 @@ public class TextLength extends Operation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("get the length of the text and store in float table")
-                .field(INT, "id", "id of float length")
-                .field(INT, "value", "index of text");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Get the length of a string and store it in a float variable")
+                .field(INT, "lengthId", "The ID of the float variable to store the length")
+                .field(INT, "textId", "The ID of the text to measure");
     }
 
     @Override
     public void apply(@NonNull RemoteContext context) {
         context.loadFloat(mLengthId, context.getText(mTextId).length());
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {}
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
     }
 
     @NonNull

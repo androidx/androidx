@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -47,11 +48,13 @@ class SearchBarBenchmark(private val type: SearchBarType) {
 
     private val testCaseFactory = { SearchBarTestCase(type) }
 
+    @Suppress("DEPRECATION")
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(testCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(testCaseFactory)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun changeExpandedState() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
@@ -61,6 +64,7 @@ class SearchBarBenchmark(private val type: SearchBarType) {
     }
 }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 internal class SearchBarTestCase(private val type: SearchBarType) :
     LayeredComposeTestCase(), ToggleableTestCase {

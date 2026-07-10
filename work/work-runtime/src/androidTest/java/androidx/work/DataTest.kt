@@ -18,9 +18,11 @@ package androidx.work
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,5 +48,62 @@ class DataTest {
         assertTrue(data.hasKeyWithValueOfType<Array<Long>>("four"))
         assertFalse(data.hasKeyWithValueOfType<Any>("nothing"))
         assertFalse(data.hasKeyWithValueOfType<Float>("two"))
+    }
+
+    @Test
+    fun getNullableStringArray_withNullValues() {
+        val array = arrayOf("foo", null, "bar")
+        val data = workDataOf("array" to array)
+        val result = data.getNullableStringArray("array")
+        assertNotNull(result)
+        assertArrayEquals(array, result)
+    }
+
+    @Test
+    fun getNullableStringArray_noNullValues() {
+        val array = arrayOf("foo", "bar", "baz")
+        val data = workDataOf("array" to array)
+        val result = data.getNullableStringArray("array")
+        assertNotNull(result)
+        assertArrayEquals(array, result)
+    }
+
+    @Test
+    fun getNullableStringArray_allNulls() {
+        val array = arrayOf<String?>(null, null, null)
+        val data = workDataOf("array" to array)
+        val result = data.getNullableStringArray("array")
+        assertNotNull(result)
+        assertArrayEquals(array, result)
+    }
+
+    @Test
+    fun getNullableStringArray_emptyArray() {
+        val array = arrayOf<String?>()
+        val data = workDataOf("array" to array)
+        val result = data.getNullableStringArray("array")
+        assertNotNull(result)
+        assertArrayEquals(array, result)
+    }
+
+    @Test
+    fun getNullableStringArray_keyNotFound() {
+        val data = workDataOf()
+        val result = data.getNullableStringArray("nonexistent_key")
+        assertNull(result)
+    }
+
+    @Test
+    fun getNullableStringArray_wrongType() {
+        val data = workDataOf("array" to 123)
+        val result = data.getNullableStringArray("array")
+        assertNull(result)
+    }
+
+    @Test
+    fun getNullableStringArray_wrongArrayType() {
+        val data = workDataOf("array" to intArrayOf(1, 2, 3))
+        val result = data.getNullableStringArray("array")
+        assertNull(result)
     }
 }

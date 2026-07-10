@@ -407,7 +407,8 @@ public class ComplicationDataSourceInfo(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
+public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo():
+    ComplicationDataSourceInfo =
     ComplicationDataSourceInfo(
         appName!!,
         providerName!!,

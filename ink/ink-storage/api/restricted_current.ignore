@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ChangedThrows: androidx.ink.storage.StrokeInputBatchExtensions#decode(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream):
+    Binary breaking change: Method androidx.ink.storage.StrokeInputBatchExtensions.decode added thrown exception java.io.IOException
+ChangedThrows: androidx.ink.storage.StrokeInputBatchSerialization#decode(java.io.InputStream):
+    Binary breaking change: Method androidx.ink.storage.StrokeInputBatchSerialization.decode added thrown exception java.io.IOException

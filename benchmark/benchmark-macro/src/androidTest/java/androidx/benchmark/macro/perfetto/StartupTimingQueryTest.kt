@@ -16,10 +16,12 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build.VERSION.SDK_INT
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -38,6 +40,8 @@ class StartupTimingQueryTest {
         expectedMetrics: StartupTimingQuery.SubMetrics?,
         tracePrefix: String = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}",
     ) {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 

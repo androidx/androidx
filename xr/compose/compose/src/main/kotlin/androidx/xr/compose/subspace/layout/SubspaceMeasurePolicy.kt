@@ -37,6 +37,9 @@ public fun interface SubspaceMeasurePolicy {
      * [SubspaceMeasureResult] objects are usually created using the [SubspaceMeasureScope.layout]
      * factory, which takes the calculated size of this layout, its alignment lines, and a block
      * defining the positioning of the children layouts.
+     *
+     * @param measurables list of children that need to be measured and placed.
+     * @param constraints volume constraints that this layout should respect.
      */
     public fun SubspaceMeasureScope.measure(
         measurables: List<SubspaceMeasurable>,

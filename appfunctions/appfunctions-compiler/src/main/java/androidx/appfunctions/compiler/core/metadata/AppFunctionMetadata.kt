@@ -19,24 +19,16 @@ package androidx.appfunctions.compiler.core.metadata
 internal const val APP_FUNCTION_NAMESPACE = "appfunctions"
 internal const val APP_FUNCTION_ID_EMPTY = "unused"
 
-data class AppFunctionMetadata(
-    val id: String,
-    val packageName: String,
-    val isEnabled: Boolean,
-    val schema: AppFunctionSchemaMetadata?,
-    val parameters: List<AppFunctionParameterMetadata>,
-    val response: AppFunctionResponseMetadata,
-    val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
-)
-
 data class CompileTimeAppFunctionMetadata(
     val id: String,
-    val isEnabledByDefault: Boolean,
+    val isEnabledByDefault: Boolean? = null,
     val schema: AppFunctionSchemaMetadata?,
     val parameters: List<AppFunctionParameterMetadata>,
     val response: AppFunctionResponseMetadata,
     val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     val description: String = "",
+    val deprecation: AppFunctionDeprecationMetadata? = null,
+    val scope: String? = null,
 ) {
     fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
         return AppFunctionMetadataDocument(
@@ -48,6 +40,8 @@ data class CompileTimeAppFunctionMetadata(
             parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
             response = response.toAppFunctionResponseMetadataDocument(),
             description = description,
+            deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
+            scope = scope,
         )
     }
 }
@@ -55,11 +49,13 @@ data class CompileTimeAppFunctionMetadata(
 data class AppFunctionMetadataDocument(
     val namespace: String = APP_FUNCTION_NAMESPACE,
     val id: String = APP_FUNCTION_ID_EMPTY,
-    val isEnabledByDefault: Boolean,
+    val isEnabledByDefault: Boolean? = null,
     val schemaCategory: String?,
     val schemaName: String?,
     val schemaVersion: Long?,
     val parameters: List<AppFunctionParameterMetadataDocument>?,
     val response: AppFunctionResponseMetadataDocument?,
     val description: String = "",
+    val deprecation: AppFunctionDeprecationMetadataDocument? = null,
+    val scope: String? = null,
 )

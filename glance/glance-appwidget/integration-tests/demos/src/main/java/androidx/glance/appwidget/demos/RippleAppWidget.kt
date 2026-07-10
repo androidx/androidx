@@ -33,6 +33,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -67,6 +68,9 @@ class RippleAppWidget : GlanceAppWidget() {
     override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
         Content()
     }
+
+    override val sizeMode: SizeMode
+        get() = SizeMode.Exact
 
     @Composable
     private fun Content() {

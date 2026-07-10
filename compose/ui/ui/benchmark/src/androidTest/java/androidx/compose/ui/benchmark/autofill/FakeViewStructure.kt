@@ -345,7 +345,7 @@ internal data class FakeViewStructure(
     }
 
     override fun setTextStyle(p0: Float, p1: Int, p2: Int, p3: Int) {
-        return
+        TODO("not implemented")
     }
 }
 

@@ -154,6 +154,7 @@ internal class MicrobenchmarkPhase(
                     inMemoryTrace("Sleep due to Thermal Throttle") {
                         delay(
                             TimeUnit.SECONDS.toMillis(Arguments.thermalThrottleSleepDurationSeconds)
+                                .coerceAtLeast(1) // force yield, even in tests
                         )
                     }
                     val sleepTimeNs = System.nanoTime() - startTimeNs
@@ -244,7 +245,14 @@ internal class MicrobenchmarkPhase(
                     if (collectCpuEventInstructions) {
                         arrayOf(
                             TimeCapture(),
-                            CpuEventCounterCapture(cpuEventCounter, listOf(Event.Instructions)),
+                            CpuEventCounterCapture(
+                                cpuEventCounter = cpuEventCounter,
+                                events = listOf(Event.Instructions),
+                                // Disables validation checks during warmup as extremely short runs
+                                // or framework estimation loops may naturally record 0
+                                // instructions.
+                                validateMeasurements = false,
+                            ),
                         )
                     } else {
                         arrayOf(TimeCapture())

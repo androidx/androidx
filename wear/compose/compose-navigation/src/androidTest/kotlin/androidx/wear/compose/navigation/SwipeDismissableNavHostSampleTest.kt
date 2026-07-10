@@ -16,7 +16,7 @@
 package androidx.wear.compose.navigation
 
 import android.os.Build
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -25,11 +25,12 @@ import androidx.compose.ui.test.swipeRight
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
 import androidx.wear.compose.navigation.samples.SimpleNavHost
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class SwipeDismissableNavHostSampleTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun toggles_between_destinations_in_simplenavhost() {

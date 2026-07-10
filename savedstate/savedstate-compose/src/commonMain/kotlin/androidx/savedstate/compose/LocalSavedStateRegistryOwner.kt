@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released.
+
 package androidx.savedstate.compose
 
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.savedstate.SavedStateRegistryOwner
 
 /** The CompositionLocal containing the current [SavedStateRegistryOwner]. */
-public expect val LocalSavedStateRegistryOwner: ProvidableCompositionLocal<SavedStateRegistryOwner>
+public val LocalSavedStateRegistryOwner: ProvidableCompositionLocal<SavedStateRegistryOwner> =
+    staticCompositionLocalOf {
+        error("CompositionLocal LocalSavedStateRegistryOwner not present")
+    }

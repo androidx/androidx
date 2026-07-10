@@ -46,22 +46,22 @@ class StableAidlPluginTest {
                     id('com.android.application')
                     id('androidx.stableaidl')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
-            android {
-                namespace 'androidx.stableaidl.testapp'
-                buildFeatures {
-                  aidl = true
+                android {
+                    namespace 'androidx.stableaidl.testapp'
+                    buildFeatures {
+                      aidl = true
+                    }
+                    buildTypes.all {
+                      stableAidl {
+                        version 1
+                      }
+                    }
                 }
-                buildTypes.all {
-                  stableAidl {
-                    version 1
-                  }
-                }
-            }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -80,23 +80,23 @@ class StableAidlPluginTest {
                     id('com.android.library')
                     id('androidx.stableaidl')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
-            android {
-                compileSdk = 36
-                namespace 'androidx.stableaidl.testapp'
-                buildFeatures {
-                  aidl = true
+                android {
+                    compileSdk = 36
+                    namespace 'androidx.stableaidl.testapp'
+                    buildFeatures {
+                      aidl = true
+                    }
+                    buildTypes.all {
+                      stableAidl {
+                        version 1
+                      }
+                    }
                 }
-                buildTypes.all {
-                  stableAidl {
-                    version 1
-                  }
-                }
-            }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -115,23 +115,23 @@ class StableAidlPluginTest {
                     id('com.android.library')
                     id('androidx.stableaidl')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
-            android {
-                compileSdk = 34
-                namespace 'androidx.stableaidl.testapp'
-                buildFeatures {
-                  aidl = true
+                android {
+                    compileSdk = 34
+                    namespace 'androidx.stableaidl.testapp'
+                    buildFeatures {
+                      aidl = true
+                    }
+                    buildTypes.all {
+                      stableAidl {
+                        version 1
+                      }
+                    }
                 }
-                buildTypes.all {
-                  stableAidl {
-                    version 1
-                  }
-                }
-            }
-            """
+                """
                     .trimIndent(),
         )
 

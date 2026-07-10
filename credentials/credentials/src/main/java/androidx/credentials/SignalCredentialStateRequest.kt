@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.credentials.exceptions.publickeycredential.SignalCredentialSecurityException
 
 /**
  * Base request class for sending credential state signals to providers.
@@ -42,7 +43,7 @@ internal constructor(
 ) {
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        protected const val SIGNAL_REQUEST_JSON_KEY = "androidx.credentials.signal_request_json_key"
+        const val SIGNAL_REQUEST_JSON_KEY = "androidx.credentials.signal_request_json_key"
 
         private const val SIGNAL_UNKNOWN_CREDENTIAL_STATE_REQUEST_TYPE =
             "androidx.credentials.SIGNAL_UNKNOWN_CREDENTIAL_STATE_REQUEST_TYPE"
@@ -66,6 +67,21 @@ internal constructor(
             return createFrom(requestType, requestJson, origin)
         }
 
+        /**
+         * Creates a SignalCredentialStateRequest from the given parameters.
+         *
+         * @param requestType the request type representing one of
+         *   [SignalAllAcceptedCredentialIdsRequest], [SignalCurrentUserDetailsRequest] and
+         *   [SignalUnknownCredentialRequest])
+         * @param requestJson the request json corresponding to the request data
+         * @param origin the origin of a different application if the request is being made on
+         *   behalf of that application (Note: for API level >=34, setting a non-null value for this
+         *   parameter will throw a SecurityException if
+         *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+         * @throws IllegalArgumentException if request json validation fails
+         * @throws SignalCredentialSecurityException if origin is set without having
+         *   android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
+         */
         @JvmStatic
         fun createFrom(
             requestType: String,

@@ -22,7 +22,6 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import android.util.Log
 import androidx.annotation.RequiresExtension
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 
 /**
@@ -96,7 +95,6 @@ public constructor(
     }
 
     @SuppressLint("NewApi")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun convertToAdServices(): android.adservices.common.AdData {
         if (
             AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10

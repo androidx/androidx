@@ -16,18 +16,21 @@
 
 package androidx.core.uwb.impl
 
+import android.util.Log
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
+import androidx.core.uwb.RangingResult
+import androidx.core.uwb.RangingResult.RangingResultFailure
 import androidx.core.uwb.RangingResult.RangingResultInitialized
-import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
 import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
-import androidx.core.uwb.helper.handleApiException
+import androidx.core.uwb.helper.getFailureReasonFromApiException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
+import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
@@ -36,6 +39,7 @@ import com.google.android.gms.nearby.uwb.UwbStatusCodes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -140,32 +144,46 @@ internal open class UwbClientSessionScopeImpl(
             object : RangingSessionCallback {
                 override fun onRangingInitialized(device: UwbDevice) {
                     trySend(
-                        RangingResultInitialized(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
+                            RangingResultInitialized(
+                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
+                            )
                         )
-                    )
+                        .onFailure { throwable ->
+                            Log.w(TAG, "Failed to send RangingResultPosition", throwable)
+                        }
                 }
 
                 override fun onRangingResult(device: UwbDevice, position: RangingPosition) {
                     trySend(
-                        RangingResultPosition(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
-                            androidx.core.uwb.RangingPosition(
-                                RangingMeasurement(position.distance.value),
-                                position.azimuth?.let { RangingMeasurement(it.value) },
-                                position.elevation?.let { RangingMeasurement(it.value) },
-                                position.elapsedRealtimeNanos,
-                            ),
+                            RangingResultPosition(
+                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
+                                androidx.core.uwb.RangingPosition(
+                                    RangingMeasurement(position.distance.value),
+                                    position.azimuth?.let { RangingMeasurement(it.value) },
+                                    position.elevation?.let { RangingMeasurement(it.value) },
+                                    position.elapsedRealtimeNanos,
+                                ),
+                            )
                         )
-                    )
+                        .onFailure { throwable ->
+                            Log.w(TAG, "Failed to send RangingResultPosition", throwable)
+                        }
                 }
 
-                override fun onRangingSuspended(device: UwbDevice, reason: Int) {
+                override fun onRangingSuspended(
+                    device: UwbDevice,
+                    @RangingSuspendedReason reason: Int,
+                ) {
+                    val jetpackReason = mapGmsReasonToJetpackReason(reason)
                     trySend(
-                        RangingResultPeerDisconnected(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
+                            RangingResultFailure(
+                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
+                                jetpackReason,
+                            )
                         )
-                    )
+                        .onFailure { throwable ->
+                            Log.w(TAG, "Failed to send RangingResultFailure", throwable)
+                        }
                 }
             }
 
@@ -173,7 +191,12 @@ internal open class UwbClientSessionScopeImpl(
             uwbClient.startRanging(parametersBuilder.build(), callback).await()
             sessionStarted = true
         } catch (e: ApiException) {
-            handleApiException(e)
+            trySend(
+                RangingResultFailure(
+                    androidx.core.uwb.UwbDevice(localAddress),
+                    getFailureReasonFromApiException(e),
+                )
+            )
         }
 
         awaitClose {
@@ -182,9 +205,32 @@ internal open class UwbClientSessionScopeImpl(
                     uwbClient.stopRanging(callback).await()
                     sessionStarted = false
                 } catch (e: ApiException) {
-                    handleApiException(e)
+                    trySend(
+                        RangingResultFailure(
+                            androidx.core.uwb.UwbDevice(localAddress),
+                            getFailureReasonFromApiException(e),
+                        )
+                    )
                 }
             }
+        }
+    }
+
+    private fun mapGmsReasonToJetpackReason(@RangingSuspendedReason gmsReason: Int): Int {
+        return when (gmsReason) {
+            RangingSuspendedReason.WRONG_PARAMETERS ->
+                RangingResult.RANGING_FAILURE_REASON_BAD_PARAMETERS
+            RangingSuspendedReason.STOPPED_BY_PEER ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_PEER
+            RangingSuspendedReason.STOP_RANGING_CALLED ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_LOCAL
+            RangingSuspendedReason.MAX_RANGING_ROUND_RETRY_REACHED ->
+                RangingResult.RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED
+            RangingSuspendedReason.SYSTEM_POLICY ->
+                RangingResult.RANGING_FAILURE_REASON_SYSTEM_POLICY
+            RangingSuspendedReason.FAILED_TO_START ->
+                RangingResult.RANGING_FAILURE_REASON_FAILED_TO_START
+            else -> RangingResult.RANGING_FAILURE_REASON_UNKNOWN
         }
     }
 

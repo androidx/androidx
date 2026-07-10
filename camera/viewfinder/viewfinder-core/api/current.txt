@@ -1,6 +1,20 @@
 // Signature format: 4.0
 package androidx.camera.viewfinder.core {
 
+  public final class FocusState {
+    property public static int FAILED;
+    property public static int FOCUSED;
+    property public static int INACTIVE;
+    property public static int NOT_FOCUSED;
+    property public static int STARTED;
+    field public static final int FAILED = 4; // 0x4
+    field public static final int FOCUSED = 2; // 0x2
+    field public static final int INACTIVE = 0; // 0x0
+    field public static final androidx.camera.viewfinder.core.FocusState INSTANCE;
+    field public static final int NOT_FOCUSED = 3; // 0x3
+    field public static final int STARTED = 1; // 0x1
+  }
+
   public enum ImplementationMode {
     enum_constant public static final androidx.camera.viewfinder.core.ImplementationMode EMBEDDED;
     enum_constant public static final androidx.camera.viewfinder.core.ImplementationMode EXTERNAL;
@@ -32,13 +46,16 @@ package androidx.camera.viewfinder.core {
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop);
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight);
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight, optional float cropRectBottom);
-    method public float getCropRectBottom();
-    method public float getCropRectLeft();
-    method public float getCropRectRight();
-    method public float getCropRectTop();
-    method public int getSourceRotation();
-    method public boolean isSourceMirroredHorizontally();
-    method public boolean isSourceMirroredVertically();
+    ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight, optional float cropRectBottom, optional int transformationMode);
+    ctor @BytecodeOnly public TransformationInfo(int, boolean, boolean, float, float, float, float, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getCropRectBottom();
+    method @InaccessibleFromKotlin public float getCropRectLeft();
+    method @InaccessibleFromKotlin public float getCropRectRight();
+    method @InaccessibleFromKotlin public float getCropRectTop();
+    method @InaccessibleFromKotlin public int getSourceRotation();
+    method @InaccessibleFromKotlin public int getTransformationMode();
+    method @InaccessibleFromKotlin public boolean isSourceMirroredHorizontally();
+    method @InaccessibleFromKotlin public boolean isSourceMirroredVertically();
     property public float cropRectBottom;
     property public float cropRectLeft;
     property public float cropRectRight;
@@ -46,6 +63,7 @@ package androidx.camera.viewfinder.core {
     property public boolean isSourceMirroredHorizontally;
     property public boolean isSourceMirroredVertically;
     property public int sourceRotation;
+    property public int transformationMode;
     field public static final float CROP_NONE = (0.0f/0.0f);
     field public static final androidx.camera.viewfinder.core.TransformationInfo.Companion Companion;
     field public static final androidx.camera.viewfinder.core.TransformationInfo DEFAULT;
@@ -56,8 +74,16 @@ package androidx.camera.viewfinder.core {
     property public androidx.camera.viewfinder.core.TransformationInfo DEFAULT;
   }
 
+  public final class TransformationMode {
+    property public static int DEFERRED;
+    property public static int PRE_APPLIED;
+    field public static final int DEFERRED = 0; // 0x0
+    field public static final androidx.camera.viewfinder.core.TransformationMode INSTANCE;
+    field public static final int PRE_APPLIED = 1; // 0x1
+  }
+
   public final class ViewfinderDefaults {
-    method public static androidx.camera.viewfinder.core.ImplementationMode getImplementationMode();
+    method @InaccessibleFromKotlin public static androidx.camera.viewfinder.core.ImplementationMode getImplementationMode();
     property public static androidx.camera.viewfinder.core.ImplementationMode implementationMode;
     field public static final androidx.camera.viewfinder.core.ViewfinderDefaults INSTANCE;
   }
@@ -66,11 +92,13 @@ package androidx.camera.viewfinder.core {
     ctor public ViewfinderSurfaceRequest(int width, int height);
     ctor public ViewfinderSurfaceRequest(int width, int height, optional androidx.camera.viewfinder.core.ImplementationMode? implementationMode);
     ctor public ViewfinderSurfaceRequest(int width, int height, optional androidx.camera.viewfinder.core.ImplementationMode? implementationMode, optional String? requestId);
+    ctor @BytecodeOnly public ViewfinderSurfaceRequest(int, int, androidx.camera.viewfinder.core.ImplementationMode!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest copy(optional int width, optional int height, optional androidx.camera.viewfinder.core.ImplementationMode? implementationMode, optional String? requestId);
-    method public int getHeight();
-    method public androidx.camera.viewfinder.core.ImplementationMode? getImplementationMode();
-    method public String? getRequestId();
-    method public int getWidth();
+    method @BytecodeOnly @kotlin.jvm.JvmSynthetic public static androidx.camera.viewfinder.core.ViewfinderSurfaceRequest! copy$default(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest!, int, int, androidx.camera.viewfinder.core.ImplementationMode!, String!, int, Object!);
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public androidx.camera.viewfinder.core.ImplementationMode? getImplementationMode();
+    method @InaccessibleFromKotlin public String? getRequestId();
+    method @InaccessibleFromKotlin public int getWidth();
     property public int height;
     property public androidx.camera.viewfinder.core.ImplementationMode? implementationMode;
     property public String? requestId;
@@ -78,15 +106,15 @@ package androidx.camera.viewfinder.core {
   }
 
   public interface ViewfinderSurfaceSession extends java.lang.AutoCloseable {
-    method public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest getRequest();
-    method public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest getRequest();
+    method @InaccessibleFromKotlin public android.view.Surface getSurface();
     property public abstract androidx.camera.viewfinder.core.ViewfinderSurfaceRequest request;
     property public abstract android.view.Surface surface;
   }
 
   public interface ViewfinderSurfaceSessionScope extends kotlinx.coroutines.CoroutineScope {
-    method public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest getRequest();
-    method public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest getRequest();
+    method @InaccessibleFromKotlin public android.view.Surface getSurface();
     property public abstract androidx.camera.viewfinder.core.ViewfinderSurfaceRequest request;
     property public abstract android.view.Surface surface;
   }
@@ -95,12 +123,13 @@ package androidx.camera.viewfinder.core {
     ctor public ZoomGestureDetector(android.content.Context context, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
     ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
     ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, optional @Px int minSpan, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
-    method public long getTimeDelta();
-    method public boolean isQuickZoomEnabled();
-    method public boolean isStylusZoomEnabled();
+    ctor @BytecodeOnly public ZoomGestureDetector(android.content.Context!, int, int, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public long getTimeDelta();
+    method @InaccessibleFromKotlin public boolean isQuickZoomEnabled();
+    method @InaccessibleFromKotlin public boolean isStylusZoomEnabled();
     method @UiThread public boolean onTouchEvent(android.view.MotionEvent event);
-    method public void setQuickZoomEnabled(boolean);
-    method public void setStylusZoomEnabled(boolean);
+    method @InaccessibleFromKotlin public void setQuickZoomEnabled(boolean);
+    method @InaccessibleFromKotlin public void setStylusZoomEnabled(boolean);
     property public boolean isQuickZoomEnabled;
     property public boolean isStylusZoomEnabled;
     property public long timeDelta;
@@ -115,9 +144,9 @@ package androidx.camera.viewfinder.core {
   }
 
   public abstract static class ZoomGestureDetector.ZoomEvent {
-    method public final long getEventTime();
-    method public final int getFocusX();
-    method public final int getFocusY();
+    method @InaccessibleFromKotlin public final long getEventTime();
+    method @InaccessibleFromKotlin public final int getFocusX();
+    method @InaccessibleFromKotlin public final int getFocusY();
     property public final long eventTime;
     property public final int focusX;
     property public final int focusY;
@@ -129,13 +158,13 @@ package androidx.camera.viewfinder.core {
 
   public static final class ZoomGestureDetector.ZoomEvent.End extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
     ctor public ZoomGestureDetector.ZoomEvent.End(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
-    method public float getIncrementalScaleFactor();
+    method @InaccessibleFromKotlin public float getIncrementalScaleFactor();
     property public float incrementalScaleFactor;
   }
 
   public static final class ZoomGestureDetector.ZoomEvent.Move extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
     ctor public ZoomGestureDetector.ZoomEvent.Move(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
-    method public float getIncrementalScaleFactor();
+    method @InaccessibleFromKotlin public float getIncrementalScaleFactor();
     property public float incrementalScaleFactor;
   }
 
@@ -154,6 +183,8 @@ package androidx.camera.viewfinder.core.camera2 {
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.camera.viewfinder.core.TransformationInfo createFromCharacteristics(android.hardware.camera2.CameraCharacteristics cameraCharacteristics, int mirrorMode, optional float cropRectLeft, optional float cropRectTop);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.camera.viewfinder.core.TransformationInfo createFromCharacteristics(android.hardware.camera2.CameraCharacteristics cameraCharacteristics, int mirrorMode, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.camera.viewfinder.core.TransformationInfo createFromCharacteristics(android.hardware.camera2.CameraCharacteristics cameraCharacteristics, int mirrorMode, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight, optional float cropRectBottom);
+    method @BytecodeOnly public static androidx.camera.viewfinder.core.TransformationInfo! createFromCharacteristics$default(android.hardware.camera2.CameraCharacteristics!, float, float, float, float, int, Object!);
+    method @BytecodeOnly public static androidx.camera.viewfinder.core.TransformationInfo! createFromCharacteristics$default(android.hardware.camera2.CameraCharacteristics!, int, float, float, float, float, int, Object!);
     field public static final androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo INSTANCE;
   }
 

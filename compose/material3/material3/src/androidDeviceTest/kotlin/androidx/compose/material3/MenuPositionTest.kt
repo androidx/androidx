@@ -1,0 +1,632 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.material3
+
+import androidx.collection.mutableIntListOf
+import androidx.compose.material3.internal.AnchorAlignmentOffsetPosition
+import androidx.compose.material3.internal.DropdownMenuPositionProvider
+import androidx.compose.material3.internal.MenuPosition
+import androidx.compose.material3.internal.WindowAlignmentMarginPosition
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+class MenuPositionTest {
+    private val windowSize = IntSize(width = 500, height = 1000)
+    private val anchorBounds = IntRect(offset = IntOffset(100, 100), size = IntSize(50, 50))
+    private val menuSize = IntSize(width = 100, height = 200)
+
+    @Test
+    fun menuPosition_horizontal_anchorAlignment_ltr() {
+        assertThat(
+                MenuPosition.startToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(anchorBounds.left)
+
+        assertThat(
+                MenuPosition.endToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(anchorBounds.right - menuSize.width)
+
+        assertThat(
+                MenuPosition.startToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(anchorBounds.right)
+
+        assertThat(
+                MenuPosition.endToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(anchorBounds.left - menuSize.width)
+
+        assertThat(
+                AnchorAlignmentOffsetPosition.Horizontal(
+                        menuAlignment = Alignment.Start,
+                        anchorAlignment = Alignment.CenterHorizontally,
+                    )
+                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Ltr)
+            )
+            .isEqualTo(anchorBounds.center.x)
+    }
+
+    @Test
+    fun menuPosition_horizontal_anchorAlignment_rtl() {
+        assertThat(
+                MenuPosition.startToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(anchorBounds.right - menuSize.width)
+
+        assertThat(
+                MenuPosition.endToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(anchorBounds.left)
+
+        assertThat(
+                MenuPosition.startToAnchorEnd.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(anchorBounds.left - menuSize.width)
+
+        assertThat(
+                MenuPosition.endToAnchorStart.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(anchorBounds.right)
+
+        assertThat(
+                AnchorAlignmentOffsetPosition.Horizontal(
+                        menuAlignment = Alignment.Start,
+                        anchorAlignment = Alignment.CenterHorizontally,
+                    )
+                    .position(anchorBounds, windowSize, menuSize.width, LayoutDirection.Rtl)
+            )
+            .isEqualTo(anchorBounds.center.x - menuSize.width)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_horizontal_anchorAlignment_withOffset() {
+        val density = Density(1f)
+        val offsetX = 10
+        val ltrPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, 0.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Ltr, menuSize)
+
+        assertThat(ltrPosition.x).isEqualTo(anchorBounds.left + offsetX)
+
+        val rtlPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, 0.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Rtl, menuSize)
+
+        assertThat(rtlPosition.x).isEqualTo(anchorBounds.right - menuSize.width - offsetX)
+    }
+
+    @Test
+    fun menuPosition_horizontal_windowAlignment() {
+        assertThat(
+                MenuPosition.leftToWindowLeft.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(0)
+
+        assertThat(
+                MenuPosition.rightToWindowRight.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Ltr,
+                )
+            )
+            .isEqualTo(windowSize.width - menuSize.width)
+
+        assertThat(
+                MenuPosition.leftToWindowLeft.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(0)
+
+        assertThat(
+                MenuPosition.rightToWindowRight.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.width,
+                    LayoutDirection.Rtl,
+                )
+            )
+            .isEqualTo(windowSize.width - menuSize.width)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_horizontal_windowAlignment_withMargin() {
+        val density = Density(1f)
+        val margin = 150
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    horizontalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Start,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(-100, 0), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
+
+        assertThat(position.x).isEqualTo(margin)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_horizontal_windowAlignment_withTooLargeMargin_centersHorizontallyInstead() {
+        val density = Density(1f)
+        val margin = 220
+        assertThat(margin * 2 + menuSize.width).isGreaterThan(windowSize.width)
+
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    horizontalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Start,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(-100, 0), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
+
+        assertThat(position.x).isEqualTo((windowSize.width - menuSize.width) / 2)
+    }
+
+    @Test
+    fun menuPosition_vertical_anchorAlignment() {
+        assertThat(
+                MenuPosition.topToAnchorBottom.position(anchorBounds, windowSize, menuSize.height)
+            )
+            .isEqualTo(anchorBounds.bottom)
+
+        assertThat(
+                MenuPosition.bottomToAnchorTop.position(anchorBounds, windowSize, menuSize.height)
+            )
+            .isEqualTo(anchorBounds.top - menuSize.height)
+
+        assertThat(MenuPosition.topToAnchorTop.position(anchorBounds, windowSize, menuSize.height))
+            .isEqualTo(anchorBounds.top)
+
+        assertThat(
+                MenuPosition.bottomToAnchorBottom.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.height,
+                )
+            )
+            .isEqualTo(anchorBounds.bottom - menuSize.height)
+
+        assertThat(
+                MenuPosition.centerToAnchorTop.position(anchorBounds, windowSize, menuSize.height)
+            )
+            .isEqualTo(anchorBounds.top - menuSize.height / 2)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_vertical_anchorAlignment_withOffset() {
+        val density = Density(1f)
+        val offsetY = 10
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(0.dp, offsetY.dp),
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(anchorBounds, windowSize, LayoutDirection.Ltr, menuSize)
+
+        assertThat(position.y).isEqualTo(anchorBounds.bottom + offsetY)
+    }
+
+    @Test
+    fun menuPosition_vertical_windowAlignment() {
+        assertThat(MenuPosition.topToWindowTop.position(anchorBounds, windowSize, menuSize.height))
+            .isEqualTo(0)
+
+        assertThat(
+                MenuPosition.bottomToWindowBottom.position(
+                    anchorBounds,
+                    windowSize,
+                    menuSize.height,
+                )
+            )
+            .isEqualTo(windowSize.height - menuSize.height)
+
+        assertThat(
+                WindowAlignmentMarginPosition.Vertical(alignment = Alignment.CenterVertically)
+                    .position(anchorBounds, windowSize, menuSize.height)
+            )
+            .isEqualTo((windowSize.height - menuSize.height) / 2)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_vertical_windowAlignment_withMargin() {
+        val density = Density(1f)
+        val margin = 150
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    verticalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(0, -200), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
+
+        assertThat(position.y).isEqualTo(margin)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPosition_vertical_windowAlignment_withTooLargeMargin_centersVerticallyInstead() {
+        val density = Density(1f)
+        val margin = 450
+        assertThat(margin * 2 + menuSize.height).isGreaterThan(windowSize.height)
+
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    verticalMargin = margin,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(offset = IntOffset(0, -200), size = IntSize(50, 50)),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    menuSize,
+                )
+
+        assertThat(position.y).isEqualTo((windowSize.height - menuSize.height) / 2)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_toBottomStartOfAnchor() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(100, 200)
+        val anchorSize = IntSize(10, 20)
+        val offsetX = 20
+        val offsetY = 40
+        val popupSize = IntSize(50, 80)
+
+        val ltrPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, offsetY.dp),
+                    density = density,
+                    horizontalMargin = 0,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize,
+                )
+
+        assertThat(ltrPosition.x).isEqualTo(anchorPosition.x + offsetX)
+        assertThat(ltrPosition.y).isEqualTo(anchorPosition.y + anchorSize.height + offsetY)
+
+        val rtlPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, offsetY.dp),
+                    density = density,
+                    horizontalMargin = 0,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize,
+                )
+
+        assertThat(rtlPosition.x)
+            .isEqualTo(anchorPosition.x + anchorSize.width - popupSize.width - offsetX)
+        assertThat(rtlPosition.y).isEqualTo(anchorPosition.y + anchorSize.height + offsetY)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_toTopEndOfAnchor() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(450, 950)
+        val anchorPositionRtl = IntOffset(50, 950)
+        val anchorSize = IntSize(10, 20)
+        val offsetX = 20
+        val offsetY = -40
+        val popupSize = IntSize(150, 80)
+
+        val ltrPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, offsetY.dp),
+                    density = density,
+                    horizontalMargin = 0,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize,
+                )
+
+        assertThat(ltrPosition.x)
+            .isEqualTo(anchorPosition.x + anchorSize.width - popupSize.width + offsetX)
+        assertThat(ltrPosition.y).isEqualTo(anchorPosition.y - popupSize.height + offsetY)
+
+        val rtlPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset(offsetX.dp, offsetY.dp),
+                    density = density,
+                    horizontalMargin = 0,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPositionRtl, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize,
+                )
+
+        assertThat(rtlPosition.x).isEqualTo(anchorPositionRtl.x - offsetX)
+        assertThat(rtlPosition.y).isEqualTo(anchorPositionRtl.y - popupSize.height + offsetY)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_toTopOfWindow() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(0, 0)
+        val anchorSize = IntSize(50, 20)
+        val popupSize = IntSize(150, 500)
+
+        // The min margin above and below the menu, relative to the screen.
+        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize,
+                )
+
+        assertThat(position.y).isEqualTo(verticalMargin)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_anchorPartiallyVisible() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(-25, -10)
+        val anchorPositionRtl = IntOffset(525, -10)
+        val anchorSize = IntSize(50, 20)
+        val popupSize = IntSize(150, 500)
+
+        // The min margin above and below the menu, relative to the screen.
+        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+        val horizontalMargin = with(density) { MenuHorizontalMargin.roundToPx() }
+
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize,
+                )
+
+        assertThat(position.x).isEqualTo(horizontalMargin)
+        assertThat(position.y).isEqualTo(verticalMargin)
+
+        val rtlPosition =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                )
+                .calculatePosition(
+                    IntRect(anchorPositionRtl, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize,
+                )
+
+        assertThat(rtlPosition.x).isEqualTo(windowSize.width - horizontalMargin - popupSize.width)
+        assertThat(rtlPosition.y).isEqualTo(verticalMargin)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_custom() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(screenWidth / 2, screenHeight / 2)
+        val anchorSize = IntSize(10, 20)
+        val popupSize = IntSize(50, 25)
+
+        val position =
+            DropdownMenuPositionProvider(
+                    contentOffset = DpOffset.Zero,
+                    density = density,
+                    dropdownMenuAnchorPosition =
+                        MenuAnchorPosition.Custom(
+                            { mutableIntListOf(anchorBounds.right) },
+                            { mutableIntListOf(anchorBounds.bottom) },
+                        ),
+                )
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize,
+                )
+
+        assertThat(position.x).isEqualTo(anchorPosition.x + anchorSize.width)
+        assertThat(position.y).isEqualTo(anchorPosition.y + anchorSize.height)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun menuPositionProvider_callback() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val windowSize = IntSize(screenWidth, screenHeight)
+        val anchorPosition = IntOffset(100, 200)
+        val anchorSize = IntSize(10, 20)
+        val offsetX = 20
+        val offsetY = 40
+        val popupSize = IntSize(50, 80)
+
+        var callbackParentBounds = IntRect.Zero
+        var callbackMenuBounds = IntRect.Zero
+
+        DropdownMenuPositionProvider(
+                contentOffset = DpOffset(offsetX.dp, offsetY.dp),
+                density = density,
+                dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                onPositionCalculated = { parentBounds, menuBounds ->
+                    callbackParentBounds = parentBounds
+                    callbackMenuBounds = menuBounds
+                },
+            )
+            .calculatePosition(
+                IntRect(anchorPosition, anchorSize),
+                windowSize,
+                LayoutDirection.Ltr,
+                popupSize,
+            )
+
+        assertThat(callbackParentBounds).isEqualTo(IntRect(anchorPosition, anchorSize))
+        assertThat(callbackMenuBounds)
+            .isEqualTo(
+                IntRect(
+                    offset =
+                        IntOffset(
+                            x = anchorPosition.x + offsetX,
+                            y = anchorPosition.y + anchorSize.height + offsetY,
+                        ),
+                    size = popupSize,
+                )
+            )
+    }
+}

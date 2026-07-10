@@ -22,7 +22,8 @@ import android.util.Log
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import java.io.ByteArrayInputStream
@@ -76,7 +77,7 @@ class DisplayDocumentTest {
         }
     }
 
-    fun createDocument(context: RemoteContext): RemoteComposeDocument {
+    fun createDocument(context: RemoteContext): RemoteDocument {
         val tw = 600
         val th = 600
 
@@ -84,7 +85,7 @@ class DisplayDocumentTest {
         val darkImage = createImage(tw, th, true)
 
         val doc =
-            RemoteComposeContextAndroid(tw, th, "Demo", AndroidxPlatformServices()) {
+            RemoteComposeContextAndroid(tw, th, "Demo", AndroidxRcPlatformServices()) {
                 setTheme(Theme.LIGHT)
                 drawBitmap(lightImage, "Light Mode")
                 setTheme(Theme.DARK)
@@ -99,7 +100,7 @@ class DisplayDocumentTest {
         val buffer = doc.buffer()
         val bufferSize = doc.bufferSize()
 
-        val recreatedDocument = RemoteComposeDocument(ByteArrayInputStream(buffer, 0, bufferSize))
+        val recreatedDocument = RemoteDocument(ByteArrayInputStream(buffer, 0, bufferSize))
         recreatedDocument.initializeContext(context)
         return recreatedDocument
     }

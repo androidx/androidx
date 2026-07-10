@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.calories
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -54,11 +55,26 @@ class TotalCaloriesBurnedRecordTest {
             )
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             TotalCaloriesBurnedRecord(
                 startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                energy = 10.calories,
+            )
+        }
+    }
+
+    @Test
+    fun startTimeAfterEndTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            TotalCaloriesBurnedRecord(
+                startTime = Instant.ofEpochMilli(1235L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,

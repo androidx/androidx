@@ -110,7 +110,7 @@ class ColorStateListLoadingDetectorTest {
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """
+                """
                     .trimIndent()
             )
 
@@ -124,10 +124,10 @@ class ColorStateListLoadingDetectorTest {
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoadingForColorStateLists]
-        getResources().getColorStateList(R.color.color_state_list)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoadingForColorStateLists]
+                        getResources().getColorStateList(R.color.color_state_list)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )
@@ -172,7 +172,7 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """
+                """
                     .trimIndent()
             )
 
@@ -186,10 +186,10 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorStateList() [UseCompatLoadingForColorStateLists]
-        getResources().getColorStateList(R.color.color_state_list)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorStateList() [UseCompatLoadingForColorStateLists]
+                        getResources().getColorStateList(R.color.color_state_list)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )

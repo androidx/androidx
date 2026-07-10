@@ -17,6 +17,7 @@
 package androidx.appsearch.testutil;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.AppSearchLogger;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
@@ -27,7 +28,6 @@ import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchSessionStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
-import androidx.appsearch.localstorage.stats.VmInitializationStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.jspecify.annotations.NonNull;
@@ -38,9 +38,8 @@ import java.util.List;
 
 /**
  * Non-thread-safe simple logger implementation for testing.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SimpleTestLogger implements AppSearchLogger {
     /** Holds {@link CallStats} after logging. */
@@ -63,8 +62,6 @@ public final class SimpleTestLogger implements AppSearchLogger {
     public @NonNull List<SearchSessionStats> mSearchSessionsStats = new ArrayList<>();
     /** Holds {@link PersistToDiskStats} after logging. */
     public @NonNull PersistToDiskStats mPersistToDiskStats;
-    /** Holds {@link VmInitializationStats} after logging. */
-    public @Nullable VmInitializationStats mVmInitializationStats;
 
     @Override
     public void logStats(@NonNull CallStats stats) {
@@ -114,10 +111,5 @@ public final class SimpleTestLogger implements AppSearchLogger {
     @Override
     public void logStats(@NonNull PersistToDiskStats stats) {
         mPersistToDiskStats = stats;
-    }
-
-    @Override
-    public void logStats(@NonNull VmInitializationStats stats) {
-        mVmInitializationStats = stats;
     }
 }

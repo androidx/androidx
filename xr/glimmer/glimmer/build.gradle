@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,22 +26,24 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-
-    api(project(":compose:runtime:runtime"))
-    api(project(":compose:ui:ui"))
     api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:runtime:runtime"))
     api("androidx.annotation:annotation:1.9.1")
 
+    // Force tests to occur against Foundation ToT, even we pin Glimmer's main Foundation dependency
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":xr:glimmer:glimmer:glimmer-samples"))
+    androidTestImplementation(project(":xr:glimmer:test-utils"))
 
     androidTestImplementation("androidx.core:core:1.16.0")
     androidTestImplementation(libs.espressoCore)
@@ -54,14 +55,17 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer"
-    compileSdk = 35
+    compileSdk { version = release(37) }
+    defaultConfig {
+        testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
+    }
 }
 
 androidx {
-    name = "Glimmer"
+    name = "Compose Glimmer"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
-    description = "Glimmer, the UI library for augmented Android XR experiences"
+    description = "Jetpack Compose Glimmer, the UI library for augmented Android XR experiences"
     addGoldenImageAssets()
     samples(project(":xr:glimmer:glimmer:glimmer-samples"))
 }

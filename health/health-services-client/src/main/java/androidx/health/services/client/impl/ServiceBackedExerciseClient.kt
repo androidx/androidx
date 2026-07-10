@@ -18,7 +18,6 @@ package androidx.health.services.client.impl
 
 import android.content.Context
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
@@ -55,7 +54,6 @@ import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
 /** [ExerciseClient] implementation that is backed by Health Services. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ServiceBackedExerciseClient(
     private val context: Context,
     connectionManager: ConnectionManager = HsConnectionManager.getInstance(context),

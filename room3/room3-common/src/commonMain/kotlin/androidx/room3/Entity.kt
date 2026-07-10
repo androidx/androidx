@@ -1,0 +1,141 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3
+
+/**
+ * Marks a class as an entity. This class will have a mapping SQLite table in the database.
+ *
+ * Each entity must have at least 1 property annotated with [PrimaryKey]. You can also use
+ * [primaryKeys] attribute to define the primary keys.
+ *
+ * Each entity must either have a no-arg constructor or a constructor whose parameters match the
+ * properties (based on type and name). The constructor does not have to receive all properties as
+ * parameters but if a property is not passed into the constructor, it should either be non-private
+ * mutable property or have a non-private setter. If a matching constructor is available, Room will
+ * prefer using it. If you don't want Room to use a constructor, you can annotate it with [Ignore].
+ *
+ * When a class is marked as an [Entity], all of its properties are persisted. If you would like to
+ * exclude some of its properties, you can mark them with [Ignore] or named the ignored columns in
+ * [ignoredColumns].
+ *
+ * The persisted properties types define the column type affinity of the mapping SQLite table.
+ * Supported types are primitives, [String], [ByteArray] and enums. Additional types can be
+ * supported via [ColumnTypeConverter] functions.
+ *
+ * Example:
+ * ```
+ * @Entity
+ * data class Song (
+ *     @PrimaryKey
+ *     val id: Long,
+ *     val name: String,
+ *     @ColumnInfo(name = "release_year")
+ *     val releaseYear: Int
+ * )
+ * ```
+ *
+ * If a property is [kotlin.jvm.Transient], it is automatically ignored **unless** it is annotated
+ * with [ColumnInfo], [Embedded] or [Relation].
+ *
+ * @see Database
+ * @see PrimaryKey
+ * @see ColumnInfo
+ * @see Index
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Entity(
+    /**
+     * The table name in the SQLite database. If not set, defaults to the class name.
+     *
+     * @return The SQLite tableName of the Entity.
+     */
+    val tableName: String = "",
+
+    /**
+     * List of indices on the table.
+     *
+     * @return The list of indices on the table.
+     */
+    val indices: Array<Index> = [],
+
+    /**
+     * If set to `true`, any [Index] defined in parent classes will be carried over to this entity.
+     * Note that if you set this to `true`, even if the entity has a parent which sets this value to
+     * `false`, the entity will still inherit indices from it and its parents.
+     *
+     * When the entity inherits an index from the parent, it is **always** renamed with the default
+     * naming schema since SQLite **does not** allow using the same index name in multiple tables.
+     * See [Index] for the details of the default name.
+     *
+     * By default, indices defined in parent classes are dropped to avoid unexpected indices. When
+     * this happens, you will receive a [RoomWarnings.INDEX_FROM_PARENT_FIELD_IS_DROPPED] or
+     * [RoomWarnings.INDEX_FROM_PARENT_IS_DROPPED] warning during compilation.
+     *
+     * @return True if indices from parent classes should be automatically inherited by this Entity,
+     *   false otherwise. Defaults to false.
+     */
+    val inheritSuperIndices: Boolean = false,
+
+    /**
+     * The list of Primary Key column names.
+     *
+     * If you would like to define an auto generated primary key, you can use [PrimaryKey]
+     * annotation on the property with [PrimaryKey.autoGenerate] set to `true`.
+     *
+     * @return The primary key of this Entity. Can be empty if the class has a property annotated
+     *   with [PrimaryKey].
+     */
+    val primaryKeys: Array<String> = [],
+
+    /**
+     * List of [ForeignKey] constraints on this entity.
+     *
+     * @return The list of [ForeignKey] constraints on this entity.
+     */
+    val foreignKeys: Array<ForeignKey> = [],
+
+    /**
+     * The list of column names that should be ignored by Room.
+     *
+     * Normally, you can use [Ignore], but this is useful for ignoring properties inherited from
+     * parents.
+     *
+     * Columns that are part of an [Embedded] property can not be individually ignored. To ignore
+     * columns from an inherited [Embedded] property, use the name of the property.
+     *
+     * @return The list of property names.
+     */
+    val ignoredColumns: Array<String> = [],
+
+    /**
+     * If set to `true`, the mapping SQLite table will be created using the `WITHOUT ROWID` option.
+     *
+     * This is useful for tables that have small non-integer or composite (multi-column) primary
+     * keys as it can save space and improve performance by avoiding the generation of a separate
+     * row ID.
+     *
+     * Note that tables without row ID cannot set [PrimaryKey.autoGenerate] to `true` on their
+     * primary key property.
+     *
+     * See also [WITHOUT ROWID Optimization Documentation](https://sqlite.org/withoutrowid.html)
+     *
+     * @return True if the table should be created without row ID, false otherwise. Defaults to
+     *   false.
+     */
+    val withoutRowId: Boolean = false,
+)

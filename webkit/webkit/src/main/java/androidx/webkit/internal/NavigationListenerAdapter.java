@@ -1,0 +1,123 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.webkit.internal;
+
+import androidx.webkit.Navigation;
+import androidx.webkit.NavigationListener;
+import androidx.webkit.Page;
+
+import org.chromium.support_lib_boundary.WebViewNavigationListenerBoundaryInterface;
+import org.chromium.support_lib_boundary.util.Features;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.InvocationHandler;
+
+/**
+ * Adapter between {@link NavigationListener} and
+ * {@link WebViewNavigationListenerBoundaryInterface}.
+ */
+@SuppressWarnings("MissingOverride")
+public class NavigationListenerAdapter implements WebViewNavigationListenerBoundaryInterface {
+
+    private static final String[] SUPPORTED_FEATURES = {Features.WEB_VIEW_NAVIGATION_LISTENER_V1,
+            Features.WEB_VIEW_NAVIGATION_LISTENER_V2};
+
+    private final NavigationListener mImpl;
+
+    public NavigationListenerAdapter(@NonNull NavigationListener impl) {
+        mImpl = impl;
+    }
+
+    @Override
+    public void onNavigationStarted(@NonNull InvocationHandler navigation) {
+        mImpl.onNavigationStarted(Navigation.forInvocationHandler(navigation));
+    }
+
+    @Override
+    public void onNavigationRedirected(@NonNull InvocationHandler navigation) {
+        mImpl.onNavigationRedirected(Navigation.forInvocationHandler(navigation));
+    }
+
+    @Override
+    public void onNavigationCompleted(@NonNull InvocationHandler navigation) {
+        mImpl.onNavigationCompleted(Navigation.forInvocationHandler(navigation));
+    }
+
+    @Override
+    public void onPageDeleted(@NonNull InvocationHandler page) {
+        mImpl.onPageDeleted(Page.forInvocationHandler(page));
+    }
+
+    @Override
+    public void onPageLoadEventFired(@NonNull InvocationHandler page) {
+        mImpl.onPageLoadEvent(Page.forInvocationHandler(page));
+    }
+
+    @Override
+    public void onPageDOMContentLoadedEventFired(@NonNull InvocationHandler page) {
+        mImpl.onPageDomContentLoadedEvent(Page.forInvocationHandler(page));
+    }
+
+    /**
+     * @deprecated Use {@link #onFirstContentfulPaintMillis} instead.
+     */
+    @Deprecated
+    public void onFirstContentfulPaint(@NonNull InvocationHandler page, long loadTimeUs) {}
+
+    @Override
+    public void onFirstContentfulPaintMillis(@NonNull InvocationHandler page, long durationMillis) {
+        mImpl.onFirstContentfulPaintMillis(Page.forInvocationHandler(page), durationMillis);
+    }
+
+    @Override
+    public void onLargestContentfulPaintMillis(@NonNull InvocationHandler page,
+            long durationMillis) {
+        mImpl.onLargestContentfulPaintMillis(Page.forInvocationHandler(page), durationMillis);
+    }
+
+    @Override
+    public void onPerformanceMarkMillis(@NonNull InvocationHandler page,
+            @NonNull String markName, long markTimeMillis) {
+        mImpl.onPerformanceMarkMillis(Page.forInvocationHandler(page),
+                markName, markTimeMillis);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @NonNull
+    @Override
+    public String[] getSupportedFeatures() {
+        return SUPPORTED_FEATURES;
+    }
+
+    @Override
+    public int hashCode() {
+        return mImpl.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof NavigationListenerAdapter) {
+            NavigationListenerAdapter other = (NavigationListenerAdapter) obj;
+            return mImpl.equals(other.mImpl);
+        }
+        return false;
+    }
+}

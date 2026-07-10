@@ -23,4 +23,6 @@ import androidx.compose.ui.InternalComposeUiApi
  * hierarchy to allow for interoperability. Not all platforms support interoperability in this way,
  * in which case the typealias will resolve to [Any].
  */
-@InternalComposeUiApi expect class InteropView
+@Suppress("KmpExperimentalMismatch") // actuals are not experimental
+@InternalComposeUiApi
+expect class InteropView

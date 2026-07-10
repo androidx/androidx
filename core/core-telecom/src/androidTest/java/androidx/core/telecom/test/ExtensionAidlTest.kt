@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test
 
 import androidx.core.telecom.extensions.Capability
@@ -24,7 +26,6 @@ import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.ILocalSilenceStateListener
 import androidx.core.telecom.extensions.IMeetingSummaryStateListener
 import androidx.core.telecom.extensions.IParticipantStateListener
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -37,7 +38,6 @@ import org.junit.runner.RunWith
  * Not very useful for now, but tests the visibility of the AIDL files and ensures that they can be
  * used as described.
  */
-@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class ExtensionAidlTest {
 

@@ -17,6 +17,7 @@
 package androidx.camera.testing.impl
 
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE
 import android.media.MediaMetadataRetriever.METADATA_KEY_COLOR_STANDARD
 import android.media.MediaMetadataRetriever.METADATA_KEY_COLOR_TRANSFER
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
@@ -80,3 +81,6 @@ public fun MediaMetadataRetriever.getColorTransfer(): Int =
     extractMetadata(METADATA_KEY_COLOR_TRANSFER)?.toInt() ?: -1
 
 public fun MediaMetadataRetriever.getLocation(): String = extractMetadata(METADATA_KEY_LOCATION)!!
+
+public fun MediaMetadataRetriever.getCaptureFps(): Int =
+    extractMetadata(METADATA_KEY_CAPTURE_FRAMERATE)?.toDouble()?.toInt() ?: -1

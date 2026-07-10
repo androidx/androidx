@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,18 +34,18 @@ import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
-import androidx.compose.runtime.composer.gapbuffer.buildTrace
-import androidx.compose.runtime.composer.gapbuffer.deactivateCurrentGroup
-import androidx.compose.runtime.composer.gapbuffer.extractMovableContentAtCurrent
+import androidx.compose.runtime.deactivateCurrentGroup
+import androidx.compose.runtime.extractMovableContentAtCurrent
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.identityHashCode
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
 import androidx.compose.runtime.snapshots.fastForEachIndexed
+import androidx.compose.runtime.tooling.ComposeStackTrace
 import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 import androidx.compose.runtime.tooling.ComposeToolingApi
-import androidx.compose.runtime.tooling.OperationErrorContext
 import androidx.compose.runtime.tooling.attachComposeStackTrace
+import androidx.compose.runtime.tooling.buildTrace
 import kotlin.jvm.JvmInline
 
 internal typealias IntParameter = Int
@@ -912,11 +912,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             // two groups) and is inserted into the provider group at offset 1 from the
             // current location.
             val anchors =
-                slots.moveIntoGroupFrom(
-                    offset = 1,
-                    table = resolvedState.slotStorage.asGapBufferSlotTable(),
-                    index = 2,
-                )
+                slots.moveIntoGroupFrom(1, resolvedState.slotStorage.asGapBufferSlotTable(), 2)
 
             // For all the anchors that moved, if the anchor is tracking a recompose
             // scope, update it to reference its new composer.
@@ -1140,7 +1136,7 @@ private fun Throwable.attachComposeStackTrace(
                     listOf(head.copy(groupOffset = offset)) + tail
                 }
             }
-        trace + parentTrace
+        ComposeStackTrace(trace + parentTrace, errorContext.sourceInformationEnabled)
     }
 }
 
@@ -1155,5 +1151,8 @@ private fun OperationErrorContext.withCurrentStackTrace(slots: SlotWriter): Oper
             return slots.buildTrace(currentOffset, currentGroup, slots.parent(currentGroup)) +
                 parentTrace
         }
+
+        override val sourceInformationEnabled: Boolean
+            get() = parent.sourceInformationEnabled
     }
 }

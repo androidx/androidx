@@ -88,6 +88,16 @@ public class VerticalGridView extends BaseGridView {
     }
 
     /**
+     * Returns the number of columns that the GridView is using.  Note that when
+     * {@code setNumColumns(0)} is called, the actual number of columns will be calculated from
+     * columnWidth and grid view width during layout; calling it early may return zero.
+     * @return the number of columns that recyclerview will use to layout.
+     */
+    public int getNumColumns() {
+        return mLayoutManager.getNumRows();
+    }
+
+    /**
      * Sets the column width.
      *
      * @param width May be {@link android.view.ViewGroup.LayoutParams#WRAP_CONTENT}, or a size

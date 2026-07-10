@@ -28,16 +28,17 @@ import com.google.devtools.ksp.symbol.Visibility
 
 /** A helper to validate an AppFunctionSerializable declaration. */
 class AppFunctionSerializableValidateHelper(
-    private val annotatedSerializable: AnnotatedAppFunctionSerializable
+    private val annotatedSerializable: AppFunctionSerializableType
 ) {
 
     /** Validates if the primary constructor is valid. */
     fun validatePrimaryConstructor() {
-        val primaryConstructor = annotatedSerializable.primaryConstructor
+        val primaryConstructor =
+            annotatedSerializable.appFunctionSerializableTypeClassDeclaration.primaryConstructor
         if (primaryConstructor == null) {
             throw ProcessingException(
                 "A valid AppFunctionSerializable must have a primary constructor.",
-                annotatedSerializable.attributeNode,
+                annotatedSerializable.appFunctionSerializableTypeClassDeclaration.attributeNode,
             )
         }
         val primaryConstructorDeclaration = checkNotNull(primaryConstructor)
@@ -45,7 +46,7 @@ class AppFunctionSerializableValidateHelper(
         if (primaryConstructorDeclaration.getVisibility() != Visibility.PUBLIC) {
             throw ProcessingException(
                 "A valid AppFunctionSerializable must have  a public primary constructor.",
-                annotatedSerializable.attributeNode,
+                annotatedSerializable.appFunctionSerializableTypeClassDeclaration.attributeNode,
             )
         }
 
@@ -63,7 +64,7 @@ class AppFunctionSerializableValidateHelper(
         val parameterName = parameter.name?.asString() ?: return false
 
         val matchedProperty =
-            annotatedSerializable.declarations
+            annotatedSerializable.appFunctionSerializableTypeClassDeclaration.declarations
                 .filterIsInstance<KSPropertyDeclaration>()
                 .singleOrNull { propertyDeclaration ->
                     val propertyName = propertyDeclaration.simpleName.asString()

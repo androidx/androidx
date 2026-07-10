@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Insert.Companion.EMPTY_REFRESH_LOCAL
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.internal.BUGANIZER_URL
 
 /**
@@ -128,7 +128,7 @@ internal class PageStore<T : Any>(
         )
     }
 
-    fun accessHintForPresenterIndex(index: Int): ViewportHint.Access {
+    fun createAccessHintForIndex(index: Int): ViewportHint.Access {
         var pageIndex = 0
         var indexInPage = index - placeholdersBefore
         while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
@@ -243,7 +243,21 @@ internal class PageStore<T : Any>(
 
     internal companion object {
         // TODO(b/205350267): Replace this with a static list that does not emit CombinedLoadStates.
-        private val INITIAL = PageStore(EMPTY_REFRESH_LOCAL)
+        private val INITIAL =
+            PageStore(
+                insertEvent =
+                    Refresh(
+                        pages = listOf(TransformablePage.empty()),
+                        placeholdersBefore = 0,
+                        placeholdersAfter = 0,
+                        sourceLoadStates =
+                            LoadStates(
+                                refresh = LoadState.NotLoading.Incomplete,
+                                prepend = LoadState.NotLoading.Complete,
+                                append = LoadState.NotLoading.Complete,
+                            ),
+                    )
+            )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
         internal fun <T : Any> initial(event: PageEvent.Insert<T>?): PageStore<T> =
@@ -252,5 +266,24 @@ internal class PageStore<T : Any>(
             } else {
                 INITIAL as PageStore<T>
             }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is PageStore<T>) return false
+
+        return this.originalPageOffsetFirst == other.originalPageOffsetFirst &&
+            this.originalPageOffsetLast == other.originalPageOffsetLast &&
+            this.placeholdersBefore == other.placeholdersBefore &&
+            this.placeholdersAfter == other.placeholdersAfter &&
+            this.pages == other.pages
+    }
+
+    override fun hashCode(): Int {
+        return originalPageOffsetFirst * 31 +
+            originalPageOffsetLast * 31 +
+            placeholdersBefore * 31 +
+            placeholdersAfter * 31 +
+            pages.hashCode() * 31
     }
 }

@@ -17,14 +17,12 @@
 package androidx.webkit.internal;
 
 import android.content.Context;
-import android.os.Build;
 import android.webkit.ServiceWorkerClient;
 import android.webkit.ServiceWorkerController;
 import android.webkit.ServiceWorkerWebSettings;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -37,7 +35,6 @@ import java.io.File;
  * These need to exist in a separate class so that Android framework can successfully verify
  * classes without encountering the new APIs.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 public class ApiHelperForN {
     private ApiHelperForN() {
     }

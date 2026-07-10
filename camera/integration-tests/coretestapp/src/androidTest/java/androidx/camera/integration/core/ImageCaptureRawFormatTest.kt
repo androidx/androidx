@@ -21,7 +21,6 @@ import android.content.Context
 import android.graphics.ImageFormat
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
@@ -31,7 +30,6 @@ import androidx.camera.core.ImageCapture.getImageCaptureCapabilities
 import androidx.camera.integration.core.ImageCaptureRawFormatTest.CaptureCallback.IN_MEMORY_CALLBACK
 import androidx.camera.integration.core.ImageCaptureRawFormatTest.CaptureCallback.ON_DISC_CALLBACK
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -60,10 +58,6 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureRawFormatTest(implName: String, private val cameraXConfig: CameraXConfig) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -216,10 +210,6 @@ class ImageCaptureRawFormatTest(implName: String, private val cameraXConfig: Cam
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 }

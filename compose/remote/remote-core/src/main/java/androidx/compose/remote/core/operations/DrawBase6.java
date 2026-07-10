@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Base class for draw commands the take 6 floats */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DrawBase6 extends PaintOperation implements VariableSupport, Serializable {
     @NonNull protected String mName = "DrawRectBase";
     float mV1;
@@ -115,6 +117,7 @@ public abstract class DrawBase6 extends PaintOperation implements VariableSuppor
     }
 
     /** interface for the operation builder with 6 float parameters */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Maker {
         /**
          * creation function for operation with 6 float parameters
@@ -139,12 +142,12 @@ public abstract class DrawBase6 extends PaintOperation implements VariableSuppor
      */
     public static void read(
             @NonNull WireBuffer buffer, @NonNull List<Operation> operations, @NonNull Maker build) {
-        float sv1 = buffer.readFloat();
-        float sv2 = buffer.readFloat();
-        float sv3 = buffer.readFloat();
-        float sv4 = buffer.readFloat();
-        float sv5 = buffer.readFloat();
-        float sv6 = buffer.readFloat();
+        float sv1 = buffer.readNanId();
+        float sv2 = buffer.readNanId();
+        float sv3 = buffer.readNanId();
+        float sv4 = buffer.readNanId();
+        float sv5 = buffer.readNanId();
+        float sv6 = buffer.readNanId();
 
         Operation op = build.create(sv1, sv2, sv3, sv4, sv5, sv6);
         operations.add(op);

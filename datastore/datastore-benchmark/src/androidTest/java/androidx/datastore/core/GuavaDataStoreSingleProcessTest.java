@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.util.function.Function;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 public class GuavaDataStoreSingleProcessTest {
@@ -41,14 +40,6 @@ public class GuavaDataStoreSingleProcessTest {
     public BenchmarkRule benchmarkRule = new BenchmarkRule();
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
-
-    private static Function<Byte, Byte> incrementByte() {
-        return byteIn -> ++byteIn;
-    }
-
-    private static Function<Byte, Byte> sameValueByte() {
-        return byteIn -> byteIn;
-    }
 
     @Test
     public void testCreate() throws Exception {
@@ -74,7 +65,7 @@ public class GuavaDataStoreSingleProcessTest {
                 new TestingSerializer(),
                 () -> testFile
         ).build();
-        ListenableFuture<Byte> updateFuture = store.updateDataFunctionAsync(incrementByte());
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync((input -> ++input));
         assertThat(updateFuture.get()).isEqualTo(1);
 
         while (state.keepRunning()) {
@@ -94,11 +85,11 @@ public class GuavaDataStoreSingleProcessTest {
                 new TestingSerializer(),
                 () -> testFile
         ).build();
-        ListenableFuture<Byte> updateFuture = store.updateDataFunctionAsync(incrementByte());
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync(input -> ++input);
         assertThat(updateFuture.get()).isEqualTo(1);
 
         while (state.keepRunning()) {
-            Byte updatedData = store.updateDataFunctionAsync(sameValueByte()).get();
+            Byte updatedData = store.updateDataAsync(byteIn -> byteIn).get();
 
             state.pauseTiming();
             assertThat(updatedData).isEqualTo(1);
@@ -116,12 +107,12 @@ public class GuavaDataStoreSingleProcessTest {
                 () -> testFile
         ).build();
         // first update creates the file
-        ListenableFuture<Byte> updateFuture = store.updateDataFunctionAsync(incrementByte());
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync(input -> ++input);
         counter++;
         assertThat(updateFuture.get()).isEqualTo(counter);
 
         while (state.keepRunning()) {
-            Byte updatedData = store.updateDataFunctionAsync(incrementByte()).get();
+            Byte updatedData = store.updateDataAsync(input -> ++input).get();
 
             state.pauseTiming();
             counter++;

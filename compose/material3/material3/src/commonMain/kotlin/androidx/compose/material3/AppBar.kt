@@ -25,7 +25,9 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +46,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.BottomAppBarState.Companion.Saver
 import androidx.compose.material3.TopAppBarState.Companion.Saver
 import androidx.compose.material3.internal.FloatProducer
@@ -64,6 +69,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -114,71 +120,9 @@ import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.roundToInt
-
-/**
- * [Material Design small top app bar](https://m3.material.io/components/top-app-bar/overview)
- *
- * Top app bars display information and actions at the top of a screen.
- *
- * This small TopAppBar has slots for a title, navigation icon, and actions.
- *
- * ![Small top app bar
- * image](https://developer.android.com/images/reference/androidx/compose/material3/small-top-app-bar.png)
- *
- * A simple top app bar looks like:
- *
- * @sample androidx.compose.material3.samples.SimpleTopAppBar A top app bar that uses a
- *
- * A simple sample with an [AppBarRow], that varies the number of actions shown.
- *
- * @sample androidx.compose.material3.samples.SimpleTopAppBarWithAdaptiveActions
- *
- *   [scrollBehavior] to customize its nested scrolling behavior when working in conjunction with a
- *   scrolling content looks like:
- *
- * @sample androidx.compose.material3.samples.PinnedTopAppBar
- * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBar
- * @param title the title to be displayed in the top app bar
- * @param modifier the [Modifier] to be applied to this top app bar
- * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
- *   typically be an [IconButton] or [IconToggleButton].
- * @param actions the actions displayed at the end of the top app bar. This should typically be
- *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param windowInsets a window insets that app bar will respect.
- * @param colors [TopAppBarColors] that will be used to resolve the colors used for this top app bar
- *   in different states. See [TopAppBarDefaults.topAppBarColors].
- * @param scrollBehavior a [TopAppBarScrollBehavior] which holds various offset values that will be
- *   applied by this top app bar to set up its height and colors. A scroll behavior is designed to
- *   work in conjunction with a scrolled content to change the top app bar appearance as the content
- *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
- */
-@Deprecated(
-    message = "Deprecated in favor of TopAppBar with expandedHeight parameter",
-    level = DeprecationLevel.HIDDEN,
-)
-@ExperimentalMaterial3Api
-@Composable
-fun TopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
-    TopAppBar(
-        title = title,
-        modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
-        windowInsets = windowInsets,
-        colors = colors,
-        scrollBehavior = scrollBehavior,
-    )
 
 /**
  * [Material Design small top app bar](https://m3.material.io/components/top-app-bar/overview)
@@ -219,7 +163,7 @@ fun TopAppBar(
     message = "Deprecated in favor of TopAppBar with contentPadding parameter",
     level = DeprecationLevel.HIDDEN,
 )
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -279,7 +223,7 @@ fun TopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -336,63 +280,6 @@ fun TopAppBar(
  *   typically be an [IconButton] or [IconToggleButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
  *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param windowInsets a window insets that app bar will respect.
- * @param colors [TopAppBarColors] that will be used to resolve the colors used for this top app bar
- *   in different states. See [TopAppBarDefaults.topAppBarColors].
- * @param scrollBehavior a [TopAppBarScrollBehavior] which holds various offset values that will be
- *   applied by this top app bar to set up its height and colors. A scroll behavior is designed to
- *   work in conjunction with a scrolled content to change the top app bar appearance as the content
- *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
- */
-@Deprecated(
-    message = "Deprecated in favor of CenterAlignedTopAppBar with expandedHeight parameter",
-    level = DeprecationLevel.HIDDEN,
-)
-@ExperimentalMaterial3Api
-@Composable
-fun CenterAlignedTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
-    CenterAlignedTopAppBar(
-        title = title,
-        modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
-        windowInsets = windowInsets,
-        colors = colors,
-        scrollBehavior = scrollBehavior,
-    )
-
-/**
- * [Material Design center-aligned small top app
- * bar](https://m3.material.io/components/top-app-bar/overview)
- *
- * Top app bars display information and actions at the top of a screen.
- *
- * This small top app bar has a header title that is horizontally aligned to the center.
- *
- * ![Center-aligned top app bar
- * image](https://developer.android.com/images/reference/androidx/compose/material3/center-aligned-top-app-bar.png)
- *
- * This CenterAlignedTopAppBar has slots for a title, navigation icon, and actions.
- *
- * A center aligned top app bar that uses a [scrollBehavior] to customize its nested scrolling
- * behavior when working in conjunction with a scrolling content looks like:
- *
- * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
- * @param title the title to be displayed in the top app bar
- * @param modifier the [Modifier] to be applied to this top app bar
- * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
- *   typically be an [IconButton] or [IconToggleButton].
- * @param actions the actions displayed at the end of the top app bar. This should typically be
- *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
  * @param expandedHeight this app bar's height. When a specified [scrollBehavior] causes the app bar
  *   to collapse or expand, this value will represent the maximum height that the bar will be
  *   allowed to expand. This value must be specified and finite, otherwise it will be ignored and
@@ -409,7 +296,7 @@ fun CenterAlignedTopAppBar(
     message = "Deprecated in favor of CenterAlignedTopAppBar with contentPadding parameter",
     level = DeprecationLevel.HIDDEN,
 )
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
@@ -469,7 +356,7 @@ fun CenterAlignedTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
@@ -540,7 +427,6 @@ fun CenterAlignedTopAppBar(
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -599,66 +485,6 @@ fun TopAppBar(
  *   typically be an [IconButton] or [IconToggleButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
  *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param windowInsets a window insets that app bar will respect.
- * @param colors [TopAppBarColors] that will be used to resolve the colors used for this top app bar
- *   in different states. See [TopAppBarDefaults.topAppBarColors].
- * @param scrollBehavior a [TopAppBarScrollBehavior] which holds various offset values that will be
- *   applied by this top app bar to set up its height and colors. A scroll behavior is designed to
- *   work in conjunction with a scrolled content to change the top app bar appearance as the content
- *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
- */
-@Deprecated(
-    message =
-        "Deprecated in favor of MediumTopAppBar with collapsedHeight and expandedHeight " +
-            "parameters",
-    level = DeprecationLevel.HIDDEN,
-)
-@ExperimentalMaterial3Api
-@Composable
-fun MediumTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
-    MediumTopAppBar(
-        title = title,
-        modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        collapsedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
-        expandedHeight = TopAppBarDefaults.MediumAppBarExpandedHeight,
-        windowInsets = windowInsets,
-        colors = colors,
-        scrollBehavior = scrollBehavior,
-    )
-
-/**
- * [Material Design medium top app bar](https://m3.material.io/components/top-app-bar/overview)
- *
- * Top app bars display information and actions at the top of a screen.
- *
- * ![Medium top app bar
- * image](https://developer.android.com/images/reference/androidx/compose/material3/medium-top-app-bar.png)
- *
- * This MediumTopAppBar has slots for a title, navigation icon, and actions. In its default expanded
- * state, the title is displayed in a second row under the navigation and actions.
- *
- * A medium top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with scrolling content looks like:
- *
- * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
- * @param title the title to be displayed in the top app bar. This title will be used in the app
- *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
- *   smaller sized [TextStyle]
- * @param modifier the [Modifier] to be applied to this top app bar
- * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
- *   typically be an [IconButton] or [IconToggleButton].
- * @param actions the actions displayed at the end of the top app bar. This should typically be
- *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
  * @param collapsedHeight this app bar height when collapsed by a provided [scrollBehavior]. This
  *   value must be specified and finite, otherwise it will be ignored and replaced with
  *   [TopAppBarDefaults.MediumAppBarCollapsedHeight].
@@ -678,7 +504,7 @@ fun MediumTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller than the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediumTopAppBar(
     title: @Composable () -> Unit,
@@ -771,7 +597,6 @@ fun MediumTopAppBar(
  *   [collapsedHeight]
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun MediumFlexibleTopAppBar(
     title: @Composable () -> Unit,
@@ -849,66 +674,6 @@ fun MediumFlexibleTopAppBar(
  *   typically be an [IconButton] or [IconToggleButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
  *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param windowInsets a window insets that app bar will respect.
- * @param colors [TopAppBarColors] that will be used to resolve the colors used for this top app bar
- *   in different states. See [TopAppBarDefaults.topAppBarColors].
- * @param scrollBehavior a [TopAppBarScrollBehavior] which holds various offset values that will be
- *   applied by this top app bar to set up its height and colors. A scroll behavior is designed to
- *   work in conjunction with a scrolled content to change the top app bar appearance as the content
- *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
- */
-@Deprecated(
-    message =
-        "Deprecated in favor of LargeTopAppBar with collapsedHeight and expandedHeight " +
-            "parameters",
-    level = DeprecationLevel.HIDDEN,
-)
-@ExperimentalMaterial3Api
-@Composable
-fun LargeTopAppBar(
-    title: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
-    LargeTopAppBar(
-        title = title,
-        modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        collapsedHeight = TopAppBarDefaults.LargeAppBarCollapsedHeight,
-        expandedHeight = TopAppBarDefaults.LargeAppBarExpandedHeight,
-        windowInsets = windowInsets,
-        colors = colors,
-        scrollBehavior = scrollBehavior,
-    )
-
-/**
- * [Material Design large top app bar](https://m3.material.io/components/top-app-bar/overview)
- *
- * Top app bars display information and actions at the top of a screen.
- *
- * ![Large top app bar
- * image](https://developer.android.com/images/reference/androidx/compose/material3/large-top-app-bar.png)
- *
- * This LargeTopAppBar has slots for a title, navigation icon, and actions. In its default expanded
- * state, the title is displayed in a second row under the navigation and actions.
- *
- * A large top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with scrolling content looks like:
- *
- * @sample androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
- * @param title the title to be displayed in the top app bar. This title will be used in the app
- *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
- *   smaller sized [TextStyle]
- * @param modifier the [Modifier] to be applied to this top app bar
- * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
- *   typically be an [IconButton] or [IconToggleButton].
- * @param actions the actions displayed at the end of the top app bar. This should typically be
- *   [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
  * @param collapsedHeight this app bar height when collapsed by a provided [scrollBehavior]. This
  *   value must be specified and finite, otherwise it will be ignored and replaced with
  *   [TopAppBarDefaults.LargeAppBarCollapsedHeight].
@@ -928,7 +693,7 @@ fun LargeTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LargeTopAppBar(
     title: @Composable () -> Unit,
@@ -1021,7 +786,6 @@ fun LargeTopAppBar(
  *   [collapsedHeight]
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LargeFlexibleTopAppBar(
     title: @Composable () -> Unit,
@@ -1133,7 +897,6 @@ fun LargeFlexibleTopAppBar(
  *   [collapsedHeight]
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun TwoRowsTopAppBar(
     title: @Composable (expanded: Boolean) -> Unit,
@@ -1476,7 +1239,6 @@ fun BottomAppBar(
  *   inside will be placed horizontally.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun FlexibleBottomAppBar(
     modifier: Modifier = Modifier,
@@ -1592,7 +1354,6 @@ private fun BottomAppBarLayout(
  * @see [TopAppBarDefaults.enterAlwaysScrollBehavior]
  * @see [TopAppBarDefaults.exitUntilCollapsedScrollBehavior]
  */
-@ExperimentalMaterial3Api
 @Stable
 interface TopAppBarScrollBehavior {
 
@@ -1612,19 +1373,22 @@ interface TopAppBarScrollBehavior {
 
     /**
      * An optional [AnimationSpec] that defines how the top app bar snaps to either fully collapsed
-     * or fully extended state when a fling or a drag scrolled it into an intermediate position.
+     * or fully extended state when a fling or a drag scrolled it into an intermediate position. If
+     * `null` is provided, the app bar will not snap and will remain in its current state.
      */
     val snapAnimationSpec: AnimationSpec<Float>?
 
     /**
-     * An optional [DecayAnimationSpec] that defined how to fling the top app bar when the user
-     * flings the app bar itself, or the content below it.
+     * An optional [DecayAnimationSpec] that defines how to fling the top app bar when the user
+     * flings the app bar itself, or the scrollable content. If `null` is provided, the app bar will
+     * not continue to animate its height based on the scroll velocity.
      */
     val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
+     * A [NestedScrollConnection] that should be attached to a
+     * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
+     * events.
      */
     val nestedScrollConnection: NestedScrollConnection
 }
@@ -1724,6 +1488,20 @@ object TopAppBarDefaults {
             WindowInsets.systemBarsForVisualComponents.only(
                 WindowInsetsSides.Horizontal + WindowInsetsSides.Top
             )
+
+    /**
+     * Default [AnimationSpec] that defines how the top app bar snaps to either fully collapsed or
+     * fully extended state when a fling or a drag scrolled it into an intermediate position.
+     */
+    val snapAnimationSpec: AnimationSpec<Float>
+        @Composable get() = MotionSchemeKeyTokens.DefaultEffects.value()
+
+    /**
+     * Default [DecayAnimationSpec] that defines how to fling the top app bar when the user flings
+     * the app bar itself, or the scrollable content.
+     */
+    val flingAnimationSpec: DecayAnimationSpec<Float>
+        @Composable get() = rememberSplineBasedDecay()
 
     /**
      * Creates a [TopAppBarColors] for [CenterAlignedTopAppBar]s. The default implementation
@@ -1875,7 +1653,8 @@ object TopAppBarDefaults {
 
     /**
      * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and updates
-     * its [TopAppBarState.contentOffset] accordingly.
+     * its [TopAppBarState.contentOffset] accordingly. Note: If your layout utilizes `reverseLayout`
+     * or `reverseScrolling`, please use the overload that takes a [ScrollableState] parameter.
      *
      * The returned [TopAppBarScrollBehavior] is remembered across compositions.
      *
@@ -1884,7 +1663,6 @@ object TopAppBarDefaults {
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   pinned [TopAppBarScrollBehavior]
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun pinnedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1893,40 +1671,206 @@ object TopAppBarDefaults {
         remember(state, canScroll) { PinnedScrollBehavior(state = state, canScroll = canScroll) }
 
     /**
+     * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and updates
+     * its [TopAppBarState.contentOffset] accordingly.
+     *
+     * This overload is intended for use cases with [LazyColumn] when the content is pre-scrolled or
+     * uses `reverseLayout`, as it correctly handles [TopAppBar] color transitions for these
+     * specific scroll states.
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * A sample for a pinned small [TopAppBar] when the content of the [LazyColumn] is pre-scrolled:
+     *
+     * @sample androidx.compose.material3.samples.PinnedTopAppBarWithPreScrolledLazyColumn
+     * @param lazyListState the [LazyListState] object observing the list's scroll position, used to
+     *   determine if the list is scrolled to the start
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   pinned [TopAppBarScrollBehavior]
+     */
+    @Deprecated(
+        message =
+            "Please use the pinnedScrollBehavior function that takes a ScrollableState parameter.",
+        replaceWith =
+            ReplaceWith(
+                "pinnedScrollBehavior(scrollableState = lazyListState, state = state, canScroll = canScroll)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun pinnedScrollBehavior(
+        lazyListState: LazyListState,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+    ): TopAppBarScrollBehavior {
+        return pinnedScrollBehavior(
+            scrollableState = lazyListState,
+            state = state,
+            canScroll = canScroll,
+        )
+    }
+
+    /**
+     * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and updates
+     * its [TopAppBarState.contentOffset] accordingly.
+     *
+     * This overload is intended for use cases with composables that use a [ScrollState], such as
+     * [Column] with `verticalScroll`, especially when the content is pre-scrolled or uses
+     * `reverseScrolling`. It correctly handles [TopAppBar] color transitions for these specific
+     * scroll states.
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * @param scrollState state of the scroll
+     * @param reverseScrolling reverse the direction of scrolling, when `true`, 0
+     *   [ScrollState.value] will mean bottom, when `false`, 0 [ScrollState.value] will mean top
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   pinned [TopAppBarScrollBehavior]
+     */
+    @Deprecated(
+        message =
+            "Please use the pinnedScrollBehavior function that takes a ScrollableState parameter.",
+        replaceWith =
+            ReplaceWith(
+                "pinnedScrollBehavior(scrollableState = scrollState, state = state, canScroll = canScroll)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun pinnedScrollBehavior(
+        scrollState: ScrollState,
+        reverseScrolling: Boolean = false,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+    ): TopAppBarScrollBehavior {
+        return pinnedScrollBehavior(
+            scrollableState = scrollState,
+            state = state,
+            canScroll = canScroll,
+        )
+    }
+
+    /**
+     * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and updates
+     * its [TopAppBarState.contentOffset] accordingly.
+     *
+     * This overload is intended for use cases that are not covered by the standard overloads, such
+     * as when a custom `isScrollingContentAtStart` state needs to be determined for custom or
+     * complex layouts (e.g. `LazyVerticalGrid` with `reverseLayout = true`).
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * A sample for a pinned small [TopAppBar] that is scrolled with a reversed [LazyVerticalGrid]:
+     *
+     * @sample androidx.compose.material3.samples.PinnedTopAppBarWithReversedLazyGrid
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   pinned [TopAppBarScrollBehavior]
+     * @param isScrollingContentAtStart A callback that returns true when the scrollable is at the
+     *   origin of its content. Handles reversed layouts to ensure "start" always refers to the
+     *   first logical item.
+     */
+    @Deprecated(
+        message =
+            "Please use the pinnedScrollBehavior function that takes a ScrollableState parameter.",
+        level = DeprecationLevel.WARNING,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun pinnedScrollBehavior(
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        isScrollingContentAtStart: () -> Boolean = { true },
+    ): TopAppBarScrollBehavior {
+        return remember(state, canScroll, isScrollingContentAtStart) {
+            PinnedScrollBehavior(
+                state = state,
+                canScroll = canScroll,
+                isScrollingContentAtStart = isScrollingContentAtStart,
+            )
+        }
+    }
+
+    /**
+     * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and updates
+     * its [TopAppBarState.contentOffset] accordingly.
+     *
+     * This overload is intended for use cases where the scroll state is represented by a
+     * [ScrollableState] (e.g. `LazyVerticalGrid`). It automatically determines if the content is at
+     * the start by observing the scroll position of the provided [ScrollableState].
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * A sample for a pinned small [TopAppBar] that is scrolled with a reversed [LazyVerticalGrid]:
+     *
+     * @sample androidx.compose.material3.samples.PinnedTopAppBarWithReversedLazyGrid
+     * @param scrollableState the [ScrollableState] of the scrollable container, used to determine
+     *   if the content is at the start
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   pinned [TopAppBarScrollBehavior]
+     */
+    @Composable
+    fun pinnedScrollBehavior(
+        scrollableState: ScrollableState,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+    ): TopAppBarScrollBehavior {
+        return remember(scrollableState, state, canScroll) {
+            PinnedScrollBehavior(
+                state = state,
+                canScroll = canScroll,
+                isScrollingContentAtStart = {
+                    (scrollableState.scrollIndicatorState?.scrollOffset ?: 0) == 0
+                },
+            )
+        }
+    }
+
+    /**
      * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
      * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
-     * immediately appear when the content is pulled down.
+     * immediately appear when the content is pulled down. Note: If your layout utilizes
+     * `reverseLayout` or `reverseScrolling`, please use the overload that takes a [ScrollableState]
+     * parameter.
      *
      * The returned [TopAppBarScrollBehavior] is remembered across compositions.
      *
      * @param state the state object to be used to control or observe the top app bar's scroll
      *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
-     *   [EnterAlwaysScrollBehavior]
+     *   [TopAppBarScrollBehavior]
      * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
      *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
-     *   an intermediate position
-     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
-     *   app bar when the user flings the app bar itself, or the content below it
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      */
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
-        // TODO Load the motionScheme tokens from the component tokens file
-        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
-    ): TopAppBarScrollBehavior {
-        return enterAlwaysScrollBehavior(
-            state = state,
-            canScroll = canScroll,
-            snapAnimationSpec = snapAnimationSpec,
-            flingAnimationSpec = flingAnimationSpec,
-            reverseLayout = false,
-        )
-    }
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
+    ): TopAppBarScrollBehavior =
+        remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
+            EnterAlwaysScrollBehavior(
+                state = state,
+                snapAnimationSpec = snapAnimationSpec,
+                flingAnimationSpec = flingAnimationSpec,
+                canScroll = canScroll,
+            )
+        }
 
     /**
      * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
@@ -1941,24 +1885,34 @@ object TopAppBarDefaults {
      *   [EnterAlwaysScrollBehavior]
      * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
      *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
-     *   an intermediate position
-     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
-     *   app bar when the user flings the app bar itself, or the content below it
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      * @param reverseLayout indicates that this behavior is applied to a scrollable content that has
      *   a reversed direction of scrolling and layout
      */
+    @Deprecated(
+        message =
+            "Please use the enterAlwaysScrollBehavior() function that takes a scrollableState parameter.",
+        replaceWith =
+            ReplaceWith(
+                "enterAlwaysScrollBehavior(scrollableState, state, canScroll, snapAnimationSpec, flingAnimationSpec)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
     @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
-        // TODO Load the motionScheme tokens from the component tokens file
-        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
         reverseLayout: Boolean = false,
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec, reverseLayout) {
-            EnterAlwaysScrollBehavior(
+            LegacyEnterAlwaysScrollBehavior(
                 state = state,
                 snapAnimationSpec = snapAnimationSpec,
                 flingAnimationSpec = flingAnimationSpec,
@@ -1966,6 +1920,217 @@ object TopAppBarDefaults {
                 reverseLayout = reverseLayout,
             )
         }
+
+    /**
+     * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
+     * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
+     * immediately appear when the content is pulled down.
+     *
+     * This overload is intended for use cases with [LazyColumn] when the content is pre-scrolled or
+     * uses `reverseLayout`, as it correctly handles [TopAppBar] color transitions for these
+     * specific scroll states.
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * @param lazyListState the [LazyListState] object observing the list's scroll position, used to
+     *   determine if the list is scrolled to the start
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   [TopAppBarScrollBehavior]
+     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
+     *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
+     */
+    @Deprecated(
+        message =
+            "Please use the enterAlwaysScrollBehavior function that takes a ScrollableState parameter.",
+        replaceWith =
+            ReplaceWith(
+                "enterAlwaysScrollBehavior(scrollableState = lazyListState, state = state, canScroll = canScroll, snapAnimationSpec = snapAnimationSpec, flingAnimationSpec = flingAnimationSpec)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun enterAlwaysScrollBehavior(
+        lazyListState: LazyListState,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
+    ): TopAppBarScrollBehavior {
+        return enterAlwaysScrollBehavior(
+            scrollableState = lazyListState,
+            state = state,
+            canScroll = canScroll,
+            snapAnimationSpec = snapAnimationSpec,
+            flingAnimationSpec = flingAnimationSpec,
+        )
+    }
+
+    /**
+     * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
+     * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
+     * immediately appear when the content is pulled down.
+     *
+     * This overload is intended for use cases with composables that use a [ScrollState], such as
+     * [Column] with `verticalScroll`, especially when the content is pre-scrolled or uses
+     * `reverseScrolling`. It correctly handles [TopAppBar] color transitions for these specific
+     * scroll states.
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears
+     * when the content is scrolled down, using a [Column] with reverse scrolling:
+     *
+     * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBarWithReverseScrolling
+     * @param scrollState state of the scroll
+     * @param reverseScrolling reverse the direction of scrolling, when `true`, 0
+     *   [ScrollState.value] will mean bottom, when `false`, 0 [ScrollState.value] will mean top
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   [TopAppBarScrollBehavior]
+     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
+     *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
+     */
+    @Deprecated(
+        message =
+            "Please use the enterAlwaysScrollBehavior function that takes a ScrollableState parameter.",
+        replaceWith =
+            ReplaceWith(
+                "enterAlwaysScrollBehavior(scrollableState = scrollState, state = state, canScroll = canScroll, snapAnimationSpec = snapAnimationSpec, flingAnimationSpec = flingAnimationSpec)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun enterAlwaysScrollBehavior(
+        scrollState: ScrollState,
+        reverseScrolling: Boolean = false,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
+    ): TopAppBarScrollBehavior {
+        return enterAlwaysScrollBehavior(
+            scrollableState = scrollState,
+            state = state,
+            canScroll = canScroll,
+            snapAnimationSpec = snapAnimationSpec,
+            flingAnimationSpec = flingAnimationSpec,
+        )
+    }
+
+    /**
+     * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
+     * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
+     * immediately appear when the content is pulled down.
+     *
+     * This overload is intended for use cases that are not covered by the standard overloads, such
+     * as when a custom `isScrollingContentAtStart` state needs to be determined for custom or
+     * complex layouts (e.g. `LazyVerticalGrid` with `reverseLayout = true`).
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   [TopAppBarScrollBehavior]
+     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
+     *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
+     * @param isScrollingContentAtStart A callback that returns true when the scrollable is at the
+     *   origin of its content. Handles reversed layouts to ensure "start" always refers to the
+     *   first logical item.
+     */
+    @Deprecated(
+        message =
+            "Please use the enterAlwaysScrollBehavior function that takes a ScrollableState parameter.",
+        level = DeprecationLevel.WARNING,
+    )
+    @Composable
+    fun enterAlwaysScrollBehavior(
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
+        isScrollingContentAtStart: () -> Boolean = { true },
+    ): TopAppBarScrollBehavior =
+        remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
+            EnterAlwaysScrollBehavior(
+                state = state,
+                snapAnimationSpec = snapAnimationSpec,
+                flingAnimationSpec = flingAnimationSpec,
+                canScroll = canScroll,
+                isScrollingContentAtStart = isScrollingContentAtStart,
+            )
+        }
+
+    /**
+     * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
+     * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
+     * immediately appear when the content is pulled down.
+     *
+     * This overload is intended for use cases with scrollable containers (such as [LazyColumn], a
+     * [Column] with `verticalScroll`, or any other container that implements [ScrollableState])
+     * when the content is pre-scrolled or uses `reverseLayout`/`reverseScrolling`, as it correctly
+     * handles [TopAppBar] color transitions for these specific scroll states.
+     *
+     * An enter always top app bar with reverse scrolling looks like:
+     *
+     * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBarWithReverseScrolling
+     *
+     * The returned [TopAppBarScrollBehavior] is remembered across compositions.
+     *
+     * @param scrollableState the [ScrollableState] of the scrollable container, used to determine
+     *   if the content is at the start
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   [TopAppBarScrollBehavior]
+     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
+     *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
+     */
+    @Composable
+    fun enterAlwaysScrollBehavior(
+        scrollableState: ScrollableState,
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
+    ): TopAppBarScrollBehavior {
+        return remember(scrollableState, state, canScroll, snapAnimationSpec, flingAnimationSpec) {
+            EnterAlwaysScrollBehavior(
+                state = state,
+                snapAnimationSpec = snapAnimationSpec,
+                flingAnimationSpec = flingAnimationSpec,
+                canScroll = canScroll,
+                isScrollingContentAtStart = {
+                    (scrollableState.scrollIndicatorState?.scrollOffset ?: 0) == 0
+                },
+            )
+        }
+    }
 
     /**
      * Returns a [TopAppBarScrollBehavior] that adjusts its properties to affect the colors and
@@ -1977,24 +2142,27 @@ object TopAppBarDefaults {
      *
      * The returned [TopAppBarScrollBehavior] is remembered across compositions.
      *
+     * A sample for a [MediumTopAppBar] with [exitUntilCollapsedScrollBehavior]:
+     *
+     * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
      * @param state the state object to be used to control or observe the top app bar's scroll
      *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   [ExitUntilCollapsedScrollBehavior]
      * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
      *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
-     *   an intermediate position
-     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
-     *   app bar when the user flings the app bar itself, or the content below it
+     *   an intermediate position. If `null` is provided, the app bar will not snap and will remain
+     *   in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top
+     *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+     *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun exitUntilCollapsedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
-        // TODO Load the motionScheme tokens from the component tokens file
-        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
+        flingAnimationSpec: DecayAnimationSpec<Float>? = TopAppBarDefaults.flingAnimationSpec,
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
             ExitUntilCollapsedScrollBehavior(
@@ -2109,6 +2277,12 @@ class TopAppBarState(
     var contentOffset by mutableFloatStateOf(initialContentOffset)
 
     /**
+     * Determines if the content is currently at the starting scroll position. This is used to
+     * calculate the [overlappedFraction] for the app bar's visual state.
+     */
+    internal var isScrollingContentAtStart: () -> Boolean = { true }
+
+    /**
      * A value that represents the collapsed height percentage of the app bar.
      *
      * A `0.0` represents a fully expanded bar, and `1.0` represents a fully collapsed bar (computed
@@ -2131,9 +2305,11 @@ class TopAppBarState(
      */
     val overlappedFraction: Float
         get() =
-            if (heightOffsetLimit != 0f) {
+            if (!isScrollingContentAtStart() && contentOffset == 0f) {
+                1f
+            } else if (heightOffsetLimit != 0f) {
                 1 -
-                    ((heightOffsetLimit - contentOffset).coerceIn(
+                    ((heightOffsetLimit + contentOffset.absoluteValue).coerceIn(
                         minimumValue = heightOffsetLimit,
                         maximumValue = 0f,
                     ) / heightOffsetLimit)
@@ -2306,14 +2482,15 @@ interface BottomAppBarScrollBehavior {
     val snapAnimationSpec: AnimationSpec<Float>?
 
     /**
-     * An optional [DecayAnimationSpec] that defined how to fling the bottom app bar when the user
-     * flings the app bar itself, or the content below it.
+     * An optional [DecayAnimationSpec] that defines how to fling the bottom app bar when the user
+     * flings the app bar itself, or the scrollable content.
      */
     val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
+     * A [NestedScrollConnection] that should be attached to a
+     * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
+     * events.
      */
     val nestedScrollConnection: NestedScrollConnection
 }
@@ -2352,7 +2529,6 @@ object BottomAppBarDefaults {
     val bottomAppBarFabColor: Color
         @Composable get() = FabSecondaryContainerTokens.ContainerColor.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default padding used for [FlexibleBottomAppBar]. */
     val FlexibleContentPadding =
         PaddingValues(
@@ -2364,17 +2540,14 @@ object BottomAppBarDefaults {
      * Default height of a flexible [FlexibleBottomAppBar]. The height here represents the height of
      * the bottom app bar in its expanded state.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val FlexibleBottomAppBarHeight = DockedToolbarTokens.ContainerHeight
 
     /** A default [Arrangement] that will be used to space a [FlexibleBottomAppBar]'s content. */
-    @ExperimentalMaterial3ExpressiveApi
     val FlexibleHorizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween
 
     /**
      * An [Arrangement] that will be used to space [FlexibleBottomAppBar]'s with a fixed spacing.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val FlexibleFixedHorizontalArrangement: Arrangement.Horizontal =
         Arrangement.spacedBy(DockedToolbarTokens.ContainerMaxSpacing, Alignment.CenterHorizontally)
 
@@ -2394,16 +2567,18 @@ object BottomAppBarDefaults {
      *   [ExitAlwaysScrollBehavior]
      * @param snapAnimationSpec an optional [AnimationSpec] that defines how the bottom app bar
      *   snaps to either fully collapsed or fully extended state when a fling or a drag scrolled it
-     *   into an intermediate position
-     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the
-     *   bottom app bar when the user flings the app bar itself, or the content below it
+     *   into an intermediate position. If `null` is provided, the app bar will not snap and will
+     *   remain in its current state.
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the
+     *   bottom app bar when the user flings the app bar itself, or the scrollable content. If
+     *   `null` is provided, the app bar will not continue to animate its height based on the scroll
+     *   velocity.
      */
     @ExperimentalMaterial3Api
     @Composable
     fun exitAlwaysScrollBehavior(
         state: BottomAppBarState = rememberBottomAppBarState(),
         canScroll: () -> Boolean = { true },
-        // TODO Load the motionScheme tokens from the component tokens file
         snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.FastSpatial.value(),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
     ): BottomAppBarScrollBehavior =
@@ -2556,9 +2731,11 @@ private class BottomAppBarStateImpl(
  * @param state a [BottomAppBarState]
  * @param snapAnimationSpec an optional [AnimationSpec] that defines how the bottom app bar snaps to
  *   either fully collapsed or fully extended state when a fling or a drag scrolled it into an
- *   intermediate position
- * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the bottom
- *   app bar when the user flings the app bar itself, or the content below it
+ *   intermediate position. If `null` is provided, the app bar will not snap and will remain in its
+ *   current state.
+ * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the bottom
+ *   app bar when the user flings the app bar itself, or the scrollable content. If `null` is
+ *   provided, the app bar will not continue to animate its height based on the scroll velocity.
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [ExitAlwaysScrollBehavior]
  */
@@ -2668,11 +2845,7 @@ private val FABVerticalPadding = 12.dp - BottomAppBarVerticalPadding
  *
  * This SingleRowTopAppBar has slots for a title, subtitle, navigation icon, and actions.
  */
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3ExpressiveApi::class,
-    ExperimentalMaterial3ComponentOverrideApi::class,
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ComponentOverrideApi::class)
 @Composable
 private fun SingleRowTopAppBar(
     modifier: Modifier = Modifier,
@@ -2732,11 +2905,10 @@ object DefaultSingleRowTopAppBarOverride : SingleRowTopAppBarOverride {
                     colors.containerColor(if (overlappingFraction > 0.01f) 1f else 0f)
                 }
             }
-
+        // TODO: Load the motionScheme tokens from the component tokens file
         val appBarContainerColor =
             animateColorAsState(
                 targetColor,
-                // TODO Load the motionScheme tokens from the component tokens file
                 animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
             )
 
@@ -2889,11 +3061,7 @@ val LocalSingleRowTopAppBarOverride: ProvidableCompositionLocal<SingleRowTopAppB
  * A two-rows top app bar that is designed to be called by the Large and Medium top app bar
  * composables.
  */
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3ExpressiveApi::class,
-    ExperimentalMaterial3ComponentOverrideApi::class,
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ComponentOverrideApi::class)
 @Composable
 private fun TwoRowsTopAppBar(
     modifier: Modifier = Modifier,
@@ -3195,7 +3363,6 @@ private fun Modifier.adjustHeightOffsetLimit(scrollBehavior: TopAppBarScrollBeha
  * @param height this app bar's requested height
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TopAppBarLayout(
     modifier: Modifier,
@@ -3295,7 +3462,6 @@ private fun TopAppBarLayout(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class TopAppBarMeasurePolicy(
     val scrolledOffset: FloatProducer,
     val titleVerticalArrangement: Arrangement.Vertical,
@@ -3318,12 +3484,13 @@ private class TopAppBarMeasurePolicy(
                 .measure(constraints.copy(minWidth = 0))
         val startPaddingPx = contentPadding.calculateStartPadding(layoutDirection)
         val endPaddingPx = contentPadding.calculateEndPadding(layoutDirection)
+        val titleStartSpace = max(TopAppBarTitleInset.roundToPx(), navigationIconPlaceable.width)
         val maxTitleWidth =
             if (constraints.maxWidth == Constraints.Infinity) {
                 constraints.maxWidth
             } else {
                 (constraints.maxWidth -
-                        navigationIconPlaceable.width -
+                        titleStartSpace -
                         actionIconsPlaceable.width -
                         startPaddingPx.roundToPx() -
                         endPaddingPx.roundToPx())
@@ -3499,11 +3666,18 @@ private class TopAppBarMeasurePolicy(
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [PinnedScrollBehavior]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private class PinnedScrollBehavior(
     override val state: TopAppBarState,
     val canScroll: () -> Boolean = { true },
+    isScrollingContentAtStart: (() -> Boolean)? = null,
 ) : TopAppBarScrollBehavior {
+
+    init {
+        if (isScrollingContentAtStart != null) {
+            state.isScrollingContentAtStart = isScrollingContentAtStart
+        }
+    }
+
     override val isPinned: Boolean = true
     override val snapAnimationSpec: AnimationSpec<Float>? = null
     override val flingAnimationSpec: DecayAnimationSpec<Float>? = null
@@ -3540,16 +3714,17 @@ private class PinnedScrollBehavior(
  * @param state a [TopAppBarState]
  * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps to
  *   either fully collapsed or fully extended state when a fling or a drag scrolled it into an
- *   intermediate position
- * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top app
- *   bar when the user flings the app bar itself, or the content below it
+ *   intermediate position. If `null` is provided, the app bar will not snap and will remain in its
+ *   current state.
+ * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top app
+ *   bar when the user flings the app bar itself, or the scrollable content. If `null` is provided,
+ *   the app bar will not continue to animate its height based on the scroll velocity.
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [EnterAlwaysScrollBehavior]
  * @param reverseLayout indicates that this behavior is applied to a scrollable content that has a
  *   reversed direction of scrolling and layout
  */
-@OptIn(ExperimentalMaterial3Api::class)
-private class EnterAlwaysScrollBehavior(
+private class LegacyEnterAlwaysScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
     override val flingAnimationSpec: DecayAnimationSpec<Float>?,
@@ -3616,13 +3791,90 @@ private class EnterAlwaysScrollBehavior(
  * @param state a [TopAppBarState]
  * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps to
  *   either fully collapsed or fully extended state when a fling or a drag scrolled it into an
- *   intermediate position
- * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top app
- *   bar when the user flings the app bar itself, or the content below it
+ *   intermediate position. If `null` is provided, the app bar will not snap and will remain in its
+ *   current state.
+ * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top app
+ *   bar when the user flings the app bar itself, or the scrollable content. If `null` is provided,
+ *   the app bar will not continue to animate its height based on the scroll velocity.
+ * @param canScroll a callback used to determine whether scroll events are to be handled by this
+ *   [EnterAlwaysScrollBehavior]
+ */
+private class EnterAlwaysScrollBehavior(
+    override val state: TopAppBarState,
+    override val snapAnimationSpec: AnimationSpec<Float>?,
+    override val flingAnimationSpec: DecayAnimationSpec<Float>?,
+    val canScroll: () -> Boolean = { true },
+    isScrollingContentAtStart: (() -> Boolean)? = null,
+) : TopAppBarScrollBehavior {
+
+    init {
+        if (isScrollingContentAtStart != null) {
+            state.isScrollingContentAtStart = isScrollingContentAtStart
+        }
+    }
+
+    override val isPinned: Boolean = false
+    override var nestedScrollConnection =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (!canScroll()) return Offset.Zero
+                val prevHeightOffset = state.heightOffset
+                state.heightOffset += available.y
+                // The state's heightOffset is coerce in a minimum value of heightOffsetLimit and a
+                // maximum value 0f, so we check if its value was actually changed after the
+                // available.y was added to it in order to tell if the top app bar is currently
+                // collapsing or expanding.
+                return if (prevHeightOffset != state.heightOffset) {
+                    // We're in the middle of top app bar collapse or expand.
+                    // Consume only the scroll on the Y axis.
+                    available.copy(x = 0f)
+                } else {
+                    Offset.Zero
+                }
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (!canScroll()) return Offset.Zero
+                state.contentOffset += consumed.y
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (available.y > 0f) {
+                    // Reset the total content offset to zero when scrolling all the way down.
+                    // This will eliminate some float precision inaccuracies.
+                    state.contentOffset = 0f
+                }
+                val superConsumed = super.onPostFling(consumed, available)
+                return superConsumed +
+                    settleAppBar(state, available.y, flingAnimationSpec, snapAnimationSpec)
+            }
+        }
+}
+
+/**
+ * A [TopAppBarScrollBehavior] that adjusts its properties to affect the colors and height of a top
+ * app bar.
+ *
+ * A top app bar that is set up with this [TopAppBarScrollBehavior] will immediately collapse when
+ * the nested content is pulled up, and will expand back the collapsed area when the content is
+ * pulled all the way down.
+ *
+ * @param state a [TopAppBarState]
+ * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps to
+ *   either fully collapsed or fully extended state when a fling or a drag scrolled it into an
+ *   intermediate position. If `null` is provided, the app bar will not snap and will remain in its
+ *   current state.
+ * @param flingAnimationSpec an optional [DecayAnimationSpec] that defines how to fling the top app
+ *   bar when the user flings the app bar itself, or the scrollable content. If `null` is provided,
+ *   the app bar will not continue to animate its height based on the scroll velocity.
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [ExitUntilCollapsedScrollBehavior]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private class ExitUntilCollapsedScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,

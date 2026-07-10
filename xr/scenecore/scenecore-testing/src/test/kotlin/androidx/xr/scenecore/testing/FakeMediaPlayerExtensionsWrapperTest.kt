@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.media.MediaPlayer
-import androidx.xr.scenecore.internal.PointSourceParams
-import androidx.xr.scenecore.internal.SoundFieldAttributes
+import androidx.xr.scenecore.runtime.PointSourceParams
+import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.testing.internal.FakeMediaPlayerExtensionsWrapper
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -34,12 +37,14 @@ class FakeMediaPlayerExtensionsWrapperTest {
     @Test
     fun setPointSourceParams_storesParams() {
         val mediaPlayer = MediaPlayer()
-        val params = PointSourceParams(FakeEntity())
-        check(fakeWrapper.pointSourceParams[mediaPlayer] == null)
+        val entity = FakeEntity()
+        val params = PointSourceParams()
+        check(fakeWrapper.paramsWithEntity[mediaPlayer] == null)
 
-        fakeWrapper.setPointSourceParams(mediaPlayer, params)
+        fakeWrapper.setPointSourceParams(mediaPlayer, params, entity)
 
-        assertThat(fakeWrapper.pointSourceParams[mediaPlayer]).isEqualTo(params)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]!!.first).isEqualTo(params)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]!!.second).isEqualTo(entity)
     }
 
     @Test
@@ -51,5 +56,28 @@ class FakeMediaPlayerExtensionsWrapperTest {
         fakeWrapper.setSoundFieldAttributes(mediaPlayer, attributes)
 
         assertThat(fakeWrapper.soundFieldAttributes[mediaPlayer]).isEqualTo(attributes)
+    }
+
+    @Test
+    fun setParamsAndAttributes_areMutuallyExclusive() {
+        val mediaPlayer = MediaPlayer()
+        val entity = FakeEntity()
+        val params = PointSourceParams()
+        val attributes = SoundFieldAttributes(1)
+
+        // 1. Set Point Source, verify data exists and attributes is empty.
+        fakeWrapper.setPointSourceParams(mediaPlayer, params, entity)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]).isNotNull()
+        assertThat(fakeWrapper.soundFieldAttributes[mediaPlayer]).isNull()
+
+        // 2. Set Sound Field, verify Point Source is removed.
+        fakeWrapper.setSoundFieldAttributes(mediaPlayer, attributes)
+        assertThat(fakeWrapper.soundFieldAttributes[mediaPlayer]).isNotNull()
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]).isNull()
+
+        // 3. Set back to Point Source, verify Sound Field is removed.
+        fakeWrapper.setPointSourceParams(mediaPlayer, params, entity)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]).isNotNull()
+        assertThat(fakeWrapper.soundFieldAttributes[mediaPlayer]).isNull()
     }
 }

@@ -25,6 +25,7 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.SurfaceEntity
+import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -94,7 +95,8 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
                     session = session,
                     pose = Pose.Identity,
                     shape = selectedShapeOption,
-                    stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO,
+                    stereoMode = SurfaceEntity.StereoMode.MONO,
+                    parent = session.scene.activitySpace,
                 )
             // Make the video player movable (to make it easier to look at it from
             // different angles and distances)
@@ -106,7 +108,8 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
     }
 
     private fun destroySurfaceEntity() {
-        surfaceEntity?.dispose()
+        surfaceEntity?.removeAllComponents()
+        surfaceEntity?.parent = null
         surfaceEntity = null
         updateButtonStates()
     }

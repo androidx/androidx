@@ -19,6 +19,7 @@ package androidx.wear.widget;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +29,8 @@ public class WearableRecyclerViewTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.wearable_recycler_view_basic);
         WearableRecyclerView wrv = findViewById(R.id.wrv);
         wrv.setLayoutManager(new WearableLinearLayoutManager(this));

@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.webkit.Profile#clearAllOriginMatchedHeaders():
-    Binary breaking change: Added method androidx.webkit.Profile.clearAllOriginMatchedHeaders()
-AddedAbstractMethod: androidx.webkit.Profile#clearOriginMatchedHeader(String):
-    Binary breaking change: Added method androidx.webkit.Profile.clearOriginMatchedHeader(String)
-AddedAbstractMethod: androidx.webkit.Profile#hasOriginMatchedHeader(String):
-    Binary breaking change: Added method androidx.webkit.Profile.hasOriginMatchedHeader(String)
-AddedAbstractMethod: androidx.webkit.Profile#setOriginMatchedHeader(String, String, java.util.Set<java.lang.String>):
-    Binary breaking change: Added method androidx.webkit.Profile.setOriginMatchedHeader(String,String,java.util.Set<java.lang.String>)
+RemovedMethod: androidx.webkit.Profile#clearAllOriginMatchedHeaders():
+    Binary breaking change: Removed method androidx.webkit.Profile.clearAllOriginMatchedHeaders()
+RemovedMethod: androidx.webkit.Profile#clearOriginMatchedHeader(String):
+    Binary breaking change: Removed method androidx.webkit.Profile.clearOriginMatchedHeader(String)
+RemovedMethod: androidx.webkit.Profile#hasOriginMatchedHeader(String):
+    Binary breaking change: Removed method androidx.webkit.Profile.hasOriginMatchedHeader(String)
+RemovedMethod: androidx.webkit.Profile#setOriginMatchedHeader(String, String, java.util.Set<java.lang.String>):
+    Binary breaking change: Removed method androidx.webkit.Profile.setOriginMatchedHeader(String,String,java.util.Set<java.lang.String>)

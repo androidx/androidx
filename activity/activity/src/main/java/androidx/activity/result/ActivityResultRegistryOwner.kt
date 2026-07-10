@@ -25,11 +25,11 @@ package androidx.activity.result
  *
  * @see ActivityResultRegistry
  */
-interface ActivityResultRegistryOwner {
+public interface ActivityResultRegistryOwner {
     /**
      * Returns the ActivityResultRegistry of the provider.
      *
      * @return The activity result registry of the provider.
      */
-    val activityResultRegistry: ActivityResultRegistry
+    public val activityResultRegistry: ActivityResultRegistry
 }

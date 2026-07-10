@@ -27,12 +27,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -49,10 +46,12 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,99 +65,53 @@ import org.intellij.lang.annotations.Language
 
 /**
  * A surface is a fundamental building block in Glimmer. A surface represents a distinct visual area
- * or 'physical' boundary for components such as buttons and cards. A surface is responsible for:
- * 1) Clipping: a surface clips its children to the shape specified by [shape]
- * 2) Border: a surface draws an inner [border] to emphasize the boundary of the component.
- * 3) Background: a surface has a background color of [color].
- * 4) Depth: a surface can have different [Depth] shadows for different states, as specified by
- *    [depth].
- * 5) Content color: a surface provides a [contentColor] for text and icons inside the surface. By
- *    default this is calculated from the provided background color.
- * 6) Interaction states: when focused, a surface displays draws a wider border with a focused
- *    highlight on top. When pressed, a surface draws a pressed overlay. This happens for
- *    interactions emitted from [interactionSource], whether this surface is [focusable] or not.
- *
- * This surface is focusable by default - set [focusable] to false for un-interactive / decorative
- * surfaces. For handling clicks, use the other [surface] overload with an `onClick` parameter.
- *
- * Simple usage:
- *
- * @sample androidx.xr.glimmer.samples.SurfaceSample
- *
- * For custom gesture handling, add the gesture modifier after this [surface], and provide a shared
- * [MutableInteractionSource] to enable this surface to handle focus / press states. You should also
- * pass `false` for [focusable] if that modifier already includes a focus target by default. For
- * example, to create a toggleable surface:
- *
- * @sample androidx.xr.glimmer.samples.ToggleableSurfaceSample
- * @param focusable whether this surface is focusable, true by default. Most surfaces should be
- *   focusable to allow navigation between surfaces in a screen. Unfocusable surfaces may be used
- *   for decorative only elements, such as surfaces used in a compound component with a separate
- *   focusable area.
- * @param shape the [Shape] used to clip this surface, and also used to draw the background and
- *   border
- * @param color the background [Color] for this surface
- * @param contentColor the [Color] for content inside this surface
- * @param depth the [SurfaceDepth] for this surface, representing the [Depth] shadows rendered in
- *   different states.
- * @param border an optional inner border for this surface
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this surface. Note that if `null` is provided, interactions will
- *   still happen internally.
- */
-@Composable
-public fun Modifier.surface(
-    focusable: Boolean = true,
-    shape: Shape = GlimmerTheme.shapes.medium,
-    color: Color = GlimmerTheme.colors.surface,
-    contentColor: Color = calculateContentColor(color),
-    depth: SurfaceDepth? = null,
-    border: BorderStroke? = SurfaceDefaults.border(),
-    interactionSource: MutableInteractionSource? = null,
-): Modifier {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    return this.surfaceDepth(depth, shape, interactionSource)
-        .clip(shape)
-        .contentColorProvider(contentColor)
-        .then(SurfaceNodeElement(shape, border, interactionSource))
-        .background(color = color, shape = shape)
-        .focusable(enabled = focusable, interactionSource = interactionSource)
-}
-
-/**
- * A surface is a fundamental building block in Glimmer. A surface represents a distinct visual area
- * or 'physical' boundary for components such as buttons and cards. A surface is responsible for:
+ * or 'physical' boundary for components such as buttons and cards. A [surface] implements shared
+ * visual decoration for Jetpack Compose Glimmer components:
  * 1) Clipping: a surface clips its children to the shape specified by [shape]
  * 2) Border: a surface draws an inner [border] to emphasize the boundary of the component. When
  *    focused, a surface draws a wider border with a focused highlight on top to indicate the focus
  *    state.
  * 3) Background: a surface has a background color of [color].
- * 4) Depth: a surface can have different [Depth] shadows for different states, as specified by
- *    [depth].
+ * 4) Depth effect: a surface can have different [DepthEffect] shadows for different states, as
+ *    specified by [depthEffect].
  * 5) Content color: a surface provides a [contentColor] for text and icons inside the surface. By
  *    default this is calculated from the provided background color.
  * 6) Interaction states: when focused, a surface displays draws a wider border with a focused
  *    highlight on top. When pressed, a surface draws a pressed overlay. This happens for
- *    interactions emitted from [interactionSource], whether this surface is [enabled] or not.
+ *    interactions emitted from [interactionSource].
  *
- * This surface is focusable and handles clicks. For non-clickable surfaces, use the other overload
- * of [surface] instead. For surfaces with custom gesture handling, refer to the sample and guidance
- * on the other overload of [surface].
+ * Use surface on its own for decorative elements that cannot be interacted with by a user:
+ *
+ * @sample androidx.xr.glimmer.samples.SurfaceSample
+ *
+ * In most cases surfaces should be interactive, to allow users to consistently move focus and
+ * navigate between components. You can use [androidx.compose.foundation.focusable] for focus-only
+ * surfaces, or [androidx.compose.foundation.clickable] and other modifiers for surfaces with
+ * actions. To ensure the surface correctly reflects the interaction states, provide the same
+ * [InteractionSource] to all modifiers.
+ *
+ * For example, to create a clickable surface:
  *
  * @sample androidx.xr.glimmer.samples.ClickableSurfaceSample
- * @param enabled whether this surface is enabled, true by default. When false, this surface will
- *   not respond to user input, and will not be focusable.
+ *
+ * Similarly, to create a focusable surface:
+ *
+ * @sample androidx.xr.glimmer.samples.FocusableSurfaceSample
+ * @param enabled controls the enabled state of this surface. When `false`, a disabled overlay
+ *   visual will be drawn on top of the surface. Note that this only affects the visual decoration;
+ *   it does not intercept input or block interaction states (such as focus or press) from the
+ *   [interactionSource].
  * @param shape the [Shape] used to clip this surface, and also used to draw the background and
  *   border
  * @param color the background [Color] for this surface
  * @param contentColor the [Color] for content inside this surface
- * @param depth the [SurfaceDepth] for this surface, representing the [Depth] shadows rendered in
- *   different states.
+ * @param depthEffect the [SurfaceDepthEffect] for this surface, representing the [DepthEffect]
+ *   shadows rendered in different states.
  * @param border an optional inner border for this surface
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this surface. Note that if `null` is provided, interactions will
- *   still happen internally.
- * @param onClick callback invoked when this surface is clicked
+ * @param interactionSource the [InteractionSource] that emits [Interaction]s for this surface. For
+ *   interactive surfaces, the [InteractionSource] instance provided to this surface must be shared
+ *   with the modifier responsible for emitting [Interaction]s, such as
+ *   [androidx.compose.foundation.focusable] or [androidx.compose.foundation.clickable].
  */
 @Composable
 public fun Modifier.surface(
@@ -166,46 +119,52 @@ public fun Modifier.surface(
     shape: Shape = GlimmerTheme.shapes.medium,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
-    depth: SurfaceDepth? = null,
+    depthEffect: SurfaceDepthEffect? = null,
     border: BorderStroke? = SurfaceDefaults.border(),
-    interactionSource: MutableInteractionSource? = null,
-    onClick: () -> Unit,
+    interactionSource: InteractionSource? = null,
 ): Modifier {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    return this.surfaceDepth(depth, shape, interactionSource)
+    return this.surfaceDepthEffect(depthEffect, shape, interactionSource)
         .clip(shape)
         .contentColorProvider(contentColor)
-        .then(SurfaceNodeElement(shape, border, interactionSource))
+        .then(
+            SurfaceNodeElement(
+                enabled = enabled,
+                shape = shape,
+                border = border,
+                interactionSource = interactionSource,
+            )
+        )
         .background(color = color, shape = shape)
-        // TODO: b/423573184 align on disabled behavior / state
-        .clickable(enabled = enabled, interactionSource = interactionSource, onClick = onClick)
 }
 
 /**
- * Represents the [Depth] used by a [surface] in different states.
+ * Represents the [DepthEffect] used by a [surface] in different states.
  *
- * Focused [surface]s with a [focusedDepth] will have a higher zIndex set so they can draw their
- * focused depth over siblings.
+ * Focused [surface]s with a [focusedDepthEffect] will have a higher zIndex set so they can draw
+ * their focused depth effect over siblings.
  *
- * @property [depth] the [Depth] used when the [surface] is in its default state (no other
- *   interactions are ongoing)
- * @property [focusedDepth] the [Depth] used when the [surface] is focused
+ * @property [depthEffect] the [DepthEffect] used when the [surface] is in its default state (no
+ *   other interactions are ongoing)
+ * @property [focusedDepthEffect] the [DepthEffect] used when the [surface] is focused
  */
 @Immutable
-public class SurfaceDepth(public val depth: Depth?, public val focusedDepth: Depth?) {
+public class SurfaceDepthEffect(
+    public val depthEffect: DepthEffect?,
+    public val focusedDepthEffect: DepthEffect?,
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SurfaceDepth) return false
+        if (other !is SurfaceDepthEffect) return false
 
-        if (depth != other.depth) return false
-        if (focusedDepth != other.focusedDepth) return false
+        if (depthEffect != other.depthEffect) return false
+        if (focusedDepthEffect != other.focusedDepthEffect) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = depth?.hashCode() ?: 0
-        result = 31 * result + (focusedDepth?.hashCode() ?: 0)
+        var result = depthEffect?.hashCode() ?: 0
+        result = 31 * result + (focusedDepthEffect?.hashCode() ?: 0)
         return result
     }
 }
@@ -251,18 +210,32 @@ public object SurfaceDefaults {
  * overlay.
  */
 private class SurfaceNodeElement(
+    private val enabled: Boolean,
     private val shape: Shape,
     private val border: BorderStroke?,
     private val interactionSource: InteractionSource?,
 ) : ModifierNodeElement<SurfaceNode>() {
-    override fun create(): SurfaceNode = SurfaceNode(shape, border, interactionSource)
+    override fun create(): SurfaceNode =
+        SurfaceNode(
+            enabled = enabled,
+            shape = shape,
+            border = border,
+            interactionSource = interactionSource,
+        )
 
-    override fun update(node: SurfaceNode) = node.update(shape, border, interactionSource)
+    override fun update(node: SurfaceNode) =
+        node.update(
+            enabled = enabled,
+            shape = shape,
+            border = border,
+            interactionSource = interactionSource,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SurfaceNodeElement) return false
 
+        if (enabled != other.enabled) return false
         if (shape != other.shape) return false
         if (border != other.border) return false
         if (interactionSource != other.interactionSource) return false
@@ -271,7 +244,8 @@ private class SurfaceNodeElement(
     }
 
     override fun hashCode(): Int {
-        var result = shape.hashCode()
+        var result = enabled.hashCode()
+        result = 31 * result + shape.hashCode()
         result = 31 * result + (border?.hashCode() ?: 0)
         result = 31 * result + (interactionSource?.hashCode() ?: 0)
         return result
@@ -279,6 +253,7 @@ private class SurfaceNodeElement(
 
     override fun InspectorInfo.inspectableProperties() {
         name = "surface"
+        properties["enabled"] = enabled
         properties["shape"] = shape
         properties["border"] = border
         properties["interactionSource"] = interactionSource
@@ -286,6 +261,7 @@ private class SurfaceNodeElement(
 }
 
 private class SurfaceNode(
+    private var enabled: Boolean,
     private var shape: Shape,
     private var border: BorderStroke?,
     private var interactionSource: InteractionSource?,
@@ -315,6 +291,16 @@ private class SurfaceNode(
     var shader: Shader? = null
     var shaderBrush: Brush? = null
 
+    // Graphics Layer
+    private var unfocusedBorderLayer: GraphicsLayer? = null
+    private var unfocusedGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
+    private var focusedBorderLayer: GraphicsLayer? = null
+    private var focusedGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
+    private var focusedHighlightBorderLayer: GraphicsLayer? = null
+    private var focusedHighlightGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
     private var interactionCollectionJob: Job? = null
 
     // Enter / exit animation progress for the width and fade effect applied to the highlight
@@ -332,7 +318,16 @@ private class SurfaceNode(
     private var minimumPressDuration: Job? = null
     private var pressReleaseAnimation: Job? = null
 
-    fun update(shape: Shape, border: BorderStroke?, interactionSource: InteractionSource?) {
+    fun update(
+        enabled: Boolean,
+        shape: Shape,
+        border: BorderStroke?,
+        interactionSource: InteractionSource?,
+    ) {
+        if (this.enabled != enabled) {
+            this.enabled = enabled
+            invalidateDraw()
+        }
         if (this.shape != shape) {
             this.shape = shape
             invalidateDraw()
@@ -462,11 +457,15 @@ private class SurfaceNode(
         drawRect(color = pressedOverlayColor)
         if (border != null) {
             val progress = focusedHighlightProgress
+            val gContext = requireGraphicsContext()
             if (progress > 0f) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val rotationProgressRadians =
+                        (FocusedHighlightRotationEndAngleRadians -
+                            FocusedHighlightRotationStartAngleRadians) *
+                            focusedHighlightRotationProgress
                     val rotationRadians =
-                        FocusedHighlightRotationStartAngleRadians +
-                            focusedHighlightRotationProgress * Math.TAU
+                        FocusedHighlightRotationStartAngleRadians + rotationProgressRadians
                     shader =
                         HighlightShaderHelper.configureShader(
                             shader = shader,
@@ -495,19 +494,56 @@ private class SurfaceNode(
                                 0.dp
                             }
                         }
-                focusedBorderLogic!!.drawBorder(this, focusedBorderWidth!!, border!!.brush, outline)
+                focusedBorderLogic!!.drawBorder(
+                    this,
+                    focusedBorderWidth!!,
+                    border!!.brush,
+                    focusedGraphicsLayerProvider
+                        ?: {
+                                focusedBorderLayer
+                                    ?: gContext.createGraphicsLayer().also {
+                                        focusedBorderLayer = it
+                                    }
+                            }
+                            .also { focusedGraphicsLayerProvider = it },
+                    outline,
+                )
 
                 shaderBrush?.let {
                     focusedHighlightBorderLogic!!.drawBorder(
                         this,
                         focusedBorderWidth!!,
                         it,
+                        focusedHighlightGraphicsLayerProvider
+                            ?: {
+                                    focusedHighlightBorderLayer
+                                        ?: gContext.createGraphicsLayer().also {
+                                            focusedHighlightBorderLayer = it
+                                        }
+                                }
+                                .also { focusedHighlightGraphicsLayerProvider = it },
                         outline,
                     )
                 }
             } else {
-                unfocusedBorderLogic.drawBorder(this, unfocusedBorderWidth, border!!.brush, outline)
+                unfocusedBorderLogic.drawBorder(
+                    this,
+                    unfocusedBorderWidth,
+                    border!!.brush,
+                    unfocusedGraphicsLayerProvider
+                        ?: {
+                                unfocusedBorderLayer
+                                    ?: gContext.createGraphicsLayer().also {
+                                        unfocusedBorderLayer = it
+                                    }
+                            }
+                            .also { unfocusedGraphicsLayerProvider = it },
+                    outline,
+                )
             }
+        }
+        if (!enabled) {
+            drawRect(DisabledOverlayColor)
         }
     }
 
@@ -515,39 +551,62 @@ private class SurfaceNode(
         _focusedHighlightProgress = null
         _focusedHighlightRotationProgress = null
         pressedOverlayAlpha = null
+
+        unfocusedGraphicsLayerProvider = null
+        val gContext = requireGraphicsContext()
+        unfocusedBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            unfocusedBorderLayer = null
+        }
+
+        focusedGraphicsLayerProvider = null
+        focusedBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            focusedBorderLayer = null
+        }
+
+        focusedHighlightGraphicsLayerProvider = null
+        focusedHighlightBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            focusedHighlightBorderLayer = null
+        }
     }
 }
 
 /**
- * Renders and animates a [surface]'s [depth] for a given [shape], by observing [interactionSource].
+ * Renders and animates a [surface]'s [depthEffect] for a given [shape], by observing
+ * [interactionSource].
  */
 @Composable
-private fun Modifier.surfaceDepth(
-    depth: SurfaceDepth?,
+private fun Modifier.surfaceDepthEffect(
+    depthEffect: SurfaceDepthEffect?,
     shape: Shape,
-    interactionSource: InteractionSource,
+    interactionSource: InteractionSource?,
 ): Modifier {
-    if (depth == null) return this
+    if (depthEffect == null) return this
     val focusedProgress = remember { Animatable(0f) }
-    // If focused and there is focused depth, we need to draw the surface on top of
-    // other siblings to make sure the depth occludes siblings.
+    // If focused and there is focused depth effect, we need to draw the surface on top of
+    // other siblings to make sure the depth effect occludes siblings.
     val zIndex by remember {
         // Derived to avoid invalidating layout each frame of the animation
         derivedStateOf {
-            if (depth.focusedDepth != null && focusedProgress.value >= 0.5f) 1f else 0f
+            if (depthEffect.focusedDepthEffect != null && focusedProgress.value >= 0.5f) 1f else 0f
         }
     }
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is FocusInteraction.Focus ->
-                    launch(start = CoroutineStart.UNDISPATCHED) {
-                        focusedProgress.animateTo(1f, FocusedEnterAnimationSpec)
-                    }
-                is FocusInteraction.Unfocus ->
-                    launch(start = CoroutineStart.UNDISPATCHED) {
-                        focusedProgress.animateTo(0f, FocusedExitAnimationSpec)
-                    }
+    if (interactionSource != null) {
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is FocusInteraction.Focus ->
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            focusedProgress.animateTo(1f, FocusedEnterAnimationSpec)
+                        }
+
+                    is FocusInteraction.Unfocus ->
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            focusedProgress.animateTo(0f, FocusedExitAnimationSpec)
+                        }
+                }
             }
         }
     }
@@ -556,9 +615,9 @@ private fun Modifier.surfaceDepth(
             val placeable = measurable.measure(constraints)
             layout(placeable.width, placeable.height) { placeable.place(0, 0, zIndex = zIndex) }
         }
-        .depth(
-            from = depth.depth,
-            to = depth.focusedDepth,
+        .depthEffect(
+            from = depthEffect.depthEffect,
+            to = depthEffect.focusedDepthEffect,
             shape = shape,
             progress = { focusedProgress.value },
         )
@@ -570,20 +629,24 @@ private val DefaultSurfaceBorderWidth = 2.dp
 /** Focused border width for a [surface]. */
 private val FocusedSurfaceBorderWidth = 5.dp
 
-/** Enter animation for focus highlight and depth */
+/** Enter animation for focus highlight and depth effect */
 private val FocusedEnterAnimationSpec: AnimationSpec<Float> =
     spring(dampingRatio = 1f, stiffness = 600f)
 
-/** Exit animation for focus highlight and depth */
+/** Exit animation for focus highlight and depth effect */
 private val FocusedExitAnimationSpec: AnimationSpec<Float> =
     spring(dampingRatio = 1f, stiffness = 100f)
 
 private val FocusedHighlightRotationAnimationSpec: AnimationSpec<Float> =
-    tween(durationMillis = 3_000, easing = LinearOutSlowInEasing, delayMillis = 300)
+    tween(durationMillis = 700, easing = LinearOutSlowInEasing, delayMillis = 40)
 
-private val FocusedHighlightRotationStartAngleRadians: Double = Math.toRadians(40.0)
+private val FocusedHighlightRotationStartAngleRadians: Double = Math.toRadians(-100.0)
+
+private val FocusedHighlightRotationEndAngleRadians: Double = Math.toRadians(35.0)
 
 private val PressedOverlayColor = Color.White
+
+internal val DisabledOverlayColor = Color(0x8F191919)
 
 private const val PressedOverlayAlpha = 0.16f
 
@@ -622,10 +685,10 @@ uniform float iAlphaProgress;
 half4 main(float2 fragCoord) {
     // Horizontal gradient
     half4 colors[4];
-    colors[0] = half4(1.0, 1.0, 1.0, 0.8 * iAlphaProgress); // White with 80% alpha
-    colors[1] = half4(1.0, 1.0, 1.0, 0.0); // Transparent
-    colors[2] = half4(1.0, 1.0, 1.0, 0.0); // Transparent
-    colors[3] = half4(1.0, 1.0, 1.0, 0.2 * iAlphaProgress); // White with 20% alpha
+    colors[0] = half4(1.0, 1.0, 1.0, 1.0 * iAlphaProgress); // White with 100% alpha
+    colors[1] = half4(1.0, 1.0, 1.0, 0.2 * iAlphaProgress); // White with 20% alpha
+    colors[2] = half4(1.0, 1.0, 1.0, 0.2 * iAlphaProgress); // White with 20% alpha
+    colors[3] = half4(1.0, 1.0, 1.0, 0.8 * iAlphaProgress); // White with 80% alpha
 
     // Stops for the horizontal gradient
     float stops[4];

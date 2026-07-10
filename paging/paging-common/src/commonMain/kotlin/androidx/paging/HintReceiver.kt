@@ -18,5 +18,6 @@ package androidx.paging
 
 /** Fetcher-side callbacks for presenter-side access events communicated through [PagingData]. */
 internal interface HintReceiver {
-    fun accessHint(viewportHint: ViewportHint)
+    /** The hint comes from UI. Can be either Access or Initial hint. */
+    fun processHint(viewportHint: ViewportHint)
 }

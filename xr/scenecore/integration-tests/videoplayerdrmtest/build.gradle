@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,24 +29,23 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
         // TODO: This should be lower, possibly 21.
         //       Address API calls that require higher versions.
-        minSdk = 34
+        minSdk { version = release(34) }
     }
-    compileSdk = 35
+    compileSdk { version = release(36) }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.scenecore.samples.videoplayerdrmtest"
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            optimization {
+                enable = true
+            }
         }
     }
 }
@@ -62,9 +60,9 @@ androidx {
 dependencies {
     implementation(project(":xr:assets"))
     implementation(project(":xr:runtime:runtime"))
-    implementation(project(":xr:scenecore:integration-tests:commontestview"))
     implementation(project(":xr:scenecore:scenecore"))
-    implementation(project(":xr:compose:integration-tests:common"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+    implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
     implementation(project(":xr:compose:compose"))
 
     implementation(libs.kotlinCoroutinesGuava)
@@ -83,7 +81,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.5.0")
     implementation("androidx.savedstate:savedstate:1.2.1")
 
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build so the QA team can

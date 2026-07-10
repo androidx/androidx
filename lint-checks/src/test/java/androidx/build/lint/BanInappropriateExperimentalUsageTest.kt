@@ -19,6 +19,7 @@
 package androidx.build.lint
 
 import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.getMavenCoordinatesFromPath
+import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.getMavenCoordinatesFromPrebuiltsPath
 import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotationAlwaysAllowed
 import androidx.build.lint.Stubs.Companion.JetpackOptIn
 import androidx.build.lint.Stubs.Companion.JetpackRequiresOptIn
@@ -81,6 +82,10 @@ class BanInappropriateExperimentalUsageTest :
             getMavenCoordinatesFromPath(
                 "/path/to/checkout/out/androidx/compose/ui/ui-test/build/libs/ui-test-jvmstubs-1.8.0-beta01.jar"
             )
+        val classFileTest =
+            getMavenCoordinatesFromPath(
+                "/path/to/checkout/out/androidx/compose/runtime/runtime/build/classes/kotlin/desktop/main/androidx/compose/runtime/InternalComposeApi.class"
+            )
 
         assertNotNull(paging!!)
         assertEquals("androidx.paging", paging.groupId)
@@ -97,8 +102,34 @@ class BanInappropriateExperimentalUsageTest :
         assertEquals("ui-test", uiTest.artifactId)
         assertEquals("jvmstubs-1.8.0-beta01", uiTest.version)
 
+        assertNotNull(classFileTest)
+        assertEquals("androidx.compose.runtime", classFileTest!!.groupId)
+        assertEquals("runtime", classFileTest.artifactId)
+        assertEquals("", classFileTest.version) // No version information
+
         val invalid = getMavenCoordinatesFromPath("/foo/bar/baz")
         assertNull(invalid)
+    }
+
+    @Test
+    fun `getMavenCoordinatesFromPrebuiltsPath should return correct Maven coordinates`() {
+        val paging =
+            getMavenCoordinatesFromPrebuiltsPath(
+                "/path/to/checkout/prebuilts/androidx/internal/androidx/paging/paging-common/3.2.0-alpha01/paging-common-3.2.0-alpha01.jar"
+            )
+        assertNotNull(paging)
+        assertEquals("androidx.paging", paging!!.groupId)
+        assertEquals("paging-common", paging.artifactId)
+        assertEquals("3.2.0-alpha01", paging.version)
+
+        val uiTest =
+            getMavenCoordinatesFromPrebuiltsPath(
+                "/path/to/checkout/prebuilts/androidx/internal/androidx/compose/ui/ui-test/1.8.0-beta01/ui-test-jvmstubs-1.8.0-beta01.jar"
+            )
+        assertNotNull(uiTest)
+        assertEquals("androidx.compose.ui", uiTest!!.groupId)
+        assertEquals("ui-test", uiTest.artifactId)
+        assertEquals("1.8.0-beta01", uiTest.version)
     }
 
     @Test
@@ -120,8 +151,8 @@ class BanInappropriateExperimentalUsageTest :
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider).expect(expected)
@@ -146,8 +177,8 @@ No warnings.
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider).expect(expected)
@@ -203,32 +234,32 @@ No warnings.
 
         val expected =
             """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @ExperimentalSampleAnnotationJava
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:40: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @RequiresOptInSampleAnnotationJava
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:45: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:58: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:66: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:71: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(
-    ^
-8 errors, 0 warnings
-        """
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @ExperimentalSampleAnnotationJava
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:40: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @RequiresOptInSampleAnnotationJava
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:45: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:58: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:66: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:71: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(
+                ^
+            8 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(provider, consumer).expect(expected)
@@ -286,8 +317,8 @@ No warnings.
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider, consumer).expect(expected)

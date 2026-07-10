@@ -256,30 +256,30 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.NonNull;
-                    public class Foo {
-                        public void foo(@NonNull String[]... args) {}
-                    }
+                package test.pkg;
+                import androidx.annotation.NonNull;
+                public class Foo {
+                    public void foo(@NonNull String[]... args) {}
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    public void foo(@NonNull String[]... args) {}
-                                    ~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                public void foo(@NonNull String[]... args) {}
+                                ~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
-                @@ -4 +4
-                -     public void foo(@NonNull String[]... args) {}
-                +     public void foo(String @org.jspecify.annotations.NonNull []... args) {}
+            Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
+            @@ -4 +4
+            -     public void foo(@NonNull String[]... args) {}
+            +     public void foo(String @org.jspecify.annotations.NonNull []... args) {}
             """
                 .trimIndent()
 
@@ -371,14 +371,14 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    public class Foo {
-                        public String foo() {
-                            @Nullable String str = null;
-                            return str;
-                        }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                public class Foo {
+                    public String foo() {
+                        @Nullable String str = null;
+                        return str;
                     }
+                }
                 """
                     .trimIndent()
             )
@@ -407,30 +407,30 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    public class Foo {
-                        @Nullable
-                        public void foo() {}
-                    }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                public class Foo {
+                    @Nullable
+                    public void foo() {}
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    @Nullable
-                    ~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                @Nullable
+                ~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Delete:
-                @@ -4 +4
-                -     @Nullable
+            Autofix for src/test/pkg/Foo.java line 4: Delete:
+            @@ -4 +4
+            -     @Nullable
             """
                 .trimIndent()
 
@@ -442,30 +442,30 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    public class Foo {
-                        public void foo(@Nullable int i) {}
-                    }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                public class Foo {
+                    public void foo(@Nullable int i) {}
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    public void foo(@Nullable int i) {}
-                                    ~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                public void foo(@Nullable int i) {}
+                                ~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Delete:
-                @@ -4 +4
-                -     public void foo(@Nullable int i) {}
-                +     public void foo(int i) {}
+            Autofix for src/test/pkg/Foo.java line 4: Delete:
+            @@ -4 +4
+            -     public void foo(@Nullable int i) {}
+            +     public void foo(int i) {}
             """
                 .trimIndent()
 
@@ -498,10 +498,10 @@ class JSpecifyNullnessMigrationTest :
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
-                @@ -4 +4
-                -     public void foo(@NonNull Foo.InnerFoo arr) {}
-                +     public void foo(Foo.@org.jspecify.annotations.NonNull InnerFoo arr) {}
+            Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
+            @@ -4 +4
+            -     public void foo(@NonNull Foo.InnerFoo arr) {}
+            +     public void foo(Foo.@org.jspecify.annotations.NonNull InnerFoo arr) {}
             """
                 .trimIndent()
 
@@ -534,11 +534,11 @@ class JSpecifyNullnessMigrationTest :
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
-                @@ -4 +4
-                -     @Nullable
-                -     public String foo() { return null; }
-                +     public @org.jspecify.annotations.Nullable String foo() { return null; }
+            Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
+            @@ -4 +4
+            -     @Nullable
+            -     public String foo() { return null; }
+            +     public @org.jspecify.annotations.Nullable String foo() { return null; }
             """
                 .trimIndent()
 
@@ -570,10 +570,10 @@ class JSpecifyNullnessMigrationTest :
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
-                @@ -4 +4
-                -     public String foo(@Nullable String foo) { return null; }
-                +     public String foo(@org.jspecify.annotations.Nullable String foo) { return null; }
+            Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
+            @@ -4 +4
+            -     public String foo(@Nullable String foo) { return null; }
+            +     public String foo(@org.jspecify.annotations.Nullable String foo) { return null; }
             """
                 .trimIndent()
 
@@ -610,15 +610,15 @@ class JSpecifyNullnessMigrationTest :
 
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 5: Replace annotation:
-                @@ -5 +5
-                -     @Nullable
-                -     public String foo(@NonNull String foo) { return null; }
-                +     public @org.jspecify.annotations.Nullable String foo(@NonNull String foo) { return null; }
-                Autofix for src/test/pkg/Foo.java line 6: Replace annotation:
-                @@ -6 +6
-                -     public String foo(@NonNull String foo) { return null; }
-                +     public String foo(@org.jspecify.annotations.NonNull String foo) { return null; }
+            Autofix for src/test/pkg/Foo.java line 5: Replace annotation:
+            @@ -5 +5
+            -     @Nullable
+            -     public String foo(@NonNull String foo) { return null; }
+            +     public @org.jspecify.annotations.Nullable String foo(@NonNull String foo) { return null; }
+            Autofix for src/test/pkg/Foo.java line 6: Replace annotation:
+            @@ -6 +6
+            -     public String foo(@NonNull String foo) { return null; }
+            +     public String foo(@org.jspecify.annotations.NonNull String foo) { return null; }
             """
                 .trimIndent()
 
@@ -630,33 +630,33 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    public class Foo {
-                        @Nullable
-                        public <T> T foo() {
-                            return null;
-                        }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                public class Foo {
+                    @Nullable
+                    public <T> T foo() {
+                        return null;
                     }
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    @Nullable
-                    ~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                @Nullable
+                ~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
-                @@ -4 +4
-                -     @Nullable
-                -     public <T> T foo() {
-                +     public <T> @org.jspecify.annotations.Nullable T foo() {
+            Autofix for src/test/pkg/Foo.java line 4: Replace annotation:
+            @@ -4 +4
+            -     @Nullable
+            -     public <T> T foo() {
+            +     public <T> @org.jspecify.annotations.Nullable T foo() {
             """
                 .trimIndent()
 
@@ -668,34 +668,34 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    public class RecyclerView {
-                        public class Recycler {}
-                        @Nullable
-                        public RecyclerView.Recycler foo() {
-                            return null;
-                        }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                public class RecyclerView {
+                    public class Recycler {}
+                    @Nullable
+                    public RecyclerView.Recycler foo() {
+                        return null;
                     }
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/RecyclerView.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    @Nullable
-                    ~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/RecyclerView.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                @Nullable
+                ~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/RecyclerView.java line 5: Replace annotation:
-                @@ -5 +5
-                -     @Nullable
-                -     public RecyclerView.Recycler foo() {
-                +     public RecyclerView.@org.jspecify.annotations.Nullable Recycler foo() {
+            Autofix for src/test/pkg/RecyclerView.java line 5: Replace annotation:
+            @@ -5 +5
+            -     @Nullable
+            -     public RecyclerView.Recycler foo() {
+            +     public RecyclerView.@org.jspecify.annotations.Nullable Recycler foo() {
             """
                 .trimIndent()
 
@@ -707,34 +707,34 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.Nullable;
-                    import java.util.List;
-                    public class Foo {
-                        @Nullable
-                        public List<String> foo() {
-                            return null;
-                        }
+                package test.pkg;
+                import androidx.annotation.Nullable;
+                import java.util.List;
+                public class Foo {
+                    @Nullable
+                    public List<String> foo() {
+                        return null;
                     }
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    @Nullable
-                    ~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                @Nullable
+                ~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Autofix for src/test/pkg/Foo.java line 5: Replace annotation:
-                @@ -5 +5
-                -     @Nullable
-                -     public List<String> foo() {
-                +     public @org.jspecify.annotations.Nullable List<String> foo() {
+            Autofix for src/test/pkg/Foo.java line 5: Replace annotation:
+            @@ -5 +5
+            -     @Nullable
+            -     public List<String> foo() {
+            +     public @org.jspecify.annotations.Nullable List<String> foo() {
             """
                 .trimIndent()
 
@@ -746,12 +746,12 @@ class JSpecifyNullnessMigrationTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import androidx.annotation.NonNull;
-                    public class Foo {
-                        public void foo(@NonNull String
-                            arg) {}
-                    }
+                package test.pkg;
+                import androidx.annotation.NonNull;
+                public class Foo {
+                    public void foo(@NonNull String
+                        arg) {}
+                }
                 """
                     .trimIndent()
             )
@@ -793,7 +793,7 @@ class JSpecifyNullnessMigrationTest :
                     private void method2(@Nullable String arg) {
                     }
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -801,28 +801,28 @@ class JSpecifyNullnessMigrationTest :
 
         val expected =
             """
-                src/NullabilityAnnotationsJava.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    private void method1(@NotNull String arg) {
-                                         ~~~~~~~~
-                src/NullabilityAnnotationsJava.java:8: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
-                    private void method2(@Nullable String arg) {
-                                         ~~~~~~~~~
-                2 errors, 0 warnings
+            src/NullabilityAnnotationsJava.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                private void method1(@NotNull String arg) {
+                                     ~~~~~~~~
+            src/NullabilityAnnotationsJava.java:8: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
+                private void method2(@Nullable String arg) {
+                                     ~~~~~~~~~
+            2 errors, 0 warnings
             """
                 .trimIndent()
 
         val expectFixDiffs =
             """
-                Autofix for src/NullabilityAnnotationsJava.java line 5: Replace annotation:
-                @@ -3 +3
-                + import org.jspecify.annotations.NonNull;
-                @@ -5 +6
-                -     private void method1(@NotNull String arg) {
-                +     private void method1(@NonNull String arg) {
-                Autofix for src/NullabilityAnnotationsJava.java line 8: Replace annotation:
-                @@ -8 +8
-                -     private void method2(@Nullable String arg) {
-                +     private void method2(@org.jspecify.annotations.Nullable String arg) {
+            Autofix for src/NullabilityAnnotationsJava.java line 5: Replace annotation:
+            @@ -3 +3
+            + import org.jspecify.annotations.NonNull;
+            @@ -5 +6
+            -     private void method1(@NotNull String arg) {
+            +     private void method1(@NonNull String arg) {
+            Autofix for src/NullabilityAnnotationsJava.java line 8: Replace annotation:
+            @@ -8 +8
+            -     private void method2(@Nullable String arg) {
+            +     private void method2(@org.jspecify.annotations.Nullable String arg) {
             """
                 .trimIndent()
 

@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
@@ -25,9 +26,25 @@ import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class SkinTemperatureRecordTest {
+
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun invalidTimes_same_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            SkinTemperatureRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                deltas = emptyList(),
+            )
+        }
+    }
 
     @Test
     fun invalidTimes_throws() {
@@ -73,6 +90,7 @@ class SkinTemperatureRecordTest {
         }
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidDeltaTime_beforeStartTime_throws() {
         val delta =
@@ -93,6 +111,7 @@ class SkinTemperatureRecordTest {
         }
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidDeltaTime_afterEndTime_throws() {
         val delta =

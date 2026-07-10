@@ -15,17 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
@@ -37,26 +35,24 @@ dependencies {
 
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(libs.androidx.core)
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
 
     testImplementation(libs.kotlinTest)
-    // Newer version require higher compile SDK
-    testImplementation("androidx.core:core:1.12.0")
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
+    testImplementation(libs.guavaAndroid)
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
 }
 
 android {
     namespace = "androidx.wear.protolayout"
-
     defaultConfig {
-        minSdk = 26
-    }
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
+        minSdk { version = release(26) }
     }
 }
 
@@ -65,6 +61,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Create layouts that can be rendered by a remote host."
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }

@@ -26,6 +26,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.pressKey
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
 import org.junit.Assert.assertFalse
@@ -34,6 +35,7 @@ import org.junit.Test
 
 class KeyEventsTestCaseWithWindowDecor :
     BaseKeyEventsTestCase<WindowDecorAppCompatActivity>(WindowDecorAppCompatActivity::class.java) {
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     @Test
     @LargeTest
     @Throws(Throwable::class)

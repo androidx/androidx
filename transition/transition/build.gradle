@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -10,7 +9,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -20,9 +18,8 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     compileOnly("androidx.fragment:fragment:1.7.0")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
-    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.1.0")
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -38,10 +35,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    compileSdk { version = release(35) }
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }

@@ -74,7 +74,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testBasicCallControlCallbackAnswerCall() {
-        setUpV2Test()
         verifyAnswerCall()
     }
 
@@ -88,7 +87,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testRejectCallControlCallbackAnswerCall() {
-        setUpV2Test()
         verifyRejectAnswerCall()
     }
 
@@ -100,7 +98,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testRejectCallControlCallbackHoldCall() {
-        setUpV2Test()
         verifyRejectHoldCall()
     }
 
@@ -112,7 +109,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testRejectCallControlCallbackUnholdCall() {
-        setUpV2Test()
         verifyRejectUnholdCall()
     }
 
@@ -124,7 +120,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testRejectCallControlCallbackDisconnectCall() {
-        setUpV2Test()
         verifyRejectDisconnectCall(true)
     }
 
@@ -136,7 +131,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testRejectCallControlCallbackRejectCall() {
-        setUpV2Test()
         verifyRejectDisconnectCall(false)
     }
 
@@ -149,7 +143,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testBasicCallControlCallbackDisconnectCall() {
-        setUpV2Test()
         verifyDisconnectCall()
     }
 
@@ -162,7 +155,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testBasicCallControlCallbackHoldCall() {
-        setUpV2Test()
         verifyHoldCall()
     }
 
@@ -175,7 +167,6 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testBasicCallControlCallbackUnholdCall() {
-        setUpV2Test()
         verifyUnholdCall()
     }
 

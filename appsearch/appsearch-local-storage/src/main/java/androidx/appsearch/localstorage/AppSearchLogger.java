@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
@@ -26,7 +27,6 @@ import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchSessionStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
-import androidx.appsearch.localstorage.stats.VmInitializationStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.jspecify.annotations.NonNull;
@@ -40,9 +40,8 @@ import java.util.List;
  * (for example {@link CallStats})
  *
  * <p>All implementations of this interface must be thread safe.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchLogger {
     /**
@@ -126,11 +125,6 @@ public interface AppSearchLogger {
      * Logs {@link PersistToDiskStats}
      */
     default void logStats(@NonNull PersistToDiskStats stats) {
-        // no-op
-    }
-
-    /** Logs {@link VmInitializationStats} */
-    default void logStats(@NonNull VmInitializationStats stats) {
         // no-op
     }
 

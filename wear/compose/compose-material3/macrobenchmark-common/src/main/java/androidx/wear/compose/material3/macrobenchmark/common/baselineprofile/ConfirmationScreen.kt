@@ -117,7 +117,7 @@ private fun Confirmation(showConfirmation: MutableState<Boolean>) {
         durationMillis = DurationMillis,
     ) {
         Icon(
-            painterResource(R.drawable.ic_favorite_rounded),
+            painterResource(R.drawable.icon_favorite_rounded),
             contentDescription = null,
             modifier = Modifier.size(ConfirmationDialogDefaults.IconSize),
         )
@@ -133,7 +133,7 @@ fun LongTextConfirmation(showConfirmation: MutableState<Boolean>) {
         durationMillis = DurationMillis,
     ) {
         Icon(
-            painterResource(R.drawable.ic_favorite_rounded),
+            painterResource(R.drawable.icon_favorite_rounded),
             contentDescription = null,
             modifier = Modifier.size(ConfirmationDialogDefaults.SmallIconSize),
         )

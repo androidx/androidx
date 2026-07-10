@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /** Fake [OutputConfigurationWrapper] for use in tests. */
 class FakeOutputConfigurationWrapper(
@@ -51,5 +51,5 @@ class FakeOutputConfigurationWrapper(
         _surfaces.remove(surface)
     }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 }

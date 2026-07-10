@@ -15,9 +15,9 @@
  */
 package androidx.compose.remote.core.operations;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -35,14 +35,18 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Paint data operation */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaintData extends PaintOperation
         implements ComponentData, VariableSupport, Serializable {
     private static final int OP_CODE = Operations.PAINT_VALUES;
     private static final String CLASS_NAME = "PaintData";
     @NonNull public PaintBundle mPaintData = new PaintBundle();
-    public static final int MAX_STRING_SIZE = 4000;
 
     public PaintData() {}
+
+    public PaintData(@NonNull PaintBundle paintData) {
+        mPaintData = paintData;
+    }
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
@@ -113,10 +117,10 @@ public class PaintData extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Encode a Paint ")
-                .field(INT, "length", "id string")
-                .field(INT_ARRAY, "paint", "length", "path encoded as floats");
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("paint_data")
+                .description("Encode a Paint object with various properties")
+                .field(INT_ARRAY, "paintBundle", "The encoded paint properties");
     }
 
     @NonNull

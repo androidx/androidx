@@ -25,6 +25,8 @@ internal const val SCREENSHOT_GOLDEN_DIRECTORY = "pdf/pdf-viewer"
  *
  * Refer go/scuba-best-practices#use-good-naming for naming file names for scuba screenshots.
  */
+internal const val FAST_SCROLLER_BOTTOM = "fast_scroller_bottom"
+internal const val FAST_SCROLLER_TOP = "fast_scroller_top"
 internal const val SEARCH_VIEW_IN_LTR_MODE = "search_view_in_ltr_mode"
 internal const val SEARCH_VIEW_IN_RTL_MODE = "search_view_in_rtl_mode"
 internal const val ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM =
@@ -37,5 +39,4 @@ internal const val ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_NO_TRANSFORM =
     "annotation_view_multiple_squares_same_page_no_transform"
 internal const val ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_SHARED_TRANSFORM =
     "annotation_view_multiple_squares_same_page_shared_transform"
-internal const val ANNOTATION_VIEW_MULTI_PAGE_DIFFERENT_TRANSFORMS =
-    "annotation_view_multi_page_different_transforms"
+internal const val ANNOTATION_VIEW_MULTI_PAGE = "annotation_view_multi_page"

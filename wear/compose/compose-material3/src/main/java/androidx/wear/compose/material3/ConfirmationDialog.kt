@@ -47,12 +47,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.CurvedDirection
@@ -85,6 +90,10 @@ import kotlinx.coroutines.launch
  * Example of a [ConfirmationDialog] with an icon and a curved text content:
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
+ *
+ *   ![ConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -139,6 +148,10 @@ public fun ConfirmationDialog(
  * Example of a [ConfirmationDialog] with an icon and a curved text content:
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
+ *
+ *   ![ConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding.
@@ -184,6 +197,10 @@ public fun ConfirmationDialogContent(
  * Example of a [ConfirmationDialog] with an icon and a text which fits into 3 lines:
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
+ *
+ *   ![LongTextConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -234,6 +251,10 @@ public fun ConfirmationDialog(
  * Example of a [ConfirmationDialog] with an icon and a text which fits into 3 lines:
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
+ *
+ *   ![LongTextConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ *
  * @param text A slot for displaying text below the icon. It should not exceed 3 lines.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param colors A [ConfirmationDialogColors] object for customizing the colors used in this
@@ -309,6 +330,10 @@ public fun ConfirmationDialogContent(
  * Example of a [SuccessConfirmationDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
+ *
+ *   ![SuccessConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -372,6 +397,10 @@ public fun SuccessConfirmationDialog(
  * Example of a [SuccessConfirmationDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
+ *
+ *   ![SuccessConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding, and [ConfirmationDialogDefaults.curvedTextStyle]
@@ -415,9 +444,20 @@ public fun SuccessConfirmationDialogContent(
  * Where user input is required, such as choosing to ok or cancel an action, use [AlertDialog]
  * instead of [FailureConfirmationDialog].
  *
- * Example of [FailureConfirmationDialog] usage:
+ * Example of [FailureConfirmationDialog] usage with default icon:
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
+ *
+ *   ![FailureConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ *
+ * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
+ *
+ * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
+ *
+ *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -432,7 +472,9 @@ public fun SuccessConfirmationDialogContent(
  * @param durationMillis The duration in milliseconds for which the dialog is displayed. This value
  *   will be adjusted by the accessibility manager according to the content displayed.
  * @param content A slot for displaying an icon inside the confirmation dialog, which can be
- *   animated. Defaults to [ConfirmationDialogDefaults.FailureIcon].
+ *   animated. The default value is [ConfirmationDialogDefaults.ConnectionFailureIcon], which shows
+ *   a broken connection to the phone icon. Alternatively, provide
+ *   [ConfirmationDialogDefaults.GenericFailureIcon] for a generic error icon.
  */
 @Composable
 public fun FailureConfirmationDialog(
@@ -443,7 +485,7 @@ public fun FailureConfirmationDialog(
     colors: ConfirmationDialogColors = ConfirmationDialogDefaults.failureColors(),
     properties: DialogProperties = DialogProperties(),
     durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,
-    content: @Composable () -> Unit = { ConfirmationDialogDefaults.FailureIcon() },
+    content: @Composable () -> Unit = { ConfirmationDialogDefaults.ConnectionFailureIcon() },
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     AnimateConfirmationDialog(
@@ -475,9 +517,20 @@ public fun FailureConfirmationDialog(
  * Where user input is required, such as choosing to ok or cancel an action, use [AlertDialog]
  * instead of [FailureConfirmationDialog].
  *
- * Example of [FailureConfirmationDialog] usage:
+ * Example of [FailureConfirmationDialog] usage with default icon:
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
+ *
+ *   ![FailureConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ *
+ * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
+ *
+ * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
+ *
+ *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding.
@@ -486,14 +539,16 @@ public fun FailureConfirmationDialog(
  *   [FailureConfirmationDialog]. will be adjusted by the accessibility manager according to the
  *   content displayed.
  * @param content A slot for displaying an icon inside the confirmation dialog, which can be
- *   animated. Defaults to [ConfirmationDialogDefaults.FailureIcon].
+ *   animated. The default value is [ConfirmationDialogDefaults.ConnectionFailureIcon], which shows
+ *   a broken connection to the phone icon. Alternatively, provide
+ *   [ConfirmationDialogDefaults.GenericFailureIcon] for a generic error icon.
  */
 @Composable
 public fun FailureConfirmationDialogContent(
     curvedText: (CurvedScope.() -> Unit)?,
     modifier: Modifier = Modifier,
     colors: ConfirmationDialogColors = ConfirmationDialogDefaults.failureColors(),
-    content: @Composable () -> Unit = { ConfirmationDialogDefaults.FailureIcon() },
+    content: @Composable () -> Unit = { ConfirmationDialogDefaults.ConnectionFailureIcon() },
 ) {
     ConfirmationDialogContentWrapper(
         curvedText = curvedText,
@@ -565,21 +620,23 @@ public object ConfirmationDialogDefaults {
             animatedDelay(IconDelay, reduceMotionEnabled)
             atEnd = true
         }
-        Icon(
-            painter = rememberAnimatedVectorPainter(animation, atEnd),
-            contentDescription = null,
-            modifier = modifier.size(IconSize),
-        )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Icon(
+                painter = rememberAnimatedVectorPainter(animation, atEnd),
+                contentDescription = null,
+                modifier = modifier.size(IconSize),
+            )
+        }
     }
 
     /**
-     * A default composable used in [FailureConfirmationDialog] that displays a failure icon with an
-     * animation.
+     * A default composable used in [FailureConfirmationDialog] that displays a broken connection to
+     * the phone icon with an animation.
      *
      * @param modifier Modifier to be applied to the failure icon.
      */
     @Composable
-    public fun FailureIcon(modifier: Modifier = Modifier) {
+    public fun ConnectionFailureIcon(modifier: Modifier = Modifier) {
         val animation =
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_failure_animation)
         var atEnd by remember { mutableStateOf(false) }
@@ -591,6 +648,36 @@ public object ConfirmationDialogDefaults {
         }
         Icon(
             painter = rememberAnimatedVectorPainter(animation, atEnd),
+            contentDescription = null,
+            modifier = modifier.size(IconSize),
+        )
+    }
+
+    /**
+     * A default composable used in [FailureConfirmationDialog] that displays a broken connection to
+     * the phone icon with an animation.
+     *
+     * @param modifier Modifier to be applied to the failure icon.
+     */
+    @Deprecated(
+        "This composable is provided for backwards compatibility with Compose for Wear OS 1.5. " +
+            "It has been renamed to clarify the meaning of the icon. Use ConnectionFailureIcon instead.",
+        replaceWith = ReplaceWith("ConnectionFailureIcon"),
+        level = DeprecationLevel.WARNING,
+    )
+    @Composable
+    public fun FailureIcon(modifier: Modifier = Modifier): Unit = ConnectionFailureIcon(modifier)
+
+    /**
+     * A default composable used in [FailureConfirmationDialog] that displays a generic error icon.
+     *
+     * @param modifier Modifier to be applied to the failure icon.
+     */
+    @Composable
+    public fun GenericFailureIcon(modifier: Modifier = Modifier) {
+        val image = ImageVector.vectorResource(R.drawable.wear_m3c_error)
+        Icon(
+            painter = rememberVectorPainter(image),
             contentDescription = null,
             modifier = modifier.size(IconSize),
         )
@@ -788,6 +875,12 @@ private fun AnimateConfirmationDialog(
     durationMillis: Long,
     content: @Composable () -> Unit,
 ) {
+    if (visible) {
+        // This will activate the screen-on flag for the duration of this screen, so that the
+        // animations run to completion and then the dialog self-dismisses.
+        KeepScreenOn()
+    }
+
     val a11yDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
             originalTimeoutMillis = durationMillis,

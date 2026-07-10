@@ -54,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
         MenuListView listView = findViewById(R.id.top_level_list);
         MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
                 new MenuListView.MenuItem(
+                        getResources().getString(R.string.webview_evaluation_activity_title),
+                        new Intent(activityContext, WebViewEvaluationActivity.class)),
+                new MenuListView.MenuItem(
                         getResources().getString(
                                 R.string.javascriptengine_evaluation_activity_title),
                         new Intent(activityContext, JavaScriptEngineEvaluationActivity.class)),
-                new MenuListView.MenuItem(
-                        getResources().getString(R.string.webview_evaluation_activity_title),
-                        new Intent(activityContext, WebViewEvaluationActivity.class)),
         };
         listView.setItems(menuItems);
     }

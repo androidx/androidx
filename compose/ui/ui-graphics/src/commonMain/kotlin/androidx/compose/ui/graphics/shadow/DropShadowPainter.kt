@@ -233,7 +233,17 @@ internal class DropShadowRenderer(val shadow: Shadow, outline: Outline) : Shadow
         with(shadowCanvas) {
             if (spread > 0f) {
                 translate(radius + spread, radius + spread)
-                drawPath(path, paint)
+                drawPath(
+                    path,
+                    paint.configureShadow(
+                        blurFilter =
+                            if (radius > 0) {
+                                BlurFilter(radius)
+                            } else {
+                                null
+                            }
+                    ),
+                )
                 drawPath(
                     path,
                     paint

@@ -19,6 +19,7 @@ package androidx.camera.effects.opengl
 import android.graphics.SurfaceTexture
 import android.view.Surface
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
@@ -73,6 +74,7 @@ class GlContextDeviceTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/441561813
     @Test
     fun drawRegisteredSurface_noException() {
         instrumentation.runOnMainSync {

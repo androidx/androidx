@@ -17,6 +17,8 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -35,6 +37,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Support clip with a rounded rectangle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RoundedClipRectModifierOperation extends DrawBase4
         implements ModifierOperation, DecoratorComponent {
     public static final int OP_CODE = Operations.MODIFIER_ROUNDED_CLIP_RECT;
@@ -81,28 +84,13 @@ public class RoundedClipRectModifierOperation extends DrawBase4
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Modifier Operations", id(), "RoundedClipRectModifierOperation")
-                .description("clip with rectangle")
-                .field(
-                        FLOAT,
-                        "topStart",
-                        "The topStart radius of the rectangle to "
-                                + "intersect with the current clip")
-                .field(
-                        FLOAT,
-                        "topEnd",
-                        "The topEnd radius of the rectangle to "
-                                + "intersect with the current clip")
-                .field(
-                        FLOAT,
-                        "bottomStart",
-                        "The bottomStart radius of the rectangle to "
-                                + "intersect with the current clip")
-                .field(
-                        FLOAT,
-                        "bottomEnd",
-                        "The bottomEnd radius of the rectangle to "
-                                + "intersect with the current clip");
+        doc.operation("Modifier Operations", id(), CLASS_NAME)
+                .additionalDocumentation("modifier_rounded_clip_rect")
+                .description("Clip the component's content to its rounded rectangular bounds")
+                .field(FLOAT, "topStart", "The topStart radius of the rectangle")
+                .field(FLOAT, "topEnd", "The topEnd radius of the rectangle")
+                .field(FLOAT, "bottomStart", "The bottomStart radius of the rectangle")
+                .field(FLOAT, "bottomEnd", "The bottomEnd radius of the rectangle");
     }
 
     float mWidth;
@@ -116,7 +104,18 @@ public class RoundedClipRectModifierOperation extends DrawBase4
 
     @Override
     public void paint(@NonNull PaintContext context) {
-        context.roundedClipRect(mWidth, mHeight, mX1, mY1, mX2, mY2);
+        float topStart = mX1;
+        float topEnd = mY1;
+        float bottomStart = mX2;
+        float bottomEnd = mY2;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            float density = context.getDensity();
+            topStart *= density;
+            topEnd *= density;
+            bottomStart *= density;
+            bottomEnd *= density;
+        }
+        context.roundedClipRect(mWidth, mHeight, topStart, topEnd, bottomStart, bottomEnd);
     }
 
     @Override

@@ -17,17 +17,16 @@
 package androidx.camera.view
 
 import android.content.Context
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.testrule.CameraTestActivityScenarioRule
@@ -69,10 +68,6 @@ class PreviewViewStreamStateTest(
     @get:Rule
     val activityRule: CameraTestActivityScenarioRule<FakeActivity> =
         CameraTestActivityScenarioRule(FakeActivity::class.java)
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private lateinit var defaultCameraSelector: CameraSelector
 
@@ -220,7 +215,7 @@ class PreviewViewStreamStateTest(
         @BeforeClass
         @JvmStatic
         fun classSetUp() {
-            CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }
 
         const val TIMEOUT_SECONDS = 10L

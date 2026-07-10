@@ -18,7 +18,6 @@ package androidx.camera.integration.core.stresstest
 
 import android.Manifest
 import android.content.Context
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
@@ -29,26 +28,21 @@ import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATIO
 import androidx.camera.integration.core.util.StressTestUtil.launchCameraXActivityAndWaitForPreviewReady
 import androidx.camera.integration.core.waitForViewfinderIdle
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.StressTestRule
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
@@ -63,11 +57,12 @@ class ImageCaptureStressTest(
     val cameraConfig: CameraXConfig,
     val cameraId: String,
 ) {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
+    }
 
     @get:Rule
     val useCamera =
@@ -77,7 +72,10 @@ class ImageCaptureStressTest(
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        GrantPermissionRule.grant(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        )
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
 
@@ -96,43 +94,21 @@ class ImageCaptureStressTest(
 
     @Before
     fun setup(): Unit = runBlocking {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
-
         // For running the ImageCaptureStressTest, we need to get the target test camera to check
         // whether the testing use case combination can be supported to skip unsupported cases. For
         // the purpose, we force configure the target testing config first
-        // (Camera2Config/CameraPipeConfig) and gets the CameraProvider instance in the setup()
+        // Camera2Config and gets the CameraProvider instance in the setup()
         // function. Then, the activity launched afterward will also run on the same config
         // environment. The setup config environment will be cleared after
         // CameraProvider#shutdown() is called in the tearDown() function.
         ProcessCameraProvider.configureInstance(cameraConfig)
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-    }
-
-    @After
-    fun tearDown(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(StressTestUtil.HOME_TIMEOUT_MS)
     }
 
     @LabTestRule.LabTestOnly

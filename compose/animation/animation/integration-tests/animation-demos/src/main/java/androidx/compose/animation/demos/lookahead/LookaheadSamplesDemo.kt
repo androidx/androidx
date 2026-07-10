@@ -16,9 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
-import androidx.compose.animation.core.ExperimentalAnimatableApi
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,21 +48,23 @@ fun LookaheadSamplesDemo() {
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class, ExperimentalSharedTransitionApi::class)
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Composable
 public fun ApproachLayoutSample0() {
     var fullWidth by remember { mutableStateOf(false) }
-    LookaheadScope {
-        Row(
-            (if (fullWidth) Modifier.fillMaxWidth() else Modifier.width(100.dp))
-                .height(200.dp)
-                // Use the custom modifier created above to animate the constraints passed
-                // to the child, and therefore resize children in an animation.
-                .animateBounds(this@LookaheadScope)
-                .clickable { fullWidth = !fullWidth }
-        ) {
-            Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)))
-            Box(Modifier.weight(2f).fillMaxHeight().background(Color(0xffffcc5c)))
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            Row(
+                (if (fullWidth) Modifier.fillMaxWidth() else Modifier.width(100.dp))
+                    .height(200.dp)
+                    // Use the custom modifier created above to animate the constraints passed
+                    // to the child, and therefore resize children in an animation.
+                    .animateBounds(this@LookaheadScope)
+                    .clickable { fullWidth = !fullWidth }
+            ) {
+                Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)))
+                Box(Modifier.weight(2f).fillMaxHeight().background(Color(0xffffcc5c)))
+            }
         }
     }
 }

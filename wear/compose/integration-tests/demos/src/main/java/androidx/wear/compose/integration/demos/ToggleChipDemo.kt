@@ -174,7 +174,7 @@ fun ToggleChips(
                         Switch(checked = switchIconWithSecondaryChecked, enabled = enabled)
                     },
                     onCheckedChange = { switchIconWithSecondaryChecked = it },
-                    appIcon = { DemoIcon(R.drawable.ic_airplanemode_active_24px) },
+                    appIcon = { DemoIcon(R.drawable.icon_airplanemode_active_24px) },
                     enabled = enabled,
                 )
             }
@@ -200,8 +200,8 @@ fun ToggleChips(
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
                     appIcon = {
-                        if (switchIconWithIconChecked) DemoIcon(R.drawable.ic_volume_up_24px)
-                        else DemoIcon(R.drawable.ic_volume_off_24px)
+                        if (switchIconWithIconChecked) DemoIcon(R.drawable.icon_volume_up_24px)
+                        else DemoIcon(R.drawable.icon_volume_off_24px)
                     },
                     enabled = enabled,
                 )

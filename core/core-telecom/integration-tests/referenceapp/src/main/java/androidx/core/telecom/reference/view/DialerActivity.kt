@@ -17,13 +17,16 @@
 package androidx.core.telecom.reference.view
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.telecom.TelecomManager
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -57,6 +60,20 @@ class DialerActivity : ComponentActivity() {
     private val callRepository: CallRepository by lazy {
         (application as VoipApplication).callRepository
     }
+
+    private val mCallbackReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                if (TelecomManager.ACTION_CALL_BACK == intent?.action) {
+                    val uuid = intent.getStringExtra(TelecomManager.EXTRA_UUID)
+                    Log.i(
+                        TAG,
+                        "Received action callback intent. Attempting to" +
+                            " place a call with uuid - $uuid",
+                    )
+                }
+            }
+        }
 
     // List of permissions required by the app
     private val requiredPermissions =

@@ -1,0 +1,25 @@
+// Signature format: 4.0
+package androidx.appstate {
+
+  public final class AppState {
+    ctor public AppState();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.appstate.AppStateKey<? extends java.lang.Object?>> getKeys();
+    method public <T> androidx.compose.runtime.State<T> getState(androidx.appstate.AppStateKey<T> stateKey, T defaultValue);
+    method public <T> void setState(androidx.appstate.AppStateKey<T> stateKey, T value);
+    method public inline <T> void updateState(androidx.appstate.AppStateKey<T> stateKey, T defaultValue, kotlin.jvm.functions.Function1<? super T,? extends T> update);
+    property public java.util.Set<androidx.appstate.AppStateKey<? extends java.lang.Object?>> keys;
+  }
+
+  @kotlinx.serialization.Serializable public class AppStateKey<T> {
+    ctor public AppStateKey();
+    ctor @BytecodeOnly public AppStateKey(androidx.appstate.AppStateKey!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public AppStateKey(optional androidx.appstate.AppStateKey<T>? autoClearKey, optional kotlin.jvm.functions.Function1<? super androidx.appstate.AppState,java.lang.Boolean> shouldClearState);
+    ctor @BytecodeOnly public AppStateKey(int, kotlinx.serialization.internal.SerializationConstructorMarker!);
+    method @InaccessibleFromKotlin public final androidx.appstate.AppStateKey<T>? getAutoClearKey();
+    method @InaccessibleFromKotlin public final kotlin.jvm.functions.Function1<androidx.appstate.AppState,java.lang.Boolean> getShouldClearState();
+    property @kotlinx.serialization.Transient public final androidx.appstate.AppStateKey<T>? autoClearKey;
+    property @kotlinx.serialization.Transient public final kotlin.jvm.functions.Function1<androidx.appstate.AppState,java.lang.Boolean> shouldClearState;
+  }
+
+}
+

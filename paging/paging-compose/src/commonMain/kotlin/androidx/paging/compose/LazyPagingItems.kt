@@ -134,8 +134,9 @@ internal constructor(
      *
      * [refresh] triggers the creation of a new [PagingData] with a new instance of [PagingSource]
      * to represent an updated snapshot of the backing dataset. If a [RemoteMediator] is set,
-     * calling [refresh] will also trigger a call to [RemoteMediator.load] with [LoadType] [REFRESH]
-     * to allow [RemoteMediator] to check for updates to the dataset backing [PagingSource].
+     * calling [refresh] will also trigger a call to [RemoteMediator.load] with
+     * [androidx.paging.LoadType.REFRESH] to allow [RemoteMediator] to check for updates to the
+     * dataset backing [PagingSource].
      *
      * Note: This API is intended for UI-driven refresh signals, such as swipe-to-refresh.
      * Invalidation due repository-layer signals, such as DB-updates, should instead use

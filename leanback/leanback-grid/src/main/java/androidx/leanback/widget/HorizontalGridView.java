@@ -117,6 +117,16 @@ public class HorizontalGridView extends BaseGridView {
     }
 
     /**
+     * Returns the number of rows that the GridView is using.  Note that when {@code setNumRows(0)}
+     * is called, the actual number of rows will be calculated from rowHeight and grid view
+     * height during layout; calling it early may return zero.
+     * @return the number of rows that recyclerview will use to layout.
+     */
+    public int getNumRows() {
+        return mLayoutManager.getNumRows();
+    }
+
+    /**
      * Sets the row height.
      *
      * @param height May be {@link android.view.ViewGroup.LayoutParams#WRAP_CONTENT WRAP_CONTENT},

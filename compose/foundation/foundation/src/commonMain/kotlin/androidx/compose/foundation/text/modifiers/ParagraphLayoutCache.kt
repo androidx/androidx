@@ -279,6 +279,7 @@ internal class ParagraphLayoutCache(
                     density = density!!,
                     fontFamilyResolver = fontFamilyResolver,
                     placeholders = listOf(),
+                    softWrap = softWrap,
                 )
             } else {
                 localIntrinsics
@@ -393,6 +394,7 @@ internal class ParagraphLayoutCache(
                     placeholders = emptyList(),
                     density = localDensity,
                     fontFamilyResolver = fontFamilyResolver,
+                    softWrap = softWrap,
                 ),
                 finalConstraints,
                 maxLines,
@@ -420,9 +422,16 @@ internal class ParagraphLayoutCache(
 @JvmInline
 internal value class LayoutCacheOperation private constructor(val flag: Long) {
     companion object {
-        val MarkDirtyStyle = LayoutCacheOperation(0b00)
-        val MarkDirtyDensity = LayoutCacheOperation(0b01)
-        val MarkDirtyNode = LayoutCacheOperation(0b10)
-        val LayoutWithConstraints = LayoutCacheOperation(0b11)
+        val MarkDirtyStyle
+            get() = LayoutCacheOperation(0b00)
+
+        val MarkDirtyDensity
+            get() = LayoutCacheOperation(0b01)
+
+        val MarkDirtyNode
+            get() = LayoutCacheOperation(0b10)
+
+        val LayoutWithConstraints
+            get() = LayoutCacheOperation(0b11)
     }
 }

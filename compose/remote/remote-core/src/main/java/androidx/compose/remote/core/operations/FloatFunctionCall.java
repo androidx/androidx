@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** This provides the command to call a floatfunction defined in floatfunction */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatFunctionCall extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.FUNCTION_CALL;
     private static final String CLASS_NAME = "FunctionCall";
@@ -139,7 +141,7 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int argLen = buffer.readInt();
         if (argLen > MAX_FLOAT_ARRAY_SIZE) {
             throw new RuntimeException("array too big " + argLen);
@@ -148,7 +150,7 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
         if (argLen > 0) {
             args = new float[argLen];
             for (int i = 0; i < argLen; i++) {
-                args[i] = buffer.readFloat();
+                args[i] = buffer.readNanId();
             }
         }
 

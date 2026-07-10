@@ -15,7 +15,10 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 /** Provide a bouncing Easing function */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ElasticOutCurve extends Easing {
     private static final float F_PI = (float) Math.PI;
     private static final float C4 = 2 * F_PI / 3;

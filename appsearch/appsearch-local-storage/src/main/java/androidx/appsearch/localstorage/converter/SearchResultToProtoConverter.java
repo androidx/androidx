@@ -22,6 +22,7 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFrom
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GenericDocument;
@@ -46,12 +47,12 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResult}s.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {
     private SearchResultToProtoConverter() {
@@ -65,12 +66,14 @@ public class SearchResultToProtoConverter {
      * @return {@link SearchResultPage} of results.
      */
     public static @NonNull SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
-            @NonNull SchemaCache schemaCache, @NonNull AppSearchConfig config)
+            @NonNull SchemaCache schemaCache, @NonNull AppSearchConfig config,
+            @NonNull Set<String> resultsPrefixedSchemasOut)
             throws AppSearchException {
         List<SearchResult> results = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
             SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaCache,
                     config);
+            resultsPrefixedSchemasOut.add(result.getGenericDocument().getSchemaType());
             results.add(result);
         }
         return new SearchResultPage(proto.getNextPageToken(), results);
@@ -109,12 +112,10 @@ public class SearchResultToProtoConverter {
                             entry.getSnippetMatches(j), entry.getPropertyName());
                     builder.addMatchInfo(matchInfo);
                 }
-                if (Flags.enableEmbeddingMatchInfo()) {
-                    for (int j = 0; j < entry.getEmbeddingMatchesCount(); j++) {
-                        SearchResult.MatchInfo matchInfo = toMatchInfoWithEmbeddingMatch(
-                                entry.getEmbeddingMatches(j), entry.getPropertyName());
-                        builder.addMatchInfo(matchInfo);
-                    }
+                for (int j = 0; j < entry.getEmbeddingMatchesCount(); j++) {
+                    SearchResult.MatchInfo matchInfo = toMatchInfoWithEmbeddingMatch(
+                            entry.getEmbeddingMatches(j), entry.getPropertyName());
+                    builder.addMatchInfo(matchInfo);
                 }
             }
         }
@@ -180,9 +181,7 @@ public class SearchResultToProtoConverter {
                 .build();
     }
 
-    /**
-     * Returns a MatchInfo for an embedding match. Requires Flags.enableEmbeddingMatchInfo() = true.
-     */
+    /** Returns a MatchInfo for an embedding match. */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static SearchResult.MatchInfo toMatchInfoWithEmbeddingMatch(
             @NonNull EmbeddingMatchSnippetProto embeddingMatchSnippetProto,

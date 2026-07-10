@@ -16,6 +16,7 @@
 
 package androidx.xr.runtime.math
 
+import androidx.annotation.RestrictTo
 import kotlin.math.sqrt
 
 /**
@@ -28,7 +29,7 @@ import kotlin.math.sqrt
  *  [3, 7, 11, 15]
  * ```
  *
- * @param dataToCopy the array with 16 elements that will be copied over.
+ * @param dataToCopy the array with 16 elements that will be copied over
  */
 public class Matrix4(dataToCopy: FloatArray) {
     init {
@@ -57,22 +58,28 @@ public class Matrix4(dataToCopy: FloatArray) {
     /** Returns the rotation component of this matrix. */
     public val rotation: Quaternion by lazy(LazyThreadSafetyMode.NONE) { rotation() }
 
-    /** Returns the pose (i.e. rotation and translation) of this matrix. */
-    public val pose: Pose by lazy(LazyThreadSafetyMode.NONE) { Pose(translation, rotation) }
+    private val cachedPose: Pose by lazy(LazyThreadSafetyMode.NONE) { Pose(translation, rotation) }
 
-    /**
-     * Returns true if this matrix is a valid transformation matrix that can be decomposed into
-     * translation, rotation and scale using determinant properties.
-     */
+    /** Returns the pose (i.e. rotation and translation) of this matrix. */
+    @Deprecated(
+        message = "Use toPose() instead.",
+        replaceWith = ReplaceWith("toPose()"),
+        level = DeprecationLevel.WARNING,
+    )
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public val pose: Pose
+        get() = toPose()
+
+    /** True if the matrix represents a valid translation-rotation-scale transformation. */
     public val isTrs: Boolean by lazy(LazyThreadSafetyMode.NONE) { determinant() != 0.0f }
+
+    /** Converts this matrix to a [Pose] object. */
+    public fun toPose(): Pose = cachedPose
 
     /** Creates a new matrix with a deep copy of the data from the [other] [Matrix4]. */
     public constructor(other: Matrix4) : this(other.data.copyOf())
 
-    /**
-     * Returns a new matrix with the matrix multiplication product of this matrix and the [other]
-     * matrix.
-     */
+    /** Multiplies this matrix by [other]. */
     public operator fun times(other: Matrix4): Matrix4 {
         val resultData = FloatArray(16)
         android.opengl.Matrix.multiplyMM(
@@ -208,7 +215,7 @@ public class Matrix4(dataToCopy: FloatArray) {
                     data[5] * (data[2] * data[11] - data[10] * data[3]) +
                     data[9] * (data[2] * data[7] - data[6] * data[3]))
 
-    /** Returns true if this pose is equal to [other]. */
+    /** Returns true if this matrix is equal to [other]. */
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Matrix4) return false
@@ -255,8 +262,12 @@ public class Matrix4(dataToCopy: FloatArray) {
             data[15] +
             " ]"
 
-    /** Returns a copy of the matrix. */
-    public fun copy(data: FloatArray = this.data): Matrix4 = Matrix4(data)
+    /**
+     * Returns a copy of the matrix.
+     *
+     * @param data the new data for the copied matrix
+     */
+    @JvmOverloads public fun copy(data: FloatArray = this.data): Matrix4 = Matrix4(data)
 
     public companion object {
         /** Returns an identity matrix. */
@@ -272,11 +283,15 @@ public class Matrix4(dataToCopy: FloatArray) {
         /**
          * Returns a new transformation matrix. The returned matrix is such that it first scales
          * objects, then rotates them, and finally translates them.
+         *
+         * @param translation the translation component
+         * @param rotation the rotation component
+         * @param scale the scale component
          */
         @JvmStatic
         public fun fromTrs(translation: Vector3, rotation: Quaternion, scale: Vector3): Matrix4 {
             // implementationd details: https://www.songho.ca/opengl/gl_quaternion.html
-            val q = rotation.toNormalized()
+            val q = rotation
 
             // double var1 var2
             val dqyx = 2 * q.y * q.x
@@ -314,7 +329,11 @@ public class Matrix4(dataToCopy: FloatArray) {
             )
         }
 
-        /** Returns a new translation matrix. */
+        /**
+         * Returns a new translation matrix.
+         *
+         * @param translation the translation vector
+         */
         @JvmStatic
         public fun fromTranslation(translation: Vector3): Matrix4 =
             Matrix4(
@@ -338,7 +357,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new uniform scale matrix. */
+        /**
+         * Returns a new scale matrix.
+         *
+         * @param scale the scale vector
+         */
         @JvmStatic
         public fun fromScale(scale: Vector3): Matrix4 =
             Matrix4(
@@ -362,7 +385,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new scale matrix. */
+        /**
+         * Returns a new uniform scale matrix.
+         *
+         * @param scale the uniform scale factor
+         */
         @JvmStatic
         public fun fromScale(scale: Float): Matrix4 =
             Matrix4(
@@ -386,7 +413,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new rotation matrix. */
+        /**
+         * Returns a new rotation matrix.
+         *
+         * @param quaternion the rotation quaternion
+         */
         @JvmStatic
         public fun fromQuaternion(quaternion: Quaternion): Matrix4 =
             fromTrs(Vector3.Zero, quaternion, Vector3.One)
@@ -394,6 +425,8 @@ public class Matrix4(dataToCopy: FloatArray) {
         /**
          * Returns a new rigid transformation matrix. The returned matrix is such that it first
          * rotates objects, and then translates them.
+         *
+         * @param pose the pose to convert
          */
         @JvmStatic
         public fun fromPose(pose: Pose): Matrix4 {

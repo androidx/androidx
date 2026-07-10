@@ -33,20 +33,20 @@ class ReplaceWithDetectorMethodTest {
 
         val expected =
             """
-src/replacewith/StaticMethodExplicitClass.java:25: Hint: Replacement available [ReplaceWith]
-        ReplaceWithUsageJava.toString(this);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/StaticMethodExplicitClass.java:25: Hint: Replacement available [ReplaceWith]
+                    ReplaceWithUsageJava.toString(this);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/StaticMethodExplicitClass.java line 25: Replace with `this.toString()`:
-@@ -25 +25
--         ReplaceWithUsageJava.toString(this);
-+         this.toString();
-        """
+            Fix for src/replacewith/StaticMethodExplicitClass.java line 25: Replace with `this.toString()`:
+            @@ -25 +25
+            -         ReplaceWithUsageJava.toString(this);
+            +         this.toString();
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -58,20 +58,20 @@ Fix for src/replacewith/StaticMethodExplicitClass.java line 25: Replace with `th
 
         val expected =
             """
-src/replacewith/MethodImplicitThis.java:33: Hint: Replacement available [ReplaceWith]
-        oldMethod(null);
-        ~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/MethodImplicitThis.java:33: Hint: Replacement available [ReplaceWith]
+                    oldMethod(null);
+                    ~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/MethodImplicitThis.java line 33: Replace with `newMethod(null)`:
-@@ -33 +33
--         oldMethod(null);
-+         newMethod(null);
-        """
+            Fix for src/replacewith/MethodImplicitThis.java line 33: Replace with `newMethod(null)`:
+            @@ -33 +33
+            -         oldMethod(null);
+            +         newMethod(null);
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -83,20 +83,20 @@ Fix for src/replacewith/MethodImplicitThis.java line 33: Replace with `newMethod
 
         val expected =
             """
-src/replacewith/MethodExplicitThis.java:33: Hint: Replacement available [ReplaceWith]
-        this.oldMethod(null);
-             ~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/MethodExplicitThis.java:33: Hint: Replacement available [ReplaceWith]
+                    this.oldMethod(null);
+                         ~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/MethodExplicitThis.java line 33: Replace with `newMethod(null)`:
-@@ -33 +33
--         this.oldMethod(null);
-+         this.newMethod(null);
-        """
+            Fix for src/replacewith/MethodExplicitThis.java line 33: Replace with `newMethod(null)`:
+            @@ -33 +33
+            -         this.oldMethod(null);
+            +         this.newMethod(null);
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)

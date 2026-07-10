@@ -44,6 +44,11 @@ public final class MetadataRepo {
     private static final int DEFAULT_ROOT_SIZE = 1024;
 
     /**
+     * Maximum number of emojis allowed in the metadata to prevent excessive memory allocation.
+     */
+    private static final int MAX_EMOJI_COUNT = 100_000;
+
+    /**
      * MetadataList that contains the emoji metadata.
      */
     private final MetadataList mMetadataList;
@@ -87,7 +92,12 @@ public final class MetadataRepo {
         mTypeface = typeface;
         mMetadataList = metadataList;
         mRootNode = new Node(DEFAULT_ROOT_SIZE);
-        mEmojiCharArray = new char[mMetadataList.listLength() * 2];
+        final int listLength = mMetadataList.listLength();
+        if (listLength > MAX_EMOJI_COUNT) {
+            // Prevent excessive memory allocation for the emoji character array.
+            throw new IllegalArgumentException("Metadata list length is too large.");
+        }
+        mEmojiCharArray = new char[listLength * 2];
         constructIndex(mMetadataList);
     }
 

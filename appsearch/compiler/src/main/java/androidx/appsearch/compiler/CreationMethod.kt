@@ -15,10 +15,11 @@
  */
 package androidx.appsearch.compiler
 
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.type.DeclaredType
+import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isConstructor
 
 /**
  * A constructor or static method used to create a class annotated with `@Document` aka document
@@ -57,7 +58,7 @@ import javax.lang.model.type.DeclaredType
  */
 data class CreationMethod(
     /** The constructor/static method element. */
-    val element: ExecutableElement,
+    val element: XExecutableElement,
 
     /** The [AnnotatedGetterOrField]s that each input param corresponds to (order sensitive). */
     val paramAssociations: List<AnnotatedGetterOrField>,
@@ -74,18 +75,18 @@ data class CreationMethod(
          * @param gettersAndFields The annotated getters/fields of the document class.
          * @param returnsDocumentClass Whether the `method` returns the document class itself. If
          *   not, it is assumed that it returns a builder for the document class.
-         * @throws ProcessingException If the method is not invocable or the association for a param
-         *   could not be deduced.
+         * @throws XProcessingException If the method is not invocable or the association for a
+         *   param could not be deduced.
          */
         @JvmStatic
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         fun inferParamAssociationsAndCreate(
-            method: ExecutableElement,
+            method: XExecutableElement,
             gettersAndFields: Collection<AnnotatedGetterOrField>,
             returnsDocumentClass: Boolean,
         ): CreationMethod {
-            if (method.modifiers.contains(Modifier.PRIVATE)) {
-                throw ProcessingException(
+            if (method.isPrivate()) {
+                throw XProcessingException(
                     ("Method cannot be used to create a " +
                         (if (returnsDocumentClass) "document class" else "builder") +
                         ": private visibility"),
@@ -93,11 +94,8 @@ data class CreationMethod(
                 )
             }
 
-            if (
-                method.kind == ElementKind.CONSTRUCTOR &&
-                    method.enclosingElement.modifiers.contains(Modifier.ABSTRACT)
-            ) {
-                throw ProcessingException(
+            if (method.isConstructor() && method.enclosingElement.isAbstract()) {
+                throw XProcessingException(
                     ("Method cannot be used to create a " +
                         (if (returnsDocumentClass) "document class" else "builder") +
                         ": abstract constructor"),
@@ -112,10 +110,10 @@ data class CreationMethod(
 
             val paramAssociations = mutableListOf<AnnotatedGetterOrField>()
             for (param in method.parameters) {
-                val paramName = param.simpleName.toString()
+                val paramName = param.name
                 val correspondingGetterOrField: AnnotatedGetterOrField =
                     normalizedNameToGetterOrField[paramName]
-                        ?: throw ProcessingException(
+                        ?: throw XProcessingException(
                             "Parameter \"$paramName\" is not an AppSearch parameter; " +
                                 "don't know how to supply it.",
                             method,
@@ -128,25 +126,25 @@ data class CreationMethod(
     }
 
     /** The enclosing class that the constructor/static method is a part of. */
-    val enclosingClass: DeclaredType
-        get() = element.enclosingElement.asType() as DeclaredType
+    val enclosingClass: XType?
+        get() = element.enclosingElement.type
 
     /** The static method's return type/constructor's enclosing class. */
-    val returnType: DeclaredType
+    val returnType: XType
         get() =
             if (isConstructor) {
-                element.enclosingElement.asType() as DeclaredType
+                (element as XConstructorElement).enclosingElement.type
             } else {
-                element.returnType as DeclaredType
+                (element as XMethodElement).returnType
             }
 
     /** The static method/constructor element's name. */
     val jvmName: String
-        get() = element.simpleName.toString()
+        get() = element.name
 
     /** Whether the creation method is a constructor. */
     val isConstructor: Boolean
-        get() = element.kind == ElementKind.CONSTRUCTOR
+        get() = element.isConstructor()
 
     /** Whether the creation method returns a builder instead of the document class itself. */
     val returnsBuilder: Boolean

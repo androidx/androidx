@@ -63,6 +63,10 @@ fun Project.configureErrorProneForAndroid() {
     val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
     androidComponents?.onVariants { variant ->
         if (variant.buildType == "release") {
+            @Suppress("UnstableApiUsage", "USELESS_ELVIS")
+            // b/397707182 this is still @Incubating in AGP
+            // b/328749039 This is being made nullable in AGP
+            val javaCompilation = variant.javaCompilation ?: return@onVariants
             val errorProneConfiguration = createErrorProneConfiguration()
             configurations
                 .getByName(variant.annotationProcessorConfiguration.name)
@@ -78,7 +82,7 @@ fun Project.configureErrorProneForAndroid() {
                     taskSuffix = variant.name.camelCase(),
                 ) { javaCompile ->
                     @Suppress("UnstableApiUsage") // JavaCompilation b/397707182
-                    val annotationArgs = variant.javaCompilation.annotationProcessor.arguments
+                    val annotationArgs = javaCompilation.annotationProcessor.arguments
                     javaCompile.options.compilerArgumentProviders.add(
                         CommandLineArgumentProviderAdapter(annotationArgs)
                     )
@@ -102,7 +106,6 @@ class CommandLineArgumentProviderAdapter(@get:Input val arguments: Provider<Map<
 private fun Project.createErrorProneConfiguration(): Configuration =
     configurations.findByName(ERROR_PRONE_CONFIGURATION)
         ?: configurations.create(ERROR_PRONE_CONFIGURATION).apply {
-            isVisible = false
             isCanBeConsumed = false
             isCanBeResolved = true
             exclude(group = "com.google.errorprone", module = "javac")
@@ -129,6 +132,7 @@ private fun JavaCompile.configureWithErrorProne() {
     val compilerArgs = this.options.compilerArgs
     compilerArgs +=
         listOf(
+            "--should-stop=ifError=FLOW",
             // Tell error-prone that we are running it on android compatible libraries
             "-XDandroidCompatible=true",
             "-XDcompilePolicy=simple", // Workaround for b/36098770
@@ -177,6 +181,15 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:EnumOrdinal:OFF",
                     "-Xep:ClassInitializationDeadlock:OFF",
                     "-Xep:VoidUsed:OFF",
+                    "-Xep:EffectivelyPrivate:OFF",
+                    "-Xep:StatementSwitchToExpressionSwitch:OFF",
+                    "-Xep:AssignmentExpression:OFF",
+                    "-Xep:DuplicateBranches:OFF",
+                    "-Xep:FormatStringShouldUsePlaceholders:OFF",
+                    "-Xep:RedundantControlFlow:OFF",
+                    "-Xep:CollectionUndefinedEquality:OFF",
+                    "-Xep:JavaDurationGetSecondsToToSeconds:OFF",
+                    "-Xep:BooleanLiteral:OFF",
 
                     // We allow inter library RestrictTo usage.
                     "-Xep:RestrictTo:OFF",

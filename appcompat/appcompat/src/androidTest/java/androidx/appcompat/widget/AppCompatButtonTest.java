@@ -27,6 +27,7 @@ import static org.junit.Assume.assumeFalse;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,6 +60,7 @@ public class AppCompatButtonTest
 
     @Test
     public void testAllCaps() {
+        assumeFalse("Test fails on cuttlefish b/460509936", Build.MODEL.contains("Cuttlefish"));
         final String text1 = mResources.getString(R.string.sample_text1);
         final String text2 = mResources.getString(R.string.sample_text2);
 

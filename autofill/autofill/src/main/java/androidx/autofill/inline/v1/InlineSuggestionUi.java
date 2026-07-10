@@ -27,6 +27,8 @@ import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
@@ -284,16 +286,8 @@ public final class InlineSuggestionUi {
             subtitleView.setText(subtitle);
             subtitleView.setVisibility(View.VISIBLE);
         }
-        final Icon startIcon = content.getStartIcon();
-        if (startIcon != null) {
-            startIconView.setImageIcon(startIcon);
-            startIconView.setVisibility(View.VISIBLE);
-        }
-        final Icon endIcon = content.getEndIcon();
-        if (endIcon != null) {
-            endIconView.setImageIcon(endIcon);
-            endIconView.setVisibility(View.VISIBLE);
-        }
+        setImageIcon(startIconView, content.getStartIcon());
+        setImageIcon(endIconView, content.getEndIcon());
         final CharSequence contentDescription = content.getContentDescription();
         if (!TextUtils.isEmpty(contentDescription)) {
             suggestionView.setContentDescription(contentDescription);
@@ -308,6 +302,18 @@ public final class InlineSuggestionUi {
             }
         }
         return suggestionView;
+    }
+
+    private static void setImageIcon(@NonNull ImageView imageView, @Nullable Icon icon) {
+        if (icon == null) {
+            return;
+        }
+        imageView.setImageIcon(icon);
+        final Drawable drawable = imageView.getDrawable();
+        if (drawable instanceof Animatable) {
+            imageView.post(() -> ((Animatable) drawable).start());
+        }
+        imageView.setVisibility(View.VISIBLE);
     }
 
     /**

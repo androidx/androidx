@@ -82,6 +82,11 @@ public final class LegacySurfacePackage {
                 requireNonNull(event);
                 mCallback.onKeyEvent(event);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 

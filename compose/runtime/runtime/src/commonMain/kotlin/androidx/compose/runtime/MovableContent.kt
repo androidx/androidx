@@ -272,9 +272,7 @@ internal const val movableContentKey = 0x078cc281
  * @see movableContentOf
  */
 @InternalComposeApi
-public class MovableContent<P>(public val content: @Composable (parameter: P) -> Unit) {
-    internal var used: Boolean = false
-}
+public class MovableContent<P>(public val content: @Composable (parameter: P) -> Unit)
 
 /**
  * A Compose compiler plugin API. DO NOT call directly.
@@ -310,4 +308,8 @@ internal constructor(
  * and before it is inserted during [ControlledComposition.insertMovableContent].
  */
 @InternalComposeApi
-public class MovableContentState internal constructor(internal val slotStorage: SlotStorage)
+public class MovableContentState internal constructor(internal val slotStorage: SlotStorage) {
+    internal fun dispose() {
+        slotStorage.dispose()
+    }
+}

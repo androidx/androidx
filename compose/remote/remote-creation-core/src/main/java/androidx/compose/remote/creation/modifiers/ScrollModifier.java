@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Background modifier, takes a color and a shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ScrollModifier implements RecordingModifier.Element {
 
     public static final int VERTICAL = 0;
@@ -38,8 +40,10 @@ public class ScrollModifier implements RecordingModifier.Element {
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mPositionId <= 0f) {
-            // direct scrolling, no touch expression
-            writer.addModifierScroll(mDirection);
+            // no position, but we still use touchexpression
+            // TODO: use platform's velocity tracker instead
+            float variable = writer.addFloatConstant(0f);
+            writer.addModifierScroll(mDirection, variable);
         } else if (mNotches <= 0f) {
             writer.addModifierScroll(mDirection, mPositionId);
         } else {

@@ -880,3 +880,17 @@ public fun <T> NavType<T>.parseAndPutFromUri(bundle: SavedState, key: String, va
     val decoded = NavUriUtils.decode(value)
     return parseAndPut(bundle, key, decoded)
 }
+
+/**
+ * Enables other navigation modules to internally access [NavUriUtils], which is package internal
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> NavType<T>.parseAndPutFromUri(
+    bundle: SavedState,
+    key: String,
+    value: String,
+    previousValue: T,
+): T {
+    val decoded = NavUriUtils.decode(value)
+    return parseAndPut(bundle, key, decoded, previousValue)
+}

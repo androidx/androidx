@@ -77,6 +77,7 @@ public class NotesAppSearchManager implements Closeable {
     /**
      * Closes the AppSearch session.
      */
+    @SuppressWarnings("FutureReturnValueIgnored") // b/475314812
     @Override
     public void close() {
         Futures.whenAllSucceed(mAppSearchSessionFuture).call(() -> {

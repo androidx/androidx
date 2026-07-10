@@ -234,6 +234,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452723676
     @Test
     @MediumTest
     public void testSchedulingExceptionHandler() {

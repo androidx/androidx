@@ -27,6 +27,7 @@ import androidx.annotation.RequiresExtension
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.pdf.PdfDocument
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
@@ -146,7 +147,7 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    override fun onLoadDocumentSuccess() {
+    override fun onLoadDocumentSuccess(document: PdfDocument) {
         documentLoaded = true
         pdfLoadingIdlingResource.decrement()
         pdfPagesFullyRenderedIdlingResource.startPolling()

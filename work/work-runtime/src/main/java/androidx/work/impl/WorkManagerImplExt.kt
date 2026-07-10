@@ -23,7 +23,6 @@ import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
@@ -100,22 +99,21 @@ private fun createSchedulers(
     workDatabase: WorkDatabase,
     trackers: Trackers,
     processor: Processor,
-): List<Scheduler> =
-    listOf(
-        Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration),
-        GreedyScheduler(
-            context,
-            configuration,
-            trackers,
-            processor,
-            WorkLauncherImpl(processor, workTaskExecutor),
-            workTaskExecutor,
-        ),
-    )
-
-@JvmName("createWorkManagerScope")
-internal fun WorkManagerScope(taskExecutor: TaskExecutor) =
-    CoroutineScope(taskExecutor.taskCoroutineDispatcher)
+): List<Scheduler> = buildList {
+    add(Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration))
+    if (configuration.isGreedySchedulerEnabled()) {
+        add(
+            GreedyScheduler(
+                context,
+                configuration,
+                trackers,
+                processor,
+                WorkLauncherImpl(processor, workTaskExecutor),
+                workTaskExecutor,
+            )
+        )
+    }
+}
 
 public fun WorkManagerImpl.close() {
     runBlocking { workManagerScope.coroutineContext[Job]!!.cancelAndJoin() }

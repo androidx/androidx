@@ -29,10 +29,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 public class CameraSelectorTest {
 
     private val mRearId = "0"
@@ -259,7 +261,7 @@ public class CameraSelectorTest {
     fun ofIdentifier_ignoresNonExistentIdentifier() {
         val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
         // Create an identifier that does not correspond to any available camera.
-        val fakeId = CameraIdentifier.create("fake-id")
+        val fakeId = CameraIdentifier.Factory.create("fake-id")
 
         val selector = CameraSelector.of(fakeId, rearId)
         val filtered = selector.filter(mCameraInfos)
@@ -270,7 +272,7 @@ public class CameraSelectorTest {
 
     @Test
     fun ofIdentifier_returnsEmpty_whenOnlyNonExistentIdentifierIsUsed() {
-        val fakeId = CameraIdentifier.create("fake-id")
+        val fakeId = CameraIdentifier.Factory.create("fake-id")
         val selector = CameraSelector.of(fakeId)
         val filtered = selector.filter(mCameraInfos)
         assertThat(filtered).isEmpty()

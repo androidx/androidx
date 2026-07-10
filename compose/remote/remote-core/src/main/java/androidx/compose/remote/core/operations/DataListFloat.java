@@ -18,9 +18,11 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,12 +37,24 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataListFloat extends Operation implements VariableSupport, ArrayAccess, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class DataListFloat extends Operation
+        implements VariableSupport, VariableProvider, ArrayAccess, Serializable {
     private static final int OP_CODE = Operations.FLOAT_LIST;
-    private static final String CLASS_NAME = "IdListData";
-    public final int mId;
+    private static final String CLASS_NAME = "FloatListData";
+    public int mId;
     private float @NonNull [] mValues;
     private static final int MAX_FLOAT_ARRAY = 2000;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public DataListFloat(int id, float @NonNull [] values) {
         mId = id;
@@ -96,14 +110,14 @@ public class DataListFloat extends Operation implements VariableSupport, ArrayAc
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         if (len > MAX_FLOAT_ARRAY) {
             throw new RuntimeException(len + " map entries more than max = " + MAX_FLOAT_ARRAY);
         }
         float[] values = new float[len];
         for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readFloat();
+            values[i] = buffer.readNanId();
         }
         DataListFloat data = new DataListFloat(id, values);
         operations.add(data);
@@ -116,10 +130,10 @@ public class DataListFloat extends Operation implements VariableSupport, ArrayAc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("a list of Floats")
-                .field(DocumentedOperation.INT, "id", "id the array (2xxxxx)")
-                .field(INT, "length", "number of floats")
-                .field(FLOAT_ARRAY, "values", "length", "array of floats");
+                .description("A list of floats")
+                .field(DocumentedOperation.INT, "id", "The ID of the list")
+                .field(INT, "length", "Number of floats")
+                .field(FLOAT_ARRAY, "values", "The array of floats");
     }
 
     @NonNull

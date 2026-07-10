@@ -72,6 +72,58 @@ class ScatterSetTest {
     }
 
     @Test
+    fun mutableScatterSetFromSet() {
+        val from = setOf("Hello", "World")
+        val set = from.toMutableScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun mutableScatterSetFromScatterSet() {
+        val from = scatterSetOf("Hello", "World")
+        val set = from.toMutableScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun scatterSetFromSet() {
+        val from = setOf("Hello", "World")
+        val set = from.toScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun scatterSetFromScatterSet() {
+        val from = scatterSetOf("Hello", "World")
+        val set = from.toScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun scatterSetFromEmptySet() {
+        val from = setOf<String>()
+        val set = from.toScatterSet()
+        assertEquals(0, set.size)
+        assertSame(emptyScatterSet(), set)
+    }
+
+    @Test
+    fun scatterSetFromEmptyScatterSet() {
+        val from = mutableScatterSetOf<String>()
+        val set = from.toScatterSet()
+        assertEquals(0, set.size)
+        assertSame(emptyScatterSet(), set)
+    }
+
+    @Test
     fun addToScatterSet() {
         val set = MutableScatterSet<String>()
         set += "Hello"

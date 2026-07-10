@@ -21,6 +21,13 @@ import kotlin.coroutines.CoroutineContext
 
 actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()
 
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
 @ExperimentalTestApi
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     implementedInJetBrainsFork()

@@ -18,8 +18,11 @@ package androidx.aab.cli
 
 import androidx.aab.ApkInfo
 import androidx.aab.BundleInfo
+import androidx.aab.CsvColumn
 import androidx.aab.analysis.AnalyzedApkInfo
 import androidx.aab.analysis.AnalyzedBundleInfo
+import androidx.aab.fullHeader
+import androidx.aab.rowStringForItem
 import java.io.File
 import kotlin.system.exitProcess
 import kotlinx.coroutines.Dispatchers
@@ -28,14 +31,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 
 var VERBOSE = false
-const val CSV_PATH_PREFIX = "--csv="
+const val OUTPUT_PATH_PREFIX = "--out="
+const val SO_PATTERN_PREFIX = "--soPatterns="
 
 // this is a simple way to abstract the difference between the two, but should probably define
 // interfaces
 internal abstract class PackageProcessor<T>(val typeLabel: String) {
-    abstract fun getCsvHeader(): String
-
-    abstract fun getCsvLine(item: T): String
+    abstract fun getCsvColumns(): List<CsvColumn<T>>
 
     abstract fun transform(file: File): T
 
@@ -44,7 +46,7 @@ internal abstract class PackageProcessor<T>(val typeLabel: String) {
     abstract fun sortKey(item: T): String
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun process(files: List<File>, csvFile: File?) {
+    suspend fun process(files: List<File>, outputContext: OutputContext) {
         println("Analyzing ${files.size} ${typeLabel}s...")
         val items =
             files
@@ -62,42 +64,63 @@ internal abstract class PackageProcessor<T>(val typeLabel: String) {
                 }
                 .toList()
                 .sortedBy { sortKey(it) }
-        if (csvFile != null) {
+        if (outputContext.csvFile != null) {
+            val columns = getCsvColumns()
             println("$typeLabel parsing complete, constructing CSV...")
-            csvFile.writeText(getCsvHeader() + "\n")
-            items.forEach { csvFile.appendText(getCsvLine(it) + "\n") }
-            println("Analysis complete, CSV saved to ${csvFile.absolutePath}")
+            outputContext.csvFile.bufferedWriter().use {
+                it.write(columns.fullHeader() + "\n")
+                items.forEach { item -> it.write(columns.rowStringForItem(item) + "\n") }
+            }
+            println("Analysis complete, CSV saved to ${outputContext.csvFile.absolutePath}")
         } else {
             println("$typeLabel parsing complete, reporting problems...")
             items.forEach { printAnalysis(it) }
         }
+        outputContext.dumpPackagePrefixInfo()
     }
 }
 
+fun usageAndDie() {
+    println(
+        """
+            Report Usage:
+                 java -jar <path-to-jar> [--verbose] [--out=<output_dir_path>] <path-to-aab> [<path-to-aab2>...]
+            CSV Usage:
+                 java -jar <path-to-jar> [--verbose] --out=<output_dir_path> --csv <path-to-aab> [<path-to-aab2>...]
+
+            --out must be passed to see obfuscation and package keep statistics.
+            """
+            .trimIndent()
+    )
+    exitProcess(1)
+}
+
+lateinit var outputContext: OutputContext
+
 fun main(args: Array<String>) = runBlocking {
-    val csvPath =
-        args
-            .singleOrNull { it.startsWith(CSV_PATH_PREFIX) }
-            ?.substringAfter(CSV_PATH_PREFIX)
-            ?.replaceFirst("~", System.getProperty("user.home"))
+    outputContext =
+        OutputContext(
+            outputPath =
+                args
+                    .singleOrNull { it.startsWith(OUTPUT_PATH_PREFIX) }
+                    ?.substringAfter(OUTPUT_PATH_PREFIX)
+                    ?.replaceFirst("~", System.getProperty("user.home")),
+            csv = args.contains("--csv"),
+            soMatchPatterns =
+                args
+                    .singleOrNull { it.startsWith(SO_PATTERN_PREFIX) }
+                    ?.substringAfter(SO_PATTERN_PREFIX)
+                    ?.split(",") ?: emptyList(),
+        )
+
     VERBOSE = args.contains("--verbose") || args.contains("-v")
 
-    val csvFile = if (csvPath != null) File(csvPath) else null
-
     val pathArgs = args.filter { !it.startsWith("--") }
-
     if (pathArgs.isEmpty()) {
         println(
-            """
-            Expected one or more android app bundle files, or directories of bundles to be passed.
-            Report Usage:
-                 java -jar <path-to-jar> [--verbose] <path-to-aab> [<path-to-aab2>...]
-            CSV Usage:
-                 java -jar <path-to-jar> [--verbose] --csv=<output.csv> <path-to-aab> [<path-to-aab2>...]
-            """
-                .trimIndent()
+            "Expected one or more android app bundle/apk files, or directories of bundles/apks to be passed."
         )
-        exitProcess(1)
+        usageAndDie()
     }
 
     val files =
@@ -116,9 +139,7 @@ fun main(args: Array<String>) = runBlocking {
     val processor =
         if (files.any { it.name.endsWith(".apk") }) {
             object : PackageProcessor<AnalyzedApkInfo>("APK") {
-                override fun getCsvHeader(): String = AnalyzedApkInfo.CSV_HEADER
-
-                override fun getCsvLine(item: AnalyzedApkInfo): String = item.toCsvLine()
+                override fun getCsvColumns() = AnalyzedApkInfo.CSV_COLUMNS
 
                 override fun transform(file: File): AnalyzedApkInfo =
                     AnalyzedApkInfo(ApkInfo.from(file))
@@ -129,9 +150,7 @@ fun main(args: Array<String>) = runBlocking {
             }
         } else {
             object : PackageProcessor<AnalyzedBundleInfo>("Bundle") {
-                override fun getCsvHeader(): String = AnalyzedBundleInfo.CSV_HEADER
-
-                override fun getCsvLine(item: AnalyzedBundleInfo): String = item.toCsvLine()
+                override fun getCsvColumns() = AnalyzedBundleInfo.CSV_COLUMNS
 
                 override fun transform(file: File): AnalyzedBundleInfo =
                     AnalyzedBundleInfo(BundleInfo.from(file))
@@ -142,5 +161,5 @@ fun main(args: Array<String>) = runBlocking {
             }
         }
 
-    processor.process(files, csvFile)
+    processor.process(files, outputContext)
 }

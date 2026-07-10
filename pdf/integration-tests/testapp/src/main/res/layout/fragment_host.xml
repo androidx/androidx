@@ -15,24 +15,89 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/host_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.HostFragment">
 
+    <!-- Thumbnails RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pdf_thumbnail_recycler_view"
+        android:layout_width="@dimen/thumbnail_width"
+        android:layout_height="0dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/colorSurfaceContainer"
+        android:elevation="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- PDF Container Frame -->
+    <FrameLayout
+        android:id="@+id/pdf_container_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/pdf_thumbnail_recycler_view" />
+
+    <!-- Toggle Thumbnails Button -->
+    <ImageButton
+        android:id="@+id/pdf_thumbnail_toggle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_menu_sort_by_size"
+        android:contentDescription="@string/toggle_thumbnails_view"
+        android:background="?attr/colorSurface"
+        app:backgroundTint="?attr/colorSecondaryContainer"
+        android:padding="8dp"
+        android:elevation="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_above_editFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="88dp" />
+
+    <!-- Two Page Layout FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/two_page_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/fab_margin_right"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:contentDescription="@string/two_page_layout"
+        android:visibility="gone"
+        android:src="@drawable/two_page_layout"
+        app:backgroundTint="?attr/colorSecondaryContainer"
+        app:tint="?attr/colorOnSecondaryContainer"
+        app:layout_constraintBottom_toTopOf="@id/host_Search"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Search FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/host_Search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/fab_margin_right"
         android:contentDescription="@string/action_search"
-        android:layout_gravity="bottom|end"
         android:visibility="gone"
         android:src="@drawable/ic_action_search"
         app:backgroundTint="?attr/colorSecondaryContainer"
-        app:tint="?attr/colorOnSecondaryContainer" />
+        app:tint="?attr/colorOnSecondaryContainer"
+        app:layout_constraintBottom_toTopOf="@id/guideline_above_editFab"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="PrivateResource" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

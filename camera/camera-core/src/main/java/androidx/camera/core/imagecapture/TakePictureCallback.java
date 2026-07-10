@@ -31,7 +31,7 @@ import org.jspecify.annotations.NonNull;
  * <p>This is an internal callback that loosely maps to
  * {@link ImageCapture.OnImageCapturedCallback} or {@link ImageCapture.OnImageSavedCallback}.
  */
-interface TakePictureCallback {
+public interface TakePictureCallback {
 
     /**
      * Invoked when the capture is started.

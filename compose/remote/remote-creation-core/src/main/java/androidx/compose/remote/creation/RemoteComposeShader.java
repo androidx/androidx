@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.ShaderData;
 
 import org.jspecify.annotations.NonNull;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 
 /** Provides an API to create Shaders, setUniforms which is inserted into doc */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeShader {
     int mShaderID = 0; // allows shaders to be referenced by number
     int mShaderTextID = 0; // allows shaders to be referenced by number
@@ -169,6 +171,18 @@ public class RemoteComposeShader {
      */
     public @NonNull RemoteComposeShader setFloatUniform(@NonNull String name, float v1) {
         return mySetFloatUniform(name, v1);
+    }
+
+    /**
+     * Sets a uniform of an array of floats
+     *
+     * @param name The name of the uniform
+     * @param values The floats
+     * @return this
+     */
+    public @NonNull RemoteComposeShader setFloatUniform(@NonNull String name,
+            float @NonNull [] values) {
+        return mySetFloatUniform(name, values);
     }
 
     private @NonNull RemoteComposeShader mySetFloatUniform(

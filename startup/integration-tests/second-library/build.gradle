@@ -17,11 +17,9 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":startup:startup-runtime"))
     implementation(project(":startup:integration-tests:first-library"))
     androidTestImplementation(libs.testExtJunit)
@@ -34,6 +32,6 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.startup.second_library"
 }

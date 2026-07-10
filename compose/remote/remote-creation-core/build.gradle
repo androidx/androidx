@@ -26,12 +26,17 @@ dependencies {
     api(project(":compose:remote:remote-core"))
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
+    compileOnly("org.json:json:20231013")
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation("org.jetbrains.kotlin:kotlin-stdlib")
+    testImplementation("org.json:json:20231013")
 }
 
 androidx {
     name = "Remote Compose Creation Core"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Java core for RemoteCompose document creation"
 }

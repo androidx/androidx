@@ -87,5 +87,10 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
                     }
             );
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

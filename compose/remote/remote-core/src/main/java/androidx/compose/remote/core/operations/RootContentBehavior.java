@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
@@ -34,6 +35,7 @@ import java.util.List;
  * <p>It encodes the version of the document (following semantic versioning) as well as the
  * dimensions of the document in pixels.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RootContentBehavior extends Operation
         implements RemoteComposeOperation, ScrollableComponent {
     private static final int OP_CODE = Operations.ROOT_CONTENT_BEHAVIOR;
@@ -262,25 +264,33 @@ public class RootContentBehavior extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Protocol Operations", OP_CODE, CLASS_NAME)
-                .description("Describes the behaviour of the root")
-                .field(DocumentedOperation.INT, "scroll", "scroll")
+                .description("Describes the behavior of the root")
+                .field(DocumentedOperation.INT, "scroll", "Scroll behavior")
+                .possibleValues("NONE", NONE)
                 .possibleValues("SCROLL_HORIZONTAL", SCROLL_HORIZONTAL)
                 .possibleValues("SCROLL_VERTICAL", SCROLL_VERTICAL)
-                .field(DocumentedOperation.INT, "alignment", "alignment")
+                .field(DocumentedOperation.INT, "alignment", "Content alignment")
                 .possibleValues("ALIGNMENT_TOP", ALIGNMENT_TOP)
                 .possibleValues("ALIGNMENT_VERTICAL_CENTER", ALIGNMENT_VERTICAL_CENTER)
                 .possibleValues("ALIGNMENT_BOTTOM", ALIGNMENT_BOTTOM)
                 .possibleValues("ALIGNMENT_START", ALIGNMENT_START)
-                .possibleValues("ALIGNMENT_START", ALIGNMENT_START)
+                .possibleValues("ALIGNMENT_HORIZONTAL_CENTER", ALIGNMENT_HORIZONTAL_CENTER)
                 .possibleValues("ALIGNMENT_END", ALIGNMENT_END)
-                .field(DocumentedOperation.INT, "sizing", "sizing")
+                .possibleValues("ALIGNMENT_CENTER", ALIGNMENT_CENTER)
+                .field(DocumentedOperation.INT, "sizing", "Sizing type")
+                .possibleValues("NONE", NONE)
+                .possibleValues("SIZING_LAYOUT", SIZING_LAYOUT)
+                .possibleValues("SIZING_SCALE", SIZING_SCALE)
+                .field(DocumentedOperation.INT, "mode", "Sizing or Layout mode")
+                .description(
+                        "If sizing is SIZING_SCALE, mode is one of SCALE_* values."
+                                + " If sizing is SIZING_LAYOUT, mode is one of LAYOUT_* values.")
                 .possibleValues("SCALE_INSIDE", SCALE_INSIDE)
                 .possibleValues("SCALE_FIT", SCALE_FIT)
                 .possibleValues("SCALE_FILL_WIDTH", SCALE_FILL_WIDTH)
                 .possibleValues("SCALE_FILL_HEIGHT", SCALE_FILL_HEIGHT)
                 .possibleValues("SCALE_CROP", SCALE_CROP)
                 .possibleValues("SCALE_FILL_BOUNDS", SCALE_FILL_BOUNDS)
-                .field(DocumentedOperation.INT, "mode", "mode")
                 .possibleValues("LAYOUT_HORIZONTAL_MATCH_PARENT", LAYOUT_HORIZONTAL_MATCH_PARENT)
                 .possibleValues("LAYOUT_HORIZONTAL_WRAP_CONTENT", LAYOUT_HORIZONTAL_WRAP_CONTENT)
                 .possibleValues("LAYOUT_HORIZONTAL_FIXED", LAYOUT_HORIZONTAL_FIXED)

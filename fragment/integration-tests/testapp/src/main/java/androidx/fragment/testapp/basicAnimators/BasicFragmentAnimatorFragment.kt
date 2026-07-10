@@ -54,6 +54,7 @@ class BasicFragmentAnimatorFragment : Fragment(R.layout.basic_animators_main) {
 
     private fun switchFragment() {
         val fragment = MainFragment()
+        @Suppress("DEPRECATION") // bundleOf is deprecated
         fragment.arguments =
             bundleOf(
                 "myarg" to

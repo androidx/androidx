@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(WearInputTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteInputIntentHelperTest {
     private val remoteInputs: List<RemoteInput> =
         listOf(RemoteInput.Builder("ri1").build(), RemoteInput.Builder("ri2").build())

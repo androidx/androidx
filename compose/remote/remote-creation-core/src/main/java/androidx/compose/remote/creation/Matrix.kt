@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation
 
+import androidx.annotation.RestrictTo
+
 /** This class wraps a matrix expression in an easy to use class */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Matrix(public val rc: RemoteComposeContext, vararg exp: Float) {
     public var id: Float = rc.matrixExpression(*exp)
 

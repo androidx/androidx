@@ -39,7 +39,6 @@ public class ComparisonType private constructor(public val id: Int, public val n
 
     override fun toString(): String = name
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): DataProto.ComparisonType =
         when (this) {
             GREATER_THAN -> COMPARISON_TYPE_GREATER_THAN
@@ -78,7 +77,6 @@ public class ComparisonType private constructor(public val id: Int, public val n
         public val VALUES: List<ComparisonType> =
             listOf(GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         internal fun fromProto(proto: DataProto.ComparisonType): ComparisonType =
             when (proto) {

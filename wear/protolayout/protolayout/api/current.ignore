@@ -1,3 +1,29 @@
 // Baseline format: 1.0
-InvalidNullConversion: androidx.wear.protolayout.StateBuilders.State#getKeyToValueMapping():
-    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.StateBuilders.State.getKeyToValueMapping()
+BecameUnchecked: androidx.wear.protolayout.modifiers.TransitionKt:
+    Removed class androidx.wear.protolayout.modifiers.TransitionKt from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.modifiers.VisibilityKt:
+    Removed class androidx.wear.protolayout.modifiers.VisibilityKt from compatibility checked API surface
+
+
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColor#getDynamicArgb():
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColor.getDynamicArgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColor#getStaticArgb():
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColor.getStaticArgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColorUtil#createLayoutColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, int):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColorUtil.createLayoutColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColorUtil#createLayoutColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, long):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColorUtil.createLayoutColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor,long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColorUtil#createLayoutColor(int):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColorUtil.createLayoutColor(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColorUtil#createLayoutColor(long):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutColorUtil.createLayoutColor(long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutString#getDynamicValue():
+    Source breaking change: method androidx.wear.protolayout.types.LayoutString.getDynamicValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutString#getLayoutConstraint():
+    Source breaking change: method androidx.wear.protolayout.types.LayoutString.getLayoutConstraint() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutString#getStaticValue():
+    Source breaking change: method androidx.wear.protolayout.types.LayoutString.getStaticValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutStringUtil#createLayoutString(String):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutStringUtil.createLayoutString(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.types.LayoutStringUtil#createLayoutString(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, String, androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint):
+    Source breaking change: method androidx.wear.protolayout.types.LayoutStringUtil.createLayoutString(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString,String,androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint) can no longer be resolved from Kotlin source

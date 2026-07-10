@@ -18,8 +18,6 @@ package androidx.appcompat.app;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.os.Build;
 
 /**
  * An activity with customized configuration.
@@ -33,16 +31,8 @@ public class LocalesCustomAttachBaseContextActivity extends LocalesUpdateActivit
     }
 
     private Context useCustomConfig(Context context) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Configuration config = new Configuration();
-            config.fontScale = CUSTOM_FONT_SCALE;
-            return context.createConfigurationContext(config);
-        } else {
-            Resources res = context.getResources();
-            Configuration config = new Configuration(res.getConfiguration());
-            config.fontScale = CUSTOM_FONT_SCALE;
-            res.updateConfiguration(config, res.getDisplayMetrics());
-            return context;
-        }
+        Configuration config = new Configuration();
+        config.fontScale = CUSTOM_FONT_SCALE;
+        return context.createConfigurationContext(config);
     }
 }

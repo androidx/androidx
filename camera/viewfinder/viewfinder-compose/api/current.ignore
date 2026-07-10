@@ -1,8 +1,6 @@
 // Baseline format: 1.0
-AddedMethod: androidx.camera.viewfinder.compose.CoordinateTransformer#transform(androidx.compose.ui.geometry.Offset):
-    Added method androidx.camera.viewfinder.compose.CoordinateTransformer.transform(androidx.compose.ui.geometry.Offset)
-AddedMethod: androidx.camera.viewfinder.compose.CoordinateTransformerKt#MutableCoordinateTransformer(androidx.compose.ui.graphics.Matrix):
-    Added method androidx.camera.viewfinder.compose.CoordinateTransformerKt.MutableCoordinateTransformer(androidx.compose.ui.graphics.Matrix)
+RemovedFromBytecode: androidx.camera.viewfinder.compose.ViewfinderKt#Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, androidx.compose.ui.Modifier, androidx.camera.viewfinder.core.TransformationInfo, androidx.camera.viewfinder.compose.MutableCoordinateTransformer, androidx.compose.ui.Alignment, androidx.compose.ui.layout.ContentScale, kotlin.jvm.functions.Function1<? super androidx.camera.viewfinder.compose.ViewfinderInitScope,kotlin.Unit>):
+    Binary breaking change: method androidx.camera.viewfinder.compose.ViewfinderKt.Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest,androidx.compose.ui.Modifier,androidx.camera.viewfinder.core.TransformationInfo,androidx.camera.viewfinder.compose.MutableCoordinateTransformer,androidx.compose.ui.Alignment,androidx.compose.ui.layout.ContentScale,kotlin.jvm.functions.Function1<androidx.camera.viewfinder.compose.ViewfinderInitScope,kotlin.Unit>) has been removed from bytecode
 
 
 RemovedMethod: androidx.camera.viewfinder.compose.CoordinateTransformer#transform(long):

@@ -29,6 +29,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.junit.Assume;
 import org.junit.Ignore;
+import org.junit.Test;
 
 public class GlobalSearchSessionGmsCtsTest extends GlobalSearchSessionCtsTestBase {
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -72,6 +73,7 @@ public class GlobalSearchSessionGmsCtsTest extends GlobalSearchSessionCtsTestBas
 
     @Override
     @Ignore
+    @Test
     public void testReportSystemUsage_ForbiddenFromNonSystem() {
         // TODO(b/208654892) : ReportSystemUsage is not yet needed by any clients of GMSCore
         //  AppSearch, once there is a requirement by any of the clients this will be added.

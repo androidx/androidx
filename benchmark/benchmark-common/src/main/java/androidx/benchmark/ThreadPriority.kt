@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.os.Process
 import android.util.Log
 import androidx.annotation.GuardedBy
@@ -43,44 +42,39 @@ internal object ThreadPriority {
     val JIT_INITIAL_PRIORITY: Int
 
     init {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // JIT thread expected to exist on N+ devices
-            val tidsToNames =
-                File(TASK_PATH)
-                    .listFiles()
-                    ?.associateBy(
-                        {
-                            // tid
-                            it.name.toInt()
-                        },
-                        {
-                            // thread name
-                            try {
-                                File(it, "comm").readLines().firstOrNull() ?: ""
-                            } catch (e: IOException) {
-                                // if we fail to read thread name, file may not exist because thread
-                                // died. Expect no error reading Jit thread name, so just name
-                                // thread
-                                // incorrectly.
-                                "ERROR READING THREAD NAME"
-                            }
-                        },
-                    )
-            if (tidsToNames.isNullOrEmpty()) {
-                Log.d(TAG, "NOTE: Couldn't find threads in this process for priority pinning.")
-                JIT_TID = null
-            } else {
-                JIT_TID =
-                    tidsToNames.filter { it.value.startsWith(JIT_THREAD_NAME) }.keys.firstOrNull()
-                if (JIT_TID == null) {
-                    Log.d(TAG, "NOTE: Couldn't JIT thread, threads found:")
-                    tidsToNames.forEach { Log.d(TAG, "    tid: ${it.key}, name:'${it.value}'") }
-                }
-            }
-        } else {
-            JIT_TID = null
-        }
 
+        // JIT thread expected to exist on N+ devices
+        val tidsToNames =
+            File(TASK_PATH)
+                .listFiles()
+                ?.associateBy(
+                    {
+                        // tid
+                        it.name.toInt()
+                    },
+                    {
+                        // thread name
+                        try {
+                            File(it, "comm").readLines().firstOrNull() ?: ""
+                        } catch (e: IOException) {
+                            // if we fail to read thread name, file may not exist because thread
+                            // died. Expect no error reading Jit thread name, so just name
+                            // thread
+                            // incorrectly.
+                            "ERROR READING THREAD NAME"
+                        }
+                    },
+                )
+        if (tidsToNames.isNullOrEmpty()) {
+            Log.d(TAG, "NOTE: Couldn't find threads in this process for priority pinning.")
+            JIT_TID = null
+        } else {
+            JIT_TID = tidsToNames.filter { it.value.startsWith(JIT_THREAD_NAME) }.keys.firstOrNull()
+            if (JIT_TID == null) {
+                Log.d(TAG, "NOTE: Couldn't JIT thread, threads found:")
+                tidsToNames.forEach { Log.d(TAG, "    tid: ${it.key}, name:'${it.value}'") }
+            }
+        }
         JIT_INITIAL_PRIORITY = if (JIT_TID != null) Process.getThreadPriority(JIT_TID) else 0
     }
 

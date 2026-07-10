@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,7 +26,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
 }
 
@@ -67,12 +65,10 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdk = 26
-    }
+    compileSdk { version = release(35) }
 
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
+    defaultConfig {
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.tiles.renderer"
 }
@@ -97,7 +93,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
-    legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
     enableRobolectric()
 }

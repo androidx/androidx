@@ -26,13 +26,10 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.layout.BeyondBoundsLayoutProviderModifierNode
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.remeasureSync
@@ -64,9 +61,9 @@ private class LazyLayoutBeyondBoundsModifierElement(
     val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
     val reverseLayout: Boolean,
     val orientation: Orientation,
-) : ModifierNodeElement<LazyLayoutBeyondBoundsModifierNode>() {
-    override fun create(): LazyLayoutBeyondBoundsModifierNode {
-        return LazyLayoutBeyondBoundsModifierNode(
+) : ModifierNodeElement<LazyLayoutBeyondBoundsProviderModifierNode>() {
+    override fun create(): LazyLayoutBeyondBoundsProviderModifierNode {
+        return LazyLayoutBeyondBoundsProviderModifierNode(
             state,
             beyondBoundsInfo,
             reverseLayout,
@@ -74,7 +71,7 @@ private class LazyLayoutBeyondBoundsModifierElement(
         )
     }
 
-    override fun update(node: LazyLayoutBeyondBoundsModifierNode) {
+    override fun update(node: LazyLayoutBeyondBoundsProviderModifierNode) {
         node.update(state, beyondBoundsInfo, reverseLayout, orientation)
     }
 
@@ -104,12 +101,19 @@ private class LazyLayoutBeyondBoundsModifierElement(
     }
 }
 
-internal class LazyLayoutBeyondBoundsModifierNode(
+internal class LazyLayoutBeyondBoundsProviderModifierNode(
     private var state: LazyLayoutBeyondBoundsState,
     private var beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
     private var reverseLayout: Boolean,
     private var orientation: Orientation,
-) : Modifier.Node(), ModifierLocalModifierNode, BeyondBoundsLayout, LayoutModifierNode {
+) :
+    Modifier.Node(),
+    LayoutModifierNode,
+    BeyondBoundsLayoutProviderModifierNode,
+    BeyondBoundsLayout {
+
+    override val beyondBoundsLayout: BeyondBoundsLayout
+        get() = this
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -118,9 +122,6 @@ internal class LazyLayoutBeyondBoundsModifierNode(
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
-
-    override val providedValues: ModifierLocalMap
-        get() = modifierLocalMapOf(ModifierLocalBeyondBoundsLayout to this)
 
     override fun <T> layout(
         direction: BeyondBoundsLayout.LayoutDirection,

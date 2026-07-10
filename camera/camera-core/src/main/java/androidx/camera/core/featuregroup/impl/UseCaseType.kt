@@ -16,9 +16,9 @@
 
 package androidx.camera.core.featuregroup.impl
 
-import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.view.SurfaceHolder
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -26,12 +26,12 @@ import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.DYNAMIC_RANGE
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.FPS_RANGE
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.IMAGE_FORMAT
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.RECORDING_QUALITY
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.VIDEO_STABILIZATION
 import androidx.camera.core.impl.ImageCaptureConfig
-import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
-import androidx.camera.core.internal.CameraUseCaseAdapter.isVideoCapture
+import androidx.camera.core.impl.utils.UseCaseUtil.isVideoCapture
 import androidx.camera.core.streamsharing.StreamSharing
 
 /**
@@ -42,19 +42,18 @@ import androidx.camera.core.streamsharing.StreamSharing
  *
  * @property surfaceClass The class of the surface that this use case type can output to, or null if
  *   it isn't applicable.
- * @property defaultImageFormat The default image format of the corresponding use case.
  */
-public enum class UseCaseType(
-    public val surfaceClass: Class<*>?,
-    public val defaultImageFormat: Int,
-) {
+public enum class UseCaseType(public val surfaceClass: Class<*>?) {
     // TODO: b/400852239 - Check if the surface class types are appropriate
 
     /** Represents [Preview] use case. */
-    PREVIEW(SurfaceHolder::class.java, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
+    PREVIEW(SurfaceHolder::class.java),
 
     /** Represents [ImageCapture] use case. */
-    IMAGE_CAPTURE(null, ImageFormat.JPEG),
+    IMAGE_CAPTURE(null),
+
+    /** Represents [ImageAnalysis] use case. */
+    IMAGE_ANALYSIS(null),
 
     /**
      * Represents `VideoCapture` use case.
@@ -62,27 +61,19 @@ public enum class UseCaseType(
      * Note that camera-core module does not depend on camera-video and thus can't refer to the
      * VideoCapture use case directly.
      */
-    VIDEO_CAPTURE(android.media.MediaCodec::class.java, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
+    VIDEO_CAPTURE(android.media.MediaCodec::class.java),
 
     /** Represents [StreamSharing] use case. */
-    STREAM_SHARING(SurfaceTexture::class.java, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
+    STREAM_SHARING(SurfaceTexture::class.java),
 
     /** Represents an undefined/unknown use case. */
-    UNDEFINED(null, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-
-    /**  */
-    public fun getImageFormat(imageCaptureFormat: Int? = null): Int {
-        return if (this == IMAGE_CAPTURE && imageCaptureFormat != null) {
-            imageCaptureFormat
-        } else {
-            defaultImageFormat
-        }
-    }
+    UNDEFINED(null);
 
     override fun toString(): String {
         return when (this) {
             PREVIEW -> "Preview"
             IMAGE_CAPTURE -> "ImageCapture"
+            IMAGE_ANALYSIS -> "ImageAnalysis"
             VIDEO_CAPTURE -> "VideoCapture"
             STREAM_SHARING -> "StreamSharing"
             UNDEFINED -> "Undefined"
@@ -104,7 +95,9 @@ public enum class UseCaseType(
                 PREVIEW
             } else if (this is ImageCapture) {
                 IMAGE_CAPTURE
-            } else if (isVideoCapture(this)) {
+            } else if (this is ImageAnalysis) {
+                IMAGE_ANALYSIS
+            } else if (this.isVideoCapture()) {
                 VIDEO_CAPTURE
             } else if (this is StreamSharing) {
                 STREAM_SHARING
@@ -126,6 +119,7 @@ public enum class UseCaseType(
         @JvmStatic
         public fun UseCaseConfig<*>.getFeatureGroupUseCaseType(): UseCaseType {
             return when (captureType) {
+                CaptureType.IMAGE_ANALYSIS -> IMAGE_ANALYSIS
                 CaptureType.IMAGE_CAPTURE -> IMAGE_CAPTURE
                 CaptureType.PREVIEW -> PREVIEW
                 CaptureType.VIDEO_CAPTURE -> VIDEO_CAPTURE
@@ -147,6 +141,7 @@ public enum class UseCaseType(
                 FPS_RANGE -> useCase.isFpsRangeConfiguredByApp()
                 VIDEO_STABILIZATION -> useCase.isStabilizationModeConfiguredByApp()
                 IMAGE_FORMAT -> useCase.isImageFormatConfiguredByApp()
+                RECORDING_QUALITY -> useCase.isRecordingQualityConfiguredByApp()
             }
 
         private fun UseCase.isDynamicRangeConfiguredByApp() = appConfig.hasDynamicRange()
@@ -159,5 +154,11 @@ public enum class UseCaseType(
 
         private fun UseCase.isImageFormatConfiguredByApp() =
             appConfig.containsOption(ImageCaptureConfig.OPTION_OUTPUT_FORMAT)
+
+        private fun UseCase.isRecordingQualityConfiguredByApp(): Boolean =
+            appConfig.retrieveOption(
+                UseCaseConfig.OPTION_IS_VIDEO_QUALITY_SELECTOR_DEFAULT,
+                true,
+            ) == false
     }
 }

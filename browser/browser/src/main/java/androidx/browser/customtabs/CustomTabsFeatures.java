@@ -16,26 +16,11 @@
 
 package androidx.browser.customtabs;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StringDef;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * Utilities for Custom Tabs features.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CustomTabsFeatures {
     private CustomTabsFeatures() {}
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @StringDef({ENGAGEMENT_SIGNALS})
-    @Retention(RetentionPolicy.SOURCE)
-    @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface CustomTabsFeature {}
 
     /**
      * This feature covers {@link EngagementSignalsCallback},

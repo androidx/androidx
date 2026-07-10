@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ujumbe unaandikwa hapa.\nMaandishi ya ziada kwenye mstari wa pili."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Onyesho la Kiolezo cha Ujumbe Mfupi"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Jaribio la Kiolezo la Kipengee kilicho kwenye Sehemu"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Toleo la Kujaribu Kipengee Kilichobanwa"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Toleo la kujaribu Kipengee kilicho kwenye Sehemu ya AlphaJump iliyowashwa"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sehemu ya Kitufe cha Mviringo"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sehemu ya Kugeuza"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Sehemu ya Safu Mlalo Nyingi"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sehemu ya Kupanga Vipengee"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Toleo la Kujaribu Orodha ya Vipengee yenye Vijisehemu"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Orodha ya 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Orodha ya 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Dokezo chini ya kila orodha"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Tamatisha Toleo la Kujaribu Picha na Vitendo"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Toleo la Kujaribu Chipu"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Toleo la kujaribu Upau wa Shughuli"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Toleo la Kujaribu la Kijajuu cha Sehemu"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Toleo la Kujaribu Sehemu ya Kuangazia"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Onyesho la Kiolezo cha Kijisehemu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Onyesho la Kiolezo cha Orodha ya Mahali"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Vinjari Maeneo"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Kiolezo cha Toleo la Kujaribu la Tab"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Tab ya Ujumbe"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Tab ya Kijisehemu"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Kichupo cha Kipengee kilicho kwenye Sehemu"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Tab ya Orodha"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Tab ya kupangilia kwa Gridi yenye Jina Refu la Tab"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab ya Kutafuta"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Safu mlalo pia inaweza kuchaguliwa"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Kitendo cha Upili kimechaguliwa"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Kitendo cha msingi cha safu mlalo kimechaguliwa"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Toleo la Kujaribu Orodha ya Vipengee yenye Vijisehemu"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Orodha ya 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Orodha ya 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Dokezo chini ya kila orodha"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Toleo la Kujaribu Picha na Vitendo vya Mwisho wa Safu Mlalo"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Onyesho la Orodha Isiyo na Chochote"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Orodha hii haina chochote"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Maonyesho ya Violezo Anuwai"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Ramani Yenye Matoleo ya Kujaribu Maudhui"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Ramani Yenye Toleo la Kujaribu Kiolezo cha Ujumbe"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Ramani Yenye Toleo la Kujaribu Kiolezo cha Gridi"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

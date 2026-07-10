@@ -19,7 +19,6 @@ package androidx.health.connect.client.permission
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.impl.converters.records.toExerciseRouteData
 import androidx.health.connect.client.records.ExerciseRoute
@@ -32,7 +31,6 @@ import androidx.health.platform.client.service.HealthDataServiceConstants
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ExerciseRouteRequestAppContract : ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {

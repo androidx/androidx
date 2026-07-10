@@ -29,3 +29,13 @@ RemovedFromJava: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNav
     Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilderKt.fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>) can no longer be resolved from Java source
 RemovedFromJava: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilderKt#fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit>):
     Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilderKt.fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder.setModuleName(String) can no longer be resolved from Kotlin source

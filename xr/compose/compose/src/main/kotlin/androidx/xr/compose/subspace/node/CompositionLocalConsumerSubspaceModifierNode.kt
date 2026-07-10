@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace.node
 
 import androidx.compose.runtime.CompositionLocal
+import androidx.xr.compose.subspace.layout.DelegatableSubspaceNode
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 
 /**
@@ -29,7 +30,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
  * @see SubspaceModifier.Node
  * @see CompositionLocal
  */
-public interface CompositionLocalConsumerSubspaceModifierNode
+public interface CompositionLocalConsumerSubspaceModifierNode : DelegatableSubspaceNode
 
 /**
  * Returns the current value of [local] at the position in the composition hierarchy of this
@@ -62,11 +63,8 @@ public interface CompositionLocalConsumerSubspaceModifierNode
 public fun <T : Any?> CompositionLocalConsumerSubspaceModifierNode.currentValueOf(
     local: CompositionLocal<T>
 ): T {
-    check(this is SubspaceModifier.Node) {
-        "Expected CompositionLocalConsumerSubspaceModifierNode to be a SubspaceModifier.Node"
-    }
     val compositionLocalMap =
-        checkNotNull(layoutNode?.compositionLocalMap) {
+        checkNotNull(node.layoutNode?.compositionLocalMap) {
             "Expected layoutNode and compositionLocalMap to be set before requesting composition locals."
         }
     return compositionLocalMap[local]

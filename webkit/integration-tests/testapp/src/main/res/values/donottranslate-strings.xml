@@ -97,8 +97,11 @@
     <string name="multi_profile_not_supported">Multi-Profile feature is not supported.</string>
     <string name="mute_audio_activity_title">Mute Audio Demo</string>
     <string name="mute_audio_not_supported">Mute Audio feature is not supported.</string>
+    <string name="profile_url_prefetch_not_supported">Profile Url Prefetch feature not supported.</string>
     <string name="mute_audio_audio_is_muted">Audio is muted.</string>
+    <string name="prefetch_activity_title">Prefetch Demo</string>
     <string name="mute_audio_audio_is_unmuted">Audio is unmuted.</string>
+    <string name="webview_loaded">WebView Loaded!</string>
 
     <!-- PaymentRequest -->
     <string name="payment_request_activity_title">PaymentRequest</string>
@@ -119,12 +122,6 @@
     <string name="directory_base_path_activity_title">Directory Base Path</string>
     <string name="ui_thread_startup_mode_activity_title">UI Thread Startup Mode</string>
 
-    <!-- Requested With Header -->
-    <string name="requested_with_activity_title">X-Requested-With header allow-list</string>
-    <string name="requested_with_header_mode">Allow-list</string>
-    <string name="requested_with_no_allow_list">Empty</string>
-    <string name="requested_with_use_allow_list">Containing the web server</string>
-
     <!-- User Agent Metadata -->
     <string name="user_agent_metadata_activity_title">Override User-Agent Metadata</string>
     <string name="user_agent_metadata_override_mode">User-Agent Metadata</string>
@@ -144,5 +141,24 @@
     <string name="web_storage_load_page_button">Reload page</string>
     <string name="web_storage_delete_data_button">Delete page data</string>
     <string name="web_storage_delete_complete">Data deletion complete</string>
+
+    <!-- Custom Header -->
+    <string name="custom_header_activity_title">Custom Request Headers</string>
+    <string name="custom_header_name_label">Header Name</string>
+    <string name="custom_header_value_label">Header Value</string>
+    <string name="custom_header_add_button_label">Add custom header</string>
+    <string name="custom_header_clear_button_label">Clear custom headers</string>
+    <string name="custom_header_load_button_label">Load and show headers</string>
+    <string name="custom_header_missing_input_warning">Please enter both header name and value</string>
+
+    <!-- HTTP Cache Quota -->
+    <string name="http_cache_quota_activity_title">HTTP Cache Quota Demo</string>
+    <string name="http_cache_quota_size">Quota size in bytes</string>
+    <string name="http_cache_quota_get_default">Get Default</string>
+    <string name="http_cache_quota_set_quota">Set Quota</string>
+    <string name="http_cache_quota_get_quota">Get Quota</string>
+    <string name="http_cache_quota_use_default">Use Default</string>
+    <string name="http_cache_quota_is_using_default">Is Default?</string>
+    <string name="http_cache_quota_missing_input_warning">Please enter a quota size</string>
 
 </resources>

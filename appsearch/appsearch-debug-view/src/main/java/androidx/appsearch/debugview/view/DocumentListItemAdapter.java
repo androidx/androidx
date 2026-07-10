@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.debugview.R;
 import androidx.core.util.Preconditions;
@@ -37,9 +38,8 @@ import java.util.List;
  * <p>This adapter displays each item as a namespace and document ID.
  *
  * <p>Documents can be manually changed by calling {@link #setDocuments}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListItemAdapter extends
         RecyclerView.Adapter<DocumentListItemAdapter.ViewHolder> {

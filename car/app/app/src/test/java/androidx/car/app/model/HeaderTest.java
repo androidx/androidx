@@ -20,17 +20,22 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.net.Uri;
+
 import androidx.car.app.TestUtils;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Collections;
 
 /** Tests for {@link Header}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class HeaderTest {
     @Test
@@ -171,4 +176,107 @@ public class HeaderTest {
                 .setTitle("other")
                 .build());
     }
+
+    @Test
+    public void createInstance_subtitle() {
+        String subtitle = "subtitle";
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setSubtitle(subtitle)
+                .build();
+        assertThat(component.getSubtitle().toString()).isEqualTo(subtitle);
+    }
+
+    @Test
+    public void createInstance_subtitle_allowsColorsAndIcons() {
+        CharSequence subtitle = TestUtils.getCharSequenceWithColorSpan("Subtitle");
+        new Header.Builder()
+                .setTitle("Title")
+                .setSubtitle(subtitle)
+                .build();
+    }
+
+    @Test
+    public void notEquals_differentSubtitle() {
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setSubtitle("subtitle")
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setSubtitle("other")
+                .build());
+    }
+
+    @Test
+    public void createInstance_background() {
+        Background background = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test"))).build())
+                .build();
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setBackground(background)
+                .build();
+        assertThat(component.getBackground()).isEqualTo(background);
+    }
+
+    @Test
+    public void notEquals_differentBackground() {
+        Background background1 = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test1"))).build())
+                .build();
+        Background background2 = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test2"))).build())
+                .build();
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setBackground(background1)
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setBackground(background2)
+                .build());
+    }
+
+    @Test
+    public void createInstance_startHeaderImage() {
+        CarIcon startHeaderImage = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setStartHeaderImage(startHeaderImage)
+                .build();
+        assertThat(component.getStartHeaderImage()).isEqualTo(startHeaderImage);
+    }
+
+    @Test
+    public void createInstance_startHeaderImage_onlyCustomIconsAllowed() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Header.Builder()
+                        .setTitle("Title")
+                        .setStartHeaderImage(CarIcon.BACK));
+    }
+
+    @Test
+    public void notEquals_differentStartHeaderImage() {
+        CarIcon startHeaderImage1 = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test1"))).build();
+        CarIcon startHeaderImage2 = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test2"))).build();
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setStartHeaderImage(startHeaderImage1)
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setStartHeaderImage(startHeaderImage2)
+                .build());
+    }
 }
+

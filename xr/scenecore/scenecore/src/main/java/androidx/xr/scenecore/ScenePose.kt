@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,11 @@ package androidx.xr.scenecore
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.internal.ActivityPose as RtActivityPose
-import androidx.xr.scenecore.internal.CameraViewActivityPose as RtCameraViewActivityPose
-import androidx.xr.scenecore.internal.HeadActivityPose as RtHeadActivityPose
-import androidx.xr.scenecore.internal.HitTestResult as RtHitTestResult
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.PerceptionSpaceActivityPose as RtPerceptionSpaceActivityPose
+import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose as RtPerceptionSpaceScenePose
+import androidx.xr.scenecore.runtime.ScenePose as RtScenePose
+import androidx.xr.scenecore.runtime.SceneRuntime
 
 /**
  * A [Pose] in the Scene graph, which can be transformed into a Pose relative to another ScenePose.
@@ -35,7 +31,7 @@ import androidx.xr.scenecore.internal.PerceptionSpaceActivityPose as RtPerceptio
 public interface ScenePose {
 
     /** The current [Pose] relative to the activity space root. */
-    public val activitySpacePose: Pose
+    public val poseInActivitySpace: Pose
 
     /**
      * Returns a [Pose] relative to this ScenePose, transformed into a Pose relative to the
@@ -46,6 +42,46 @@ public interface ScenePose {
      * @return The Pose relative to the destination ScenePose.
      */
     public fun transformPoseTo(pose: Pose, destination: ScenePose): Pose
+
+    /**
+     * Transforms a position from this ScenePose's local space to the destination ScenePose's local
+     * space.
+     *
+     * This operation is affected by both ScenePose's position, rotation, and scale.
+     *
+     * @param position The position in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned position will be relative to.
+     * @return The position in the destination ScenePose's local space.
+     */
+    public fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3
+
+    /**
+     * Transforms a vector from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation accounts for scale. The magnitude of the output vector might be
+     * different from the magnitude of the input vector.
+     *
+     * This operation is not affected by either ScenePose's position.
+     *
+     * @param vector The vector in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned vector will be relative to.
+     * @return The vector in the destination ScenePose's local space. The returned magnitude will be
+     *   affected by destination scale.
+     */
+    public fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3
+
+    /**
+     * Transforms a direction from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation ignores relative scaling; the output vector will have the same
+     * magnitude as [direction].
+     *
+     * This operation is not affected by either ScenePose's scale or position.
+     *
+     * @param direction The direction in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned direction will be relative to.
+     * @return The direction in the destination ScenePose's local space. It will have the same
+     *   magnitude as the input direction.
+     */
+    public fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3
 
     /** A filter for which Scenes to hit test with [ScenePose.hitTest]. */
     public object HitTestFilter {
@@ -66,14 +102,15 @@ public interface ScenePose {
     public annotation class HitTestFilterValue
 
     /**
-     * Creates a hit test from the specified origin in the specified direction into the Scene.
+     * Perform a hit test from the specified origin in the specified direction into the Scene.
      *
      * @param origin The translation of the origin of the hit test relative to this ScenePose.
      * @param direction The direction for the hit test ray from the origin.
-     * @return a HitResult. The HitResult describes if it hit something and where relative to this
-     *   ScenePose.
+     * @return The [HitTestResult], or null if the hit test did not find an intersection. The
+     *   HitTestResult describes the location and normal of the object closest to the hit, relative
+     *   to this ScenePose.
      */
-    public suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult
+    public suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult?
 
     /**
      * Creates a hit test from the specified origin in the specified direction into the scene.
@@ -82,108 +119,71 @@ public interface ScenePose {
      * @param direction The direction for the hit test ray from the origin
      * @param hitTestFilter Filter for which scenes to hit test. Hitting other scenes is only
      *   allowed for apps with the `com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE` permission.
-     * @return a HitResult. The HitResult describes if it hit something and where relative to this
-     *   ScenePose.
+     * @return The [HitTestResult], or null if the hit test did not find an intersection. The
+     *   HitTestResult describes the location and normal of the object closest to the hit, relative
+     *   to this ScenePose.
      */
     public suspend fun hitTest(
         origin: Vector3,
         direction: Vector3,
         @HitTestFilterValue hitTestFilter: Int,
-    ): HitTestResult
+    ): HitTestResult?
 }
 
 /** The BaseScenePose implements the [ScenePose] interface. */
-public abstract class BaseScenePose<out RtActivityPoseType : RtActivityPose>
-protected constructor(internal val rtActivityPose: RtActivityPoseType) : ScenePose {
+public abstract class BaseScenePose<out RtScenePoseType : RtScenePose>
+protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
     private companion object {
         private const val TAG = "BaseScenePose"
     }
 
-    override val activitySpacePose: Pose
-        get() = rtActivityPose.activitySpacePose
+    override val poseInActivitySpace: Pose
+        get() = rtScenePose.activitySpacePose
 
     override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {
-        if (destination !is BaseScenePose<RtActivityPose>) {
-            Log.e(TAG, "Destination must be a subclass of BaseActivityPose!")
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
             return Pose.Identity
         }
-        return rtActivityPose.transformPoseTo(pose, destination.rtActivityPose)
+        return rtScenePose.transformPoseTo(pose, destination.rtScenePose)
+    }
+
+    override fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformPositionTo(position, destination.rtScenePose)
+    }
+
+    override fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformVectorTo(vector, destination.rtScenePose)
+    }
+
+    override fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformDirectionTo(direction, destination.rtScenePose)
     }
 
     override suspend fun hitTest(
         origin: Vector3,
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
-    ): HitTestResult {
-        val hitTestRtFuture =
-            this.rtActivityPose.hitTest(origin, direction, hitTestFilter.toRtHitTestFilter())
-        val deferredHitTestResult: RtHitTestResult = hitTestRtFuture.awaitSuspending()
-        return deferredHitTestResult.toHitTestResult()
+    ): HitTestResult? {
+        val hitTestRt =
+            this.rtScenePose.hitTest(origin, direction, hitTestFilter.toRtHitTestFilter())
+        return hitTestRt.toHitTestResult()
     }
 
-    override suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult {
+    override suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult? {
         return hitTest(origin, direction, ScenePose.HitTestFilter.SELF_SCENE.toRtHitTestFilter())
-    }
-}
-
-/** An [ScenePose] which tracks a camera view's position and view into physical space. */
-public class CameraView
-private constructor(private val rtCameraViewActivityPose: RtCameraViewActivityPose) :
-    BaseScenePose<RtCameraViewActivityPose>(rtCameraViewActivityPose) {
-
-    internal companion object {
-        internal fun createLeft(platformAdapter: JxrPlatformAdapter): CameraView? {
-            val cameraViewActivityPose =
-                platformAdapter.getCameraViewActivityPose(
-                    RtCameraViewActivityPose.CameraType.CAMERA_TYPE_LEFT_EYE
-                )
-            return cameraViewActivityPose?.let { CameraView(it) }
-        }
-
-        internal fun createRight(platformAdapter: JxrPlatformAdapter): CameraView? {
-            val cameraViewActivityPose =
-                platformAdapter.getCameraViewActivityPose(
-                    RtCameraViewActivityPose.CameraType.CAMERA_TYPE_RIGHT_EYE
-                )
-            return cameraViewActivityPose?.let { CameraView(it) }
-        }
-    }
-
-    /** Describes the type of camera that this CameraView represents. */
-    public enum class CameraType {
-        /** This CameraView represents an unknown camera view. */
-        UNKNOWN,
-
-        /** This CameraView represents the user's left eye. */
-        LEFT_EYE,
-
-        /** This CameraView represents the user's right eye. */
-        RIGHT_EYE,
-    }
-
-    public val cameraType: CameraType = CameraType.UNKNOWN
-
-    /** Gets the FOV for the camera. */
-    public val fov: FieldOfView
-        get() {
-            val rtFov = rtCameraViewActivityPose.fov
-            return FieldOfView(rtFov.angleLeft, rtFov.angleRight, rtFov.angleUp, rtFov.angleDown)
-        }
-}
-
-/**
- * Head is an [ScenePose] used to track the position of the user's head. If there is a left and
- * right camera it is calculated as the position between the two.
- */
-public class Head private constructor(rtActivityPose: RtHeadActivityPose) :
-    BaseScenePose<RtHeadActivityPose>(rtActivityPose) {
-
-    internal companion object {
-
-        /** Factory function for creating [Head] instance. */
-        internal fun create(platformAdapter: JxrPlatformAdapter): Head? {
-            return platformAdapter.headActivityPose?.let { Head(it) }
-        }
     }
 }
 
@@ -191,13 +191,34 @@ public class Head private constructor(rtActivityPose: RtHeadActivityPose) :
  * PerceptionSpace is an [ScenePose] used to track the origin of the space used by ARCore for
  * Jetpack XR APIs.
  */
-public class PerceptionSpace private constructor(rtActivityPose: RtPerceptionSpaceActivityPose) :
-    BaseScenePose<RtPerceptionSpaceActivityPose>(rtActivityPose) {
+public class PerceptionSpace private constructor(private val sceneRuntime: SceneRuntime) :
+    BaseScenePose<RtPerceptionSpaceScenePose>(sceneRuntime.perceptionSpaceActivityPose) {
+
+    /**
+     * Returns a [ScenePose] from a [Pose] relative to this [PerceptionSpace].
+     *
+     * @param pose a Pose relative to the perceptionSpace.
+     * @return a ScenePose containing the position in the [PerceptionSpace].
+     */
+    public fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
+        return PerceptionScenePose.create(sceneRuntime, pose)
+    }
 
     internal companion object {
 
         /** Factory function for creating [PerceptionSpace] instance. */
-        internal fun create(platformAdapter: JxrPlatformAdapter): PerceptionSpace =
-            PerceptionSpace(platformAdapter.perceptionSpaceActivityPose)
+        internal fun create(sceneRuntime: SceneRuntime): PerceptionSpace =
+            PerceptionSpace(sceneRuntime)
+    }
+}
+
+/** A ScenePose that is created based on a position in [PerceptionSpace]. */
+internal class PerceptionScenePose private constructor(rtScenePose: RtScenePose) :
+    BaseScenePose<RtScenePose>(rtScenePose) {
+
+    internal companion object {
+        /** Factory function for creating PerceptionScenePose instance. */
+        internal fun create(sceneRuntime: SceneRuntime, pose: Pose): ScenePose =
+            PerceptionScenePose(sceneRuntime.getScenePoseFromPerceptionPose(pose))
     }
 }

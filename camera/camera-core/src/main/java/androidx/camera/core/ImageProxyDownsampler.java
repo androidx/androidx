@@ -16,12 +16,19 @@
 
 package androidx.camera.core;
 
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import android.graphics.ImageFormat;
 import android.util.Size;
+
+import androidx.camera.common.ImagePlane;
+import androidx.camera.core.ExperimentalGetImage;
 
 import org.jspecify.annotations.NonNull;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /** Utility functions for downsampling an {@link ImageProxy}. */
 final class ImageProxyDownsampler {
@@ -58,7 +65,7 @@ final class ImageProxyDownsampler {
 
         if (image.getWidth() == downsampledWidth && image.getHeight() == downsampledHeight) {
             return new ForwardingImageProxyImpl(
-                    image, image.getPlanes(), downsampledWidth, downsampledHeight);
+                    image, image.getImagePlanes(), downsampledWidth, downsampledHeight);
         }
 
         int[] inputWidths = {image.getWidth(), image.getWidth() / 2, image.getWidth() / 2};
@@ -66,10 +73,12 @@ final class ImageProxyDownsampler {
         int[] outputWidths = {downsampledWidth, downsampledWidth / 2, downsampledWidth / 2};
         int[] outputHeights = {downsampledHeight, downsampledHeight / 2, downsampledHeight / 2};
 
-        ImageProxy.PlaneProxy[] outputPlanes = new ImageProxy.PlaneProxy[3];
+        List<ImagePlane> outputPlanes =
+                Arrays.asList(new ImageProxy.PlaneProxy[3]);
+        List<ImagePlane> inputPlanes = image.getImagePlanes();
         for (int i = 0; i < 3; ++i) {
-            ImageProxy.PlaneProxy inputPlane = image.getPlanes()[i];
-            ByteBuffer inputBuffer = inputPlane.getBuffer();
+            ImagePlane inputPlane = inputPlanes.get(i);
+            ByteBuffer inputBuffer = checkNotNull(inputPlane.getBuffer());
             byte[] output = new byte[outputWidths[i] * outputHeights[i]];
             switch (downsamplingMethod) {
                 case NEAREST_NEIGHBOR:
@@ -95,7 +104,7 @@ final class ImageProxyDownsampler {
                             outputHeights[i]);
                     break;
             }
-            outputPlanes[i] = createPlaneProxy(outputWidths[i], 1, output);
+            outputPlanes.set(i, createPlaneProxy(outputWidths[i], 1, output));
         }
         return new ForwardingImageProxyImpl(
                 image, outputPlanes, downsampledWidth, downsampledHeight);
@@ -206,6 +215,11 @@ final class ImageProxyDownsampler {
             public @NonNull ByteBuffer getBuffer() {
                 return mBuffer;
             }
+
+            @Override
+            public <T> T unwrapAs(@NonNull Class<T> type) {
+                return null;
+            }
         };
     }
 
@@ -217,17 +231,17 @@ final class ImageProxyDownsampler {
     }
 
     private static final class ForwardingImageProxyImpl extends ForwardingImageProxy {
-        private final PlaneProxy[] mDownsampledPlanes;
+        private final List<ImagePlane> mImagePlanes;
         private final int mDownsampledWidth;
         private final int mDownsampledHeight;
 
         ForwardingImageProxyImpl(
                 ImageProxy originalImage,
-                PlaneProxy[] downsampledPlanes,
+                List<ImagePlane> downsampledPlanes,
                 int downsampledWidth,
                 int downsampledHeight) {
             super(originalImage);
-            mDownsampledPlanes = downsampledPlanes;
+            mImagePlanes = downsampledPlanes;
             mDownsampledWidth = downsampledWidth;
             mDownsampledHeight = downsampledHeight;
         }
@@ -243,8 +257,14 @@ final class ImageProxyDownsampler {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public PlaneProxy @NonNull [] getPlanes() {
-            return mDownsampledPlanes;
+            return mImagePlanes.toArray(new PlaneProxy[0]);
+        }
+
+        @Override
+        public @NonNull List<ImagePlane> getImagePlanes() {
+            return mImagePlanes;
         }
     }
 }

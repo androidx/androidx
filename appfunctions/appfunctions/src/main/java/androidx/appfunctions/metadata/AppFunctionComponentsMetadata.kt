@@ -16,7 +16,6 @@
 
 package androidx.appfunctions.metadata
 
-import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -58,8 +57,7 @@ constructor(
      *
      * @return the [AppFunctionComponentsMetadataDocument] representation of the metadata.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toAppFunctionComponentsMetadataDocument(): AppFunctionComponentsMetadataDocument {
+    internal fun toAppFunctionComponentsMetadataDocument(): AppFunctionComponentsMetadataDocument {
         return AppFunctionComponentsMetadataDocument(
             dataTypes =
                 dataTypes.map { (name, dataType) ->
@@ -73,19 +71,22 @@ constructor(
 }
 
 /** Represents the persistent storage format of [AppFunctionComponentsMetadata]. */
-@Document
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class AppFunctionComponentsMetadataDocument(
-    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
-    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
+@Document(name = AppFunctionComponentsMetadataDocument.SCHEMA_TYPE)
+internal data class AppFunctionComponentsMetadataDocument(
+    @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
+    @Document.Id val id: String = APP_FUNCTION_ID_EMPTY,
     /** The list of data types that ban be reusable across the schema. */
-    @Document.DocumentProperty public val dataTypes: List<AppFunctionNamedDataTypeMetadataDocument>,
+    @Document.DocumentProperty val dataTypes: List<AppFunctionNamedDataTypeMetadataDocument>,
 ) {
-    public fun toAppFunctionComponentsMetadata(): AppFunctionComponentsMetadata =
+    fun toAppFunctionComponentsMetadata(): AppFunctionComponentsMetadata =
         AppFunctionComponentsMetadata(
             dataTypes =
                 dataTypes.associate {
                     it.name to it.dataTypeMetadata.toAppFunctionDataTypeMetadata()
                 }
         )
+
+    companion object {
+        const val SCHEMA_TYPE = "AppFunctionComponentMetadataDocument"
+    }
 }

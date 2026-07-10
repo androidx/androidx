@@ -28,6 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
 class MetadataTest {
@@ -44,18 +45,21 @@ class MetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraMetadataTest {
     @Test
     fun cameraMetadataIsNotEqual() {
         val metadata1 =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
         val metadata2 =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata1).isNotEqualTo(metadata2)
@@ -64,20 +68,78 @@ class CameraMetadataTest {
     @Test
     fun canRetrieveCameraCharacteristicsOrCameraMetadataViaInterface() {
         val metadata =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
         assertThat(metadata[FakeMetadata.TEST_KEY_ABSENT]).isNull()
 
         assertThat(metadata[CameraCharacteristics.LENS_FACING]).isNotNull()
-        assertThat(metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]).isNull()
+        assertThat(metadata[CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES]).isNull()
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_simulatesAdvancedHardwareWithFlash() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_BACK)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isTrue()
+        assertThat(metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL])
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+    }
+
+    @Test
+    fun verifyEmulatorDeviceTemplate_simulatesLimitedHardwareNoFlash() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = EmulatorDeviceTemplate,
+                cameraId = CameraId("0"),
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_BACK)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+        assertThat(metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL])
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
+    }
+
+    @Test
+    fun verifyFromTemplateCorrectlyAppliesOverrides() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+    }
+
+    @Test
+    fun verifyFromTemplateFrontFacing_defaultsSensorOrientationTo270() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
+        assertThat(metadata[CameraCharacteristics.SENSOR_ORIENTATION]).isEqualTo(270)
     }
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class RequestMetadataTest {
 
     @Test
@@ -106,6 +168,7 @@ class RequestMetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class FrameMetadataTest {
     @Test
     fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
@@ -124,11 +187,13 @@ class FrameMetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class MetadataTransformTest {
     private val metadata =
-        FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-            mapOf(FakeMetadata.TEST_KEY to 42),
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
         )
 
     private val requestMetadata =

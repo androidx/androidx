@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.math
 
-import kotlin.math.sign
 import kotlin.math.sqrt
 
 /**
@@ -28,7 +27,7 @@ import kotlin.math.sqrt
  * [2, 5, 8]
  * ```
  *
- * @param dataToCopy the array with 9 elements that will be copied over.
+ * @param dataToCopy the array with 9 elements that will be copied over
  */
 public class Matrix3(dataToCopy: FloatArray) {
     init {
@@ -53,19 +52,13 @@ public class Matrix3(dataToCopy: FloatArray) {
     /** Returns the rotation component of this matrix. */
     public val rotation: Quaternion by lazy(LazyThreadSafetyMode.NONE) { rotation() }
 
-    /**
-     * Returns true if this matrix is a valid transformation matrix that can be decomposed into
-     * rotation and scale using determinant properties.
-     */
+    /** True if the matrix represents a valid rotation-scale transformation. */
     public val isTrs: Boolean by lazy(LazyThreadSafetyMode.NONE) { determinant() != 0.0f }
 
     /** Creates a new matrix with a deep copy of the data from the [other] [Matrix3]. */
     public constructor(other: Matrix3) : this(other.data.copyOf())
 
-    /**
-     * Returns a new matrix with the matrix multiplication product of this matrix and the [other]
-     * matrix.
-     */
+    /** Multiplies this matrix by [other]. */
     public operator fun times(other: Matrix3): Matrix3 {
         // multiplyMM is not supported for 3x3 matrices so we manually do the multiplication.
         val resultData = FloatArray(9)
@@ -136,15 +129,27 @@ public class Matrix3(dataToCopy: FloatArray) {
     }
 
     private fun rotation(): Quaternion {
-        val m00 = data[0]
-        val m01 = data[3]
-        val m02 = data[6]
-        val m10 = data[1]
-        val m11 = data[4]
-        val m12 = data[7]
-        val m20 = data[2]
-        val m21 = data[5]
-        val m22 = data[8]
+        // Remove scale from each (column-major) basis column before extracting the rotation;
+        // otherwise a matrix with scale != 1 yields a skewed, incorrect quaternion. We divide by
+        // the magnitude (not the signed scale): scale() derives per-axis sign from sign(diagonal),
+        // which is negative for many pure rotations (e.g. 180 degrees about any axis), and dividing
+        // by that signed value would flip the column and corrupt the rotation into a reflection. A
+        // zero scale component is replaced with 1 to avoid division by zero, mirroring the
+        // defensive `if (s == 0f)` idiom used in the branches below.
+        val scaleVec = Vector3.abs(scale)
+        val sx = if (scaleVec.x < EPSILON) 1.0f else scaleVec.x
+        val sy = if (scaleVec.y < EPSILON) 1.0f else scaleVec.y
+        val sz = if (scaleVec.z < EPSILON) 1.0f else scaleVec.z
+
+        val m00 = data[0] / sx
+        val m01 = data[3] / sy
+        val m02 = data[6] / sz
+        val m10 = data[1] / sx
+        val m11 = data[4] / sy
+        val m12 = data[7] / sz
+        val m20 = data[2] / sx
+        val m21 = data[5] / sy
+        val m22 = data[8] / sz
 
         val trace = m00 + m11 + m22
 
@@ -173,17 +178,12 @@ public class Matrix3(dataToCopy: FloatArray) {
     }
 
     private fun scale(): Vector3 {
-        // TODO: b/367780918 - Investigate why scale can have negative values when inputs were
-        // positive.
-        // We don't want it to ever return 0.
-        val signX = if (data[0] == 0.0f) 1.0f else sign(data[0])
-        val signY = if (data[4] == 0.0f) 1.0f else sign(data[4])
-        val signZ = if (data[8] == 0.0f) 1.0f else sign(data[8])
-
+        // Use either a positive or negative scale based on the rotation matrix determinant.
+        val sign = if (determinant() < 0) -1.0f else 1.0f
         return Vector3(
-            signX * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
-            signY * sqrt(data[3] * data[3] + data[4] * data[4] + data[5] * data[5]),
-            signZ * sqrt(data[6] * data[6] + data[7] * data[7] + data[8] * data[8]),
+            sign * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
+            sign * sqrt(data[3] * data[3] + data[4] * data[4] + data[5] * data[5]),
+            sign * sqrt(data[6] * data[6] + data[7] * data[7] + data[8] * data[8]),
         )
     }
 
@@ -226,10 +226,16 @@ public class Matrix3(dataToCopy: FloatArray) {
             data[8] +
             " ]"
 
-    /** Returns a copy of the matrix. */
-    public fun copy(data: FloatArray = this.data): Matrix3 = Matrix3(data)
+    /**
+     * Returns a copy of the matrix.
+     *
+     * @param data the new data for the copied matrix
+     */
+    @JvmOverloads public fun copy(data: FloatArray = this.data): Matrix3 = Matrix3(data)
 
     public companion object {
+        private const val EPSILON: Float = 1e-6f
+
         /** Returns an identity matrix. */
         @JvmField
         public val IDENTITY: Matrix3 = Matrix3(floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
@@ -238,12 +244,20 @@ public class Matrix3(dataToCopy: FloatArray) {
         @JvmField
         public val ZERO: Matrix3 = Matrix3(floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f))
 
-        /** Returns a new scale matrix. */
+        /**
+         * Returns a new scale matrix.
+         *
+         * @param scale the scale vector
+         */
         @JvmStatic
         public fun fromScale(scale: Vector3): Matrix3 =
             Matrix3(floatArrayOf(scale.x, 0.0f, 0.0f, 0.0f, scale.y, 0.0f, 0.0f, 0.0f, scale.z))
 
-        /** Returns a new uniform scale matrix. */
+        /**
+         * Returns a new uniform scale matrix.
+         *
+         * @param scale the uniform scale factor
+         */
         @JvmStatic
         public fun fromScale(scale: Float): Matrix3 =
             Matrix3(floatArrayOf(scale, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, scale))
@@ -253,15 +267,15 @@ public class Matrix3(dataToCopy: FloatArray) {
          * This function uses a standard formula for the conversion, though alternative algebraic
          * expressions exist due to differing conventions. The resulting matrix typically transforms
          * 3D column vectors by pre-multiplication (e.g., $v'_{new} = M \cdot v_{old}$).
+         *
+         * @param quaternion the quaternion to convert
          */
         @JvmStatic
         public fun fromQuaternion(quaternion: Quaternion): Matrix3 {
-            val q = quaternion.toNormalized()
-
-            val qx = q.x
-            val qy = q.y
-            val qz = q.z
-            val qw = q.w
+            val qx = quaternion.x
+            val qy = quaternion.y
+            val qz = quaternion.z
+            val qw = quaternion.w
 
             val qx2 = qx * qx
             val qy2 = qy * qy

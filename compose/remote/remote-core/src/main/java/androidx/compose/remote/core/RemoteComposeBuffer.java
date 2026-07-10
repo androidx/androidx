@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -24,8 +25,10 @@ import androidx.compose.remote.core.operations.ClipRect;
 import androidx.compose.remote.core.operations.ColorAttribute;
 import androidx.compose.remote.core.operations.ColorConstant;
 import androidx.compose.remote.core.operations.ColorExpression;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.ConditionalOperations;
+import androidx.compose.remote.core.operations.DataDynamicListFloat;
 import androidx.compose.remote.core.operations.DataListFloat;
 import androidx.compose.remote.core.operations.DataListIds;
 import androidx.compose.remote.core.operations.DataMapIds;
@@ -48,6 +51,7 @@ import androidx.compose.remote.core.operations.DrawRoundRect;
 import androidx.compose.remote.core.operations.DrawSector;
 import androidx.compose.remote.core.operations.DrawText;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
@@ -70,6 +74,7 @@ import androidx.compose.remote.core.operations.MatrixSkew;
 import androidx.compose.remote.core.operations.MatrixTranslate;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.PaintData;
+import androidx.compose.remote.core.operations.ParticlesCompare;
 import androidx.compose.remote.core.operations.ParticlesCreate;
 import androidx.compose.remote.core.operations.ParticlesLoop;
 import androidx.compose.remote.core.operations.PathAppend;
@@ -78,9 +83,14 @@ import androidx.compose.remote.core.operations.PathCreate;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.PathExpression;
 import androidx.compose.remote.core.operations.PathTween;
+import androidx.compose.remote.core.operations.PlaySound;
+import androidx.compose.remote.core.operations.ReferencedOperations;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
+import androidx.compose.remote.core.operations.Skip;
+import androidx.compose.remote.core.operations.SoundData;
+import androidx.compose.remote.core.operations.SoundExpression;
 import androidx.compose.remote.core.operations.TextAttribute;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.TextFromFloat;
@@ -90,9 +100,11 @@ import androidx.compose.remote.core.operations.TextLookupInt;
 import androidx.compose.remote.core.operations.TextMeasure;
 import androidx.compose.remote.core.operations.TextMerge;
 import androidx.compose.remote.core.operations.TextSubtext;
+import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
+import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
@@ -104,6 +116,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation;
 import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -114,20 +127,26 @@ import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
+import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextStyle;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
@@ -143,6 +162,12 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
+import androidx.compose.remote.core.operations.loom.PatternArgument;
+import androidx.compose.remote.core.operations.loom.PatternBlock;
+import androidx.compose.remote.core.operations.loom.PatternDefine;
+import androidx.compose.remote.core.operations.loom.PatternForEach;
+import androidx.compose.remote.core.operations.loom.PatternInflation;
+import androidx.compose.remote.core.operations.loom.RemapContext;
 import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
@@ -161,6 +186,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,6 +194,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Provides an abstract buffer to encode/decode RemoteCompose operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeBuffer {
     public static final int EASING_CUBIC_STANDARD = FloatAnimation.CUBIC_STANDARD;
     public static final int EASING_CUBIC_ACCELERATE = FloatAnimation.CUBIC_ACCELERATE;
@@ -180,20 +207,28 @@ public class RemoteComposeBuffer {
     public static final int EASING_EASE_OUT_BOUNCE = FloatAnimation.EASE_OUT_BOUNCE;
     public static final int EASING_EASE_OUT_ELASTIC = FloatAnimation.EASE_OUT_ELASTIC;
     private @NonNull WireBuffer mBuffer = new WireBuffer();
-    private static final boolean DEBUG = false;
 
-    private int mLastComponentId = 0;
+    protected int mLastComponentId = 0;
     private int mGeneratedComponentId = -1;
-    private int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
+    protected int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
+    private final java.util.Stack<Integer> mPatternDefineOffsets = new java.util.Stack<>();
+    protected int mProfileMask = 0;
 
     Operations.UniqueIntMap<CompanionOperation> mMap = new Operations.UniqueIntMap<>();
 
     public RemoteComposeBuffer() {
-        // nothing
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     public RemoteComposeBuffer(int apiLevel) {
         mApiLevel = apiLevel;
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
+    }
+
+    /** Apply profile directly */
+    public void setProfileMask(int mask) {
+        mProfileMask = mask;
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     /**
@@ -571,11 +606,7 @@ public class RemoteComposeBuffer {
         PathAppend.apply(mBuffer, id, path);
     }
 
-    /**
-     * Draw the specified path
-     *
-     * @param pathId
-     */
+    /** Draw the specified path */
     public void addDrawPath(int pathId) {
         DrawPath.apply(mBuffer, pathId);
     }
@@ -620,6 +651,39 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Draw the curved text, along the specified circle with origin at (x,y).
+     *
+     * @param textId the id of the text variable
+     * @param centerX the center X of the circle
+     * @param centerY the center Y of the circle
+     * @param radius the radius of the circle
+     * @param startAngle the start angle to draw from
+     * @param warpRadiusOffset the offset of the warp radius
+     * @param alignment the alignment of the text relative to start
+     * @param placement the placement inside or outside the circle
+     */
+    public void addDrawTextOnCircle(
+            int textId,
+            float centerX,
+            float centerY,
+            float radius,
+            float startAngle,
+            float warpRadiusOffset,
+            DrawTextOnCircle.@NonNull Alignment alignment,
+            DrawTextOnCircle.@NonNull Placement placement) {
+        DrawTextOnCircle.apply(
+                mBuffer,
+                textId,
+                centerX,
+                centerY,
+                radius,
+                startAngle,
+                warpRadiusOffset,
+                alignment,
+                placement);
+    }
+
+    /**
      * Draw the text, with origin at (x,y). The origin is interpreted based on the Align setting in
      * the paint.
      *
@@ -654,10 +718,20 @@ public class RemoteComposeBuffer {
      * @param end (end - 1) is the index of the last character in text to draw
      * @param x The x-coordinate of the origin of the text being drawn
      * @param y The y-coordinate of the baseline of the text being drawn
+     * @param glyphSpacing horizontal spacing adjustment in pixels between glyphs
      */
     public void addDrawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y) {
-        DrawBitmapFontText.apply(mBuffer, textId, bitmapFontId, start, end, x, y);
+            int textId,
+            int bitmapFontId,
+            int start,
+            int end,
+            float x,
+            float y,
+            float glyphSpacing) {
+        if (mApiLevel < 8 && glyphSpacing != 0f) {
+            throw new RuntimeException("glyphSpacing not supported in API level < 8");
+        }
+        DrawBitmapFontText.apply(mBuffer, textId, bitmapFontId, start, end, x, y, glyphSpacing);
     }
 
     /**
@@ -669,10 +743,21 @@ public class RemoteComposeBuffer {
      * @param start The index of the first character in text to draw
      * @param end (end - 1) is the index of the last character in text to draw
      * @param yAdj Adjustment away from the path along the normal at that point
+     * @param glyphSpacing horizontal spacing adjustment in pixels between glyphs
      */
     public void addDrawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj) {
-        DrawBitmapFontTextOnPath.apply(mBuffer, textId, bitmapFontId, pathId, start, end, yAdj);
+            int textId,
+            int bitmapFontId,
+            int pathId,
+            int start,
+            int end,
+            float yAdj,
+            float glyphSpacing) {
+        if (mApiLevel < 8 && glyphSpacing != 0f) {
+            throw new RuntimeException("glyphSpacing not supported in API level < 8");
+        }
+        DrawBitmapFontTextOnPath.apply(
+                mBuffer, textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
     }
 
     /**
@@ -696,6 +781,7 @@ public class RemoteComposeBuffer {
      * @param end (end - 1) is the index of the last character in text to draw
      * @param panX justifies text -1.0=right, 0.0=center, 1.0=left
      * @param panY position text -1.0=above, 0.0=center, 1.0=below, Nan=baseline
+     * @param glyphSpacing horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapTextAnchored(
             int textId,
@@ -705,8 +791,13 @@ public class RemoteComposeBuffer {
             float x,
             float y,
             float panX,
-            float panY) {
-        DrawBitmapTextAnchored.apply(mBuffer, textId, bitmapFontId, start, end, x, y, panX, panY);
+            float panY,
+            float glyphSpacing) {
+        if (mApiLevel < 8 && glyphSpacing != 0f) {
+            throw new RuntimeException("glyphSpacing not supported in API level < 8");
+        }
+        DrawBitmapTextAnchored.apply(
+                mBuffer, textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
     }
 
     /**
@@ -808,13 +899,112 @@ public class RemoteComposeBuffer {
         PathData.apply(mBuffer, id | (winding << 24), pathData);
         return id;
     }
-    /**
-     * Adds a paint Bundle to the doc
-     *
-     * @param paint
-     */
+
+    /** Adds a paint Bundle to the doc */
     public void addPaint(@NonNull PaintBundle paint) {
         PaintData.apply(mBuffer, paint);
+    }
+
+    /**
+     * Define a pattern
+     *
+     * @param name the name of the macro
+     * @param paramIds the IDs of the parameters
+     * @return the ID of the macro
+     */
+    public int definePattern(@NonNull String name, int @NonNull [] paramIds) {
+        int id = name.hashCode();
+        addText(id, name);
+        int offset = PatternDefine.apply(mBuffer, id, paramIds);
+        mPatternDefineOffsets.push(offset);
+        return id;
+    }
+
+    /**
+     * Define a pattern
+     *
+     * @param id id of a name
+     * @param paramIds
+     * @return
+     */
+    public int definePattern(int id, int @NonNull [] paramIds) {
+        int offset = PatternDefine.apply(mBuffer, id, paramIds);
+        mPatternDefineOffsets.push(offset);
+        return id;
+    }
+
+    /**
+     * Define a macro parameter
+     *
+     * @param name the name of the parameter
+     * @return the ID of the parameter
+     */
+    public int definePatternParameter(@NonNull String name) {
+        int id = name.hashCode();
+        addText(id, name);
+        return id;
+    }
+
+    /**
+     * Inflate a pattern
+     *
+     * @param id the ID of the macro
+     * @param argIds the IDs of the arguments
+     */
+    public void inflatePattern(int id, int @NonNull [] argIds) {
+        PatternInflation.apply(mBuffer, id, argIds);
+    }
+
+    /**
+     * Add a macro block
+     *
+     * @param paramIndex the index of the parameter
+     */
+    public void addPatternBlock(int paramIndex) {
+        PatternBlock.apply(mBuffer, paramIndex);
+    }
+
+    /**
+     * Add a macro argument
+     *
+     * @param paramIndex the index of the parameter
+     */
+    public void addPatternArgument(int paramIndex) {
+        PatternArgument.apply(mBuffer, paramIndex);
+    }
+
+    /**
+     * Add a macro for-each
+     *
+     * @param collectionId the ID of the collection
+     * @param localItemId the local ID of the item
+     */
+    public void addPatternForEach(int collectionId, int localItemId) {
+        PatternForEach.apply(mBuffer, collectionId, localItemId);
+    }
+
+    /** End a macro for-each */
+    public void endPatternForEach() {
+        addContainerEnd();
+    }
+
+    /** End a macro definition */
+    public void endPatternDefine() {
+        if (!mPatternDefineOffsets.isEmpty()) {
+            int offset = mPatternDefineOffsets.pop();
+            PatternDefine.applyEnd(mBuffer, offset);
+        }
+        addContainerEnd();
+    }
+
+    /** End a macro call */
+    public void endPatternInflation() {
+        addContainerEnd();
+    }
+
+    /** End a macro block */
+    public void endPatternBlock() {
+        addContainerEnd();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -825,38 +1015,48 @@ public class RemoteComposeBuffer {
      * @param operations the operations list to add to
      */
     public void inflateFromBuffer(@NonNull ArrayList<Operation> operations) {
-        mApiLevel = Header.readApiLevel(mBuffer);
-        int profiles = 0;
-        if (mApiLevel >= 7) {
-            try {
-                Header header = Header.readDirect(mBuffer);
-                profiles = header.getProfiles();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        inflateFromBuffer(operations, RemapContext.identity());
+    }
+
+    /**
+     * inflate the buffer into a list of operations
+     *
+     * @param operations the operations list to add to
+     */
+    public void inflateFromBuffer(
+            @NonNull ArrayList<Operation> operations, @NonNull RemapContext ctx) {
         mBuffer.setIndex(0);
-        if (mApiLevel == -1) {
-            // Invalid API level (or invalid Header)
-            return;
+        if (mBuffer.available() && (mBuffer.mBuffer[mBuffer.mIndex] & 0xFF) == Operations.HEADER) {
+            mApiLevel = Header.peekApiLevel(mBuffer);
+            int profiles = 0;
+            if (mApiLevel >= 7) {
+                try {
+                    Header header = Header.readDirect(mBuffer);
+                    profiles = header.getProfiles();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            mBuffer.setIndex(0);
+            if (mApiLevel == -1) {
+                // Invalid API level (or invalid Header)
+                return;
+            }
+            mMap = Operations.getOperations(mApiLevel, profiles);
         }
-        Operations.UniqueIntMap<CompanionOperation> map =
-                Operations.getOperations(mApiLevel, profiles);
-        if (map == null) {
+        if (mMap == null) {
             // Invalid operations map
             return;
         }
-        mMap = map;
-        while (mBuffer.available()) {
-            int opId = mBuffer.readByte();
-            if (DEBUG) {
-                Utils.log(">> " + opId);
-            }
-            CompanionOperation operation = mMap.get(opId);
-            if (operation == null) {
+        mBuffer.setSystemInfo(getBuffer().mSystemInfo);
+        WireBuffer wrapped = ctx.wrap(mBuffer);
+        while (wrapped.available()) {
+            int opId = wrapped.readByte() & 0xFF;
+            CompanionOperation companion = mMap.get(opId);
+            if (companion == null) {
                 throw new RuntimeException("Unknown operation encountered " + opId);
             }
-            operation.read(mBuffer, operations);
+            companion.read(wrapped, operations);
         }
     }
 
@@ -891,7 +1091,6 @@ public class RemoteComposeBuffer {
      *
      * @param path the file path
      * @return the RemoteComposeBuffer
-     * @throws IOException
      */
     @NonNull
     public static RemoteComposeBuffer fromFile(@NonNull String path) throws IOException {
@@ -984,6 +1183,7 @@ public class RemoteComposeBuffer {
             buffer.reset(bytes.length);
             System.arraycopy(bytes, 0, buffer.mBuffer.mBuffer, 0, bytes.length);
             buffer.mBuffer.mSize = bytes.length;
+            buffer.mBuffer.setIndex(0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -994,7 +1194,6 @@ public class RemoteComposeBuffer {
      *
      * @param is the input stream
      * @return a byte buffer containing the input stream content
-     * @throws IOException
      */
     private static byte[] readAllBytes(@NonNull InputStream is) throws IOException {
         byte[] buff = new byte[32 * 1024]; // moderate size buff to start
@@ -1250,6 +1449,27 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * add a dynamic float array
+     *
+     * @param id id of the array
+     * @param size size of the array
+     */
+    public void addDynamicFloatArray(int id, float size) {
+        DataDynamicListFloat.apply(mBuffer, id, size);
+    }
+
+    /**
+     * Set a value in the given DataDynamicListFloat
+     *
+     * @param id the id of the DataDynamicListFloat
+     * @param index the index of the value to modify
+     * @param value the new value
+     */
+    public void setArrayValue(int id, float index, float value) {
+        UpdateDynamicFloatList.apply(mBuffer, id, index, value);
+    }
+
+    /**
      * This creates a list of individual floats
      *
      * @param id list id
@@ -1279,7 +1499,6 @@ public class RemoteComposeBuffer {
      * for @hoford - add a unit test for this method
      *
      * @param id id of the text
-     * @param dataSet
      * @param index index as a float variable
      */
     public void textLookup(int id, float dataSet, float index) {
@@ -1440,7 +1659,6 @@ public class RemoteComposeBuffer {
      * @param spec the parameters of the animation if any
      * @param initialValue the initial value if it animates to a start
      * @param wrap the wraps value so (e.g 360 so angles 355 would animate to 5)
-     * @return
      */
     public static float @NonNull [] packAnimation(
             float duration, int type, float @Nullable [] spec, float initialValue, float wrap) {
@@ -1466,7 +1684,7 @@ public class RemoteComposeBuffer {
      * @param id the current component id (if -1, we'll generate a new one)
      * @return a usable component id
      */
-    private int getComponentId(int id) {
+    protected int getComponentId(int id) {
         int resolvedId = 0;
         if (id != -1) {
             resolvedId = id;
@@ -1524,7 +1742,45 @@ public class RemoteComposeBuffer {
         float g = (color >> 8 & 0xff) / 255.0f;
         float b = (color & 0xff) / 255.0f;
         float a = (color >> 24 & 0xff) / 255.0f;
-        BackgroundModifierOperation.apply(mBuffer, 0f, 0f, 0f, 0f, r, g, b, a, shape);
+        BackgroundModifierOperation.apply(mBuffer, 0, 0, 0, 0, r, g, b, a, shape);
+    }
+
+    /**
+     * Add a background modifier of provided color
+     *
+     * @param colorId the color of the background
+     * @param shape the background shape -- SHAPE_RECTANGLE, SHAPE_CIRCLE
+     */
+    public void addDynamicModifierBackground(int colorId, int shape) {
+        BackgroundModifierOperation.apply(
+                mBuffer,
+                BackgroundModifierOperation.COLOR_REF,
+                colorId,
+                0,
+                0,
+                0f,
+                0f,
+                0f,
+                0f,
+                shape);
+    }
+
+    /**
+     * Add a background modifier of provided color
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     * @param shape the background shape -- SHAPE_RECTANGLE, SHAPE_CIRCLE
+     */
+    public void addModifierBackground(float r, float g, float b, float a, int shape) {
+        BackgroundModifierOperation.apply(mBuffer, 0, 0, 0, 0, r, g, b, a, shape);
+    }
+
+    /** Add an align modifier */
+    public void addModifierAlignBy(float line) {
+        AlignByModifierOperation.apply(mBuffer, line, 0);
     }
 
     /**
@@ -1537,12 +1793,65 @@ public class RemoteComposeBuffer {
      */
     public void addModifierBorder(
             float borderWidth, float borderRoundedCorner, int color, int shape) {
+        addModifierBorder(borderWidth, borderRoundedCorner, color, shape, true);
+    }
+
+    /**
+     * Add a border modifier
+     *
+     * @param borderWidth the border width
+     * @param borderRoundedCorner the rounded corner radius if the shape is ROUNDED_RECT
+     * @param color the color of the border
+     * @param shape the shape of the border
+     * @param useLegacy flag for enabling legacy border drawing
+     */
+    public void addModifierBorder(
+            float borderWidth, float borderRoundedCorner, int color, int shape, boolean useLegacy) {
         float r = (color >> 16 & 0xff) / 255.0f;
         float g = (color >> 8 & 0xff) / 255.0f;
         float b = (color & 0xff) / 255.0f;
         float a = (color >> 24 & 0xff) / 255.0f;
         BorderModifierOperation.apply(
-                mBuffer, 0f, 0f, 0f, 0f, borderWidth, borderRoundedCorner, r, g, b, a, shape);
+                mBuffer, 0, 0, useLegacy ? 0 : 1, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape);
+    }
+
+    /**
+     * Add a border modifier
+     *
+     * @param borderWidth the border width
+     * @param borderRoundedCorner the rounded corner radius if the shape is ROUNDED_RECT
+     * @param colorId the color of the border
+     * @param shape the shape of the border
+     */
+    public void addModifierDynamicBorder(
+            float borderWidth, float borderRoundedCorner, int colorId, int shape) {
+        addModifierDynamicBorder(borderWidth, borderRoundedCorner, colorId, shape, true);
+    }
+
+    /**
+     * Add a border modifier
+     *
+     * @param borderWidth the border width
+     * @param borderRoundedCorner the rounded corner radius if the shape is ROUNDED_RECT
+     * @param colorId the color of the border
+     * @param shape the shape of the border
+     * @param useLegacy flag for enabling legacy border drawing
+     */
+    public void addModifierDynamicBorder(
+            float borderWidth, float borderRoundedCorner, int colorId, int shape, boolean useLegacy) {
+        BorderModifierOperation.apply(
+                mBuffer,
+                BorderModifierOperation.COLOR_REF,
+                colorId,
+                useLegacy ? 0 : 1,
+                0,
+                borderWidth,
+                borderRoundedCorner,
+                0,
+                0,
+                0,
+                0,
+                shape);
     }
 
     /**
@@ -1608,23 +1917,12 @@ public class RemoteComposeBuffer {
                 velocity);
     }
 
-    /**
-     * Add a graphics layer
-     *
-     * @param attributes
-     */
+    /** Add a graphics layer */
     public void addModifierGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
         GraphicsLayerModifierOperation.apply(mBuffer, attributes);
     }
 
-    /**
-     * Sets the clip based on rounded clip rect
-     *
-     * @param topStart
-     * @param topEnd
-     * @param bottomStart
-     * @param bottomEnd
-     */
+    /** Sets the clip based on rounded clip rect */
     public void addRoundClipRectModifier(
             float topStart, float topEnd, float bottomStart, float bottomEnd) {
         RoundedClipRectModifierOperation.apply(mBuffer, topStart, topEnd, bottomStart, bottomEnd);
@@ -1705,7 +2003,7 @@ public class RemoteComposeBuffer {
     public void addImage(
             int componentId, int animationId, int bitmapId, int scaleType, float alpha) {
         mLastComponentId = getComponentId(componentId);
-        ImageLayout.apply(mBuffer, componentId, animationId, bitmapId, scaleType, alpha);
+        ImageLayout.apply(mBuffer, mLastComponentId, animationId, bitmapId, scaleType, alpha);
     }
 
     /**
@@ -1737,6 +2035,35 @@ public class RemoteComposeBuffer {
         mLastComponentId = getComponentId(componentId);
         CollapsibleRowLayout.apply(
                 mBuffer, mLastComponentId, animationId, horizontal, vertical, spacedBy);
+    }
+
+    /**
+     * Add a flow start tag
+     *
+     * @param componentId component id
+     * @param animationId animation id
+     * @param horizontal horizontal alignment
+     * @param vertical vertical alignment
+     * @param spacedBy spacing between items
+     */
+    public void addFlowStart(
+            int componentId,
+            int animationId,
+            int horizontal,
+            int vertical,
+            float spacedBy,
+            int maxItemsInEachRow,
+            int maxLines) {
+        mLastComponentId = getComponentId(componentId);
+        FlowLayout.apply(
+                mBuffer,
+                mLastComponentId,
+                animationId,
+                horizontal,
+                vertical,
+                spacedBy,
+                maxItemsInEachRow,
+                maxLines);
     }
 
     /**
@@ -1818,6 +2145,15 @@ public class RemoteComposeBuffer {
      *
      * @param id id of the value
      */
+    public void addComponentValue(int id, int type) {
+        ComponentValue.apply(mBuffer, type, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component width value
+     *
+     * @param id id of the value
+     */
     public void addComponentWidthValue(int id) {
         ComponentValue.apply(mBuffer, ComponentValue.WIDTH, mLastComponentId, id);
     }
@@ -1832,6 +2168,60 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Add a component's content width value
+     *
+     * @param id id of the value
+     */
+    public void addComponentContentWidthValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.CONTENT_WIDTH, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component's content height value
+     *
+     * @param id id of the value
+     */
+    public void addComponentContentHeightValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.CONTENT_HEIGHT, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component's x value (in parent coordinates)
+     *
+     * @param id id of the value
+     */
+    public void addComponentXValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.POS_X, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component's y value (in parent coordinates)
+     *
+     * @param id id of the value
+     */
+    public void addComponentYValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.POS_Y, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component's x value (in root coordinates)
+     *
+     * @param id id of the value
+     */
+    public void addComponentRootXValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.POS_ROOT_X, mLastComponentId, id);
+    }
+
+    /**
+     * Add a component's y value (in root coordinates)
+     *
+     * @param id id of the value
+     */
+    public void addComponentRootYValue(int id) {
+        ComponentValue.apply(mBuffer, ComponentValue.POS_ROOT_Y, mLastComponentId, id);
+    }
+
+    /**
      * Add a text component start tag
      *
      * @param componentId component id
@@ -1842,9 +2232,8 @@ public class RemoteComposeBuffer {
      * @param fontStyle font style (0 : Normal, 1 : Italic)
      * @param fontWeight font weight (1 to 1000, normal is 400)
      * @param fontFamilyId font family or null
+     * @param flags flags for configuration, only use by color (0: Static color, 1: Color Id)
      * @param textAlign text alignment (0 : Center, 1 : Left, 2 : Right)
-     * @param overflow
-     * @param maxLines
      */
     public void addTextComponentStart(
             int componentId,
@@ -1855,10 +2244,12 @@ public class RemoteComposeBuffer {
             int fontStyle,
             float fontWeight,
             int fontFamilyId,
-            int textAlign,
+            short flags,
+            short textAlign,
             int overflow,
             int maxLines) {
         mLastComponentId = getComponentId(componentId);
+        int flagsAndTextAlign = (flags << 16) | (textAlign & 0xFFFF);
         TextLayout.apply(
                 mBuffer,
                 mLastComponentId,
@@ -1869,9 +2260,218 @@ public class RemoteComposeBuffer {
                 fontStyle,
                 fontWeight,
                 fontFamilyId,
-                textAlign,
+                flagsAndTextAlign,
                 overflow,
                 maxLines);
+    }
+
+    /**
+     * Add a text component start tag
+     *
+     * @param componentId component id
+     * @param animationId animation id
+     * @param textId id of the text
+     * @param color color of the text
+     * @param colorId color id of the text
+     * @param fontSize font size
+     * @param fontStyle font style (0 : Normal, 1 : Italic)
+     * @param fontWeight font weight (1 to 1000, normal is 400)
+     * @param fontFamilyId font family or null
+     * @param flags flags for configuration, only use by color (0: Static color, 1: Color Id)
+     * @param textAlign text alignment (0 : Center, 1 : Left, 2 : Right)
+     */
+    public void addTextComponentStart(
+            int componentId,
+            int animationId,
+            int textId,
+            int textStyleId,
+            int color,
+            int colorId,
+            float fontSize,
+            float minFontSize,
+            float maxFontSize,
+            int fontStyle,
+            float fontWeight,
+            int fontFamilyId,
+            int textAlign,
+            int overflow,
+            int maxLines,
+            float letterSpacing,
+            float lineHeightAdd,
+            float lineHeightMultiplier,
+            int lineBreakStrategy,
+            int hyphenationFrequency,
+            int justificationMode,
+            boolean underline,
+            boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            boolean autosize,
+            int flags) {
+        mLastComponentId = getComponentId(componentId);
+
+        boolean useCoreTextComponent = mBuffer.mValidOperations[Operations.CORE_TEXT];
+        if (!useCoreTextComponent) {
+            // Use TextLayout as a backstop
+            if (colorId != -1) {
+                int flagsAndTextAlign =
+                        (TextLayout.FLAG_IS_DYNAMIC_COLOR << 16) | (textAlign & 0xFFFF);
+                TextLayout.apply(
+                        mBuffer,
+                        mLastComponentId,
+                        animationId,
+                        textId,
+                        colorId,
+                        fontSize,
+                        fontStyle,
+                        fontWeight,
+                        fontFamilyId,
+                        flagsAndTextAlign,
+                        overflow,
+                        maxLines);
+            } else {
+                TextLayout.apply(
+                        mBuffer,
+                        mLastComponentId,
+                        animationId,
+                        textId,
+                        color,
+                        fontSize,
+                        fontStyle,
+                        fontWeight,
+                        fontFamilyId,
+                        textAlign,
+                        overflow,
+                        maxLines);
+            }
+        } else {
+            CoreText.apply(
+                    mBuffer,
+                    mLastComponentId,
+                    animationId,
+                    textId,
+                    color,
+                    colorId,
+                    fontSize,
+                    minFontSize,
+                    maxFontSize,
+                    fontStyle,
+                    fontWeight,
+                    fontFamilyId,
+                    textAlign,
+                    overflow,
+                    maxLines,
+                    letterSpacing,
+                    lineHeightAdd,
+                    lineHeightMultiplier,
+                    lineBreakStrategy,
+                    hyphenationFrequency,
+                    justificationMode,
+                    underline,
+                    strikethrough,
+                    fontAxis,
+                    fontAxisValues,
+                    autosize,
+                    flags,
+                    textStyleId);
+        }
+    }
+
+    /**
+     * Add a text component start tag with a text style
+     *
+     * @param componentId component id
+     * @param animationId animation id
+     * @param textId id of the text
+     * @param textStyleId id of the text style
+     * @param flags flags for configuration
+     */
+    public void addTextComponentStart(
+            int componentId, int animationId, int textId, int textStyleId, int flags) {
+        mLastComponentId = getComponentId(componentId);
+        CoreText.apply(
+                mBuffer,
+                mLastComponentId,
+                animationId,
+                textId,
+                0,
+                -1,
+                16f,
+                -1f,
+                -1f,
+                0,
+                400f,
+                -1,
+                1,
+                1,
+                Integer.MAX_VALUE,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                0,
+                false,
+                false,
+                null,
+                null,
+                false,
+                flags,
+                textStyleId);
+    }
+
+    /** Add a text style */
+    public void addTextStyle(
+            int id,
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable Integer fontFamilyId,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
+            @Nullable Integer parentId) {
+        TextStyle.apply(
+                mBuffer,
+                id,
+                color,
+                colorId,
+                fontSize,
+                minFontSize,
+                maxFontSize,
+                fontStyle,
+                fontWeight,
+                fontFamilyId,
+                textAlign,
+                overflow,
+                maxLines,
+                letterSpacing,
+                lineHeightAdd,
+                lineHeightMultiplier,
+                lineBreakStrategy,
+                hyphenationFrequency,
+                justificationMode,
+                underline,
+                strikethrough,
+                fontAxis,
+                fontAxisValues,
+                autosize,
+                parentId);
     }
 
     /**
@@ -1920,6 +2520,28 @@ public class RemoteComposeBuffer {
     public void addParticlesLoop(
             int id, float @Nullable [] restart, float @NonNull [][] expressions) {
         ParticlesLoop.apply(mBuffer, id, restart, expressions);
+    }
+
+    /**
+     * Add a comparison of 1 or 2 particles
+     *
+     * @param id the particle engine id
+     * @param flags configuration flags
+     * @param min the min index to process
+     * @param max the max index to process
+     * @param condition apply if exp > 0
+     * @param apply1 the first result
+     * @param apply2 the second result
+     */
+    public void addParticlesComparison(
+            int id,
+            short flags,
+            float min,
+            float max,
+            float @Nullable [] condition,
+            float @Nullable [][] apply1,
+            float @Nullable [][] apply2) {
+        ParticlesCompare.apply(mBuffer, id, flags, min, max, condition, apply1, apply2);
     }
 
     /** Closes the particle engine container */
@@ -2000,11 +2622,6 @@ public class RemoteComposeBuffer {
     /**
      * Create a bitmap of given id, width and height Bitmap contains no data, It's only use is to
      * draw to
-     *
-     * @param imageId
-     * @param imageWidth
-     * @param imageHeight
-     * @return
      */
     public int createBitmap(int imageId, short imageWidth, short imageHeight) {
         BitmapData.apply(
@@ -2018,11 +2635,7 @@ public class RemoteComposeBuffer {
         return imageId;
     }
 
-    /**
-     * @param imageId
-     * @param mode
-     * @param color
-     */
+    /** */
     public void drawOnBitmap(int imageId, int mode, int color) {
         DrawToBitmap.apply(mBuffer, imageId, mode, color);
     }
@@ -2049,6 +2662,27 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Store an image url in the buffer
+     *
+     * @param imageId the image id
+     * @param url the image url
+     * @param width the bitmap width
+     * @param height the bitmap height
+     * @return the image id
+     */
+    public int storeBitmapUrl(int imageId, @NonNull String url, int width, int height) {
+        BitmapData.apply(
+                mBuffer,
+                imageId,
+                BitmapData.TYPE_PNG,
+                (short) width,
+                BitmapData.ENCODING_URL,
+                (short) height,
+                url.getBytes(StandardCharsets.UTF_8));
+        return imageId;
+    }
+
+    /**
      * Combine two paths
      *
      * @param id output id
@@ -2062,13 +2696,50 @@ public class RemoteComposeBuffer {
         PathCombine.apply(mBuffer, id, path1, path2, op);
     }
 
-    /**
-     * Perform a haptic feedback
-     *
-     * @param feedbackConstant
-     */
+    /** Perform a haptic feedback */
     public void performHaptic(int feedbackConstant) {
         HapticFeedback.apply(mBuffer, feedbackConstant);
+    }
+
+    /**
+     * Store raw SC-format sound data under the given ID.
+     *
+     * @param soundId the ID to register the sound under
+     * @param data    SC-format audio bytes
+     * @return the soundId
+     */
+    public int addSound(int soundId, byte @NonNull [] data) {
+        SoundData.apply(mBuffer, soundId, data);
+        return soundId;
+    }
+
+    /**
+     * Store a sound synthesis expression under the given ID.
+     *
+     * @param id          expression ID
+     * @param params      synthesis params float array
+     * @param leftVolume  left-channel volume
+     * @param rightVolume right-channel volume
+     * @param rate        playback rate
+     * @return the id
+     */
+    public int addSoundExpression(
+            int id,
+            float @NonNull [] params,
+            float leftVolume,
+            float rightVolume,
+            float rate) {
+        SoundExpression.apply(mBuffer, id, leftVolume, rightVolume, rate, params);
+        return id;
+    }
+
+    /**
+     * Write a PLAY_SOUND operation.
+     *
+     * @param soundExpressionId the ID of the SoundExpression to play
+     */
+    public void playSound(int soundExpressionId) {
+        PlaySound.apply(mBuffer, soundExpressionId);
     }
 
     /**
@@ -2080,6 +2751,11 @@ public class RemoteComposeBuffer {
      */
     public void addConditionalOperations(byte type, float a, float b) {
         ConditionalOperations.apply(mBuffer, type, a, b);
+    }
+
+    /** Ends the current conditional operation stared by {@link #addConditionalOperations}. */
+    public void endConditionalOperations() {
+        addContainerEnd();
     }
 
     /**
@@ -2097,9 +2773,7 @@ public class RemoteComposeBuffer {
      * Return a color attribute value on the given color
      *
      * @param id the color attribute id
-     * @param baseColor
      * @param type type of attribute
-     * @return
      */
     public void getColorAttribute(int id, int baseColor, short type) {
         ColorAttribute.apply(mBuffer, id, baseColor, type);
@@ -2130,16 +2804,31 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Transform text uppercase lowercase etc
+     *
+     * @param id the text subtext id
+     * @param txtId the input text
+     * @param start the start position 0 = first character
+     * @param len the length of the subtext -1 = to the end
+     * @param operation the operation to perform
+     */
+    public void textTransform(int id, int txtId, float start, float len, int operation) {
+        TextTransform.apply(mBuffer, id, txtId, start, len, operation);
+    }
+
+    /**
      * Measure a text using a bitmap font
      *
      * @param id the id of the resulting measure
      * @param textId the input text
      * @param bmFontId the bitmap font
-     * @param type
-     * @return
+     * @param glyphSpacing horizontal spacing adjustment in pixels between glyphs
      */
-    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type) {
-        BitmapTextMeasure.apply(mBuffer, id, textId, bmFontId, type);
+    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type, float glyphSpacing) {
+        if (mApiLevel < 8 && glyphSpacing != 0f) {
+            throw new RuntimeException("glyphSpacing not supported in API level < 8");
+        }
+        BitmapTextMeasure.apply(mBuffer, id, textId, bmFontId, type, glyphSpacing);
     }
 
     /**
@@ -2152,25 +2841,30 @@ public class RemoteComposeBuffer {
     }
 
     /**
-     * Set current version of the buffer (typically for writing)
-     *
-     * @param documentApiLevel
-     * @param profiles
+     * Insert a conditional skip. Warning this should be used with care. It is incompatible with
+     * being called between beginGlobal endGlobal
      */
+    public int beginSkip(short type, int value) {
+        return Skip.apply(mBuffer, type, value, 0);
+    }
+
+    /** End a conditional skip */
+    public void endSkip(int offset) {
+        Skip.applyEndSkip(mBuffer, offset);
+    }
+
+    /** Set current version of the buffer (typically for writing) */
     public void setVersion(int documentApiLevel, int profiles) {
         mApiLevel = documentApiLevel;
+        mProfileMask = profiles;
         mBuffer.setVersion(documentApiLevel, profiles);
     }
 
-    /**
-     * Set current version of the buffer (typically for writing)
-     *
-     * @param documentApiLevel
-     * @param supportedOperations
-     */
-    public void setVersion(int documentApiLevel, @NonNull Set<Integer> supportedOperations) {
+    /** Set current version of the buffer (typically for writing) */
+    public void setVersion(
+            int documentApiLevel, int profileMask, @NonNull Set<Integer> supportedOperations) {
         mApiLevel = documentApiLevel;
-
+        mProfileMask = profileMask;
         mBuffer.setValidOperations(supportedOperations);
     }
 
@@ -2178,8 +2872,6 @@ public class RemoteComposeBuffer {
      * Add a matrix constant
      *
      * @param id the id of the resulting matrix
-     * @param values
-     * @return
      */
     public void addMatrixConst(int id, float @NonNull [] values) {
         MatrixConstant.apply(mBuffer, id, 0, values);
@@ -2252,6 +2944,7 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a component visibility operation
+     *
      * @param valueId id of the value
      */
     public void addComponentVisibilityOperation(int valueId) {
@@ -2260,78 +2953,92 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a width modifier operation
+     *
      * @param type type of operation
      * @param value value of the operation
      */
     public void addWidthModifierOperation(int type, float value) {
-        WidthModifierOperation.apply(mBuffer,  type, value);
+        WidthModifierOperation.apply(mBuffer, type, value);
     }
 
     /**
      * Add a height modifier operation
+     *
      * @param type type of operation
      * @param value value of the operation
      */
     public void addHeightModifierOperation(int type, float value) {
-        HeightModifierOperation.apply(mBuffer,  type, value);
+        HeightModifierOperation.apply(mBuffer, type, value);
     }
 
     /**
      * Add a height in modifier operation
+     *
      * @param min min value
      * @param max max value
      */
     public void addHeightInModifierOperation(float min, float max) {
-        HeightInModifierOperation.apply(mBuffer,  min, max);
+        HeightInModifierOperation.apply(mBuffer, min, max);
     }
 
-    /**
-     * Add a touch down modifier operation
-     */
+    /** Add a touch down modifier operation */
     public void addTouchDownModifierOperation() {
         TouchDownModifierOperation.apply(mBuffer);
     }
 
-    /**
-     * Add a touch up modifier operation
-     */
+    /** Add a touch up modifier operation */
     public void addTouchUpModifierOperation() {
         TouchUpModifierOperation.apply(mBuffer);
     }
 
-    /**
-     * Add a touch cancel modifier operation
-     */
+    /** Add a touch cancel modifier operation */
     public void addTouchCancelModifierOperation() {
         TouchCancelModifierOperation.apply(mBuffer);
     }
 
-    /**
-     * Add a width in modifier operation
-     */
+    /** Add a width in modifier operation */
     public void addWidthInModifierOperation(float min, float max) {
-        WidthInModifierOperation.apply(mBuffer,  min, max);
+        WidthInModifierOperation.apply(mBuffer, min, max);
     }
 
-    /**
-     * Add a draw content operation
-     */
+    /** Add a dimension constraints modifier operation */
+    public void addDimensionConstraintsModifierOperation(int type, float min, float max) {
+        DimensionConstraintsModifierOperation.apply(mBuffer, (byte) type, min, max);
+    }
+
+    /** Add a draw content operation */
     public void addDrawContentOperation() {
         DrawContentOperation.apply(mBuffer);
     }
 
     /**
-     * Add a semantics modifier operation
+     * Add a layout compute modifier (either computePosition or computeMeasure modifier)
+     *
+     * @param type TYPE_POSITION or TYPE_MEASURE
+     * @param boundsId the id of the array that will contain the x/y/width/height of the component
+     * @param animateChanges true to animate when changes in the measure happen.
      */
-    public void addSemanticsModifier(int contentDescriptionId,
-                                     byte role,
-                                     int textId,
-                                     int stateDescriptionId,
-                                     int mode,
-                                     boolean enabled,
-                                     boolean clickable) {
+    public void startLayoutCompute(int type, int boundsId, boolean animateChanges) {
+        LayoutComputeOperation.apply(mBuffer, type, boundsId, animateChanges);
+    }
+
+    /** end the definition of a layout compute modifier */
+    public void endLayoutCompute() {
+        ContainerEnd.apply(mBuffer);
+    }
+
+    /** Add a semantics modifier operation */
+    public void addSemanticsModifier(
+            int contentDescriptionId,
+            byte role,
+            int textId,
+            int stateDescriptionId,
+            int mode,
+            boolean enabled,
+            boolean clickable) {
         CoreSemantics.apply(
-                mBuffer, contentDescriptionId,
+                mBuffer,
+                contentDescriptionId,
                 role,
                 textId,
                 stateDescriptionId,
@@ -2342,13 +3049,21 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a click modifier operation
+     *
+     * @param clickType type of click (0=single, 1=long, 2=double)
      */
+    public void addClickModifierOperation(int clickType) {
+        MultiClickModifier.apply(mBuffer, clickType);
+    }
+
+    /** Add a click modifier operation (single click) */
     public void addClickModifierOperation() {
         ClickModifierOperation.apply(mBuffer);
     }
 
     /**
      * Add a collapsible priority modifier operation
+     *
      * @param orientation orientation
      * @param priority priority
      */
@@ -2358,6 +3073,7 @@ public class RemoteComposeBuffer {
 
     /**
      * Add an animation spec modifier operation
+     *
      * @param animationId animation id
      * @param motionDuration duration of the motion
      * @param motionEasingType easing type
@@ -2366,14 +3082,16 @@ public class RemoteComposeBuffer {
      * @param enterAnimation enter animation
      * @param exitAnimation exit animation
      */
-    public void addAnimationSpecModifier(int animationId,
-                                         float motionDuration,
-                                         int motionEasingType,
-                                         float visibilityDuration,
-                                         int visibilityEasingType,
-                                         int enterAnimation,
-                                         int exitAnimation) {
-        AnimationSpec.apply(mBuffer,
+    public void addAnimationSpecModifier(
+            int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            int enterAnimation,
+            int exitAnimation) {
+        AnimationSpec.apply(
+                mBuffer,
                 animationId,
                 motionDuration,
                 motionEasingType,
@@ -2385,6 +3103,7 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a value string change action operation
+     *
      * @param destTextId dest text id
      * @param srcTextId src text id
      */
@@ -2394,17 +3113,18 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a value integer expression change action operation
+     *
      * @param destIntegerId dest integer id
      * @param srcIntegerId src integer id
      */
     public void addValueIntegerExpressionChangeActionOperation(
-            long destIntegerId,
-            long srcIntegerId) {
+            long destIntegerId, long srcIntegerId) {
         ValueIntegerExpressionChangeActionOperation.apply(mBuffer, destIntegerId, srcIntegerId);
     }
 
     /**
      * Add a value float change action operation
+     *
      * @param valueId dest value id
      * @param value value
      */
@@ -2414,6 +3134,7 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a value integer change action operation
+     *
      * @param valueId dest value id
      * @param value value
      */
@@ -2423,10 +3144,35 @@ public class RemoteComposeBuffer {
 
     /**
      * Add a value float expression change action operation
+     *
      * @param mValueId dest value id
      * @param mValue value
      */
     public void addValueFloatExpressionChangeActionOperation(int mValueId, int mValue) {
         ValueFloatExpressionChangeActionOperation.apply(mBuffer, mValueId, mValue);
+    }
+
+    /**
+     * Add a referenced operations container
+     *
+     * @param id the id of the container
+     */
+    public void addReferencedOperations(int id) {
+        ReferencedOperations.apply(mBuffer, id);
+    }
+
+    /**
+     * Add a themed color operation
+     *
+     * @param id output id
+     * @param groupId group text id
+     * @param lightId light id color
+     * @param darkId dark id color
+     * @param lightFallback light fallback
+     * @param darkFallback dark fallback color
+     */
+    public void addThemedColor(
+            int id, int groupId, short lightId, short darkId, int lightFallback, int darkFallback) {
+        ColorTheme.apply(mBuffer, id, groupId, lightId, darkId, lightFallback, darkFallback);
     }
 }

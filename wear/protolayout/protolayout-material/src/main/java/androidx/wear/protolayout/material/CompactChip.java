@@ -82,6 +82,7 @@ public class CompactChip implements LayoutElement {
     }
 
     /** Builder class for {@link CompactChip}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull Context mContext;
         private @Nullable String mText;

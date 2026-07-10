@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 internal actual fun getString(string: Strings): String {
     LocalConfiguration.current
     val resources = LocalContext.current.resources
+    @Suppress("PrivateResource")
     return when (string) {
         Strings.NavigationMenu -> resources.getString(R.string.navigation_menu)
         Strings.CloseDrawer -> resources.getString(R.string.close_drawer)

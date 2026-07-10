@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407931696
+@file:Suppress(
+    "INVISIBLE_MEMBER",
+    "INVISIBLE_REFERENCE",
+    "INFERRED_INVISIBLE_RETURN_TYPE_WARNING",
+) // b/407931696
 
 package androidx.compose.ui.benchmark.spatial
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.collection.mutableIntListOf
+import androidx.compose.ui.spatial.NotFound
 import androidx.compose.ui.spatial.RectList
 import androidx.compose.ui.util.fastForEach
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,26 +49,51 @@ class RectListBenchmark {
         rule.measureRepeated {
             val qt = construct()
             for (i in testData.indices) {
-                val rect = testData[i]
-                qt.insert(i, rect[0], rect[1], rect[2], rect[3], -1, false)
+                val rect = testData[i].bounds
+                qt.insert(
+                    value = i,
+                    l = rect[0],
+                    t = rect[1],
+                    r = rect[2],
+                    b = rect[3],
+                    parentId = -1,
+                    parentIndex = NotFound,
+                    focusable = false,
+                    gesturable = false,
+                    hasCallbacks = false,
+                )
             }
         }
     }
 
-    private fun insertRecursive(qt: RectList, item: Item, scrollableId: Int) {
+    private fun insertRecursive(
+        qt: RectList,
+        item: Item,
+        scrollableId: Int,
+        parentIndex: Int = NotFound,
+    ) {
         val bounds = item.bounds
 
-        qt.insert(
-            item.id,
-            bounds[0],
-            bounds[1],
-            bounds[2],
-            bounds[3],
-            scrollableId,
-            item.scrollable,
-        )
+        item.lastIndex =
+            qt.insert(
+                value = item.id,
+                l = bounds[0],
+                t = bounds[1],
+                r = bounds[2],
+                b = bounds[3],
+                parentId = scrollableId,
+                parentIndex = parentIndex,
+                focusable = item.scrollable,
+                gesturable = item.scrollable,
+                hasCallbacks = false,
+            )
         item.children.fastForEach {
-            insertRecursive(qt, it, if (item.scrollable) item.id else scrollableId)
+            insertRecursive(
+                qt,
+                it,
+                if (item.scrollable) item.id else scrollableId,
+                if (item.scrollable) item.lastIndex else parentIndex,
+            )
         }
     }
 
@@ -86,7 +116,9 @@ class RectListBenchmark {
                 qt
             }
             for (i in testData.indices) {
-                grid.remove(i)
+                val item = testData[i]
+                val index = grid.indexOf(i, item.lastIndex)
+                grid.removeAt(index)
             }
         }
     }
@@ -102,11 +134,13 @@ class RectListBenchmark {
                 qt
             }
             for (i in testData.indices) {
-                val rect = testData[i]
+                val item = testData[i]
+                val rect = item.bounds
                 val x = r.nextInt(-100, 100)
                 val y = r.nextInt(-100, 100)
-                qt.update(
-                    i,
+                val index = qt.indexOf(i, item.lastIndex)
+                qt.updateAt(
+                    index,
                     max(rect[0] + x, 0),
                     max(rect[1] + y, 0),
                     max(rect[2] + x, 0),
@@ -129,7 +163,15 @@ class RectListBenchmark {
             scrollableItems.fastForEach {
                 val x = r.nextInt(-100, 100)
                 val y = r.nextInt(-100, 100)
-                qt.updateSubhierarchy(it.id, x, y)
+                val index = qt.indexOf(it.id, it.lastIndex)
+                val rect = it.bounds
+                qt.moveAt(
+                    index,
+                    max(rect[0] + x, 0),
+                    max(rect[1] + y, 0),
+                    max(rect[2] + x, 0),
+                    max(rect[3] + y, 0),
+                )
             }
         }
     }

@@ -115,6 +115,9 @@ public final class SurfaceViewRenderSurface {
 
                     if (surfaceInfoPair != null) {
                         surface = surfaceInfoPair.first;
+                        if (surfaceInfoReference.get() != null) {
+                            surfaceInfoReference.get().first.release();
+                        }
                         surfaceInfoReference.set(surfaceInfoPair);
                     }
                 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="fun rememberNavBackStack_withReflection() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/navigation3/runtime/samples/RememberNavBackStackSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="fun rememberNavBackStack_withSerializersModule() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/navigation3/runtime/samples/RememberNavBackStackSamples.kt"/>
+    </issue>
+
+</issues>

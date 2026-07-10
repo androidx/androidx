@@ -53,7 +53,6 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testFlowsEchoValues_Transactional() {
-        setUpV2Test()
         runBlocking { assertFlowsEchoValues() }
     }
 

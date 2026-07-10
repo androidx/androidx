@@ -16,99 +16,133 @@
 
 package androidx.xr.runtime
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
+import android.content.pm.PackageInfo
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.internal.Feature
-import androidx.xr.runtime.internal.JxrPlatformAdapterFactory
+import androidx.xr.runtime.interfaces.Feature
+import androidx.xr.runtime.interfaces.Service
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
-import androidx.xr.runtime.internal.Service
 import androidx.xr.runtime.manifest.FEATURE_XR_API_OPENXR
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import androidx.xr.runtime.testing.AnotherFakeStateExtender
-import androidx.xr.runtime.testing.FakePerceptionRuntimeFactory
-import androidx.xr.runtime.testing.FakeStateExtender
-import androidx.xr.scenecore.testing.FakeJxrPlatformAdapterFactory
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowBuild
 
 @RunWith(AndroidJUnit4::class)
 class ServiceLoaderExtTest {
 
     @Test
-    // TODO(b/440615454) - Move this test to scenecore-testing/arcore-testing.
     fun loadProviders_loadsProviders() {
         assertThat(
                 loadProviders(
                         PerceptionRuntimeFactory::class.java,
-                        listOf(FakePerceptionRuntimeFactory::class.java.name),
+                        listOf(StubPerceptionRuntimeFactory::class.java.name),
                     )
                     .single()
             )
-            .isInstanceOf(FakePerceptionRuntimeFactory::class.java)
+            .isInstanceOf(StubPerceptionRuntimeFactory::class.java)
         assertThat(
-                loadProviders(
-                        JxrPlatformAdapterFactory::class.java,
-                        listOf(FakeJxrPlatformAdapterFactory::class.java.name),
-                    )
-                    .single()
-            )
-            .isInstanceOf(FakeJxrPlatformAdapterFactory::class.java)
-        assertThat(
-                loadProviders(StateExtender::class.java, listOf(FakeStateExtender::class.java.name))
+                loadProviders(StateExtender::class.java, listOf(StubStateExtender::class.java.name))
                     .iterator()
                     .next()
             )
-            .isInstanceOf(FakeStateExtender::class.java)
+            .isInstanceOf(StubStateExtender::class.java)
     }
 
     @Test
     fun loadProviders_combinesFastAndLoaderProviders() {
         val stateExtenders =
-            loadProviders(StateExtender::class.java, listOf(FakeStateExtender::class.java.name))
+            loadProviders(StateExtender::class.java, listOf(StubStateExtender::class.java.name))
 
-        assertThat(stateExtenders.size).isEqualTo(2)
-
-        // TODO(b/436933956) - temp. dependency on arcore package is pulling in
-        // PerceptionStateExtender
-        assertThat(stateExtenders.any { it is FakeStateExtender || it is AnotherFakeStateExtender })
-            .isTrue()
+        assertThat(stateExtenders.size).isEqualTo(1)
+        assertThat(stateExtenders.any { it is StubStateExtender }).isTrue()
     }
 
     @Test
-    fun getDeviceFeatures_onRobolectric_returnsEmptySet() {
-        assertThat(getDeviceFeatures(ApplicationProvider.getApplicationContext())).isEmpty()
+    fun getDeviceContextFeatures_onRobolectric_returnsEmptySet() {
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext())).isEmpty()
     }
 
     @Test
-    fun getDeviceFeatures_notOnRobolectric_addsFullStack() {
+    fun getDeviceContextFeatures_notOnRobolectric_addsFullStack() {
         ShadowBuild.setFingerprint("a_real_device")
 
-        assertThat(getDeviceFeatures(ApplicationProvider.getApplicationContext()))
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
             .containsExactly(Feature.FULLSTACK)
     }
 
     @Test
-    fun getDeviceFeatures_onOpenXrDevice_addsOpenXr() {
+    fun getDeviceContextFeatures_onOpenXrDevice_addsOpenXr() {
         ShadowBuild.setFingerprint("a_real_device")
         val context: Context = ApplicationProvider.getApplicationContext()
         shadowOf(context.packageManager)
             .setSystemFeature(FEATURE_XR_API_OPENXR, /* supported= */ true)
 
-        assertThat(getDeviceFeatures(context)).contains(Feature.OPEN_XR)
+        assertThat(getDeviceContextFeatures(context)).contains(Feature.OPEN_XR)
     }
 
     @Test
-    fun getDeviceFeatures_onSpatialDevice_addsSpatial() {
+    fun getDeviceContextFeatures_onSpatialDevice_addsSpatial() {
         ShadowBuild.setFingerprint("a_real_device")
         val context: Context = ApplicationProvider.getApplicationContext()
         shadowOf(context.packageManager)
             .setSystemFeature(FEATURE_XR_API_SPATIAL, /* supported= */ true)
 
-        assertThat(getDeviceFeatures(context)).contains(Feature.SPATIAL)
+        assertThat(getDeviceContextFeatures(context)).contains(Feature.SPATIAL)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun getDeviceContextFeatures_onProjectedActivity_addsProjected() {
+        ShadowBuild.setFingerprint("a_real_device")
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val activityInfo = ActivityInfo()
+        activityInfo.packageName = activity.packageName
+        activityInfo.name = activity.componentName.className
+        val field = ActivityInfo::class.java.getField("requiredDisplayCategory")
+        field.set(activityInfo, REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED)
+        val packageInfo = PackageInfo()
+        packageInfo.packageName = activity.packageName
+        packageInfo.activities = arrayOf(activityInfo)
+
+        shadowOf(activity.packageManager).installPackage(packageInfo)
+
+        assertThat(getDeviceContextFeatures(activity)).contains(Feature.PROJECTED)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun getDeviceContextFeatures_onProjectedActivityLegacy_addsProjected() {
+        ShadowBuild.setFingerprint("a_real_device")
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val activityInfo = ActivityInfo()
+        activityInfo.packageName = activity.packageName
+        activityInfo.name = activity.componentName.className
+        val field = ActivityInfo::class.java.getField("requiredDisplayCategory")
+        field.set(activityInfo, REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED_LEGACY)
+        val packageInfo = PackageInfo()
+        packageInfo.packageName = activity.packageName
+        packageInfo.activities = arrayOf(activityInfo)
+
+        shadowOf(activity.packageManager).installPackage(packageInfo)
+
+        assertThat(getDeviceContextFeatures(activity)).contains(Feature.PROJECTED)
+    }
+
+    @Test
+    fun getDeviceContextFeatures_onNonProjectedActivity_doesNotAddProjected() {
+        ShadowBuild.setFingerprint("a_real_device")
+
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
+            .doesNotContain(Feature.PROJECTED)
     }
 
     @Test
@@ -139,5 +173,23 @@ class ServiceLoaderExtTest {
             }
 
         assertThat(selectProvider(listOf(unsupportedProvider), emptySet())).isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.S]) // API 31 (Android S)
+    // RequiredDisplayCategory was introudced in API 34, any API below this would work
+    fun isProjectedActivity_withMissingApi_doesNotCrashAndReturnsFalse() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        val activityInfo = ActivityInfo()
+        activityInfo.packageName = activity.packageName
+        activityInfo.name = activity.componentName.className
+        val packageInfo = PackageInfo()
+        packageInfo.packageName = activity.packageName
+        packageInfo.activities = arrayOf(activityInfo)
+
+        shadowOf(activity.packageManager).installPackage(packageInfo)
+        val result = isProjectedActivity(activity)
+
+        assertThat(result).isFalse()
     }
 }

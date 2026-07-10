@@ -4,10 +4,10 @@ package androidx.metrics.performance {
   public class FrameData {
     ctor public FrameData(long frameStartNanos, long frameDurationUiNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
     method public androidx.metrics.performance.FrameData copy();
-    method public final long getFrameDurationUiNanos();
-    method public final long getFrameStartNanos();
-    method public final java.util.List<androidx.metrics.performance.StateInfo> getStates();
-    method public final boolean isJank();
+    method @InaccessibleFromKotlin public final long getFrameDurationUiNanos();
+    method @InaccessibleFromKotlin public final long getFrameStartNanos();
+    method @InaccessibleFromKotlin public final java.util.List<androidx.metrics.performance.StateInfo> getStates();
+    method @InaccessibleFromKotlin public final boolean isJank();
     property public final long frameDurationUiNanos;
     property public final long frameStartNanos;
     property public final boolean isJank;
@@ -16,24 +16,24 @@ package androidx.metrics.performance {
 
   public class FrameDataApi24 extends androidx.metrics.performance.FrameData {
     ctor public FrameDataApi24(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
-    method public final long getFrameDurationCpuNanos();
+    method @InaccessibleFromKotlin public final long getFrameDurationCpuNanos();
     property public final long frameDurationCpuNanos;
   }
 
   public final class FrameDataApi31 extends androidx.metrics.performance.FrameDataApi24 {
     ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameDurationTotalNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
-    method public long getFrameDurationTotalNanos();
-    method public long getFrameOverrunNanos();
+    method @InaccessibleFromKotlin public long getFrameDurationTotalNanos();
+    method @InaccessibleFromKotlin public long getFrameOverrunNanos();
     property public long frameDurationTotalNanos;
     property public long frameOverrunNanos;
   }
 
   public final class JankStats {
     method @UiThread public static androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
-    method public float getJankHeuristicMultiplier();
-    method public boolean isTrackingEnabled();
-    method public void setJankHeuristicMultiplier(float);
-    method @UiThread public void setTrackingEnabled(boolean);
+    method @InaccessibleFromKotlin public float getJankHeuristicMultiplier();
+    method @InaccessibleFromKotlin public boolean isTrackingEnabled();
+    method @InaccessibleFromKotlin public void setJankHeuristicMultiplier(float);
+    method @InaccessibleFromKotlin @UiThread public void setTrackingEnabled(boolean);
     property public boolean isTrackingEnabled;
     property public float jankHeuristicMultiplier;
     field public static final androidx.metrics.performance.JankStats.Companion Companion;
@@ -60,14 +60,14 @@ package androidx.metrics.performance {
   }
 
   public static final class PerformanceMetricsState.Holder {
-    method public androidx.metrics.performance.PerformanceMetricsState? getState();
+    method @InaccessibleFromKotlin public androidx.metrics.performance.PerformanceMetricsState? getState();
     property public androidx.metrics.performance.PerformanceMetricsState? state;
   }
 
   public final class StateInfo {
     ctor public StateInfo(String key, String value);
-    method public String getKey();
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getKey();
+    method @InaccessibleFromKotlin public String getValue();
     property public String key;
     property public String value;
   }

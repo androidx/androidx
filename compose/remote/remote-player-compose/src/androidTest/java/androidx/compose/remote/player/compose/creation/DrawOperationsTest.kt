@@ -17,26 +17,33 @@
 package androidx.compose.remote.player.compose.creation
 
 import android.graphics.Path
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operations.PROFILE_WIDGETS
+import androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.compose.test.util.createBitmap
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,46 +53,67 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class DrawOperationsTest {
+    // Remote Compose player is called directly in this test so it uses a Compose rule to avoid
+    // nesting Remote Compose players.
     @get:Rule
-    val remoteComposeTestRule = RemoteComposeScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+    val composeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+            matcher = MSSIMMatcher(threshold = 0.999),
+        )
 
     @Test
     fun drawOperationsInGrid() {
-        val documents: Array<CoreDocument> =
-            arrayOf(
-                drawBitmap(),
-                drawBitmapWithBounds(),
-                drawBitmapWithId(),
-                drawBitmapWithIdAndPosition(),
-                drawScaledBitmap(),
-                drawScaledBitmap_partially_samePosition(),
-                drawScaledBitmap_partially_differentPosition(),
-                drawScaledBitmapWithId(),
-                drawArc(),
-                drawSector(),
-                drawCircle(),
-                drawLine(),
-                drawOval(),
-                drawPath(),
-                drawPathWithPath(),
-                drawRect(),
-                drawRoundRect(),
-                drawTextOnPath(),
-                drawTextOnPathWithTextId(),
-                drawTextRun(),
-                drawTextRunWithTextId(),
-                drawBitmapFontTextRun(),
-                drawTextAnchored(),
-                drawTextAnchoredWithStrId(),
-                drawBitmapTextAnchored(),
-                drawBitmapTextAnchoredWithTextId(),
-                drawTweenPath(),
-                drawTweenPathWithPath(),
-            )
+        composeTestRule.drawOperationsInGrid()
+    }
+}
 
-        val columns = 5
+private fun RemoteScreenshotTestRule.drawOperationsInGrid() {
+    val documents: Array<CoreDocument> =
+        arrayOf(
+            drawBitmap(),
+            drawBitmapWithBounds(),
+            drawBitmapWithId(),
+            drawBitmapWithIdAndPosition(),
+            drawScaledBitmap(),
+            drawScaledBitmap_partially_samePosition(),
+            drawScaledBitmap_partially_differentPosition(),
+            drawScaledBitmapWithId(),
+            drawArc(),
+            drawSector(),
+            drawCircle(),
+            drawLine(),
+            drawOval(),
+            drawPath(),
+            drawPathWithPath(),
+            drawRect(),
+            drawRoundRect(),
+            drawTextOnPath(),
+            drawTextOnPathWithTextId(),
+            drawTextRun(),
+            drawTextRunWithTextId(),
+            drawBitmapFontTextRun(),
+            drawTextAnchored(),
+            drawTextAnchoredWithStrId(),
+            drawBitmapTextAnchored(),
+            drawBitmapTextAnchoredWithTextId(),
+            drawTweenPath(),
+            drawTweenPathWithPath(),
+            drawOutsideBounds(),
+            drawBitmapFontTextRunWithGlyphSpacing(),
+            drawBitmapTextAnchoredWithGlyphSpacing(),
+        )
 
-        remoteComposeTestRule.runScreenshotTest {
+    val columns = 5
+
+    composeTestRule.setContent {
+        Box(
+            modifier =
+                Modifier.width(remoteCreationDisplayInfo.widthDp)
+                    .height(remoteCreationDisplayInfo.heightDp)
+                    .testTag(RemoteScreenshotTestRule.ROOT_TEST_TAG)
+        ) {
             val density = LocalDensity.current.density
             val itemWidth = (100f / density).toInt()
             val itemHeight = (100f / density).toInt()
@@ -110,177 +138,222 @@ class DrawOperationsTest {
             }
         }
     }
+    verifyScreenshot()
+}
 
-    fun drawBitmap() = getCoreDocument {
-        drawBitmap(
-            image = createBitmap() as Object,
-            width = 100,
-            height = 100,
-            contentDescription = "contentDescription",
+private fun drawBitmap() = getCoreDocument {
+    drawBitmap(
+        image = createBitmap() as Any,
+        width = 100,
+        height = 100,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawBitmapWithBounds() = getCoreDocument {
+    drawBitmap(
+        image = createBitmap(),
+        left = 0f,
+        top = 0f,
+        right = 100f,
+        bottom = 100f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawBitmapWithId() = getCoreDocument {
+    val imageId = storeBitmap(createBitmap())
+    drawBitmap(
+        imageId = imageId,
+        left = 0f,
+        top = 0f,
+        right = 100f,
+        bottom = 100f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawBitmapWithIdAndPosition() = getCoreDocument {
+    @Suppress("ConstantConditionIf") if (true) return@getCoreDocument // "b/440385172"
+    val imageId = storeBitmap(createBitmap())
+    drawBitmap(imageId = imageId, left = 10f, top = 10f, contentDescription = "contentDescription")
+}
+
+private fun drawScaledBitmap() = getCoreDocument {
+    drawScaledBitmap(
+        image = createBitmap() as Any,
+        srcLeft = 0f,
+        srcTop = 0f,
+        srcRight = 100f,
+        srcBottom = 100f,
+        dstLeft = 0f,
+        dstTop = 0f,
+        dstRight = 100f,
+        dstBottom = 100f,
+        scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
+        scaleFactor = 0f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawScaledBitmap_partially_samePosition() = getCoreDocument {
+    drawScaledBitmap(
+        image = createBitmap() as Any,
+        srcLeft = 0f,
+        srcTop = 0f,
+        srcRight = 50f,
+        srcBottom = 50f,
+        dstLeft = 0f,
+        dstTop = 0f,
+        dstRight = 50f,
+        dstBottom = 50f,
+        scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
+        scaleFactor = 0f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawScaledBitmap_partially_differentPosition() = getCoreDocument {
+    drawScaledBitmap(
+        image = createBitmap() as Any,
+        srcLeft = 0f,
+        srcTop = 0f,
+        srcRight = 50f,
+        srcBottom = 50f,
+        dstLeft = 50f,
+        dstTop = 50f,
+        dstRight = 100f,
+        dstBottom = 100f,
+        scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
+        scaleFactor = 0f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawScaledBitmapWithId() = getCoreDocument {
+    val imageId = storeBitmap(createBitmap())
+    drawScaledBitmap(
+        imageId = imageId,
+        srcLeft = 0f,
+        srcTop = 0f,
+        srcRight = 100f,
+        srcBottom = 100f,
+        dstLeft = 0f,
+        dstTop = 0f,
+        dstRight = 100f,
+        dstBottom = 100f,
+        scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
+        scaleFactor = 0f,
+        contentDescription = "contentDescription",
+    )
+}
+
+private fun drawArc() = getCoreDocument { drawArc(0f, 0f, 100f, 100f, 45f, 135f) }
+
+private fun drawSector() = getCoreDocument { drawSector(0f, 0f, 100f, 100f, 45f, 135f) }
+
+private fun drawCircle() = getCoreDocument { drawCircle(50f, 50f, 40f) }
+
+private fun drawLine() = getCoreDocument { drawLine(10f, 10f, 90f, 90f) }
+
+private fun drawOval() = getCoreDocument { drawOval(10f, 20f, 90f, 80f) }
+
+private fun drawPath() = getCoreDocument {
+    val pathId = pathCreate(10f, 10f)
+    pathAppendLineTo(pathId, 90f, 90f)
+    pathAppendLineTo(pathId, 10f, 90f)
+    pathAppendClose(pathId)
+    drawPath(pathId)
+}
+
+private fun drawPathWithPath() = getCoreDocument {
+    val path = Path()
+    path.moveTo(10f, 10f)
+    path.lineTo(90f, 90f)
+    path.lineTo(10f, 90f)
+    path.close()
+    drawPath(path)
+}
+
+private fun drawRect() = getCoreDocument { drawRect(10f, 20f, 90f, 80f) }
+
+private fun drawRoundRect() = getCoreDocument { drawRoundRect(10f, 20f, 90f, 80f, 15f, 15f) }
+
+private fun drawTextOnPath() = getCoreDocument {
+    val path = Path()
+    path.moveTo(10f, 50f)
+    path.lineTo(90f, 50f)
+    drawTextOnPath("Text on path", path, 0f, 0f)
+}
+
+private fun drawTextOnPathWithTextId() = getCoreDocument {
+    val textId = textCreateId("Text on path")
+    val path = Path()
+    path.moveTo(10f, 50f)
+    path.lineTo(90f, 50f)
+    drawTextOnPath(textId, path, 0f, 0f)
+}
+
+private fun drawTextRun() = getCoreDocument {
+    drawTextRun("Hello World", 0, 11, 0, 11, 10f, 50f, false)
+}
+
+private fun drawTextRunWithTextId() = getCoreDocument {
+    val textId = textCreateId("Hello World")
+    drawTextRun(textId, 0, 11, 0, 11, 10f, 50f, false)
+}
+
+private fun drawBitmapFontTextRun() = getCoreDocument {
+    val textId = textCreateId("AB")
+    val bitmapId = storeBitmap(createBitmap())
+    val glyphs =
+        arrayOf(
+            BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
+            BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
         )
-    }
+    val bitmapFontId = addBitmapFont(glyphs)
+    drawBitmapFontTextRun(textId, bitmapFontId, 0, 2, 10f, 50f, 0f)
+}
 
-    fun drawBitmapWithBounds() = getCoreDocument {
-        drawBitmap(
-            image = createBitmap(),
-            left = 0f,
-            top = 0f,
-            right = 100f,
-            bottom = 100f,
-            contentDescription = "contentDescription",
+private fun drawBitmapFontTextRunWithGlyphSpacing() = getCoreDocument {
+    val textId = textCreateId("AB")
+    val bitmapId = storeBitmap(createBitmap())
+    val glyphs =
+        arrayOf(
+            BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
+            BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
         )
+    val bitmapFontId = addBitmapFont(glyphs)
+    drawBitmapFontTextRun(textId, bitmapFontId, 0, 2, 10f, 50f, -10f)
+}
+
+private fun drawTextAnchored() = getCoreDocument {
+    drawTextAnchored("Anchored", 50f, 50f, 0.5f, 0.5f, 0)
+}
+
+private fun drawTextAnchoredWithStrId() = getCoreDocument {
+    val strId = textCreateId("Anchored")
+    drawTextAnchored(strId, 50f, 50f, 0.5f, 0.5f, 0)
+}
+
+private fun drawBitmapTextAnchored() =
+    getCoreDocument(
+        extraTags = arrayOf(RemoteComposeWriter.HTag(Header.DOC_PROFILES, PROFILE_WIDGETS))
+    ) {
+        val bitmapId = storeBitmap(createBitmap())
+        val glyphs =
+            arrayOf(
+                BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
+                BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
+            )
+        val bitmapFontId = addBitmapFont(glyphs)
+        drawBitmapTextAnchored("AB", bitmapFontId, 0f, 2f, 50f, 50f, 0.5f, 0.5f, 0f)
     }
 
-    fun drawBitmapWithId() = getCoreDocument {
-        val imageId = storeBitmap(createBitmap())
-        drawBitmap(
-            imageId = imageId,
-            left = 0f,
-            top = 0f,
-            right = 100f,
-            bottom = 100f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawBitmapWithIdAndPosition() = getCoreDocument {
-        @Suppress("ConstantConditionIf") if (true) return@getCoreDocument // "b/440385172"
-        val imageId = storeBitmap(createBitmap())
-        drawBitmap(
-            imageId = imageId,
-            left = 10f,
-            top = 10f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawScaledBitmap() = getCoreDocument {
-        drawScaledBitmap(
-            image = createBitmap() as Object,
-            srcLeft = 0f,
-            srcTop = 0f,
-            srcRight = 100f,
-            srcBottom = 100f,
-            dstLeft = 0f,
-            dstTop = 0f,
-            dstRight = 100f,
-            dstBottom = 100f,
-            scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
-            scaleFactor = 0f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawScaledBitmap_partially_samePosition() = getCoreDocument {
-        // TODO(b/294531403): clipping not working with multiple players on the same screen.
-        drawScaledBitmap(
-            image = createBitmap() as Object,
-            srcLeft = 0f,
-            srcTop = 0f,
-            srcRight = 50f,
-            srcBottom = 50f,
-            dstLeft = 0f,
-            dstTop = 0f,
-            dstRight = 50f,
-            dstBottom = 50f,
-            scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
-            scaleFactor = 0f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawScaledBitmap_partially_differentPosition() = getCoreDocument {
-        // TODO(b/294531403): clipping not working with multiple players on the same screen.
-        drawScaledBitmap(
-            image = createBitmap() as Object,
-            srcLeft = 0f,
-            srcTop = 0f,
-            srcRight = 50f,
-            srcBottom = 50f,
-            dstLeft = 50f,
-            dstTop = 50f,
-            dstRight = 100f,
-            dstBottom = 100f,
-            scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
-            scaleFactor = 0f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawScaledBitmapWithId() = getCoreDocument {
-        val imageId = storeBitmap(createBitmap())
-        drawScaledBitmap(
-            imageId = imageId,
-            srcLeft = 0f,
-            srcTop = 0f,
-            srcRight = 100f,
-            srcBottom = 100f,
-            dstLeft = 0f,
-            dstTop = 0f,
-            dstRight = 100f,
-            dstBottom = 100f,
-            scaleType = RemoteComposeWriter.IMAGE_SCALE_NONE,
-            scaleFactor = 0f,
-            contentDescription = "contentDescription",
-        )
-    }
-
-    fun drawArc() = getCoreDocument { drawArc(0f, 0f, 100f, 100f, 45f, 135f) }
-
-    fun drawSector() = getCoreDocument { drawSector(0f, 0f, 100f, 100f, 45f, 135f) }
-
-    fun drawCircle() = getCoreDocument { drawCircle(50f, 50f, 40f) }
-
-    fun drawLine() = getCoreDocument { drawLine(10f, 10f, 90f, 90f) }
-
-    fun drawOval() = getCoreDocument { drawOval(10f, 20f, 90f, 80f) }
-
-    fun drawPath() = getCoreDocument {
-        val pathId = pathCreate(10f, 10f)
-        pathAppendLineTo(pathId, 90f, 90f)
-        pathAppendLineTo(pathId, 10f, 90f)
-        pathAppendClose(pathId)
-        drawPath(pathId)
-    }
-
-    fun drawPathWithPath() = getCoreDocument {
-        val path = Path()
-        path.moveTo(10f, 10f)
-        path.lineTo(90f, 90f)
-        path.lineTo(10f, 90f)
-        path.close()
-        drawPath(path)
-    }
-
-    fun drawRect() = getCoreDocument { drawRect(10f, 20f, 90f, 80f) }
-
-    fun drawRoundRect() = getCoreDocument { drawRoundRect(10f, 20f, 90f, 80f, 15f, 15f) }
-
-    fun drawTextOnPath() = getCoreDocument {
-        val path = Path()
-        path.moveTo(10f, 50f)
-        path.lineTo(90f, 50f)
-        drawTextOnPath("Text on path", path, 0f, 0f)
-    }
-
-    fun drawTextOnPathWithTextId() = getCoreDocument {
-        val textId = textCreateId("Text on path")
-        val path = Path()
-        path.moveTo(10f, 50f)
-        path.lineTo(90f, 50f)
-        drawTextOnPath(textId, path, 0f, 0f)
-    }
-
-    fun drawTextRun() = getCoreDocument {
-        drawTextRun("Hello World", 0, 11, 0, 11, 10f, 50f, false)
-    }
-
-    fun drawTextRunWithTextId() = getCoreDocument {
-        val textId = textCreateId("Hello World")
-        drawTextRun(textId, 0, 11, 0, 11, 10f, 50f, false)
-    }
-
-    fun drawBitmapFontTextRun() = getCoreDocument {
+private fun drawBitmapTextAnchoredWithTextId() =
+    getCoreDocument(
+        extraTags = arrayOf(RemoteComposeWriter.HTag(Header.DOC_PROFILES, PROFILE_WIDGETS))
+    ) {
         val textId = textCreateId("AB")
         val bitmapId = storeBitmap(createBitmap())
         val glyphs =
@@ -289,77 +362,54 @@ class DrawOperationsTest {
                 BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
             )
         val bitmapFontId = addBitmapFont(glyphs)
-        drawBitmapFontTextRun(textId, bitmapFontId, 0, 2, 10f, 50f)
+        drawBitmapTextAnchored(textId, bitmapFontId, 0f, 2f, 50f, 50f, 0.5f, 0.5f, 0f)
     }
 
-    fun drawTextAnchored() = getCoreDocument {
-        drawTextAnchored("Anchored", 50f, 50f, 0.5f, 0.5f, 0)
+private fun drawBitmapTextAnchoredWithGlyphSpacing() =
+    getCoreDocument(
+        extraTags = arrayOf(RemoteComposeWriter.HTag(Header.DOC_PROFILES, PROFILE_WIDGETS))
+    ) {
+        val bitmapId = storeBitmap(createBitmap())
+        val glyphs =
+            arrayOf(
+                BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
+                BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
+            )
+        val bitmapFontId = addBitmapFont(glyphs)
+        drawBitmapTextAnchored("AB", bitmapFontId, 0f, 2f, 50f, 50f, 0.5f, 0.5f, -10f)
     }
 
-    fun drawTextAnchoredWithStrId() = getCoreDocument {
-        val strId = textCreateId("Anchored")
-        drawTextAnchored(strId, 50f, 50f, 0.5f, 0.5f, 0)
-    }
+private fun drawTweenPath() = getCoreDocument {
+    val path1Id = pathCreate(10f, 10f)
+    pathAppendLineTo(path1Id, 90f, 10f)
+    pathAppendLineTo(path1Id, 90f, 90f)
+    pathAppendLineTo(path1Id, 10f, 90f)
+    pathAppendClose(path1Id)
 
-    fun drawBitmapTextAnchored() =
-        getCoreDocument(
-            extraTags = arrayOf(RemoteComposeWriter.HTag(Header.DOC_PROFILES, PROFILE_WIDGETS))
-        ) {
-            val bitmapId = storeBitmap(createBitmap())
-            val glyphs =
-                arrayOf(
-                    BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
-                    BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
-                )
-            val bitmapFontId = addBitmapFont(glyphs)
-            drawBitmapTextAnchored("AB", bitmapFontId, 0f, 2f, 50f, 50f, 0.5f, 0.5f)
-        }
-
-    fun drawBitmapTextAnchoredWithTextId() =
-        getCoreDocument(
-            extraTags = arrayOf(RemoteComposeWriter.HTag(Header.DOC_PROFILES, PROFILE_WIDGETS))
-        ) {
-            val textId = textCreateId("AB")
-            val bitmapId = storeBitmap(createBitmap())
-            val glyphs =
-                arrayOf(
-                    BitmapFontData.Glyph("A", bitmapId, 0, 0, 0, 0, 10, 10),
-                    BitmapFontData.Glyph("B", bitmapId, 10, 0, 0, 0, 10, 10),
-                )
-            val bitmapFontId = addBitmapFont(glyphs)
-            drawBitmapTextAnchored(textId, bitmapFontId, 0f, 2f, 50f, 50f, 0.5f, 0.5f)
-        }
-
-    fun drawTweenPath() = getCoreDocument {
-        val path1Id = pathCreate(10f, 10f)
-        pathAppendLineTo(path1Id, 90f, 10f)
-        pathAppendLineTo(path1Id, 90f, 90f)
-        pathAppendLineTo(path1Id, 10f, 90f)
-        pathAppendClose(path1Id)
-
-        val path2Id = pathCreate(50f, 50f)
-        pathAppendLineTo(path2Id, 90f, 10f)
-        pathAppendLineTo(path2Id, 90f, 90f)
-        pathAppendLineTo(path2Id, 10f, 90f)
-        pathAppendClose(path2Id)
-        drawTweenPath(path1Id, path2Id, 0.5f, 0f, 1f)
-    }
-
-    fun drawTweenPathWithPath() = getCoreDocument {
-        val path1 = Path()
-        path1.moveTo(10f, 10f)
-        path1.lineTo(90f, 10f)
-        path1.lineTo(90f, 90f)
-        path1.lineTo(10f, 90f)
-        path1.close()
-
-        val path2 = Path()
-        path2.moveTo(50f, 50f)
-        path2.lineTo(90f, 10f)
-        path2.lineTo(90f, 90f)
-        path2.lineTo(10f, 90f)
-        path2.close()
-
-        drawTweenPath(path1, path2, 0.5f, 0f, 1f)
-    }
+    val path2Id = pathCreate(50f, 50f)
+    pathAppendLineTo(path2Id, 90f, 10f)
+    pathAppendLineTo(path2Id, 90f, 90f)
+    pathAppendLineTo(path2Id, 10f, 90f)
+    pathAppendClose(path2Id)
+    drawTweenPath(path1Id, path2Id, 0.5f, 0f, 1f)
 }
+
+private fun drawTweenPathWithPath() = getCoreDocument {
+    val path1 = Path()
+    path1.moveTo(10f, 10f)
+    path1.lineTo(90f, 10f)
+    path1.lineTo(90f, 90f)
+    path1.lineTo(10f, 90f)
+    path1.close()
+
+    val path2 = Path()
+    path2.moveTo(50f, 50f)
+    path2.lineTo(90f, 10f)
+    path2.lineTo(90f, 90f)
+    path2.lineTo(10f, 90f)
+    path2.close()
+
+    drawTweenPath(path1, path2, 0.5f, 0f, 1f)
+}
+
+private fun drawOutsideBounds() = getCoreDocument { drawCircle(50f, 50f, 60f) }

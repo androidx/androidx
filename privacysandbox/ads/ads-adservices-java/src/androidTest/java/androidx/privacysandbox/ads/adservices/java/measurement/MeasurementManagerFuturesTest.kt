@@ -126,7 +126,7 @@ class MeasurementManagerFuturesTest {
         // Set up the request.
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             null
         }
@@ -184,7 +184,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -233,7 +233,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -274,7 +274,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -332,7 +332,7 @@ class MeasurementManagerFuturesTest {
         val answer = { args: InvocationOnMock ->
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -426,7 +426,7 @@ class MeasurementManagerFuturesTest {
         val successCallback = { args: InvocationOnMock ->
             assertNotEquals(Looper.myLooper(), Looper.getMainLooper())
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(successCallback)
@@ -479,7 +479,7 @@ class MeasurementManagerFuturesTest {
 
         val successCallback = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
 

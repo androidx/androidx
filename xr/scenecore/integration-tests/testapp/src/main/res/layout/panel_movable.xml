@@ -29,111 +29,175 @@
         android:textColor="@android:color/white"
         android:textSize="64sp" />
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/sys_mov_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="@string/system_move_switch_text" />
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/scale_in_z_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="@string/scale_z_switch_text" />
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/anchorable_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="@string/anchorable_switch_text" />
-    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/parent_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
+        android:textSize="20sp"
         android:text="@string/parent_switch_text" />
-    <TextView
-        android:id="@+id/planeType_text"
-        android:layout_width="wrap_content"
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/enable_movable_switch"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text="@string/plane_type"
+        android:text="@string/enable_movable_component"
         android:textSize="20sp"/>
     <LinearLayout
+        android:id="@+id/movable_options_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:orientation="horizontal">
-        <CheckBox
-            android:id="@+id/planetype_any_checkbox"
-            android:layout_width="wrap_content"
+        android:visibility="gone">
+
+        <RadioGroup
+            android:id="@+id/movable_type_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radio_anchorable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/movable_type_anchorable"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/radio_system"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/movable_type_system"/>
+
+            <RadioButton
+                android:id="@+id/radio_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/movable_type_custom" />
+        </RadioGroup>
+        <!-- Scale in Z (For System and Custom) -->
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/scale_in_z_switch"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="@string/any" />
-        <CheckBox
-            android:id="@+id/planetype_vertical_checkbox"
-            android:layout_width="wrap_content"
+            android:text="@string/scale_z_switch_text"
+            android:textSize="20sp"
+            android:visibility="gone"/>
+        <!-- Custom Behavior Options (For Custom only) -->
+        <LinearLayout
+            android:id="@+id/custom_behavior_section"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/vertical" />
-        <CheckBox
-            android:id="@+id/planetype_horizontal_checkbox"
-            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/custom_behavior"
+                android:textSize="20sp"/>
+            <RadioGroup
+                android:id="@+id/custom_behavior_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_translation_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_behavior_translation_only"
+                    android:checked="true"/>
+
+                <RadioButton
+                    android:id="@+id/radio_rotation_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_behavior_rotation_only" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- Anchorable Options (For Anchorable only) -->
+        <LinearLayout
+            android:id="@+id/anchorable_section"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/horizontal" />
-    </LinearLayout>
-    <TextView
-        android:id="@+id/PlaneSemantic_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="@string/plane_semantic"
-        android:textSize="20sp" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="horizontal">
-        <CheckBox
-            android:id="@+id/planesemantic_any_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="@string/any" />
-        <CheckBox
-            android:id="@+id/planesemantic_wall_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/wall" />
-        <CheckBox
-            android:id="@+id/planesemantic_floor_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/floor" />
-        <CheckBox
-            android:id="@+id/planesemantic_table_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/table" />
-        <CheckBox
-            android:id="@+id/planesemantic_ceiling_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/ceiling" />
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/planeType_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plane_type"
+                android:textSize="20sp"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <CheckBox
+                    android:id="@+id/planetype_any_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/any" />
+                <CheckBox
+                    android:id="@+id/planetype_vertical_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/vertical" />
+                <CheckBox
+                    android:id="@+id/planetype_horizontal_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/horizontal" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/PlaneSemantic_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/plane_semantic"
+                android:textSize="20sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <CheckBox
+                    android:id="@+id/planesemantic_any_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/any" />
+                <CheckBox
+                    android:id="@+id/planesemantic_wall_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/wall" />
+                <CheckBox
+                    android:id="@+id/planesemantic_floor_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/floor" />
+                <CheckBox
+                    android:id="@+id/planesemantic_table_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/table" />
+                <CheckBox
+                    android:id="@+id/planesemantic_ceiling_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceiling" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

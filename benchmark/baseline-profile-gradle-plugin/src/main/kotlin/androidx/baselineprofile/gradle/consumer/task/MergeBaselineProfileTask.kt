@@ -21,8 +21,6 @@ import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import java.io.File
 import kotlin.io.path.Path
 import org.gradle.api.DefaultTask
@@ -56,7 +54,6 @@ import org.gradle.api.tasks.TaskProvider
  * mostly the profile file will be unnecessarily larger.
  */
 @CacheableTask
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class MergeBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -139,7 +136,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             mergeAwareTaskName: String,
             library: Boolean,
             sourceDir: Provider<Directory>,
-            outputDir: Provider<Directory>,
+            outputDir: Directory,
             isLastTask: Boolean,
             hasDependencies: Boolean,
             warnings: Warnings,
@@ -312,7 +309,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 The baseline profile consumer plugin is configured with filters that exclude all
                 the profile rules. Please review your build.gradle configuration and make sure your
                 filters don't exclude all the baseline profile rules.
-            """
+                """
                     .trimIndent()
             )
         }

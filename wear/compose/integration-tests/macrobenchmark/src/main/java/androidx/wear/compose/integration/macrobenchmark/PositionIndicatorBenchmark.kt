@@ -96,16 +96,15 @@ class PositionIndicatorBenchmark(private val compilationMode: CompilationMode) {
         times: Int,
         delayBetweenClicks: Long,
     ) {
-        val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
-        val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
-
         repeat(times) {
+            val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
             buttonIncrease?.click()
             device.waitForIdle()
             sleep(delayBetweenClicks)
         }
 
         repeat(times) {
+            val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
             buttonDecrease?.click()
             device.waitForIdle()
             sleep(delayBetweenClicks)

@@ -373,7 +373,7 @@ interface TabIndicatorScope {
      * A Modifier that follows the default offset and animation
      *
      * @param selectedTabIndex the index of the current selected tab
-     * @param matchContentSize this modifier can also animate the width of the indicator \ to match
+     * @param matchContentSize this modifier can also animate the width of the indicator to match
      *   the content size of the tab.
      */
     fun Modifier.tabIndicatorOffset(

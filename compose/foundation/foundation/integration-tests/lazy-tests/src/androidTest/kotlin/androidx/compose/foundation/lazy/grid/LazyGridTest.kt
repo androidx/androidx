@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -893,7 +894,7 @@ class LazyGridTest(private val orientation: Orientation) :
             ) {
                 item { Spacer(modifier = Modifier.size(size = 0.dp)) }
                 items((0..8).map { it.toString() }) {
-                    Box(Modifier.testTag(it)) { BasicText(text = it.toString()) }
+                    Box(Modifier.testTag(it)) { BasicText(text = it) }
                 }
             }
         }
@@ -924,7 +925,7 @@ class LazyGridTest(private val orientation: Orientation) :
                     )
                 }
                 items((0..8).map { it.toString() }) {
-                    Box(Modifier.testTag(it)) { BasicText(text = it.toString()) }
+                    Box(Modifier.testTag(it)) { BasicText(text = it) }
                 }
             }
         }
@@ -1427,17 +1428,19 @@ class LazyGridTest(private val orientation: Orientation) :
             targetList = listOf(3, 2, 1, 0),
             cells = 1,
             initialExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(IntOffset(0, 0), IntOffset(0, 100), IntOffset(0, 200), IntOffset(0, 300))
-                } else {
-                    listOf(IntOffset(0, 0), IntOffset(100, 0), IntOffset(200, 0), IntOffset(300, 0))
-                },
+                listOf(
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(300, 0),
+                ),
             targetExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(IntOffset(0, 300), IntOffset(0, 200), IntOffset(0, 100), IntOffset(0, 0))
-                } else {
-                    listOf(IntOffset(300, 0), IntOffset(200, 0), IntOffset(100, 0), IntOffset(0, 0))
-                },
+                listOf(
+                    AxisAwareIntOffset(300, 0),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(0, 0),
+                ),
         )
     }
 
@@ -1448,67 +1451,34 @@ class LazyGridTest(private val orientation: Orientation) :
             targetList = listOf(9, 8, 7, 6, 5, 4, 3, 2, 1, 0),
             cells = 2,
             initialExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(100, 0),
-                        IntOffset(0, 100),
-                        IntOffset(100, 100),
-                        IntOffset(0, 200),
-                        IntOffset(100, 200),
-                        // For items outside the view port *before* the visible items, we only have
-                        // a contract for their mainAxis position. The crossAxis position for those
-                        // items is subject to change.
-                        IntOffset(UnspecifiedOffset, 300),
-                        IntOffset(UnspecifiedOffset, 300),
-                    )
-                } else {
-                    listOf(
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(0, 100),
-                        IntOffset(100, 0),
-                        IntOffset(100, 100),
-                        IntOffset(200, 0),
-                        IntOffset(200, 100),
-                        // For items outside the view port *before* the visible items, we only have
-                        // a contract for their mainAxis position. The crossAxis position for those
-                        // items is subject to change.
-                        IntOffset(300, UnspecifiedOffset),
-                        IntOffset(300, UnspecifiedOffset),
-                    )
-                },
+                listOf(
+                    null,
+                    null,
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(0, 100),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(100, 100),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(200, 100),
+                    // For items outside the view port *before* the visible items, we only have
+                    // a contract for their mainAxis position. The crossAxis position for those
+                    // items is subject to change.
+                    AxisAwareIntOffset(300, UnspecifiedOffset),
+                    AxisAwareIntOffset(300, UnspecifiedOffset),
+                ),
             targetExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        IntOffset(100, 300),
-                        IntOffset(0, 300),
-                        IntOffset(100, 200),
-                        IntOffset(0, 200),
-                        IntOffset(100, 100),
-                        IntOffset(0, 100),
-                        IntOffset(100, 0),
-                        IntOffset(0, 0),
-                        IntOffset(0, -100),
-                        IntOffset(100, -100),
-                    )
-                } else {
-                    listOf(
-                        IntOffset(300, 100),
-                        IntOffset(300, 0),
-                        IntOffset(200, 100),
-                        IntOffset(200, 0),
-                        IntOffset(100, 100),
-                        IntOffset(100, 0),
-                        IntOffset(0, 100),
-                        IntOffset(0, 0),
-                        IntOffset(-100, 0),
-                        IntOffset(-100, 100),
-                    )
-                },
+                listOf(
+                    AxisAwareIntOffset(300, 100),
+                    AxisAwareIntOffset(300, 0),
+                    AxisAwareIntOffset(200, 100),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(100, 100),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(0, 100),
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(-100, 0),
+                    AxisAwareIntOffset(-100, 100),
+                ),
             startingIndex = 2,
             crossAxisSize = 200,
         )
@@ -1520,45 +1490,23 @@ class LazyGridTest(private val orientation: Orientation) :
             initialList = listOf(0, 1, 2, 3, 4, 5),
             targetList = listOf(5, 4, 2, 1, 3, 0),
             initialExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(0, 100),
-                        IntOffset(0, 200),
-                        IntOffset(0, 300),
-                    )
-                } else {
-                    listOf(
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(100, 0),
-                        IntOffset(200, 0),
-                        IntOffset(300, 0),
-                    )
-                },
+                listOf(
+                    null,
+                    null,
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(300, 0),
+                ),
             targetExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        IntOffset(0, 300),
-                        IntOffset(0, 100),
-                        IntOffset(0, 0),
-                        IntOffset(0, 200),
-                        IntOffset(0, -100),
-                        IntOffset(0, -200),
-                    )
-                } else {
-                    listOf(
-                        IntOffset(300, 0),
-                        IntOffset(100, 0),
-                        IntOffset(0, 0),
-                        IntOffset(200, 0),
-                        IntOffset(-100, 0),
-                        IntOffset(-200, 0),
-                    )
-                },
+                listOf(
+                    AxisAwareIntOffset(300, 0),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(-100, 0),
+                    AxisAwareIntOffset(-200, 0),
+                ),
             startingIndex = 2,
         )
     }
@@ -1569,67 +1517,34 @@ class LazyGridTest(private val orientation: Orientation) :
             initialList = listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
             targetList = listOf(8, 9, 7, 6, 4, 5, 2, 1, 3, 0),
             initialExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        null,
-                        null,
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(100, 0),
-                        IntOffset(0, 100),
-                        IntOffset(100, 100),
-                        IntOffset(0, 200),
-                        IntOffset(100, 200),
-                    )
-                } else {
-                    listOf(
-                        null,
-                        null,
-                        null,
-                        null,
-                        IntOffset(0, 0),
-                        IntOffset(0, 100),
-                        IntOffset(100, 0),
-                        IntOffset(100, 100),
-                        IntOffset(200, 0),
-                        IntOffset(200, 100),
-                    )
-                },
+                listOf(
+                    null,
+                    null,
+                    null,
+                    null,
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(0, 100),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(100, 100),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(200, 100),
+                ),
             targetExpectedLookaheadPositions =
-                if (vertical) {
-                    listOf(
-                        IntOffset(100, 200),
-                        IntOffset(100, 100),
-                        IntOffset(0, 100),
-                        IntOffset(0, 200),
-                        IntOffset(0, 0),
-                        IntOffset(100, 0),
-                        // For items outside the view port *before* the visible items, we only have
-                        // a contract for their mainAxis position. The crossAxis position for those
-                        // items is subject to change.
-                        IntOffset(UnspecifiedOffset, -100),
-                        IntOffset(UnspecifiedOffset, -100),
-                        IntOffset(UnspecifiedOffset, -200),
-                        IntOffset(UnspecifiedOffset, -200),
-                    )
-                } else {
-                    listOf(
-                        IntOffset(200, 100),
-                        IntOffset(100, 100),
-                        IntOffset(100, 0),
-                        IntOffset(200, 0),
-                        IntOffset(0, 0),
-                        IntOffset(0, 100),
-                        // For items outside the view port *before* the visible items, we only have
-                        // a contract for their mainAxis position. The crossAxis position for those
-                        // items is subject to change.
-                        IntOffset(-100, UnspecifiedOffset),
-                        IntOffset(-100, UnspecifiedOffset),
-                        IntOffset(-200, UnspecifiedOffset),
-                        IntOffset(-200, UnspecifiedOffset),
-                    )
-                },
+                listOf(
+                    AxisAwareIntOffset(200, 100),
+                    AxisAwareIntOffset(100, 100),
+                    AxisAwareIntOffset(100, 0),
+                    AxisAwareIntOffset(200, 0),
+                    AxisAwareIntOffset(0, 0),
+                    AxisAwareIntOffset(0, 100),
+                    // For items outside the view port *before* the visible items, we only have
+                    // a contract for their mainAxis position. The crossAxis position for those
+                    // items is subject to change.
+                    AxisAwareIntOffset(-100, UnspecifiedOffset),
+                    AxisAwareIntOffset(-100, UnspecifiedOffset),
+                    AxisAwareIntOffset(-200, UnspecifiedOffset),
+                    AxisAwareIntOffset(-200, UnspecifiedOffset),
+                ),
             startingIndex = 4,
             cells = 2,
             crossAxisSize = 200,
@@ -2422,6 +2337,70 @@ class LazyGridTest(private val orientation: Orientation) :
         rule
             .onNodeWithTag("1")
             .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses() {
+        val state = LazyGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyGrid(cells = 1, state = state, modifier = Modifier.mainAxisSize(500.dp)) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses_multiColumn() {
+        val state = LazyGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyGrid(cells = 2, state = state, modifier = Modifier.mainAxisSize(500.dp)) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
     }
 
     private val Offset.mainAxisPosition: Int

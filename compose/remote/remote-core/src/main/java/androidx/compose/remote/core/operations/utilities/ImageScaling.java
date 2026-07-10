@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.Utils;
 
 import org.jspecify.annotations.NonNull;
 
 /** Implement the scaling logic for Compose Image or ImageView */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImageScaling {
 
     private static final boolean DEBUG = false;

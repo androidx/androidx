@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,13 +25,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":tracing:tracing-driver-wire"))
+    androidTestImplementation(project(":tracing:tracing-wire"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(project(":tracing:tracing-perfetto"))
     androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
@@ -40,18 +38,25 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.tracing.benchmark"
     buildTypes.release {
         androidTest {
-            enableMinification = false
-            testProguardFiles "proguard-rules.pro"
+            enableMinification = true
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.tracing.DelicateTracingApi")
     }
 }
 

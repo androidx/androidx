@@ -53,8 +53,8 @@ public class JpegMetadataCorrector {
         if (mQuirk == null) {
             ImageProxy.PlaneProxy[] planes = image.getPlanes();
             ByteBuffer buffer = planes[0].getBuffer();
-            byte[] data = new byte[buffer.capacity()];
             buffer.rewind();
+            byte[] data = new byte[buffer.remaining()];
             buffer.get(data);
             return data;
         } else {

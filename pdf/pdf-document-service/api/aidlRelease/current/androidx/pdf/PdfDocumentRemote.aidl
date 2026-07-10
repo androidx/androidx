@@ -37,15 +37,14 @@ interface PdfDocumentRemote {
   int openPdfDocument(in ParcelFileDescriptor pfd, String password);
   int numPages();
   androidx.pdf.models.Dimensions getPageDimensions(int pageNum);
-  android.graphics.Bitmap getPageBitmap(int pageNum, int width, int height);
-  android.graphics.Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY);
+  android.graphics.Bitmap getPageBitmap(int pageNum, int width, int height, in androidx.pdf.RenderParams renderParams);
+  android.graphics.Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY, in androidx.pdf.RenderParams renderParams);
   List<android.graphics.pdf.content.PdfPageTextContent> getPageText(int pageNum);
   List<android.graphics.pdf.models.PageMatchBounds> searchPageText(int pageNum, String query);
   android.graphics.pdf.models.selection.PageSelection selectPageText(int pageNum, in android.graphics.pdf.models.selection.SelectionBoundary start, in android.graphics.pdf.models.selection.SelectionBoundary stop);
   List<android.graphics.pdf.content.PdfPageLinkContent> getPageExternalLinks(int pageNum);
   List<android.graphics.pdf.content.PdfPageGotoLinkContent> getPageGotoLinks(int pageNum);
   List<android.graphics.pdf.content.PdfPageImageContent> getPageImageContent(int pageNum);
-  boolean isPdfLinearized();
   int getFormType();
   void releasePage(int pageNum);
   void closePdfDocument();
@@ -53,7 +52,11 @@ interface PdfDocumentRemote {
   List<android.graphics.pdf.models.FormWidgetInfo> getFormWidgetInfosOfType(int pageNum, in int[] types);
   List<android.graphics.Rect> applyEdit(int pageNum, in android.graphics.pdf.models.FormEditRecord editRecord);
   void write(in ParcelFileDescriptor destination, boolean removePasswordProtection);
-  androidx.pdf.annotation.models.AnnotationResult addAnnotations(in ParcelFileDescriptor pfd);
-  List<androidx.pdf.annotation.models.PdfAnnotation> getPageAnnotations(int pageNum);
-  androidx.pdf.annotation.models.AnnotationResult applyEdits(in List<androidx.pdf.annotation.models.PdfAnnotationData> annots);
+  androidx.pdf.annotation.models.PaginatedAnnotations getPageAnnotations(int pageNum);
+  androidx.pdf.annotation.models.PaginatedAnnotations getBatchedPageAnnotations(int pageNum, in int batchIndex);
+  androidx.pdf.DraftEditResult applyDraftEdits(in List<androidx.pdf.DraftEditOperation> operations);
+  androidx.pdf.annotation.models.PdfObject getTopPageObjectAtPosition(int pageNum, in android.graphics.PointF point, in int[] types);
+  int getLinearizationStatus();
+  androidx.pdf.models.PaginatedObjects getPageObjects(int pageNum, long types);
+  androidx.pdf.models.PaginatedObjects getBatchedPageObjects(int pageNum, in int batchIndex, long types);
 }

@@ -25,10 +25,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.ObjectsCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A helper class for playing media on remote routes using the remote playback protocol
@@ -64,7 +65,7 @@ public class RemotePlaybackClient {
      * @param context The {@link Context}.
      * @param route The media route.
      */
-    public RemotePlaybackClient(@NonNull Context context, @NonNull MediaRouter.RouteInfo route) {
+    public RemotePlaybackClient(@NonNull Context context, MediaRouter.@NonNull RouteInfo route) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -200,8 +201,7 @@ public class RemotePlaybackClient {
      *
      * @return The current session id, or null if none.
      */
-    @Nullable
-    public String getSessionId() {
+    public @Nullable String getSessionId() {
         return mSessionId;
     }
 

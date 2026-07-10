@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 
@@ -29,9 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Class holds detailed stats for Optimize.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class OptimizeStats extends BaseStats {
 
@@ -215,6 +215,50 @@ public final class OptimizeStats extends BaseStats {
     /** Gets total latency while the task is running on the user executor. */
     public int getOnExecutorLatencyMillis() {
         return mOnExecutorLatencyMillis;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "OptimizeStats {\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreOptimizeLatencyMillis=%d,\n"
+                        + "  nativeIndexRestorationLatencyMillis=%d,\n"
+                        + "  nativeOriginalDocumentCount=%d,\n"
+                        + "  nativeDeletedDocumentCount=%d,\n"
+                        + "  nativeExpiredDocumentCount=%d,\n"
+                        + "  nativeStorageSizeBeforeBytes=%d,\n"
+                        + "  nativeStorageSizeAfterBytes=%d,\n"
+                        + "  nativeTimeSinceLastOptimizeMillis=%d,\n"
+                        + "  indexRestorationMode=%d,\n"
+                        + "  numOriginalNamespaces=%d,\n"
+                        + "  numDeletedNamespaces=%d,\n"
+                        + "  callReceivedTimestampMillis=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  onExecutorLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mStatusCode,
+                mTotalLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDocumentStoreOptimizeLatencyMillis,
+                mNativeIndexRestorationLatencyMillis,
+                mNativeOriginalDocumentCount,
+                mNativeDeletedDocumentCount,
+                mNativeExpiredDocumentCount,
+                mNativeStorageSizeBeforeBytes,
+                mNativeStorageSizeAfterBytes,
+                mNativeTimeSinceLastOptimizeMillis,
+                mIndexRestorationMode,
+                mNumOriginalNamespaces,
+                mNumDeletedNamespaces,
+                mCallReceivedTimestampMillis,
+                mExecutorAcquisitionLatencyMillis,
+                mOnExecutorLatencyMillis);
     }
 
     /** Builder for {@link RemoveStats}. */

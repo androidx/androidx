@@ -31,10 +31,9 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.CoreAppTestUtil
-import androidx.camera.testing.impl.CoreAppTestUtil.ForegroundOccupiedError
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.LabTestRule.Companion.isInLabTest
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.testrule.PreTestRule
@@ -131,9 +130,8 @@ class VideoCaptureDeviceTest(
 
         @JvmStatic
         @BeforeClass
-        @Throws(ForegroundOccupiedError::class)
         fun classSetUp() {
-            CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }
 
         @JvmStatic

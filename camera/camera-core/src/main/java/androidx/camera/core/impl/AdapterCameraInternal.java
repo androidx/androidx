@@ -173,4 +173,9 @@ public class AdapterCameraInternal implements CameraInternal {
     public void onUseCaseReset(@NonNull UseCase useCase) {
         mCameraInternal.onUseCaseReset(useCase);
     }
+
+    @Override
+    public boolean isRemoved() {
+        return mCameraInternal.isRemoved();
+    }
 }

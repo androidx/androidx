@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import com.android.build.api.dsl.ManagedVirtualDevice
@@ -26,7 +25,6 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
 }
 
@@ -43,8 +41,8 @@ android {
 }
 
 dependencies {
-    implementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
-    implementation(androidx.projectOrArtifact(":benchmark:benchmark-macro-junit4"))
+    implementation("androidx.benchmark:benchmark-junit4:1.4.1")
+    implementation("androidx.benchmark:benchmark-macro-junit4:1.4.1")
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

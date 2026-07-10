@@ -21,10 +21,18 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.registry.provider.ClearCreationOptionsException
+import androidx.credentials.registry.provider.ClearCreationOptionsRequest
+import androidx.credentials.registry.provider.ClearCreationOptionsResponse
+import androidx.credentials.registry.provider.ClearCreationOptionsUnknownException
 import androidx.credentials.registry.provider.ClearCredentialRegistryException
 import androidx.credentials.registry.provider.ClearCredentialRegistryRequest
 import androidx.credentials.registry.provider.ClearCredentialRegistryResponse
 import androidx.credentials.registry.provider.ClearCredentialRegistryUnknownException
+import androidx.credentials.registry.provider.RegisterCreationOptionsException
+import androidx.credentials.registry.provider.RegisterCreationOptionsRequest
+import androidx.credentials.registry.provider.RegisterCreationOptionsResponse
+import androidx.credentials.registry.provider.RegisterCreationOptionsUnknownException
 import androidx.credentials.registry.provider.RegisterCredentialsException
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegisterCredentialsResponse
@@ -64,12 +72,40 @@ public class RegistryManagerProviderPlayServicesImpl(private val context: Contex
             )
         client
             .registerCredentials(gmsRequest)
-            .addOnSuccessListener {
+            .addOnSuccessListener(executor) {
                 // TODO: b/355652174 - convert this more generically from the parent abstract class
                 callback.onResult(object : RegisterCredentialsResponse(request.type) {})
             }
-            .addOnFailureListener {
+            .addOnFailureListener(executor) {
                 callback.onError(RegisterCredentialsUnknownException(it.message))
+            }
+    }
+
+    override fun onRegisterCreationOptions(
+        request: RegisterCreationOptionsRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback:
+            CredentialManagerCallback<
+                RegisterCreationOptionsResponse,
+                RegisterCreationOptionsException,
+            >,
+    ) {
+        val gmsRequest =
+            com.google.android.gms.identitycredentials.RegisterCreationOptionsRequest(
+                createOptions = request.creationOptions,
+                matcher = request.matcher,
+                type = request.type,
+                id = request.id,
+                fulfillmentActionName = request.intentAction,
+            )
+        client
+            .registerCreationOptions(gmsRequest)
+            .addOnSuccessListener(executor) {
+                callback.onResult(object : RegisterCreationOptionsResponse(request.type) {})
+            }
+            .addOnFailureListener(executor) {
+                callback.onError(RegisterCreationOptionsUnknownException(it.message))
             }
     }
 
@@ -97,11 +133,40 @@ public class RegistryManagerProviderPlayServicesImpl(private val context: Contex
             )
         client
             .clearRegistry(gmsRequest)
-            .addOnSuccessListener {
+            .addOnSuccessListener(executor) {
                 callback.onResult(ClearCredentialRegistryResponse(it.isDeleted))
             }
-            .addOnFailureListener {
+            .addOnFailureListener(executor) {
                 callback.onError(ClearCredentialRegistryUnknownException(it.message))
+            }
+    }
+
+    override fun onClearCreationOptions(
+        request: ClearCreationOptionsRequest,
+        executor: Executor,
+        callback:
+            CredentialManagerCallback<ClearCreationOptionsResponse, ClearCreationOptionsException>,
+    ) {
+        val gmsRequest =
+            com.google.android.gms.identitycredentials.ClearCreationOptionsRequest(
+                deleteAll = request.isDeleteAll,
+                clearTypedRegistryOption =
+                    request.deletePerTypeConfig?.let {
+                        com.google.android.gms.identitycredentials.ClearCreationOptionsRequest
+                            .ClearTypedCreationOption(
+                                deleteAllForType = it.isDeleteAll,
+                                type = it.type,
+                                registryIds = it.registryIds,
+                            )
+                    },
+            )
+        client
+            .clearCreationOptions(gmsRequest)
+            .addOnSuccessListener(executor) {
+                callback.onResult(ClearCreationOptionsResponse(it.isDeleted))
+            }
+            .addOnFailureListener(executor) {
+                callback.onError(ClearCreationOptionsUnknownException(it.message))
             }
     }
 

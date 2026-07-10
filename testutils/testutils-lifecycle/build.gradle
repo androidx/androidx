@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -47,40 +46,18 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.9.1")
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
+            api("androidx.annotation:annotation:1.9.1")
 
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
-            }
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinCoroutinesTest)
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.testRules)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-            }
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-        }
-
-        webMain {
-            dependsOn(commonMain)
-        }
-
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-            }
+        androidMain.dependencies {
+            api(libs.testRules)
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
         }
     }
 }

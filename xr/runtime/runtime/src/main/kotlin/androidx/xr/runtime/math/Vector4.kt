@@ -23,12 +23,12 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Represents a four-dimensional position in space.
+ * Four-dimensional position in space.
  *
- * @param x X component of the vector.
- * @param y Y component of the vector.
- * @param z Z component of the vector.
- * @param w W component of the vector.
+ * @property x the x component of the vector
+ * @property y the y component of the vector
+ * @property z the z component of the vector
+ * @property w the w component of the vector
  */
 public class Vector4
 @JvmOverloads
@@ -60,17 +60,22 @@ constructor(
     public operator fun minus(other: Vector4): Vector4 =
         Vector4(x - other.x, y - other.y, z - other.z, w - other.w)
 
-    /** Get a new vector multiplied by a scalar amount. */
+    /**
+     * Get a new vector multiplied by a scalar amount.
+     *
+     * @param c the scalar to multiply by
+     */
     public operator fun times(c: Float): Vector4 = Vector4(x * c, y * c, z * c, w * c)
 
-    /**
-     * Returns a new vector with each component of this vector multiplied by each corresponding
-     * component of the [other] vector.
-     */
+    /** Returns a new vector by component-wise multiplying this vector by [other]. */
     public fun scale(other: Vector4): Vector4 =
         Vector4(x * other.x, y * other.y, z * other.z, w * other.w)
 
-    /** Returns a new vector with this vector divided by a scalar amount. */
+    /**
+     * Returns a new vector with this vector divided by a scalar amount.
+     *
+     * @param c the scalar to divide by
+     */
     public operator fun div(c: Float): Vector4 = Vector4(x / c, y / c, z / c, w / c)
 
     /** Returns the dot product of this vector and the [other] vector. */
@@ -87,16 +92,25 @@ constructor(
         return Vector4(1 / this.x, 1 / this.y, 1 / this.z, 1 / this.w)
     }
 
-    /** Returns the normalized version of this vector. */
+    /**
+     * Returns the normalized version of this vector. A zero-length vector has no direction to
+     * normalize and returns [Zero] rather than a vector of NaN components.
+     */
     public fun toNormalized(): Vector4 {
-        val norm = rsqrt(lengthSquared)
+        val lenSq = lengthSquared
+        if (lenSq < EPSILON) {
+            return Zero
+        }
+        val norm = rsqrt(lenSq)
 
         return Vector4(x * norm, y * norm, z * norm, w * norm)
     }
 
     /**
-     * Returns a new vector with the each component of this vector clamped between corresponding
-     * components of [min] and [max] vectors.
+     * Returns a new vector with components clamped between [min] and [max].
+     *
+     * @param min the minimum clamp values
+     * @param max the maximum clamp values
      */
     public fun clamp(min: Vector4, max: Vector4): Vector4 {
         val clampedX = clamp(x, min.x, max.x)
@@ -107,7 +121,14 @@ constructor(
         return Vector4(clampedX, clampedY, clampedZ, clampedW)
     }
 
-    /** Returns a copy of the vector. */
+    /**
+     * Returns a copy of the vector.
+     *
+     * @param x the new x value for the copied vector
+     * @param y the new y value for the copied vector
+     * @param z the new z value for the copied vector
+     * @param w the new w value for the copied vector
+     */
     @JvmOverloads
     public fun copy(
         x: Float = this.x,
@@ -135,6 +156,7 @@ constructor(
     override fun toString(): String = "[x=$x, y=$y, z=$z, w=$w]"
 
     public companion object {
+        private const val EPSILON: Float = 1e-15f
         /** Vector with all components set to zero. */
         @JvmField public val Zero: Vector4 = Vector4(x = 0f, y = 0f, z = 0f, w = 0f)
 
@@ -145,34 +167,46 @@ constructor(
         @JvmStatic public fun fromValue(value: Float): Vector4 = Vector4(value, value, value, value)
 
         /**
-         * Returns the angle between this vector and [other] vector in degrees. The result is never
-         * greater than 180 degrees.
+         * Returns the angle between [vector1] and [vector2] in degrees. The result is never greater
+         * than 180 degrees.
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
          */
         @JvmStatic
         public fun angleBetween(vector1: Vector4, vector2: Vector4): Float {
-            val dot = vector1 dot vector2
-            val magnitude = vector1.length * vector2.length
-
-            if (magnitude < 1e-10f) {
+            val len1 = vector1.length
+            val len2 = vector2.length
+            if (len1 < EPSILON || len2 < EPSILON) {
                 return 0.0f
             }
+            val dot = vector1 dot vector2
+            val magnitude = len1 * len2
 
             // Clamp due to floating point precision errors that could cause dot to be > mag.
             // Would cause acos to return NaN.
             val cos = clamp(dot / magnitude, -1.0f, 1.0f)
 
-            return acos(cos)
+            return toDegrees(acos(cos))
         }
 
-        /** Returns the distance between this vector and the [other] vector. */
+        /**
+         * Returns the distance between [vector1] and [vector2].
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
+         */
         @JvmStatic
         public fun distance(vector1: Vector4, vector2: Vector4): Float = (vector1 - vector2).length
 
         /**
-         * Returns a new vector that is linearly interpolated between [start] and [end] using the
-         * interpolation amount [ratio].
+         * Returns a new vector linearly interpolated between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
+         *
+         * @param start the starting vector
+         * @param end the ending vector
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Vector4, end: Vector4, ratio: Float): Vector4 =
@@ -183,17 +217,31 @@ constructor(
                 lerp(start.w, end.w, ratio),
             )
 
-        /** Returns the minimum of each component of the two vectors. */
+        /**
+         * Returns the minimum of each component of the two vectors.
+         *
+         * @param a the first vector
+         * @param b the second vector
+         */
         @JvmStatic
         public fun min(a: Vector4, b: Vector4): Vector4 =
             Vector4(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z), min(a.w, b.w))
 
-        /** Returns the maximum of each component of the two vectors. */
+        /**
+         * Returns the maximum of each component of the two vectors.
+         *
+         * @param a the first vector
+         * @param b the second vector
+         */
         @JvmStatic
         public fun max(a: Vector4, b: Vector4): Vector4 =
             Vector4(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z), max(a.w, b.w))
 
-        /** Returns the absolute values of each component of the vector. */
+        /**
+         * Returns the absolute values of each component of the vector.
+         *
+         * @param vector the vector to get the absolute values of
+         */
         @JvmStatic
         public fun abs(vector: Vector4): Vector4 =
             Vector4(abs(vector.x), abs(vector.y), abs(vector.z), abs(vector.w))

@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package androidx.glance.wear.proto;
+
+// Encodes data for a Widget Request.
+message WearWidgetRequestProto {
+  // The ID of the widget instance for which an update is being requested.
+  uint32 id = 1;
+
+  // The namespace for the ID of the widget instance.
+  string id_namespace = 5;
+
+  // The width in dp of the content for this widget.
+  float width_dp = 2;
+
+  // The height in dp of the content for this widget.
+  float height_dp = 3;
+
+  // The container type for this widget.
+  uint32 container_type = 4;
+
+  // The horizontal padding in dp of the container for the widget.
+  float horizontal_padding_dp = 6;
+
+  // The vertical padding in dp of the container for the widget.
+  float vertical_padding_dp = 7;
+
+  // The corner radius in dp of the container for the widget.
+  float corner_radius_dp = 8;
+
+  // The major version of the Wear Tiles/Widgets renderer. This corresponds to
+  // `1` in `1.6.0`.
+  uint32 renderer_version_major = 9;
+
+  // The minor version of the Wear Tiles/Widgets renderer. This corresponds to
+  // `6` in `1.6.0`.
+  uint32 renderer_version_minor = 10;
+
+  // The revision version of the Wear Tiles/Widgets renderer. This corresponds
+  // to `0` in `1.6.0`.
+  uint32 renderer_version_revision = 11;
+
+  // The set of operations supported by the Host.
+  repeated PlayerOperation renderer_supported_operations = 12;
+}
+
+// An operation code used by the Remote Compose player.
+message PlayerOperation {
+  // The operation code describing the operation.
+  uint32 op_code = 1;
+}

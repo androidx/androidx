@@ -15,32 +15,67 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
+    api(project(":xr:arcore:arcore-runtime"))
+
+    implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
+    testImplementation(project(":xr:arcore:arcore-testing"))
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
+
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation(project(":xr:arcore:arcore-testing"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
 }
 
 android {
     namespace = "androidx.xr.arcore.openxr"
 }
 
+androidComponents {
+    def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/android").absolutePath
+    def testArCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/androidTest").absolutePath
+    def testRuntimeNativePath = new File(prebuiltsRoot, "androidx/xr/native/runtime-openxr/androidTest").absolutePath
+
+    onVariants(selector().all()) { variant ->
+        variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testArCoreNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testRuntimeNativePath)
+    }
+}
+
 androidx {
     name = "XR ARCore OpenXR"
-    // TODO: Switch to PUBLISHED_LIBRARY once code has been migrated from runtime-openxr.
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "OpenXR runtime implementation of ARCore for Jetpack XR."
+    enableRobolectric()
 }

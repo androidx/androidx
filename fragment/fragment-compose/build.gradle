@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -28,22 +27,20 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     api("androidx.core:core-ktx:1.12.0")
     api(project(":fragment:fragment-ktx"))
     api("androidx.compose.runtime:runtime:1.6.0")
     api("androidx.compose.ui:ui:1.6.0")
     implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
 
     androidTestImplementation("androidx.activity:activity:1.8.2")
     androidTestImplementation("androidx.activity:activity-compose:1.8.2")
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.2")
-    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.11.0")
     androidTestImplementation("androidx.compose.foundation:foundation-layout:1.6.0")
     androidTestImplementation(project(":compose:material:material"))
     androidTestImplementation(project(":compose:runtime:runtime"))
@@ -64,7 +61,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     namespace = "androidx.fragment.compose"
 }
 

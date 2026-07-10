@@ -1,17 +1,15 @@
 import androidx.build.ApkCopyHelperKt
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -27,9 +25,9 @@ dependencies {
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
 
     implementation(libs.kotlinReflect)
-    implementation(libs.kotlinStdlib)
 
-    implementation("androidx.activity:activity:1.10.1")
+    implementation("androidx.activity:activity:1.12.1")
+    implementation("androidx.activity:activity-compose:1.12.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
@@ -48,6 +46,13 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(37) }
     namespace = "androidx.compose.integration.demos"
+    buildTypes {
+        release {
+            optimization {
+                enable = true
+            }
+        }
+    }
 }

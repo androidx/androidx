@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 
 /**
  * Asserts that two [Vector3]s are equal.
@@ -46,7 +47,7 @@ public fun assertVector3(actual: Vector3, expected: Vector3, epsilon: Float = 1e
  */
 @JvmOverloads
 public fun assertRotation(actual: Quaternion, expected: Quaternion, epsilon: Float = 1e-5f) {
-    val dot = Math.abs(actual.toNormalized().dot(expected.toNormalized()))
+    val dot = abs(actual.dot(expected))
     assertThat(dot).isWithin(epsilon).of(1.0f)
 }
 

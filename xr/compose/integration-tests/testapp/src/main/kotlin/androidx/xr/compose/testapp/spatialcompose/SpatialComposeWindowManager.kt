@@ -39,17 +39,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.platform.LocalSpatialConfiguration
-import androidx.xr.compose.spatial.ApplicationSubspace
+import androidx.xr.compose.platform.requestFullSpace
+import androidx.xr.compose.platform.requestHomeSpace
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -57,8 +60,10 @@ import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
+import kotlinx.coroutines.launch
 
 class SpatialComposeWindowManager : ComponentActivity() {
     private val mediaUriState: MutableState<Uri?> = mutableStateOf(null)
@@ -77,7 +82,16 @@ class SpatialComposeWindowManager : ComponentActivity() {
             // 2D Content rendered to the MainPanel
             MainPanelContent()
 
-            ApplicationSubspace(allowUnboundedSubspace = true) { SpatialLayout() }
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialLayout()
+            }
         }
     }
 
@@ -136,7 +150,7 @@ class SpatialComposeWindowManager : ComponentActivity() {
         val context = LocalContext.current
         val textToShare = "https://www.google.com/"
         val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled
-        val config = LocalSpatialConfiguration.current
+        val scope = rememberCoroutineScope()
 
         Button(onClick = { showDialog.value = !showDialog.value }) { Text("Show Modal Dialog") }
         ModalDialog(showDialog)
@@ -168,10 +182,12 @@ class SpatialComposeWindowManager : ComponentActivity() {
         Spacer(modifier = Modifier.size(20.dp))
         Button(
             onClick = {
-                if (isSpatialUiEnabled) {
-                    config.requestHomeSpaceMode()
-                } else {
-                    config.requestFullSpaceMode()
+                scope.launch {
+                    if (isSpatialUiEnabled) {
+                        requestHomeSpace()
+                    } else {
+                        requestFullSpace()
+                    }
                 }
             }
         ) {

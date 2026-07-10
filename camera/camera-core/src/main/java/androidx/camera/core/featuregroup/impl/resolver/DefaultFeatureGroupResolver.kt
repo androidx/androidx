@@ -14,32 +14,35 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSessionConfig::class)
-
 package androidx.camera.core.featuregroup.impl.resolver
 
-import androidx.camera.core.ExperimentalSessionConfig
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
 import androidx.camera.core.featuregroup.impl.UseCaseType
 import androidx.camera.core.featuregroup.impl.UseCaseType.Companion.getFeatureGroupUseCaseType
+import androidx.camera.core.featuregroup.impl.UseCaseType.IMAGE_ANALYSIS
 import androidx.camera.core.featuregroup.impl.UseCaseType.IMAGE_CAPTURE
 import androidx.camera.core.featuregroup.impl.UseCaseType.PREVIEW
 import androidx.camera.core.featuregroup.impl.UseCaseType.VIDEO_CAPTURE
-import androidx.camera.core.featuregroup.impl.feature.DynamicRangeFeature
-import androidx.camera.core.featuregroup.impl.feature.FpsRangeFeature
-import androidx.camera.core.featuregroup.impl.feature.ImageFormatFeature
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.DYNAMIC_RANGE
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.FPS_RANGE
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.IMAGE_FORMAT
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.RECORDING_QUALITY
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal.VIDEO_STABILIZATION
 import androidx.camera.core.featuregroup.impl.feature.VideoStabilizationFeature
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.Supported
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.Unsupported
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.UnsupportedUseCase
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.UseCaseMissing
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.internal.CameraUseCaseAdapter.isVideoCapture
+import androidx.camera.core.impl.stabilization.VideoStabilization
+import androidx.camera.core.impl.utils.UseCaseUtil.isVideoCapture
 
 /**
  * A [FeatureGroupResolver] that recursively tries out all combinations of features (according to
@@ -74,9 +77,6 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
             "Must have at least one required or preferred feature"
         }
 
-        val supportsImageFeature = useCases.any { it is ImageCapture }
-        val supportsStreamFeature = useCases.any { it is Preview || isVideoCapture(it) }
-
         // Return early if given use case combination is known to be unsupported
         useCases.forEach {
             val useCaseType = it.getFeatureGroupUseCaseType()
@@ -87,42 +87,57 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
 
         // Return early if a required feature is known to fail with given use case combination
         requiredFeatures.forEach { feature ->
-            when (feature) {
-                // UltraHDR requires ImageCapture use case
-                is ImageFormatFeature -> {
-                    if (!supportsImageFeature) {
-                        return UseCaseMissing(
-                            requiredUseCases = IMAGE_CAPTURE.toString(),
-                            featureRequiring = feature,
-                        )
-                    }
-                }
-                is DynamicRangeFeature,
-                is FpsRangeFeature,
-                is VideoStabilizationFeature -> {
-                    if (!supportsStreamFeature) {
-                        return UseCaseMissing(
-                            requiredUseCases = "$PREVIEW or $VIDEO_CAPTURE",
-                            featureRequiring = feature,
-                        )
-                    }
-                }
+            feature.getMissingUseCase(useCases)?.let {
+                return it
             }
         }
 
         val filteredPreferredFeatures =
             orderedPreferredFeatures.filter { feature ->
-                when (feature) {
-                    // Filter out UltraHDR if there's no image stream
-                    is ImageFormatFeature -> supportsImageFeature
-                    else -> true
-                }
+                // Filter out a feature if it's not supported by the use cases
+                feature.getMissingUseCase(useCases)?.also {
+                    Logger.d(TAG, "resolveFeatureGroup: filtered out preferred feature due to $it")
+                } == null
             }
+
+        Logger.d(TAG, "resolveFeatureGroup: filteredPreferredFeatures = $filteredPreferredFeatures")
 
         return getFeatureListResolvedByPriority(
             sessionConfig = sessionConfig,
             orderedPreferredFeatures = filteredPreferredFeatures,
         )
+    }
+
+    private fun GroupableFeature.getMissingUseCase(useCases: List<UseCase>): UseCaseMissing? {
+        val supportsImageFeature = useCases.any { it is ImageCapture }
+        val supportsDynamicRangeFeature = useCases.any { it is Preview || it.isVideoCapture() }
+        val supportsStreamFeature =
+            useCases.any { it is Preview || it is ImageAnalysis || it.isVideoCapture() }
+        val supportsVideoFeature = useCases.any { it.isVideoCapture() }
+
+        val missingUseCaseString =
+            when (featureTypeInternal) {
+                IMAGE_FORMAT -> IMAGE_CAPTURE.toString().takeIf { !supportsImageFeature }
+                DYNAMIC_RANGE ->
+                    "$PREVIEW or $VIDEO_CAPTURE".takeIf { !supportsDynamicRangeFeature }
+                FPS_RANGE ->
+                    "$PREVIEW or $VIDEO_CAPTURE or $IMAGE_ANALYSIS"
+                        .takeIf { !supportsStreamFeature }
+                VIDEO_STABILIZATION -> {
+                    when ((this as VideoStabilizationFeature).videoStabilization) {
+                        VideoStabilization.PREVIEW ->
+                            // All non-RAW streams are stabilized as per Camera2 doc
+                            "$PREVIEW or $VIDEO_CAPTURE or $IMAGE_ANALYSIS"
+                                .takeIf { !supportsStreamFeature }
+                        VideoStabilization.ON ->
+                            VIDEO_CAPTURE.toString().takeIf { !supportsVideoFeature }
+                        else -> null
+                    }
+                }
+                RECORDING_QUALITY -> VIDEO_CAPTURE.toString().takeIf { !supportsVideoFeature }
+            }
+
+        return missingUseCaseString?.let { UseCaseMissing(it, this) }
     }
 
     /**
@@ -152,10 +167,11 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
             )
 
             return if (
-                cameraInfoInternal.isResolvedFeatureGroupSupported(
-                    ResolvedFeatureGroup(features),
-                    sessionConfig,
-                )
+                features.isConflictFree() &&
+                    cameraInfoInternal.isResolvedFeatureGroupSupported(
+                        ResolvedFeatureGroup(features),
+                        sessionConfig,
+                    )
             ) {
                 // TODO: Store the whole UseCase to StreamSpecs map in ResolvedFeatureGroup so
                 //  that we can skip this step while binding with a resolved feature combination.
@@ -183,6 +199,27 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
             index + 1,
             currentOptionalFeatures,
         )
+    }
+
+    /**
+     * Checks if there are conflicting values among the features.
+     *
+     * Users can set features with same type but different values in
+     * [SessionConfig.preferredFeatureGroup]. We should pick only one of such features as per
+     * priority. For example, if both `UHD_RECORDING` and `FHD_RECORDING` are set, we should pick
+     * only one of them for each supported-ness checking, never both together.
+     */
+    private fun Set<GroupableFeature>.isConflictFree(): Boolean {
+        val featureTypes = map { it.featureTypeInternal }.distinct()
+        featureTypes.forEach { featureType ->
+            val distinctFeaturesPerType = filter { it.featureTypeInternal == featureType }
+
+            if (distinctFeaturesPerType.size > 1) {
+                return false
+            }
+        }
+
+        return true
     }
 
     private companion object {

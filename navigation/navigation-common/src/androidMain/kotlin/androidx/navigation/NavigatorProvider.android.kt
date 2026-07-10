@@ -86,10 +86,10 @@ public actual open class NavigatorProvider actual constructor() {
         return _navigators.put(name, navigator)
     }
 
-    internal companion object {
+    internal actual companion object {
         private val annotationNames = mutableMapOf<Class<*>, String?>()
 
-        internal fun validateName(name: String?): Boolean {
+        internal actual fun validateName(name: String?): Boolean {
             return name != null && name.isNotEmpty()
         }
 

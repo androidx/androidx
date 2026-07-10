@@ -27,7 +27,9 @@ package androidx.credentials.registry.provider
  *
  * @param errorMessage the error message
  */
-public class ClearCredentialRegistryConfigurationException(errorMessage: CharSequence? = null) :
+public class ClearCredentialRegistryConfigurationException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
     ClearCredentialRegistryException(
         type = TYPE_CLEAR_CREDENTIAL_REGISTRY_CONFIGURATION_EXCEPTION,
         errorMessage = errorMessage,

@@ -20,51 +20,41 @@ import androidx.annotation.RestrictTo
 
 /**
  * Custom class for exceptions that may be thrown by a
- * [androidx.xr.runtime.internal.LifecycleManager].
+ * [androidx.xr.arcore.runtime.PerceptionRuntime].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class LifecycleException(message: String, cause: Throwable? = null) :
     Exception(message, cause)
 
-/** A [Feature] attempting to be enabled is not supported by the current runtime. */
+/** A required library is not linked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ConfigurationNotSupportedException(
-    message: String = "Failed to configure session, requested configuration is not supported.",
-    cause: Throwable? = null,
-) : LifecycleException(message, cause)
-
-/** The Google Play Services Location Library is not linked. */
-@Suppress("MentionsGoogle")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class GooglePlayServicesLocationLibraryNotLinkedException(cause: Throwable? = null) :
+public class LibraryNotLinkedException(public val libraryName: String, cause: Throwable? = null) :
     LifecycleException(
-        "Failed to configure session, Google Play Services Location Library is not linked.",
+        "Failed to configure Session, required library \"$libraryName\" is not linked.",
         cause,
     )
 
 /**
- * A [Session] was unable to be created due to a required APK being out of date or not installed.
+ * Creation of a [androidx.xr.runtime.Session] failed because a required APK is missing or outdated.
  *
  * @property requiredApk the fully qualified name of the package that is missing or needs to be
- *   updated.
+ *   updated
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ApkNotInstalledException(public val requiredApk: String) :
     LifecycleException("Failed to create session, $requiredApk installation required.")
 
-/**
- * A [Session] was unable to be created due to the device not supporting a required APK or feature.
- */
+/** Creation of a [androidx.xr.runtime.Session] failed because the device is unsupported. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class UnsupportedDeviceException() :
     LifecycleException("Failed to create session, device is not supported.")
 
 /**
- * A [Session] was unable to be created due to a required APK waiting for a remote query to confirm
- * support. [Session.create] should be called again after waiting at least 200 ms.
+ * Creation of a [androidx.xr.runtime.Session] failed while checking required APK support status.
+ * [androidx.xr.runtime.Session.create] should be called again after waiting at least 200 ms.
  *
  * @property requiredApk the fully qualified name of the package that is waiting for a remote query
- *   to confirm support.
+ *   to confirm support
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ApkCheckAvailabilityInProgressException(public val requiredApk: String) :
@@ -73,18 +63,17 @@ public class ApkCheckAvailabilityInProgressException(public val requiredApk: Str
     )
 
 /**
- * A [Session] was unable to be created due to the check for a required apk's availability failing.
+ * Creation of a [androidx.xr.runtime.Session] failed during required APK check.
  *
  * @property requiredApk the fully qualified name of the package that errored confirming
- *   availability.
+ *   availability
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ApkCheckAvailabilityErrorException(public val requiredApk: String) :
     LifecycleException("Failed to create session, unable to check $requiredApk availability.")
 
 /**
- * A [Session] was unable to be created because a tracker required for a configured feature has not
- * been calibrated.
+ * Creation of a [androidx.xr.runtime.Session] failed because a required tracker is not calibrated.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FaceTrackingNotCalibratedException() :

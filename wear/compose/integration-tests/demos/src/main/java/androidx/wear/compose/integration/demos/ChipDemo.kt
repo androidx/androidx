@@ -113,7 +113,7 @@ fun StandardChips() {
                 label = "Label with icon",
                 enabled = enabled,
             ) {
-                DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
             }
         }
         item {
@@ -123,7 +123,7 @@ fun StandardChips() {
                 label = "Long label to show truncation which does not fit into" + " 2 lines",
                 enabled = enabled,
             ) {
-                DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
             }
         }
         item {
@@ -159,7 +159,7 @@ fun StandardChips() {
                 secondaryLabel = "Secondary Label",
                 enabled = enabled,
             ) {
-                DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
             }
         }
         item {
@@ -171,7 +171,7 @@ fun StandardChips() {
                     "Long secondary label to show truncation which does not fit into" + "1 line",
                 enabled = enabled,
             ) {
-                DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
             }
         }
         item {
@@ -239,7 +239,7 @@ fun SmallChips() {
                 style = chipStyle,
             ) {
                 DemoIcon(
-                    resourceId = R.drawable.ic_accessibility_24px,
+                    resourceId = R.drawable.icon_accessibility_24px,
                     modifier =
                         Modifier.size(ChipDefaults.SmallIconSize)
                             .wrapContentSize(align = Alignment.Center),
@@ -255,7 +255,7 @@ fun SmallChips() {
                 style = chipStyle,
             ) {
                 DemoIcon(
-                    resourceId = R.drawable.ic_accessibility_24px,
+                    resourceId = R.drawable.icon_accessibility_24px,
                     modifier =
                         Modifier.size(ChipDefaults.SmallIconSize)
                             .wrapContentSize(align = Alignment.Center),
@@ -330,7 +330,7 @@ fun AvatarChips() {
                 colors = ChipDefaults.secondaryChipColors(),
                 enabled = enabled,
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item {
@@ -341,7 +341,7 @@ fun AvatarChips() {
                 colors = ChipDefaults.gradientBackgroundChipColors(),
                 enabled = enabled,
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item {
@@ -358,7 +358,7 @@ fun AvatarChips() {
                     ),
                 enabled = enabled,
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item {
@@ -423,7 +423,7 @@ fun RtlChips() {
                     label = "Standard chip with ",
                     secondaryLabel = "Secondary Label",
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                    DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
                 }
             }
             item {
@@ -439,7 +439,7 @@ fun RtlChips() {
                     },
                     icon = {
                         DemoIcon(
-                            resourceId = R.drawable.ic_accessibility_24px,
+                            resourceId = R.drawable.icon_accessibility_24px,
                             modifier = Modifier.size(ChipDefaults.SmallIconSize),
                         )
                     },
@@ -465,7 +465,7 @@ fun RtlChips() {
                     secondaryLabel = "Default gradient color",
                     colors = ChipDefaults.gradientBackgroundChipColors(),
                 ) {
-                    DemoImage(resourceId = R.drawable.ic_maps_icon)
+                    DemoImage(resourceId = R.drawable.icon_maps_icon)
                 }
             }
         }
@@ -490,7 +490,7 @@ fun CustomChips() {
                     colors = ChipDefaults.primaryChipColors(),
                     enabled = enabled,
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_accessibility_24px)
+                    DemoIcon(resourceId = R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -509,7 +509,7 @@ fun CustomChips() {
                         ChipDefaults.secondaryChipColors(contentColor = AlternatePrimaryColor2),
                     icon = {
                         DemoIcon(
-                            resourceId = R.drawable.ic_accessibility_24px,
+                            resourceId = R.drawable.icon_accessibility_24px,
                             modifier = Modifier.size(ChipDefaults.IconSize),
                         )
                     },
@@ -533,7 +533,7 @@ fun CustomChips() {
                         ChipDefaults.secondaryChipColors(contentColor = AlternatePrimaryColor3),
                     icon = {
                         DemoIcon(
-                            resourceId = R.drawable.ic_accessibility_24px,
+                            resourceId = R.drawable.icon_accessibility_24px,
                             modifier = Modifier.size(ChipDefaults.IconSize),
                         )
                     },

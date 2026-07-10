@@ -87,9 +87,10 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                         annotation.findAttributeValue("replaceWith")?.unwrap() as? UCallExpression
                             ?: return
                     val expression =
-                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral() ?: return
+                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral(context) ?: return
                     val imports =
-                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral() ?: emptyList()
+                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral(context)
+                            ?: emptyList()
                     Pair(expression, imports)
                 }
                 JAVA_REPLACE_WITH_ANNOTATION -> {
@@ -97,7 +98,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                         annotation.findAttributeValue("expression")?.let { expr ->
                             ConstantEvaluator.evaluate(context, expr)
                         } as? String ?: return
-                    val imports = annotation.getAttributeValueVarargLiteral("imports")
+                    val imports = annotation.getAttributeValueVarargLiteral(context, "imports")
                     Pair(expression, imports)
                 }
                 else -> return
@@ -340,21 +341,18 @@ fun JavaContext.getConstructorLocation(
  * @return the value of the specified vararg attribute as a list of String literals, or an empty
  *   list if not specified
  */
-fun UAnnotation.getAttributeValueVarargLiteral(name: String): List<String> =
-    findDeclaredAttributeValue(name)?.parseVarargLiteral() ?: emptyList()
+fun UAnnotation.getAttributeValueVarargLiteral(context: JavaContext, name: String): List<String> =
+    findDeclaredAttributeValue(name)?.parseVarargLiteral(context) ?: emptyList()
 
-fun UExpression.parseVarargLiteral(): List<String> =
+fun UExpression.parseVarargLiteral(context: JavaContext): List<String> =
     when (val expr = this.unwrap()) {
-        is ULiteralExpression -> listOfNotNull(expr.parseLiteral())
-        is UCallExpression -> expr.valueArguments.mapNotNull { it.parseLiteral() }
+        is ULiteralExpression -> listOfNotNull(expr.parseLiteral(context))
+        is UCallExpression -> expr.valueArguments.mapNotNull { it.parseLiteral(context) }
         else -> emptyList()
     }
 
-fun UExpression.parseLiteral(): String? =
-    when (val expr = this.unwrap()) {
-        is ULiteralExpression -> expr.value.toString()
-        else -> null
-    }
+fun UExpression.parseLiteral(context: JavaContext?): String? =
+    ConstantEvaluator.evaluateString(context, this, false)
 
 fun UExpression.unwrap(): UExpression =
     when (this) {

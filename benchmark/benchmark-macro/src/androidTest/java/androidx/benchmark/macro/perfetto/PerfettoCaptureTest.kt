@@ -16,13 +16,17 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import kotlin.test.assertFailsWith
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,5 +41,38 @@ class PerfettoCaptureTest {
         assumeTrue(isAbiSupported())
 
         assertFailsWith<IllegalArgumentException> { PerfettoCapture(false) }
+    }
+
+    @MediumTest
+    @Test
+    fun launchWouldBeCold() {
+        assertFalse( // process alive, will not be cold launch
+            PerfettoCapture.TracingLibraryConfig(
+                    Packages.TEST,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
+                )
+                .launchWouldBeCold()
+        )
+        assertTrue( // process not alive, will be cold launch
+            PerfettoCapture.TracingLibraryConfig(
+                    Packages.TEST,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.NotAlive,
+                )
+                .launchWouldBeCold()
+        )
+        assertFalse( // this process is alive, will not be cold launch
+            PerfettoCapture.TracingLibraryConfig(
+                    Packages.TEST,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Unknown,
+                )
+                .launchWouldBeCold()
+        )
+        assertTrue( // this process doesn't exist, will be cold launch
+            PerfettoCapture.TracingLibraryConfig(
+                    Packages.MISSING,
+                    PerfettoCapture.TracingLibraryConfig.InitialProcessState.Unknown,
+                )
+                .launchWouldBeCold()
+        )
     }
 }

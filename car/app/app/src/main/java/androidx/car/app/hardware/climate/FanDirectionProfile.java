@@ -16,7 +16,7 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import org.jspecify.annotations.NonNull;
@@ -30,7 +30,7 @@ import java.util.Set;
  * ClimateProfileRequest#FEATURE_FAN_DIRECTION} feature such as supported values for the feature
  * specific to sets of car zones.
  */
-@ExperimentalCarApi
+@RequiresCarApi(5)
 public final class FanDirectionProfile {
 
     private final @NonNull Map<Set<CarZone>, Set<Integer>> mCarZoneSetsToFanDirectionValues;

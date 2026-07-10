@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Rule
@@ -128,7 +129,7 @@ class NavigationRailBenchmark {
 
     @Test
     fun modalWideNavigationRail_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(modalWideRailTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(modalWideRailTestCaseFactory)
     }
 
     @Test
@@ -144,6 +145,7 @@ class NavigationRailBenchmark {
         benchmarkRule.benchmarkToFirstPixel(dismissibleModalWideRailTestCaseFactory)
     }
 
+    @SdkSuppress(minSdkVersion = 24) // fails in API 23 emulator
     @Test
     fun modalWideNavigationRail_dismissible_stateChange() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(

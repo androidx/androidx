@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package androidx.compose.remote.creation.modifiers;
+import androidx.annotation.RestrictTo;
 
 /** Basic rectangular shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RectShape extends Shape {
     float mLeft;
     float mTop;

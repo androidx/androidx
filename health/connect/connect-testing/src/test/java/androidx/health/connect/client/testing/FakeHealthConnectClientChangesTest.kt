@@ -120,13 +120,13 @@ class FakeHealthConnectClientChangesTest {
 
     @Test
     fun pagination_twoPages() = runTest {
-        val fake = FakeHealthConnectClient().apply { pageSizeGetChanges = 2 }
+        val fake = FakeHealthConnectClient()
         val records = generateRunningRecords(3)
 
         val changesToken =
             fake.getChangesToken(ChangesTokenRequest(recordTypes = setOf(records.first()::class)))
         fake.insertRecords(records)
-        val changesResponse = fake.getChanges(changesToken)
+        val changesResponse = fake.getChanges(changesToken, /* limit= */ 2)
 
         assertThat(changesResponse.changes).hasSize(2)
         assertThat(changesResponse.hasMore).isTrue()
@@ -135,14 +135,14 @@ class FakeHealthConnectClientChangesTest {
 
     @Test
     fun pagination_twoPages_secondPageCorrect() = runTest {
-        val fake = FakeHealthConnectClient().apply { pageSizeGetChanges = 2 }
+        val fake = FakeHealthConnectClient()
         val records = generateRunningRecords(3)
 
         val changesToken =
             fake.getChangesToken(ChangesTokenRequest(recordTypes = setOf(records.first()::class)))
         fake.insertRecords(records)
-        val page1 = fake.getChanges(changesToken)
-        val page2 = fake.getChanges(page1.nextChangesToken)
+        val page1 = fake.getChanges(changesToken, /* limit= */ 2)
+        val page2 = fake.getChanges(page1.nextChangesToken, /* limit= */ 2)
 
         assertThat(page2.changes).hasSize(1)
         assertThat(page2.hasMore).isFalse()

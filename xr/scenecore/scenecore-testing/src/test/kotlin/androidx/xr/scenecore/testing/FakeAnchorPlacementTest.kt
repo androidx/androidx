@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
-import androidx.xr.scenecore.internal.PlaneSemantic
-import androidx.xr.scenecore.internal.PlaneType
+import androidx.xr.scenecore.runtime.PlaneSemantic
+import androidx.xr.scenecore.runtime.PlaneType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

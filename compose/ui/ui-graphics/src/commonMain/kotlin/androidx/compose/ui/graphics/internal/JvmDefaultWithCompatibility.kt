@@ -16,4 +16,6 @@
 
 package androidx.compose.ui.graphics.internal
 
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
 internal expect annotation class JvmDefaultWithCompatibility()

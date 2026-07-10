@@ -36,6 +36,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class ConfigureInstanceTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private lateinit var provider: ProcessCameraProvider

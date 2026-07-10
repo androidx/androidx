@@ -33,7 +33,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An observable implemented using {@link LiveData}.
@@ -50,11 +49,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class LiveDataObservable<T> implements Observable<T> {
 
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final MutableLiveData<Result<T>> mLiveData = new MutableLiveData<>();
+    /** The observers from {@link #addObserver(Executor, Observer)} and their executors. */
     @GuardedBy("mObservers")
-    private final Map<Observer<? super T>, LiveDataObserverAdapter<T>> mObservers = new HashMap<>();
+    private final Map<Observer<? super T>, Executor> mObservers = new HashMap<>();
+    /** The single observer that is attached to the {@link LiveData}. */
+    private androidx.lifecycle.@Nullable Observer<Result<T>> mLiveDataObserver;
 
     /**
      * Posts a new value to be used as the current value of this Observable.
@@ -101,35 +102,86 @@ public final class LiveDataObservable<T> implements Observable<T> {
     @Override
     public void addObserver(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
         synchronized (mObservers) {
-            final LiveDataObserverAdapter<T> oldAdapter = mObservers.get(observer);
-            if (oldAdapter != null) {
-                oldAdapter.disable();
+            boolean wasEmpty = mObservers.isEmpty();
+            mObservers.put(observer, executor);
+
+            // If this is the first observer, we need to create and attach the internal observer.
+            if (wasEmpty) {
+                enableInternalObserver();
+            } else {
+                // Pass the current value to the new observer.
+                executor.execute(() -> {
+                    Result<T> result = mLiveData.getValue();
+
+                    if (result == null) {
+                        return;
+                    }
+
+                    if (result.completedSuccessfully()) {
+                        observer.onNewData(result.getValue());
+                    } else {
+                        Preconditions.checkNotNull(result.getError());
+                        observer.onError(result.getError());
+                    }
+                });
             }
-
-            final LiveDataObserverAdapter<T> newAdapter = new LiveDataObserverAdapter<>(executor,
-                    observer);
-            mObservers.put(observer, newAdapter);
-
-            CameraXExecutors.mainThreadExecutor().execute(() -> {
-                if (oldAdapter != null) {
-                    mLiveData.removeObserver(oldAdapter);
-                }
-                mLiveData.observeForever(newAdapter);
-            });
         }
     }
 
     @Override
     public void removeObserver(@NonNull Observer<? super T> observer) {
         synchronized (mObservers) {
-            LiveDataObserverAdapter<T> adapter = mObservers.remove(observer);
+            mObservers.remove(observer);
 
-            if (adapter != null) {
-                adapter.disable();
-                CameraXExecutors.mainThreadExecutor().execute(
-                        () -> mLiveData.removeObserver(adapter));
+            // If this was the last observer, we can detach the internal observer.
+            if (mObservers.isEmpty()) {
+                disableInternalObserver();
             }
         }
+    }
+
+    /**
+     * Creates the internal observer which will dispatch results to all registered observers and
+     * attaches it to the {@link LiveData}.
+     */
+    private void enableInternalObserver() {
+        CameraXExecutors.mainThreadExecutor().execute(() -> {
+            if (mLiveDataObserver == null) {
+                // The internal observer dispatches results to all registered observers.
+                mLiveDataObserver = result -> {
+                    Map<Observable.Observer<? super T>, Executor> observersCopy;
+                    synchronized (mObservers) {
+                        // Make a copy to iterate outside the synchronized block. This
+                        // prevents holding the lock while dispatching, which could cause
+                        // deadlocks.
+                        observersCopy = new HashMap<>(mObservers);
+                    }
+
+                    for (Map.Entry<Observable.Observer<? super T>, Executor> entry :
+                            observersCopy.entrySet()) {
+                        entry.getValue().execute(() -> {
+                            Observable.Observer<? super T> observer = entry.getKey();
+                            if (result.completedSuccessfully()) {
+                                observer.onNewData(result.getValue());
+                            } else {
+                                Preconditions.checkNotNull(result.getError());
+                                observer.onError(result.getError());
+                            }
+                        });
+                    }
+                };
+            }
+            mLiveData.observeForever(mLiveDataObserver);
+        });
+    }
+
+    /** Detaches the internal observer from the {@link LiveData}. */
+    private void disableInternalObserver() {
+        CameraXExecutors.mainThreadExecutor().execute(() -> {
+            if (mLiveDataObserver != null) {
+                mLiveData.removeObserver(mLiveDataObserver);
+            }
+        });
     }
 
     /**
@@ -198,40 +250,6 @@ public final class LiveDataObservable<T> implements Observable<T> {
         public @NonNull String toString() {
             return "[Result: <" + (completedSuccessfully() ? "Value: " + mValue :
                     "Error: " + mError) + ">]";
-        }
-    }
-
-    private static final class LiveDataObserverAdapter<T> implements
-            androidx.lifecycle.Observer<Result<T>> {
-
-        final AtomicBoolean mActive = new AtomicBoolean(true);
-        final Observer<? super T> mObserver;
-        final Executor mExecutor;
-
-        LiveDataObserverAdapter(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
-            mExecutor = executor;
-            mObserver = observer;
-        }
-
-        void disable() {
-            mActive.set(false);
-        }
-
-        @Override
-        public void onChanged(final @NonNull Result<T> result) {
-            mExecutor.execute(() -> {
-                if (!mActive.get()) {
-                    // Observer has been disabled.
-                    return;
-                }
-
-                if (result.completedSuccessfully()) {
-                    mObserver.onNewData(result.getValue());
-                } else {
-                    Preconditions.checkNotNull(result.getError());
-                    mObserver.onError(result.getError());
-                }
-            });
         }
     }
 }

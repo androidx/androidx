@@ -94,7 +94,6 @@ internal fun Project.registerVersionMetadataComponent(
     // which has an enforced timing when we are allowed to add new artifacts
     // https://github.com/gradle/gradle/issues/34570
     configurations.create("libraryVersionMetadata") { configuration ->
-        configuration.isVisible = false
         configuration.isCanBeResolved = false
 
         configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.versionMetadataUsage)

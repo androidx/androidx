@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.contextmenu.builder
 
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.view.textclassifier.TextClassification
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
@@ -51,11 +52,13 @@ fun TextContextMenuBuilderScope.item(
  *   [android.view.textclassifier.TextClassifier].
  * @param index The index of the item in the list of [TextClassification.getActions] or a negative
  *   value if the [TextClassification] hold an legacy assist item.
+ * @param icon The icon to display for the item. If not provided, do not display the icon.
  */
 internal fun TextContextMenuBuilderScope.textClassificationItem(
     key: Any,
     textClassification: TextClassification,
     index: Int,
+    icon: Drawable? = null,
 ) {
-    addComponent(TextContextMenuTextClassificationItem(key, textClassification, index))
+    addComponent(TextContextMenuTextClassificationItem(key, textClassification, index, icon))
 }

@@ -32,14 +32,18 @@ internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteI
         isCurrentDeviceAWatch(context) &&
             WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_TIRAMISU_4)
 
+    override val isWearSdkApiStartRemoteActivitySupported =
+        isCurrentDeviceAWatch(context) &&
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_BAKLAVA_0)
+
+    override val isWearSdkApiContinueActivityOnPhoneWithUnlockSupported =
+        isCurrentDeviceAWatch(context) &&
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_0)
+
     private val remoteInteractionsManager: RemoteInteractionsManager? =
         if (isAvailabilityStatusApiSupported)
             Sdk.getWearManager(context, RemoteInteractionsManager::class.java)
         else null
-
-    override val isWearSdkApiStartRemoteActivitySupported =
-        isCurrentDeviceAWatch(context) &&
-            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_BAKLAVA_0)
 
     override fun registerRemoteActivityHelperStatusListener(
         executor: Executor,
@@ -73,6 +77,30 @@ internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteI
             remoteInteractionsManager!!.startRemoteActivity(
                 dataUri,
                 additionalCategories,
+                executor,
+                outcomeReceiver,
+            )
+        } else {
+            throw UnsupportedOperationException("Should not call wear sdk when not supported.")
+        }
+    }
+
+    override fun continueActivityOnPhoneWithUnlock(
+        targetPackage: String,
+        targetAction: String,
+        targetUri: Uri,
+        additionalCategories: List<String>,
+        callerPackage: String,
+        executor: Executor,
+        outcomeReceiver: OutcomeReceiver<Void?, Throwable>,
+    ) {
+        if (isWearSdkApiContinueActivityOnPhoneWithUnlockSupported) {
+            remoteInteractionsManager!!.continueActivityOnPhoneWithUnlock(
+                targetPackage,
+                targetAction,
+                targetUri,
+                additionalCategories,
+                callerPackage,
                 executor,
                 outcomeReceiver,
             )

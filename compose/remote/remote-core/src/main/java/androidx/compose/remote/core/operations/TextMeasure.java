@@ -19,10 +19,13 @@ import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_FONT_HEIGHT
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_MONOSPACE_WIDTH;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -32,7 +35,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to Measure Text data */
-public class TextMeasure extends PaintOperation {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TextMeasure extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.TEXT_MEASURE;
     private static final String CLASS_NAME = "TextMeasure";
     public int mId;
@@ -56,6 +60,14 @@ public class TextMeasure extends PaintOperation {
         this.mTextId = textId;
         this.mType = type;
     }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {}
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
@@ -107,8 +119,8 @@ public class TextMeasure extends PaintOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.declareId();
+        int textId = buffer.readId();
         int type = buffer.readInt();
         operations.add(new TextMeasure(id, textId, type));
     }
@@ -119,11 +131,18 @@ public class TextMeasure extends PaintOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Measure text")
-                .field(INT, "id", "id of float result of the measure")
-                .field(INT, "textId", "id of text")
-                .field(INT, "type", "type: measure 0=width,1=height");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("text_measure")
+                .description("Measure text dimensions and store the result in a float variable")
+                .field(INT, "id", "The ID of the float variable to store the result")
+                .field(INT, "textId", "The ID of the text to measure")
+                .field(INT, "type", "The type of measurement (WIDTH, HEIGHT, etc.)")
+                .possibleValues("MEASURE_WIDTH", MEASURE_WIDTH)
+                .possibleValues("MEASURE_HEIGHT", MEASURE_HEIGHT)
+                .possibleValues("MEASURE_LEFT", MEASURE_LEFT)
+                .possibleValues("MEASURE_RIGHT", MEASURE_RIGHT)
+                .possibleValues("MEASURE_TOP", MEASURE_TOP)
+                .possibleValues("MEASURE_BOTTOM", MEASURE_BOTTOM);
     }
 
     @NonNull

@@ -1,0 +1,150 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.glance.wear.core
+
+import androidx.annotation.Dimension
+import androidx.annotation.RestrictTo
+import androidx.glance.wear.parcel.WearWidgetRequestParcel
+import androidx.glance.wear.proto.PlayerOperation
+import androidx.glance.wear.proto.WearWidgetRequestProto
+import java.util.Objects
+
+/**
+ * The parameters used for providing data for a Wear Widget.
+ *
+ * @property instanceId The instance id of the widget for this request. The id is created by the
+ *   system and is provided when [GlanceWearWidget.onActivated] is called.
+ * @property containerType The container type being requested. See [ContainerInfo].
+ * @property widthDp The width in dp of the content for this widget.
+ * @property heightDp The height in dp of the content for this widget.
+ */
+public class WearWidgetParams
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
+    public val instanceId: WidgetInstanceId,
+    @param:ContainerInfo.ContainerType
+    @get:ContainerInfo.ContainerType
+    public val containerType: Int,
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    public val widthDp: Float,
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    public val heightDp: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    public val horizontalPaddingDp: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    public val verticalPaddingDp: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    public val cornerRadiusDp: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rendererVersion: RendererVersion = RendererVersion(),
+) {
+
+    /** Converts this object to [androidx.glance.wear.parcel.WearWidgetRequestParcel]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toParcel(): WearWidgetRequestParcel {
+        val requestProto =
+            WearWidgetRequestProto(
+                id = instanceId.id,
+                id_namespace = instanceId.namespace,
+                container_type = containerType,
+                width_dp = widthDp,
+                height_dp = heightDp,
+                horizontal_padding_dp = horizontalPaddingDp,
+                vertical_padding_dp = verticalPaddingDp,
+                corner_radius_dp = cornerRadiusDp,
+                renderer_version_major = rendererVersion.major,
+                renderer_version_minor = rendererVersion.minor,
+                renderer_version_revision = rendererVersion.revision,
+                renderer_supported_operations =
+                    rendererVersion.supportedOperations.mapToList { PlayerOperation(it) },
+            )
+        return WearWidgetRequestParcel().apply { payload = requestProto.encode() }
+    }
+
+    override fun equals(other: Any?): Boolean =
+        when {
+            this === other -> true
+            other !is WearWidgetParams -> false
+            else ->
+                instanceId == other.instanceId &&
+                    containerType == other.containerType &&
+                    widthDp == other.widthDp &&
+                    heightDp == other.heightDp &&
+                    horizontalPaddingDp == other.horizontalPaddingDp &&
+                    verticalPaddingDp == other.verticalPaddingDp &&
+                    cornerRadiusDp == other.cornerRadiusDp &&
+                    rendererVersion == other.rendererVersion
+        }
+
+    override fun hashCode(): Int =
+        Objects.hash(
+            instanceId,
+            containerType,
+            widthDp,
+            heightDp,
+            horizontalPaddingDp,
+            verticalPaddingDp,
+            cornerRadiusDp,
+            rendererVersion,
+        )
+
+    public companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun fromParcel(
+            parcel: WearWidgetRequestParcel,
+            getDefaultRendererVersion: () -> RendererVersion = { RendererVersion() },
+        ): WearWidgetParams {
+            val requestProto = WearWidgetRequestProto.ADAPTER.decode(parcel.payload)
+            return WearWidgetParams(
+                instanceId =
+                    WidgetInstanceId(namespace = requestProto.id_namespace, requestProto.id),
+                containerType = requestProto.container_type,
+                widthDp = requestProto.width_dp,
+                heightDp = requestProto.height_dp,
+                horizontalPaddingDp = requestProto.horizontal_padding_dp,
+                verticalPaddingDp = requestProto.vertical_padding_dp,
+                cornerRadiusDp = requestProto.corner_radius_dp,
+                rendererVersion =
+                    if (requestProto.renderer_version_major == 0) {
+                        getDefaultRendererVersion()
+                    } else {
+                        RendererVersion(
+                            major = requestProto.renderer_version_major,
+                            minor = requestProto.renderer_version_minor,
+                            revision = requestProto.renderer_version_revision,
+                            supportedOperations =
+                                if (requestProto.renderer_supported_operations.isNotEmpty()) {
+                                    requestProto.renderer_supported_operations.toIntSet {
+                                        it.op_code
+                                    }
+                                } else {
+                                    RendererVersion.DEFAULT_SUPPORTED_OPERATIONS
+                                },
+                        )
+                    },
+            )
+        }
+    }
+}

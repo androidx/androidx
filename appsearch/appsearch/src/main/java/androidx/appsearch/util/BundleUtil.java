@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.util.SparseArray;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -30,8 +31,8 @@ import java.util.Arrays;
 
 /**
  * Utilities for working with {@link android.os.Bundle}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class BundleUtil {
     private BundleUtil() {}

@@ -22,11 +22,13 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LocalRippleThemeConfiguration
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RippleDefaults
 import androidx.compose.material3.catalog.library.model.ColorMode
 import androidx.compose.material3.catalog.library.model.ExpressiveThemeMode
+import androidx.compose.material3.catalog.library.model.FocusIndicationStyle
 import androidx.compose.material3.catalog.library.model.FontScaleMode
 import androidx.compose.material3.catalog.library.model.TextDirection
 import androidx.compose.material3.catalog.library.model.Theme
@@ -49,7 +51,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 
 @SuppressLint("NewApi")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
     val context = LocalContext.current
@@ -90,6 +91,13 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
             .isAppearanceLightStatusBars = !darkTheme
     }
 
+    val rippleThemeConfiguration =
+        when (theme.focusIndicationStyle) {
+            FocusIndicationStyle.Opacity -> RippleDefaults.OpacityFocusRippleThemeConfiguration
+            FocusIndicationStyle.InsetFocusRing ->
+                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+        }
+
     CompositionLocalProvider(
         LocalLayoutDirection provides layoutDirection,
         LocalDensity provides
@@ -102,6 +110,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
                         theme.fontScale
                     },
             ),
+        LocalRippleThemeConfiguration provides rippleThemeConfiguration,
     ) {
         if (theme.expressiveThemeMode == ExpressiveThemeMode.Expressive) {
             MaterialExpressiveTheme(colorScheme = colorScheme, content = content)

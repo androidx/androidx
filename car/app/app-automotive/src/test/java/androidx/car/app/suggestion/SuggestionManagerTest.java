@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import java.util.List;
 
 /** Tests for {@link SuggestionManager}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class SuggestionManagerTest {
     @Rule
@@ -79,6 +81,11 @@ public class SuggestionManagerTest {
             @Override
             public void updateSuggestions(Bundleable suggestions) throws RemoteException {
                 mSuggestionHost.updateSuggestions(suggestions);
+            }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
             }
         };
         when(mMockCarHost.getHost(any())).thenReturn(suggestionHostStub.asBinder());

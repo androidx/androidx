@@ -109,6 +109,29 @@ public abstract class Preferences internal constructor() {
     }
 
     /**
+     * Creates a new read-only Preferences with the changes from [block].
+     *
+     * The [block] runs on a [MutablePreferences] copy of this `Preferences` object, so any changes
+     * inside the block will be present in the returned `Preferences` object.
+     *
+     * Example:
+     * ```
+     * val newPrefs = prefs.copy { preferences ->
+     *     preferences[COUNTER_KEY] = 1
+     * }
+     * ```
+     *
+     * @param block The lambda to apply to a mutable copy of these preferences.
+     * @return A new read-only `Preferences` object with the applied changes.
+     */
+    fun copy(block: (MutablePreferences) -> Unit): Preferences {
+        return MutablePreferences(asMap().toMutableMap(), startFrozen = false).also {
+            block(it)
+            it.freeze()
+        }
+    }
+
+    /**
      * Gets a read-only copy of Preferences which contains all the preferences in this Preferences.
      *
      * This is similar to [Map.toMap].

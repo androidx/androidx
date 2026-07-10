@@ -29,12 +29,6 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 internal interface IdlingStrategy {
     /**
-     * Whether or not [runUntilIdle] of this strategy can be called from the main thread. If this
-     * returns `false`, attempts to synchronize on the main thread will throw an exception.
-     */
-    val canSynchronizeOnUiThread: Boolean
-
-    /**
      * The [CoroutineContext] that needs to be used to call synchronization methods. On instrumented
      * tests, this needs to dispatch on a non-ui thread. On Robolectric tests, this needs to
      * dispatch on the ui thread.

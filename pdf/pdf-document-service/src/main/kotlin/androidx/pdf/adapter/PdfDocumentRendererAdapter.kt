@@ -42,9 +42,8 @@ internal class PdfDocumentRendererAdapter(pfd: ParcelFileDescriptor, password: S
         PdfRenderer(pfd, /* params= */ LoadParams.Builder().setPassword(password).build())
     private val pageCache: PdfPageCache = PdfPageCache()
 
-    override val isLinearized: Boolean
-        get() =
-            pdfRenderer.documentLinearizationType == PdfRenderer.DOCUMENT_LINEARIZED_TYPE_LINEARIZED
+    override val linearizationStatus: Int
+        get() = pdfRenderer.documentLinearizationType
 
     override val pageCount: Int
         get() = pdfRenderer.pageCount

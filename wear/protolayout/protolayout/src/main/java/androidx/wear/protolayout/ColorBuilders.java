@@ -812,10 +812,12 @@ public final class ColorBuilders {
     @RequiresSchemaVersion(major = 1, minor = 300)
     public interface Brush {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         ColorProto.@NonNull Brush toBrushProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

@@ -24,7 +24,7 @@ internal sealed class ViewportHint(
      * Number of loaded items presented before this hint. Calculated as the distance from this hint
      * to first loaded item being presented: `anchorPosition - firstLoadedItemPosition`
      *
-     * Zero indicates access at boundary Positive -> Within loaded range or in placeholders after
+     * Zero indicates access at boundary. Positive -> Within loaded range or in placeholders after
      * presented items if greater than the size of all presented items. Negative -> placeholder
      * access before first loaded item.
      */
@@ -33,19 +33,19 @@ internal sealed class ViewportHint(
      * Number of loaded items presented after this hint. Calculated as the distance from this hint
      * to last loaded item being presented: `presenterSize - anchorPosition - placeholdersAfter - 1`
      *
-     * Zero indicates access at boundary Positive -> Within loaded range or in placeholders before
+     * Zero indicates access at boundary. Positive -> Within loaded range or in placeholders before
      * presented items if greater than the size of all presented items. Negative -> placeholder
      * access after last loaded item.
      */
     val presentedItemsAfter: Int,
     /**
-     * [hintOriginalPageOffset][TransformablePage.hintOriginalPageOffset] of the first presented
-     * [TransformablePage] when this [ViewportHint] was created.
+     * [TransformablePage.hintOriginalPageOffset] of the first presented [TransformablePage] when
+     * this [ViewportHint] was created.
      */
     val originalPageOffsetFirst: Int,
     /**
-     * [hintOriginalPageOffset][TransformablePage.hintOriginalPageOffset] of the last presented
-     * [TransformablePage] when this [ViewportHint] was created.
+     * [TransformablePage.hintOriginalPageOffset] of the last presented [TransformablePage] when
+     * this [ViewportHint] was created.
      */
     val originalPageOffsetLast: Int,
 ) {
@@ -110,23 +110,53 @@ internal sealed class ViewportHint(
     /**
      * [ViewportHint] representing an item access that should be used to trigger loads to fulfill
      * prefetch distance.
+     *
+     * The indices and values of this class are based on data state stored in PageStore
+     * (post-transform data).
      */
     class Access(
-        /** Page index offset from initial load */
+        /**
+         * Page index offset from Refresh page where Refresh page's offset is 0.
+         * - offset = 0 -> refresh page
+         * - offset > 0 -> appended page
+         * - offset < 0 -> prepended page
+         *
+         * This accounts for empty pages resulting from aggressive filtering. For example:
+         * - PRE-TRANSFORM: prepend [-4, -3], prepend [-2, -1], refresh [0, 1]
+         * - POST-TRANSFORM: prepend [-4, -3], prepend [], refresh [0, 1]
+         *
+         * The [pageOffset] of `prepend [-4, -3]` is -2.
+         *
+         * **NOTE** If the accessed item were a placeholder, then the pageOffset is taken from the
+         * page that is closest to the placeholder, even if that page were empty after transforms.
+         * For example:
+         *
+         * POST-TRANSFORM: null, null, null, prependPage2, prependPage1, refreshPage, null
+         *
+         * The first null's pageOffset is based on prependPage2's pageOffset which is -2
+         */
         val pageOffset: Int,
         /**
          * Original index of item in the [Page] with [pageOffset].
          *
          * Three cases to consider:
          * - [indexInPage] in Page.data.indices -> Hint references original item directly
-         * - [indexInPage] > Page.data.indices -> Hint references a placeholder after the last
-         *   presented item.
-         * - [indexInPage] < 0 -> Hint references a placeholder before the first presented item.
+         * - [indexInPage] > Page.data.indices -> Hint references an append placeholder that is
+         *   offset from the last presented item (0). For example:
+         * - null, [5, 6], [7, 8], null, null. The last null's indexInPage is 2. Nulls don't belong
+         *   to any pages so its index can only be relative to the closest presented item.
+         * - [indexInPage] < 0 -> Hint references a prepend placeholder that is offset from the
+         *   first presented item (0). For example:
+         * - null, null, [5, 6], [7, 8], null. The first null's indexInPage is -2. Note that nulls
+         *   don't belong to any pages so its index can only be relative to the closest presented
+         *   item.
          */
         val indexInPage: Int,
         presentedItemsBefore: Int,
         presentedItemsAfter: Int,
+        // (Post-transform) first page's offset from initial refresh page
         originalPageOffsetFirst: Int,
+        // (Post-transform) last page's offset from initial refresh page
         originalPageOffsetLast: Int,
     ) :
         ViewportHint(

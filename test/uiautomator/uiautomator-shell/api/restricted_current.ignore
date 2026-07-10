@@ -1,0 +1,35 @@
+// Baseline format: 1.0
+AddedMethod: androidx.test.shell.Shell#getApplication():
+    Added method androidx.test.shell.Shell.getApplication()
+AddedMethod: androidx.test.shell.Shell#getProcess():
+    Added method androidx.test.shell.Shell.getProcess()
+AddedMethod: androidx.test.shell.Shell#getRecorder():
+    Added method androidx.test.shell.Shell.getRecorder()
+AddedMethod: androidx.test.shell.Shell#getScreen():
+    Added method androidx.test.shell.Shell.getScreen()
+AddedMethod: androidx.test.shell.Shell#getWifi():
+    Added method androidx.test.shell.Shell.getWifi()
+
+
+AddedProperty: androidx.test.shell.Shell#application:
+    Added property androidx.test.shell.Shell#application
+AddedProperty: androidx.test.shell.Shell#process:
+    Added property androidx.test.shell.Shell#process
+AddedProperty: androidx.test.shell.Shell#recorder:
+    Added property androidx.test.shell.Shell#recorder
+AddedProperty: androidx.test.shell.Shell#screen:
+    Added property androidx.test.shell.Shell#screen
+AddedProperty: androidx.test.shell.Shell#wifi:
+    Added property androidx.test.shell.Shell#wifi
+
+
+RemovedMethod: androidx.test.shell.Shell#application():
+    Binary breaking change: Removed method androidx.test.shell.Shell.application()
+RemovedMethod: androidx.test.shell.Shell#process():
+    Binary breaking change: Removed method androidx.test.shell.Shell.process()
+RemovedMethod: androidx.test.shell.Shell#recorder():
+    Binary breaking change: Removed method androidx.test.shell.Shell.recorder()
+RemovedMethod: androidx.test.shell.Shell#screen():
+    Binary breaking change: Removed method androidx.test.shell.Shell.screen()
+RemovedMethod: androidx.test.shell.Shell#wifi():
+    Binary breaking change: Removed method androidx.test.shell.Shell.wifi()

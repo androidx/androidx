@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Introdu mesajul aici.\nMai mult text pe al doilea rând."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrație cu șablon pentru mesaj scurt"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstrație cu șablon pentru elemente cu secțiuni"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstrație cu element compact"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Versiune demonstrativă cu opțiunea AlphaJump activată pentru elemente cu secțiuni"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secțiune cu butoane radio"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Comută secțiunea"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Secțiune cu multe rânduri"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Secțiune cu elemente de grilă"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrație cu listă de articole cu secțiuni"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtextul de sub fiecare listă"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Încheie versiunea demonstrativă cu imagini și acțiuni"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Versiune demonstrativă a cipului"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Versiune demonstrativă a barei de progres"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstrație cu antetul secțiunii"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstrație cu secțiunea În centrul atenției"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiește locații"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Demonstrație cu șablonul de file"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Filă cu mesaj"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Filă cu panou"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Fila cu elemente cu secțiuni"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Filă cu listă"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Filă cu grilă și titlu lung"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Filă cu căutare"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Și rândul poate fi selectat"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Acțiunea secundară a fost selectată"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Acțiunea principală de pe rând a fost selectată"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrație cu listă de articole cu secțiuni"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtextul de sub fiecare listă"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demonstrație pentru imaginea de final de rând și acțiuni"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Listă goală demonstrativă"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Lista este goală"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrații diverse cu șabloane"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrații cu hartă cu conținut"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrație cu șablon pentru hartă cu mesaj"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrație cu șablon pentru hartă cu grilă"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

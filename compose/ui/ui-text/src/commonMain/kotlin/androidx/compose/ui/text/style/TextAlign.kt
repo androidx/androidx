@@ -15,9 +15,13 @@
  */
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
+
 /**
- * Defines how to align text horizontally. `TextAlign` controls how text aligns in the space it
- * appears.
+ * Aligns text horizontally within its container.
+ *
+ * @property value internal integer representation of the text alignment.
  */
 @kotlin.jvm.JvmInline
 value class TextAlign internal constructor(val value: Int) {
@@ -35,68 +39,73 @@ value class TextAlign internal constructor(val value: Int) {
         }
     }
 
-    /**
-     * Returns `true` if this baseline shift is not [TextAlign.Unspecified].
-     *
-     * @see TextAlign.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = value != 0
-
     companion object {
-        /** Align the text on the left edge of the container. */
+        /** Aligns text to the left edge. */
         val Left = TextAlign(1)
 
-        /** Align the text on the right edge of the container. */
+        /** Aligns text to the right edge. */
         val Right = TextAlign(2)
 
-        /** Align the text in the center of the container. */
+        /** Aligns text to the center. */
         val Center = TextAlign(3)
 
         /**
-         * Stretch lines of text that end with a soft line break to fill the width of the container.
+         * Stretches lines of text to fill the container width.
          *
-         * Lines that end with hard line breaks are aligned towards the [Start] edge.
+         * Lines ending with hard line breaks align to [Start].
          */
         val Justify = TextAlign(4)
 
         /**
-         * Align the text on the leading edge of the container.
+         * Aligns text to the leading edge.
          *
-         * For Left to Right text ([ResolvedTextDirection.Ltr]), this is the left edge.
-         *
-         * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the right
-         * edge.
+         * Maps to the left edge for LTR, and the right edge for RTL.
          */
         val Start = TextAlign(5)
 
         /**
-         * Align the text on the trailing edge of the container.
+         * Aligns text to the trailing edge.
          *
-         * For Left to Right text ([ResolvedTextDirection.Ltr]), this is the right edge.
-         *
-         * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the left edge.
+         * Maps to the right edge for LTR, and the left edge for RTL.
          */
         val End = TextAlign(6)
 
-        /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value is
-         * desired.
-         */
+        /** Represents an unset [TextAlign] value. */
         val Unspecified = TextAlign(0)
 
         /** Return a list containing all possible values of TextAlign. */
         fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
 
         /**
-         * Creates a TextAlign from the given integer value. This can be useful if you need to
-         * serialize/deserialize TextAlign values.
+         * Creates [TextAlign] from [value].
          *
-         * @param value The integer representation of the TextAlign.
+         * Useful for serialization/deserialization.
+         *
+         * @param value internal integer representation.
+         * @throws IllegalArgumentException if [value] is invalid.
          * @see [TextAlign.value]
          */
         fun valueOf(value: Int): TextAlign {
+            requirePrecondition(value in 0..6) {
+                "The given value=$value is not recognized by TextAlign."
+            }
             return TextAlign(value)
         }
     }
+}
+
+/**
+ * Returns `true` if this [TextAlign] is not [TextAlign.Unspecified].
+ *
+ * @see TextAlign.Unspecified
+ */
+inline val TextAlign.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun TextAlign.takeOrElse(block: () -> TextAlign): TextAlign {
+    return if (isSpecified) this else block()
 }

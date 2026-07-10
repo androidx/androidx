@@ -144,8 +144,9 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
                     getMissingKeepIssue(),
                     uElement,
                     context.getNameLocation(uElement),
-                    """To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep
-                        """
+                    """
+                    |To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep
+                    """
                         .trimMargin(),
                 )
             }

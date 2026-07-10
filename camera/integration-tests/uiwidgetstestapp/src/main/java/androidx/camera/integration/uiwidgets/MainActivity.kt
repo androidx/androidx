@@ -28,6 +28,7 @@ import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesO
 import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity
 import androidx.camera.integration.uiwidgets.viewpager.ViewPager2Activity
 import androidx.camera.integration.uiwidgets.viewpager.ViewPagerActivity
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,6 +37,11 @@ class MainActivity : AppCompatActivity() {
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(R.id.root_layout),
+        )
 
         binding.rotationUnlocked.setOnClickListener {
             launch(UnlockedOrientationActivity::class.java)

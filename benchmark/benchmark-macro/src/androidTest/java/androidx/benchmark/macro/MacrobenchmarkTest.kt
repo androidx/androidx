@@ -295,6 +295,56 @@ class MacrobenchmarkTest {
             DeviceMirroring.isAndroidStudioDeviceMirroringActiveOverride = null
         }
 
+    @LargeTest
+    @Test
+    fun macrobenchmark_shellAccessDenied_throwsError() =
+        try {
+            DeviceInfo.canShellAccessAppFilesOverride = false
+            val exception =
+                assertFailsWith<AssertionError> {
+                    macrobenchmarkWithStartupMode(
+                        uniqueName = "uniqueName",
+                        className = "className",
+                        testName = "testName",
+                        packageName = Packages.TARGET,
+                        metrics = listOf(StartupTimingMetric()),
+                        compilationMode = CompilationMode.Ignore(),
+                        iterations = 1,
+                        startupMode = StartupMode.COLD,
+                        experimentalConfig = null,
+                        setupBlock = {},
+                        measureBlock = {},
+                    )
+                }
+            assertTrue(exception.message!!.contains("Shell user cannot access app files"))
+        } finally {
+            DeviceInfo.canShellAccessAppFilesOverride = null
+        }
+
+    @LargeTest
+    @Test
+    fun macrobenchmark_shellAccessGranted_runsBenchmark() =
+        try {
+            DeviceInfo.canShellAccessAppFilesOverride = true
+            val result =
+                macrobenchmarkWithStartupMode(
+                    uniqueName = "uniqueName",
+                    className = "className",
+                    testName = "testName",
+                    packageName = Packages.TARGET,
+                    metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
+                    compilationMode = CompilationMode.Ignore(),
+                    iterations = 1,
+                    startupMode = StartupMode.COLD,
+                    experimentalConfig = null,
+                    setupBlock = {},
+                    measureBlock = {},
+                )
+            assertEquals(1, result.metrics[TRACE_LABEL + "SumMs"]!!.runs.size)
+        } finally {
+            DeviceInfo.canShellAccessAppFilesOverride = null
+        }
+
     companion object {
         const val TRACE_LABEL = "MacrobencharkTestTraceLabel"
     }

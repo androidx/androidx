@@ -29,8 +29,11 @@ public class AccountTest {
 
     @Test
     public void testCreateAccount() throws Exception {
-        Account account = new Account("namespace", "id", "type",
-                "accountName", "accountId");
+        Account account = new Account.Builder("namespace", "id")
+                .setAccountType("type")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
         assertThat(account.getNamespace()).isEqualTo("namespace");
         assertThat(account.getId()).isEqualTo("id");
         assertThat(account.getAccountType()).isEqualTo("type");
@@ -40,29 +43,54 @@ public class AccountTest {
 
     @Test
     public void testEqualAccount() throws Exception {
-        Account account1 = new Account("namespace", "id", "accountType",
-                "accountName", "accountId");
-        Account account2 = new Account("namespace", "id", "accountType",
-                "accountName", "accountId");
+        Account account1 = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
+
+        Account account2 = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
         assertThat(account1).isEqualTo(account2);
         assertThat(account1.hashCode()).isEqualTo(account2.hashCode());
     }
 
     @Test
     public void testNotEqualAccount() throws Exception {
-        Account account1 = new Account("namespace", "id", "accountType",
-                "accountName", "accountId");
+        Account account1 = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
 
-        Account account2 = new Account("diff", "id", "accountType",
-                "accountName", "accountId");
-        Account account3 = new Account("namespace", "diff", "accountType",
-                "accountName", "accountId");
-        Account account4 = new Account("namespace", "id", "diff",
-                "accountName", "accountId");
-        Account account5 = new Account("namespace", "id", "accountType",
-                "diff", "accountId");
-        Account account6 = new Account("namespace", "id", "accountType",
-                "accountName", "diff");
+        Account account2 = new Account.Builder("diff", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
+        Account account3 = new Account.Builder("namespace", "diff")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
+        Account account4 = new Account.Builder("namespace", "id")
+                .setAccountType("diff")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
+        Account account5 = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("diff")
+                .setAccountId("accountId")
+                .build();
+        Account account6 = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("diff")
+                .build();
 
         assertThat(account1).isNotEqualTo(account2);
         assertThat(account1.hashCode()).isNotEqualTo(account2.hashCode());
@@ -78,14 +106,39 @@ public class AccountTest {
 
     @Test
     public void testEmptyType() throws Exception {
-        assertThrows(NullPointerException.class, () -> new Account(
-                "namespace", "id", /*accountType=*/ null, "accountName", "accountId"));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new Account.Builder("namespace", "id")
+                    .setAccountName("accountName")
+                    .setAccountId("accountId")
+                    .build());
+        assertThat(e).hasMessageThat().containsMatch("accountType cannot be empty");
+
+        e = assertThrows(IllegalArgumentException.class,
+                () -> new Account.Builder("namespace", "id")
+                        .setAccountType(/*accountType=*/ "")
+                        .setAccountName("accountName")
+                        .setAccountId("accountId")
+                        .build());
+        assertThat(e).hasMessageThat().containsMatch("accountType cannot be empty");
+    }
+
+    @Test
+    public void testEmptyNameAndEmptyId() throws Exception {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new Account.Builder("namespace", "id")
+                    .setAccountType("accountType")
+                    .build());
+
+        assertThat(e).hasMessageThat().containsMatch(
+                "at least one of accountName or accountId must be non-empty");
     }
 
     @Test
     public void testEmptyAccountName() throws Exception {
-        Account account = new Account("namespace", "id", "accountType",
-                /*accountName=*/ "", "accountId");
+        Account account = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountId("accountId")
+                .build();
         GenericDocument doc = GenericDocument.fromDocumentClass(account);
         assertThat(doc.getSchemaType()).isEqualTo("builtin:Account");
         assertThat(doc.getNamespace()).isEqualTo("namespace");
@@ -97,8 +150,10 @@ public class AccountTest {
 
     @Test
     public void testEmptyAccountId() throws Exception {
-        Account account = new Account("namespace", "id", "accountType",
-                "accountName", /*accountId=*/ "");
+        Account account = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .build();
         GenericDocument doc = GenericDocument.fromDocumentClass(account);
         assertThat(doc.getSchemaType()).isEqualTo("builtin:Account");
         assertThat(doc.getNamespace()).isEqualTo("namespace");
@@ -110,8 +165,11 @@ public class AccountTest {
 
     @Test
     public void testToGenericDocument() throws Exception {
-        Account account = new Account("namespace", "id", "accountType",
-                "accountName", "accountId");
+        Account account = new Account.Builder("namespace", "id")
+                .setAccountType("accountType")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
         GenericDocument doc = GenericDocument.fromDocumentClass(account);
         assertThat(doc.getSchemaType()).isEqualTo("builtin:Account");
         assertThat(doc.getNamespace()).isEqualTo("namespace");

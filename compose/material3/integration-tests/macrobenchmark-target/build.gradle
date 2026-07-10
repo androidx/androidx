@@ -2,7 +2,6 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -10,11 +9,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
-    compileSdk = 35
+    compileSdk { version = release(37) }
 }
 
 dependencies {

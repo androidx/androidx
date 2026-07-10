@@ -26,7 +26,6 @@ import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
-import java.util.Set;
 
 /**
  * No-op adapter for WebSettingsCompat.
@@ -157,24 +156,6 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
-     */
-    @Override
-    public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        return Collections.emptySet();
-    }
-
-    /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
-     * WebSettings, Set)}.
-     */
-    @Override
-    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-    }
-
-    /**
-     * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
      */
     @Override
@@ -186,7 +167,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
     /**
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
-     * WebSettings, UserAgentMetadata)}.
+     *WebSettings, UserAgentMetadata)}.
      */
     @Override
     public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
@@ -286,7 +267,8 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
      * {@link androidx.webkit.WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)}
      */
     @Override
-    public void setPaymentRequestEnabled(boolean enabled) {}
+    public void setPaymentRequestEnabled(boolean enabled) {
+    }
 
     /**
      * Adapter method for
@@ -302,7 +284,8 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
      * {@link androidx.webkit.WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}
      */
     @Override
-    public void setHasEnrolledInstrumentEnabled(boolean enabled) {}
+    public void setHasEnrolledInstrumentEnabled(boolean enabled) {
+    }
 
     /**
      * Adapter method for
@@ -320,5 +303,63 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
     @Override
     public boolean getCookieAccessForShouldInterceptRequestEnabled() {
         return false;
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)}
+     */
+    @Override
+    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public void setBackForwardCacheTimeoutSeconds(long timeout) {
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public void setBackForwardCacheMaxPagesInCache(int maxPages) {
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public long getBackForwardCacheTimeoutSeconds() {
+        return 0;
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public int getBackForwardCacheMaxPagesInCache() {
+        return 0;
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public void setBackForwardCacheKeepForwardEntries(boolean keepForwardEntries) {
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public boolean getBackForwardCacheKeepForwardEntries() {
+        return true;
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setShouldDownloadFavicons(WebSettings, boolean)}
+     */
+    @Override
+    public void setDownloadFaviconsEnabled(boolean shouldDownload) {
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getShouldDownloadFavicons(WebSettings)}
+     */
+    @Override
+    public boolean getDownloadFaviconsEnabled() {
+        return true;
     }
 }

@@ -16,9 +16,9 @@
 
 package androidx.camera.video.internal;
 
-import static androidx.camera.video.internal.encoder.EncoderConfig.KEY_CSD_0;
-import static androidx.camera.video.internal.encoder.EncoderConfig.KEY_CSD_1;
-import static androidx.camera.video.internal.encoder.EncoderConfig.KEY_CSD_2;
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_0;
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_1;
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_2;
 
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;

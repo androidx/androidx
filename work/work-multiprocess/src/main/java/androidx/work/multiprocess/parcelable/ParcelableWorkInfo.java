@@ -94,8 +94,11 @@ public class ParcelableWorkInfo implements Parcelable {
         if (Build.VERSION.SDK_INT >= 31) {
             stopReason = parcel.readInt();
         }
+        // worker class name
+        String workerClassName = parcel.readString();
         mWorkInfo = new WorkInfo(id, state, tags, output, progress, runAttemptCount, generation,
-                constraints, initialDelay, periodicityInfo, nextScheduleTimeMillis, stopReason);
+                constraints, initialDelay, periodicityInfo, nextScheduleTimeMillis, stopReason,
+                workerClassName);
     }
 
     public @NonNull WorkInfo getWorkInfo() {
@@ -160,5 +163,7 @@ public class ParcelableWorkInfo implements Parcelable {
         if (Build.VERSION.SDK_INT >= 31) {
             parcel.writeInt(mWorkInfo.getStopReason());
         }
+        // worker class
+        parcel.writeString(mWorkInfo.getWorkerClassName());
     }
 }

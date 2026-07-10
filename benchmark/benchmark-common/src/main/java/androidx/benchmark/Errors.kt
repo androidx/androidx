@@ -115,17 +115,15 @@ object Errors {
                     .trimMarginWrapNewlines()
         }
 
-        if (!DeviceInfo.isEmulator && DeviceInfo.isRooted && !CpuInfo.locked) {
-            warningPrefix += "UNLOCKED_"
-            warningString +=
-                """
-                |WARNING: Unlocked CPU clocks
-                |    Benchmark appears to be running on a rooted device with unlocked CPU
-                |    clocks. Unlocked CPU clocks can lead to inconsistent results due to
-                |    dynamic frequency scaling, and thermal throttling. On a rooted device,
-                |    lock your device clocks to a stable frequency with `./gradlew lockClocks`
-            """
-                    .trimMarginWrapNewlines()
+        if (
+            Arguments.requireLockedClocks &&
+                !DeviceInfo.isEmulator &&
+                DeviceInfo.isRooted &&
+                !CpuInfo.locked
+        ) {
+            warningPrefix += "${CpuInfo.Error.ID}_"
+            warningString += "|WARNING: " + CpuInfo.Error.SUMMARY
+            warningString += CpuInfo.Error.MESSAGE.trimMarginWrapNewlines()
         }
 
         if (
@@ -226,8 +224,11 @@ object Errors {
             warningString +=
                 """
                 |WARNING: Benchmark running without full AOT compilation.
-                |    Benchmarks should be speed compiled to reduce noise. This is enabled by default
-                |    in the benchmark plugin. Observed compilation state = $compilationMode.
+                |    Benchmarks should be `speed` compiled to reduce noise. This is enabled by
+                |    default in the benchmark plugin (on AGP 8.4+, where it's supported).
+                |    Observed compilation state = $compilationMode.
+                |    In other contexts, use:
+                |        adb shell cmd package compile -m speed -f ${context.packageName}
             """
                     .trimMarginWrapNewlines()
         }
@@ -250,6 +251,19 @@ object Errors {
             warningPrefix += "${DeviceMirroring.Error.ID}_"
             warningString += "ERROR: " + DeviceMirroring.Error.SUMMARY
             warningString += DeviceMirroring.Error.MESSAGE.trimMarginWrapNewlines()
+        }
+
+        if (!DeviceInfo.canShellAccessAppFiles) {
+            warningPrefix += "SHELL-ACCESS-DENIED_"
+            warningString +=
+                """
+                |ERROR: Shell user cannot access app files
+                |    MediaProvider/FUSE is blocking the ADB shell from accessing app data.
+                |    This is a known issue on some devices and prevents Jetpack Benchmark from
+                |    capturing profiles and traces. The device may simply be incompatible with
+                |    Jetpack Benchmark.
+            """
+                    .trimMarginWrapNewlines()
         }
 
         PREFIX = warningPrefix

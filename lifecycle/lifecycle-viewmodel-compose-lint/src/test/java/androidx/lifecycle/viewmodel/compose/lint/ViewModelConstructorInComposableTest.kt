@@ -59,14 +59,14 @@ class ViewModelConstructorInComposableDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/com/example/MyViewModel.kt:10: Error: Constructing a view model in a composable [ViewModelConstructorInComposable]
-                        val viewModel = MyViewModel()
-                                        ~~~~~~~~~~~
-src/com/example/MyViewModel.kt:12: Error: Constructing a view model in a composable [ViewModelConstructorInComposable]
-                            val vm = MyViewModel()
-                                     ~~~~~~~~~~~
-2 errors, 0 warnings
-            """
+                src/com/example/MyViewModel.kt:10: Error: Constructing a view model in a composable [ViewModelConstructorInComposable]
+                                        val viewModel = MyViewModel()
+                                                        ~~~~~~~~~~~
+                src/com/example/MyViewModel.kt:12: Error: Constructing a view model in a composable [ViewModelConstructorInComposable]
+                                            val vm = MyViewModel()
+                                                     ~~~~~~~~~~~
+                2 errors, 0 warnings
+                """
                     .trimIndent()
             )
     }

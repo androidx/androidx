@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Generate HapticFeedback */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HapticFeedback extends Operation implements SerializableToString, Serializable {
     private static final int OP_CODE = Operations.HAPTIC_FEEDBACK;
     private static final String CLASS_NAME = "HapticFeedback";
@@ -88,7 +90,7 @@ public class HapticFeedback extends Operation implements SerializableToString, S
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int hapticFeedbackType = buffer.readInt();
+        int hapticFeedbackType = buffer.readId();
 
         operations.add(new HapticFeedback(hapticFeedbackType));
     }
@@ -99,9 +101,9 @@ public class HapticFeedback extends Operation implements SerializableToString, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Miscellaneous Operations", OP_CODE, CLASS_NAME)
                 .description("Generate an haptic feedback")
-                .field(DocumentedOperation.INT, "HapticFeedbackType", "Type of haptic feedback");
+                .field(DocumentedOperation.INT, "hapticFeedbackType", "Type of haptic feedback");
     }
 
     @Override

@@ -247,7 +247,7 @@ public class DialogFragmentNavigator(
      * Fragment via [setClassName].
      *
      * @param fragmentNavigator The [DialogFragmentNavigator] which this destination will be
-     *   associated with. Generally retrieved via a [NavController]'s
+     *   associated with. Generally retrieved via a [androidx.navigation.NavController]'s
      *   [NavigatorProvider.getNavigator] method.
      */
     @NavDestination.ClassType(DialogFragment::class)
@@ -270,8 +270,8 @@ public class DialogFragmentNavigator(
          * Construct a new fragment destination. This destination is not valid until you set the
          * Fragment via [setClassName].
          *
-         * @param navigatorProvider The [NavController] which this destination will be associated
-         *   with.
+         * @param navigatorProvider The [androidx.navigation.NavController] which this destination
+         *   will be associated with.
          */
         public constructor(
             navigatorProvider: NavigatorProvider

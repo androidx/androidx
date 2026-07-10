@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSharedTransitionApi::class)
-
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.updateTransition
@@ -106,11 +103,13 @@ fun DynamicallyEnableSharedElementsDemo() {
 
                 fun config() =
                     if (accountForAnimation) {
-                        SharedContentConfig {
-                            listOfEnabledStatePairs.contains(
-                                animatedContentTransition.currentState to
-                                    animatedContentTransition.targetState
-                            )
+                        object : SharedTransitionScope.SharedContentConfig {
+                            override val SharedTransitionScope.SharedContentState.isEnabled: Boolean
+                                get() =
+                                    listOfEnabledStatePairs.contains(
+                                        animatedContentTransition.currentState to
+                                            animatedContentTransition.targetState
+                                    )
                         }
                     } else {
                         object : SharedTransitionScope.SharedContentConfig {

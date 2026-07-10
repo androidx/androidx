@@ -1,12 +1,10 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
@@ -22,29 +20,14 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
             export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
 
     sourceSets {
-        iosMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":benchmark:benchmark-darwin"))
-            }
-        }
-        iosArm64Main {
-            dependsOn(iosMain)
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosMain)
-        }
-        iosX64Main {
-            dependsOn(iosMain)
+        iosMain.dependencies {
+            api(project(":benchmark:benchmark-darwin"))
         }
     }
 

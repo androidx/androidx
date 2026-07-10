@@ -21,6 +21,7 @@ import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CompositingStrategy as OldCompositingStrategy
@@ -88,6 +89,18 @@ internal class GraphicsLayerOwnerLayer(
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         this.layoutDirection = scope.layoutDirection
         this.density = scope.graphicsDensity
+
+        if (maybeChangedFields and Fields.Outsets != 0) {
+            with(density) {
+                graphicsLayer.setOutsets(
+                    left = scope.outsets.left.roundToPx(),
+                    top = scope.outsets.top.roundToPx(),
+                    right = scope.outsets.right.roundToPx(),
+                    bottom = scope.outsets.bottom.roundToPx(),
+                )
+                invalidate()
+            }
+        }
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.transformOrigin = scope.transformOrigin
         }
@@ -203,7 +216,11 @@ internal class GraphicsLayerOwnerLayer(
     private fun updateOutline() {
         val outline = outline ?: return
         graphicsLayer.setOutline(outline)
-        if (outline is Outline.Generic && Build.VERSION.SDK_INT < 33) {
+        if (
+            Build.VERSION.SDK_INT < 33 &&
+                (outline is Outline.Generic ||
+                    (outline is Outline.Rounded && !outline.roundRect.isSimple))
+        ) {
             // before 33 many of the paths are not clipping by rendernode. instead we have to
             // manually clip on a canvas. it means we have redraw the parent layer when it changes
             // TODO We should somehow move it into the android specific GraphicsLayer
@@ -411,17 +428,15 @@ internal class GraphicsLayerOwnerLayer(
                     }
 
                 matrixCache.resetToPivotedTransform(
-                    x,
-                    y,
-                    translationX,
-                    translationY,
-                    1.0f,
-                    rotationX,
-                    rotationY,
-                    rotationZ,
-                    scaleX,
-                    scaleY,
-                    1.0f,
+                    pivotX = x,
+                    pivotY = y,
+                    translationX = translationX,
+                    translationY = translationY,
+                    rotationX = rotationX,
+                    rotationY = rotationY,
+                    rotationZ = rotationZ,
+                    scaleX = scaleX,
+                    scaleY = scaleY,
                 )
             }
             isMatrixDirty = false

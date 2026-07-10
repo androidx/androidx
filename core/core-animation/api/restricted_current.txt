@@ -127,10 +127,10 @@ package androidx.core.animation {
     method public static androidx.core.animation.ArgbEvaluator getInstance();
   }
 
-  public abstract class BidirectionalTypeConverter<T, V> extends androidx.core.animation.TypeConverter<T!,V!> {
-    ctor public BidirectionalTypeConverter(Class<T!>, Class<V!>);
+  public abstract class BidirectionalTypeConverter<T, V> extends androidx.core.animation.TypeConverter<T,V> {
+    ctor public BidirectionalTypeConverter(Class<T>, Class<V>);
     method public abstract T convertBack(V);
-    method public androidx.core.animation.BidirectionalTypeConverter<V!,T!> invert();
+    method public androidx.core.animation.BidirectionalTypeConverter<V,T> invert();
   }
 
   public class BounceInterpolator implements androidx.core.animation.Interpolator {
@@ -162,7 +162,7 @@ package androidx.core.animation {
     method public static androidx.core.animation.FloatEvaluator getInstance();
   }
 
-  public abstract class FloatProperty<T> extends android.util.Property<T!,java.lang.Float!> {
+  public abstract class FloatProperty<T> extends android.util.Property<T,java.lang.Float!> {
     ctor public FloatProperty();
     ctor public FloatProperty(String);
     method public final void set(T, Float);
@@ -180,7 +180,7 @@ package androidx.core.animation {
     method public static androidx.core.animation.IntEvaluator getInstance();
   }
 
-  public abstract class IntProperty<T> extends android.util.Property<T!,java.lang.Integer!> {
+  public abstract class IntProperty<T> extends android.util.Property<T,java.lang.Integer!> {
     ctor public IntProperty();
     ctor public IntProperty(String);
     method public final void set(T, Integer);
@@ -193,7 +193,7 @@ package androidx.core.animation {
 
   public abstract class Keyframe<T> implements java.lang.Cloneable {
     ctor public Keyframe();
-    method public abstract androidx.core.animation.Keyframe<T!> clone();
+    method public abstract androidx.core.animation.Keyframe<T> clone();
     method @FloatRange(from=0, to=1) public float getFraction();
     method public androidx.core.animation.Interpolator? getInterpolator();
     method public Class<? extends java.lang.Object!> getType();
@@ -203,8 +203,8 @@ package androidx.core.animation {
     method public static androidx.core.animation.Keyframe<java.lang.Float!> ofFloat(@FloatRange(from=0, to=1) float, float);
     method public static androidx.core.animation.Keyframe<java.lang.Integer!> ofInt(@FloatRange(from=0, to=1) float);
     method public static androidx.core.animation.Keyframe<java.lang.Integer!> ofInt(@FloatRange(from=0, to=1) float, int);
-    method public static <T> androidx.core.animation.Keyframe<T!> ofObject(@FloatRange(from=0, to=1) float);
-    method public static <T> androidx.core.animation.Keyframe<T!> ofObject(@FloatRange(from=0, to=1) float, T?);
+    method public static <T> androidx.core.animation.Keyframe<T> ofObject(@FloatRange(from=0, to=1) float);
+    method public static <T> androidx.core.animation.Keyframe<T> ofObject(@FloatRange(from=0, to=1) float, T?);
     method public void setFraction(@FloatRange(from=0, to=1) float);
     method public void setInterpolator(androidx.core.animation.Interpolator?);
     method public abstract void setValue(T?);
@@ -222,26 +222,26 @@ package androidx.core.animation {
     method public String getPropertyName();
     method public Object? getTarget();
     method public static androidx.core.animation.ObjectAnimator ofArgb(Object, String, int...);
-    method public static <T> androidx.core.animation.ObjectAnimator ofArgb(T, android.util.Property<T!,java.lang.Integer!>, int...);
+    method public static <T> androidx.core.animation.ObjectAnimator ofArgb(T, android.util.Property<T,java.lang.Integer!>, int...);
     method public static androidx.core.animation.ObjectAnimator ofFloat(Object, String, float...);
     method public static androidx.core.animation.ObjectAnimator ofFloat(Object, String?, String?, android.graphics.Path);
-    method public static <T> androidx.core.animation.ObjectAnimator ofFloat(T, android.util.Property<T!,java.lang.Float!>?, android.util.Property<T!,java.lang.Float!>?, android.graphics.Path);
-    method public static <T> androidx.core.animation.ObjectAnimator ofFloat(T, android.util.Property<T!,java.lang.Float!>, float...);
+    method public static <T> androidx.core.animation.ObjectAnimator ofFloat(T, android.util.Property<T,java.lang.Float!>?, android.util.Property<T,java.lang.Float!>?, android.graphics.Path);
+    method public static <T> androidx.core.animation.ObjectAnimator ofFloat(T, android.util.Property<T,java.lang.Float!>, float...);
     method public static androidx.core.animation.ObjectAnimator ofInt(Object, String, int...);
     method public static androidx.core.animation.ObjectAnimator ofInt(Object, String, String, android.graphics.Path);
-    method public static <T> androidx.core.animation.ObjectAnimator ofInt(T, android.util.Property<T!,java.lang.Integer!>?, android.util.Property<T!,java.lang.Integer!>?, android.graphics.Path);
-    method public static <T> androidx.core.animation.ObjectAnimator ofInt(T, android.util.Property<T!,java.lang.Integer!>, int...);
+    method public static <T> androidx.core.animation.ObjectAnimator ofInt(T, android.util.Property<T,java.lang.Integer!>?, android.util.Property<T,java.lang.Integer!>?, android.graphics.Path);
+    method public static <T> androidx.core.animation.ObjectAnimator ofInt(T, android.util.Property<T,java.lang.Integer!>, int...);
     method public static androidx.core.animation.ObjectAnimator ofMultiFloat(Object, String, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T> androidx.core.animation.ObjectAnimator ofMultiFloat(Object, String, androidx.core.animation.TypeConverter<T!,float[]!>, androidx.core.animation.TypeEvaluator<T!>, T!...);
+    method @java.lang.SafeVarargs public static <T> androidx.core.animation.ObjectAnimator ofMultiFloat(Object, String, androidx.core.animation.TypeConverter<T,float[]!>, androidx.core.animation.TypeEvaluator<T>, T...);
     method public static androidx.core.animation.ObjectAnimator ofMultiFloat(Object, String, float[]![]);
     method public static androidx.core.animation.ObjectAnimator ofMultiInt(Object, String, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T> androidx.core.animation.ObjectAnimator ofMultiInt(Object, String, androidx.core.animation.TypeConverter<T!,int[]!>, androidx.core.animation.TypeEvaluator<T!>, T!...);
+    method @java.lang.SafeVarargs public static <T> androidx.core.animation.ObjectAnimator ofMultiInt(Object, String, androidx.core.animation.TypeConverter<T,int[]!>, androidx.core.animation.TypeEvaluator<T>, T...);
     method public static androidx.core.animation.ObjectAnimator ofMultiInt(Object, String, int[]![]);
     method public static androidx.core.animation.ObjectAnimator ofObject(Object, String, androidx.core.animation.TypeConverter<android.graphics.PointF!,? extends java.lang.Object!>?, android.graphics.Path);
     method public static androidx.core.animation.ObjectAnimator ofObject(Object, String, androidx.core.animation.TypeEvaluator, java.lang.Object!...);
-    method @java.lang.SafeVarargs public static <T, V, P> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T!,P!>, androidx.core.animation.TypeConverter<V!,P!>, androidx.core.animation.TypeEvaluator<V!>, V!...);
-    method public static <T, V> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T!,V!>, androidx.core.animation.TypeConverter<android.graphics.PointF!,V!>?, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T, V> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T!,V!>, androidx.core.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T, V, P> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T,P>, androidx.core.animation.TypeConverter<V,P>, androidx.core.animation.TypeEvaluator<V>, V...);
+    method public static <T, V> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T,V>, androidx.core.animation.TypeConverter<android.graphics.PointF!,V>?, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <T, V> androidx.core.animation.ObjectAnimator ofObject(T, android.util.Property<T,V>, androidx.core.animation.TypeEvaluator<V>, V...);
     method public static androidx.core.animation.ObjectAnimator ofPropertyValuesHolder(Object, androidx.core.animation.PropertyValuesHolder!...);
     method public void setAutoCancel(boolean);
     method public androidx.core.animation.ObjectAnimator setDuration(long);
@@ -281,16 +281,16 @@ package androidx.core.animation {
     method @java.lang.SafeVarargs public static androidx.core.animation.PropertyValuesHolder ofKeyframe(android.util.Property, androidx.core.animation.Keyframe!...);
     method @java.lang.SafeVarargs public static androidx.core.animation.PropertyValuesHolder ofKeyframe(String, androidx.core.animation.Keyframe!...);
     method public static androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T> androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, androidx.core.animation.TypeConverter<T!,float[]!>?, androidx.core.animation.TypeEvaluator<T!>, androidx.core.animation.Keyframe!...);
-    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, androidx.core.animation.TypeConverter<V!,float[]!>, androidx.core.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T> androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, androidx.core.animation.TypeConverter<T,float[]!>?, androidx.core.animation.TypeEvaluator<T>, androidx.core.animation.Keyframe!...);
+    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, androidx.core.animation.TypeConverter<V,float[]!>, androidx.core.animation.TypeEvaluator<V>, V...);
     method public static androidx.core.animation.PropertyValuesHolder ofMultiFloat(String, float[]![]);
     method public static androidx.core.animation.PropertyValuesHolder ofMultiInt(String, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T> androidx.core.animation.PropertyValuesHolder ofMultiInt(String, androidx.core.animation.TypeConverter<T!,int[]!>?, androidx.core.animation.TypeEvaluator<T!>, androidx.core.animation.Keyframe!...);
-    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofMultiInt(String, androidx.core.animation.TypeConverter<V!,int[]!>, androidx.core.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T> androidx.core.animation.PropertyValuesHolder ofMultiInt(String, androidx.core.animation.TypeConverter<T,int[]!>?, androidx.core.animation.TypeEvaluator<T>, androidx.core.animation.Keyframe!...);
+    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofMultiInt(String, androidx.core.animation.TypeConverter<V,int[]!>, androidx.core.animation.TypeEvaluator<V>, V...);
     method public static androidx.core.animation.PropertyValuesHolder ofMultiInt(String, int[]![]);
-    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property, androidx.core.animation.TypeEvaluator<V!>, V!...);
-    method public static <V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property<? extends java.lang.Object!,V!>, androidx.core.animation.TypeConverter<android.graphics.PointF!,V!>?, android.graphics.Path);
-    method @java.lang.SafeVarargs public static <T, V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property<? extends java.lang.Object!,V!>, androidx.core.animation.TypeConverter<T!,V!>, androidx.core.animation.TypeEvaluator<T!>, T!...);
+    method @java.lang.SafeVarargs public static <V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property, androidx.core.animation.TypeEvaluator<V>, V...);
+    method public static <V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property<? extends java.lang.Object!,V>, androidx.core.animation.TypeConverter<android.graphics.PointF!,V>?, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <T, V> androidx.core.animation.PropertyValuesHolder ofObject(android.util.Property<? extends java.lang.Object!,V>, androidx.core.animation.TypeConverter<T,V>, androidx.core.animation.TypeEvaluator<T>, T...);
     method public static androidx.core.animation.PropertyValuesHolder ofObject(String, androidx.core.animation.TypeConverter<android.graphics.PointF!,? extends java.lang.Object!>?, android.graphics.Path);
     method public static androidx.core.animation.PropertyValuesHolder ofObject(String, androidx.core.animation.TypeEvaluator, java.lang.Object!...);
     method public void setConverter(androidx.core.animation.TypeConverter?);
@@ -319,7 +319,7 @@ package androidx.core.animation {
   }
 
   public abstract class TypeConverter<T, V> {
-    ctor public TypeConverter(Class<T!>, Class<V!>);
+    ctor public TypeConverter(Class<T>, Class<V>);
     method public abstract V convert(T);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.SpatialEnvironment as RtSpatialEnvironment
-import androidx.xr.scenecore.internal.SpatialEnvironment.SpatialEnvironmentPreference as RtSpatialEnvironmentPreference
+import androidx.annotation.RestrictTo.Scope
+import androidx.xr.scenecore.SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
+import androidx.xr.scenecore.runtime.HandlerExecutor
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SpatialEnvironment as RtSpatialEnvironment
+import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference as RtSpatialEnvironmentPreference
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
@@ -29,103 +32,98 @@ import java.util.function.Consumer
 
 /**
  * The SpatialEnvironment is used to manage the XR background and passthrough. There is a single
- * instance of this class managed by each [Session] and it is accessible through Session.scene.
+ * instance of this class managed by each [androidx.xr.runtime.Session] and it is accessible through
+ * Session.scene.
  *
- * The SpatialEnvironment is a composite of a stand-alone skybox, and of a
- * [glTF](https://www.khronos.org/Gltf)-specified geometry. A single skybox and a single glTF can be
- * set at the same time. Applications are encouraged to supply glTFs for ground and horizon
- * visibility.
+ * The SpatialEnvironment is a composite of a [glTF](https://www.khronos.org/Gltf)-specified
+ * geometry along with image-based lighting. Applications are encouraged to supply glTFs with a
+ * skybox texture baked-in for ground and horizon visibility. The image-based lighting contributes
+ * to the overall illumination and reflections within the scene.
  *
  * The XR background can be set to display one of three configurations:
- * 1) A combination of a skybox and glTF geometry.
+ * 1) A combination of image based lighting and glTF geometry which should contain a skybox texture.
  * 2) A Passthrough surface, where the XR background is a live feed from the device's outward facing
- *    cameras. At full opacity, this surface completely occludes the skybox and geometry.
+ *    cameras. At full opacity, this surface completely occludes the geometry.
  * 3) A mixed configuration where the passthrough surface is not at full opacity nor is it at zero
- *    opacity. The passthrough surface becomes semi-transparent and alpha blends with the skybox and
- *    geometry behind it.
+ *    opacity. The passthrough surface becomes semi-transparent and alpha blends with the geometry
+ *    behind it.
  *
  * Note that methods in this class do not necessarily take effect immediately. Rather, they set a
  * preference that will be applied when the device enters a state where the XR background can be
  * changed.
  */
-public class SpatialEnvironment internal constructor(private val runtime: JxrPlatformAdapter) {
-
-    private val rtEnvironment: RtSpatialEnvironment = runtime.spatialEnvironment
+@Suppress("DEPRECATION")
+public class SpatialEnvironment
+internal constructor(
+    private val sceneRuntime: SceneRuntime,
+    private val entityRegistry: EntityRegistry,
+) {
+    private val rtEnvironment: RtSpatialEnvironment = sceneRuntime.spatialEnvironment
 
     /**
      * Represents the preferred spatial environment for the application.
      *
-     * @param skybox The preferred skybox for the environment based on a pre-loaded EXR Image. If
-     *   null, it will be all black.
-     * @param geometry The preferred geometry for the environment based on a pre-loaded [GltfModel].
-     *   If null, there will be no geometry.
+     * The [SpatialEnvironmentPreference] can consist of image-based lighting and geometry. Setting
+     * the image-based lighting to `null` will result in no lighting for the scene, and setting the
+     * geometry to `null` will result in black void environment.
      */
-    public class SpatialEnvironmentPreference(
-        public val skybox: ExrImage?,
-        public val geometry: GltfModel?,
-    ) {
+    public class SpatialEnvironmentPreference {
+        /**
+         * The preferred image-based lighting for the environment based on a pre-loaded
+         * [ImageBasedLightingAsset]. This lighting contributes to the overall illumination and
+         * reflections within the scene.
+         */
+        public val imageBasedLightingAsset: ImageBasedLightingAsset?
 
         /**
-         * The material to override a given mesh in the geometry. If null, the material will not
-         * override any mesh.
+         * The preferred geometry for the environment based on a pre-loaded [GltfModel]. The
+         * geometry can include a skybox texture for the horizon of the environment.
          */
-        internal var geometryMaterial: Material? = null
+        public val geometry: GltfModel?
+
+        /** The preferred geometry [GltfModelEntity] for the environment. */
+        internal var geometryEntity: GltfModelEntity? = null
             private set
 
         /**
-         * The name of the mesh to override with the material. If null, the material will not
-         * override any mesh.
-         */
-        internal var geometryMeshName: String? = null
-            private set
-
-        /**
-         * The name of the animation to play on the geometry. If null, the geometry will not play
-         * any animation. Note that the animation will be played in loop.
-         */
-        internal var geometryAnimationName: String? = null
-            private set
-
-        /**
-         * Represents the preferred spatial environment for the application.
+         * Creates a preference for the [SpatialEnvironment].
          *
-         * @param skybox The preferred skybox for the environment.
+         * @param imageBasedLightingAsset The preferred image-based lighting for the environment.
          * @param geometry The preferred geometry for the environment.
-         * @param geometryMaterial The material to override a given mesh in the geometry.
-         * @param geometryMeshName The name of the mesh to override with the material.
-         * @param geometryAnimationName The name of the animation to play on the geometry.
-         * @throws IllegalStateException if the material is not properly set up and if the geometry
-         *   glTF model does not contain the mesh or the animation name.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        @JvmOverloads
         public constructor(
-            skybox: ExrImage?,
+            imageBasedLightingAsset: ImageBasedLightingAsset?,
             geometry: GltfModel?,
-            geometryMaterial: Material?,
-            geometryMeshName: String? = null,
-            geometryAnimationName: String? = null,
-        ) : this(skybox, geometry) {
-            this.geometryMaterial = geometryMaterial
-            this.geometryMeshName = geometryMeshName
-            this.geometryAnimationName = geometryAnimationName
+        ) {
+            this.imageBasedLightingAsset = imageBasedLightingAsset
+            this.geometry = geometry
+            this.geometryEntity = null
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public constructor(
+            imageBasedLightingAsset: ImageBasedLightingAsset?,
+            geometry: GltfModel?,
+            geometryEntity: GltfModelEntity?,
+        ) {
+            this.imageBasedLightingAsset = imageBasedLightingAsset
+            this.geometry = geometry
+            this.geometryEntity = geometryEntity
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
-
             other as SpatialEnvironmentPreference
-
-            if (skybox != other.skybox) return false
-            if (geometry != other.geometry) return false
-
-            return true
+            return imageBasedLightingAsset == other.imageBasedLightingAsset &&
+                geometry == other.geometry &&
+                geometryEntity == other.geometryEntity
         }
 
         override fun hashCode(): Int {
-            var result = skybox?.hashCode() ?: 0
+            var result = imageBasedLightingAsset?.hashCode() ?: 0
             result = 31 * result + (geometry?.hashCode() ?: 0)
+            result = 31 * result + (geometryEntity?.hashCode() ?: 0)
             return result
         }
     }
@@ -141,17 +139,21 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      * applied and visible to the user. The actual passthrough opacity value is controlled by the
      * system in response to a combination of this preference and user actions outside the
      * application. Generally, this preference is honored when the application has the
-     * [SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL] capability.
+     * [SpatialCapability.PASSTHROUGH_CONTROL] capability.
      *
      * The value should be between 0.0f (passthrough disabled) and 1.0f (passthrough fully obscures
      * the spatial environment). Values within 0.01f of 0.0 or 1.0 are snapped to those values.
      * Values outside [0.0f, 1.0f] are clamped. Other values result in semi-transparent passthrough
-     * that is alpha blended with the spatial environment. Setting this property to
-     * NO_PASSTHROUGH_OPACITY_PREFERENCE clears the application's preference, allowing the system to
-     * manage passthrough opacity.
+     * that is alpha blended with the preferred application spatial environment. Passthrough is
+     * disabled for semi-transparent passthrough values when there is no
+     * [preferredSpatialEnvironment] and there is no active system passthrough. This prevents
+     * semi-transparent passthrough values from affecting the default system environment.
+     *
+     * Setting this property to NO_PASSTHROUGH_OPACITY_PREFERENCE clears the application's
+     * preference, allowing the system to manage passthrough opacity.
      *
      * The actual value visible to the user can be observed by calling [currentPassthroughOpacity]
-     * or by registering a listener with [addOnPassthroughOpacityChangedListener].
+     * or by registering a listener with [addPassthroughOpacityChangedListener].
      */
     public var preferredPassthroughOpacity: Float
         get() = rtEnvironment.preferredPassthroughOpacity
@@ -180,9 +182,8 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      *
      * @param listener The [Consumer<Float>] to be added to listen for passthrough opacity changes.
      */
-    public fun addOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
-        addOnPassthroughOpacityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    public fun addPassthroughOpacityChangedListener(listener: Consumer<Float>): Unit =
+        addPassthroughOpacityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Notifies an application when the user visible passthrough state changes, such as when the
@@ -193,19 +194,18 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      * @param executor The [Executor] to invoke the listener on.
      * @param listener The [Consumer<Float>] to be added to listen for passthrough opacity changes.
      */
-    public fun addOnPassthroughOpacityChangedListener(
-        executor: Executor,
-        listener: Consumer<Float>,
-    ) {
+    public fun addPassthroughOpacityChangedListener(executor: Executor, listener: Consumer<Float>) {
         rtEnvironment.addOnPassthroughOpacityChangedListener(executor, listener)
     }
 
     /**
-     * Remove a listener previously added by [addOnPassthroughOpacityChangedListener].
+     * Remove a listener previously added by [addPassthroughOpacityChangedListener].
+     *
+     * Remaining listeners are automatically removed when the SpatialEnvironment is destroyed.
      *
      * @param listener The previously-added [Consumer<Float>] listener to be removed.
      */
-    public fun removeOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
+    public fun removePassthroughOpacityChangedListener(listener: Consumer<Float>) {
         rtEnvironment.removeOnPassthroughOpacityChangedListener(listener)
     }
 
@@ -229,33 +229,44 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      *
      * Setting this property only sets the preference and does not cause an immediate change unless
      * [isPreferredSpatialEnvironmentActive] is already true. Once the device enters a state where
-     * the XR background can be changed and the
-     * [SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT] capability is available, the
-     * preferred spatial environment for the application will be automatically displayed.
+     * the XR background can be changed and the [SpatialCapability.APP_ENVIRONMENT] capability is
+     * available, the preferred spatial environment for the application will be automatically
+     * displayed.
      *
      * Setting the preference to null will disable the preferred spatial environment for the
      * application, meaning the default system environment will be displayed instead.
      *
      * If the given [SpatialEnvironmentPreference] is not null, but all of its properties are null,
-     * then the spatial environment will consist of a black skybox and no geometry.
+     * then the spatial environment will consist of a black void.
      *
-     * See [isPreferredSpatialEnvironmentActive] or the [addOnSpatialEnvironmentChangedListener]
+     * See [isPreferredSpatialEnvironmentActive] or the [addSpatialEnvironmentChangedListener]
      * listeners to know when this preference becomes active.
      */
     public var preferredSpatialEnvironment: SpatialEnvironmentPreference?
-        get() = rtEnvironment.preferredSpatialEnvironment?.toSpatialEnvironmentPreference()
+        get() {
+            val rtPreference = rtEnvironment.preferredSpatialEnvironment ?: return null
+            // TODO(b/501462994): Update SpatialEnvironment runtime parameters.
+            val imageBasedLightingAsset =
+                rtPreference.skybox?.let { ImageBasedLightingAsset(null, it) }
+            val geometry = rtPreference.geometry?.let { GltfModel(null, it) }
+            val apiEntity =
+                rtPreference.geometryEntity?.let { rtEntity ->
+                    entityRegistry.getEntityForRtEntity(rtEntity) as? GltfModelEntity
+                }
+            return SpatialEnvironmentPreference(imageBasedLightingAsset, geometry, apiEntity)
+        }
         set(value) {
             rtEnvironment.preferredSpatialEnvironment = value?.toRtSpatialEnvironmentPreference()
         }
 
     /**
-     * Notifies an application whether or not the preferred spatial environment for the application
-     * is active.
+     * Notifies an application whether the preferred spatial environment for the application is
+     * active.
      *
      * The environment will try to transition to the application environment when a non-null
      * preference is set through [preferredSpatialEnvironment] and the application has the
-     * [SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT] capability. The environment
-     * preferences will otherwise not be active.
+     * [SpatialCapability.APP_ENVIRONMENT] capability. The environment preferences will otherwise
+     * not be active.
      *
      * The listener consumes a boolean value that is true if the environment preference is active
      * when the listener is notified.
@@ -265,18 +276,17 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      * @param listener The [Consumer<Boolean>] to be added to listen for spatial environment
      *   changes.
      */
-    public fun addOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
-        addOnSpatialEnvironmentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    public fun addSpatialEnvironmentChangedListener(listener: Consumer<Boolean>): Unit =
+        addSpatialEnvironmentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
-     * Notifies an application whether or not the preferred spatial environment for the application
-     * is active.
+     * Notifies an application whether the preferred spatial environment for the application is
+     * active.
      *
      * The environment will try to transition to the application environment when a non-null
      * preference is set through [preferredSpatialEnvironment] and the application has the
-     * [SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT] capability. The environment
-     * preferences will otherwise not be active.
+     * [SpatialCapability.APP_ENVIRONMENT] capability. The environment preferences will otherwise
+     * not be active.
      *
      * The listener consumes a boolean value that is true if the environment preference is active
      * when the listener is notified.
@@ -287,7 +297,7 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
      * @param listener The [Consumer<Boolean>] to be added to listen for spatial environment
      *   changes.
      */
-    public fun addOnSpatialEnvironmentChangedListener(
+    public fun addSpatialEnvironmentChangedListener(
         executor: Executor,
         listener: Consumer<Boolean>,
     ) {
@@ -295,11 +305,13 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
     }
 
     /**
-     * Remove a listener previously added by [addOnSpatialEnvironmentChangedListener].
+     * Remove a listener previously added by [addSpatialEnvironmentChangedListener].
+     *
+     * Remaining listeners are automatically removed when the SpatialEnvironment is destroyed.
      *
      * @param listener The previously-added [Consumer<Boolean>] listener to be removed.
      */
-    public fun removeOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
+    public fun removeSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
         rtEnvironment.removeOnSpatialEnvironmentChangedListener(listener)
     }
 
@@ -316,21 +328,8 @@ public class SpatialEnvironment internal constructor(private val runtime: JxrPla
 internal fun SpatialEnvironment.SpatialEnvironmentPreference.toRtSpatialEnvironmentPreference():
     RtSpatialEnvironmentPreference {
     return RtSpatialEnvironmentPreference(
-        skybox?.image,
+        imageBasedLightingAsset?.image,
         geometry?.model,
-        geometryMaterial?.material,
-        geometryMeshName,
-        geometryAnimationName,
-    )
-}
-
-internal fun RtSpatialEnvironmentPreference.toSpatialEnvironmentPreference():
-    SpatialEnvironment.SpatialEnvironmentPreference {
-    return SpatialEnvironment.SpatialEnvironmentPreference(
-        skybox?.let { ExrImage(it) },
-        geometry?.let { GltfModel(it) },
-        geometryMaterial?.let { Material(it) },
-        geometryMeshName,
-        geometryAnimationName,
+        geometryEntity?.rtGltfEntity,
     )
 }

@@ -667,7 +667,7 @@ inline fun ImageVector.Builder.path(
 /**
  * DSL extension for adding a [VectorGroup] to [this].
  *
- * See [ImageVector.Builder.pushGroup] for the corresponding builder function.
+ * See [ImageVector.Builder.addGroup] for the corresponding builder function.
  *
  * @param name the name of the group
  * @param rotate the rotation of the group in degrees

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import com.android.build.api.artifact.SingleArtifact
@@ -26,13 +25,12 @@ import com.android.build.api.artifact.SingleArtifact
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 // This project can be removed once b/239659205 has landed and use only the
 // profile-verification-sample project.
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     buildTypes {
         release {
@@ -63,7 +61,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":profileinstaller:profileinstaller"))
 
     // These projects are not used directly but added to baseline-prof.txt to increase number of

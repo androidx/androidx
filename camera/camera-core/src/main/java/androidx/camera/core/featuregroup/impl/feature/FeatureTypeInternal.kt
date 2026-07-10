@@ -19,9 +19,10 @@ package androidx.camera.core.featuregroup.impl.feature
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal enum class FeatureTypeInternal {
+public enum class FeatureTypeInternal {
     DYNAMIC_RANGE,
     FPS_RANGE,
     VIDEO_STABILIZATION,
     IMAGE_FORMAT,
+    RECORDING_QUALITY,
 }

@@ -35,7 +35,6 @@ package androidx.camera.video
 import android.content.Context
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -46,7 +45,6 @@ import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
@@ -58,6 +56,7 @@ import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -73,6 +72,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
 class SupportedQualitiesVerificationTest(
@@ -83,10 +83,6 @@ class SupportedQualitiesVerificationTest(
     private val cameraConfig: CameraXConfig,
     private val implName: String,
 ) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -114,16 +110,7 @@ class SupportedQualitiesVerificationTest(
                 DynamicRange.HLG_10_BIT,
             )
 
-        @JvmStatic
-        private val qualities =
-            arrayOf(
-                Quality.SD,
-                Quality.HD,
-                Quality.FHD,
-                Quality.UHD,
-                Quality.LOWEST,
-                Quality.HIGHEST,
-            )
+        @JvmStatic private val qualities = Quality.ALL_QUALITIES.toTypedArray()
 
         @JvmStatic
         @Parameterized.Parameters(
@@ -142,16 +129,6 @@ class SupportedQualitiesVerificationTest(
                                     quality,
                                     Camera2Config.defaultConfig(),
                                     Camera2Config::class.simpleName,
-                                )
-                            )
-                            add(
-                                arrayOf(
-                                    cameraSelector.lensFacing,
-                                    cameraSelector,
-                                    dynamicRange,
-                                    quality,
-                                    CameraPipeConfig.defaultConfig(),
-                                    CameraPipeConfig::class.simpleName,
                                 )
                             )
                         }
@@ -223,8 +200,7 @@ class SupportedQualitiesVerificationTest(
     ) {
         // Arrange.
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
-        val videoProfile =
-            videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+        val resolution = videoCapabilities.getResolution(quality, dynamicRange)!!
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture =
             VideoCapture.Builder(recorder)
@@ -294,7 +270,7 @@ class SupportedQualitiesVerificationTest(
         assertThat(finalizedEvent!!.error).isEqualTo(VideoRecordEvent.Finalize.ERROR_NONE)
 
         // Verify resolution.
-        val resolutionToVerify = videoProfile.resolution
+        val resolutionToVerify = resolution
         val rotationDegrees = getRotationNeeded(videoCapture, cameraInfo)
         // Skip verification when:
         // * The device has extra cropping quirk. UseCase surface will be configured with a fixed

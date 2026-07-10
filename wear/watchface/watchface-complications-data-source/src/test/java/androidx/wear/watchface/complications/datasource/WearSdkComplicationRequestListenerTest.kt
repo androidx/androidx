@@ -32,6 +32,7 @@ import org.junit.runner.RunWith
 
 /** Tests for [WearSdkComplicationRequestListenerTest]. */
 @RunWith(ComplicationsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @SdkSuppress(minSdkVersion = 36, codeName = "Baklava")
 class WearSdkComplicationRequestListenerTest {
     @Test

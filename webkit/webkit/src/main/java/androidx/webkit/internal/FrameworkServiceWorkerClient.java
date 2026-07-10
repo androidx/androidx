@@ -16,12 +16,10 @@
 
 package androidx.webkit.internal;
 
-import android.os.Build;
 import android.webkit.ServiceWorkerClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -32,7 +30,6 @@ import org.jspecify.annotations.Nullable;
  * {@link ServiceWorkerClientCompat}.
  * This class is used on up-to-date devices to avoid using reflection to call into WebView APK code.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 public class FrameworkServiceWorkerClient extends ServiceWorkerClient {
     private final ServiceWorkerClientCompat mImpl;
 

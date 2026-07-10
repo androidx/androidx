@@ -16,7 +16,6 @@
 package androidx.pdf.selection
 
 import android.os.Build
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.selection.model.TextSelection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -35,15 +34,11 @@ class TextSelectionMenuProviderTest {
 
     @Before
     fun setUp() {
-        PdfFeatureFlags.isSmartActionMenuComponentEnabled = true
         val context = InstrumentationRegistry.getInstrumentation().context
         textSelectionMenuProvider = TextSelectionMenuProvider(context)
     }
 
-    @After
-    fun tearDown() {
-        PdfFeatureFlags.isSmartActionMenuComponentEnabled = false
-    }
+    @After fun tearDown() {}
 
     @Test
     fun getMenuItems_withEmail_returnsEmailMenu() = runTest {
@@ -97,17 +92,17 @@ class TextSelectionMenuProviderTest {
     }
 
     @Test
-    fun getMenuItems_withSmartActionMenuDisabled_returnsDefaultMenu() = runTest {
-        PdfFeatureFlags.isSmartActionMenuComponentEnabled = false
-        val emailText = "test@example.com"
+    fun getMenuItems_returnsAtleastDefaultMenu() = runTest {
+        val emailText = "abcd"
         val textSelection = TextSelection(emailText, emptyList())
         val menuItems = textSelectionMenuProvider.getMenuItems(textSelection)
         assertThat(menuItems).isNotNull()
-        assertThat(menuItems).hasSize(2) // Only Copy and Select All.
-        val defaultMenuItem = menuItems[0] as DefaultSelectionMenuComponent
+        val size = menuItems.size
+        assertThat(size).isAtLeast(2) // Copy and Select All are must.
+        val defaultMenuItem = menuItems[size - 2] as DefaultSelectionMenuComponent
         assertThat(defaultMenuItem).isNotNull()
         assertThat(defaultMenuItem.label).isEqualTo("Copy")
-        val defaultMenuItem1 = menuItems[1] as DefaultSelectionMenuComponent
+        val defaultMenuItem1 = menuItems[size - 1] as DefaultSelectionMenuComponent
         assertThat(defaultMenuItem1).isNotNull()
         assertThat(defaultMenuItem1.label).isEqualTo("Select all")
     }

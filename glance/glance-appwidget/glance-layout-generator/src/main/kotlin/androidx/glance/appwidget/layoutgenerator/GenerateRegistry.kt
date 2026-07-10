@@ -102,11 +102,12 @@ internal fun generateRegistry(
                 buildCodeBlock {
                     addStatement(
                         """
-                |if(%M >= %M) {
-                |  GeneratedContainersForApi31Impl.registerContainers()
-                |} else {
-                |  registerContainers()
-                |}"""
+                        |if(%M >= %M) {
+                        |  GeneratedContainersForApi31Impl.registerContainers()
+                        |} else {
+                        |  registerContainers()
+                        |}
+                        """
                             .trimMargin(),
                         SdkInt,
                         VersionCodeS,
@@ -123,11 +124,12 @@ internal fun generateRegistry(
                 buildCodeBlock {
                     addStatement(
                         """
-                |if(%M >= %M) {
-                |  GeneratedContainersForApi31Impl.registerChildren()
-                |} else {
-                |  registerChildren()
-                |}"""
+                        |if(%M >= %M) {
+                        |  GeneratedContainersForApi31Impl.registerChildren()
+                        |} else {
+                        |  registerChildren()
+                        |}
+                        """
                             .trimMargin(),
                         SdkInt,
                         VersionCodeS,

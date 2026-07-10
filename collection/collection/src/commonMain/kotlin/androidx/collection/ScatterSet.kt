@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -22,6 +23,7 @@
     "ConstPropertyName",
     "PrivatePropertyName",
     "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 
 package androidx.collection
@@ -85,6 +87,32 @@ public fun <E> mutableScatterSetOf(element1: E, element2: E, element3: E): Mutab
 /** Returns a new [MutableScatterSet] with the specified contents. */
 public fun <E> mutableScatterSetOf(vararg elements: E): MutableScatterSet<E> =
     MutableScatterSet<E>(elements.size).apply { plusAssign(elements) }
+
+/** Returns a new read-only [ScatterSet] with the specified contents. */
+public fun <E> Collection<E>.toScatterSet(): ScatterSet<E> =
+    if (isEmpty()) emptyScatterSet() else toMutableScatterSet()
+
+/**
+ * Returns a new [MutableScatterSet] with the specified contents.
+ *
+ * The [MutableScatterSet] is created with an initial capacity sufficient to hold the content in the
+ * specified [Collection].
+ */
+public fun <E> Collection<E>.toMutableScatterSet(): MutableScatterSet<E> =
+    MutableScatterSet<E>(size).also { it.addAll(this) }
+
+/** Returns a new read-only [ScatterSet] with the specified contents. */
+public fun <E> ScatterSet<E>.toScatterSet(): ScatterSet<E> =
+    if (isEmpty()) emptyScatterSet() else toMutableScatterSet()
+
+/**
+ * Returns a new [MutableScatterSet] with the specified contents.
+ *
+ * The [MutableScatterSet] is created with an initial capacity sufficient to hold the content in the
+ * specified [ScatterSet].
+ */
+public fun <E> ScatterSet<E>.toMutableScatterSet(): MutableScatterSet<E> =
+    MutableScatterSet<E>(size).also { it.addAll(this) }
 
 /**
  * [ScatterSet] is a container with a [Set]-like interface based on a flat hash table

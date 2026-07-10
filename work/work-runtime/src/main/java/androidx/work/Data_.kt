@@ -56,14 +56,19 @@ public class Data {
         return if (value is T) value else defaultValue
     }
 
-    private inline fun <reified T : Any, TArray> getTypedArray(
+    private inline fun <reified T : Any?, TArray> getTypedArray(
         key: String,
         constructor: (size: Int, init: (index: Int) -> T) -> TArray,
     ): TArray? {
         val value = values[key]
-        return if (value is Array<*> && value.isArrayOf<T>())
-            constructor(value.size) { i -> value[i] as T }
-        else null
+        if (value is Array<*>) {
+            try {
+                return constructor(value.size) { i -> value[i] as T }
+            } catch (e: ClassCastException) {
+                // Fall-through to return null if the cast fails
+            }
+        }
+        return null
     }
 
     /**
@@ -184,7 +189,23 @@ public class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
+    @Deprecated(
+        message =
+            "Use getNullableStringArray(key) instead. This method does not correctly handle " +
+                "String arrays which may contain null elements.",
+        replaceWith = ReplaceWith("getNullableStringArray(key)"),
+    )
     public fun getStringArray(key: String): Array<String>? = getTypedArray(key, ::Array)
+
+    /**
+     * Gets the string array value for the given key. The array may contain `null` elements.
+     *
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; `null` otherwise
+     */
+    // null elements are supported to match the setter
+    @SuppressLint("NullableCollection", "NullableCollectionElement")
+    public fun getNullableStringArray(key: String): Array<String?>? = getTypedArray(key, ::Array)
 
     public val keyValueMap: Map<String, Any?>
         /**

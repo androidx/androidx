@@ -90,6 +90,9 @@ public fun UiDevice.waitForRootInActiveWindow(
  * time. Optionally also the node image can be checked. Internally it works checking periodically
  * that the internal properties of the node have not changed.
  *
+ * __Note__: Usage of this API in tests will result in non-deterministic tests. So, this API should
+ * only be used as a last resort and __only__ when there are no other alternatives available.
+ *
  * @param stableTimeoutMs a timeout for the wait operation, to ensure not waiting forever for
  *   stability.
  * @param stableIntervalMs the interval during which the node should not be changing, in order to be
@@ -132,7 +135,7 @@ public fun UiDevice.waitForStableInActiveWindow(
 /**
  * Types the given [text] string simulating key press through [Instrumentation.sendKeySync]. This is
  * similar to tapping the keys on a virtual keyboard and will trigger the same listeners in the
- * target app, as opposed to [AccessibilityNodeInfo.setText] that programmaticaly sets the given
+ * target app, as opposed to [AccessibilityNodeInfo.setText] that programmatically sets the given
  * text in the target node.
  *
  * @param text the text to type.

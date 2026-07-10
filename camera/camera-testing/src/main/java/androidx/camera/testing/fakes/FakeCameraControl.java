@@ -73,6 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * notifying submitted requests using the associated {@link CameraCaptureCallback} instances or
  * {@link ControlUpdateCallback}.
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
@@ -103,6 +104,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @ImageCapture.FlashMode
     private int mFlashMode = FLASH_MODE_OFF;
+    private int mSetFlashModeCallCount = 0;
     private Pair<Executor, OnNewCaptureRequestListener> mOnNewCaptureRequestListener;
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
 
@@ -316,7 +318,16 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
+        mSetFlashModeCallCount++;
         Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
+    }
+
+    /**
+     * Gets the number of times {@link #setFlashMode(int)} was called.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public int getSetFlashModeCallCount() {
+        return mSetFlashModeCallCount;
     }
 
     @Override

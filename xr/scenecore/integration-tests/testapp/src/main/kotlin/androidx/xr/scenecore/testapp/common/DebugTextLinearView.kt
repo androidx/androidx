@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("BanConcurrentHashMap")
 
 package androidx.xr.scenecore.testapp.common
 
@@ -27,6 +28,8 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.xr.scenecore.testapp.R
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A panel view that displays a list of text lines.
@@ -39,10 +42,14 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
 
     constructor(context: Context) : this(context, null)
 
-    private var textLines = mutableMapOf<String, AppCompatTextView>()
+    private val textLines = ConcurrentHashMap<String, AppCompatTextView>()
     private var linearLayout: LinearLayout
 
     private val colorFromResource = ContextCompat.getColor(context, R.color.purple_gray_80)
+
+    private val pendingUpdates = ConcurrentHashMap<String, String>()
+
+    private val isUpdatePosted = AtomicBoolean(false)
 
     init {
         LayoutInflater.from(context).inflate(R.layout.debug_text_panel, this, true)
@@ -64,7 +71,7 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
         newTextLine.tag = key
         newTextLine.setAutoSizeTextTypeUniformWithConfiguration(
             /* autoSizeMinTextSize= */ 1,
-            /* autoSizeMaxTextSize= */ 10000,
+            /* autoSizeMaxTextSize= */ 2000,
             /* autoSizeStepGranularity= */ 1,
             /* autoSizeUnit= */ TypedValue.COMPLEX_UNIT_DIP,
         )
@@ -76,10 +83,29 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
         textLines[key] = newTextLine
     }
 
+    private val updateRunnable = Runnable {
+        isUpdatePosted.set(false)
+        for ((key, newText) in pendingUpdates) {
+            // Only process and remove if the entry still exists and has the same value.
+            if (pendingUpdates.remove(key, newText)) {
+                val textView = textLines[key] ?: continue
+                val newLine = "$key: $newText"
+                if (textView.text != newLine) {
+                    textView.text = newLine
+                }
+            }
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     fun editLine(key: String, newText: String): Boolean {
         if (textLines.containsKey(key)) {
-            textLines[key]?.text = "$key: $newText"
+            pendingUpdates[key] = newText
+
+            // Post the runnable only once per frame
+            if (isUpdatePosted.compareAndSet(false, true)) {
+                post(updateRunnable)
+            }
             return true
         }
         return false

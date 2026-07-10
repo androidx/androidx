@@ -15,16 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -35,18 +34,19 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.navigation.common"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
         androidResources.enable = true
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
-    jvmStubs()
-    linuxX64Stubs()
-//    desktop()
-//    mac()
-//    linux()
-//    ios()
+    desktop()
+    linux()
+    mac()
+    watchos()
+    tvos()
+    ios()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -55,118 +55,61 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
 
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.lifecycle:lifecycle-common:2.9.1")
-                api("androidx.lifecycle:lifecycle-runtime:2.9.1")
-                api("androidx.lifecycle:lifecycle-viewmodel:2.9.1")
-                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
-                api("androidx.savedstate:savedstate:1.3.0")
-                api(libs.kotlinStdlib)
-                implementation("androidx.collection:collection:1.4.2")
-                implementation(libs.kotlinSerializationCore)
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api("androidx.lifecycle:lifecycle-common:2.11.0")
+            api("androidx.lifecycle:lifecycle-runtime:2.11.0")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.11.0")
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0")
+            api("androidx.savedstate:savedstate:1.5.0")
+            implementation("androidx.collection:collection:1.5.0")
+            implementation(libs.kotlinSerializationCore)
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
         }
 
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-        jvmCommonMain {
-            dependsOn(commonMain)
-        }
-        jvmCommonTest {
-            dependsOn(commonTest)
-        }
-        jvmStubsMain {
-            dependsOn(jvmCommonMain)
-            dependsOn(nonAndroidMain)
-        }
-        jvmStubsTest {
-            dependsOn(jvmCommonTest)
-            dependsOn(nonAndroidTest)
-        }
-//        desktopMain {
-//            dependsOn(jvmCommonMain)
-//            dependsOn(nonAndroidMain)
-//        }
-//        desktopTest {
-//            dependsOn(jvmCommonTest)
-//            dependsOn(nonAndroidTest)
-//        }
-        androidMain {
-            dependsOn(jvmCommonMain)
-            dependencies {
-                api(project(":lifecycle:lifecycle-runtime"))
-                api(project(":lifecycle:lifecycle-viewmodel"))
-                api(project(":savedstate:savedstate-ktx"))
-                implementation("androidx.core:core-ktx:1.1.0")
-                implementation("androidx.profileinstaller:profileinstaller:1.4.0")
-            }
+        androidMain.dependencies {
+            api("androidx.savedstate:savedstate-ktx:1.5.0")
+            implementation("androidx.core:core-ktx:1.1.0")
+            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
         }
 
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":navigation:navigation-testing"))
-                implementation("androidx.arch.core:core-testing:2.2.0")
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.kotlinCoroutinesTest)
-                runtimeOnly(libs.kotlinTestJunit)
-                runtimeOnly(libs.testCore)
-            }
+        androidHostTest.dependencies {
+            implementation("androidx.arch.core:core-testing:2.2.0")
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
+            implementation(libs.truth)
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
+            runtimeOnly(libs.kotlinTestJunit)
+            runtimeOnly(libs.testCore)
         }
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.testExtJunit)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-                implementation(libs.mockitoCore)
-                implementation(libs.dexmakerMockito)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+            implementation(libs.mockitoCore)
+            implementation(libs.dexmakerMockito)
         }
 
-        nonJvmCommonMain { dependsOn(nonAndroidMain) }
+        create("androidTest").dependsOn(jvmAndAndroidTest)
+        androidDeviceTest.dependsOn(androidTest)
+        androidHostTest.dependsOn(androidTest)
 
-        nonJvmCommonTest { dependsOn(nonAndroidTest) }
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
 
-        nativeMain { dependsOn(nonJvmCommonMain) }
-        linuxMain { dependsOn(nativeMain) }
-//        darwinMain { dependsOn(nativeMain) }
-//
-        nativeTest { dependsOn(nonJvmCommonTest) }
-        linuxTest { dependsOn(nativeTest) }
-//        darwinTest { dependsOn(nativeTest) }
-//
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-//                if (target.konanTarget.family.appleFamily) {
-//                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-//                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-//                } else
-                if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                }
-            }
-        }
-        linuxx64StubsMain.dependsOn(linuxMain)
-        linuxx64StubsTest.dependsOn(linuxTest)
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

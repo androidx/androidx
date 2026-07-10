@@ -16,9 +16,7 @@
 
 package androidx.core.telecom.internal
 
-import androidx.annotation.RestrictTo
 import androidx.core.telecom.internal.JetpackConnectionService.PendingConnectionRequest
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * [ConnectionServiceAdapter] is intended for the [androidx.core.telecom.CallsManager] class. This
@@ -26,10 +24,8 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * [androidx.core.telecom.CallsManager] can use [JetpackConnectionService] in production but in
  * testing, different objects can be injected to mock platform behavior.
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal interface ConnectionServiceAdapter {
 
-    @OptIn(ExperimentalAppActions::class)
     fun createConnectionRequest(
         telecomManager: TelecomManagerAdapter,
         pendingConnectionRequest: PendingConnectionRequest,

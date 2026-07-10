@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"கூடுதல் விருப்பங்கள்"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"உரையாடல்"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"விரிவாக்கப்பட்டது"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"சுருக்கப்பட்டது"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"கீழ்ப்புற ஷீட்டை விரிவாக்கும்"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"கருவிப்பட்டியைச் சுருக்கும்"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"கருவிப்பட்டியை விரிவாக்கும்"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"கூடுதல் விருப்பத்தேர்வுகள்"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"உதவிக்குறிப்பு"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"உதவிக்குறிப்பைக் காட்டு"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -81,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"கடிகாரப் பயன்முறைக்கு மாற்றும்"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"நேரத்தைத் தேர்ந்தெடுங்கள்"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"நேரத்தை டைப் செய்யுங்கள்"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"0–59 நிமிடங்கள்"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"1–12 மணிநேரம்"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"0–23 மணிநேரம்"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"பாதையை மூடும்"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"வழிசெலுத்தல் பாதை"</string>
 </resources>

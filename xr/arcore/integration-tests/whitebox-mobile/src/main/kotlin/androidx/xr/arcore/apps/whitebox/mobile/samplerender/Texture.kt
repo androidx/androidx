@@ -27,10 +27,10 @@ import java.nio.ByteBuffer
 /**
  * A GPU-side texture.
  *
- * @param render The [SampleRender] instance to use for rendering.
- * @param target The target to bind the texture to.
- * @param wrapMode The way the texture's edges are rendered.
- * @param useMipmaps Whether to generate mipmaps for the texture.
+ * @param render the [SampleRender] instance to use for rendering
+ * @param target the target to bind the texture to
+ * @param wrapMode the way the texture's edges are rendered
+ * @param useMipmaps whether to generate mipmaps for the texture
  */
 class Texture(
     val render: SampleRender,
@@ -184,7 +184,7 @@ class Texture(
     override fun close() {
         if (_textureId[0] != 0) {
             GLES30.glDeleteTextures(1, _textureId, 0)
-            maybeLogGLError(Log.WARN, "Texture", "Failed to free texture", "glDeleteTextures")
+            maybeLogGLError(Log.WARN, "Failed to free texture", "glDeleteTextures")
             _textureId[0] = 0
         }
     }

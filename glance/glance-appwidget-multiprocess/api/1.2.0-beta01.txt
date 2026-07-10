@@ -3,11 +3,11 @@ package androidx.glance.appwidget.multiprocess {
 
   public final class MultiProcessConfig {
     ctor public MultiProcessConfig(android.content.ComponentName remoteWorkerService, android.content.ComponentName actionTrampolineActivity, android.content.ComponentName invisibleActionTrampolineActivity, android.content.ComponentName actionCallbackBroadcastReceiver, android.content.ComponentName remoteViewsService);
-    method public android.content.ComponentName getActionCallbackBroadcastReceiver();
-    method public android.content.ComponentName getActionTrampolineActivity();
-    method public android.content.ComponentName getInvisibleActionTrampolineActivity();
-    method public android.content.ComponentName getRemoteViewsService();
-    method public android.content.ComponentName getRemoteWorkerService();
+    method @InaccessibleFromKotlin public android.content.ComponentName getActionCallbackBroadcastReceiver();
+    method @InaccessibleFromKotlin public android.content.ComponentName getActionTrampolineActivity();
+    method @InaccessibleFromKotlin public android.content.ComponentName getInvisibleActionTrampolineActivity();
+    method @InaccessibleFromKotlin public android.content.ComponentName getRemoteViewsService();
+    method @InaccessibleFromKotlin public android.content.ComponentName getRemoteWorkerService();
     property public android.content.ComponentName actionCallbackBroadcastReceiver;
     property public android.content.ComponentName actionTrampolineActivity;
     property public android.content.ComponentName invisibleActionTrampolineActivity;
@@ -23,6 +23,7 @@ package androidx.glance.appwidget.multiprocess {
   public abstract class MultiProcessGlanceAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public MultiProcessGlanceAppWidget();
     ctor public MultiProcessGlanceAppWidget(optional @LayoutRes int errorUiLayout);
+    ctor @BytecodeOnly public MultiProcessGlanceAppWidget(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.glance.appwidget.multiprocess.MultiProcessConfig? getMultiProcessConfig(android.content.Context context);
   }
 

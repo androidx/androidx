@@ -23,7 +23,7 @@ import com.android.ide.common.process.ProcessInfo
 import com.android.ide.common.process.ProcessResult
 import com.google.common.base.Joiner
 import org.gradle.process.ExecResult
-import org.gradle.process.internal.ExecException
+import org.gradle.process.ProcessExecutionException
 
 /** Cloned from `com.android.build.gradle.internal.process.GradleProcessResult`. */
 internal class GradleProcessResult(
@@ -34,7 +34,7 @@ internal class GradleProcessResult(
     override fun assertNormalExitValue(): ProcessResult {
         try {
             result.assertNormalExitValue()
-        } catch (e: ExecException) {
+        } catch (e: ProcessExecutionException) {
             throw buildProcessException(e)
         }
         return this
@@ -48,13 +48,13 @@ internal class GradleProcessResult(
     override fun rethrowFailure(): ProcessResult {
         try {
             result.rethrowFailure()
-        } catch (e: ExecException) {
+        } catch (e: ProcessExecutionException) {
             throw buildProcessException(e)
         }
         return this
     }
 
-    private fun buildProcessException(e: ExecException): ProcessException {
+    private fun buildProcessException(e: ProcessExecutionException): ProcessException {
         return ProcessException(
             String.format(
                 "Error while executing %s with arguments {%s}",

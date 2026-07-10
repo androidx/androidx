@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory#HiltViewModelFactory(android.content.Context, androidx.lifecycle.ViewModelProvider.Factory):
+    Added method androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory.HiltViewModelFactory(android.content.Context,androidx.lifecycle.ViewModelProvider.Factory)
+
+
+RemovedFromKotlin: androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory#create(android.content.Context, androidx.lifecycle.ViewModelProvider.Factory):
+    Source breaking change: method androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory.create(android.content.Context,androidx.lifecycle.ViewModelProvider.Factory) can no longer be resolved from Kotlin source

@@ -32,6 +32,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowPackageManager;
 
 @RunWith(WearUtilsTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument // Stop Robolectric instrumenting this class due to it being in package "android".
 public class WearTypeHelperTest {
     private ShadowPackageManager mShadowPackageManager = null;

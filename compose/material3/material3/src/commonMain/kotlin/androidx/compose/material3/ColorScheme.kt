@@ -648,8 +648,11 @@ class ColorScheme(
     internal var defaultSuggestionChipColorsCached: ChipColors? = null
     internal var defaultElevatedSuggestionChipColorsCached: ChipColors? = null
     internal var defaultFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalElevatedFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultInputChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalInputChipColorsCached: SelectableChipColors? = null
 
     internal var defaultVerticalDragHandleColorsCached: DragHandleColors? = null
 
@@ -680,8 +683,11 @@ class ColorScheme(
     internal var defaultOutlinedToggleButtonColorsCached: ToggleButtonColors? = null
 
     internal var defaultListItemColorsCached: ListItemColors? = null
+    internal var defaultSegmentedListItemColorsCached: ListItemColors? = null
 
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
+    internal var defaultMenuSelectableItemColorsCached: MenuItemColors? = null
+    internal var defaultMenuSelectableItemVibrantColorsCached: MenuItemColors? = null
 
     internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
     internal var defaultShortNavigationBarItemColorsCached: NavigationItemColors? = null
@@ -701,8 +707,17 @@ class ColorScheme(
     internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
     internal var defaultTextFieldColorsCached: TextFieldColors? = null
 
+    internal var tonalTextFieldColorsCached: TextFieldColors? = null
+    internal var tonalOutlinedTextFieldColorsCached: TextFieldColors? = null
+
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultRichTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultScrollFieldColorsCached: ScrollFieldColors? = null
 
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
@@ -1147,7 +1162,6 @@ fun ColorScheme.surfaceColorAtElevation(elevation: Dp): Color {
  *
  * @sample androidx.compose.material3.samples.MaterialExpressiveThemeColorSchemeSample
  */
-@ExperimentalMaterial3ExpressiveApi
 fun expressiveLightColorScheme() =
     lightColorScheme(
         // TODO: Replace palette references with color token references when available.
@@ -1518,21 +1532,13 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
 }
 
 /**
- * CompositionLocal used to pass [ColorScheme] down the tree.
- *
- * Setting the value here is typically done as part of [MaterialTheme]. To retrieve the current
- * value of this CompositionLocal, use [MaterialTheme.colorScheme].
- */
-internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
-
-/**
  * A low level of alpha used to represent disabled components, such as text in a disabled Button.
  */
 internal const val DisabledAlpha = 0.38f
 
 /**
  * Converts a color token key to the local color scheme provided by the theme The color is
- * subscribed to [LocalColorScheme] changes.
+ * subscribed to [MaterialTheme.colorScheme] changes.
  */
 internal val ColorSchemeKeyTokens.value: Color
     @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.fromToken(this)

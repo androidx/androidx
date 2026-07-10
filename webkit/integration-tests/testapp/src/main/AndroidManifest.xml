@@ -104,13 +104,6 @@
             android:name=".AssetLoaderInternalStorageActivity"
             android:exported="true" />
         <activity
-            android:name=".ForceDarkActivity"
-            android:theme="@style/AppDayNightTheme"
-            android:exported="true" />
-        <activity
-            android:name=".MultiProcessEnabledActivity"
-            android:exported="true" />
-        <activity
             android:name=".TracingControllerActivity"
             android:exported="true" />
         <activity
@@ -135,9 +128,6 @@
             android:name=".DocumentStartJavaScriptActivity"
             android:exported="true" />
         <activity
-            android:name=".ForceDarkStrategyActivity"
-            android:exported="true" />
-        <activity
             android:name=".GetVariationsHeaderActivity"
             android:exported="true" />
         <activity
@@ -150,9 +140,6 @@
         <activity
             android:name=".DirectoryBasePathsActivity"
             android:process=":directoryBasePathActivity"
-            android:exported="true" />
-        <activity
-            android:name=".RequestedWithHeaderActivity"
             android:exported="true" />
         <activity android:name=".CookieManagerActivity"
             android:exported="true" />
@@ -192,6 +179,16 @@
             android:name=".UiThreadStartupModeActivity"
             android:process=":uiThreadStartupModeActivity"
             android:exported="false" />
+        <activity
+            android:name=".CustomHeaderActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PrefetchActivity"
+            android:exported="true" />
+        <activity
+            android:name=".HttpCacheQuotaActivity"
+            android:exported="true" />
+        <!-- This is important for the ImageDragActivity to work and it shouldn't be removed -->
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"
             android:name="androidx.webkit.DropDataContentProvider"

@@ -46,84 +46,95 @@ fun SettingsDemo() {
             // Connectivity
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_connectivity,
+                    painterResourceId = R.drawable.icon_settings_connectivity,
                     text = "Connectivity",
                 )
             }
             // Display
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_brightness,
+                    painterResourceId = R.drawable.icon_settings_brightness,
                     text = "Display",
                 )
             }
             // Gestures
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_gestures, text = "Gestures")
+                SettingsChip(
+                    painterResourceId = R.drawable.icon_settings_gestures,
+                    text = "Gestures",
+                )
             }
             // Apps & Notifications
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_apps,
+                    painterResourceId = R.drawable.icon_settings_apps,
                     text = "Apps & Notifications",
                 )
             }
             // Google
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_googleg, text = "Google")
+                SettingsChip(painterResourceId = R.drawable.icon_settings_googleg, text = "Google")
             }
             // Sound
-            item { SettingsChip(painterResourceId = R.drawable.ic_settings_sound, text = "Sound") }
+            item {
+                SettingsChip(painterResourceId = R.drawable.icon_settings_sound, text = "Sound")
+            }
             // Vibration
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_vibration,
+                    painterResourceId = R.drawable.icon_settings_vibration,
                     text = "Vibration",
                 )
             }
             // Battery
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_battery, text = "Battery")
+                SettingsChip(painterResourceId = R.drawable.icon_settings_battery, text = "Battery")
             }
             // General
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_watch_device,
+                    painterResourceId = R.drawable.icon_settings_watch_device,
                     text = "General",
                 )
             }
             // Health Profile
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_health_profile,
+                    painterResourceId = R.drawable.icon_settings_health_profile,
                     text = "Health Profile",
                 )
             }
             // Location
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_location, text = "Location")
+                SettingsChip(
+                    painterResourceId = R.drawable.icon_settings_location,
+                    text = "Location",
+                )
             }
             // Safety and Emergency
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_emergency,
+                    painterResourceId = R.drawable.icon_settings_emergency,
                     text = "Safety and Emergency",
                 )
             }
             // Accessibility
             item {
                 SettingsChip(
-                    painterResourceId = R.drawable.ic_settings_accessibility,
+                    painterResourceId = R.drawable.icon_settings_accessibility,
                     text = "Accessibility",
                 )
             }
             // Security
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_security, text = "Security")
+                SettingsChip(
+                    painterResourceId = R.drawable.icon_settings_security,
+                    text = "Security",
+                )
             }
             // System
             item {
-                SettingsChip(painterResourceId = R.drawable.ic_settings_system, text = "System")
+                SettingsChip(painterResourceId = R.drawable.icon_settings_system, text = "System")
             }
         }
     }

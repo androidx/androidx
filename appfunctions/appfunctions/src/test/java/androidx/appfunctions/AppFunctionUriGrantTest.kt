@@ -18,6 +18,8 @@ package androidx.appfunctions
 
 import android.content.Intent
 import android.net.Uri
+import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_GRANT_COMPONENTS_METADATA
+import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_GRANT_OBJECT_TYPE_METADATA
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -28,16 +30,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = 33)
 class AppFunctionUriGrantTest {
-    @Test
-    fun createAppFunctionUriGrant_withPersistFlag_shouldFail() {
-        assertFailsWith<IllegalArgumentException> {
-            AppFunctionUriGrant(
-                uri = Uri.parse("content://com.example/1"),
-                modeFlags = Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
-            )
-        }
-    }
-
     @Test
     fun createAppFunctionUriGrant_withoutAccessFlag_shouldFail() {
         assertFailsWith<IllegalArgumentException> {
@@ -70,7 +62,7 @@ class AppFunctionUriGrantTest {
     @Test
     fun deserializeFromAppFunctionData_shouldSucceed() {
         val data =
-            AppFunctionData.Builder(checkNotNull(AppFunctionUriGrant::class.java.canonicalName))
+            AppFunctionData.Builder(URI_GRANT_OBJECT_TYPE_METADATA, URI_GRANT_COMPONENTS_METADATA)
                 .setAppFunctionData(
                     "uri",
                     AppFunctionData.serialize(Uri.parse("content://com.example/1"), Uri::class.java),
@@ -91,6 +83,25 @@ class AppFunctionUriGrantTest {
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
                             Intent.FLAG_GRANT_READ_URI_PERMISSION,
                 )
+            )
+    }
+
+    @Test
+    @Config(minSdk = 37)
+    fun toPlatformClass_shouldSucceed() {
+        val uriGrant =
+            AppFunctionUriGrant(
+                uri = Uri.parse("content://com.example/1"),
+                modeFlags =
+                    Intent.FLAG_GRANT_PREFIX_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+
+        val platformClass = uriGrant.toPlatformClass()
+
+        assertThat(platformClass.uri).isEqualTo(Uri.parse("content://com.example/1"))
+        assertThat(platformClass.modeFlags)
+            .isEqualTo(
+                Intent.FLAG_GRANT_PREFIX_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
     }
 }

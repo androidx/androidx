@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,21 +29,21 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
-        minSdk = 31
+        minSdk { version = release(31) }
+        compileSdk { version = release(36) }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.testapp"
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
 }
@@ -54,16 +53,20 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2025"
     description = "Integration tests app that exercises the ARCore APIs."
+    deviceTests {
+        enabled = false
+    }
 }
 
 dependencies {
     implementation(project(":xr:arcore:arcore"))
-    implementation(project(":xr:runtime:runtime-openxr"))
+    implementation(project(":xr:arcore:arcore-openxr"))
     implementation(project(":xr:assets"))
     implementation(project(":xr:compose:compose"))
     implementation(project(":xr:scenecore:scenecore"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+    implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
 
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -74,7 +77,14 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
 
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    compileOnly(libs.androidExtensionsXr)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":xr:testutils"))
 }
 
 // Making this APK available via Android Build

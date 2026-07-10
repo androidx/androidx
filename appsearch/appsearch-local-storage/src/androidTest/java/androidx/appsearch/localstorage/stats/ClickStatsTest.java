@@ -43,5 +43,20 @@ public class ClickStatsTest {
         assertThat(clickStats.getResultRankInBlock()).isEqualTo(resultRankInBlock);
         assertThat(clickStats.getResultRankGlobal()).isEqualTo(resultRankGlobal);
         assertThat(clickStats.isGoodClick()).isEqualTo(isGoodClick);
+        String expectedString = "ClickStats {\n"
+                + "  timestampMillis=1,\n"
+                + "  timeStayOnResultMillis=2,\n"
+                + "  resultRankInBlock=3,\n"
+                + "  resultRankGlobal=4,\n"
+                + "  isGoodClick=false\n"
+                + "  enabledFeatures=0,\n"
+                + "  javaLockAcquisitionLatencyMillis=-1,\n"
+                + "  lastBlockingOperation=0,\n"
+                + "  lastBlockingOperationLatencyMillis=-1,\n"
+                + "  getVmLatencyMillis=0,\n"
+                + "  unblockedAppSearchLatencyMillis=0,\n"
+                + "  numIcingCalls=0\n"
+                + "}";
+        assertThat(clickStats.toString()).isEqualTo(expectedString);
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.BringIntoViewSpec
@@ -40,7 +41,7 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.scrollingContainer
+import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -56,7 +57,9 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import kotlin.math.absoluteValue
@@ -136,9 +139,10 @@ internal fun Pager(
         remember(state, flingBehavior) { PagerWrapperFlingBehavior(flingBehavior, state) }
 
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
+    val layoutDirection = LocalLayoutDirection.current
     val pagerBringIntoViewSpec =
-        remember(state, defaultBringIntoViewSpec) {
-            PagerBringIntoViewSpec(state, defaultBringIntoViewSpec)
+        remember(state, defaultBringIntoViewSpec, layoutDirection) {
+            PagerBringIntoViewSpec(state, defaultBringIntoViewSpec, layoutDirection)
         }
 
     val beyondBoundsModifier =
@@ -176,7 +180,7 @@ internal fun Pager(
                     userScrollEnabled,
                 )
                 .then(beyondBoundsModifier)
-                .scrollingContainer(
+                .scrollableArea(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
@@ -184,7 +188,6 @@ internal fun Pager(
                     flingBehavior = resolvedFlingBehavior,
                     interactionSource = state.internalInteractionSource,
                     overscrollEffect = overscrollEffect,
-                    useLocalOverscrollFactory = false,
                     bringIntoViewSpec = pagerBringIntoViewSpec,
                 )
                 .dragDirectionDetector(state)
@@ -304,6 +307,7 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
 private class PagerBringIntoViewSpec(
     val pagerState: PagerState,
     val defaultBringIntoViewSpec: BringIntoViewSpec,
+    val layoutDirection: LayoutDirection,
 ) : BringIntoViewSpec {
 
     /**
@@ -326,7 +330,7 @@ private class PagerBringIntoViewSpec(
             if (offset > 0) {
                 offset + size > containerSize
             } else {
-                offset + size <= 0
+                offset + size <= Int.VisibilityThreshold
             }
 
         val finalOffset =
@@ -339,26 +343,33 @@ private class PagerBringIntoViewSpec(
                     // do nothing, we're settled
                     0f
                 } else {
-                    // move one page forward or backward, whilst making sure we don't move out of
-                    // bounds
-                    // again.
-                    val reversedFirstPageScroll = pagerState.firstVisiblePageOffset * -1f
-                    if (pagerState.lastScrolledForward) {
-                            reversedFirstPageScroll + pagerState.pageSizeWithSpacing
-                        } else {
-                            reversedFirstPageScroll
-                        }
-                        .coerceIn(-containerSize, containerSize)
-                    // moving the pager outside of container size bounds will make the focused item
-                    // disappear so we're limiting how much we can scroll so the page won't move too
-                    // much.
+                    settlingScrollDistance(containerSize)
                 }
             }
         return finalOffset
     }
 
+    /** At this point the target is visible we just need to scroll to settle. */
+    private fun settlingScrollDistance(containerSize: Float): Float {
+        val reversedFirstPageScroll = pagerState.layoutAwareFirstOffset * -1f
+        return if (pagerState.shouldChangeScrollDirection) {
+                if (pagerState.lastScrolledForward) {
+                    reversedFirstPageScroll
+                } else {
+                    reversedFirstPageScroll + pagerState.pageSizeWithSpacing
+                }
+            } else {
+                if (pagerState.lastScrolledForward) {
+                    reversedFirstPageScroll + pagerState.pageSizeWithSpacing
+                } else {
+                    reversedFirstPageScroll
+                }
+            }
+            .coerceIn(-containerSize, containerSize)
+    }
+
     private fun overrideProposedOffsetMove(proposedOffsetMove: Float): Float {
-        var correctedOffset = pagerState.firstVisiblePageOffset.toFloat() * -1
+        var correctedOffset = pagerState.layoutAwareFirstOffset.toFloat() * -1
 
         // if moving forward, start from the first visible page, move as many pages as proposed.
         while (proposedOffsetMove > 0.0f && correctedOffset < proposedOffsetMove) {
@@ -371,6 +382,19 @@ private class PagerBringIntoViewSpec(
         }
         return correctedOffset
     }
+
+    private val PagerState.shouldChangeScrollDirection: Boolean
+        get() =
+            (layoutDirection == LayoutDirection.Rtl &&
+                layoutInfo.orientation == Orientation.Horizontal)
+
+    val PagerState.layoutAwareFirstOffset: Int
+        get() =
+            if (shouldChangeScrollDirection) {
+                -firstVisiblePageOffset + pageSizeWithSpacing
+            } else {
+                firstVisiblePageOffset
+            }
 }
 
 /** Wraps [snapFlingBehavior] to give out information about target page coming from flings. */

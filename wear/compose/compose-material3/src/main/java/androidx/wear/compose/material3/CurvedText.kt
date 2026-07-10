@@ -65,7 +65,14 @@ import androidx.wear.compose.foundation.sizeIn
  * For samples using curved text in a [CurvedLayout] see:
  *
  * @sample androidx.wear.compose.material3.samples.CurvedTextTop
+ *
+ * ![CurvedTextTop Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_CurvedTextTop_CompositeImage.png)
+ *
  * @sample androidx.wear.compose.material3.samples.CurvedTextBottom
+ *
+ * ![CurvedTextBottom Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_CurvedTextBottom_CompositeImage.png)
  *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/compose/curved-text) guide.

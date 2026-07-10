@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -40,56 +39,21 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-            }
+        commonMain.dependencies {
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(jvmMain)
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
     }
 }

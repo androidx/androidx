@@ -38,12 +38,10 @@ public class WebResourceRequestCompat {
     /**
      * Gets whether the request was a result of a server-side redirect.
      *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#WEB_RESOURCE_REQUEST_IS_REDIRECT}.
-     *
      * @return whether the request was a result of a server-side redirect.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#WEB_RESOURCE_REQUEST_IS_REDIRECT} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

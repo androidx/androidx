@@ -31,6 +31,11 @@
             android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.activity.PictureInPictureActivity"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:exported="true" />
+        <activity
             android:name="androidx.activity.EarlyDispatcherAccessComponentActivity"
             android:exported="true" />
         <activity

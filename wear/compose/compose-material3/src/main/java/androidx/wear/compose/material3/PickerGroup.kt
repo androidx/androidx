@@ -17,10 +17,8 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.util.fastSumBy
 import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
 import kotlin.math.roundToInt
@@ -60,9 +62,16 @@ import kotlinx.coroutines.coroutineScope
  *
  * @sample androidx.wear.compose.material3.samples.PickerGroupSample
  *
+ * ![PickerGroupSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_PickerGroupSample_CompositeImage.png)
+ *
  * Example of an auto centering picker group where the total width exceeds screen's width:
  *
  * @sample androidx.wear.compose.material3.samples.AutoCenteringPickerGroup
+ *
+ * ![AutoCenteringPickerGroup Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_AutoCenteringPickerGroup_CompositeImage.png)
+ *
  * @param selectedPickerState The [PickerState] of the [Picker] that is selected. Null value means
  *   that no [Picker] is selected.
  * @param modifier [Modifier] to be applied to the [PickerGroup].
@@ -90,14 +99,14 @@ public fun PickerGroup(
     AutoCenteringRow(
         modifier =
             modifier.then(
-                // When touch exploration services are enabled, send the scroll events on the parent
-                // composable to selected picker
                 if (touchExplorationServicesEnabled && selectedPickerState != null) {
-                    Modifier.scrollable(
-                        state = selectedPickerState,
-                        orientation = Orientation.Vertical,
-                        reverseDirection = true,
-                    )
+                    // When touch exploration services are enabled,
+                    // Apply scrollable modifier for the selected picker
+                    Modifier.scrollableForTouchExploration(selectedPickerState)
+                } else if (!touchExplorationServicesEnabled && autoCenter) {
+                    // Apply the single-pointer input filter only when touch exploration is OFF
+                    // and autoCenter is TRUE.
+                    Modifier.singlePointerInput()
                 } else {
                     Modifier
                 }
@@ -131,7 +140,8 @@ public class PickerGroupScope {
      *   which can be useful for Text if it has plenty of whitespace.
      * @param readOnlyLabel A slot for providing a label, displayed above the selected option when
      *   the [Picker] is read-only. The label is overlaid with the currently selected option within
-     *   a Box, so it is recommended that the label is given [Alignment.TopCenter].
+     *   a Box, so it is recommended that the label is given
+     *   [androidx.compose.ui.Alignment.TopCenter].
      * @param option A block which describes the content. The integer parameter to the composable
      *   denotes the index of the option and boolean denotes whether the picker is selected or not.
      */
@@ -172,7 +182,7 @@ public class PickerGroupScope {
                             }
                             coroutineScope {
                                 awaitEachGesture {
-                                    awaitFirstDown(requireUnconsumed = false)
+                                    awaitFirstDown(requireUnconsumed = true)
                                     latestOnSelected()
                                 }
                             }
@@ -296,7 +306,7 @@ private fun computeDefaultCenteringOffset(placeables: List<Placeable>, autoCente
         placeables.first().width / 2
     } else {
         // Fallback to centering the whole group.
-        placeables.sumOf { it.width } / 2
+        placeables.fastSumBy { it.width } / 2
     }
 }
 
@@ -322,3 +332,57 @@ internal class AutoCenteringRowParentData
 internal fun Placeable.isAutoCenteringTarget() = (parentData as? AutoCenteringRowParentData) != null
 
 private const val CenteringOffsetNotInitialized = Float.MIN_VALUE
+
+/**
+ * A [Modifier] that enforces single-pointer (single-finger) touch semantics.
+ *
+ * This modifier effectively reduces any single or multitouch gesture to a single-pointer gesture,
+ * governed only by the first pointer to make contact. All subsequent pointer events (down/move/up)
+ * are consumed in the [PointerEventPass.Initial] phase, making them appear consumed to this
+ * Composable and its children.
+ *
+ * Standard UI components and gesture detectors by default ignore consumed events. Child modifiers
+ * or gesture detectors will only react to these consumed secondary pointers if they are explicitly
+ * configured to do so (e.g., by using `awaitFirstDown(requireUnconsumed = false)`).
+ *
+ * This is used within [PickerGroup] when `autoCenter` is true to prevent secondary fingers from
+ * triggering selection changes and subsequent auto centering on other columns or initiating scrolls
+ * within those other columns, which would cause a jarring UX.
+ */
+internal fun Modifier.singlePointerInput(): Modifier =
+    this.pointerInput(Unit) {
+        awaitEachGesture {
+            var primaryPointerId: PointerId? = null
+
+            // First event to establish primaryPointerId
+            val firstEvent = awaitPointerEvent(PointerEventPass.Initial)
+            firstEvent.changes.fastForEach { change ->
+                if (primaryPointerId == null && change.changedToDown()) {
+                    primaryPointerId = change.id
+                }
+            }
+
+            if (primaryPointerId == null) {
+                return@awaitEachGesture // No initial down, end gesture
+            }
+
+            // Consume any other pointers in the first event
+            firstEvent.changes.fastForEach { change ->
+                if (change.id != primaryPointerId) {
+                    change.consume()
+                }
+            }
+
+            // Loop as long as ANY pointer is down
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                var anyPointerDown = false
+                event.changes.fastForEach { change ->
+                    if (change.pressed) anyPointerDown = true
+                    if (change.id != primaryPointerId) {
+                        change.consume() // Consume all events from other pointers
+                    }
+                }
+            } while (anyPointerDown)
+        }
+    }

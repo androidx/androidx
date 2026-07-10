@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,14 +27,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(project(":paging:paging-common"))
     api("androidx.arch.core:core-runtime:2.2.0")
     api(libs.rxjava3)
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesRx3)
 
     testImplementation(project(":internal-testutils-common"))

@@ -34,10 +34,12 @@ import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingPosition
 import androidx.core.uwb.RangingResult
+import androidx.core.uwb.RangingResult.Companion.fromId
+import androidx.core.uwb.RangingResult.RangingResultFailure
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbDevice
-import androidx.core.uwb.helper.handleApiException
+import androidx.core.uwb.helper.getFailureReasonFromApiException
 import com.google.android.gms.common.api.ApiException
 import java.util.Collections
 import java.util.concurrent.Executor
@@ -45,6 +47,7 @@ import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
@@ -72,6 +75,7 @@ internal abstract class UwbClientSessionScopeRangingImpl(
     val mAddressDeviceMap: MutableMap<UwbAddress, RangingDevice> =
         Collections.synchronizedMap(mutableMapOf())
     protected var mRangingSession: RangingSession? = null
+    private var isAoaRequested: Boolean = true
 
     protected abstract fun buildRangingPreference(parameters: RangingParameters): RangingPreference
 
@@ -94,6 +98,11 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                 }
 
                 override fun onOpenFailed(reason: Int) {
+                    val uwbDevice = UwbDevice(localAddress)
+                    trySend(RangingResult.RangingResultFailure(uwbDevice, fromId(reason)))
+                        .onFailure { throwable ->
+                            Log.w(TAG, "Failed to send RangingResultFailure", throwable)
+                        }
                     channel.close(
                         IllegalStateException("Ranging session open failed with reason: $reason")
                     )
@@ -102,6 +111,9 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                 override fun onOpened() {
                     val result =
                         trySend(RangingResult.RangingResultInitialized(UwbDevice(localAddress)))
+                            .onFailure { throwable ->
+                                Log.w(TAG, "Failed to send RangingResultInitialized", throwable)
+                            }
                     if (!result.isSuccess) {
                         Log.e(TAG, "Failed to send onOpened event: $result")
                     }
@@ -117,22 +129,25 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                     uwbAddress.let {
                         val result =
                             trySend(
-                                RangingResult.RangingResultPosition(
-                                    UwbDevice(it),
-                                    RangingPosition(
-                                        data.distance?.measurement?.let { it1 ->
-                                            RangingMeasurement(it1.toFloat())
-                                        },
-                                        data.azimuth?.measurement?.let { it1 ->
-                                            RangingMeasurement(it1.toFloat())
-                                        },
-                                        data.elevation?.measurement?.let { it1 ->
-                                            RangingMeasurement(it1.toFloat())
-                                        },
-                                        data.timestampMillis * 1_000_000L,
-                                    ),
+                                    RangingResult.RangingResultPosition(
+                                        UwbDevice(it),
+                                        RangingPosition(
+                                            data.distance?.measurement?.let { it1 ->
+                                                RangingMeasurement(it1.toFloat())
+                                            },
+                                            data.azimuth?.measurement?.let { it1 ->
+                                                RangingMeasurement(it1.toFloat())
+                                            },
+                                            data.elevation?.measurement?.let { it1 ->
+                                                RangingMeasurement(it1.toFloat())
+                                            },
+                                            data.timestampMillis * 1_000_000L,
+                                        ),
+                                    )
                                 )
-                            )
+                                .onFailure { throwable ->
+                                    Log.w(TAG, "Failed to send RangingResultPosition", throwable)
+                                }
                         if (!result.isSuccess) {
                             Log.e(TAG, "Failed to send onResults event: $result")
                         }
@@ -167,7 +182,19 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                     }
 
                     val result =
-                        trySend(RangingResult.RangingResultPeerDisconnected(UwbDevice(uwbAddress)))
+                        trySend(
+                                RangingResult.RangingResultPeerDisconnected(
+                                    UwbDevice(uwbAddress),
+                                    RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_PEER,
+                                )
+                            )
+                            .onFailure { throwable ->
+                                Log.w(
+                                    TAG,
+                                    "Failed to send RangingResultPeerDisconnected",
+                                    throwable,
+                                )
+                            }
                     if (!result.isSuccess) {
                         Log.e(
                             TAG,
@@ -183,8 +210,10 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                 mRangingManager.createRangingSession(mExecutor, rangingSessionCallback)
             mRangingSession?.start(rangingPreference)
             sessionStarted = true
-        } catch (e: Exception) {
-            throw IllegalStateException("Failed to start ranging session, with Exception: $e")
+        } catch (e: ApiException) {
+            trySend(
+                RangingResultFailure(UwbDevice(localAddress), getFailureReasonFromApiException(e))
+            )
         }
 
         awaitClose {
@@ -197,7 +226,12 @@ internal abstract class UwbClientSessionScopeRangingImpl(
                         Log.d(TAG, "Ranging session already stopped")
                     }
                 } catch (e: ApiException) {
-                    handleApiException(e)
+                    trySend(
+                        RangingResultFailure(
+                            UwbDevice(localAddress),
+                            getFailureReasonFromApiException(e),
+                        )
+                    )
                 }
             }
         }
@@ -217,10 +251,45 @@ internal abstract class UwbClientSessionScopeRangingImpl(
         subSessionId: Int = mRangingParams!!.subSessionId,
         subSessionKeyInfo: ByteArray? = mRangingParams!!.subSessionKeyInfo,
     ): UwbRangingParams {
+        val configId =
+            when (mRangingParams!!.uwbConfigType) {
+                RangingParameters.CONFIG_UNICAST_DS_TWR -> {
+                    isAoaRequested = !mRangingParams!!.isAoaDisabled
+                    UwbRangingParams.CONFIG_UNICAST_DS_TWR
+                }
+                RangingParameters.CONFIG_MULTICAST_DS_TWR -> {
+                    isAoaRequested = !mRangingParams!!.isAoaDisabled
+                    UwbRangingParams.CONFIG_MULTICAST_DS_TWR
+                }
 
+                RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA -> {
+                    isAoaRequested = false
+                    UwbRangingParams.CONFIG_UNICAST_DS_TWR
+                }
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR -> {
+                    isAoaRequested = !mRangingParams!!.isAoaDisabled
+                    UwbRangingParams.CONFIG_PROVISIONED_UNICAST_DS_TWR
+                }
+
+                RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR -> {
+                    isAoaRequested = !mRangingParams!!.isAoaDisabled
+                    UwbRangingParams.CONFIG_PROVISIONED_MULTICAST_DS_TWR
+                }
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA -> {
+                    isAoaRequested = false
+                    UwbRangingParams.CONFIG_UNICAST_DS_TWR
+                }
+                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR -> {
+                    isAoaRequested = !mRangingParams!!.isAoaDisabled
+                    UwbRangingParams.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
+                }
+
+                else ->
+                    throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
+            }
         return UwbRangingParams.Builder(
                 mRangingParams!!.sessionId,
-                mRangingParams!!.uwbConfigType,
+                configId,
                 convertUwbAndroidxAddressToUwbRangingAddress(localAddress),
                 convertUwbAndroidxAddressToUwbRangingAddress(peerAddress),
             )
@@ -256,7 +325,7 @@ internal abstract class UwbClientSessionScopeRangingImpl(
     fun buildSessionConfig(): SessionConfig {
         val sessionConfigBuilder =
             SessionConfig.Builder()
-                .setAngleOfArrivalNeeded(!mRangingParams!!.isAoaDisabled)
+                .setAngleOfArrivalNeeded(isAoaRequested)
                 .setSensorFusionParams(
                     SensorFusionParams.Builder().setSensorFusionEnabled(true).build()
                 )

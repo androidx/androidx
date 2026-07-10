@@ -17,14 +17,12 @@
 package androidx.compose.runtime.composer.gapbuffer.changelist
 
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.composer.DebugStringFormattable
 import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.runtimeCheck
-import androidx.compose.runtime.tooling.OperationErrorContext
 
-internal class FixupList : DebugStringFormattable() {
+internal class FixupList : OperationsDebugStringFormattable() {
     private val operations = Operations()
     private val pendingOperations = Operations()
 

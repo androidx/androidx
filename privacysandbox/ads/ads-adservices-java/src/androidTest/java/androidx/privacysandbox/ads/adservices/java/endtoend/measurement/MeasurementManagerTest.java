@@ -40,6 +40,7 @@ import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -120,6 +121,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testRegisterSource_NoServerSetup_NoErrors() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -136,6 +138,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testRegisterAppSources_NoServerSetup_NoErrors() throws Exception {
         // Skip the test if the right SDK extension is not present
         Assume.assumeTrue(
@@ -151,6 +154,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testRegisterTrigger_NoServerSetup_NoErrors() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -163,6 +167,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void registerWebSource_NoErrors() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -186,6 +191,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void registerWebTrigger_NoErrors() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -203,6 +209,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testDeleteRegistrations_withRequest_withNoRange_withCallback_NoErrors()
             throws Exception {
         // Skip the test if SDK extension 5 is not present.
@@ -221,6 +228,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testDeleteRegistrations_withRequest_withEmptyLists_withRange_withCallback_NoErrors()
             throws Exception {
         // Skip the test if the right SDK extension is not present.
@@ -242,6 +250,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testDeleteRegistrations_withRequest_withInvalidArguments_withCallback_hasError()
             throws Exception {
         // Skip the test if the right SDK extension is not present.
@@ -267,6 +276,7 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testMeasurementApiStatus_returnResultStatus() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(

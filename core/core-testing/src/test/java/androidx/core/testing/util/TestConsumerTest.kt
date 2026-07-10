@@ -24,7 +24,7 @@ class TestConsumerTest {
 
     @Test
     fun test_checkingValues_recordsValue() {
-        val values = listOf(Object(), Object(), Object())
+        val values = listOf(Any(), Any(), Any())
 
         values.forEach(testConsumer::accept)
 
@@ -33,7 +33,7 @@ class TestConsumerTest {
 
     @Test(expected = AssertionError::class)
     fun test_checkingValues_checksSize() {
-        val values = listOf(Object(), Object(), Object())
+        val values = listOf(Any(), Any(), Any())
 
         values.forEach(testConsumer::accept)
 
@@ -42,7 +42,7 @@ class TestConsumerTest {
 
     @Test(expected = AssertionError::class)
     fun test_checkingValues_checksOrder() {
-        val values = listOf(Object(), Object(), Object())
+        val values = listOf(Any(), Any(), Any())
 
         values.forEach(testConsumer::accept)
 

@@ -124,16 +124,24 @@ fun SemanticsNodeInteraction.assertIsFocused(): SemanticsNodeInteraction = asser
 fun SemanticsNodeInteraction.assertIsNotFocused(): SemanticsNodeInteraction = assert(isNotFocused())
 
 /**
- * Asserts that the node's content description contains exactly the given [values] and nothing else.
+ * Asserts that the node's list of content descriptions contains exactly the given [values] and
+ * nothing else.
  *
- * Note that in merged semantics tree there can be a list of content descriptions that got merged
- * from the child nodes. Typically an accessibility tooling will decide based on its heuristics
- * which ones to announce.
+ * The `ContentDescription` property is represented as a list of strings. In the merged semantics
+ * tree (the default in Compose testing), this list often contains multiple descriptions merged from
+ * child nodes. This function evaluates the entire list.
+ *
+ * The assertion will only pass if the node's list contains all the provided [values], and contains
+ * no additional items. Note that the order of the elements does not matter.
+ *
+ * Typically, accessibility tooling will decide based on its heuristics which descriptions to
+ * announce.
  *
  * Throws [AssertionError] if the node's descriptions don't contain all items from [values], or if
  * the descriptions contain extra items that are not in [values].
  *
- * @param values List of values to match (the order does not matter)
+ * @sample androidx.compose.ui.test.samples.assertContentDescriptionEqualsSample
+ * @param values List of values to match (the order does not matter).
  * @see SemanticsProperties.ContentDescription
  */
 fun SemanticsNodeInteraction.assertContentDescriptionEquals(
@@ -141,18 +149,26 @@ fun SemanticsNodeInteraction.assertContentDescriptionEquals(
 ): SemanticsNodeInteraction = assert(hasContentDescriptionExactly(*values))
 
 /**
- * Asserts that the node's content description contains the given [value].
+ * Asserts that the node's list of content descriptions contains the given [value].
  *
- * Note that in merged semantics tree there can be a list of content descriptions that got merged
- * from the child nodes. Typically an accessibility tooling will decide based on its heuristics
- * which ones to announce.
+ * The `ContentDescription` property is represented as a list of strings. In the merged semantics
+ * tree (the default in Compose testing), this list often contains multiple descriptions merged from
+ * child nodes. This function evaluates whether any individual item in that list matches the
+ * provided [value].
  *
- * Throws [AssertionError] if the node's value does not contain `value`, or if the node has no value
+ * By default, this requires an exact string match with at least one complete item in the list.
  *
- * @param value Value to match as one of the items in the list of content descriptions.
+ * Typically, accessibility tooling will decide based on its heuristics which descriptions to
+ * announce.
+ *
+ * Throws [AssertionError] if the node's value list does not contain `value`, or if the node has no
+ * value.
+ *
+ * @sample androidx.compose.ui.test.samples.assertContentDescriptionContainsSample
+ * @param value Value to match against the items in the list of content descriptions.
  * @param substring Whether this can be satisfied as a substring match of an item in the list of
- *   descriptions.
- * @param ignoreCase Whether case should be ignored.
+ *   descriptions. Defaults to false.
+ * @param ignoreCase Whether case should be ignored. Defaults to false.
  * @see SemanticsProperties.ContentDescription
  */
 fun SemanticsNodeInteraction.assertContentDescriptionContains(
@@ -163,21 +179,31 @@ fun SemanticsNodeInteraction.assertContentDescriptionContains(
     assert(hasContentDescription(value, substring = substring, ignoreCase = ignoreCase))
 
 /**
- * Asserts that the node's text contains exactly the given [values] and nothing else.
+ * Asserts that the node's list of text values contains exactly the given [values] and nothing else.
  *
  * This will also search in [SemanticsProperties.EditableText] by default.
  *
- * Note that in merged semantics tree there can be a list of text items that got merged from the
- * child nodes. Typically an accessibility tooling will decide based on its heuristics which ones to
- * use.
+ * The `Text` property is represented as a list of strings. In the merged semantics tree (the
+ * default in Compose testing), this list often contains multiple text items merged from child
+ * nodes. This function evaluates the entire list.
+ *
+ * The assertion will only pass if the node's list contains all the provided [values], and contains
+ * no additional items. Note that the order of the elements does not matter.
+ *
+ * Typically, accessibility tooling will decide based on its heuristics which ones to use.
  *
  * Throws [AssertionError] if the node's text values don't contain all items from [values], or if
  * the text values contain extra items that are not in [values].
  *
- * @param values List of values to match (the order does not matter)
- * @param includeEditableText Whether to also assert against the editable text.
- * @see SemanticsProperties.ContentDescription
+ * @sample androidx.compose.ui.test.samples.assertTextEqualsSample
+ * @param values List of values to match (the order does not matter).
+ * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
+ * @see SemanticsProperties.Text
  */
+@Deprecated(
+    message = "Replaced by hasTextExactly that includes the includeInputText parameter",
+    level = DeprecationLevel.HIDDEN,
+)
 fun SemanticsNodeInteraction.assertTextEquals(
     vararg values: String,
     includeEditableText: Boolean = true,
@@ -185,20 +211,68 @@ fun SemanticsNodeInteraction.assertTextEquals(
     assert(hasTextExactly(*values, includeEditableText = includeEditableText))
 
 /**
- * Asserts that the node's text contains the given [value].
+ * Asserts that the node's list of text values contains exactly the given [values] and nothing else.
+ *
+ * By default, this searches in [SemanticsProperties.Text] and [SemanticsProperties.EditableText].
+ * To also evaluate [SemanticsProperties.InputText] (which holds the raw user input of fields like
+ * passwords, bypassing visual transformations), set [includeInputText] to `true`.
+ *
+ * The `Text` property is represented as a list of strings. In the merged semantics tree (the
+ * default in Compose testing), this list often contains multiple text items merged from child
+ * nodes. This function evaluates the entire list.
+ *
+ * The assertion will only pass if the node's list contains all the provided [values], and contains
+ * no additional items. Note that the order of the elements does not matter.
+ *
+ * Typically, accessibility tooling will decide based on its heuristics which ones to use.
+ *
+ * Throws [AssertionError] if the node's text values don't contain all items from [values], or if
+ * the text values contain extra items that are not in [values].
+ *
+ * @sample androidx.compose.ui.test.samples.assertTextEqualsWithInputTextSample
+ * @param values List of values to match (the order does not matter).
+ * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
+ * @param includeInputText Whether to also assert against the un-transformed input text. Defaults to
+ *   false.
+ * @see SemanticsProperties.Text
+ * @see SemanticsProperties.EditableText
+ * @see SemanticsProperties.InputText
+ */
+fun SemanticsNodeInteraction.assertTextEquals(
+    vararg values: String,
+    includeEditableText: Boolean = true,
+    includeInputText: Boolean = false,
+): SemanticsNodeInteraction =
+    assert(
+        hasTextExactly(
+            *values,
+            includeEditableText = includeEditableText,
+            includeInputText = includeInputText,
+        )
+    )
+
+/**
+ * Asserts that the node's list of text values contains the given [value].
  *
  * This will also search in [SemanticsProperties.EditableText] and [SemanticsProperties.InputText].
  *
- * Note that in merged semantics tree there can be a list of text items that got merged from the
- * child nodes. Typically an accessibility tooling will decide based on its heuristics which ones to
- * use.
+ * The `Text` property is represented as a list of strings. In the merged semantics tree (the
+ * default in Compose testing), this list often contains multiple text items merged from child
+ * nodes. This function evaluates whether any individual item in that list matches the provided
+ * [value].
  *
- * Throws [AssertionError] if the node's value does not contain `value`, or if the node has no value
+ * By default, this requires an exact string match with at least one complete item in the list.
  *
- * @param value Value to match as one of the items in the list of text values.
+ * Typically, accessibility tooling will decide based on its heuristics which ones to use.
+ *
+ * Throws [AssertionError] if the node's value list does not contain `value`, or if the node has no
+ * value.
+ *
+ * @sample androidx.compose.ui.test.samples.assertTextContainsSample
+ * @param value Value to match against the items in the list of text values.
  * @param substring Whether this can be satisfied as a substring match of an item in the list of
- *   text.
- * @param ignoreCase Whether case should be ignored.
+ *   text. Defaults to false.
+ * @param ignoreCase Whether case should be ignored. Defaults to false.
  * @see SemanticsProperties.Text
  */
 fun SemanticsNodeInteraction.assertTextContains(

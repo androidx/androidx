@@ -16,9 +16,7 @@
 
 package androidx.appfunctions
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import androidx.test.filters.SdkSuppress
@@ -77,12 +75,6 @@ class TypeParameterTest {
             AppFunctionSerializableFactory.TypeParameter.PrimitiveTypeParameter(
                 ByteArray::class.java
             )
-        val pendingIntentParam =
-            AppFunctionSerializableFactory.TypeParameter.PrimitiveTypeParameter(
-                PendingIntent::class.java
-            )
-        val pendingIntent =
-            PendingIntent.getActivity(context, 0, Intent(), PendingIntent.FLAG_IMMUTABLE)
 
         // Set values
         intParam.setValueInAppFunctionData(builder, "intKey", 42)
@@ -118,7 +110,6 @@ class TypeParameterTest {
             "byteArrayKey",
             byteArrayOf(0x1, 0x2, 0x3),
         )
-        pendingIntentParam.setValueInAppFunctionData(builder, "pendingIntentKey", pendingIntent)
 
         val afd = builder.build()
 
@@ -152,8 +143,6 @@ class TypeParameterTest {
             .asList()
             .containsExactly(0x1.toByte(), 0x2.toByte(), 0x3.toByte())
             .inOrder()
-        assertThat(pendingIntentParam.getFromAppFunctionData(afd, "pendingIntentKey"))
-            .isEqualTo(pendingIntent)
     }
 
     @Test
@@ -167,28 +156,12 @@ class TypeParameterTest {
                 String::class.java
             )
         val stringList = listOf("1", "2", "3")
-        val pendingIntentParam =
-            AppFunctionSerializableFactory.TypeParameter.PrimitiveListTypeParameter<
-                PendingIntent,
-                List<PendingIntent>,
-            >(
-                PendingIntent::class.java
-            )
-        val pendingIntentList =
-            listOf(PendingIntent.getActivity(context, 0, Intent(), PendingIntent.FLAG_IMMUTABLE))
 
         stringListParam.setValueInAppFunctionData(builder, "stringListKey", stringList)
-        pendingIntentParam.setValueInAppFunctionData(
-            builder,
-            "pendingIntentListKey",
-            pendingIntentList,
-        )
 
         val afd = builder.build()
         assertThat(stringListParam.getFromAppFunctionData(afd, "stringListKey"))
             .containsExactlyElementsIn(stringList)
-        assertThat(pendingIntentParam.getFromAppFunctionData(afd, "pendingIntentListKey"))
-            .containsExactlyElementsIn(pendingIntentList)
     }
 
     @Test

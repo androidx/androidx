@@ -20,6 +20,7 @@ import static android.os.Build.VERSION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.location.GnssStatus;
 
 import androidx.annotation.RequiresApi;
@@ -47,6 +48,7 @@ class GnssStatusWrapper extends GnssStatusCompat {
     }
 
     @Override
+    @SuppressLint("Range")
     public int getSvid(int satelliteIndex) {
         return mWrapped.getSvid(satelliteIndex);
     }

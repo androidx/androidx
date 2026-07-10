@@ -26,7 +26,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.fragment.app.Fragment
@@ -54,6 +54,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +66,7 @@ class HiltNavigationViewModelComposeTest {
 
     @get:Rule val testRule = HiltAndroidRule(this)
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is
     //  resolved.

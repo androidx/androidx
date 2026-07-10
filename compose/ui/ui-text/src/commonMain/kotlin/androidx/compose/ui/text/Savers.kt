@@ -48,7 +48,7 @@ import androidx.compose.ui.util.fastMap
  * Utility function to be able to save nullable values. It also enables not to use with() scope for
  * readability/syntactic purposes.
  */
-internal fun <T : Saver<Original, Saveable>, Original, Saveable> save(
+internal fun <T : Saver<Original, Saveable>, Original, Saveable : Any> save(
     value: Original?,
     saver: T,
     scope: SaverScope,
@@ -60,10 +60,12 @@ internal fun <T : Saver<Original, Saveable>, Original, Saveable> save(
  * Utility function to restore nullable values. It also enables not to use with() scope for
  * readability/syntactic purposes.
  */
-internal inline fun <T : Saver<Original, Saveable>, Original, Saveable, reified Result> restore(
-    value: Saveable?,
-    saver: T,
-): Result? {
+internal inline fun <
+    T : Saver<Original, Saveable>,
+    Original,
+    Saveable : Any,
+    reified Result,
+> restore(value: Saveable?, saver: T): Result? {
     // Most of the types we save are nullable. However, value classes are usually not but instead
     // have a special Unspecified value. In that case we delegate handling of the "false"
     // value restoration to the corresponding saver that will restore "false" as an Unspecified

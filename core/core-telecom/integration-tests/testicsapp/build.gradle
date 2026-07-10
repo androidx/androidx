@@ -18,22 +18,21 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.core.telecom.test"
-
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
     defaultConfig {
         applicationId = "androidx.core.telecom.icstest"
-        minSdk = 29 // Move down to 23 if we support CallingApp:checkDialerRole for < Q
+        minSdk { version = release(29) } // Move down to 23 if we support CallingApp:checkDialerRole for < Q
     }
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
     buildFeatures {
@@ -42,7 +41,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     //@Serialize
     implementation(libs.kotlinSerializationCore)
     // Test package

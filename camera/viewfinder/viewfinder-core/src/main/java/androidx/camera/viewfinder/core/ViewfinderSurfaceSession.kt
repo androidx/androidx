@@ -17,6 +17,8 @@
 package androidx.camera.viewfinder.core
 
 import android.view.Surface
+import androidx.annotation.RestrictTo
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -38,6 +40,21 @@ interface ViewfinderSurfaceSession : AutoCloseable {
 }
 
 /**
+ * Listener invoked when a new frame is rendered to the surface.
+ *
+ * @see ViewfinderSurfaceSessionScope.addFrameRenderedListener
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun interface FrameRenderedListener {
+    /**
+     * Invoked when a new frame is available.
+     *
+     * @param timestampNanos The timestamp of the frame in nanoseconds.
+     */
+    fun onFrameRendered(timestampNanos: Long)
+}
+
+/**
  * A coroutine variant of a [ViewfinderSurfaceSession].
  *
  * The scope will generally be active for as long as the surface needs to be written into, so
@@ -51,4 +68,20 @@ interface ViewfinderSurfaceSession : AutoCloseable {
 interface ViewfinderSurfaceSessionScope : CoroutineScope {
     val surface: Surface
     val request: ViewfinderSurfaceRequest
+
+    /**
+     * Registers a listener to be invoked when the underlying surface content has been updated.
+     *
+     * This is only supported when the viewfinder is in [ImplementationMode.EMBEDDED] mode.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    fun addFrameRenderedListener(executor: Executor, listener: FrameRenderedListener) {
+        // Default no-op
+    }
+
+    /** Unregisters a listener that was previously registered with [addFrameRenderedListener]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    fun removeFrameRenderedListener(listener: FrameRenderedListener) {
+        // Default no-op
+    }
 }

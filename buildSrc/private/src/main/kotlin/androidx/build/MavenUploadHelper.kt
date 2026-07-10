@@ -39,7 +39,9 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
@@ -68,7 +70,7 @@ fun Project.configureMavenArtifactUpload(
         }
     }
     afterEvaluate {
-        if (!androidXExtension.shouldPublish()) {
+        if (!androidXExtension.shouldPublish.get()) {
             return@afterEvaluate
         }
         components.configureEach { component ->
@@ -95,17 +97,17 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
     if (plugins.hasPlugin(AppPlugin::class.java)) {
         return false
     }
-    if (!extension.shouldRelease() && !isSnapshotBuild()) {
+    if (!extension.shouldRelease.get() && !isSnapshotBuild()) {
         return false
     }
-    return extension.shouldPublish()
+    return extension.shouldPublish.get()
 }
 
 private fun Project.buildInfoTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
     if (plugins.hasPlugin(AppPlugin::class.java)) {
         return false
     }
-    return extension.shouldRelease()
+    return extension.shouldRelease.get()
 }
 
 /** Configure publishing for a [SoftwareComponent]. */
@@ -124,6 +126,7 @@ private fun Project.configureComponentPublishing(
      */
     val androidLibrariesSetProvider: Provider<Set<String>> = provider {
         val androidxAndroidProjects = mutableSetOf<String>()
+        if (extension.isIsolatedProjectsEnabled()) return@provider androidxAndroidProjects
         // Check every project is the project map to see if they are an Android Library
         val projectModules = extension.mavenCoordinatesToProjectPathMap
         for ((mavenCoordinates, projectPath) in projectModules) {
@@ -143,6 +146,15 @@ private fun Project.configureComponentPublishing(
         repositories {
             it.maven { repo -> repo.setUrl(getRepositoryDirectory()) }
             it.maven { repo -> repo.setUrl(getPerProjectRepositoryDirectory()) }
+        }
+        // We delete the repository every time we publish to ensure that when versions are changed
+        // we only have the latest current version
+        val deleteRepo =
+            tasks.register("deletePerProjectRepo", Delete::class.java) {
+                it.delete(getPerProjectRepositoryDirectory())
+            }
+        tasks.withType(PublishToMavenRepository::class.java).configureEach {
+            it.dependsOn(deleteRepo)
         }
         publications {
             if (appliesJavaGradlePluginPlugin()) {
@@ -183,7 +195,7 @@ private fun Project.configureComponentPublishing(
                 val stubNamespace =
                     project.group.toString().replace(':', '.') +
                         "." +
-                        project.name.toString().replace('-', '.') +
+                        project.name.replace('-', '.') +
                         ".anchor"
                 val unpackedStubAarTask =
                     tasks.register("unpackedStubAar", UnpackedStubAarTask::class.java) { aarTask ->
@@ -364,7 +376,7 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
 
 private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: MavenPom) {
     pom.name.set(extension.name)
-    pom.description.set(provider { extension.description })
+    pom.description.set(extension.description)
     pom.url.set(
         provider {
             fun defaultUrl() =
@@ -375,7 +387,7 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
             getAlternativeProjectUrl() ?: defaultUrl()
         }
     )
-    pom.inceptionYear.set(provider { extension.inceptionYear })
+    pom.inceptionYear.set(extension.inceptionYear)
     pom.licenses { licenses ->
         licenses.license { license ->
             license.name.set(extension.license.name)
@@ -385,8 +397,8 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 
         for (extraLicense in extension.getExtraLicenses()) {
             licenses.license { license ->
-                license.name.set(provider { extraLicense.name })
-                license.url.set(provider { extraLicense.url })
+                license.name.set(provider { extraLicense.name!! })
+                license.url.set(provider { extraLicense.url!! })
                 license.distribution.set("repo")
             }
         }

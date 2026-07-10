@@ -1,0 +1,246 @@
+// Signature format: 4.0
+package androidx.camera.common {
+
+  public final class AndroidImage implements androidx.camera.common.MutableImageWrapper {
+    ctor public AndroidImage(android.media.Image image);
+    method public void close();
+    method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
+    method @InaccessibleFromKotlin public int getFormat();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
+    method @InaccessibleFromKotlin public long getTimestamp();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
+    method @InaccessibleFromKotlin public void setDataSpace(int);
+    method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
+    method @InaccessibleFromKotlin public void setTimestamp(long);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public android.graphics.Rect cropRect;
+    property public int dataSpace;
+    property public int format;
+    property public android.hardware.HardwareBuffer? hardwareBuffer;
+    property public int height;
+    property public java.util.List<androidx.camera.common.ImagePlane> imagePlanes;
+    property public android.hardware.SyncFence? syncFence;
+    property public long timestamp;
+    property public int width;
+  }
+
+  public static final class AndroidImage.Plane implements androidx.camera.common.ImagePlane {
+    ctor public AndroidImage.Plane(android.media.Image.Plane imagePlane);
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer getBuffer();
+    method @InaccessibleFromKotlin public int getPixelStride();
+    method @InaccessibleFromKotlin public int getRowStride();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public java.nio.ByteBuffer buffer;
+    property public int pixelStride;
+    property public int rowStride;
+  }
+
+  public final class CameraMath {
+    method @kotlin.PublishedApi internal inline <T> T computeScaleAndOffsetWithinBounds(int width, int height, int boundsX, int boundsY, int boundsWidth, int boundsHeight, kotlin.jvm.functions.Function3<? super java.lang.Float,? super java.lang.Integer,? super java.lang.Integer,? extends T> transform);
+    method @kotlin.PublishedApi internal inline float computeScaleToFit(int width, int height, int widthToFit, int heightToFit);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline androidx.camera.common.DiscreteRotation computeSensorRotationToDisplayOrientation(androidx.camera.common.DiscreteRotation displayRotation, androidx.camera.common.DiscreteRotation sensorOrientation, boolean sensorIsFacingScreen);
+    method @InaccessibleFromKotlin public static int computeSensorRotationToDisplayOrientation(int displayRotation, int sensorOrientation, boolean sensorIsFacingScreen);
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation computeSensorRotationToDisplayOrientation(int displayRotation, int sensorOrientation, boolean sensorIsFacingScreen);
+    method @BytecodeOnly public int computeSensorRotationToDisplayOrientation-vv0rJw8(int, int, boolean);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline androidx.camera.common.DiscreteRotation computeSensorRotationToJpegOrientation(androidx.camera.common.DiscreteRotation deviceOrientation, androidx.camera.common.DiscreteRotation sensorOrientation, boolean sensorIsFacingScreen);
+    method @InaccessibleFromKotlin public static int computeSensorRotationToJpegOrientation(int deviceOrientation, int sensorOrientation, boolean sensorIsFacingScreen);
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation computeSensorRotationToJpegOrientation(int deviceOrientation, int sensorOrientation, boolean sensorIsFacingScreen);
+    method @BytecodeOnly public int computeSensorRotationToJpegOrientation-vv0rJw8(int, int, boolean);
+    method @BytecodeOnly public <T> T mapSensorPointToStreamPoint(int, int, int, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorPointToStreamPoint(int sensorX, int sensorY, int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toStreamPoint);
+    method public static android.graphics.PointF mapSensorPointToStreamPointF(android.graphics.Point sensorPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorPointToUiPoint(int sensorX, int sensorY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toUiPoint);
+    method @BytecodeOnly public <T> T mapSensorPointToUiPoint-N9jg0Fw(int, int, int, int, int, int, boolean, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.PointF mapSensorPointToUiPointF(android.graphics.Point sensorPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop);
+    method @BytecodeOnly public <T> T mapSensorRectToStreamRect(int, int, int, int, int, int, int, int, int, int, kotlin.jvm.functions.Function4<? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorRectToStreamRect(int sensorLeft, int sensorTop, int sensorRight, int sensorBottom, int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function4<java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,T> toStreamRect);
+    method public static android.graphics.RectF mapSensorRectToStreamRectF(android.graphics.Rect sensorRect, android.util.Size streamSize, android.graphics.Rect sensorCrop);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorRectToUiRect(int sensorLeft, int sensorTop, int sensorRight, int sensorBottom, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function4<java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,T> toUiRect);
+    method @BytecodeOnly public <T> T mapSensorRectToUiRect-lTeStnQ(int, int, int, int, int, int, int, int, boolean, int, int, int, int, int, kotlin.jvm.functions.Function4<? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.RectF mapSensorRectToUiRectF(android.graphics.Rect sensorRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop);
+    method @BytecodeOnly public <T> T mapSensorSizeToStreamSize(int, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorSizeToStreamSize(int sensorSizeWidth, int sensorSizeHeight, int streamWidth, int streamHeight, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toStreamSize);
+    method public static android.util.SizeF mapSensorSizeToStreamSizeF(android.util.Size size, android.util.Size streamSize, int sensorCropWidth, int sensorCropHeight);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapSensorSizeToUiSize(int sensorSizeWidth, int sensorSizeHeight, int uiWidth, int uiHeight, int streamWidth, int streamHeight, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toUiSize);
+    method @BytecodeOnly public <T> T mapSensorSizeToUiSize-cxLx2p8(int, int, int, int, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.util.SizeF mapSensorSizeToUiSizeF(android.util.Size size, android.util.Size uiSize, android.util.Size streamSize, int sensorRotationToDisplayOrientation, int sensorCropWidth, int sensorCropHeight);
+    method public static android.graphics.Point mapStreamPointToSensorPoint(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Point mapStreamPointToSensorPoint(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional boolean coerceToCropRegion);
+    method @BytecodeOnly public <T> T mapStreamPointToSensorPoint(float, float, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamPointToSensorPoint(float streamX, float streamY, int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional boolean coerceToCropRegion, kotlin.jvm.functions.Function2<java.lang.Integer,java.lang.Integer,T> toSensorPoint);
+    method @BytecodeOnly public static android.graphics.Point! mapStreamPointToSensorPoint$default(android.graphics.PointF!, android.util.Size!, android.graphics.Rect!, boolean, int, Object!);
+    method @BytecodeOnly public static Object! mapStreamPointToSensorPoint$default(androidx.camera.common.CameraMath!, float, float, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function2!, int, Object!);
+    method public static android.graphics.Rect mapStreamPointToSensorRect(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Rect mapStreamPointToSensorRect(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional int minimumSensorSize);
+    method public static android.graphics.Rect mapStreamPointToSensorRect(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion);
+    method public static android.graphics.Rect mapStreamPointToSensorRect(android.graphics.PointF streamPoint, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion, optional float touchToFocusRatio);
+    method @BytecodeOnly public <T> T mapStreamPointToSensorRect(float, float, int, int, int, int, int, int, int, boolean, float, kotlin.jvm.functions.Function4<? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamPointToSensorRect(float streamX, float streamY, int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional int minimumSensorSize, optional boolean coerceToCropRegion, optional float ratio, kotlin.jvm.functions.Function4<java.lang.Integer,java.lang.Integer,java.lang.Integer,java.lang.Integer,T> toSensorRect);
+    method @BytecodeOnly public static android.graphics.Rect! mapStreamPointToSensorRect$default(android.graphics.PointF!, android.util.Size!, android.graphics.Rect!, int, boolean, float, int, Object!);
+    method @BytecodeOnly public static Object! mapStreamPointToSensorRect$default(androidx.camera.common.CameraMath!, float, float, int, int, int, int, int, int, int, boolean, float, kotlin.jvm.functions.Function4!, int, Object!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamPointToUiPoint(float streamX, float streamY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toUiPoint);
+    method @BytecodeOnly public <T> T mapStreamPointToUiPoint-HHsWsIo(float, float, int, int, int, int, boolean, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.PointF mapStreamPointToUiPointF(android.graphics.PointF streamPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation);
+    method public static android.graphics.Rect mapStreamRectToSensorRect(android.graphics.RectF streamRect, android.util.Size streamSize, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Rect mapStreamRectToSensorRect(android.graphics.RectF streamRect, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional int minimumSensorSize);
+    method public static android.graphics.Rect mapStreamRectToSensorRect(android.graphics.RectF streamRect, android.util.Size streamSize, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion);
+    method @BytecodeOnly public <T> T mapStreamRectToSensorRect(float, float, float, float, int, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function4<? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamRectToSensorRect(float streamLeft, float streamTop, float streamRight, float streamBottom, int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional int minimumSensorSize, optional boolean coerceToCropRegion, kotlin.jvm.functions.Function4<java.lang.Integer,java.lang.Integer,java.lang.Integer,java.lang.Integer,T> toSensorRect);
+    method @BytecodeOnly public static android.graphics.Rect! mapStreamRectToSensorRect$default(android.graphics.RectF!, android.util.Size!, android.graphics.Rect!, int, boolean, int, Object!);
+    method @BytecodeOnly public static Object! mapStreamRectToSensorRect$default(androidx.camera.common.CameraMath!, float, float, float, float, int, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function4!, int, Object!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamRectToUiRect(float streamLeft, float streamTop, float streamRight, float streamBottom, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function4<java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,T> toUiRect);
+    method @BytecodeOnly public <T> T mapStreamRectToUiRect-koXgLMo(float, float, float, float, int, int, int, int, boolean, int, kotlin.jvm.functions.Function4<? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.RectF mapStreamRectToUiRectF(android.graphics.RectF streamRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation);
+    method public static android.util.Size mapStreamSizeToSensorSize(android.util.Size size, android.util.Size streamSize, int sensorCropWidth, int sensorCropHeight);
+    method @BytecodeOnly public <T> T mapStreamSizeToSensorSize(float, float, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamSizeToSensorSize(float streamSizeWidth, float streamSizeHeight, int streamWidth, int streamHeight, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Integer,java.lang.Integer,T> toSensorSize);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapStreamSizeToUiSize(float streamSizeWidth, float streamSizeHeight, int uiWidth, int uiHeight, int streamWidth, int streamHeight, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toUiSize);
+    method @BytecodeOnly public <T> T mapStreamSizeToUiSize-8lHuTWI(float, float, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.util.SizeF mapStreamSizeToUiSizeF(android.util.Size size, android.util.Size uiSize, android.util.Size streamSize, int sensorRotationToDisplayOrientation);
+    method public static android.graphics.Point mapUiPointToSensorPoint(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Point mapUiPointToSensorPoint(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional boolean coerceToCropRegion);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiPointToSensorPoint(float uiX, float uiY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional boolean coerceToCropRegion, kotlin.jvm.functions.Function2<java.lang.Integer,java.lang.Integer,T> toSensorPoint);
+    method @BytecodeOnly public static android.graphics.Point! mapUiPointToSensorPoint$default(android.graphics.Point!, android.util.Size!, android.util.Size!, boolean, int, android.graphics.Rect!, boolean, int, Object!);
+    method @BytecodeOnly public <T> T mapUiPointToSensorPoint-y-WVLRc(float, float, int, int, int, int, boolean, int, int, int, int, int, boolean, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @BytecodeOnly public static Object! mapUiPointToSensorPoint-y-WVLRc$default(androidx.camera.common.CameraMath!, float, float, int, int, int, int, boolean, int, int, int, int, int, boolean, kotlin.jvm.functions.Function2!, int, Object!);
+    method public static android.graphics.Rect mapUiPointToSensorRect(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Rect mapUiPointToSensorRect(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional int minimumSensorSize);
+    method public static android.graphics.Rect mapUiPointToSensorRect(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion);
+    method public static android.graphics.Rect mapUiPointToSensorRect(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion, optional float touchToFocusRatio);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiPointToSensorRect(float uiX, float uiY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional int minimumSensorSize, optional boolean coerceToCropRegion, optional float ratio, kotlin.jvm.functions.Function4<java.lang.Integer,java.lang.Integer,java.lang.Integer,java.lang.Integer,T> toSensorRect);
+    method @BytecodeOnly public static android.graphics.Rect! mapUiPointToSensorRect$default(android.graphics.Point!, android.util.Size!, android.util.Size!, boolean, int, android.graphics.Rect!, int, boolean, float, int, Object!);
+    method @BytecodeOnly public <T> T mapUiPointToSensorRect-lSILqjM(float, float, int, int, int, int, boolean, int, int, int, int, int, int, boolean, float, kotlin.jvm.functions.Function4<? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @BytecodeOnly public static Object! mapUiPointToSensorRect-lSILqjM$default(androidx.camera.common.CameraMath!, float, float, int, int, int, int, boolean, int, int, int, int, int, int, boolean, float, kotlin.jvm.functions.Function4!, int, Object!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiPointToStreamPoint(float uiX, float uiY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toStreamPoint);
+    method @BytecodeOnly public <T> T mapUiPointToStreamPoint-HHsWsIo(float, float, int, int, int, int, boolean, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.PointF mapUiPointToStreamPointF(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiPointToStreamRect(float uiX, float uiY, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, optional float ratio, kotlin.jvm.functions.Function4<java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,T> toStreamRect);
+    method @BytecodeOnly public <T> T mapUiPointToStreamRect-WWnIsEo(float, float, int, int, int, int, boolean, int, float, kotlin.jvm.functions.Function4<? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method @BytecodeOnly public static Object! mapUiPointToStreamRect-WWnIsEo$default(androidx.camera.common.CameraMath!, float, float, int, int, int, int, boolean, int, float, kotlin.jvm.functions.Function4!, int, Object!);
+    method public static android.graphics.RectF mapUiPointToStreamRectF(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation);
+    method public static android.graphics.RectF mapUiPointToStreamRectF(android.graphics.Point uiPoint, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, optional float touchToFocusRatio);
+    method @BytecodeOnly public static android.graphics.RectF! mapUiPointToStreamRectF$default(android.graphics.Point!, android.util.Size!, android.util.Size!, boolean, int, float, int, Object!);
+    method public static android.graphics.Rect mapUiRectToSensorRect(android.graphics.RectF uiRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop);
+    method public static android.graphics.Rect mapUiRectToSensorRect(android.graphics.RectF uiRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional int minimumSensorSize);
+    method public static android.graphics.Rect mapUiRectToSensorRect(android.graphics.RectF uiRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation, android.graphics.Rect sensorCrop, optional int minimumSensorSize, optional boolean coerceToCropRegion);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiRectToSensorRect(float uiLeft, float uiTop, float uiRight, float uiBottom, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, optional int minimumSensorSize, optional boolean coerceToCropRegion, kotlin.jvm.functions.Function4<java.lang.Integer,java.lang.Integer,java.lang.Integer,java.lang.Integer,T> toSensorRect);
+    method @BytecodeOnly public static android.graphics.Rect! mapUiRectToSensorRect$default(android.graphics.RectF!, android.util.Size!, android.util.Size!, boolean, int, android.graphics.Rect!, int, boolean, int, Object!);
+    method @BytecodeOnly public <T> T mapUiRectToSensorRect-ljOWZLo(float, float, float, float, int, int, int, int, boolean, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function4<? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @BytecodeOnly public static Object! mapUiRectToSensorRect-ljOWZLo$default(androidx.camera.common.CameraMath!, float, float, float, float, int, int, int, int, boolean, int, int, int, int, int, int, boolean, kotlin.jvm.functions.Function4!, int, Object!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiRectToStreamRect(float uiLeft, float uiTop, float uiRight, float uiBottom, int uiWidth, int uiHeight, int streamWidth, int streamHeight, boolean streamMirroring, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function4<java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,T> toStreamRect);
+    method @BytecodeOnly public <T> T mapUiRectToStreamRect-koXgLMo(float, float, float, float, int, int, int, int, boolean, int, kotlin.jvm.functions.Function4<? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.graphics.RectF mapUiRectToStreamRectF(android.graphics.RectF uiRect, android.util.Size uiSize, android.util.Size streamSize, boolean streamMirroring, int sensorRotationToDisplayOrientation);
+    method public static android.util.Size mapUiSizeToSensorSize(android.util.Size size, android.util.Size uiSize, android.util.Size streamSize, int sensorRotationToDisplayOrientation, int sensorCropWidth, int sensorCropHeight);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiSizeToSensorSize(float uiSizeWidth, float uiSizeHeight, int uiWidth, int uiHeight, int streamWidth, int streamHeight, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function2<java.lang.Integer,java.lang.Integer,T> toSensorSize);
+    method @BytecodeOnly public <T> T mapUiSizeToSensorSize-cxLx2p8(float, float, int, int, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super java.lang.Integer!,? extends T>!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public inline <T> T mapUiSizeToStreamSize(float uiSizeWidth, float uiSizeHeight, int uiWidth, int uiHeight, int streamWidth, int streamHeight, androidx.camera.common.DiscreteRotation sensorRotationToDisplayOrientation, kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,T> toStreamSize);
+    method @BytecodeOnly public <T> T mapUiSizeToStreamSize-8lHuTWI(float, float, int, int, int, int, int, kotlin.jvm.functions.Function2<? super java.lang.Float!,? super java.lang.Float!,? extends T>!);
+    method public static android.util.SizeF mapUiSizeToStreamSizeF(android.util.Size size, android.util.Size uiSize, android.util.Size streamSize, int sensorRotationToDisplayOrientation);
+    method @kotlin.PublishedApi internal inline <T> T streamToSensorTransform(int streamWidth, int streamHeight, int sensorCropX, int sensorCropY, int sensorCropWidth, int sensorCropHeight, kotlin.jvm.functions.Function3<? super java.lang.Float,? super java.lang.Integer,? super java.lang.Integer,? extends T> transform);
+    property public static int DEFAULT_MIN_SENSOR_PIXELS;
+    property public static float DEFAULT_POINT_TO_RECT_RATIO;
+    field public static final int DEFAULT_MIN_SENSOR_PIXELS = 32; // 0x20
+    field public static final float DEFAULT_POINT_TO_RECT_RATIO = 0.18375f;
+    field public static final androidx.camera.common.CameraMath INSTANCE;
+  }
+
+  @kotlin.jvm.JvmInline public final value class DiscreteRotation {
+    ctor @KotlinOnly @kotlin.PublishedApi internal DiscreteRotation(int degrees);
+    method @BytecodeOnly public static androidx.camera.common.DiscreteRotation! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
+    method @InaccessibleFromKotlin public int getDegrees();
+    method @KotlinOnly public inline operator androidx.camera.common.DiscreteRotation minus(androidx.camera.common.DiscreteRotation other);
+    method @KotlinOnly public inline operator androidx.camera.common.DiscreteRotation minus(int degrees);
+    method @BytecodeOnly public static int minus-4Qa-4Hw(int, int);
+    method @BytecodeOnly public static int minus-REjC-m4(int, int);
+    method @KotlinOnly public inline operator androidx.camera.common.DiscreteRotation plus(androidx.camera.common.DiscreteRotation other);
+    method @KotlinOnly public inline operator androidx.camera.common.DiscreteRotation plus(int degrees);
+    method @BytecodeOnly public static int plus-4Qa-4Hw(int, int);
+    method @BytecodeOnly public static int plus-REjC-m4(int, int);
+    method @BytecodeOnly public int unbox-impl();
+    property public int degrees;
+    field public static final androidx.camera.common.DiscreteRotation.Companion Companion;
+  }
+
+  public static final class DiscreteRotation.Companion {
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation from(int degrees);
+    method @BytecodeOnly public int from-REjC-m4(int);
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation fromSurfaceRotation(int surfaceRotation);
+    method @BytecodeOnly public int fromSurfaceRotation-REjC-m4(int);
+    method @BytecodeOnly public int getROTATION_0-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_180-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_270-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_90-4VhhBrY();
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation round(float degrees);
+    method @KotlinOnly public androidx.camera.common.DiscreteRotation round(int degrees);
+    method @BytecodeOnly public int round-REjC-m4(float);
+    method @BytecodeOnly public int round-REjC-m4(int);
+    property public androidx.camera.common.DiscreteRotation ROTATION_0;
+    property public androidx.camera.common.DiscreteRotation ROTATION_180;
+    property public androidx.camera.common.DiscreteRotation ROTATION_270;
+    property public androidx.camera.common.DiscreteRotation ROTATION_90;
+  }
+
+  public final class DiscreteRotationMath {
+    method public static int fromSurfaceRotation(int surfaceRotation);
+    method public static void requireDiscreteRotation(int degrees);
+    method public static int round(float degrees);
+    method public static int round(int degrees);
+    field public static final androidx.camera.common.DiscreteRotationMath INSTANCE;
+  }
+
+  public interface ImagePlane extends androidx.camera.common.UnsafeWrapper {
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getBuffer();
+    method @InaccessibleFromKotlin public int getPixelStride();
+    method @InaccessibleFromKotlin public int getRowStride();
+    property public abstract java.nio.ByteBuffer? buffer;
+    property public abstract int pixelStride;
+    property public abstract int rowStride;
+  }
+
+  public interface ImageWrapper extends androidx.camera.common.UnsafeWrapper java.lang.AutoCloseable {
+    method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
+    method @InaccessibleFromKotlin public default int getDataSpace();
+    method @InaccessibleFromKotlin public int getFormat();
+    method @InaccessibleFromKotlin public default android.hardware.HardwareBuffer? getHardwareBuffer();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
+    method @InaccessibleFromKotlin public default android.hardware.SyncFence? getSyncFence();
+    method @InaccessibleFromKotlin public long getTimestamp();
+    method @InaccessibleFromKotlin public int getWidth();
+    property public abstract android.graphics.Rect cropRect;
+    property public default int dataSpace;
+    property public abstract int format;
+    property public default android.hardware.HardwareBuffer? hardwareBuffer;
+    property public abstract int height;
+    property public abstract java.util.List<androidx.camera.common.ImagePlane> imagePlanes;
+    property public default android.hardware.SyncFence? syncFence;
+    property public abstract long timestamp;
+    property public abstract int width;
+  }
+
+  public interface MutableImageWrapper extends androidx.camera.common.ImageWrapper {
+    method @InaccessibleFromKotlin public int getDataSpace();
+    method @InaccessibleFromKotlin public android.hardware.SyncFence? getSyncFence();
+    method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
+    method @InaccessibleFromKotlin public void setDataSpace(int);
+    method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
+    method @InaccessibleFromKotlin public void setTimestamp(long);
+    property public abstract android.graphics.Rect cropRect;
+    property public abstract int dataSpace;
+    property public abstract android.hardware.SyncFence? syncFence;
+    property public abstract long timestamp;
+  }
+
+  public interface UnsafeWrapper {
+    method public <T> T? unwrapAs(Class<T> type);
+  }
+
+  public final class UnsafeWrapperKt {
+    method @KotlinOnly public static inline <reified T> T? unwrapAs(androidx.camera.common.UnsafeWrapper);
+  }
+
+}
+

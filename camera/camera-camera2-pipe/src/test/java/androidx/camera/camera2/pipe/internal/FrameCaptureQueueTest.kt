@@ -23,9 +23,11 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Tests for [FrameCaptureQueue] */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class FrameCaptureQueueTest {
     private val imageStreams = listOf(StreamId(1), StreamId(2), StreamId(3))
     private val captureQueue = FrameCaptureQueue()

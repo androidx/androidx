@@ -43,4 +43,74 @@ class SavedStateListSerializationBenchmark() {
 
         assertThat(decoded).isEqualTo(original)
     }
+
+    @Test
+    fun encodeDecodeListBoolean() {
+        val original = List(sampleSize) { it % 2 == 0 }
+        lateinit var decoded: List<Boolean>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Boolean>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
+
+    @Test
+    fun encodeDecodeListLong() {
+        val original = List(sampleSize) { it.toLong() }
+        lateinit var decoded: List<Long>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Long>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
+
+    @Test
+    fun encodeDecodeListFloat() {
+        val original = List(sampleSize) { it.toFloat() }
+        lateinit var decoded: List<Float>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Float>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
+
+    @Test
+    fun encodeDecodeListDouble() {
+        val original = List(sampleSize) { it.toDouble() }
+        lateinit var decoded: List<Double>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Double>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
+
+    @Test
+    fun encodeDecodeListChar() {
+        val original = List(sampleSize) { (it % 26 + 'a'.code).toChar() }
+        lateinit var decoded: List<Char>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Char>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
 }

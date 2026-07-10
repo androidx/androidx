@@ -79,7 +79,7 @@ public class GridWidgetPrefetchTest {
 
     @Test
     public void prefetch() {
-        HorizontalGridView gridView = new HorizontalGridView(getContext());
+        HorizontalGridView gridView = new HorizontalGridViewEx(getContext());
         gridView.setNumRows(1);
         gridView.setRowHeight(100);
         gridView.setAdapter(createBoxAdapter());
@@ -129,7 +129,7 @@ public class GridWidgetPrefetchTest {
 
     @Test
     public void prefetchRtl() {
-        HorizontalGridView gridView = new HorizontalGridView(getContext());
+        HorizontalGridView gridView = new HorizontalGridViewEx(getContext());
         gridView.setNumRows(1);
         gridView.setRowHeight(100);
         gridView.setAdapter(createBoxAdapter());
@@ -202,7 +202,7 @@ public class GridWidgetPrefetchTest {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            HorizontalGridView gridView = new HorizontalGridView(getContext());
+            HorizontalGridView gridView = new HorizontalGridViewEx(getContext());
             gridView.setNumRows(1);
             gridView.setRowHeight(100);
             gridView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
@@ -243,7 +243,7 @@ public class GridWidgetPrefetchTest {
 
     @Test
     public void prefetchInitialFocusTest() {
-        VerticalGridView view = new VerticalGridView(getContext());
+        VerticalGridView view = new VerticalGridViewEx(getContext());
         view.setNumColumns(1);
         view.setColumnWidth(350);
         view.setAdapter(createBoxAdapter());
@@ -282,7 +282,7 @@ public class GridWidgetPrefetchTest {
 
     @Test
     public void prefetchNested() {
-        VerticalGridView gridView = new VerticalGridView(getContext());
+        VerticalGridView gridView = new VerticalGridViewEx(getContext());
         gridView.setNumColumns(1);
         gridView.setColumnWidth(350);
         OuterAdapter outerAdapter = new OuterAdapter();
@@ -324,5 +324,29 @@ public class GridWidgetPrefetchTest {
 
         // assume offsetChild still bound, in cache, just not attached...
         validateInitialPrefetch(offsetChild, 9, 10, 11, 12);
+    }
+
+    /** Force in non-touch mode. */
+    public static final class HorizontalGridViewEx extends HorizontalGridView {
+        public HorizontalGridViewEx(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean isInTouchMode() {
+            return false;
+        }
+    }
+
+    /** Force in non-touch mode. */
+    public static final class VerticalGridViewEx extends VerticalGridView {
+        public VerticalGridViewEx(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean isInTouchMode() {
+            return false;
+        }
     }
 }

@@ -45,10 +45,6 @@ private const val PROVIDER_KEY = "androidx.savedstate.SavedStateRegistry"
  */
 internal class SaveableStateRegistryWrapper(base: SaveableStateRegistry) :
     SaveableStateRegistry by base, SavedStateRegistryOwner {
-
-    /** Controls save/restore operations for the child [SavedStateRegistry]. */
-    val controller = SavedStateRegistryController.create(owner = this)
-
     /**
      * Provides a child lifecycle associated with the [SavedStateRegistry].
      *
@@ -59,23 +55,53 @@ internal class SaveableStateRegistryWrapper(base: SaveableStateRegistry) :
      * To unblock those tests, this implementation uses [LifecycleRegistry], which bypasses the
      * main-thread check. This is a temporary workaround.
      */
-    @Suppress("VisibleForTests") // TODO(mgalhardo): Fix when Lifecycle supports multi-threading.
-    override val lifecycle = LifecycleRegistry.createUnsafe(owner = this)
+    override val lifecycle
+        get() = getOrInitLifecycle()
 
-    override val savedStateRegistry = controller.savedStateRegistry
+    private var _lifecycle: LifecycleRegistry? = null
+
+    @Suppress("VisibleForTests") // TODO(mgalhardo): Fix when Lifecycle supports multi-threading.
+    private fun getOrInitLifecycle(): LifecycleRegistry {
+        return _lifecycle ?: LifecycleRegistry.createUnsafe(this).also { _lifecycle = it }
+    }
+
+    /** Controls save/restore operations for the child [SavedStateRegistry]. */
+    private val controller
+        get() = getOrInitController(savedState = null)
+
+    private var _controller: SavedStateRegistryController? = null
+
+    private fun getOrInitController(savedState: SavedState?): SavedStateRegistryController {
+        return _controller
+            ?: SavedStateRegistryController.create(owner = this).also {
+                _controller = it
+                it.performRestore(savedState)
+            }
+    }
+
+    override val savedStateRegistry
+        get() = controller.savedStateRegistry
 
     init {
-        // Restore the AndroidX Registry state using the Compose Registry.
-        controller.performRestore(savedState = consumeRestored(key = PROVIDER_KEY) as? SavedState)
+        val savedState = consumeRestored(key = PROVIDER_KEY) as? SavedState
+        if (savedState != null) {
+            // Restore the AndroidX Registry state using the Compose Registry.
+            getOrInitController(savedState)
+        }
 
         // Save AndroidX Registry state into the Compose registry.
         registerProvider(key = PROVIDER_KEY) {
-            val result = savedState()
-            controller.performSave(outBundle = result)
-            return@registerProvider if (result.read { isEmpty() }) {
-                null // Return null if state is empty, since nulls aren't stored.
+            val controller = _controller
+            return@registerProvider if (controller != null) {
+                val result = savedState()
+                controller.performSave(outBundle = result)
+                if (result.read { isEmpty() }) {
+                    null // Return null if state is empty, since nulls aren't stored.
+                } else {
+                    result
+                }
             } else {
-                result
+                null
             }
         }
     }

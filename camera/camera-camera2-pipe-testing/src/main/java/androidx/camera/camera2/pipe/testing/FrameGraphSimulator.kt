@@ -16,14 +16,32 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.view.Surface
 import androidx.camera.camera2.pipe.FrameGraph
+import androidx.camera.camera2.pipe.StreamId
 
 public class FrameGraphSimulator(
     private val realFrameGraph: FrameGraph,
     private val cameraSimulator: CameraSimulator,
 ) : FrameGraph by realFrameGraph, AutoCloseable, CameraSimulator by cameraSimulator {
 
+    public val setSurfaceResults: MutableMap<StreamId, Surface?> =
+        mutableMapOf<StreamId, Surface?>()
+
+    // Allows caller to check if the setSurface function is called and how many times.
+    override fun setSurface(stream: StreamId, surface: Surface?) {
+        setSurfaceResults[stream] = surface
+        realFrameGraph.setSurface(stream, surface)
+    }
+
     override fun toString(): String {
         return "FrameGraphSimulator($realFrameGraph, ${cameraSimulator})"
+    }
+
+    override fun close() {
+        realFrameGraph.close()
+        if (cameraSimulator is CameraGraphSimulator) {
+            cameraSimulator.close()
+        }
     }
 }

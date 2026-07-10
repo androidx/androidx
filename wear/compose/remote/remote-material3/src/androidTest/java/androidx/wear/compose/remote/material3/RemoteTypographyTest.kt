@@ -1,0 +1,206 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.compose.remote.material3
+
+import android.content.Context
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.unit.sp
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.wear.compose.material3.Typography
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+class RemoteTypographyTest {
+
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
+
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            500,
+            500,
+            ApplicationProvider.getApplicationContext<Context>()
+                .resources
+                .displayMetrics
+                .densityDpi,
+            ApplicationProvider.getApplicationContext<Context>().resources.configuration.fontScale,
+        )
+
+    @Test
+    fun typography_uses_mono_font_family() {
+        val monoTypography = RemoteTypography(defaultFontFamily = RemoteFontFamily.Monospace)
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = TestProfiles.androidXWithCoreText,
+        ) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                RemoteMaterialTheme(typography = monoTypography) {
+                    RemoteColumn {
+                        RemoteText("Mono default".rs)
+                        RemoteText(
+                            "Mono bodyLarge".rs,
+                            style = RemoteMaterialTheme.typography.bodyLarge,
+                        )
+                        RemoteText(
+                            "Mono bodyMedium".rs,
+                            style = RemoteMaterialTheme.typography.bodyMedium,
+                        )
+                        RemoteText(
+                            "Mono bodySmall".rs,
+                            style = RemoteMaterialTheme.typography.bodySmall,
+                        )
+                        RemoteText(
+                            "Mono labelLarge".rs,
+                            style = RemoteMaterialTheme.typography.labelLarge,
+                        )
+                        RemoteText(
+                            "Mono labelMedium".rs,
+                            style = RemoteMaterialTheme.typography.labelMedium,
+                        )
+                        RemoteText(
+                            "Mono labelSmall".rs,
+                            style = RemoteMaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typography_uses_custom_font_family() {
+        // Should pass roboto-flex but the player expects RobotoFlex
+        val robotoFlexTypography =
+            RemoteTypography(defaultFontFamily = RemoteFontFamily.Named("RobotoFlex"))
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = TestProfiles.androidXWithCoreText,
+        ) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                RemoteMaterialTheme(typography = robotoFlexTypography) {
+                    RemoteColumn {
+                        RemoteText(
+                            "RobotoFlex".rs,
+                            fontVariationSettings =
+                                FontVariation.Settings(FontVariation.weight(100)),
+                        )
+                        RemoteText("RobotoFlex".rs)
+                        RemoteText(
+                            "RobotoFlex".rs,
+                            fontVariationSettings =
+                                FontVariation.Settings(FontVariation.weight(900)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typography_override_style() {
+        val myTypography =
+            RemoteTypography(bodyLarge = RemoteTextStyle(fontSize = 40.rsp, color = Color.Red.rc))
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+        ) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                RemoteMaterialTheme(typography = myTypography) {
+                    // Should use the overridden bodyLarge which is Red and 40sp
+                    ProvideRemoteTextStyle(value = RemoteMaterialTheme.typography.bodyLarge) {
+                        RemoteColumn {
+                            RemoteText(
+                                "bodyMedium".rs,
+                                style = RemoteMaterialTheme.typography.bodyMedium,
+                            )
+                            RemoteText(
+                                "red bodyLarge".rs,
+                                style = RemoteMaterialTheme.typography.bodyLarge,
+                            )
+                            RemoteText(
+                                "bodySmall".rs,
+                                style = RemoteMaterialTheme.typography.bodySmall,
+                            )
+                            RemoteText(
+                                "labelLarge".rs,
+                                style = RemoteMaterialTheme.typography.labelLarge,
+                            )
+                            RemoteText(
+                                "labelMedium".rs,
+                                style = RemoteMaterialTheme.typography.labelMedium,
+                            )
+                            RemoteText(
+                                "labelSmall".rs,
+                                style = RemoteMaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typography_from_compose_typography_inherits_correctly() {
+        val myComposeTypography =
+            Typography(bodyLarge = TextStyle(fontSize = 40.sp, color = Color.Red))
+        val myTypography = RemoteTypography(myComposeTypography)
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+        ) {
+            RemoteMaterialTheme(typography = myTypography) {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                    RemoteText(
+                        "red bodyLarge 40sp".rs,
+                        style = RemoteMaterialTheme.typography.bodyLarge,
+                    )
+                }
+            }
+        }
+    }
+}

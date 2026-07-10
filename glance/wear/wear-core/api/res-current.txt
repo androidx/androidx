@@ -1,0 +1,2 @@
+integer glance_wear_container_type_large
+integer glance_wear_container_type_small

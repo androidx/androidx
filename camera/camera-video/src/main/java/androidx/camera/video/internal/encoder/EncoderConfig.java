@@ -33,15 +33,6 @@ public interface EncoderConfig {
     /** Constant corresponding to no profile for the encoder */
     int CODEC_PROFILE_NONE = EncoderProfilesProxy.CODEC_PROFILE_NONE;
 
-    /** The key for the first codec-specific data buffer. */
-    String KEY_CSD_0 = "csd-0";
-
-    /** The key for the second codec-specific data buffer. */
-    String KEY_CSD_1 = "csd-1";
-
-    /** The key for the third codec-specific data buffer. */
-    String KEY_CSD_2 = "csd-2";
-
     /**
      * The mime type of the encoder.
      *

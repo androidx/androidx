@@ -16,6 +16,8 @@
 
 package androidx.credentials.provider;
 
+import static androidx.credentials.TestUtilsKt.createDummyProviderGetCredentialRequest;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -59,9 +61,9 @@ public class PendingIntentHandlerApi34JavaTest {
 
     private static final android.service.credentials.GetCredentialRequest
             GET_CREDENTIAL_REQUEST = new android.service.credentials.GetCredentialRequest(
-                    new CallingAppInfo(
-                            "package_name", new SigningInfo()), new ArrayList<>(
-                                    Collections.singleton(GET_CREDENTIAL_OPTION)));
+            new CallingAppInfo(
+                    "package_name", new SigningInfo()), new ArrayList<>(
+            Collections.singleton(GET_CREDENTIAL_OPTION)));
 
     private static final int BIOMETRIC_AUTHENTICATOR_TYPE = 1;
 
@@ -75,7 +77,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderCreateCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
         for (int jetpackResult :
                 AuthenticationResult.Companion
-                        .getBiometricFrameworkToJetpackResultMap$credentials_release().values()) {
+                        .getBiometricFrameworkToJetpackResultMap$credentials().values()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(new AuthenticationResult(jetpackResult));
             android.service.credentials.CreateCredentialRequest request =
@@ -99,7 +101,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
         for (int jetpackResult :
                 AuthenticationResult.Companion
-                        .getBiometricFrameworkToJetpackResultMap$credentials_release().values()) {
+                        .getBiometricFrameworkToJetpackResultMap$credentials().values()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(new AuthenticationResult(jetpackResult));
             Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
@@ -120,10 +122,10 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderCreateCredReqWithSuccessBpAuthFramework_resultConverted() {
         for (int frameworkResult :
                 AuthenticationResult.Companion
-                        .getBiometricFrameworkToJetpackResultMap$credentials_release().keySet()) {
+                        .getBiometricFrameworkToJetpackResultMap$credentials().keySet()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(
-                            AuthenticationResult.Companion.createFrom$credentials_release(
+                            AuthenticationResult.Companion.createFrom$credentials(
                                     frameworkResult,
                                     /*isFrameworkBiometricPrompt=*/true
                             ));
@@ -131,7 +133,7 @@ public class PendingIntentHandlerApi34JavaTest {
                     TestUtilsKt.setUpCreatePasswordRequest();
             int expectedResult =
                     AuthenticationResult.Companion
-                            .getBiometricFrameworkToJetpackResultMap$credentials_release()
+                            .getBiometricFrameworkToJetpackResultMap$credentials()
                             .get(frameworkResult);
             Intent intent = prepareIntentWithCreateRequest(
                     request,
@@ -152,16 +154,16 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithSuccessBpAuthFramework_resultConverted() {
         for (int frameworkResult :
                 AuthenticationResult.Companion
-                        .getBiometricFrameworkToJetpackResultMap$credentials_release().keySet()) {
+                        .getBiometricFrameworkToJetpackResultMap$credentials().keySet()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(
-                            AuthenticationResult.Companion.createFrom$credentials_release(
+                            AuthenticationResult.Companion.createFrom$credentials(
                                     frameworkResult,
                                     /*isFrameworkBiometricPrompt=*/true
                             ));
             int expectedResult =
                     AuthenticationResult.Companion
-                            .getBiometricFrameworkToJetpackResultMap$credentials_release()
+                            .getBiometricFrameworkToJetpackResultMap$credentials()
                             .get(frameworkResult);
             Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
                     biometricPromptResult);
@@ -182,7 +184,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderCreateCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
         for (int jetpackError :
                 AuthenticationError.Companion
-                        .getBiometricFrameworkToJetpackErrorMap$credentials_release().values()) {
+                        .getBiometricFrameworkToJetpackErrorMap$credentials().values()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(
                             new AuthenticationError(
@@ -209,7 +211,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
         for (int jetpackError :
                 AuthenticationError.Companion
-                        .getBiometricFrameworkToJetpackErrorMap$credentials_release().values()) {
+                        .getBiometricFrameworkToJetpackErrorMap$credentials().values()) {
             BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
                     new AuthenticationError(
                             jetpackError,
@@ -234,10 +236,10 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderCreateCredReqWithFailureBpAuthFramework_errorConverted() {
         for (int frameworkError :
                 AuthenticationError.Companion
-                        .getBiometricFrameworkToJetpackErrorMap$credentials_release().keySet()) {
+                        .getBiometricFrameworkToJetpackErrorMap$credentials().keySet()) {
             BiometricPromptResult biometricPromptResult =
                     new BiometricPromptResult(
-                            AuthenticationError.Companion.createFrom$credentials_release(
+                            AuthenticationError.Companion.createFrom$credentials(
                                     frameworkError, BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
                                     /*isFrameworkBiometricPrompt=*/true
                             ));
@@ -245,7 +247,7 @@ public class PendingIntentHandlerApi34JavaTest {
                     TestUtilsKt.setUpCreatePasswordRequest();
             int expectedErrorCode =
                     AuthenticationError.Companion
-                            .getBiometricFrameworkToJetpackErrorMap$credentials_release()
+                            .getBiometricFrameworkToJetpackErrorMap$credentials()
                             .get(frameworkError);
             Intent intent = prepareIntentWithCreateRequest(
                     request, biometricPromptResult);
@@ -266,9 +268,9 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithFailureBpAuthFramework_correctlyConvertedErr() {
         for (int frameworkError :
                 AuthenticationError.Companion
-                        .getBiometricFrameworkToJetpackErrorMap$credentials_release().keySet()) {
+                        .getBiometricFrameworkToJetpackErrorMap$credentials().keySet()) {
             BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
-                    AuthenticationError.Companion.createFrom$credentials_release(
+                    AuthenticationError.Companion.createFrom$credentials(
                             frameworkError, BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
                             /*isFrameworkBiometricPrompt=*/true
                     ));
@@ -276,7 +278,7 @@ public class PendingIntentHandlerApi34JavaTest {
                     biometricPromptResult);
             int expectedErrorCode =
                     AuthenticationError.Companion
-                            .getBiometricFrameworkToJetpackErrorMap$credentials_release()
+                            .getBiometricFrameworkToJetpackErrorMap$credentials()
                             .get(frameworkError);
 
             ProviderGetCredentialRequest retrievedRequest = PendingIntentHandler
@@ -358,7 +360,8 @@ public class PendingIntentHandlerApi34JavaTest {
         PasswordCredential credential = new PasswordCredential("a", "b");
         GetCredentialResponse initialResponse = new GetCredentialResponse(credential);
 
-        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse);
+        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse,
+                createDummyProviderGetCredentialRequest());
 
         android.credentials.GetCredentialResponse finalResponse =
                 IntentHandlerConverters.getGetCredentialResponse(intent);
@@ -415,7 +418,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithSuccessfulBpAuth() {
         BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
                 new AuthenticationResult(
-                BIOMETRIC_AUTHENTICATOR_TYPE));
+                        BIOMETRIC_AUTHENTICATOR_TYPE));
         Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
                 biometricPromptResult);
 
@@ -450,7 +453,7 @@ public class PendingIntentHandlerApi34JavaTest {
     ) {
         Intent intent = new Intent();
         intent.putExtra(CredentialProviderService
-                        .EXTRA_GET_CREDENTIAL_REQUEST, request);
+                .EXTRA_GET_CREDENTIAL_REQUEST, request);
         prepareIntentWithBiometricResult(intent, biometricPromptResult);
         return intent;
     }

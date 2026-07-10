@@ -20,13 +20,13 @@ import android.content.ClipboardManager
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
+import android.os.Build
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.pdf.PdfPoint
 import androidx.pdf.content.PdfPageTextContent
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.ZoomUtils
 import androidx.test.core.app.ActivityScenario
@@ -40,6 +40,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +53,10 @@ class PdfViewExternalInputTest {
     fun setUp() {
         val textContents =
             FAKE_PAGE_TEXT.map { text ->
-                PdfPageTextContent(listOf(RectF(0f, 0f, 2000f, 4000f)), text)
+                PdfPageTextContent(
+                    listOf(RectF(0f, 0f, 2000f, 4000f), RectF(0f, 0f, 100f, 100f)),
+                    text,
+                )
             }
         val fakePdfDocument =
             FakePdfDocument(pages = List(10) { Point(2000, 4000) }, textContents = textContents)
@@ -72,13 +76,11 @@ class PdfViewExternalInputTest {
                 )
             }
         }
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = true
     }
 
     @After
     fun tearDown() {
         PdfViewTestActivity.onCreateCallback = {}
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = false
     }
 
     @Test
@@ -200,7 +202,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             0,
                             pdfView.getVisibleAreaInContentCoords(),
                         )
@@ -252,7 +254,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             1,
                             pdfView.getVisibleAreaInContentCoords(),
                         )
@@ -349,7 +351,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             1,
                             pdfView.getVisibleAreaInContentCoords(),
                         )
@@ -566,7 +568,7 @@ class PdfViewExternalInputTest {
                     val pdfView = view as PdfView
                     pdfView.post { pdfView.requestFocus() }
 
-                    defaultZoom = pdfView.getDefaultZoom()
+                    defaultZoom = pdfView.getFitToWidthZoom()
 
                     pdfView.zoom = pdfView.maxZoom
                 }
@@ -599,7 +601,7 @@ class PdfViewExternalInputTest {
                     val pdfView = view as PdfView
                     pdfView.post { pdfView.requestFocus() }
 
-                    defaultZoom = pdfView.getDefaultZoom()
+                    defaultZoom = pdfView.getFitToWidthZoom()
 
                     pdfView.zoom = pdfView.minZoom
                 }
@@ -632,7 +634,7 @@ class PdfViewExternalInputTest {
                     val pdfView = view as PdfView
                     pdfView.post { pdfView.requestFocus() }
 
-                    defaultZoom = pdfView.getDefaultZoom()
+                    defaultZoom = pdfView.getFitToWidthZoom()
 
                     pdfView.zoom = pdfView.maxZoom
                 }
@@ -665,7 +667,7 @@ class PdfViewExternalInputTest {
                     val pdfView = view as PdfView
                     pdfView.post { pdfView.requestFocus() }
 
-                    defaultZoom = pdfView.getDefaultZoom()
+                    defaultZoom = pdfView.getFitToWidthZoom()
 
                     pdfView.zoom = pdfView.minZoom
                 }
@@ -805,6 +807,84 @@ class PdfViewExternalInputTest {
     }
 
     @Test
+    fun testCtrlNumpadAdd_zoomsIn() {
+        var zoomBefore = 0f
+        var zoomAfter = 0f
+        var maxZoom = 0f
+
+        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    pdfView.post { pdfView.requestFocus() }
+
+                    zoomBefore = pdfView.zoom
+                }
+                .perform(
+                    ViewActions.pressKey(
+                        EspressoKey.Builder()
+                            .withKeyCode(KeyEvent.KEYCODE_NUMPAD_ADD)
+                            .withCtrlPressed(true)
+                            .build()
+                    )
+                )
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+
+                    zoomAfter = pdfView.zoom
+                    maxZoom = pdfView.maxZoom
+                }
+            close()
+        }
+
+        // zoomAfter should be greater than zoomBefore only if zoomBefore is smaller than maxZoom
+        if (zoomBefore < maxZoom) {
+            assertThat(zoomAfter).isGreaterThan(zoomBefore)
+        } else {
+            assertThat(zoomAfter).isWithin(ZOOM_DIFFERENCE_TOLERANCE).of(maxZoom)
+        }
+    }
+
+    @Test
+    fun testCtrlNumpadSubtract_zoomsOut() {
+        var zoomBefore = 0f
+        var zoomAfter = 0f
+        var minZoom = 0f
+
+        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    pdfView.post { pdfView.requestFocus() }
+
+                    zoomBefore = pdfView.zoom
+                }
+                .perform(
+                    ViewActions.pressKey(
+                        EspressoKey.Builder()
+                            .withKeyCode(KeyEvent.KEYCODE_NUMPAD_SUBTRACT)
+                            .withCtrlPressed(true)
+                            .build()
+                    )
+                )
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+
+                    zoomAfter = pdfView.zoom
+                    minZoom = pdfView.minZoom
+                }
+            close()
+        }
+
+        // zoomAfter should be smaller than zoomBefore only if zoomBefore is greater than minZoom
+        if (zoomBefore > minZoom) {
+            assertThat(zoomAfter).isLessThan(zoomBefore)
+        } else {
+            assertThat(zoomAfter).isWithin(ZOOM_DIFFERENCE_TOLERANCE).of(minZoom)
+        }
+    }
+
+    @Test
     fun testCtrlPlusMouseScrollDown_zoomsIn() {
         var zoomBefore = 0f
         var zoomAfter = 0f
@@ -870,6 +950,7 @@ class PdfViewExternalInputTest {
 
     @Test
     fun testCtrlC_copiesSelectionToClipboardAndClearsSelection() {
+
         val expectedSelectedText = FAKE_PAGE_TEXT[0]
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -997,6 +1078,10 @@ class PdfViewExternalInputTest {
 
     @Test
     fun mouseDrag_selectsContentInReverse_differentPages() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465537830",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         var start: PointF? = null
         var end: PointF? = null
 
@@ -1033,6 +1118,68 @@ class PdfViewExternalInputTest {
                     assertThat(selectedPages).isNotNull()
                     assertThat(selectedPages).contains(0)
                     assertThat(selectedPages).contains(1)
+                }
+            close()
+        }
+    }
+
+    @Test
+    fun testCtrlA_selectsAllText() {
+        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    pdfView.post { pdfView.requestFocus() }
+                    assertThat(pdfView.currentSelection).isNull()
+                }
+                .perform(longClick())
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    val selection = pdfView.currentSelection as? TextSelection
+                    assertThat(selection).isNotNull()
+                    // Initial selection (long click) should only have 1 rect
+                    assertThat(selection?.bounds?.size).isEqualTo(1)
+                }
+                .perform(
+                    ViewActions.pressKey(
+                        EspressoKey.Builder()
+                            .withKeyCode(KeyEvent.KEYCODE_A)
+                            .withCtrlPressed(true)
+                            .build()
+                    )
+                )
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    val selection = pdfView.currentSelection as? TextSelection
+                    assertThat(selection).isNotNull()
+                    // Select All should expand to both rects on the page
+                    assertThat(selection?.bounds?.size).isEqualTo(2)
+                }
+            close()
+        }
+    }
+
+    @Test
+    fun testEscape_selectionActive_clearsSelectionAndConsumesEvent() {
+        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    pdfView.post { pdfView.requestFocus() }
+                }
+                .perform(longClick())
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    assertThat(pdfView.currentSelection).isNotNull()
+                }
+                .perform(
+                    ViewActions.pressKey(
+                        EspressoKey.Builder().withKeyCode(KeyEvent.KEYCODE_ESCAPE).build()
+                    )
+                )
+                .check { view, _ ->
+                    val pdfView = view as PdfView
+                    assertThat(pdfView.currentSelection).isNull()
                 }
             close()
         }

@@ -27,27 +27,42 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.Display;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.Configurator;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.EventCondition;
 import androidx.test.uiautomator.StaleObjectException;
+import androidx.test.uiautomator.UiAccessibilityValidator;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
 import org.jspecify.annotations.NonNull;
+import org.junit.After;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -58,6 +73,22 @@ import java.util.Set;
 public class UiObject2Test extends BaseTest {
     private static final int TIMEOUT_MS = 10_000;
     private static final int SPEED_MS = 100;
+
+    @Mock
+    UiAccessibilityValidator mValidator;
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        MockitoAnnotations.initMocks(this);
+        Configurator.getInstance().addUiAccessibilityValidator(mValidator);
+    }
+
+    @After
+    public void tearDown() {
+        Configurator.getInstance().removeUiAccessibilityValidator(mValidator);
+    }
 
     @Test
     public void testClear() {
@@ -70,6 +101,7 @@ public class UiObject2Test extends BaseTest {
         // Verify the text field does not have txt after clear()
         BySelector emptyText = By.res(TEST_APP, "edit_text").text("");
         assertTrue(mDevice.wait(Until.hasObject(emptyText), TIMEOUT_MS));
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -82,6 +114,7 @@ public class UiObject2Test extends BaseTest {
         button1.click();
         button1.wait(Until.textEquals("text1_clicked"), TIMEOUT_MS);
         assertEquals("text1_clicked", button1.getText());
+        verify(mValidator).validate(eq(button1.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -96,6 +129,8 @@ public class UiObject2Test extends BaseTest {
         button2.click(getPointInsideBounds(button2));
         button2.wait(Until.textEquals("text2_clicked"), TIMEOUT_MS);
         assertEquals("text2_clicked", button2.getText());
+        verify(mValidator).validate(eq(button2.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
 
         // Point outside the button.
         UiObject2 button3 = mDevice.findObject(By.res(TEST_APP, "button3"));
@@ -103,6 +138,7 @@ public class UiObject2Test extends BaseTest {
         button3.click(getPointOutsideBounds(button3));
         button3.wait(Until.textEquals("text3_clicked"), TIMEOUT_MS);
         assertEquals("text3_clicked", button3.getText());
+        verify(mValidator).validate(eq(button3.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -115,6 +151,8 @@ public class UiObject2Test extends BaseTest {
         button4.click(50L);
         button4.wait(Until.textEquals("text4_clicked"), TIMEOUT_MS);
         assertEquals("text4_clicked", button4.getText());
+        verify(mValidator).validate(eq(button4.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
 
         // Long click with a time duration as a parameter (`click(long duration)`).
         UiObject2 button5 = mDevice.findObject(By.res(TEST_APP, "button5"));
@@ -122,6 +160,7 @@ public class UiObject2Test extends BaseTest {
         button5.click((long) (ViewConfiguration.getLongPressTimeout() * 1.5));
         button5.wait(Until.textEquals("text5_long_clicked"), TIMEOUT_MS);
         assertEquals("text5_long_clicked", button5.getText());
+        verify(mValidator).validate(eq(button5.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -134,6 +173,8 @@ public class UiObject2Test extends BaseTest {
         button6.click(getPointInsideBounds(button6), 50L);
         button6.wait(Until.textEquals("text6_clicked"), TIMEOUT_MS);
         assertEquals("text6_clicked", button6.getText());
+        verify(mValidator).validate(eq(button6.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
 
         // Long click with two parameters (`click(Point point, long duration)`).
         UiObject2 button7 = mDevice.findObject(By.res(TEST_APP, "button7"));
@@ -142,6 +183,7 @@ public class UiObject2Test extends BaseTest {
                 (long) (ViewConfiguration.getLongPressTimeout() * 1.5));
         button7.wait(Until.textEquals("text7_long_clicked"), TIMEOUT_MS);
         assertEquals("text7_long_clicked", button7.getText());
+        verify(mValidator).validate(eq(button7.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -150,7 +192,9 @@ public class UiObject2Test extends BaseTest {
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        AccessibilityNodeInfo buttonNode = button.getAccessibilityNodeInfo();
         assertTrue(button.clickAndWait(Until.newWindow(), TIMEOUT_MS));
+        verify(mValidator).validate(eq(buttonNode));
     }
 
     @Test
@@ -159,13 +203,17 @@ public class UiObject2Test extends BaseTest {
 
         // Click point inside the button.
         UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        AccessibilityNodeInfo button1Node = button1.getAccessibilityNodeInfo();
         assertTrue(button1.clickAndWait(getPointInsideBounds(button1), Until.newWindow(),
                 TIMEOUT_MS));
+        verify(mValidator).validate(eq(button1Node));
 
         // Click point outside the button.
         UiObject2 button2 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        AccessibilityNodeInfo button2Node = button2.getAccessibilityNodeInfo();
         assertTrue(button2.clickAndWait(getPointOutsideBounds(button2), Until.newWindow(),
                 TIMEOUT_MS));
+        verify(mValidator).validate(eq(button2Node));
     }
 
     @Test
@@ -180,6 +228,7 @@ public class UiObject2Test extends BaseTest {
         dragButton.drag(dest);
         dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
         assertEquals("drag_received", dragDestination.getText());
+        verify(mValidator).validate(eq(dragButton.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -194,6 +243,7 @@ public class UiObject2Test extends BaseTest {
         dragButton.drag(dest, 1000);
         dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
         assertEquals("drag_received", dragDestination.getText());
+        verify(mValidator).validate(eq(dragButton.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -207,6 +257,8 @@ public class UiObject2Test extends BaseTest {
         assertEquals("no_drag_yet", dragDestination.getText());
         assertThrows("Speed cannot be negative", IllegalArgumentException.class,
                 () -> dragButton.drag(dest, -1000));
+        verify(mValidator).validate(eq(dragButton.getAccessibilityNodeInfo()));
+        verifyNoMoreInteractions(mValidator);
     }
 
     @Test
@@ -219,6 +271,7 @@ public class UiObject2Test extends BaseTest {
         assertEquals(textView1, textView2);
         UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertNotEquals(textView1, linearLayout);
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -228,6 +281,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertNotNull(object.findObject(By.res(TEST_APP, "example_id")));
         assertNull(object.findObject(By.res(TEST_APP, "")));
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -245,6 +299,7 @@ public class UiObject2Test extends BaseTest {
         List<UiObject2> listWithNoObjectsFound = nestedObject.findObjects(By.res(TEST_APP,
                 "button"));
         assertTrue(listWithNoObjectsFound.isEmpty());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -253,6 +308,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
         assertEquals(TEST_APP, object.getApplicationPackage());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -264,6 +320,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertEquals(2, nestedObject.getChildCount());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -281,6 +338,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertTrue(object.getChildren().isEmpty());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -292,6 +350,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertEquals("android.widget.TextView", textView.getClassName());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -300,9 +359,11 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 buttonObject = mDevice.findObject(By.text("Accessible button"));
         assertEquals("I'm accessible!", buttonObject.getContentDescription());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
 
         UiObject2 textViewObject = mDevice.findObject(By.text("Text View 1"));
         assertNull(textViewObject.getContentDescription());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -313,6 +374,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 objectAtDepth0 = objectAtDepth1.getParent();
         assertNotNull(objectAtDepth0);
         assertNull(objectAtDepth0.getParent());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -325,6 +387,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 textViewObjectWithoutAnId = mDevice.findObject(By.text("Text View 1"));
         assertNull(textViewObjectWithoutAnId.getResourceName());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -336,6 +399,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 nullTextObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertNull(nullTextObject.getText());
+        verify(mValidator, never()).validate(any());
     }
 
     @Test
@@ -347,7 +411,10 @@ public class UiObject2Test extends BaseTest {
         UiObject2 hintSetObj = mDevice.findObject(By.res(TEST_APP, "hint_set"));
 
         assertNull(hintNotSetObj.getHint());
+        verify(mValidator, never()).validate(eq(hintNotSetObj.getAccessibilityNodeInfo()));
+
         assertEquals("sample_hint", hintSetObj.getHint());
+        verify(mValidator, never()).validate(eq(hintSetObj.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -356,6 +423,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         assertEquals(Display.DEFAULT_DISPLAY, button.getDisplayId());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -373,6 +441,8 @@ public class UiObject2Test extends BaseTest {
                 partlyInvisibleRegion.getVisibleBounds().toString());
         assertEquals(regionInsideScrollable.getText(),
                 regionInsideScrollable.getVisibleBounds().toString());
+        verify(mValidator).validate(partlyInvisibleRegion.getAccessibilityNodeInfo());
+        verify(mValidator).validate(regionInsideScrollable.getAccessibilityNodeInfo());
     }
 
     @Test
@@ -385,6 +455,7 @@ public class UiObject2Test extends BaseTest {
         partlyInvisibleRegion.click((long) (ViewConfiguration.getLongPressTimeout() * 1.5));
         assertEquals(partlyInvisibleRegion.getText(),
                 partlyInvisibleRegion.getVisibleCenter().toString());
+        verify(mValidator).validate(partlyInvisibleRegion.getAccessibilityNodeInfo());
     }
 
     @Test
@@ -408,6 +479,7 @@ public class UiObject2Test extends BaseTest {
         } catch (StaleObjectException e) {
             fail("Unexpected StaleObjectException while calculating hash code");
         }
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -418,6 +490,7 @@ public class UiObject2Test extends BaseTest {
 
         assertTrue(object.hasObject(By.text("TextView with an id")));
         assertFalse(object.hasObject(By.text("")));
+        verify(mValidator, never()).validate(eq(object.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -427,9 +500,13 @@ public class UiObject2Test extends BaseTest {
         // CheckBox objects are checkable by default.
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertTrue(checkBox.isCheckable());
+        verify(mValidator, never()).validate(eq(checkBox.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         // Button objects are not checkable by default.
         UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "button1"));
         assertFalse(button1.isCheckable());
+        verify(mValidator, never()).validate(eq(button1.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -438,9 +515,13 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertFalse(checkBox.isChecked());
+        verify(mValidator, never()).validate(eq(checkBox.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         checkBox.click();
         checkBox.wait(Until.checked(true), TIMEOUT_MS);
         assertTrue(checkBox.isChecked());
+        verify(mValidator).validate(eq(checkBox.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -450,9 +531,13 @@ public class UiObject2Test extends BaseTest {
         // TextView objects are not clickable by default.
         UiObject2 textView = mDevice.findObject(By.text("Sample text"));
         assertFalse(textView.isClickable());
+        verify(mValidator, never()).validate(eq(textView.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         // Button objects are clickable by default.
         UiObject2 button = mDevice.findObject(By.text("Accessible button"));
         assertTrue(button.isClickable());
+        verify(mValidator, never()).validate(eq(button.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -461,8 +546,12 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 disabledObject = mDevice.findObject(By.res(TEST_APP, "disabled_text_view"));
         assertFalse(disabledObject.isEnabled());
+        verify(mValidator, never()).validate(eq(disabledObject.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         UiObject2 enabledObject = mDevice.findObject(By.res(TEST_APP, "enabled_text_view"));
         assertTrue(enabledObject.isEnabled());
+        verify(mValidator, never()).validate(eq(enabledObject.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -472,8 +561,12 @@ public class UiObject2Test extends BaseTest {
         UiObject2 nonFocusableTextView = mDevice.findObject(By.res(TEST_APP,
                 "non_focusable_text_view"));
         assertFalse(nonFocusableTextView.isFocusable());
+        verify(mValidator, never()).validate(eq(nonFocusableTextView.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         UiObject2 focusableTextView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
         assertTrue(focusableTextView.isFocusable());
+        verify(mValidator, never()).validate(eq(focusableTextView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -482,10 +575,15 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
         assertFalse(textView.isFocused());
+        verify(mValidator, never()).validate(eq(textView.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         button.click();
         textView.wait(Until.focused(true), TIMEOUT_MS);
         assertTrue(textView.isFocused());
+        verify(mValidator).validate(eq(button.getAccessibilityNodeInfo()));
+        verifyNoMoreInteractions(mValidator);
     }
 
     @Test
@@ -495,9 +593,13 @@ public class UiObject2Test extends BaseTest {
         UiObject2 longClickableButton = mDevice.findObject(By.res(TEST_APP,
                 "long_clickable_button"));
         assertTrue(longClickableButton.isLongClickable());
+        verify(mValidator, never()).validate(eq(longClickableButton.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         UiObject2 nonLongClickableButton = mDevice.findObject(By.res(TEST_APP,
                 "non_long_clickable_button"));
         assertFalse(nonLongClickableButton.isLongClickable());
+        verify(mValidator, never()).validate(eq(nonLongClickableButton.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -507,9 +609,13 @@ public class UiObject2Test extends BaseTest {
         // ScrollView objects are scrollable by default.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
         assertTrue(scrollView.isScrollable());
+        verify(mValidator, never()).validate(eq(scrollView.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         // TextView objects are not scrollable by default.
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "top_text"));
         assertFalse(textView.isScrollable());
+        verify(mValidator, never()).validate(eq(textView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -518,10 +624,15 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "selected_target"));
         assertFalse(textView.isSelected());
+        verify(mValidator, never()).validate(eq(textView.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "selected_button"));
         button.click();
         textView.wait(Until.selected(true), TIMEOUT_MS);
         assertTrue(textView.isSelected());
+        verify(mValidator).validate(eq(button.getAccessibilityNodeInfo()));
+        verifyNoMoreInteractions(mValidator);
     }
 
     @Test
@@ -536,11 +647,17 @@ public class UiObject2Test extends BaseTest {
         // Initial order is red (bottom), green, blue (top).
         Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
         assertArrayEquals(new UiObject2[]{red, green, blue}, objects);
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
+        Mockito.clearInvocations(mValidator);
 
         // Clicking moves green above blue.
         red.click();
+        verify(mValidator).validate(eq(red.getAccessibilityNodeInfo()));
+        Mockito.clearInvocations(mValidator);
+
         Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
         assertArrayEquals(new UiObject2[]{red, blue, green}, objects);
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -554,6 +671,7 @@ public class UiObject2Test extends BaseTest {
         // Click on the button and verify that the text has changed
         button.longClick();
         assertTrue(button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS));
+        verify(mValidator).validate(eq(button.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -567,6 +685,7 @@ public class UiObject2Test extends BaseTest {
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+        verify(mValidator).validate(eq(pinchArea.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -580,6 +699,7 @@ public class UiObject2Test extends BaseTest {
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+        verify(mValidator).validate(eq(pinchArea.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -593,6 +713,7 @@ public class UiObject2Test extends BaseTest {
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
+        verify(mValidator).validate(eq(pinchArea.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -606,6 +727,7 @@ public class UiObject2Test extends BaseTest {
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
+        verify(mValidator).validate(eq(pinchArea.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -616,15 +738,13 @@ public class UiObject2Test extends BaseTest {
 
         swipeRegion.swipe(Direction.LEFT, 0.9f);
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_left"), TIMEOUT_MS));
-
         swipeRegion.swipe(Direction.RIGHT, 1.0f);
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
-
         swipeRegion.swipe(Direction.UP, 0.9f, 1000);
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_up"), TIMEOUT_MS));
-
         swipeRegion.swipe(Direction.DOWN, 1.0f, 1000);
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_down"), TIMEOUT_MS));
+        verify(mValidator, times(4)).validate(eq(swipeRegion.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -639,6 +759,7 @@ public class UiObject2Test extends BaseTest {
                 () -> swipeRegion.swipe(Direction.UP, -10.0f));
         assertThrows("Speed cannot be negative", IllegalArgumentException.class,
                 () -> swipeRegion.swipe(Direction.UP, 1.0f, -10));
+        verify(mValidator, times(3)).validate(eq(swipeRegion.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -654,6 +775,7 @@ public class UiObject2Test extends BaseTest {
                 () -> textView.getText()
         );
         assertEquals("This object has already been recycled.", e.getMessage());
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     @Test
@@ -670,6 +792,7 @@ public class UiObject2Test extends BaseTest {
         scrollView.scroll(Direction.DOWN, percent);
 
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -683,6 +806,7 @@ public class UiObject2Test extends BaseTest {
             // Continue until bottom.
         }
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator, atLeastOnce()).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -697,6 +821,7 @@ public class UiObject2Test extends BaseTest {
         assertNotNull(scrollView.scrollUntil(Direction.DOWN,
                 Until.findObject(By.res(TEST_APP, "bottom_text"))));
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator, atLeastOnce()).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -711,6 +836,7 @@ public class UiObject2Test extends BaseTest {
                 Until.findObject(By.res(TEST_APP, "nonexistent_text"))));
         // We still scroll to the end.
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -723,6 +849,7 @@ public class UiObject2Test extends BaseTest {
         // Scroll to the end.
         assertTrue(scrollView.scrollUntil(Direction.DOWN, Until.scrollFinished(Direction.DOWN)));
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -758,6 +885,7 @@ public class UiObject2Test extends BaseTest {
         assertNull(result);
         // We still scroll to the end when event condition never occurs.
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        verify(mValidator).validate(eq(scrollView.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -773,6 +901,7 @@ public class UiObject2Test extends BaseTest {
             // Continue until left bound.
         }
         assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
+        verify(mValidator).validate(eq(flingRegion.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -788,6 +917,7 @@ public class UiObject2Test extends BaseTest {
             // Continue until up bound.
         }
         assertTrue(flingRegion.wait(Until.textEquals("fling_up"), TIMEOUT_MS));
+        verify(mValidator).validate(eq(flingRegion.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -804,6 +934,7 @@ public class UiObject2Test extends BaseTest {
         assertThrows("Speed is less than the minimum fling velocity",
                 IllegalArgumentException.class,
                 () -> flingRegion.fling(Direction.DOWN, speed));
+        verify(mValidator).validate(eq(flingRegion.getAccessibilityNodeInfo()));
     }
 
     @Test
@@ -826,6 +957,7 @@ public class UiObject2Test extends BaseTest {
             scenario.onActivity(a -> assertEquals(new Point(1, 2), a.getLastTouch()));
             button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
             scenario.onActivity(a -> assertEquals(new Point(97, 96), a.getLastTouch()));
+            verify(mValidator, times(4)).validate(eq(button.getAccessibilityNodeInfo()));
         }
     }
 
@@ -849,6 +981,7 @@ public class UiObject2Test extends BaseTest {
             scenario.onActivity(a -> assertEquals(new Point(1, 2), a.getLastTouch()));
             button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
             scenario.onActivity(a -> assertEquals(new Point(97, 96), a.getLastTouch()));
+            verify(mValidator, times(4)).validate(eq(button.getAccessibilityNodeInfo()));
         }
     }
 
@@ -863,6 +996,7 @@ public class UiObject2Test extends BaseTest {
         // Verify the text field has "new_text" after setText()
         BySelector updatedText = By.res(TEST_APP, "edit_text").text("new_text");
         assertTrue(mDevice.wait(Until.hasObject(updatedText), TIMEOUT_MS));
+        verify(mValidator, never()).validate(any(AccessibilityNodeInfo.class));
     }
 
     /* Helper method to get a point inside the object. */

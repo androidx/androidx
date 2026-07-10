@@ -16,16 +16,29 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
+import android.app.Activity
+import android.view.View
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.util.fastForEach
-import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.R
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*, *>) {
+/**
+ * Provides the testing context used for retrieving and interacting with 3D Semantics nodes present
+ * within a Subspace spatial compose hierarchy.
+ *
+ * This context wraps an [AndroidComposeTestRule] and allows [SubspaceSemanticsNodeInteraction] to
+ * extract spatial layout semantics, perform layout assertions, and filter specific elements in XR
+ * environments.
+ *
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ */
+// TODO(b/b510815023): Add ComposeTestRule Support for Compose for XR Testing Infra.
+public class SubspaceTestContext
+internal constructor(private val testRule: AndroidComposeTestRule<*, *>) {
     /**
-     * Collects all [SubspaceSemanticsNode]s from all compose hierarchies.
+     * Collects all [SubspaceSemanticsInfo]s from all compose hierarchies.
      *
      * Can crash in case it hits time out. This is not supposed to be handled as it surfaces only in
      * incorrect tests.
@@ -35,14 +48,14 @@ public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*,
     ): Iterable<SubspaceSemanticsInfo> {
         // Block and wait for compose state to settle before looking for root nodes.
         testRule.waitForIdle()
-        val roots = SceneManager.getAllRootSubspaceSemanticsNodes()
+        val roots = testRule.activity.contentView.registeredRoots
         check(!atLeastOneRootRequired || roots.isNotEmpty()) {
             """No subspace compose hierarchies found in the app. Possible reasons include:
-        (1) the Activity that calls setSubspaceContent did not launch;
-        (2) setSubspaceContent was not called;
-        (3) setSubspaceContent was called before the ComposeTestRule ran;
+        (1) the Activity that calls setContent with a Subspace did not launch;
+        (2) setContent with a Subspace was not called;
+        (3) setContent with a Subspace was called before the ComposeTestRule ran;
         (4) a Subspace was not used in setContent
-        If setSubspaceContent is called by the Activity, make sure the Activity is
+        If setContent is called by the Activity, make sure the Activity is
         launched after the ComposeTestRule runs"""
         }
 
@@ -55,10 +68,23 @@ private fun SubspaceSemanticsInfo.getAllSemanticsNodes(): Iterable<SubspaceSeman
 
     fun findAllSemanticNodesRecursive(currentNode: SubspaceSemanticsInfo) {
         nodes.add(currentNode)
-        currentNode.semanticsChildren.fastForEach { child -> findAllSemanticNodesRecursive(child) }
+        currentNode.childrenInfo.fastForEach { child -> findAllSemanticNodesRecursive(child) }
     }
 
     findAllSemanticNodesRecursive(this)
 
     return nodes
 }
+
+private val Activity.contentView: View
+    get() = window.decorView
+
+private val View.registeredRoots: MutableList<SubspaceSemanticsInfo>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return (getTag(R.id.compose_xr_registered_roots)
+            ?: mutableListOf<SubspaceSemanticsInfo>().also {
+                setTag(R.id.compose_xr_registered_roots, it)
+            })
+            as MutableList<SubspaceSemanticsInfo>
+    }

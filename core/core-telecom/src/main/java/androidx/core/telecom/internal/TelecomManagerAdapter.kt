@@ -26,7 +26,6 @@ import android.telecom.CallEventCallback
 import android.telecom.CallException
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
-import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
 /**
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor
  * [androidx.core.telecom.CallsManager] can use the platform TelecomManager in production but in
  * testing, different objects can be injected to mock platform behavior.
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal interface TelecomManagerAdapter {
 
     fun addCall(

@@ -21,14 +21,12 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 
-@ExperimentalWindowApi
 internal object WindowAreaAdapterApi3 {
     fun translate(
         status: @WindowAreaComponent.WindowAreaStatus Int,

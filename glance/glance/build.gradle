@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,7 +25,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
 }
 
@@ -43,7 +41,6 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.compose.ui:ui-util:1.6.8")
-    implementation(libs.kotlinStdlib)
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
@@ -83,7 +80,7 @@ dependencies {
 }
 
 android {
-    resourcePrefix "glance_"
+    resourcePrefix = "glance_"
     namespace = "androidx.glance"
 }
 

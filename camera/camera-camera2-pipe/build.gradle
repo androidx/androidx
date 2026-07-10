@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,18 +26,17 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation(libs.atomicFu)
     implementation(libs.dagger)
     implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+    api(project(":camera:camera-common"))
 
 
     ksp(libs.daggerCompiler)
@@ -63,7 +61,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
 
     lint {
         enable.add("CameraXQuirksClassDetector")
@@ -80,8 +78,8 @@ androidx {
     name = "Camera2 Pipe"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
-    description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
-            "that will form a flexible shim layer to power Frameserver and CameraX."
-    doNotDocumentReason = "Not shipped externally"
+    description = "CameraPipe is a low level, high performance alternative to Camera2 " +
+        "built on Kotlin"
+    doNotDocumentReason = "Internal library"
     enableRobolectric()
 }

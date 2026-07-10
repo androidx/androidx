@@ -49,6 +49,7 @@ public final class LibraryBuildInfoFile {
     public String projectZipPath;
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
+    public ArrayList<Dependency> allDependencies;
     public ArrayList<Dependency> dependencyConstraints;
     public Boolean shouldPublishDocs;
     public Boolean isKmp;

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.sqlite.driver.AndroidSQLiteConnection#getDb():
+    Source breaking change: method androidx.sqlite.driver.AndroidSQLiteConnection.getDb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.driver.SupportSQLiteConnection#getDb():
+    Source breaking change: method androidx.sqlite.driver.SupportSQLiteConnection.getDb() can no longer be resolved from Kotlin source

@@ -16,17 +16,17 @@
 package androidx.appsearch.app;
 
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcelable.Creator;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.aidl.AppSearchBatchResultParcelV2;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.CommitBlobResponseCreator;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * The response to provide batch operation results of
@@ -35,14 +35,11 @@ import androidx.core.util.Preconditions;
  * <p> This class is used to retrieve the result of a batch commit operation on a collection of
  * blob handles.
  */
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-// TODO(b/384721898): Switch to JSpecify annotations
-@SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
+@SuppressWarnings("HiddenSuperclass")
 @SafeParcelable.Class(creator = "CommitBlobResponseCreator")
-@ExperimentalAppSearchApi
 public final class CommitBlobResponse extends AbstractSafeParcelable {
 
-    public static final @NonNull Parcelable.Creator<CommitBlobResponse> CREATOR =
+    public static final @NonNull Creator<CommitBlobResponse> CREATOR =
             new CommitBlobResponseCreator();
 
     @Field(id = 1, getter = "getResponseParcel")
@@ -78,8 +75,8 @@ public final class CommitBlobResponse extends AbstractSafeParcelable {
 
     /**
      * Retrieves the underlying parcel representation of the batch result.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull AppSearchBatchResultParcelV2<AppSearchBlobHandle, Void> getResponseParcel() {
         return mResultParcel;

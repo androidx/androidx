@@ -255,14 +255,14 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/example/foo/test.kt:8: Error: Incorrect use of currentState property inside of Coroutine, please use the suspending setCurrentState() function. [TestLifecycleOwnerInCoroutine]
-                fun testSetCurrentStateInRunTest() = runTest {
-                                                     ~~~~~~~
-src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside of Coroutine, please use the suspending setCurrentState() function. [TestLifecycleOwnerInCoroutine]
-                fun testSetCurrentStateInRunTestWithTimeOut() = runTest(timeout = 5000) {
-                                                                ~~~~~~~
-2 errors, 0 warnings
-            """
+                src/example/foo/test.kt:8: Error: Incorrect use of currentState property inside of Coroutine, please use the suspending setCurrentState() function. [TestLifecycleOwnerInCoroutine]
+                                fun testSetCurrentStateInRunTest() = runTest {
+                                                                     ~~~~~~~
+                src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside of Coroutine, please use the suspending setCurrentState() function. [TestLifecycleOwnerInCoroutine]
+                                fun testSetCurrentStateInRunTestWithTimeOut() = runTest(timeout = 5000) {
+                                                                                ~~~~~~~
+                2 errors, 0 warnings
+                """
                     .trimIndent()
             )
     }

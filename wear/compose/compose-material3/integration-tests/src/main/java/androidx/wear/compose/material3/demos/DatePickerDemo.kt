@@ -18,6 +18,7 @@ package androidx.wear.compose.material3.demos
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -29,12 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.DatePicker
 import androidx.wear.compose.material3.DatePickerType
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.DatePickerFutureOnlySample
 import androidx.wear.compose.material3.samples.DatePickerSample
@@ -52,6 +56,7 @@ val DatePickerDemos =
         ComposableDemo("Date System date format") { DatePickerSample() },
         ComposableDemo("Future only") { DatePickerFutureOnlySample() },
         ComposableDemo("Past only") { DatePickerPastOnlyDemo() },
+        ComposableDemo("Custom Background") { CustomBackgroundDatePickerYearMonthDay() },
     )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -113,6 +118,22 @@ fun DatePickerPastOnlyDemo() {
                 secondaryLabel = { Text(datePickerDate.format(formatter)) },
                 icon = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit") },
             )
+        }
+    }
+}
+
+// Wrap the DatePicker in MaterialTheme.colorScheme with background set as Color.Unspecified when
+// using custom backgrounds(ex: gradients, images)
+@Composable
+fun CustomBackgroundDatePickerYearMonthDay() {
+    Box(
+        Modifier.fillMaxSize()
+            .background(Brush.linearGradient(listOf(Color.Blue, Color.Red, Color.Green)))
+    ) {
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(background = Color.Unspecified)
+        ) {
+            DatePickerYearMonthDaySample()
         }
     }
 }

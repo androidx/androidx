@@ -21,7 +21,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TAKE_PICTURE_MANAGER_PROVIDER;
 
-import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.OptIn;
@@ -109,7 +108,6 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     /**
      * Returns the appropriate template type for a session configuration.
      */
-    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalZeroShutterLag.class)
     public static int getSessionConfigTemplateType(
             UseCaseConfigFactory.@NonNull CaptureType captureType,

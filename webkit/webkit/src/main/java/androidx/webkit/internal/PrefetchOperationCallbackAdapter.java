@@ -16,49 +16,96 @@
 
 package androidx.webkit.internal;
 
-import androidx.core.os.OutcomeReceiverCompat;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.PrefetchNetworkException;
 import androidx.webkit.Profile;
+import androidx.webkit.WebViewOutcomeReceiver;
 
 import org.chromium.support_lib_boundary.PrefetchOperationCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+import org.chromium.support_lib_boundary.util.Features;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 
-public class PrefetchOperationCallbackAdapter {
-    private PrefetchOperationCallbackAdapter() {}
+@Profile.ExperimentalUrlPrefetch
+public class PrefetchOperationCallbackAdapter implements
+        PrefetchOperationCallbackBoundaryInterface {
+    private final @NonNull WebViewOutcomeReceiver<@Nullable Void, @NonNull PrefetchException>
+            mCallback;
+
+    /**
+     * @param callback OutcomeReceiver to be triggered for
+     *                 {@link #buildInvocationHandler(WebViewOutcomeReceiver)}
+     */
+    private PrefetchOperationCallbackAdapter(@NonNull WebViewOutcomeReceiver<
+            @Nullable Void, @NonNull PrefetchException> callback) {
+        mCallback = callback;
+    }
+
     /**
      * Builds the PrefetchOperationCallback to send to the prefetch request.
      *
-     * @param callback OutcomeReceiver to be triggered for the caller.
+     * @param callback the callback object used for prefetch operation.
      * @return the built InvocationHandler
      */
     @Profile.ExperimentalUrlPrefetch
-    public static @NonNull /* PrefetchOperationCallback */ InvocationHandler buildInvocationHandler(
-            @NonNull OutcomeReceiverCompat<@Nullable Void, @NonNull PrefetchException> callback) {
-        PrefetchOperationCallbackBoundaryInterface operationCallback =
-                new PrefetchOperationCallbackBoundaryInterface() {
-                    @Override
-                    public void onSuccess() {
-                        callback.onResult(null);
-                    }
-
-                    @Override
-                    public void onFailure(@PrefetchExceptionTypeBoundaryInterface int type,
-                            @NonNull String message, int networkErrorCode) {
-                        if (type == PrefetchExceptionTypeBoundaryInterface.NETWORK) {
-                            callback.onError(
-                                    new PrefetchNetworkException(message, networkErrorCode));
-                        } else {
-                            callback.onError(new PrefetchException(message));
-                        }
-                    }
-                };
-
+    public static @NonNull /* PrefetchOperationCallbackBoundaryInterface
+    */ InvocationHandler buildInvocationHandler(
+            @NonNull WebViewOutcomeReceiver<@Nullable Void, @NonNull PrefetchException> callback
+    ) {
         return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                operationCallback);
+                new PrefetchOperationCallbackAdapter(callback));
+    }
+
+    /**
+     * Please use {@link #onResult(int)} instead.
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onSuccess() {
+        mCallback.onResult(null);
+    }
+
+    @Override
+    public void onResult(
+            @PrefetchResultTypeBoundaryInterface int type) {
+        switch (type) {
+            case PrefetchResultTypeBoundaryInterface.SUCCESS:
+                mCallback.onResult(null);
+                break;
+            case PrefetchResultTypeBoundaryInterface.DUPLICATE:
+                /*
+                 * On earlier versions of the Chromium and AndroidX library,
+                 * duplicate requests were reported as errors instead of success
+                 * with a PrefetchException and "Duplicate prefetch request" here:
+                 * https://chromium-review.googlesource.com/c/chromium/src/+/7664079
+                 * aosp/3989873
+                 */
+                mCallback.onError(new PrefetchNetworkException("Duplicate prefetch request"));
+                break;
+            default:
+                throw new IllegalArgumentException("Given type isn't defined.");
+        }
+    }
+
+    @Override
+    public String @NonNull [] getSupportedFeatures() {
+        return new String[]{Features.PREFETCH_WITH_CALLBACK_RESULT_V1};
+    }
+
+    @Override
+    public void onFailure(
+            @PrefetchExceptionTypeBoundaryInterface int type,
+            @NonNull String message, int networkErrorCode) {
+        switch (type) {
+            case PrefetchExceptionTypeBoundaryInterface.NETWORK:
+                mCallback.onError(new PrefetchNetworkException(message, networkErrorCode));
+                break;
+            default:
+                mCallback.onError(new PrefetchException(message));
+                break;
+        }
     }
 }

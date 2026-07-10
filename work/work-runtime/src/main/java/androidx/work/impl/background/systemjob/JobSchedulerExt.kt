@@ -75,7 +75,7 @@ internal fun createErrorMessage(
     configuration: Configuration,
 ): String {
     val totalLimit = if (Build.VERSION.SDK_INT >= 31) 150 else 100
-    val dbScheduledCount = workDatabase.workSpecDao().getScheduledWork().size
+    val dbScheduledCount = workDatabase.workSpecDao().getScheduledWorkWithContentUris().size
     val jobSchedulerStats =
         if (Build.VERSION.SDK_INT >= 34) {
             val namespacedScheduler = context.wmJobScheduler

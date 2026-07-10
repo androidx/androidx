@@ -24,38 +24,34 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.ink.brush.compose"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
 
-        androidMain {
-            dependencies {
-                api(project(":ink:ink-brush"))
+        androidMain.dependencies {
+            api(project(":ink:ink-brush"))
 
-                implementation("androidx.annotation:annotation:1.8.0")
-                implementation("androidx.compose.ui:ui-graphics:1.0.0")
-            }
+            implementation("androidx.annotation:annotation:1.8.0")
+            implementation("androidx.compose.ui:ui-graphics:1.0.0")
         }
 
-        androidInstrumentedTest {
-            dependencies {
-                implementation(project(":ink:ink-brush"))
-                implementation("androidx.compose.ui:ui-graphics:1.0.0")
+        androidDeviceTest.dependencies {
+            implementation(project(":ink:ink-brush"))
+            implementation("androidx.compose.ui:ui-graphics:1.0.0")
 
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.truth)
-            }
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.mockitoCore4)
+            implementation(libs.mockitoKotlin4)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.truth)
         }
     }
 }

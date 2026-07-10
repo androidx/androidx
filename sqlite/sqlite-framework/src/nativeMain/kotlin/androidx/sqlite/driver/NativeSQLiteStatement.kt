@@ -63,7 +63,7 @@ public class NativeSQLiteStatement(
     private val stmtPointer: CPointer<sqlite3_stmt>,
 ) : SQLiteStatement {
 
-    @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
+    @Volatile private var isClosed = false
 
     override fun bindBlob(index: Int, value: ByteArray) {
         throwIfClosed()
@@ -212,9 +212,9 @@ public class NativeSQLiteStatement(
 
     override fun close() {
         if (!isClosed) {
+            isClosed = true
             sqlite3_finalize(stmtPointer)
         }
-        isClosed = true
     }
 
     private fun throwIfClosed() {

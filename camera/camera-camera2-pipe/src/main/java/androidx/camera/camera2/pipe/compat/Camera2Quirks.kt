@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBefo
 import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.EXACT
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.Camera2Quirks.Companion.SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,7 +31,10 @@ import kotlin.math.max
 @Singleton
 internal class Camera2Quirks
 @Inject
-constructor(private val metadataProvider: Camera2MetadataProvider) {
+constructor(
+    private val metadataProvider: Camera2MetadataProvider,
+    private val strictMode: StrictMode,
+) {
     /**
      * A quirk that waits for the last repeating capture request to start before stopping the
      * current capture session. This is an issue in the Android camera framework where recreating a
@@ -43,6 +47,10 @@ constructor(private val metadataProvider: Camera2MetadataProvider) {
     internal fun shouldWaitForRepeatingRequestStartOnDisconnect(
         graphConfig: CameraGraph.Config
     ): Boolean {
+        if (strictMode.enabled) {
+            return false
+        }
+
         // First, check for overrides.
         graphConfig.flags.awaitRepeatingRequestOnDisconnect?.let {
             return it
@@ -64,6 +72,10 @@ constructor(private val metadataProvider: Camera2MetadataProvider) {
      * - API levels: 24 (N) – 28 (P)
      */
     internal fun shouldCreateEmptyCaptureSessionBeforeClosing(cameraId: CameraId): Boolean {
+        if (strictMode.enabled) {
+            return false
+        }
+
         return Build.VERSION.SDK_INT in (Build.VERSION_CODES.N..Build.VERSION_CODES.P) &&
             metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
     }
@@ -77,8 +89,12 @@ constructor(private val metadataProvider: Camera2MetadataProvider) {
      * - Device(s): Camera devices on hardware level LEGACY
      * - API levels: All
      */
-    internal fun shouldWaitForCameraDeviceOnClosed(cameraId: CameraId): Boolean =
-        metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
+    internal fun shouldWaitForCameraDeviceOnClosed(cameraId: CameraId): Boolean {
+        if (strictMode.enabled) {
+            return false
+        }
+        return metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
+    }
 
     /**
      * A quirk that closes the camera devices before creating a new capture session. This is needed
@@ -95,6 +111,9 @@ constructor(private val metadataProvider: Camera2MetadataProvider) {
      * - API levels: 23 (M) – 31 (S_V2)
      */
     internal fun shouldCloseCameraBeforeCreatingCaptureSession(cameraId: CameraId): Boolean {
+        if (strictMode.enabled) {
+            return false
+        }
         val isLegacyDevice =
             Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2 &&
                 metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
@@ -105,57 +124,78 @@ constructor(private val metadataProvider: Camera2MetadataProvider) {
         return isLegacyDevice || isQuirkyDevice
     }
 
+    /**
+     * Returns the number of repeating requests frames before capture for quirks.
+     *
+     * This kind of quirk behavior requires waiting for a certain number of repeating requests to
+     * complete before allowing (single) capture requests to be issued. This is needed on some
+     * devices where issuing a capture request too early might cause it to fail prematurely or cause
+     * some other problem. A value of zero is returned when not required.
+     * - Bug(s): b/287020251, b/289284907
+     * - Device(s): See [SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP]
+     * - API levels: Before 34 (U)
+     */
+    internal fun getRepeatingRequestFrameCountForCapture(graphConfigFlags: CameraGraph.Flags): Int {
+        if (strictMode.enabled) {
+            return 0
+        }
+
+        val requirements = graphConfigFlags.awaitRepeatingRequestBeforeCapture
+
+        var frameCount = 0
+
+        if (
+            SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[Build.MANUFACTURER]?.contains(Build.DEVICE) ==
+                true && Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        ) {
+            frameCount = max(frameCount, 10)
+        }
+
+        frameCount =
+            when (requirements.completionBehavior) {
+                AT_LEAST -> max(frameCount, requirements.repeatingFramesToComplete.toInt())
+                EXACT -> requirements.repeatingFramesToComplete.toInt()
+            }
+
+        return frameCount
+    }
+
     companion object {
         private val SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP =
             mapOf("Google" to setOf("oriole", "raven", "bluejay", "panther", "cheetah", "lynx"))
 
+        private val SM8150_DEVICES =
+            mapOf("google" to setOf("pixel 4", "pixel 4 xl"), "samsung" to setOf("sm-g770f"))
+
         /**
-         * Returns the number of repeating requests frames before capture for quirks.
-         *
-         * This kind of quirk behavior requires waiting for a certain number of repeating requests
-         * to complete before allowing (single) capture requests to be issued. This is needed on
-         * some devices where issuing a capture request too early might cause it to fail prematurely
-         * or cause some other problem. A value of zero is returned when not required.
-         * - Bug(s): b/287020251, b/289284907
-         * - Device(s): See [SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP]
-         * - API levels: Before 34 (U)
+         * Quirk needed on devices where not closing capture session before creating a new capture
+         * session can lead to undesirable behaviors such as: CameraDevice.close() call might stall
+         * indefinitely, or crashes in the camera HAL
+         * - Bug(s): 277675483, 282871038
+         * - Device(s): See below
+         * - API levels: See below
          */
-        internal fun getRepeatingRequestFrameCountForCapture(
-            graphConfigFlags: CameraGraph.Flags
-        ): Int {
-            val requirements = graphConfigFlags.awaitRepeatingRequestBeforeCapture
-
-            var frameCount = 0
-
-            if (
-                SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[Build.MANUFACTURER]?.contains(Build.DEVICE) ==
-                    true && Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-            ) {
-                frameCount = max(frameCount, 10)
+        internal fun shouldCloseCaptureSessionOnDisconnect() =
+            when {
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1 ->
+                    // Older devices (Android version <= 8.1.0) seem to have a higher chance of
+                    // encountering an issue where not closing the capture session would lead to
+                    // CameraDevice.close() stalling indefinitely. (b/277675483)
+                    true
+                Build.HARDWARE == "samsungexynos7870" ->
+                    // On some platforms, not closing the capture session before switching to a new
+                    // capture session may trigger camera HAL crashes. (b/282871038)
+                    true
+                (Build.HARDWARE.equals("qcom", ignoreCase = true) &&
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) ||
+                    SM8150_DEVICES[Build.BRAND.lowercase()]?.contains(Build.MODEL.lowercase()) ==
+                        true ->
+                    // On qcom platforms from a certain era, switching capture sessions without
+                    // closing the prior session then setting the repeating request immediately,
+                    // puts the camera HAL in a bad state where it only produces a few frames before
+                    // going into an unrecoverable error. See b/316048171 for context.
+                    true
+                else -> false
             }
-
-            frameCount =
-                when (requirements.completionBehavior) {
-                    AT_LEAST -> max(frameCount, requirements.repeatingFramesToComplete.toInt())
-                    EXACT -> requirements.repeatingFramesToComplete.toInt()
-                }
-
-            return frameCount
-        }
-
-        /**
-         * A quirk that calls CameraExtensionCharacteristics before opening an Extension session.
-         * This is an issue in the Android camera framework where Camera2 has a global variable
-         * recording if advanced extensions are supported or not, and the variable is updated the
-         * first time CameraExtensionCharacteristics are queried. If CameraExtensionCharacteristics
-         * are not queried and therefore the variable is not set, Camera2 will fall back to basic
-         * extensions, even if they are not supported, causing the session creation to fail.
-         * - Bug(s): b/293473614
-         * - Device(s): All devices that support advanced extensions
-         * - API levels: Before 34 (U)
-         */
-        internal fun shouldGetExtensionCharacteristicsBeforeSession(): Boolean {
-            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-        }
     }
 }

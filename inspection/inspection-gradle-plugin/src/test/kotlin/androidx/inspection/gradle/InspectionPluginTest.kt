@@ -61,7 +61,7 @@ class InspectionPluginTest {
                     id("com.android.library")
                     id("androidx.inspection")
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """

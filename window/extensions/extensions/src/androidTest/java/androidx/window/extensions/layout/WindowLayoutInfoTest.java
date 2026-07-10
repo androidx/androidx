@@ -16,8 +16,13 @@
 
 package androidx.window.extensions.layout;
 
+import static androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_AUDIO_ON;
+import static androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_VISUALS_ON;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
 
@@ -40,8 +45,9 @@ public final class WindowLayoutInfoTest {
     public void testEquals_sameFeatures() {
         List<DisplayFeature> features = new ArrayList<>();
 
-        WindowLayoutInfo original = new WindowLayoutInfo(features);
-        WindowLayoutInfo copy = new WindowLayoutInfo(features);
+        WindowLayoutInfo original =
+                new WindowLayoutInfo.Builder().setDisplayFeatures(features).build();
+        WindowLayoutInfo copy = new WindowLayoutInfo.Builder().setDisplayFeatures(features).build();
 
         assertEquals(original, copy);
     }
@@ -55,8 +61,25 @@ public final class WindowLayoutInfoTest {
                 rect, FoldingFeature.TYPE_HINGE,
                 FoldingFeature.STATE_FLAT));
 
-        WindowLayoutInfo original = new WindowLayoutInfo(originalFeatures);
-        WindowLayoutInfo different = new WindowLayoutInfo(differentFeatures);
+        WindowLayoutInfo original = new WindowLayoutInfo.Builder()
+                .setDisplayFeatures(originalFeatures).build();
+        WindowLayoutInfo different = new WindowLayoutInfo.Builder()
+                .setDisplayFeatures(differentFeatures).build();
+
+        assertNotEquals(original, different);
+    }
+
+    @Test
+    public void testEquals_differentEngagementModeFlags() {
+        List<DisplayFeature> features = new ArrayList<>();
+        WindowLayoutInfo original = new WindowLayoutInfo.Builder()
+                .setDisplayFeatures(features)
+                .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_VISUALS_ON)
+                .build();
+        WindowLayoutInfo different = new WindowLayoutInfo.Builder()
+                .setDisplayFeatures(features)
+                .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_AUDIO_ON)
+                .build();
 
         assertNotEquals(original, different);
     }
@@ -65,8 +88,10 @@ public final class WindowLayoutInfoTest {
     public void testHashCode_matchesIfEqual() {
         List<DisplayFeature> firstFeatures = new ArrayList<>();
         List<DisplayFeature> secondFeatures = new ArrayList<>();
-        WindowLayoutInfo first = new WindowLayoutInfo(firstFeatures);
-        WindowLayoutInfo second = new WindowLayoutInfo(secondFeatures);
+        WindowLayoutInfo first =
+                new WindowLayoutInfo.Builder().setDisplayFeatures(firstFeatures).build();
+        WindowLayoutInfo second =
+                new WindowLayoutInfo.Builder().setDisplayFeatures(secondFeatures).build();
 
         assertEquals(first, second);
         assertEquals(first.hashCode(), second.hashCode());
@@ -86,10 +111,48 @@ public final class WindowLayoutInfoTest {
         );
         List<DisplayFeature> firstFeatures = Collections.singletonList(originalFeature);
         List<DisplayFeature> secondFeatures = Collections.singletonList(matchingFeature);
-        WindowLayoutInfo first = new WindowLayoutInfo(firstFeatures);
-        WindowLayoutInfo second = new WindowLayoutInfo(secondFeatures);
+        WindowLayoutInfo first =
+                new WindowLayoutInfo.Builder().setDisplayFeatures(firstFeatures).build();
+        WindowLayoutInfo second =
+                new WindowLayoutInfo.Builder().setDisplayFeatures(secondFeatures).build();
 
         assertEquals(first, second);
         assertEquals(first.hashCode(), second.hashCode());
+    }
+
+    @Test
+    public void testBuilder_setEngagementModeFlags() {
+        WindowLayoutInfo info = new WindowLayoutInfo.Builder()
+                .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_AUDIO_ON)
+                .build();
+
+        assertEquals(ENGAGEMENT_MODE_FLAG_AUDIO_ON, info.getEngagementModeFlags());
+    }
+
+    @Test
+    public void testBuilder_defaultEngagementModeFlags() {
+        WindowLayoutInfo info = new WindowLayoutInfo.Builder().build();
+
+        int expected = ENGAGEMENT_MODE_FLAG_VISUALS_ON | ENGAGEMENT_MODE_FLAG_AUDIO_ON;
+        assertEquals(expected, info.getEngagementModeFlags());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedConstructor_defaultEngagementModeFlags() {
+        WindowLayoutInfo info = new WindowLayoutInfo(Collections.emptyList());
+
+        int expected = ENGAGEMENT_MODE_FLAG_VISUALS_ON | ENGAGEMENT_MODE_FLAG_AUDIO_ON;
+        assertEquals(expected, info.getEngagementModeFlags());
+    }
+
+    @Test
+    public void testHasEngagementModeFlag() {
+        WindowLayoutInfo info = new WindowLayoutInfo.Builder()
+                .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_VISUALS_ON)
+                .build();
+
+        assertTrue(info.hasEngagementModeFlag(ENGAGEMENT_MODE_FLAG_VISUALS_ON));
+        assertFalse(info.hasEngagementModeFlag(ENGAGEMENT_MODE_FLAG_AUDIO_ON));
     }
 }

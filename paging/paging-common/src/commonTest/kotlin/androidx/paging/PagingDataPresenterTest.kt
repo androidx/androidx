@@ -31,6 +31,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -47,11 +49,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 
 /**
  * run some tests with cached-in to ensure caching does not change behavior in the single consumer
@@ -2610,6 +2614,75 @@ class PagingDataPresenterTest {
             job.cancel()
         }
 
+    @Test
+    fun refreshInterrupted_pageStoreResets(): TestResult {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+
+        return testScope.runTest {
+            var refreshCount = 0
+            var exceptionDetected = false
+            val pager =
+                Pager(
+                    config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+                    pagingSourceFactory = { TestPagingSource(loadDelay = 1000) },
+                )
+
+            val presenter =
+                object : PagingDataPresenter<Int>() {
+                    override suspend fun presentPagingDataEvent(event: PagingDataEvent<Int>) {
+                        if (event is PagingDataEvent.Refresh) {
+                            refreshCount++
+                        }
+                        if (refreshCount == 2) {
+                            throw CancellationException("throw")
+                        }
+                    }
+                }
+
+            val job = launch {
+                pager.flow.collectLatest {
+                    try {
+                        presenter.collectFrom(it)
+                    } catch (e: CancellationException) {
+                        exceptionDetected = true
+                        // propagate it forward after the tests logs the exception
+                        throw e
+                    }
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertThat(exceptionDetected).isEqualTo(false)
+            assertThat(presenter.size).isEqualTo(9)
+
+            // append to get a presenter size larger than refresh size
+            presenter[8]
+            advanceUntilIdle()
+
+            assertThat(exceptionDetected).isEqualTo(false)
+            assertThat(presenter.size).isEqualTo(12)
+
+            // trigger refresh, but this time presentPagingDataEvent show throw cancellation
+            // exception to simulate a refresh getting interrupted while presenting to UI
+            presenter.refresh()
+            advanceUntilIdle()
+
+            // make sure exception was indeed thrown and that presenter state is restored to the
+            // pre-refresh state
+            assertThat(exceptionDetected).isEqualTo(true)
+            assertThat(presenter.size).isEqualTo(12)
+
+            // then refresh again and make sure it gets processed normally
+            presenter.refresh()
+            advanceUntilIdle()
+
+            assertThat(presenter.size).isEqualTo(9)
+
+            job.cancel()
+        }
+    }
+
     private fun runTest(
         collectWithCachedIn: Boolean,
         initialKey: Int? = null,
@@ -2725,7 +2798,7 @@ private class HintReceiverFake : HintReceiver {
             return result
         }
 
-    override fun accessHint(viewportHint: ViewportHint) {
+    override fun processHint(viewportHint: ViewportHint) {
         _hints.add(viewportHint)
     }
 }
@@ -2755,9 +2828,9 @@ private class TrackableHintReceiverWrapper(private val receiver: HintReceiver? =
             return result
         }
 
-    override fun accessHint(viewportHint: ViewportHint) {
+    override fun processHint(viewportHint: ViewportHint) {
         _hints.add(viewportHint)
-        receiver?.accessHint(viewportHint)
+        receiver?.processHint(viewportHint)
     }
 }
 
@@ -2804,5 +2877,5 @@ internal val dummyUiReceiver =
 
 internal val dummyHintReceiver =
     object : HintReceiver {
-        override fun accessHint(viewportHint: ViewportHint) {}
+        override fun processHint(viewportHint: ViewportHint) {}
     }

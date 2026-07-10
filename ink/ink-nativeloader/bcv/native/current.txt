@@ -1,0 +1,15 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.ink:ink-nativeloader>
+open annotation class androidx.ink.nativeloader/InkInternalOnlyApi : kotlin/Annotation { // androidx.ink.nativeloader/InkInternalOnlyApi|null[0]
+    constructor <init>() // androidx.ink.nativeloader/InkInternalOnlyApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.ink.nativeloader/UsedByNative : kotlin/Annotation { // androidx.ink.nativeloader/UsedByNative|null[0]
+    constructor <init>() // androidx.ink.nativeloader/UsedByNative.<init>|<init>(){}[0]
+}

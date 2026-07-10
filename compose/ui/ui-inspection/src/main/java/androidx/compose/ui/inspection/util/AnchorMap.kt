@@ -16,26 +16,41 @@
 
 package androidx.compose.ui.inspection.util
 
+import androidx.collection.mutableIntObjectMapOf
+
 const val NO_ANCHOR_ID = 0
 
 /** A map of anchors with a unique id generator. */
 class AnchorMap {
-    private val anchorLookup = mutableMapOf<Int, Any>()
-    private val idLookup = mutableMapOf<Any, Int>()
+    private val anchorLookup = mutableIntObjectMapOf<Any>()
+    private val dataLookup = mutableMapOf<Any, AnchorData>()
 
     /** Return a unique id for the specified [anchor] instance. */
-    operator fun get(anchor: Any?): Int =
-        anchor?.let { idLookup.getOrPut(it) { generateUniqueId(it) } } ?: NO_ANCHOR_ID
+    operator fun get(anchor: Any?, key: Int): Int =
+        anchor?.let { dataLookup.getOrPut(it) { generateUniqueId(it, key) } }?.id ?: NO_ANCHOR_ID
 
     /** Return the anchor associated with a given unique anchor [id]. */
     operator fun get(id: Int): Any? = anchorLookup[id]
 
-    private fun generateUniqueId(anchor: Any): Int {
+    /** Return the key associated with a given anchor. */
+    fun getKey(anchor: Any?): Int = anchor?.let { dataLookup[anchor] }?.key ?: 0
+
+    private fun generateUniqueId(anchor: Any, key: Int): AnchorData {
         var id = anchor.hashCode()
         while (id == NO_ANCHOR_ID || anchorLookup.containsKey(id)) {
             id++
         }
+        val data = AnchorData(id, key)
         anchorLookup[id] = anchor
-        return id
+        dataLookup[anchor] = data
+        return data
     }
+
+    /**
+     * Data stored by anchor instance:
+     *
+     * @param id the generated unique id for this anchor
+     * @param key the key of the CompositionGroup that is also used in CompositionTracer
+     */
+    private class AnchorData(val id: Int, val key: Int)
 }

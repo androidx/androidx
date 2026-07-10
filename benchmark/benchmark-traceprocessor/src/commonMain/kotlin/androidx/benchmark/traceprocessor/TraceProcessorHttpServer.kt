@@ -50,7 +50,7 @@ internal class TraceProcessorHttpServer(
 
         // Note that trace processor http server has a hard limit of 64Mb for payload size.
         // https://cs.android.com/android/platform/superproject/+/master:external/perfetto/src/base/http/http_server.cc;l=33
-        private const val PARSE_PAYLOAD_SIZE = 16 * 1024 * 1024 // 16Mb
+        private const val PARSE_PAYLOAD_SIZE = 512 * 1024 // 512 KB
     }
 
     private var hasStarted = false
@@ -63,24 +63,21 @@ internal class TraceProcessorHttpServer(
      */
     @Suppress("BanThreadSleep") // needed for awaiting trace processor instance
     fun startServer() {
-        if (hasStarted) {
-            log("Tried to start a trace shell processor that is already running.")
-        } else {
-            port = serverLifecycleManager.start()
-            // Wait for the trace_processor_shell server to start.
-            var elapsed = 0.milliseconds
-            while (!isRunning()) {
-                Thread.sleep(WAIT_INTERVAL.toLong(DurationUnit.MILLISECONDS))
-                elapsed += WAIT_INTERVAL
-                if (elapsed >= timeoutMs.toDuration(DurationUnit.MILLISECONDS)) {
-                    throw IllegalStateException(serverLifecycleManager.timeoutMessage())
-                }
+        if (hasStarted) return // Nothing to do.
+
+        port = serverLifecycleManager.start()
+        // Wait for the trace_processor_shell server to start.
+        var elapsed = 0.milliseconds
+        while (!isRunning()) {
+            Thread.sleep(WAIT_INTERVAL.toLong(DurationUnit.MILLISECONDS))
+            elapsed += WAIT_INTERVAL
+            if (elapsed >= timeoutMs.toDuration(DurationUnit.MILLISECONDS)) {
+                throw IllegalStateException(serverLifecycleManager.timeoutMessage())
             }
-
-            hasStarted = true
-
-            log("Perfetto trace processor shell server started (port=$port).")
         }
+
+        hasStarted = true
+        log("Perfetto trace processor shell server started (port=$port).")
     }
 
     /** Stops the server killing the associated process */
@@ -138,9 +135,14 @@ internal class TraceProcessorHttpServer(
      */
     fun parse(inputStream: InputStream): List<AppendTraceDataResult> {
         val responses = mutableListOf<AppendTraceDataResult>()
+        var read = 0
+        val buffer = ByteArray(PARSE_PAYLOAD_SIZE)
         while (true) {
-            val buffer = ByteArray(PARSE_PAYLOAD_SIZE)
-            val read = inputStream.read(buffer)
+            // Reset
+            if (read > 0) {
+                buffer.fill(element = 0, fromIndex = 0, toIndex = read)
+            }
+            read = inputStream.read(buffer)
             if (read <= 0) break
             responses.add(
                 httpRequest(

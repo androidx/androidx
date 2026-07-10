@@ -44,8 +44,8 @@ internal constructor(
      * The id of the associated anchor for tracking recomposition counts.
      *
      * An Anchor is a mechanism in the compose runtime that can identify a Group in the slot storage
-     * that is invariant to slot storage updates. See [androidx.compose.runtime.Anchor] for more
-     * information.
+     * that is invariant to slot storage updates. See
+     * [androidx.compose.runtime.composer.gapbuffer.Anchor] for more information.
      */
     val anchorId: Int,
 

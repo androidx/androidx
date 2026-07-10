@@ -39,4 +39,5 @@ interface IInsetsListener {
    */
   void onInsetsChanged(in android.graphics.Insets insets) = 1;
   void onWindowInsetsChanged(in android.graphics.Insets insets, in android.graphics.Insets safeInsets) = 2;
+  void onImeInsetsChanged(in android.graphics.Insets imeInsets) = 3;
 }

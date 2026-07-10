@@ -85,6 +85,20 @@ public actual open class NavController(
 
     internal var deepLinkHandled = false
 
+    private fun shouldTrustIntent(intent: Intent?): Boolean {
+        if (intent == null) return false
+        val currentActivity = activity ?: return true
+
+        val hasReferrerExtra =
+            intent.hasExtra(Intent.EXTRA_REFERRER) || intent.hasExtra(Intent.EXTRA_REFERRER_NAME)
+
+        // These extras can be spoofed and should not be trusted.
+        if (hasReferrerExtra) return false
+
+        val caller = currentActivity.callingPackage ?: currentActivity.referrer?.authority
+        return caller == context.packageName
+    }
+
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual val currentBackStack: StateFlow<List<NavBackStackEntry>>
         get() = impl.currentBackStack
@@ -303,15 +317,16 @@ public actual open class NavController(
     public actual open fun navigateUp(): Boolean {
         // If there's only one entry, then we may have deep linked into a specific destination
         // on another task.
-        if (destinationCountOnBackStack == 1) {
-            val extras = activity?.intent?.extras
-            if (extras?.getIntArray(KEY_DEEP_LINK_IDS) != null) {
-                return tryRelaunchUpToExplicitStack()
+        return if (destinationCountOnBackStack == 1) {
+            val intent = activity?.intent
+            val extras = intent?.extras
+            if (extras?.getIntArray(KEY_DEEP_LINK_IDS) != null && shouldTrustIntent(intent)) {
+                tryRelaunchUpToExplicitStack()
             } else {
-                return tryRelaunchUpToGeneratedStack()
+                tryRelaunchUpToGeneratedStack()
             }
         } else {
-            return popBackStack()
+            popBackStack()
         }
     }
 
@@ -509,20 +524,28 @@ public actual open class NavController(
             return false
         }
         val extras = intent.extras
+        val trustedExplicitDeepLink =
+            extras != null && extras.containsKey(KEY_DEEP_LINK_IDS) && shouldTrustIntent(intent)
         var deepLink =
-            try {
-                extras?.getIntArray(KEY_DEEP_LINK_IDS)
-            } catch (e: Exception) {
-                android.util.Log.e(
-                    NavControllerImpl.TAG,
-                    "handleDeepLink() could not extract deepLink from $intent",
-                    e,
-                )
-                null
-            }
-        var deepLinkArgs = extras?.getParcelableArrayList<SavedState>(KEY_DEEP_LINK_ARGS)
+            if (trustedExplicitDeepLink) {
+                try {
+                    extras.getIntArray(KEY_DEEP_LINK_IDS)
+                } catch (e: Exception) {
+                    android.util.Log.e(
+                        NavControllerImpl.TAG,
+                        "handleDeepLink() could not extract deepLink from $intent",
+                        e,
+                    )
+                    null
+                }
+            } else null
+        var deepLinkArgs =
+            if (trustedExplicitDeepLink) {
+                extras.getParcelableArrayList<SavedState>(KEY_DEEP_LINK_ARGS)
+            } else null
         val globalArgs = savedState()
-        val deepLinkExtras = extras?.getBundle(KEY_DEEP_LINK_EXTRAS)
+        val deepLinkExtras =
+            if (trustedExplicitDeepLink) extras.getBundle(KEY_DEEP_LINK_EXTRAS) else null
         if (deepLinkExtras != null) {
             globalArgs.write { putAll(deepLinkExtras) }
         }

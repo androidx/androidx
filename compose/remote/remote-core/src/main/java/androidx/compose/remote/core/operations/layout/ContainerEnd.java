@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -25,6 +26,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ContainerEnd extends Operation {
 
     @Override
@@ -35,7 +37,7 @@ public class ContainerEnd extends Operation {
     @NonNull
     @Override
     public String toString() {
-        return "LIST_END";
+        return "CONTAINER_END";
     }
 
     @Override
@@ -56,7 +58,7 @@ public class ContainerEnd extends Operation {
      */
     @NonNull
     public static String name() {
-        return "ListEnd";
+        return "ContainerEnd";
     }
 
     /**
@@ -93,7 +95,7 @@ public class ContainerEnd extends Operation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("End tag for list of operations.");
+        doc.operation("Document Protocol Operations", id(), name())
+                .description("End tag for a container component (Row, Column, etc.)");
     }
 }

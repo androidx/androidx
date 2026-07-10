@@ -52,8 +52,6 @@ class InMemoryTracingTest {
             packet,
             TracePacket(
                 timestamp = packet.timestamp,
-                timestamp_clock_id = 3,
-                incremental_state_cleared = true,
                 track_descriptor =
                     TrackDescriptor(
                         uuid = packet.track_descriptor?.uuid,
@@ -86,7 +84,6 @@ class InMemoryTracingTest {
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
-                    timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
                     track_event =
                         TrackEvent(
@@ -104,7 +101,6 @@ class InMemoryTracingTest {
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
-                    timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
                     track_event =
                         TrackEvent(
@@ -153,7 +149,6 @@ class InMemoryTracingTest {
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
-                    timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
                     track_event =
                         TrackEvent(
@@ -173,7 +168,6 @@ class InMemoryTracingTest {
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
-                    timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
                     track_event =
                         TrackEvent(
@@ -189,7 +183,6 @@ class InMemoryTracingTest {
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
-                    timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
                     track_event =
                         TrackEvent(

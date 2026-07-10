@@ -16,47 +16,20 @@
 
 package androidx.xr.compose.subspace.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Vector3
 import kotlin.math.roundToInt
 
 /**
- * An interface to calculate the position of a sized box inside of an available 3D space.
+ * An interface to calculate the position of a sized box inside an available 3D space.
  * [SpatialAlignment] is often used to define the alignment of a layout inside a parent layout.
  *
  * @see SpatialBiasAlignment
+ * @see SpatialAbsoluteAlignment
  */
 public interface SpatialAlignment {
-    /**
-     * Provides the horizontal offset from the origin of the space to the origin of the content.
-     *
-     * @param width The content width in pixels.
-     * @param space The available space in pixels.
-     * @param layoutDirection LTR or RTL.
-     */
-    public fun horizontalOffset(
-        width: Int,
-        space: Int,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    ): Int
-
-    /**
-     * Provides the vertical offset from the origin of the space to the origin of the content.
-     *
-     * @param height The content height in pixels.
-     * @param space The available space in pixels.
-     */
-    public fun verticalOffset(height: Int, space: Int): Int
-
-    /**
-     * Provides the depth offset from the origin of the space to the origin of the content.
-     *
-     * @param depth The content depth in pixels.
-     * @param space The available space in pixels.
-     */
-    public fun depthOffset(depth: Int, space: Int): Int
-
     /**
      * Provides the origin-based position of the content in the available space.
      *
@@ -64,99 +37,71 @@ public interface SpatialAlignment {
      * @param space The available space in pixels.
      * @param layoutDirection LTR or RTL.
      */
-    public fun position(
+    public fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        layoutDirection: LayoutDirection,
     ): Vector3
 
     /**
-     * An interface to calculate the position of a box of a certain width inside an available width.
+     * An interface to calculate the alignment of a box of a certain size inside an available width.
      */
     public interface Horizontal {
         /**
-         * Provides the horizontal offset from the origin of the space to the origin of the content.
+         * Provides the horizontal alignment offset from the origin of the space to the origin of
+         * the content.
          *
-         * @param width The content width in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
          * @param layoutDirection LTR or RTL.
-         * @see [SpatialAlignment.horizontalOffset]
          */
-        public fun offset(
-            width: Int,
-            space: Int,
-            layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        ): Int
+        public fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int
     }
 
     /**
-     * An interface to calculate the position of a box of a certain height inside an available
+     * An interface to calculate the alignment of a box of a certain size inside an available
      * height.
      */
     public interface Vertical {
         /**
-         * Provides the vertical offset from the origin of the space to the origin of the content.
+         * Provides the vertical alignment offset from the origin of the space to the origin of the
+         * content.
          *
-         * @param height The content height in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
-         * @see [SpatialAlignment.verticalOffset]
          */
-        public fun offset(height: Int, space: Int): Int
+        public fun align(size: Int, space: Int): Int
     }
 
     /**
-     * An interface to calculate the position of a box of a certain depth inside an available depth.
+     * An interface to calculate the alignment of a box of a certain size inside an available depth.
      */
     public interface Depth {
         /**
-         * Provides the depth offset from the origin of the space to the origin of the content.
+         * Provides the depth alignment offset from the origin of the space to the origin of the
+         * content.
          *
-         * @param depth The content depth in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
-         * @see [SpatialAlignment.depthOffset]
          */
-        public fun offset(depth: Int, space: Int): Int
+        public fun align(size: Int, space: Int): Int
     }
 
     public companion object {
         // 2D alignments
-        @Deprecated("Use TopStart instead", ReplaceWith("TopStart"))
-        @JvmStatic
-        public val TopLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, 1f, 0f)
         @JvmStatic public val TopStart: SpatialAlignment = SpatialBiasAlignment(-1f, 1f, 0f)
         @JvmStatic public val TopCenter: SpatialAlignment = SpatialBiasAlignment(0f, 1f, 0f)
-        @Deprecated("Use TopEnd instead", ReplaceWith("TopEnd"))
-        @JvmStatic
-        public val TopRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, 1f, 0f)
         @JvmStatic public val TopEnd: SpatialAlignment = SpatialBiasAlignment(1f, 1f, 0f)
-        @Deprecated("Use CenterStart instead", ReplaceWith("CenterStart"))
-        @JvmStatic
-        public val CenterLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, 0f, 0f)
         @JvmStatic public val CenterStart: SpatialAlignment = SpatialBiasAlignment(-1f, 0f, 0f)
         @JvmStatic public val Center: SpatialAlignment = SpatialBiasAlignment(0f, 0f, 0f)
-        @Deprecated("Use CenterEnd instead", ReplaceWith("CenterEnd"))
-        @JvmStatic
-        public val CenterRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, 0f, 0f)
         @JvmStatic public val CenterEnd: SpatialAlignment = SpatialBiasAlignment(1f, 0f, 0f)
-        @Deprecated("Use BottomStart instead", ReplaceWith("BottomStart"))
-        @JvmStatic
-        public val BottomLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, -1f, 0f)
         @JvmStatic public val BottomStart: SpatialAlignment = SpatialBiasAlignment(-1f, -1f, 0f)
         @JvmStatic public val BottomCenter: SpatialAlignment = SpatialBiasAlignment(0f, -1f, 0f)
-        @Deprecated("Use BottomEnd instead", ReplaceWith("BottomEnd"))
-        @JvmStatic
-        public val BottomRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, -1f, 0f)
         @JvmStatic public val BottomEnd: SpatialAlignment = SpatialBiasAlignment(1f, -1f, 0f)
 
         // Horizontal alignments
-        @Deprecated("Use Start instead", ReplaceWith("Start"))
-        @JvmStatic
-        public val Left: Horizontal = SpatialBiasAbsoluteAlignment.Horizontal(-1f)
         @JvmStatic public val Start: Horizontal = SpatialBiasAlignment.Horizontal(-1f)
         @JvmStatic public val CenterHorizontally: Horizontal = SpatialBiasAlignment.Horizontal(0f)
-        @Deprecated("Use End instead", ReplaceWith("End"))
-        @JvmStatic
-        public val Right: Horizontal = SpatialBiasAbsoluteAlignment.Horizontal(1f)
         @JvmStatic public val End: Horizontal = SpatialBiasAlignment.Horizontal(1f)
 
         // Vertical alignments
@@ -214,33 +159,36 @@ public object SpatialAbsoluteAlignment {
 }
 
 /**
- * Creates a weighted alignment that specifies a horizontal, vertical, and depth bias.
+ * Positions content in 3D space using horizontal, vertical, and depth bias.
  *
- * @param horizontalBias Must be within the range of [-1, 1] with -1 being left and 1 being right.
+ * Bias refers to a normalized floating-point value, typically within the range of [-1.0f, 1.0f],
+ * that determines how a child's content is positioned along a specific axis relative to its
+ * parent's available space.
+ * - A bias of 0.0f centers the content along that axis.
+ * - A bias of -1.0f aligns the content to one extreme (e.g., start for horizontal, bottom for
+ *   vertical, back for depth).
+ * - A bias of 1.0f aligns the content to the opposite extreme (e.g., end for horizontal, top for
+ *   vertical, front for depth).
+ * - Values between -1.0f and 1.0f linearly interpolate the position between these extremes.
+ *
+ * @param horizontalBias Must be within the range of [-1, 1] with -1 being start and 1 being end.
  * @param verticalBias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
  * @param depthBias Must be within the range of [-1, 1] with -1 being back and 1 being front.
  */
 public class SpatialBiasAlignment(
-    public val horizontalBias: Float,
-    public val verticalBias: Float,
-    public val depthBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val horizontalBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val verticalBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val depthBias: Float,
 ) : SpatialAlignment {
-    override fun horizontalOffset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-        offset(horizontalBias, width, space, layoutDirection)
-
-    override fun verticalOffset(height: Int, space: Int): Int = offset(verticalBias, height, space)
-
-    override fun depthOffset(depth: Int, space: Int): Int = offset(depthBias, depth, space)
-
-    override fun position(
+    override fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Vector3 =
         Vector3(
-            horizontalOffset(size.width, space.width, layoutDirection).toFloat(),
-            verticalOffset(size.height, space.height).toFloat(),
-            depthOffset(size.depth, space.depth).toFloat(),
+            calculateBiasOffset(horizontalBias, size.width, space.width, layoutDirection).toFloat(),
+            calculateBiasOffset(verticalBias, size.height, space.height).toFloat(),
+            calculateBiasOffset(depthBias, size.depth, space.depth).toFloat(),
         )
 
     public fun copy(
@@ -279,93 +227,99 @@ public class SpatialBiasAlignment(
     /**
      * Creates a weighted alignment that specifies a horizontal bias.
      *
-     * @param bias Must be within the range of [-1, 1] with -1 being left and 1 being right.
+     * @param horizontalBias Must be within the range of [-1, 1] with -1 being start and 1 being
+     *   end.
      */
-    public class Horizontal(public val bias: Float) : SpatialAlignment.Horizontal {
-        override fun offset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-            offset(bias, width, space, layoutDirection)
+    public class Horizontal(@param:FloatRange(-1.0, 1.0) public val horizontalBias: Float) :
+        SpatialAlignment.Horizontal {
+        override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int =
+            calculateBiasOffset(horizontalBias, size, space, layoutDirection)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Horizontal) return false
 
-            if (bias != other.bias) return false
+            if (horizontalBias != other.horizontalBias) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return bias.hashCode()
+            return horizontalBias.hashCode()
         }
 
         override fun toString(): String {
-            return "Horizontal(bias=$bias)"
+            return "SpatialBiasAlignment#Horizontal(horizontalBias=$horizontalBias)"
         }
 
-        public fun copy(bias: Float = this.bias): Horizontal = Horizontal(bias = bias)
+        public fun copy(bias: Float = this.horizontalBias): Horizontal =
+            Horizontal(horizontalBias = bias)
     }
 
     /**
      * Creates a weighted alignment that specifies a vertical bias.
      *
-     * @param bias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
+     * @param verticalBias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
      */
-    public class Vertical(public val bias: Float) : SpatialAlignment.Vertical {
-        override fun offset(height: Int, space: Int): Int = offset(bias, height, space)
+    public class Vertical(@param:FloatRange(-1.0, 1.0) public val verticalBias: Float) :
+        SpatialAlignment.Vertical {
+        override fun align(size: Int, space: Int): Int =
+            calculateBiasOffset(verticalBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Vertical) return false
 
-            if (bias != other.bias) return false
+            if (verticalBias != other.verticalBias) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return bias.hashCode()
+            return verticalBias.hashCode()
         }
 
         override fun toString(): String {
-            return "Vertical(bias=$bias)"
+            return "SpatialBiasAlignment#Vertical(verticalBias=$verticalBias)"
         }
 
-        public fun copy(bias: Float = this.bias): Vertical = Vertical(bias = bias)
+        public fun copy(bias: Float = this.verticalBias): Vertical = Vertical(verticalBias = bias)
     }
 
     /**
      * Creates a weighted alignment that specifies a depth bias.
      *
-     * @param bias Must be within the range of [-1, 1] with -1 being back and 1 being front.
+     * @param depthBias Must be within the range of [-1, 1] with -1 being back and 1 being front.
      */
-    public class Depth(public val bias: Float) : SpatialAlignment.Depth {
-        override fun offset(depth: Int, space: Int): Int = offset(bias, depth, space)
+    public class Depth(@param:FloatRange(-1.0, 1.0) public val depthBias: Float) :
+        SpatialAlignment.Depth {
+        override fun align(size: Int, space: Int): Int = calculateBiasOffset(depthBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Depth) return false
 
-            if (bias != other.bias) return false
+            if (depthBias != other.depthBias) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return bias.hashCode()
+            return depthBias.hashCode()
         }
 
         override fun toString(): String {
-            return "Depth(bias=$bias)"
+            return "SpatialBiasAlignment#Depth(depthBias=$depthBias)"
         }
 
-        public fun copy(bias: Float = this.bias): Depth = Depth(bias = bias)
+        public fun copy(bias: Float = this.depthBias): Depth = Depth(depthBias = bias)
     }
 
     public companion object {
-        private fun offset(bias: Float, size: Int, space: Int): Int =
+        private fun calculateBiasOffset(bias: Float, size: Int, space: Int): Int =
             ((space - size) / 2.0f * bias).roundToInt()
 
-        private fun offset(
+        private fun calculateBiasOffset(
             bias: Float,
             size: Int,
             space: Int,
@@ -380,33 +334,44 @@ public class SpatialBiasAlignment(
 }
 
 /**
- * An [SpatialAbsoluteAlignment] specified by bias
+ * Positions content in 3D space using horizontal, vertical, and depth bias.
+ *
+ * Bias refers to a normalized floating-point value, typically within the range of [-1.0f, 1.0f],
+ * that determines how a child's content is positioned along a specific axis relative to its
+ * parent's available space.
+ * - A bias of 0.0f centers the content along that axis.
+ * - A bias of -1.0f aligns the content to one extreme (e.g., left for horizontal, bottom for
+ *   vertical, back for depth).
+ * - A bias of 1.0f aligns the content to the opposite extreme (e.g., right for horizontal, top for
+ *   vertical, front for depth).
+ * - Values between -1.0f and 1.0f linearly interpolate the position between these extremes.
+ *
+ * Unlike [SpatialBiasAlignment], the [horizontalBias] in this alignment is absolute; -1.0f always
+ * means left and 1.0f` always means right, irrespective of the current [LayoutDirection].
  *
  * @param horizontalBias Must be within the range of [-1, 1] with -1 being left and 1 being right.
  * @param verticalBias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
  * @param depthBias Must be within the range of [-1, 1] with -1 being back and 1 being front.
  */
 public class SpatialBiasAbsoluteAlignment(
-    public val horizontalBias: Float,
-    public val verticalBias: Float,
-    public val depthBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val horizontalBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val verticalBias: Float,
+    @param:FloatRange(-1.0, 1.0) public val depthBias: Float,
 ) : SpatialAlignment {
-    override fun horizontalOffset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-        offset(horizontalBias, width, space)
-
-    override fun verticalOffset(height: Int, space: Int): Int = offset(verticalBias, height, space)
-
-    override fun depthOffset(depth: Int, space: Int): Int = offset(depthBias, depth, space)
-
-    override fun position(
+    override fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Vector3 =
         Vector3(
-            horizontalOffset(size.width, space.width, layoutDirection).toFloat(),
-            verticalOffset(size.height, space.height).toFloat(),
-            depthOffset(size.depth, space.depth).toFloat(),
+            calculateBiasOffset(
+                    this@SpatialBiasAbsoluteAlignment.horizontalBias,
+                    size.width,
+                    space.width,
+                )
+                .toFloat(),
+            calculateBiasOffset(verticalBias, size.height, space.height).toFloat(),
+            calculateBiasOffset(depthBias, size.depth, space.depth).toFloat(),
         )
 
     public fun copy(
@@ -446,34 +411,37 @@ public class SpatialBiasAbsoluteAlignment(
      * Creates a weighted alignment that specifies a horizontal bias and independent of layout
      * direction
      *
-     * @param bias Must be within the range of [-1, 1] with -1 being left and 1 being right.
+     * @param horizontalBias Must be within the range of [-1, 1] with -1 being left and 1 being
+     *   right.
      */
-    public class Horizontal(public val bias: Float) : SpatialAlignment.Horizontal {
-        override fun offset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-            offset(bias, width, space)
+    public class Horizontal(@param:FloatRange(-1.0, 1.0) public val horizontalBias: Float) :
+        SpatialAlignment.Horizontal {
+        override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int =
+            calculateBiasOffset(horizontalBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Horizontal) return false
 
-            if (bias != other.bias) return false
+            if (horizontalBias != other.horizontalBias) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return bias.hashCode()
+            return horizontalBias.hashCode()
         }
 
         override fun toString(): String {
-            return "SpatialBiasAbsoluteAlignment#Horizontal(bias=$bias)"
+            return "SpatialBiasAbsoluteAlignment#Horizontal(horizontalBias=$horizontalBias)"
         }
 
-        public fun copy(bias: Float = this.bias): Horizontal = Horizontal(bias = bias)
+        public fun copy(bias: Float = this.horizontalBias): Horizontal =
+            Horizontal(horizontalBias = bias)
     }
 
     public companion object {
-        private fun offset(bias: Float, size: Int, space: Int): Int =
+        private fun calculateBiasOffset(bias: Float, size: Int, space: Int): Int =
             ((space - size) / 2.0f * bias).roundToInt()
     }
 }

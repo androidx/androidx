@@ -19,7 +19,6 @@ package androidx.appsearch.builtintypes;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM;
 
-import androidx.annotation.OptIn;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.core.util.Preconditions;
@@ -32,11 +31,11 @@ import java.util.Objects;
  * Represents an account entity within the document property.
  */
 @Document(name = "builtin:Account")
-@OptIn(markerClass = ExperimentalAppSearchApi.class)
+@ExperimentalAppSearchApi
 public class Account {
 
     @Document.Namespace
-    private @NonNull String mNamespace;
+    private final @NonNull String mNamespace;
 
     @Document.Id
     private final @NonNull String mId;
@@ -58,13 +57,16 @@ public class Account {
      *
      * @param namespace   The namespace (or logical grouping) for this item.
      * @param id          The document id of this item.
-     * @param accountType The type of the account.
+     * @param accountType The type of the account. This is typically the package name or a unique
+     *                    identifier of the app or system that owns and manages this account.
+     *                    Example: "com.yourapp.foo".
      * @param accountName The human-readable name of the account.
-     * @param accountId   The account identifier.
-     * @throws IllegalArgumentException If {@code accountType} or both {@code namespace} and
-     * {@code id} are empty.
+     * @param accountId   The account identifier. This is the unique ID assigned to the account by
+     *                    the service provider (the Authenticator) itself (for example, a
+     *                    Service-Specific User ID). It is used for authentication and service
+     *                    interaction.
      */
-    public Account(@NonNull String namespace, @NonNull String id, @NonNull String accountType,
+    Account(@NonNull String namespace, @NonNull String id, @NonNull String accountType,
             @NonNull String accountName, @NonNull String accountId) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
@@ -113,5 +115,92 @@ public class Account {
     @Override
     public int hashCode() {
         return Objects.hash(mNamespace, mId, mAccountType, mAccountName, mAccountId);
+    }
+
+    /** Builder for {@link Account}. */
+    @Document.BuilderProducer
+    public static final class Builder {
+        private final @NonNull String mNamespace;
+        private final @NonNull String mId;
+        private @NonNull String mAccountType = "";
+        private @NonNull String mAccountName = "";
+        private @NonNull String mAccountId = "";
+
+        /**
+         * Constructor for {@link Builder}.
+         *
+         * @param namespace Namespace for the Document. See
+         * {@link Document.Namespace}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public Builder(@NonNull String namespace, @NonNull String id) {
+            Preconditions.checkNotNull(namespace);
+            Preconditions.checkNotNull(id);
+            mNamespace = namespace;
+            mId = id;
+        }
+
+        /**
+         * Constructor with all the existing values.
+         */
+        public Builder(@NonNull Account account) {
+            mNamespace = account.mNamespace;
+            mId = account.mId;
+            mAccountType = account.mAccountType;
+            mAccountName = account.mAccountName;
+            mAccountId = account.mAccountId;
+        }
+
+        /**
+         * Sets the type of the account. This is typically the package name or a unique identifier
+         * of the app or system that owns and manages this account. Example: "com.your.app".
+         */
+        public @NonNull Builder setAccountType(@NonNull String accountType) {
+            Preconditions.checkNotNull(accountType);
+            mAccountType = accountType;
+            return this;
+        }
+
+        /**
+         * Sets the human-readable name of the account.
+         */
+        public @NonNull Builder setAccountName(@NonNull String accountName) {
+            Preconditions.checkNotNull(accountName);
+            mAccountName = accountName;
+            return this;
+        }
+
+        /**
+         * Sets the opaque, optional identifier for the account. This is the unique ID assigned to
+         * the account by service provider (the Authenticator) itself (for example, a
+         * Service-Specific User ID). It is used for authentication and service interaction.
+         */
+        public @NonNull Builder setAccountId(@NonNull String accountId) {
+            Preconditions.checkNotNull(accountId);
+            mAccountId = accountId;
+            return this;
+        }
+
+        /**
+         * Builds a new {@code Account} instance.
+         *
+         * @throws IllegalArgumentException If the validation checks fail. This occurs if:
+         * <ul>
+         * <li>**{@code accountType} is an empty string.**</li>
+         * <li>**Both {@code accountName} and {@code accountId} are empty strings.**</li>
+         * </ul>
+         * **The constructor requires a non-empty {@code accountType} and at least one of**
+         * **{@code accountName} or {@code accountId} to be non-empty.**
+         */
+        public @NonNull Account build() {
+            if (mAccountType.isEmpty()) {
+                throw new IllegalArgumentException("accountType cannot be empty");
+            }
+            if (mAccountId.isEmpty() && mAccountName.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "at least one of accountName or accountId must be non-empty");
+            }
+            return new Account(mNamespace, mId, mAccountType, mAccountName, mAccountId);
+        }
     }
 }

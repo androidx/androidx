@@ -31,11 +31,11 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.internal.DisplayInfoManager
+import androidx.camera.camera2.compat.quirk.AspectRatioLegacyApi21Quirk
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk
+import androidx.camera.camera2.impl.DisplayInfoManager
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -60,7 +60,6 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
@@ -107,10 +106,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class PreviewTest(private val implName: String, private val cameraConfig: CameraXConfig) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -128,11 +123,7 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -160,6 +151,7 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
+        createdExecutors.forEach { it.shutdown() }
     }
 
     // ======================================================
@@ -400,9 +392,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                         // RESULT_WILL_NOT_PROVIDE_SURFACE will be notified.
                         request.provideSurface(surface, CameraXExecutors.directExecutor()) { result
                             ->
+                            surface.release()
                             resultDeferred.completeOnceOnly(result.resultCode)
                         }
-
                         withTimeoutOrNull(RESULT_TIMEOUT) { resultDeferred.await() }
                             ?: fail("Timed out while waiting for surface result.")
                     } ?: fail("Timed out while waiting for surface request.")
@@ -440,10 +432,10 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
 
                     // Invoking provideSurface twice is a no-op and the result will be
                     // RESULT_SURFACE_ALREADY_PROVIDED
-                    surfaceRequest.provideSurface(
-                        Surface(SurfaceTexture(1)),
-                        CameraXExecutors.directExecutor(),
-                    ) { result ->
+                    val surface2 = Surface(SurfaceTexture(1))
+                    surfaceRequest.provideSurface(surface2, CameraXExecutors.directExecutor()) {
+                        result ->
+                        surface2.release()
                         resultDeferred2.completeOnceOnly(result.resultCode)
                     }
                 }
@@ -483,10 +475,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
 
         val surfaceRequest = surfaceRequestDeferred.await()
         instrumentation.runOnMainSync {
-            surfaceRequest.provideSurface(
-                Surface(SurfaceTexture(0)),
-                CameraXExecutors.directExecutor(),
-            ) { result ->
+            val surface = Surface(SurfaceTexture(0))
+            surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor()) { result ->
+                surface.release()
                 resultDeferred.completeOnceOnly(result.resultCode)
             }
         }
@@ -508,6 +499,7 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                     val surface = Surface(SurfaceTexture(0))
                     surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor()) {
                         result ->
+                        surface.release()
                         resultDeferred1.completeOnceOnly(result.resultCode)
                     }
 
@@ -789,29 +781,14 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
     }
 
     private fun hasExtraCroppingQuirk(): Boolean {
-        return (implName.contains(CameraPipeConfig::class.simpleName!!) &&
-            DeviceQuirks[ExtraCroppingQuirk::class.java] != null) ||
-            androidx.camera.camera2.internal.compat.quirk.DeviceQuirks.get(
-                androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk::class.java
-            ) != null
+        return DeviceQuirks.get(ExtraCroppingQuirk::class.java) != null
     }
 
     // Checks whether it is the device for AspectRatioLegacyApi21Quirk
     private fun hasAspectRatioLegacyApi21Quirk(): Boolean {
         val quirks =
             (cameraProvider.getCameraInfo(cameraSelector) as CameraInfoInternal).cameraQuirks
-        return if (implName == CameraPipeConfig::class.simpleName) {
-            quirks.contains(
-                androidx.camera.camera2.pipe.integration.compat.quirk
-                        .AspectRatioLegacyApi21Quirk::class
-                    .java
-            )
-        } else {
-            quirks.contains(
-                androidx.camera.camera2.internal.compat.quirk.AspectRatioLegacyApi21Quirk::class
-                    .java
-            )
-        }
+        return quirks.contains(AspectRatioLegacyApi21Quirk::class.java)
     }
 
     @Suppress("DEPRECATION") // legacy resolution API
@@ -928,10 +905,10 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                     request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
                         transformationInfoDeferred.complete(it)
                     }
-                    request.provideSurface(
-                        Surface(SurfaceTexture(0)),
-                        CameraXExecutors.directExecutor(),
-                    ) {}
+                    val surface = Surface(SurfaceTexture(0))
+                    request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                        surface.release()
+                    }
                     surfaceProvidedDeferred.complete(request)
                 }
 
@@ -1826,12 +1803,16 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         frameSemaphore!!.verifyFramesReceived(frameCount = FRAMES_TO_VERIFY, timeoutInSeconds = 10)
     }
 
+    private val createdExecutors = mutableListOf<java.util.concurrent.ExecutorService>()
+
     private val workExecutorWithNamedThread: Executor
         get() {
             val threadFactory = ThreadFactory { runnable: Runnable? ->
                 Thread(runnable, ANY_THREAD_NAME)
             }
-            return Executors.newSingleThreadExecutor(threadFactory)
+            return Executors.newSingleThreadExecutor(threadFactory).also {
+                createdExecutors.add(it)
+            }
         }
 
     private fun getSurfaceProvider(

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -32,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(37) }
         namespace = "androidx.compose.animation.graphics"
         androidResources.enable = true
     }
@@ -42,19 +41,15 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
+        commonMain.dependencies {
+            api(project(":compose:animation:animation"))
+            api("androidx.compose.foundation:foundation-layout:1.10.0")
+            api(project(":compose:runtime:runtime"))
+            api("androidx.compose.ui:ui:1.10.0")
+            api("androidx.compose.ui:ui-geometry:1.10.0")
 
-                api(project(":compose:animation:animation"))
-                api(project(":compose:foundation:foundation-layout"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-geometry"))
-
-                implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.5.0")
-            }
+            implementation("androidx.compose.ui:ui-util:1.10.0")
+            implementation("androidx.collection:collection:1.5.0")
         }
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
@@ -62,55 +57,20 @@ androidXMultiplatform {
             implementation("androidx.core:core-ktx:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation("androidx.compose.foundation:foundation:1.2.1")
+            implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
+            implementation(project(":compose:test-utils"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation("androidx.compose.foundation:foundation:1.2.1")
-                implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
-                implementation(project(":compose:test-utils"))
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
         }
     }
 }

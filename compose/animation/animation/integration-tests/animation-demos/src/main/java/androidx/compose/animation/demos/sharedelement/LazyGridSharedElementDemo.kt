@@ -18,7 +18,6 @@ package androidx.compose.animation.demos.sharedelement
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.demos.R
 import androidx.compose.animation.demos.layoutanimation.summerColors
@@ -58,7 +57,6 @@ object List : State()
 
 class Details(val index: Int) : State()
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LazyGridSharedElementDemo() {

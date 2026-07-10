@@ -150,7 +150,7 @@ internal class SurfaceGraph(
         }
     }
 
-    private fun maybeUpdateSurfaces() {
+    internal fun maybeUpdateSurfaces() {
         // Rules:
         // 1. There must be at least one non-null surface.
         // 2. All non-deferrable streams must have a non-null surface.

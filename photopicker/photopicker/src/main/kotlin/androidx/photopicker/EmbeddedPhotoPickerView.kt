@@ -27,14 +27,15 @@ import android.view.ViewGroup
 import android.widget.photopicker.EmbeddedPhotoPickerClient
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerProvider
-import android.widget.photopicker.EmbeddedPhotoPickerProviderFactory
 import android.widget.photopicker.EmbeddedPhotoPickerSession
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 
 /**
  * A custom [ViewGroup] which manages an underlying [SurfaceView] for connecting to and hosting the
  * Embedded PhotoPicker.
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @ExperimentalPhotoPickerApi
 public class EmbeddedPhotoPickerView
@@ -204,11 +205,6 @@ constructor(
     /**
      * Set the [EmbeddedPhotoPickerProvider] that this view should use to initialize the
      * EmbeddedPhotoPicker.
-     *
-     * This allows for a test implementation to be set for testing purposes, but can be ignored for
-     * regular use. By default, the [EmbeddedPhotoPickerView] will use
-     * [EmbeddedPhotoPickerProviderFactory] with the current applicationContext so that the service
-     * connection survives any Activity recreation.
      */
     public fun setProvider(provider: EmbeddedPhotoPickerProvider) {
         // If a session exists, close it.

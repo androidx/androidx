@@ -17,9 +17,7 @@
 package androidx.xr.glimmer.demos
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -35,18 +33,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun DemoApp(demoAppState: DemoAppState) {
     val overlayOnBackground = OverlayOnBackgroundSetting.asState().value
-    GlimmerTheme {
+    GlimmerTheme(typography = createGoogleSansFlexTypography()) {
         Column(
             Modifier.demoBackground(overlayOnBackground)
                 .windowInsetsPadding(WindowInsets.systemBars)
@@ -71,8 +69,8 @@ class DemoAppState(initialBackstack: List<Demo>) {
         _backstack.add(demo)
     }
 
-    fun popBackstack(numberToPop: Int) {
-        repeat(numberToPop) { _backstack.removeLastOrNull() }
+    fun popBackstack() {
+        _backstack.removeLastOrNull()
     }
 
     companion object {
@@ -117,11 +115,7 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
 
 @Composable
 private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Unit) {
-    VerticalList(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
+    GlimmerLazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         items(category.demos.size) { index ->
             val demo = category.demos[index]
             ListItem(onClick = { onNavigate(demo) }) { Text(demo.title) }
@@ -141,6 +135,6 @@ private fun Modifier.demoBackground(overlayOnBackground: Boolean) =
                     blendMode = BlendMode.Screen
                 }
         } else {
-            Modifier.background(GlimmerTheme.colors.surface)
+            Modifier.background(GlimmerTheme.colors.background)
         }
     )

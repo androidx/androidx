@@ -1,0 +1,1527 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.ui.test.deviceconfigurationoverride
+
+import android.content.res.Configuration
+import android.util.DisplayMetrics
+import android.view.View
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.draggable2D
+import androidx.compose.foundation.gestures.rememberDraggable2DState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
+import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalLocaleList
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DarkMode
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.FontScale
+import androidx.compose.ui.test.FontWeightAdjustment
+import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
+import androidx.compose.ui.test.Keyboard
+import androidx.compose.ui.test.LayoutDirection
+import androidx.compose.ui.test.Locales
+import androidx.compose.ui.test.Navigation
+import androidx.compose.ui.test.RoundScreen
+import androidx.compose.ui.test.Touchscreen
+import androidx.compose.ui.test.UiMode
+import androidx.compose.ui.test.WindowSize
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.dragAndDrop
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performIndirectPointerInput
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.then
+import androidx.compose.ui.test.util.ClickableTestBox
+import androidx.compose.ui.test.util.MultiPointerInputRecorder
+import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
+import androidx.compose.ui.test.util.verify
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.resolveAsTypeface
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntSize
+import androidx.core.os.ConfigurationCompat
+import androidx.core.os.LocaleListCompat
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+
+class DeviceConfigurationOverrideTest {
+
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+
+    @Test
+    fun smallForcedSizeOverride_onSmallerElements_isDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(100.dp, 100.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(40.dp, 40.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(40.dp, 40.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsDisplayed()
+    }
+
+    @Test
+    fun smallForcedSizeOverride_onLargerElements_isNotDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(100.dp, 100.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(120.dp, 120.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(120.dp, 120.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun largeForcedSizeOverride_onSmallerElements_isDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(1400.dp, 1400.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(1400.dp, 1400.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsDisplayed()
+    }
+
+    @Test
+    fun largeForcedSizeOverride_onLargerElements_isNotDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(3200.dp, 3200.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(3200.dp, 3200.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun forcedSizeOverride_allowsForCorrectSpace_smallPortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(30.dp, 40.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_allowsForCorrectSpace_smallLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(40.dp, 30.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_allowsForCorrectSpace_largePortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 4000.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_allowsForCorrectSpace_largeLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(4000.dp, 3000.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_overridesConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 4000.dp))
+            ) {
+                overriddenDensity = LocalDensity.current
+                overriddenConfiguration = LocalConfiguration.current
+            }
+        }
+
+        // A 3000dp by 4000dp device is so big, that we can assume that the density needs to be
+        // overridden.
+        // If this test runs on a device with that size screen, where overriding density is not
+        // necessary, this test might fail. If that is happening, hopefully the future is a nice
+        // place.
+        assertTrue(originalDensity.density > overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_notNeededForPortrait_doesNotOverrideConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(35.dp, 45.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(30.dp, 40.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                }
+            }
+        }
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(originalDensity.density, overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+    }
+
+    @Test
+    fun forcedSizeOverride_notNeededForLandscape_doesNotOverrideConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(45.dp, 35.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(40.dp, 30.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                }
+            }
+        }
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(originalDensity.density, overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+    }
+
+    @Test
+    fun smallWindowSizeOverride_onSmallerElements_isDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(100.dp, 100.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(40.dp, 40.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(40.dp, 40.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsDisplayed()
+    }
+
+    @Test
+    fun smallWindowSizeOverride_onLargerElements_isNotDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(100.dp, 100.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(120.dp, 120.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(120.dp, 120.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun largeWindowSizeOverride_onSmallerElements_isDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(1400.dp, 1400.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(1400.dp, 1400.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsDisplayed()
+    }
+
+    @Test
+    fun largeWindowSizeOverride_onLargerElements_isNotDisplayed() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Row {
+                    Spacer(Modifier.requiredSize(3200.dp, 3200.dp))
+                    Spacer(Modifier.testTag("node").requiredSize(3200.dp, 3200.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("node").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun windowSizeOverride_allowsForCorrectSpace_smallPortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(30.dp, 40.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_allowsForCorrectSpace_smallLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(40.dp, 30.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_allowsForCorrectSpace_largePortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 4000.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_allowsForCorrectSpace_largeLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(4000.dp, 3000.dp))
+            ) {
+                Spacer(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            actualConstraints = constraints
+                            actualDensity = this
+
+                            val placeable = measurable.measure(constraints)
+
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f,
+        )
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_overridesConfigurationAndWindowInfo() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+        lateinit var overriddenWindowInfo: WindowInfo
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 4000.dp))
+            ) {
+                overriddenDensity = LocalDensity.current
+                overriddenConfiguration = LocalConfiguration.current
+                overriddenWindowInfo = LocalWindowInfo.current
+            }
+        }
+
+        // A 3000dp by 4000dp device is so big, that we can assume that the density needs to be
+        // overridden.
+        // If this test runs on a device with that size screen, where overriding density is not
+        // necessary, this test might fail. If that is happening, hopefully the future is a nice
+        // place.
+        assertTrue(originalDensity.density > overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+
+        assertEquals(3000, overriddenConfiguration.screenWidthDp)
+        assertEquals(4000, overriddenConfiguration.screenHeightDp)
+        assertEquals(DpSize(3000.dp, 4000.dp), overriddenWindowInfo.containerDpSize)
+        assertEquals(Configuration.ORIENTATION_PORTRAIT, overriddenConfiguration.orientation)
+        assertEquals(
+            with(overriddenDensity) { DpSize(3000.dp, 4000.dp).toSize().roundToIntSize() },
+            overriddenWindowInfo.containerSize,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_densityOverrideNotNeededForPortrait_overridesConfigurationAndWindowInfo() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+        lateinit var overriddenWindowInfo: WindowInfo
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(35.dp, 45.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.WindowSize(DpSize(30.dp, 40.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                    overriddenWindowInfo = LocalWindowInfo.current
+                }
+            }
+        }
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(originalDensity.density, overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+
+        assertEquals(30, overriddenConfiguration.screenWidthDp)
+        assertEquals(40, overriddenConfiguration.screenHeightDp)
+        assertEquals(DpSize(30.dp, 40.dp), overriddenWindowInfo.containerDpSize)
+        assertEquals(Configuration.ORIENTATION_PORTRAIT, overriddenConfiguration.orientation)
+        assertEquals(
+            with(overriddenDensity) { DpSize(30.dp, 40.dp).toSize().roundToIntSize() },
+            overriddenWindowInfo.containerSize,
+        )
+    }
+
+    @Test
+    fun windowSizeOverride_densityOverrideNotNeededForLandscape_overridesConfigurationAndWindowInfo() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+        lateinit var overriddenWindowInfo: WindowInfo
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(45.dp, 35.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.WindowSize(DpSize(40.dp, 30.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                    overriddenWindowInfo = LocalWindowInfo.current
+                }
+            }
+        }
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(originalDensity.density, overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f,
+        )
+
+        assertEquals(40, overriddenConfiguration.screenWidthDp)
+        assertEquals(30, overriddenConfiguration.screenHeightDp)
+        assertEquals(DpSize(40.dp, 30.dp), overriddenWindowInfo.containerDpSize)
+        assertEquals(Configuration.ORIENTATION_LANDSCAPE, overriddenConfiguration.orientation)
+        assertEquals(
+            with(overriddenDensity) { DpSize(40.dp, 30.dp).toSize().roundToIntSize() },
+            overriddenWindowInfo.containerSize,
+        )
+    }
+
+    @Test
+    fun layoutDirectionOverride_toRtl_overridesLayoutDirection() {
+        lateinit var layoutDirection: LayoutDirection
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
+                layoutDirection = LocalLayoutDirection.current
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(LayoutDirection.Rtl, layoutDirection)
+        assertEquals(View.LAYOUT_DIRECTION_RTL, configuration.layoutDirection)
+    }
+
+    @Test
+    fun layoutDirectionOverride_toLtr_overridesLayoutDirection() {
+        lateinit var layoutDirection: LayoutDirection
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
+                layoutDirection = LocalLayoutDirection.current
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(LayoutDirection.Ltr, layoutDirection)
+        assertEquals(View.LAYOUT_DIRECTION_LTR, configuration.layoutDirection)
+    }
+
+    @Test
+    fun fontScaleOverride_overridesFontScale() {
+        lateinit var density: Density
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.5f)) {
+                density = LocalDensity.current
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(1.5f, density.fontScale)
+        assertEquals(1.5f, configuration.fontScale)
+    }
+
+    @Test
+    fun localesOverride_overridesLocales() {
+        lateinit var configuration: Configuration
+        lateinit var locale: Locale
+        lateinit var localeList: LocaleList
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Locales(LocaleList(Locale("es-ES")))
+            ) {
+                configuration = LocalConfiguration.current
+                locale = LocalLocale.current
+                localeList = LocalLocaleList.current
+            }
+        }
+
+        assertEquals(
+            LocaleListCompat.forLanguageTags("es-ES"),
+            ConfigurationCompat.getLocales(configuration),
+        )
+        assertEquals(LocaleList(Locale("es-ES")), localeList)
+        assertEquals(Locale("es-ES"), locale)
+    }
+
+    @Test
+    fun localesOverride_overridesLayoutDirection() {
+        lateinit var layoutDirection: LayoutDirection
+        lateinit var configuration: Configuration
+        lateinit var locale: Locale
+        lateinit var localeList: LocaleList
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Locales(LocaleList(Locale("ar")))
+            ) {
+                layoutDirection = LocalLayoutDirection.current
+                configuration = LocalConfiguration.current
+                locale = LocalLocale.current
+                localeList = LocalLocaleList.current
+            }
+        }
+
+        assertEquals(
+            LocaleListCompat.forLanguageTags("ar"),
+            ConfigurationCompat.getLocales(configuration),
+        )
+        assertEquals(LayoutDirection.Rtl, layoutDirection)
+        assertEquals(View.LAYOUT_DIRECTION_RTL, configuration.layoutDirection)
+        assertEquals(LocaleList(Locale("ar")), localeList)
+        assertEquals(Locale("ar"), locale)
+    }
+
+    @Test
+    fun darkModeOverride_toDark_overridesIsSystemInDarkMode() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.DarkMode(true)) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(
+            Configuration.UI_MODE_NIGHT_YES,
+            configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK,
+        )
+    }
+
+    @Test
+    fun darkModeOverride_toLight_overridesIsSystemInDarkMode() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.DarkMode(false)) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(
+            Configuration.UI_MODE_NIGHT_NO,
+            configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK,
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun fontWeightAdjustmentOverride_overridesFontWeightAdjustment() {
+        lateinit var configuration: Configuration
+        lateinit var typefaceNormal: android.graphics.Typeface
+        lateinit var typefaceBold: android.graphics.Typeface
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.FontWeightAdjustment(500)) {
+                typefaceNormal =
+                    LocalFontFamilyResolver.current
+                        .resolveAsTypeface(FontFamily.SansSerif, FontWeight.Normal)
+                        .value
+                typefaceBold =
+                    LocalFontFamilyResolver.current
+                        .resolveAsTypeface(FontFamily.SansSerif, FontWeight.Bold)
+                        .value
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        // (Normal + 500).coerceIn(0, 1000) = (400 + 500).coerceIn(0, 1000) = 900
+        assertEquals(900, typefaceNormal.weight)
+        // (Bold + 500).coerceIn(0, 1000) = (700 + 500).coerceIn(0, 1000) = 1000
+        assertEquals(1000, typefaceBold.weight)
+        assertEquals(500, configuration.fontWeightAdjustment)
+    }
+
+    @Test
+    fun roundScreenOverride_isRound_overridesIsScreenRound() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertTrue(configuration.isScreenRound)
+    }
+
+    @Test
+    fun roundScreenOverride_isNotRound_overridesIsScreenRound() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertFalse(configuration.isScreenRound)
+    }
+
+    @Test
+    fun keyboardOverride_qwerty_overridesKeyboardConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Keyboard(Configuration.KEYBOARD_QWERTY)
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.keyboard, Configuration.KEYBOARD_QWERTY)
+        assertEquals(configuration.keyboardHidden, Configuration.KEYBOARDHIDDEN_NO)
+        assertEquals(configuration.hardKeyboardHidden, Configuration.HARDKEYBOARDHIDDEN_NO)
+    }
+
+    @Test
+    fun keyboardOverride_hardKeyboardHidden_overridesKeyboardConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Keyboard(
+                    keyboardType = Configuration.KEYBOARD_QWERTY,
+                    isHardKeyboardHidden = true,
+                )
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.keyboard, Configuration.KEYBOARD_QWERTY)
+        assertEquals(configuration.keyboardHidden, Configuration.KEYBOARDHIDDEN_NO)
+        assertEquals(configuration.hardKeyboardHidden, Configuration.HARDKEYBOARDHIDDEN_YES)
+    }
+
+    @Test
+    fun keyboardOverride_hidden_overridesKeyboardConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Keyboard(
+                    keyboardType = Configuration.KEYBOARD_QWERTY,
+                    isHardKeyboardHidden = true,
+                    isHidden = true,
+                )
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.keyboard, Configuration.KEYBOARD_QWERTY)
+        assertEquals(configuration.keyboardHidden, Configuration.KEYBOARDHIDDEN_YES)
+        assertEquals(configuration.hardKeyboardHidden, Configuration.HARDKEYBOARDHIDDEN_YES)
+    }
+
+    @Test
+    fun navigationOverride_dpad_overridesNavigationConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Navigation(Configuration.NAVIGATION_DPAD)
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.navigation, Configuration.NAVIGATION_DPAD)
+        assertEquals(configuration.navigationHidden, Configuration.NAVIGATIONHIDDEN_NO)
+    }
+
+    @Test
+    fun navigationOverride_hidden_overridesNavigationConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Navigation(Configuration.NAVIGATION_DPAD, true)
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.navigation, Configuration.NAVIGATION_DPAD)
+        assertEquals(configuration.navigationHidden, Configuration.NAVIGATIONHIDDEN_YES)
+    }
+
+    @Test
+    fun touchscreen_false_overridesTouchscreenConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.Touchscreen(false)) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(configuration.touchscreen, Configuration.TOUCHSCREEN_NOTOUCH)
+    }
+
+    @Test
+    fun uiModeOverride_car_overridesUiModeConfigValue() {
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.UiMode(Configuration.UI_MODE_TYPE_CAR)
+            ) {
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        val uiMode = configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
+        assertEquals(uiMode, Configuration.UI_MODE_TYPE_CAR)
+    }
+
+    @Test
+    fun combiningDeviceConfigurationOverride_respectsOrder() {
+        lateinit var layoutDirection: LayoutDirection
+        lateinit var configuration: Configuration
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                // Apply Arabic first, which will override to RTL
+                DeviceConfigurationOverride.Locales(LocaleList(Locale("ar"))) then
+                    // Then override back to LTR
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
+                layoutDirection = LocalLayoutDirection.current
+                configuration = LocalConfiguration.current
+            }
+        }
+
+        assertEquals(
+            LocaleListCompat.forLanguageTags("ar"),
+            ConfigurationCompat.getLocales(configuration),
+        )
+        assertEquals(LayoutDirection.Ltr, layoutDirection)
+        assertEquals(View.LAYOUT_DIRECTION_LTR, configuration.layoutDirection)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canScrollWithSwipe() {
+        val scrollState = ScrollState(initial = 0)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(1000.dp, 1000.dp)) {
+                    Column(
+                        Modifier.testTag("scrollable").fillMaxSize().verticalScroll(scrollState)
+                    ) {
+                        repeat(50) { Box(Modifier.requiredSize(1000.dp, 100.dp)) }
+                    }
+                }
+            }
+        }
+
+        assertEquals(0, scrollState.value)
+
+        rule.onNodeWithTag("scrollable").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertTrue(scrollState.value > 0)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canDragAndDropMouse() {
+        val targetSizePx = 100f
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performMouseInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
+        val targetSizePx = 100f
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performTrackpadInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canScrollWithSwipe() {
+        val scrollState = ScrollState(initial = 0)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(1000.dp, 1000.dp)) {
+                    Column(
+                        Modifier.testTag("scrollable").fillMaxSize().verticalScroll(scrollState)
+                    ) {
+                        repeat(50) { Box(Modifier.requiredSize(1000.dp, 100.dp)) }
+                    }
+                }
+            }
+        }
+
+        assertEquals(0, scrollState.value)
+
+        rule.onNodeWithTag("scrollable").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertTrue(scrollState.value > 0)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canDragAndDropMouse() {
+        val targetSizePx = 100f
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performMouseInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canDragAndDropTrackpad() {
+        val targetSizePx = 100f
+        var xOffsetPx by mutableStateOf(0f)
+        var yOffsetPx by mutableStateOf(0f)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                val sizeDp = with(LocalDensity.current) { targetSizePx.toDp() }
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .requiredSize(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val tolerance = 2f
+
+        rule.onNodeWithTag("draggable-box").performTrackpadInput {
+            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+        }
+        rule.waitForIdle()
+
+        assertEquals(2 * targetSizePx, xOffsetPx, tolerance)
+        assertEquals(4 * targetSizePx, yOffsetPx, tolerance)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_canInjectKeyInput() {
+        var keyReceived = false
+        val focusRequester = FocusRequester()
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("target")
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            .onKeyEvent {
+                                if (it.key == Key.A) {
+                                    keyReceived = true
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .requiredSize(100.dp, 100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.onNodeWithTag("target").performKeyInput { pressKey(Key.A) }
+
+        rule.waitForIdle()
+        assertTrue(keyReceived)
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_canInjectKeyInput() {
+        var keyReceived = false
+        val focusRequester = FocusRequester()
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                Box(Modifier.requiredSize(3000.dp, 3000.dp)) {
+                    Box(
+                        Modifier.testTag("target")
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            .onKeyEvent {
+                                if (it.key == Key.A) {
+                                    keyReceived = true
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .requiredSize(100.dp, 100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.onNodeWithTag("target").performKeyInput { pressKey(Key.A) }
+
+        rule.waitForIdle()
+        assertTrue(keyReceived)
+    }
+
+    @Test
+    fun forcedSizeOverride_largeRequestedSize_indirectPointer_onePointerSameInputBlock() {
+        val recorder = MultiPointerInputRecorder()
+        val downPosition1 = Offset(10f, 10f)
+        val delta1 = Offset(11f, 11f)
+        val inputDeviceSize = IntSize(3082, 616)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                ClickableTestBox(recorder)
+            }
+        }
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).requestFocus()
+
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Advance event time to simulate a realistic pause between touch down
+            // and movement, preventing the gesture from being interpreted as a fling.
+            advanceEventTime(20)
+            moveBy(delta1)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                events[1]
+                    .getPointer(0)
+                    .verify(
+                        t + eventPeriodMillis + 20,
+                        pointerId,
+                        true,
+                        downPosition1 + delta1,
+                        Touch,
+                        Move,
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun windowSizeOverride_largeRequestedSize_indirectPointer_onePointerSameInputBlock() {
+        val recorder = MultiPointerInputRecorder()
+        val downPosition1 = Offset(10f, 10f)
+        val delta1 = Offset(11f, 11f)
+        val inputDeviceSize = IntSize(3082, 616)
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowSize(DpSize(3000.dp, 3000.dp))
+            ) {
+                ClickableTestBox(recorder)
+            }
+        }
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).requestFocus()
+
+        rule.onNodeWithTag(ClickableTestBox.defaultTag).performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(downPosition1)
+            // Advance event time to simulate a realistic pause between touch down
+            // and movement, preventing the gesture from being interpreted as a fling.
+            advanceEventTime(20)
+            moveBy(delta1)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                events[1]
+                    .getPointer(0)
+                    .verify(
+                        t + eventPeriodMillis + 20,
+                        pointerId,
+                        true,
+                        downPosition1 + delta1,
+                        Touch,
+                        Move,
+                    )
+            }
+        }
+    }
+}

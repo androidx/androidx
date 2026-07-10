@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // TODO(b/444197999): add a jvmname
+
 package androidx.test.uiautomator
 
 import android.graphics.Bitmap

@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ScrollInfoProvider
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.ScreenStage
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
@@ -40,22 +42,33 @@ import androidx.wear.compose.material3.timeTextSeparator
 @Sampled
 @Composable
 fun ScrollAwaySample() {
-    val state = rememberScalingLazyListState()
+    val state = rememberTransformingLazyColumnState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        ScalingLazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
+        TransformingLazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
             item {
-                ListHeader {
+                ListHeader(
+                    modifier =
+                        Modifier.minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "ScalingLazyColumn",
+                        text = "TLC",
                         textAlign = TextAlign.Center,
                     )
                 }
             }
             items(50) {
                 FilledTonalButton(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 36.dp),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            ),
                     onClick = {},
                     label = { Text("Item ${it + 1}") },
                 )
@@ -73,7 +86,7 @@ fun ScrollAwaySample() {
                     },
                 ),
             content = { time ->
-                curvedText("ScrollAway")
+                curvedText("List")
                 timeTextSeparator()
                 curvedText(time)
             },

@@ -55,6 +55,154 @@ ChangedType: androidx.wear.watchface.complications.data.WeightedElementsComplica
     Binary breaking change: Method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setPersistencePolicy has changed return type from BuilderT to androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder
 
 
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ColorRamp#getColors():
+    Source breaking change: method androidx.wear.watchface.complications.data.ColorRamp.getColors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ColorRamp#isInterpolated():
+    Source breaking change: method androidx.wear.watchface.complications.data.ColorRamp.isInterpolated() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getDataSource():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getDataSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getDisplayPolicy():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getDisplayPolicy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getDynamicValueInvalidationFallback():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getDynamicValueInvalidationFallback() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getPersistencePolicy():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getPersistencePolicy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getTapAction():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getTapAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getType():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#getValidTimeRange():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.getValidTimeRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#isTapActionLostDueToSerialization():
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.isTapActionLostDueToSerialization() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ComplicationData#setTapActionLostDueToSerialization(boolean):
+    Source breaking change: method androidx.wear.watchface.complications.data.ComplicationData.setTapActionLostDueToSerialization(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.CountDownTimeReference#getInstant():
+    Source breaking change: method androidx.wear.watchface.complications.data.CountDownTimeReference.getInstant() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.CountUpTimeReference#getInstant():
+    Source breaking change: method androidx.wear.watchface.complications.data.CountUpTimeReference.getInstant() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.DynamicComplicationText#getDynamicValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.DynamicComplicationText.getDynamicValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.DynamicComplicationText#getFallbackValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.DynamicComplicationText.getFallbackValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getColorRamp():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getColorRamp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getDynamicValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getDynamicValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getTargetValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getTargetValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.GoalProgressComplicationData#getValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.GoalProgressComplicationData.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.LongTextComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.LongTextComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.LongTextComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.LongTextComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.LongTextComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.LongTextComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.LongTextComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.LongTextComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.LongTextComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.LongTextComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.MonochromaticImage#getAmbientImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.MonochromaticImage.getAmbientImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.MonochromaticImage#getImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.MonochromaticImage.getImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoDataComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoDataComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoDataComplicationData#getPlaceholder():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoDataComplicationData.getPlaceholder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoPermissionComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoPermissionComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoPermissionComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoPermissionComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoPermissionComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoPermissionComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.NoPermissionComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.NoPermissionComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.PhotoImageComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.PhotoImageComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.PhotoImageComplicationData#getPhotoImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.PhotoImageComplicationData.getPhotoImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getColorRamp():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getColorRamp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getDynamicValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getDynamicValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getMax():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getMax() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getMin():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getMin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getValue():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.RangedValueComplicationData#getValueType():
+    Source breaking change: method androidx.wear.watchface.complications.data.RangedValueComplicationData.getValueType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ShortTextComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.ShortTextComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ShortTextComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.ShortTextComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ShortTextComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.ShortTextComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ShortTextComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.ShortTextComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.ShortTextComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.ShortTextComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.SmallImage#getAmbientImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.SmallImage.getAmbientImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.SmallImage#getImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.SmallImage.getImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.SmallImage#getType():
+    Source breaking change: method androidx.wear.watchface.complications.data.SmallImage.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.SmallImageComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.SmallImageComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.SmallImageComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.SmallImageComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.TimeRange#getEndDateTimeMillis():
+    Source breaking change: method androidx.wear.watchface.complications.data.TimeRange.getEndDateTimeMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.TimeRange#getStartDateTimeMillis():
+    Source breaking change: method androidx.wear.watchface.complications.data.TimeRange.getStartDateTimeMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getContentDescription():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getContentDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getElementBackgroundColor():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getElementBackgroundColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getElements():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getElements() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getMonochromaticImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getMonochromaticImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getSmallImage():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getSmallImage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getText():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData#getTitle():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element#getColor():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element.getColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element#getWeight():
+    Source breaking change: method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element.getWeight() can no longer be resolved from Kotlin source
+
+
 RemovedMethod: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
     Binary breaking change: Removed method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
 RemovedMethod: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):

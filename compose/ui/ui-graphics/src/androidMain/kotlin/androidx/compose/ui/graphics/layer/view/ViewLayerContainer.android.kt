@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.R
 import androidx.compose.ui.graphics.layer.ViewLayer
 import androidx.compose.ui.graphics.nativeCanvas
 
-/** The container we will use for [GraphicsViewLayer]s. */
+/** The container we will use for [androidx.compose.ui.graphics.layer.GraphicsViewLayer]s. */
 internal class ViewLayerContainer(context: Context) : DrawChildContainer(context) {
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // we draw our children as part of AndroidComposeView.dispatchDraw

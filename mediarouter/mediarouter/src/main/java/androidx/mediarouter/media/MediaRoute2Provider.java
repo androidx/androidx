@@ -44,13 +44,14 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,14 +59,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
- * Provides non-system routes (and related RouteControllers) by using MediaRouter2.
- * This provider is added only when media transfer feature is enabled.
+ * Provides non-system routes (and related RouteControllers) by using MediaRouter2. This provider is
+ * added only when media transfer feature is enabled.
  */
 @RequiresApi(Build.VERSION_CODES.R)
 @SuppressWarnings({"unused", "ClassCanBeStatic"}) // TODO: Remove this.
-class MediaRoute2Provider extends MediaRouteProvider {
+class MediaRoute2Provider extends MediaRouteProvider
+        implements GlobalMediaRouter.IDeviceSuggestionsImpl {
     static final String TAG = "MR2Provider";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final String PACKAGE_NAME_SEPARATOR = "/";
@@ -116,16 +119,14 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
     }
 
-    @Nullable
     @Override
-    public RouteController onCreateRouteController(@NonNull String routeId) {
+    public @Nullable RouteController onCreateRouteController(@NonNull String routeId) {
         String originalRouteId = mRouteIdToOriginalRouteIdMap.get(routeId);
         return new MemberRouteController(originalRouteId, null);
     }
 
-    @Nullable
     @Override
-    public RouteController onCreateRouteController(@NonNull String routeId,
+    public @Nullable RouteController onCreateRouteController(@NonNull String routeId,
             @NonNull String routeGroupId) {
         String originalRouteId = mRouteIdToOriginalRouteIdMap.get(routeId);
 
@@ -139,9 +140,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return new MemberRouteController(originalRouteId, null);
     }
 
-    @Nullable
     @Override
-    public DynamicGroupRouteController onCreateDynamicGroupRouteController(
+    public @Nullable DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId,
             @NonNull RouteControllerOptions routeControllerOptions) {
         // The parent implementation of onCreateDynamicGroupRouteController(String,
@@ -239,8 +239,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         setDescriptor(descriptor);
     }
 
-    @Nullable
-    MediaRoute2Info getRouteById(@Nullable String routeId) {
+    @Nullable MediaRoute2Info getRouteById(@Nullable String routeId) {
         if (routeId == null) {
             return null;
         }
@@ -252,9 +251,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return null;
     }
 
-    @Nullable
-    static Messenger getMessengerFromRoutingController(
-            @Nullable MediaRouter2.RoutingController controller) {
+    static @Nullable Messenger getMessengerFromRoutingController(
+            MediaRouter2.@Nullable RoutingController controller) {
         if (controller == null) {
             return null;
         }
@@ -264,8 +262,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 MediaRouter2Utils.KEY_MESSENGER);
     }
 
-    @Nullable
-    static String getSessionIdForRouteController(@Nullable RouteController controller) {
+    static @Nullable String getSessionIdForRouteController(@Nullable RouteController controller) {
         if (!(controller instanceof GroupRouteController)) {
             return null;
         }
@@ -322,15 +319,17 @@ class MediaRoute2Provider extends MediaRouteProvider {
         } else {
             groupDescriptorBuilder = new MediaRouteDescriptor.Builder(groupDescriptor);
         }
-        groupDescriptor = groupDescriptorBuilder
-                .setVolume(routingController.getVolume())
-                .setVolumeMax(routingController.getVolumeMax())
-                .setVolumeHandling(routingController.getVolumeHandling())
-                .clearControlFilters()
-                .addControlFilters(initialRouteDescriptor.getControlFilters())
-                .clearGroupMemberIds()
-                .addGroupMemberIds(selectedRouteIds)
-                .build();
+        groupDescriptor =
+                groupDescriptorBuilder
+                        .setRoutingControllerId(routingController.getId())
+                        .setVolume(routingController.getVolume())
+                        .setVolumeMax(routingController.getVolumeMax())
+                        .setVolumeHandling(routingController.getVolumeHandling())
+                        .clearControlFilters()
+                        .addControlFilters(initialRouteDescriptor.getControlFilters())
+                        .clearGroupMemberIds()
+                        .addGroupMemberIds(selectedRouteIds)
+                        .build();
 
         // Create dynamic route descriptors
         List<String> selectableRouteIds =
@@ -394,14 +393,66 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return new MediaRouteDiscoveryRequest(selector, request.isActiveScan());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     /* package */ void setRouteListingPreference(
             @Nullable RouteListingPreference routeListingPreference) {
-        Api34Impl.setPlatformRouteListingPreference(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34Impl.setPlatformRouteListingPreference(
+                    mMediaRouter2,
+                    routeListingPreference != null
+                            ? routeListingPreference.toPlatformRouteListingPreference()
+                            : null);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> deviceSuggestions) {
+        MediaRoute2Provider.Api36Impl.setPlatformDeviceSuggestions(
                 mMediaRouter2,
-                routeListingPreference != null
-                        ? routeListingPreference.toPlatformRouteListingPreference()
-                        : null);
+                deviceSuggestions.stream()
+                        .map(MediaRouter2Utils.Api36Impl::toFwkSuggestedDeviceInfo)
+                        .toList());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void clearDeviceSuggestions() {
+        MediaRoute2Provider.Api36Impl.clearPlatformDeviceSuggestions(mMediaRouter2);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions() {
+        return MediaRoute2Provider.Api36Impl.getPlatformDeviceSuggestions(mMediaRouter2)
+                .entrySet()
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry ->
+                                        entry.getValue().stream()
+                                                .map(
+                                                        MediaRouter2Utils.Api36Impl
+                                                                ::toAndroidXSuggestedDeviceInfo)
+                                                .toList()));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void registerDeviceSuggestionsUpdatesCallback(
+            MediaRouter.@NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+            @NonNull Executor executor) {
+        MediaRoute2Provider.Api36Impl.registerDeviceSuggestionsUpdatesCallback(
+                mMediaRouter2, executor, deviceSuggestionsUpdatesCallback);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void unregisterDeviceSuggestionsUpdatesCallback(
+            MediaRouter.@NonNull DeviceSuggestionsUpdatesCallback
+                    deviceSuggestionsUpdatesCallback) {
+        MediaRoute2Provider.Api36Impl.unregisterDeviceSuggestionsUpdatesCallback(
+                mMediaRouter2, deviceSuggestionsUpdatesCallback);
     }
 
     abstract static class Callback {
@@ -442,8 +493,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private class TransferCallback extends MediaRouter2.TransferCallback {
 
         @Override
-        public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
-                @NonNull MediaRouter2.RoutingController newController) {
+        public void onTransfer(MediaRouter2.@NonNull RoutingController oldController,
+                MediaRouter2.@NonNull RoutingController newController) {
             mPendingTransferRouteId = null;
             mControllerMap.remove(oldController);
             if (newController == mMediaRouter2.getSystemController()) {
@@ -470,7 +521,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
-        public void onStop(@NonNull MediaRouter2.RoutingController routingController) {
+        public void onStop(MediaRouter2.@NonNull RoutingController routingController) {
             mPendingTransferRouteId = null;
             RouteController routeController = mControllerMap.remove(routingController);
             if (routeController != null) {
@@ -486,7 +537,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         ControllerCallback() {}
 
         @Override
-        public void onControllerUpdated(@NonNull MediaRouter2.RoutingController routingController) {
+        public void onControllerUpdated(MediaRouter2.@NonNull RoutingController routingController) {
             setDynamicRouteDescriptors(routingController);
         }
     }
@@ -526,10 +577,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         final String mInitialMemberRouteId;
         final MediaRouter2.RoutingController mRoutingController;
-        @Nullable
-        final Messenger mServiceMessenger;
-        @Nullable
-        final Messenger mReceiveMessenger;
+        final @Nullable Messenger mServiceMessenger;
+        final @Nullable Messenger mReceiveMessenger;
         final SparseArray<ControlRequestCallback> mPendingCallbacks = new SparseArray<>();
         final Handler mControllerHandler;
         AtomicInteger mNextRequestId = new AtomicInteger(1);
@@ -537,10 +586,9 @@ class MediaRoute2Provider extends MediaRouteProvider {
         private final Runnable mClearOptimisticVolumeRunnable = () -> mOptimisticVolume = -1;
         // The possible current volume set by the user recently or -1 if not.
         int mOptimisticVolume = -1;
-        @Nullable
-        MediaRouteDescriptor mGroupRouteDescriptor;
+        @Nullable MediaRouteDescriptor mGroupRouteDescriptor;
 
-        GroupRouteController(@NonNull MediaRouter2.RoutingController routingController,
+        GroupRouteController(MediaRouter2.@NonNull RoutingController routingController,
                 @NonNull String initialMemberRouteId) {
             mRoutingController = routingController;
             mInitialMemberRouteId = initialMemberRouteId;
@@ -765,8 +813,90 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         static void setPlatformRouteListingPreference(
                 @NonNull MediaRouter2 mediaRouter2,
-                @Nullable android.media.RouteListingPreference routeListingPreference) {
+                android.media.@Nullable RouteListingPreference routeListingPreference) {
             mediaRouter2.setRouteListingPreference(routeListingPreference);
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+    private static class Api36Impl {
+
+        private static final Map<
+                        MediaRouter.DeviceSuggestionsUpdatesCallback,
+                        MediaRouter2.DeviceSuggestionsUpdatesCallback>
+                mDeviceSuggestionsUpdatesCallbackMap = new ArrayMap<>();
+
+        private Api36Impl() {
+            // This class is not instantiable.
+        }
+
+        static @NonNull Map<String, List<android.media.SuggestedDeviceInfo>>
+                getPlatformDeviceSuggestions(@NonNull MediaRouter2 mediaRouter2) {
+            return mediaRouter2.getDeviceSuggestions();
+        }
+
+        static void setPlatformDeviceSuggestions(
+                @NonNull MediaRouter2 mediaRouter2,
+                @NonNull List<android.media.SuggestedDeviceInfo> deviceSuggestions) {
+            mediaRouter2.setDeviceSuggestions(deviceSuggestions);
+        }
+
+        static void clearPlatformDeviceSuggestions(@NonNull MediaRouter2 mediaRouter2) {
+            mediaRouter2.clearDeviceSuggestions();
+        }
+
+        static void registerDeviceSuggestionsUpdatesCallback(
+                @NonNull MediaRouter2 mediaRouter2,
+                @NonNull Executor executor,
+                MediaRouter.@NonNull DeviceSuggestionsUpdatesCallback
+                                deviceSuggestionsUpdatesCallback) {
+            unregisterDeviceSuggestionsUpdatesCallback(
+                    mediaRouter2, deviceSuggestionsUpdatesCallback);
+            MediaRouter2.DeviceSuggestionsUpdatesCallback adapter;
+            adapter =
+                    new MediaRouter2.DeviceSuggestionsUpdatesCallback() {
+                        @Override
+                        public void onSuggestionsCleared(@NonNull String suggestingPackageName) {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsCleared(
+                                    suggestingPackageName);
+                        }
+
+                        @Override
+                        public void onSuggestionsRequested() {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsRequested();
+                        }
+
+                        @Override
+                        public void onSuggestionsUpdated(
+                                @NonNull String suggestingPackageName,
+                                @NonNull
+                                        List<android.media.SuggestedDeviceInfo>
+                                                suggestedDeviceInfo) {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsUpdated(
+                                    suggestingPackageName,
+                                    suggestedDeviceInfo.stream()
+                                            .map(
+                                                    MediaRouter2Utils.Api36Impl
+                                                            ::toAndroidXSuggestedDeviceInfo)
+                                            .toList());
+                        }
+                    };
+
+            mDeviceSuggestionsUpdatesCallbackMap.put(deviceSuggestionsUpdatesCallback, adapter);
+            mediaRouter2.registerDeviceSuggestionsUpdatesCallback(executor, adapter);
+        }
+
+        static void unregisterDeviceSuggestionsUpdatesCallback(
+                @NonNull MediaRouter2 mediaRouter2,
+                MediaRouter.@NonNull DeviceSuggestionsUpdatesCallback
+                                deviceSuggestionsUpdatesCallback) {
+            MediaRouter2.DeviceSuggestionsUpdatesCallback adapter =
+                    mDeviceSuggestionsUpdatesCallbackMap.remove(deviceSuggestionsUpdatesCallback);
+            if (adapter == null) {
+                Log.e(TAG, "DeviceSuggestionsUpdatesCallback not found for unregistering");
+                return;
+            }
+            mediaRouter2.unregisterDeviceSuggestionsUpdatesCallback(adapter);
         }
     }
 }

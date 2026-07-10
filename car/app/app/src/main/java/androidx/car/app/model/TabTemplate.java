@@ -146,12 +146,11 @@ public class TabTemplate implements Template {
             return false;
         }
         TabTemplate otherTemplate = (TabTemplate) other;
-
         return mIsLoading == otherTemplate.mIsLoading
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mTabs, otherTemplate.mTabs)
                 && Objects.equals(mTabContents, otherTemplate.mTabContents)
-                && Objects.equals(mActiveTabContentId, otherTemplate.getActiveTabContentId());
+                && Objects.equals(mActiveTabContentId, otherTemplate.mActiveTabContentId);
     }
 
     TabTemplate(TabTemplate.Builder builder) {
@@ -249,6 +248,9 @@ public class TabTemplate implements Template {
         /**
          * Adds an {@link Tab} to display in the template.
          *
+         * <p>From Car API 9 onward, up to 5 tabs are supported. For older API levels, the maximum
+         * number of allowed tabs is 4.
+         *
          * @throws NullPointerException if {@code tab} is {@code null}
          */
         public TabTemplate.@NonNull Builder addTab(@NonNull Tab tab) {
@@ -262,8 +264,8 @@ public class TabTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * The number of {@link Tab}s provided in the template should be between 2 and 4, with only
-         * one tab marked as active.
+         * The number of {@link Tab}s provided in the template should be between 2 and 4 (or 5 for
+         * Car API 9 and above), with only one tab marked as active.
          *
          * <p>A header {@link Action} of type TYPE_APP_ICON is required.
          *
@@ -292,7 +294,7 @@ public class TabTemplate implements Template {
             }
 
             if (hasTabs && mActiveTabContentId != null) {
-                TabsConstraints.DEFAULT.validateOrThrow(mTabs, mActiveTabContentId);
+                TabsConstraints.API_9.validateOrThrow(mTabs, mActiveTabContentId);
             }
 
             if (!mIsLoading && mHeaderAction == null) {

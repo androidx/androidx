@@ -30,9 +30,14 @@ private val defaultResources = Resources.Builder().setVersion(PERMANENT_RESOURCE
 /**
  * Container class storing data required to render previews for methods annotated with [Preview].
  *
- * @param onTileResourceRequest callback that provides a [Resources]. It will be called before
- *   rendering the preview of the [TileBuilders.Tile]. By default, this callback will return a
- *   [Resources] with the version "0".
+ * @param onTileResourceRequest an optional callback that provides a [Resources]. If the layout
+ *   provided in [onTileRequest] uses automatic resource registration (either from
+ *   [androidx.wear.protolayout.material3.materialScopeWithResources] or other methods from
+ *   [androidx.wear.protolayout.ProtoLayoutScope]), this callback will not be needed and, if
+ *   provided, will be ignored. In other cases, it will be called before rendering the preview of
+ *   the [TileBuilders.Tile]. By default, this callback will return resources automatically
+ *   collected from the rendered tile via [androidx.wear.protolayout.ProtoLayoutScope] if they
+ *   exist, or [Resources] with the version "0" otherwise.
  * @param platformDataValues allows overriding platform data values for any [PlatformDataKey].
  *   Default platform data values will be set for all platform health sources that have not been
  *   overridden.
@@ -40,12 +45,12 @@ private val defaultResources = Resources.Builder().setVersion(PERMANENT_RESOURCE
  *   called before rendering the preview.
  * @see [TilePreviewHelper.singleTimelineEntryTileBuilder]
  */
-class TilePreviewData
+public class TilePreviewData
 @JvmOverloads
 constructor(
-    val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
-    val platformDataValues: PlatformDataValues? = null,
-    val onTileRequest: (TileRequest) -> TileBuilders.Tile,
+    public val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
+    public val platformDataValues: PlatformDataValues? = null,
+    public val onTileRequest: (TileRequest) -> TileBuilders.Tile,
 ) {
     override fun toString(): String {
         return "TilePreviewData(onTileResourceRequest=$onTileResourceRequest, " +
@@ -65,5 +70,6 @@ constructor(
         return true
     }
 
-    override fun hashCode() = Objects.hash(onTileResourceRequest, platformDataValues, onTileRequest)
+    override fun hashCode(): Int =
+        Objects.hash(onTileResourceRequest, platformDataValues, onTileRequest)
 }

@@ -2082,7 +2082,7 @@ public class PluralRules implements Serializable {
      * icu_annot::internal CLDR
      * @deprecated ICU internal only
      */
-    // @Deprecated: in fact internal ICU
+    @Deprecated // in fact internal ICU
     public Collection<Double> getSamples(String keyword, SampleType sampleType) {
         if (!keywords.contains(keyword)) {
             return null;
@@ -2362,7 +2362,7 @@ public class PluralRules implements Serializable {
      * icu_annot::internal CLDR
      * @deprecated internal
      */
-    // @Deprecated: in fact internal ICU
+    @Deprecated // in fact internal ICU
     public int compareTo(PluralRules other) {
         return toString().compareTo(other.toString());
     }
@@ -2375,7 +2375,7 @@ public class PluralRules implements Serializable {
      * icu_annot::internal Visible For Testing
      * @deprecated internal
      */
-    // @Deprecated: in fact internal ICU
+    @Deprecated // in fact internal ICU
     public boolean isLimited(String keyword, SampleType sampleType) {
         return rules.isLimited(keyword, sampleType);
     }
@@ -2384,7 +2384,7 @@ public class PluralRules implements Serializable {
      * icu_annot::internal CLDR
      * @deprecated internal
      */
-    // @Deprecated: in fact internal ICU
+    @Deprecated // in fact internal ICU
     public boolean computeLimited(String keyword, SampleType sampleType) {
         return rules.computeLimited(keyword, sampleType);
     }

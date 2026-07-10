@@ -34,19 +34,38 @@ Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeRegisterWithPerfetto(
 static void JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeTraceEventBegin(
         JNIEnv *env, __unused jclass clazz, jint key, jstring traceInfo) {
+    // Prevent crash if traceInfo is null (e.g. passed from Java without checks)
+    if (traceInfo == nullptr) {
+        return;
+    }
+
     jsize lengthUtf = env->GetStringUTFLength(traceInfo);
 
     jsize lengthUtfWithNull = lengthUtf + 1;
     if (lengthUtfWithNull <= BUFFER_SIZE) {
         // fast path
-        std::array<char, BUFFER_SIZE> traceInfoUtf;
+        // Initialize the array to prevent leaking uninitialized stack memory
+        // in case GetStringUTFRegion fails or throws an exception.
+        std::array<char, BUFFER_SIZE> traceInfoUtf = {};
         jsize length = env->GetStringLength(traceInfo);
         env->GetStringUTFRegion(traceInfo, 0, length, traceInfoUtf.data());
+
+        // Check for JNI exceptions after GetStringUTFRegion to prevent continuing
+        // with undefined behavior or a pending exception.
+        if (env->ExceptionCheck()) {
+            return;
+        }
+
         traceInfoUtf[lengthUtf] = '\0'; // terminate the string
         tracing_perfetto::TraceEventBegin(key, traceInfoUtf.data());
     } else {
         // slow path
         const char *traceInfoUtf = env->GetStringUTFChars(traceInfo, NULL);
+        // GetStringUTFChars can return NULL on allocation failure.
+        // Check for NULL to avoid crashing and properly handle the pending exception.
+        if (traceInfoUtf == nullptr) {
+            return;
+        }
         tracing_perfetto::TraceEventBegin(key, traceInfoUtf);
         env->ReleaseStringUTFChars(traceInfo, traceInfoUtf);
     }

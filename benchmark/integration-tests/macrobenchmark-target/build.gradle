@@ -17,26 +17,24 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-            )
+            optimization {
+                enable = true
+            }
         }
     }
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.benchmark.integration.macrobenchmark.target"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity:1.10.0")
@@ -46,6 +44,6 @@ dependencies {
     implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
 
-    implementation("androidx.work:work-runtime:2.10.0")
-    implementation("androidx.work:work-runtime-ktx:2.10.0")
+    implementation("androidx.work:work-runtime:2.11.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
 }

@@ -28,6 +28,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 @DoNotInstrument // Needed for Robolectric to correctly instrument classes in the same module
 class CameraImplementationModeCompatTest {
 

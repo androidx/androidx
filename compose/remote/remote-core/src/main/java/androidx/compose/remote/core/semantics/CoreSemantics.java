@@ -15,10 +15,16 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -29,6 +35,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Implementation of the most common semantics used in typical Android apps. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class CoreSemantics extends Operation implements AccessibilityModifier {
     public int mContentDescriptionId = 0;
     public @Nullable Role mRole = null;
@@ -37,6 +44,34 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     public boolean mEnabled = true;
     public @NonNull Mode mMode = Mode.SET;
     public boolean mClickable = false;
+
+    private static final Mode[] MODE_VALUES = Mode.values();
+
+    private static @NonNull Mode modeFromInt(int value) {
+        if (value < 0 || value >= MODE_VALUES.length) {
+            return Mode.SET;
+        }
+        return MODE_VALUES[value];
+    }
+
+    public CoreSemantics() {}
+
+    public CoreSemantics(
+            int contentDescriptionId,
+            byte role,
+            int textId,
+            int stateDescriptionId,
+            int mode,
+            boolean enabled,
+            boolean clickable) {
+        mContentDescriptionId = contentDescriptionId;
+        mRole = Role.fromInt(role);
+        mTextId = textId;
+        mStateDescriptionId = stateDescriptionId;
+        mEnabled = enabled;
+        mMode = modeFromInt(mode);
+        mClickable = clickable;
+    }
 
     @Override
     public int getOpCode() {
@@ -56,6 +91,7 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
 
     /**
      * Applies the semantics to a WireBuffer.
+     *
      * @param buffer WireBuffer to apply the semantics to
      * @param contentDescriptionId content description id
      * @param role role
@@ -87,22 +123,23 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        // TODO this should write its start
-        buffer.writeInt(mContentDescriptionId);
-        buffer.writeByte((mRole != null) ? mRole.ordinal() : -1);
-        buffer.writeInt(mTextId);
-        buffer.writeInt(mStateDescriptionId);
-        buffer.writeByte(mMode.ordinal());
-        buffer.writeBoolean(mEnabled);
-        buffer.writeBoolean(mClickable);
+        apply(
+                buffer,
+                mContentDescriptionId,
+                mRole != null ? (byte) mRole.ordinal() : -1,
+                mTextId,
+                mStateDescriptionId,
+                mMode.ordinal(),
+                mEnabled,
+                mClickable);
     }
 
-    private void read(WireBuffer buffer) {
-        mContentDescriptionId = buffer.readInt();
+    private void read(@NonNull WireBuffer buffer) {
+        mContentDescriptionId = buffer.declareId();
         mRole = Role.fromInt(buffer.readByte());
-        mTextId = buffer.readInt();
-        mStateDescriptionId = buffer.readInt();
-        mMode = Mode.values()[buffer.readByte()];
+        mTextId = buffer.declareId();
+        mStateDescriptionId = buffer.declareId();
+        mMode = modeFromInt(buffer.readByte());
         mEnabled = buffer.readBoolean();
         mClickable = buffer.readBoolean();
     }
@@ -188,6 +225,26 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     @Override
     public @Nullable Integer getTextId() {
         return mTextId != 0 ? mTextId : null;
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation(
+                        "Accessibility Operations",
+                        Operations.ACCESSIBILITY_SEMANTICS,
+                        "CoreSemantics")
+                .description("Define accessibility semantics for a component")
+                .field(INT, "contentDescriptionId", "ID of the content description string")
+                .field(BYTE, "role", "The accessibility role (BUTTON, CHECKBOX, etc.)")
+                .field(INT, "textId", "ID of the text string")
+                .field(INT, "stateDescriptionId", "ID of the state description string")
+                .field(BYTE, "mode", "Semantics merge mode (SET, MERGE)")
+                .field(BOOLEAN, "enabled", "Whether the component is enabled")
+                .field(BOOLEAN, "clickable", "Whether the component is clickable");
     }
 
     @Override

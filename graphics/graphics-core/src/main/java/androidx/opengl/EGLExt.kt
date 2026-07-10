@@ -190,6 +190,7 @@ class EGLExt private constructor() {
 
         /** Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(AnnotationRetention.SOURCE)
         @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
         annotation class EGLSyncAttribute
 
@@ -245,6 +246,7 @@ class EGLExt private constructor() {
         /** Specifies the type of fence to create in [eglCreateSyncKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
+        @Retention(AnnotationRetention.SOURCE)
         annotation class EGLFenceType
 
         /**
@@ -287,6 +289,7 @@ class EGLExt private constructor() {
         /** Specifies various return values for the [eglClientWaitSyncKHR] method */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.TYPE)
+        @Retention(AnnotationRetention.SOURCE)
         @IntDef(value = [EGL_CONDITION_SATISFIED_KHR, EGL_TIMEOUT_EXPIRED_KHR, EGL_FALSE])
         annotation class EGLClientWaitResult
 

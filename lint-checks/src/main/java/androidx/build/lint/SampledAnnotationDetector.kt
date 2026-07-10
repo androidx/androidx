@@ -43,15 +43,12 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
-import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
-import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.uast.UDeclaration
+import org.jetbrains.uast.UFile
 import org.jetbrains.uast.UMethod
 
 /**
@@ -67,12 +64,22 @@ import org.jetbrains.uast.UMethod
  */
 class SampledAnnotationDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
+    override fun getApplicableUastTypes() = listOf(UDeclaration::class.java, UFile::class.java)
 
     override fun createUastHandler(context: JavaContext) =
         object : UElementHandler() {
+            // UAST tree omits `expect` interface methods (see b/496863565, b/246340708).
+            // If we rely solely on UAST's visitDeclaration, we will miss @sample tags in
+            // commonMain. By scanning the raw KtFile PSI directly, we guarantee all KDocs
+            // are evaluated.
+            override fun visitFile(node: UFile) {
+                val psiFile = node.sourcePsi as? KtFile ?: return
+                psiFile.forEachDescendantOfType<KDoc> { kdoc ->
+                    KDocSampleLinkHandler(context).handleSampleLink(kdoc)
+                }
+            }
+
             override fun visitDeclaration(node: UDeclaration) {
-                KDocSampleLinkHandler(context).visitDeclaration(node)
                 if (node is UMethod) {
                     SampledAnnotationHandler(context).visitMethod(node)
                 }
@@ -242,28 +249,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
  */
 @OptIn(KaExperimentalApi::class)
 private class KDocSampleLinkHandler(private val context: JavaContext) {
-    fun visitDeclaration(node: UDeclaration) {
-        val source = node.sourcePsi
-        node.comments.mapNotNull { it.sourcePsi as? KDoc }.forEach { handleSampleLink(it) }
-        // Expect declarations are not visible in UAST, but they may have sample links on them.
-        // If we are looking at an actual declaration, also manually find the corresponding
-        // expect declaration for analysis.
-        if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
-            analyze(source) {
-                val member = (source as? KtDeclaration)?.symbol ?: return
-                val expect = member.getExpectsForActual().singleOrNull() ?: return
-                val declaration = expect.psi ?: return
-                // Recursively handle everything inside the expect declaration, for example if it
-                // is a class with members that have documentation that we should look at - this
-                // will visit the declaration itself as well
-                declaration.forEachDescendantOfType<KtDeclaration> {
-                    it.docComment?.let { comment -> handleSampleLink(comment) }
-                }
-            }
-        }
-    }
-
-    private fun handleSampleLink(kdoc: KDoc) {
+    fun handleSampleLink(kdoc: KDoc) {
         val sections: List<KDocSection> = kdoc.children.mapNotNull { it as? KDocSection }
 
         // map of a KDocTag (which contains the location used when reporting issues) to the

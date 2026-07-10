@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
@@ -50,13 +51,6 @@ class InspectionPlugin : Plugin<Project> {
                 it.setupInspectorAttribute()
             }
 
-        val publishNonDexedInspector =
-            project.configurations.create("publishNonDexedInspector") {
-                it.isCanBeConsumed = true
-                it.isCanBeResolved = false
-                it.setupNonDexedInspectorAttribute()
-            }
-
         project.configurations.create(EXPORT_INSPECTOR_DEPENDENCIES) {
             // to allow including these dependencies in an SBOM
             it.description = "Re-publishes dependencies of the inspector"
@@ -77,7 +71,7 @@ class InspectionPlugin : Plugin<Project> {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
                     val shadowJar =
-                        project.registerShadowDependenciesTask(variant, extension.name, unzip)
+                        project.registerShadowDependenciesTask(variant, extension, unzip)
                     val bundleTask =
                         project.registerBundleInspectorTask(
                             variant,
@@ -86,12 +80,6 @@ class InspectionPlugin : Plugin<Project> {
                             extension.name,
                             shadowJar,
                         )
-
-                    publishNonDexedInspector.outgoing.variants {
-                        val configVariant = it.create("inspectorNonDexedJar")
-                        configVariant.artifact(shadowJar)
-                    }
-
                     publishInspector.outgoing.variants {
                         val configVariant = it.create("inspectorJar")
                         configVariant.artifact(bundleTask)
@@ -107,10 +95,12 @@ class InspectionPlugin : Plugin<Project> {
         project.afterEvaluate {
             if (!foundLibraryPlugin) {
                 throw StopExecutionException(
-                    """A required plugin, com.android.library, was not found.
-                        The androidx.inspection plugin currently only supports android library
-                        modules, so ensure that com.android.library is applied in the project
-                        build.gradle file."""
+                    """
+                    A required plugin, com.android.library, was not found.
+                                            The androidx.inspection plugin currently only supports android library
+                                            modules, so ensure that com.android.library is applied in the project
+                                            build.gradle file.
+                    """
                         .trimIndent()
                 )
             }
@@ -146,7 +136,7 @@ fun Variant.packageInspector(libraryProject: Project, inspectorProject: Project)
     val consumeInspector = libraryProject.createConsumeInspectionConfiguration()
 
     libraryProject.dependencies.add(consumeInspector.name, inspectorProject)
-    val consumeInspectorFiles = consumeInspector.incoming.artifactView {}.files
+    val consumeInspectorFiles = consumeInspector.incoming.files
 
     libraryProject.registerGenerateProguardDetectionFileTask(this)
     val repackageWithInspectorJarTaskProvider =
@@ -196,18 +186,6 @@ private fun Configuration.setupInspectorAttribute() {
     attributes { it.attribute(Attribute.of("inspector", String::class.java), "inspectorJar") }
 }
 
-fun Project.createConsumeNonDexedInspectionConfiguration(): Configuration =
-    configurations.create("consumeNonDexedInspector") {
-        it.setupNonDexedInspectorAttribute()
-        it.isCanBeConsumed = false
-    }
-
-private fun Configuration.setupNonDexedInspectorAttribute() {
-    attributes {
-        it.attribute(Attribute.of("inspector-undexed", String::class.java), "inspectorUndexedJar")
-    }
-}
-
 private fun Configuration.setupReleaseAttribute() {
     attributes {
         it.attribute(
@@ -228,4 +206,27 @@ const val IMPORT_INSPECTOR_DEPENDENCIES = "importInspectorImplementation"
 open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
     /** Name of built inspector artifact, if not provided it is equal to project's name. */
     var name: String? = null
+
+    /**
+     * Modules to exclude, e.g.
+     * - "org.jetbrains.kotlin:*"
+     * - "org.jetbrains:annotations"
+     */
+    val excludedModules: SetProperty<String> =
+        project.objects
+            .setProperty(String::class.java)
+            .convention(
+                setOf(
+                    "org.jetbrains.kotlin:kotlin-stdlib*",
+                    "org.jetbrains:annotations",
+                    "org.intellij.lang:annotations",
+                )
+            )
+
+    /**
+     * Modules to force-keep, even if excludedModules matches them, e.g.
+     * - "org.jetbrains.kotlin:kotlin-reflect"
+     */
+    val allowedModules: SetProperty<String> =
+        project.objects.setProperty(String::class.java).convention(emptySet())
 }

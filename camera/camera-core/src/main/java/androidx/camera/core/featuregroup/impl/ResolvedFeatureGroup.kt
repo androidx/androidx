@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSessionConfig::class)
-
 package androidx.camera.core.featuregroup.impl
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.Logger
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature

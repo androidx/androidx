@@ -18,15 +18,16 @@ package androidx.navigationevent.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.ProvidedValue
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
 /** The CompositionLocal containing the current [NavigationEventDispatcher]. */
 public object LocalNavigationEventDispatcherOwner {
     private val LocalNavigationEventDispatcherOwner =
-        compositionLocalOf<NavigationEventDispatcherOwner?> { null }
+        compositionLocalWithHostDefaultOf(NavigationEventDispatcherOwnerHostDefaultKey)
 
     /**
      * Returns current composition local value for the owner or `null` if one has not been provided
@@ -34,10 +35,7 @@ public object LocalNavigationEventDispatcherOwner {
      * `androidx.compose.ui.platform.LocalView`.
      */
     public val current: NavigationEventDispatcherOwner?
-        @Composable
-        get() =
-            LocalNavigationEventDispatcherOwner.current
-                ?: findViewTreeNavigationEventDispatcherOwner()
+        @Composable get() = LocalNavigationEventDispatcherOwner.current
 
     /**
      * Associates a [LocalNavigationEventDispatcherOwner] key to a value in a call to
@@ -50,5 +48,18 @@ public object LocalNavigationEventDispatcherOwner {
     }
 }
 
-@Composable
-internal expect fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner?
+/**
+ * A [HostDefaultKey] used to retrieve the [NavigationEventDispatcherOwner] provided by the current
+ * hosting environment.
+ *
+ * This key allows the composition to access the host's [NavigationEventDispatcherOwner] through a
+ * decoupled mechanism, typically used by [compositionLocalWithHostDefaultOf].
+ *
+ * On platforms where a [NavigationEventDispatcherOwner] is not present or supported, this may
+ * resolve to `null`.
+ *
+ * @see HostDefaultKey
+ * @see compositionLocalWithHostDefaultOf
+ */
+public expect val NavigationEventDispatcherOwnerHostDefaultKey:
+    HostDefaultKey<NavigationEventDispatcherOwner?>

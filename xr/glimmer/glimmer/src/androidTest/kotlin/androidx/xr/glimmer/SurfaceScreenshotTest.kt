@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -37,6 +37,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.xr.glimmer.samples.SurfaceSample
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,9 +45,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class SurfaceScreenshotTest() {
+class SurfaceScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 
@@ -171,7 +172,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(interactionSource = AlwaysPressedInteractionSource, onClick = {})
+                Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
@@ -192,7 +193,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(interactionSource = AlwaysPressedInteractionSource, onClick = {})
+                Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
@@ -208,10 +209,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(
-                        interactionSource = AlwaysFocusedAndPressedInteractionSource,
-                        onClick = {},
-                    )
+                Modifier.surface(interactionSource = AlwaysFocusedAndPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
@@ -220,6 +218,16 @@ class SurfaceScreenshotTest() {
         // Advance past the animation
         rule.mainClock.advanceTimeBy(10000)
         rule.assertRootAgainstGolden("surface_focused_and_pressed", screenshotRule)
+    }
+
+    @Test
+    fun surface_disabled() {
+        rule.setGlimmerThemeContent {
+            Box(Modifier.surface(enabled = false).padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text("This is a surface")
+            }
+        }
+        rule.assertRootAgainstGolden("surface_disabled", screenshotRule)
     }
 
     @Test

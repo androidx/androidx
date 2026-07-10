@@ -92,6 +92,7 @@ public class Button implements LayoutElement {
     }
 
     /** Builder class for {@link Button}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull Context mContext;
         private @Nullable LayoutElement mCustomContent;

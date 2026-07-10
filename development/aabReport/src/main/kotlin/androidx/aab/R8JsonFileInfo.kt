@@ -16,7 +16,6 @@
 
 package androidx.aab
 
-import androidx.aab.cli.VERBOSE
 import com.android.tools.r8.metadata.R8BuildMetadata
 import java.io.InputStream
 
@@ -126,42 +125,53 @@ private constructor(
             )
         }
 
-        val CSV_TITLES =
+        val CSV_COLUMNS =
             listOf(
-                "r8json_optimizationEnabled",
-                "r8json_obfuscationEnabled",
-                "r8json_shrinkingEnabled",
-                "r8json_fullMode",
-            ) +
-                if (VERBOSE) {
-                    listOf(
-                        "r8json_optimizationDisablePercent",
-                        "r8json_obfuscationDisablePercent",
-                        "r8json_shrinkingDisablePercent",
-                        "r8json_sortedDexChecksumsSha256",
-                    )
-                } else {
-                    emptyList()
-                }
-
-        fun R8JsonFileInfo?.csvEntries(): List<String> {
-            return listOf(
-                this?.optimizationEnabled.toString(),
-                this?.obfuscationEnabled.toString(),
-                this?.shrinkingEnabled.toString(),
-                this?.fullMode.toString(),
-            ) +
-                if (VERBOSE) {
-                    listOf(
-                        this?.optimizationDisablePercent.toString(),
-                        this?.obfuscationDisabledPercent.toString(),
-                        this?.shrinkingDisabledPercent.toString(),
-                        this?.dexShas?.sorted()?.joinToString(separator = INTERNAL_CSV_SEPARATOR)
-                            ?: "null",
-                    )
-                } else {
-                    emptyList()
-                }
-        }
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_optimizationEnabled",
+                    description = "Is optimization enabled?",
+                    calculate = { it?.optimizationEnabled.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_obfuscation",
+                    description = "Is obfuscation enabled?",
+                    calculate = { it?.obfuscationEnabled.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_shrinkingEnabled",
+                    description = "Is shrinking enabled?",
+                    calculate = { it?.shrinkingEnabled.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_fullMode",
+                    description = "Is full mode enabled?",
+                    calculate = { it?.fullMode.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_optimizationDisablePercent",
+                    description = "Optimization disabled percent",
+                    calculate = { it?.optimizationDisablePercent.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_obfuscationDisablePercent",
+                    description = "Obfuscation disabled percent",
+                    calculate = { it?.obfuscationDisabledPercent.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_optimizationDisablePercent",
+                    description = "Shrinking disabled percent",
+                    calculate = { it?.shrinkingDisabledPercent.toString() },
+                ),
+                CsvColumn<R8JsonFileInfo?>(
+                    "r8json_sortedDexChecksumsSha256",
+                    description =
+                        "Sorted list of dex sha256 checksums - can be validated against content of dex",
+                    requiresVerbose = true,
+                    calculate = {
+                        it?.dexShas?.sorted()?.joinToString(separator = INTERNAL_CSV_SEPARATOR)
+                            ?: "null"
+                    },
+                ),
+            )
     }
 }

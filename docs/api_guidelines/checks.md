@@ -1,5 +1,10 @@
 ## Correctness checks {#checks}
 
+<!--*
+# Document freshness: For more information, see go/fresh-source.
+freshness: { owner: 'juliamcclellan', reviewed: '2025-09-025' }
+*-->
+
 ### Android lint {#checks-lint}
 
 Android lint runs correctness checks on all library source code, with a limited

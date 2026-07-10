@@ -1,0 +1,25 @@
+// Signature format: 4.0
+package androidx.room3.rxjava3 {
+
+  public final class EmptyResultSetException extends java.lang.RuntimeException {
+    ctor public EmptyResultSetException(String message);
+  }
+
+  public final class RxDaoReturnTypeConverters {
+    ctor public RxDaoReturnTypeConverters();
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.WRITE}) public io.reactivex.rxjava3.core.Completable convertCompletable(androidx.room3.RoomDatabase database, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit?>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ}) public <T> io.reactivex.rxjava3.core.Flowable<T> convertFlowable(androidx.room3.RoomDatabase database, String[] tableNames, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T?>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ, androidx.room3.OperationType.WRITE}) public <T> io.reactivex.rxjava3.core.Maybe<T> convertMaybe(androidx.room3.RoomDatabase database, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T?>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ}) public <T> io.reactivex.rxjava3.core.Observable<T> convertObservable(androidx.room3.RoomDatabase database, String[] tableNames, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T?>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ, androidx.room3.OperationType.WRITE}) public <T> io.reactivex.rxjava3.core.Single<T> convertSingle(androidx.room3.RoomDatabase database, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T?>,? extends java.lang.Object?> executeAndConvert);
+  }
+
+  public final class RxRoom {
+    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object> createFlowable(androidx.room3.RoomDatabase database, java.lang.String... tableNames);
+    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object> createObservable(androidx.room3.RoomDatabase database, java.lang.String... tableNames);
+    property public static Object NOTHING;
+    field public static final Object NOTHING;
+  }
+
+}
+

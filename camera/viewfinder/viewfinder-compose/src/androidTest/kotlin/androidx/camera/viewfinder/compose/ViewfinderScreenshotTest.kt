@@ -18,12 +18,14 @@ package androidx.camera.viewfinder.compose
 
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.camera.viewfinder.core.TransformationMode
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +37,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewfinderScreenshotTest {
 
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
 
@@ -232,6 +234,19 @@ class ViewfinderScreenshotTest {
                     implementationMode = ImplementationMode.EMBEDDED,
                     isMirroredHorizontally = true,
                     isMirroredVertically = true,
+                )
+
+            drawUprightFaceAndAssert(testParams)
+        }
+
+    @Test
+    fun embeddedImplementationDrawsUpright_from0DegreeSource_preAppliedTransformation() =
+        runBlocking {
+            val testParams =
+                ViewfinderTestParams(
+                    sourceRotation = 0,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    transformationMode = TransformationMode.PRE_APPLIED,
                 )
 
             drawUprightFaceAndAssert(testParams)

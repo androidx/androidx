@@ -145,6 +145,7 @@ public class UiDeviceTest extends BaseTest {
         assertTrue(textView.wait(Until.textEquals("keycode menu pressed; "), TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454426904
     @Test
     public void testPressBack() {
         launchTestActivity(KeycodeTestActivity.class);

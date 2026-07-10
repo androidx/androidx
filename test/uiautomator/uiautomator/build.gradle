@@ -15,17 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
@@ -35,6 +33,7 @@ dependencies {
     implementation(libs.testCore)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.tracing:tracing:1.1.0")
+    implementation(project(":test:uiautomator:uiautomator-shell"))
 
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testCore)
@@ -52,18 +51,6 @@ android {
     useLibrary "android.test.base"
     useLibrary "android.test.mock"
     namespace = "androidx.test.uiautomator"
-}
-
-/**
- * Build UIAutomator using JDK17 instead of the current default (JDK21). This works around changes
- * in JDK21 that result in r8 compilation failures (b/281536562). While the r8 issue has been fixed
- * in main, this keeps the UIAutomator prebuilt compatible with older Android branches that lack the
- * fix (e.g. AOSP releases before Android 14 QPR2).
- */
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 
 androidx {

@@ -275,6 +275,7 @@ public class BrandedSupportFragment extends Fragment {
      * Returns the {@link androidx.leanback.widget.SearchOrbView.Colors}
      * used to draw the search affordance.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public SearchOrbView.@Nullable Colors getSearchAffordanceColors() {
         if (mSearchAffordanceColorSet) {
             return mSearchAffordanceColors;

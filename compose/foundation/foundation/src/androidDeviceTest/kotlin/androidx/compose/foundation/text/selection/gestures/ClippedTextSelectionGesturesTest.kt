@@ -1,0 +1,254 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.foundation.text.selection.gestures
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
+import androidx.compose.foundation.text.selection.HandlePressedScope
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
+import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
+import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
+import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
+import androidx.compose.foundation.text.selection.gestures.util.longPress
+import androidx.compose.foundation.text.selection.gestures.util.to
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth
+import kotlin.test.fail
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Test class for text selection gestures when the text is clipped or overflowing.
+ *
+ * This class verifies the behavior of selection drag gestures and handle movements when dealing
+ * with text that exceeds its visible bounds (e.g., due to `maxLines` restrictions and
+ * `TextOverflow.Clip` or `TextOverflow.Visible`). It acts as a regression test for crashes and
+ * incorrect selection states that can occur when interacting with overflowed text.
+ */
+@MediumTest
+@RunWith(ContextMenuFlagFlipperRunner::class)
+internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest() {
+    override val pointerAreaTag = "selectionContainer"
+
+    private val style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+    private val textTag = "textTag"
+    private var text = "Text ${"Text".repeat(19)}"
+
+    private lateinit var asserter: TextSelectionAsserter
+    val state = SelectionState()
+
+    private val maxLinesState = mutableStateOf(Int.MAX_VALUE)
+    private val overflowState = mutableStateOf(TextOverflow.Clip)
+
+    @Before
+    fun setupAsserter() {
+        asserter =
+            object :
+                    TextSelectionAsserter(
+                        textContent = text,
+                        rule = rule,
+                        textToolbar = textToolbar,
+                        spyTextActionModeCallback = spyTextActionModeCallback,
+                        hapticFeedback = hapticFeedback,
+                        getActual = { state.selection },
+                    ) {
+                    override fun subAssert() {
+                        Truth.assertAbout(SelectionSubject.withContent(textContent))
+                            .that(getActual())
+                            .hasSelection(
+                                expected = selection,
+                                startTextDirection = startLayoutDirection,
+                                endTextDirection = endLayoutDirection,
+                            )
+                    }
+                }
+                .apply {
+                    startSelectionHandleShown = false
+                    endSelectionHandleShown = false
+                }
+    }
+
+    @Composable
+    override fun Content() {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
+            Box(Modifier.padding(32.dp), Alignment.Center) {
+                BasicText(
+                    text = text,
+                    style = style,
+                    maxLines = maxLinesState.value,
+                    overflow = overflowState.value,
+                    modifier = Modifier.width(100.dp).testTag(textTag),
+                )
+            }
+        }
+    }
+
+    // Lower apis will return the upstream line when checking the line for offsets.
+    // This inherently fixes the issue that is being tested, so we can suppress lower apis.
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun whenDragBelowText_withOverflowClip_entireTextSelected() {
+        dragBelowTextTest(overflow = TextOverflow.Clip)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun whenDragBelowText_withOverflowVisible_entireTextSelected() {
+        dragBelowTextTest(overflow = TextOverflow.Visible)
+    }
+
+    /**
+     * Regression test for:
+     * * Crashing when selecting overflowed text generally.
+     * * Crashing when dragging selection below an overflowing text.
+     */
+    private fun dragBelowTextTest(overflow: TextOverflow) {
+        maxLinesState.value = 2
+        overflowState.value = overflow
+        rule.waitForIdle()
+        asserter.assert()
+
+        performTouchGesture { longPress(characterPosition(2)) }
+        asserter.applyAndAssert {
+            selection = 0 to 4
+            startSelectionHandleShown = true
+            endSelectionHandleShown = true
+            magnifierShown = true
+            hapticsTextHandleMoveCount++
+        }
+
+        touchDragTo(position = bottomStart)
+        asserter.applyAndAssert {
+            selection = 0 to text.length
+            magnifierShown = false
+            hapticsTextHandleMoveCount++
+        }
+
+        // drag back to ensure the gesture continues on
+        touchDragTo(position = characterPosition(2))
+        asserter.applyAndAssert {
+            selection = 0 to 4
+            magnifierShown = true
+            hapticsTextHandleMoveCount++
+        }
+
+        performTouchGesture { up() }
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun whenDragEndHandleOutOfBounds_selectionAndHandleUpdates() {
+        maxLinesState.value = 2
+        overflowState.value = TextOverflow.Clip
+        rule.waitForIdle()
+        asserter.assert()
+
+        performTouchGesture { longPress(characterPosition(offset = 4)) }
+        touchDragTo(position = bottomStart)
+        asserter.applyAndAssert {
+            selection = 0 to text.length
+            startSelectionHandleShown = true
+            endSelectionHandleShown = true
+            hapticsTextHandleMoveCount++
+        }
+
+        touchDragTo(characterPosition(offset = 2))
+        asserter.applyAndAssert {
+            selection = 0 to 4
+            magnifierShown = true
+            endSelectionHandleShown = true
+        }
+
+        performTouchGesture { up() }
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
+        }
+
+        withHandlePressed(Handle.SelectionEnd) {
+            asserter.applyAndAssert {
+                magnifierShown = true
+                textToolbarShown = false
+            }
+
+            moveHandleTo(bottomEnd)
+            asserter.applyAndAssert {
+                selection = 0 to text.length
+                magnifierShown = false
+                hapticsTextHandleMoveCount++
+            }
+
+            moveHandleToCharacter(characterOffset = 2)
+            asserter.applyAndAssert {
+                selection = 0 to 4
+                magnifierShown = true
+                hapticsTextHandleMoveCount++
+            }
+        }
+
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
+        }
+    }
+
+    private fun HandlePressedScope.moveHandleToCharacter(characterOffset: Int) {
+        val destinationPosition =
+            characterBox(characterOffset).run {
+                when (fetchHandleInfo().handle) {
+                    Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
+                    Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
+                    Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+                }
+            }
+        moveHandleTo(destinationPosition)
+    }
+
+    private fun characterPosition(offset: Int): Offset =
+        characterBox(offset).centerLeft.nudge(HorizontalDirection.END)
+
+    private fun characterBox(offset: Int): Rect {
+        val pointerAreaPosition =
+            rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
+        val textPosition = rule.onNodeWithTag(textTag).fetchSemanticsNode().positionInRoot
+        val textLayoutResult = rule.onNodeWithTag(textTag).fetchTextLayoutResult()
+        return textLayoutResult.getBoundingBox(offset).translate(textPosition - pointerAreaPosition)
+    }
+}

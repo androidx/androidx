@@ -34,18 +34,18 @@ class ColorStateListAlphaDetectorTest {
             .run()
             .expect(
                 """
-res/color/color_state_list.xml:4: Error: Must use android:alpha if app:alpha is used [UseAndroidAlpha]
-    <item app:alpha="?android:disabledAlpha"
-          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+                res/color/color_state_list.xml:4: Error: Must use android:alpha if app:alpha is used [UseAndroidAlpha]
+                    <item app:alpha="?android:disabledAlpha"
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-Fix for res/color/color_state_list.xml line 4: Set alpha="?android:disabledAlpha":
-@@ -6 +6
-+         android:alpha="?android:disabledAlpha"
+                Fix for res/color/color_state_list.xml line 4: Set alpha="?android:disabledAlpha":
+                @@ -6 +6
+                +         android:alpha="?android:disabledAlpha"
                 """
                     .trimIndent()
             )

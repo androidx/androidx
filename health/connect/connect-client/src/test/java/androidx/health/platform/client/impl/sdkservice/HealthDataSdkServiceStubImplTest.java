@@ -16,21 +16,25 @@
 package androidx.health.platform.client.impl.sdkservice;
 
 import static androidx.health.platform.client.impl.sdkservice.HealthDataSdkServiceStubImpl.ALLOWED_PACKAGE_NAME;
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_RELEASE_CERT_SHA256;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.robolectric.Shadows.shadowOf;
+import static org.mockito.Mockito.when;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,11 +46,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowBinder;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class HealthDataSdkServiceStubImplTest {
     private HealthDataSdkServiceStubImpl mService;
+    private PackageManager mMockPackageManager;
 
     @Rule public MockitoRule mRule = MockitoJUnit.rule();
     @Mock private ISetPermissionTokenCallback mSetPermissionTokenCallback;
@@ -55,9 +62,16 @@ public class HealthDataSdkServiceStubImplTest {
 
     @Before
     public void setup() {
-        mService =
-                new HealthDataSdkServiceStubImpl(
-                        ApplicationProvider.getApplicationContext(), directExecutor());
+        mMockPackageManager = mock(PackageManager.class);
+        Context context =
+                new ContextWrapper(ApplicationProvider.getApplicationContext()) {
+                    @Override
+                    public PackageManager getPackageManager() {
+                        return mMockPackageManager;
+                    }
+                };
+
+        mService = new HealthDataSdkServiceStubImpl(context, directExecutor());
     }
 
     @Test
@@ -93,8 +107,15 @@ public class HealthDataSdkServiceStubImplTest {
     }
 
     @Test
+    @Config(sdk = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void setPermissionToken_getPermissionToken_expectSameToken() throws RemoteException {
         installValidPackageInfo(ALLOWED_PACKAGE_NAME);
+        when(mMockPackageManager.hasSigningCertificate(
+                        ALLOWED_PACKAGE_NAME,
+                        DEFAULT_PROVIDER_RELEASE_CERT_SHA256,
+                        PackageManager.CERT_INPUT_SHA256))
+                .thenReturn(true);
         mService.setPermissionToken(ALLOWED_PACKAGE_NAME, "token", mSetPermissionTokenCallback);
 
         verify(mSetPermissionTokenCallback, times(1)).onSuccess();
@@ -105,21 +126,41 @@ public class HealthDataSdkServiceStubImplTest {
         assertThat(mStringCaptor.getValue()).isEqualTo("token");
     }
 
-    private static void installValidPackageInfo(String packageName) {
-        installPackageInfo(packageName, 123);
-        ShadowBinder.setCallingUid(123);
+    @Test
+    @Config(sdk = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void setPermissionToken_signatureMismatch_expectException() {
+        installValidPackageInfo(ALLOWED_PACKAGE_NAME);
+        when(mMockPackageManager.hasSigningCertificate(
+                        ALLOWED_PACKAGE_NAME,
+                        DEFAULT_PROVIDER_RELEASE_CERT_SHA256,
+                        PackageManager.CERT_INPUT_SHA256))
+                .thenReturn(false);
+
+        assertThrows(
+                SecurityException.class,
+                () -> mService.setPermissionToken(ALLOWED_PACKAGE_NAME, "token", null));
     }
 
-    private static void installInvalidPackageInfo(String packageName) {
-        installPackageInfo(packageName, 123);
+    @Test
+    @Config(sdk = Build.VERSION_CODES.O)
+    public void setPermissionToken_sdkTooLow_expectException() {
+        installValidPackageInfo(ALLOWED_PACKAGE_NAME);
+
+        assertThrows(
+                SecurityException.class,
+                () -> mService.setPermissionToken(ALLOWED_PACKAGE_NAME, "token", null));
+    }
+
+    private void installValidPackageInfo(String packageName) {
+        int uid = 123;
+        ShadowBinder.setCallingUid(uid);
+        when(mMockPackageManager.getPackagesForUid(uid)).thenReturn(new String[] {packageName});
+    }
+
+    private void installInvalidPackageInfo(String packageName) {
         ShadowBinder.setCallingUid(456);
-    }
-
-    private static void installPackageInfo(String packageName, int uid) {
-        PackageInfo packageInfo = new PackageInfo();
-        packageInfo.packageName = packageName;
-        packageInfo.applicationInfo = new ApplicationInfo();
-        packageInfo.applicationInfo.uid = uid;
-        shadowOf(getApplicationContext().getPackageManager()).installPackage(packageInfo);
+        when(mMockPackageManager.getPackagesForUid(123)).thenReturn(new String[] {packageName});
+        when(mMockPackageManager.getPackagesForUid(456)).thenReturn(new String[] {});
     }
 }

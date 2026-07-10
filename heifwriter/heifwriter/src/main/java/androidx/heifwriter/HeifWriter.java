@@ -125,6 +125,9 @@ public final class HeifWriter extends WriterBase {
         private int mPrimaryIndex = 0;
         private int mRotation = 0;
         private Handler mHandler;
+        private EncoderPreference mEncoderPreference =
+                EncoderPreference.getDefaultEncoderPreference();
+
 
         /**
          * Construct a Builder with output specified by its path.
@@ -256,6 +259,21 @@ public final class HeifWriter extends WriterBase {
         }
 
         /**
+         * Sets the encoder preference for this builder.
+         *
+         * <p>This method allows you to configure the desired encoding type (hardware or software)
+         * and the bitrate mode (e.g., constant quality).
+         *
+         * @param preference The non-null {@link EncoderPreference} object used to specify
+         *                   the encoder's configuration.
+         * @return This {@code Builder} instance for method chaining.
+         */
+        public @NonNull Builder setEncoderPreference(@NonNull EncoderPreference preference) {
+            mEncoderPreference = preference;
+            return this;
+        }
+
+        /**
          * Build a HeifWriter object.
          *
          * @return a HeifWriter object built according to the specifications.
@@ -264,7 +282,7 @@ public final class HeifWriter extends WriterBase {
          */
         public @NonNull HeifWriter build() throws IOException {
             return new HeifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
-                mMaxImages, mPrimaryIndex, mInputMode, mHandler);
+                mMaxImages, mPrimaryIndex, mInputMode, mEncoderPreference, mHandler);
         }
     }
 
@@ -376,7 +394,7 @@ public final class HeifWriter extends WriterBase {
 
     @SuppressLint("WrongConstant")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    HeifWriter(@NonNull String path,
+        HeifWriter(@NonNull String path,
         @NonNull FileDescriptor fd,
         int width,
         int height,
@@ -386,8 +404,9 @@ public final class HeifWriter extends WriterBase {
         int maxImages,
         int primaryIndex,
         @InputMode int inputMode,
+        @NonNull EncoderPreference preference,
         @Nullable Handler handler) throws IOException {
-        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality,
+        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality, preference,
             handler, /* highBitDepthEnabled */ false);
 
         if (DEBUG) {
@@ -398,16 +417,17 @@ public final class HeifWriter extends WriterBase {
                 + ", quality: " + quality
                 + ", maxImages: " + maxImages
                 + ", primaryIndex: " + primaryIndex
-                + ", inputMode: " + inputMode);
+                + ", inputMode: " + inputMode
+                + ", encoder preference: " + preference);
         }
+
+        mEncoder = new HeifEncoder(width, height, gridEnabled, quality,
+            mInputMode, preference, mHandler, new WriterCallback());
 
         // set to 1 initially, and wait for output format to know for sure
         mNumTiles = 1;
 
         mMuxer = (path != null) ? new MediaMuxer(path, MUXER_OUTPUT_HEIF)
             : new MediaMuxer(fd, MUXER_OUTPUT_HEIF);
-
-        mEncoder = new HeifEncoder(width, height, gridEnabled, quality,
-            mInputMode, mHandler, new WriterCallback());
     }
 }

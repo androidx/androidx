@@ -20,15 +20,33 @@ package androidx.datastore.core
 
 import androidx.annotation.RestrictTo
 import java.io.File
-import java.io.IOException
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption.ATOMIC_MOVE
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
-internal actual fun File.atomicMoveTo(toFile: File): Boolean {
+internal actual fun File.atomicMoveTo(toFile: File) {
+    val source = toPath()
+    val destination = toFile.toPath()
     try {
-        Files.move(toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        return true
+        // First, we attempt to perform an atomic move, which either completes successfully, or
+        // it fails completely, leaving the system in its original state.
+        Files.move(source, destination, ATOMIC_MOVE, REPLACE_EXISTING)
+    } catch (exception: AtomicMoveNotSupportedException) {
+        retryMove(source, destination, exception)
+    } catch (exception: FileAlreadyExistsException) {
+        // Some implementations of ATOMIC_MOVE ignore the REPLACE_EXISTING option, so we should
+        // retry without the ATOMIC_MOVE option.
+        retryMove(source, destination, exception)
+    }
+}
+
+private fun retryMove(source: Path, destination: Path, previousException: Throwable) {
+    try {
+        Files.move(source, destination, REPLACE_EXISTING)
     } catch (exception: IOException) {
-        return false
+        throw exception.apply { addSuppressed(previousException) }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import android.util.Log
 import android.view.View
 import androidx.collection.LongObjectMap
 import androidx.collection.emptyLongObjectMap
@@ -24,12 +25,11 @@ import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionInstance
 import androidx.compose.ui.R
+import androidx.compose.ui.inspection.LOG_TAG
 import androidx.compose.ui.inspection.util.AnchorMap
-import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.tooling.data.ContextCache
-import androidx.compose.ui.tooling.data.ParameterInformation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.findParameters
 import androidx.compose.ui.tooling.data.makeTree
@@ -38,8 +38,11 @@ import java.util.ArrayDeque
 
 /** Generator of a tree for the Layout Inspector. */
 @OptIn(UiToolingDataApi::class)
-class LayoutInspectorTree {
-    private val builderData = SharedBuilderDataImpl()
+internal class LayoutInspectorTree(
+    anchorMap: AnchorMap,
+    inlineClassConverter: InlineClassConverter,
+) {
+    private val builderData = SharedBuilderDataImpl(anchorMap, inlineClassConverter)
     private val resultByComposition = mutableMapOf<CompositionInstance, SubCompositionResult>()
     private val builder = CompositionBuilder(builderData, resultByComposition)
 
@@ -90,9 +93,8 @@ class LayoutInspectorTree {
         val roots = view.compositionRoots
         val node = MutableInspectorNode().apply { this.anchorId = anchorId }
         val group = roots.firstNotNullOfOrNull { it.find(identity) } ?: return null
-        group.findParameters(builderData.contextCache).forEach {
-            val castedValue = castValue(it)
-            node.parameters.add(RawParameter(it.name, castedValue))
+        group.findParameters(builderData.contextCache).mapTo(node.parameters) {
+            builderData.inlineClassConverter.toRawParameter(it)
         }
         return node.build()
     }
@@ -172,15 +174,25 @@ class LayoutInspectorTree {
         )
     }
 
-    private fun sort(compositions: List<SubCompositionResult>): List<SubCompositionResult> {
-        val anyIndices = compositions.any { it.listIndex >= 0 }
-        return if (anyIndices) compositions.sortedBy { it.listIndex } else compositions
-    }
-
-    private fun castValue(parameter: ParameterInformation): Any? {
-        val value = parameter.value ?: return null
-        if (parameter.inlineClass == null || !value.javaClass.isPrimitiveClass()) return value
-        return builderData.inlineClassConverter.castParameterValue(parameter.inlineClass, value)
+    fun convertStateValue(name: String, value: Any?): NodeParameter? {
+        return try {
+            builderData.parameterFactory.create(
+                rootId = -1,
+                nodeId = -1,
+                anchorId = -1,
+                name = name,
+                value = value,
+                kind = ParameterKind.Normal,
+                parameterIndex = 0,
+                maxRecursions = 3,
+                maxInitialIterableSize = 5,
+            )
+        } catch (ex: Throwable) {
+            // A failure to decompose the value should not stop the agent from sending
+            // state reads to the client.
+            Log.w(LOG_TAG, "Could not decompose parameter: $value", ex)
+            null
+        }
     }
 
     private fun clear() {
@@ -188,13 +200,14 @@ class LayoutInspectorTree {
         resultByComposition.clear()
     }
 
-    private class SharedBuilderDataImpl : SharedBuilderData {
+    private class SharedBuilderDataImpl(
+        override val anchorMap: AnchorMap,
+        override val inlineClassConverter: InlineClassConverter,
+    ) : SharedBuilderData {
         override val cache = ArrayDeque<MutableInspectorNode>()
         override val contextCache = ContextCache()
-        override val anchorMap = AnchorMap()
         override val semanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
         override val unmergedSemanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
-        override val inlineClassConverter = InlineClassConverter()
         override val parameterFactory = ParameterFactory(inlineClassConverter)
         override var generatedId = -1L
         override var hideSystemNodes = true

@@ -30,22 +30,17 @@ import org.junit.runners.Parameterized
 class ImageAnalysisLockedOrientationTest(
     private val lensFacing: Int,
     private val rotationDegrees: Int,
-    private val cameraXConfig: String,
-) : ImageAnalysisBaseTest<LockedOrientationActivity>(cameraXConfig) {
+) : ImageAnalysisBaseTest<LockedOrientationActivity>() {
 
     companion object {
         @JvmStatic private val rotationDegrees = arrayOf(0, 90, 180, 270)
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, cameraXConfig={2}")
+        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}")
         fun data() =
             mutableListOf<Array<Any?>>().apply {
                 lensFacingList.forEach { lens ->
-                    rotationDegrees.forEach { rotation ->
-                        cameraXConfigList.forEach { cameraXConfig ->
-                            add(arrayOf(lens, rotation, cameraXConfig))
-                        }
-                    }
+                    rotationDegrees.forEach { rotation -> add(arrayOf(lens, rotation)) }
                 }
             }
     }
@@ -63,9 +58,7 @@ class ImageAnalysisLockedOrientationTest(
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
-        verifyRotation<LockedOrientationActivity>(lensFacing, cameraXConfig) {
-            rotate(rotationDegrees)
-        }
+        verifyRotation<LockedOrientationActivity>(lensFacing) { rotate(rotationDegrees) }
     }
 
     private fun ActivityScenario<LockedOrientationActivity>.rotate(rotationDegrees: Int) {

@@ -20,9 +20,18 @@
   <uses-permission android:name="android.permission.HAND_TRACKING" />
   <uses-permission android:name="android.permission.HEAD_TRACKING" />
   <uses-permission android:name="android.permission.FACE_TRACKING" />
+  <uses-permission android:name="android.permission.EYE_TRACKING_COARSE" />
+  <uses-permission android:name="android.permission.EYE_TRACKING_FINE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.XR_EXPERIMENTAL_FEATURES" />
   <application
       android:label="JXR ARCore Tests"
       android:taskAffinity="">
+    <meta-data android:name="com.android.extensions.xr.uses_experimental_openxr_feature"
+        android:value="true"
+        tools:ignore="MetadataTagInsideApplicationTag" />
     <activity
         android:name=".MainActivity"
         android:exported="true"
@@ -38,7 +47,7 @@
     <activity
         android:name=".facetracking.FaceTrackingActivity"
         android:exported="true"
-        android:label="Hello AR Plane"
+        android:label="Face Tracking"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
         android:name=".handtracking.HandTrackingActivity"
@@ -56,14 +65,48 @@
         android:label="Hello AR Plane"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
+        android:name=".helloar.HelloArAugmentedImageActivity"
+        android:exported="true"
+        android:label="Hello AR Augmented Image"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
+        android:name=".helloar.HelloArQrCodeActivity"
+        android:exported="true"
+        android:label="Hello AR Qr Code"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
         android:name=".persistentanchors.PersistentAnchorsActivity"
         android:exported="true"
         android:label="Persistent Anchors"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
-        android:name=".depthmaps.DepthMapActivity"
+        android:name=".depth.DepthActivity"
         android:exported="true"
-        android:label="Depth Maps"
+        android:label="Depth"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
+        android:name=".eyetracking.EyeTrackingActivity"
+        android:exported="true"
+        android:label="Eye Tracking"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
+        android:name=".geospatial.GeospatialActivity"
+        android:exported="true"
+        android:label="Geospatial"
+        android:theme="@style/Theme.AppCompat.NoActionBar" >
+    </activity>
+    <activity
+        android:name=".capabilities.CapabilitiesActivity"
+        android:exported="true"
+        android:label="Capabilities"
+        android:theme="@style/Theme.AppCompat.NoActionBar" >
+    </activity>
+    <activity
+        android:name=".nativedata.NativeDataActivity"
+        android:exported="true"
+        android:label="Native Data"
+        android:process=":nativeTest"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <meta-data android:name="com.google.android.ar.API_KEY" android:value="AIzaSyAHi4Mj26DDlgztTGPe_3hiSiXBxkgM4ww"/>
   </application>
 </manifest>

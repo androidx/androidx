@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
+
 package androidx.wear.protolayout.material3.samples
 
 import android.content.Context

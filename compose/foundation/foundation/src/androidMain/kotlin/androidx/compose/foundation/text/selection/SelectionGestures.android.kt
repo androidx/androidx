@@ -32,3 +32,6 @@ internal actual fun PointerEvent.isMouseOrTouchPad(): Boolean {
         this.motionEvent?.isFromSource(InputDevice.SOURCE_MOUSE) == true ||
         this.motionEvent?.isFromSource(InputDevice.SOURCE_TOUCHPAD) == true
 }
+
+internal actual val FirstLongPressSelectionAdjustment: SelectionAdjustment =
+    SelectionAdjustment.Word

@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ההודעה תופיע כאן.\nטקסט נוסף מופיע בשורה השנייה."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"הדגמה של תבנית של הודעה קצרה"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"הדגמה של תבנית פריטים שמחולקת לקטעים"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"הדגמה של פריט דחוס"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏הדגמה של פריט שמחולק לקטעים שמופעל בו AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"קטע של כפתורי בחירה"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"קטע של מתגים"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"קטע של הרבה שורות"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"קטע של פריט ברשת"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"הדגמה של רשימת פריטים שמחולקת לקטעים"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"רשימה 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"רשימה 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"טקסט משנה מתחת לכל רשימה"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"הדגמה של תמונת סיום ופעולות"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"הדגמה (דמו) של צ\'יפ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"הדגמה (דמו) של סרגל התקדמות"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"הדגמה של כותרת קטע"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"הדגמה של קטע \"הצעות והמלצות\""</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"הדגמה של תבנית החלונית"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"הדגמת התבנית של רשימת המקומות"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"עיון במקומות"</string>
@@ -243,7 +254,7 @@
     <string name="search_hint" msgid="978495498991026792">"כאן אפשר לבצע חיפוש"</string>
     <string name="additional_text" msgid="5755100726890686184">"יש לעיין "<annotation link="terms_of_service">"בתנאים ובהגבלות"</annotation>" שלנו"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"‏כניסה באמצעות חשבון Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד אימות"</string>
+    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד סודי"</string>
     <string name="qr_code" msgid="5487041647280777397">"‏קוד QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"המארח שלך לא תומך בתבנית כניסה לחשבון"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"מארח לא תואם"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"הדגמה של תבנית הכרטיסייה"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"כרטיסייה של הודעה"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"כרטיסייה של חלונית"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"הכרטיסייה של פריט שמחולק לקטעים"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"כרטיסייה של רשימה"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"כרטיסיית רשת עם שם כרטיסייה ארוך"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"כרטיסיית חיפוש"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ניתן לבחור גם את השורה"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"נבחרה פעולה משנית"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"נבחרה פעולה ראשית בשורה"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"הדגמה של רשימת פריטים שמחולקת לקטעים"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"רשימה 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"רשימה 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"טקסט משנה מתחת לכל רשימה"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"הדגמה של תמונה ופעולות בסיום שורה"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"הדגמה של רשימה ריקה"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"הרשימה ריקה"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"הדגמות של תבניות שונות"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"מפה עם הדגמות של תוכן"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"הדגמה של מפה עם תבנית הודעה"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"הדגמה של מפה עם תבנית רשת"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

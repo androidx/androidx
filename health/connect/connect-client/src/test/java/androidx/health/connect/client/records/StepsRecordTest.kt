@@ -54,11 +54,26 @@ class StepsRecordTest {
             )
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             StepsRecord(
                 startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                count = 10,
+            )
+        }
+    }
+
+    @Test
+    fun startTimeAfterEndTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            StepsRecord(
+                startTime = Instant.ofEpochMilli(1235L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,

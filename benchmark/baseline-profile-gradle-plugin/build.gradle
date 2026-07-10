@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,6 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 // This custom configuration ensures that dependencies used in tests with gradle test kit with
@@ -36,13 +36,13 @@ configurations {
     neededForGradleTestKit {
         canBeResolved = true
     }
-    neededForGradleTestKitAgp81 {
+    neededForGradleTestKitAgp82 {
         canBeResolved = true
     }
 }
 
 dependencies {
-    compileOnly(libs.androidGradlePlugin)
+    compileOnly(libs.androidGradlePluginApi)
     compileOnly(libs.kotlinGradlePlugin)
 
     implementation(gradleApi())
@@ -57,17 +57,16 @@ dependencies {
 
     neededForGradleTestKit(libs.androidGradlePlugin)
     neededForGradleTestKit(libs.kotlinGradlePlugin)
-    neededForGradleTestKit(libs.kotlinStdlib)
 
-    neededForGradleTestKitAgp81("com.android.tools.build:gradle:8.1.1")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.1-10154469")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.1-10154469:linux")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.1-10154469:osx")
+    neededForGradleTestKitAgp82("com.android.tools.build:gradle:8.2.1")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469:linux")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469:osx")
 }
 
 tasks.withType(Test).configureEach {
     it.dependsOn(configurations.neededForGradleTestKit)
-    it.dependsOn(configurations.neededForGradleTestKitAgp81)
+    it.dependsOn(configurations.neededForGradleTestKitAgp82)
 }
 
 gradlePlugin {
@@ -75,18 +74,38 @@ gradlePlugin {
         baselineProfileProducer {
             id = "androidx.baselineprofile.producer"
             implementationClass = "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileConsumer {
             id = "androidx.baselineprofile.consumer"
             implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileAppTarget {
             id = "androidx.baselineprofile.apptarget"
             implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileWrapper {
             id = "androidx.baselineprofile"
             implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
@@ -94,16 +113,12 @@ gradlePlugin {
 androidx {
     name = "Baseline Profile Gradle Plugin"
     type = SoftwareType.GRADLE_PLUGIN
+    minimumGradleVersion = "8.2"
     inceptionYear = "2022"
     description = "Android Baseline Profile Gradle Plugin"
 }
 
 tasks.withType(Test).configureEach { test ->
     test.maxParallelForks = 2
-    test.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }

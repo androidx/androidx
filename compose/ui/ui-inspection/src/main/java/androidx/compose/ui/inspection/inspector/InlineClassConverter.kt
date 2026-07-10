@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import androidx.compose.ui.inspection.util.isPrimitiveClass
+import androidx.compose.ui.tooling.data.ParameterInformation
+import androidx.compose.ui.tooling.data.UiToolingDataApi
+
 /**
  * Converter for casting a parameter represented by its primitive value to its inline class type.
  *
@@ -38,9 +42,17 @@ internal class InlineClassConverter {
      * @param inlineClassName the fully qualified name of the inline class.
      * @param value the value to convert to an instance of [inlineClassName].
      */
-    fun castParameterValue(inlineClassName: String?, value: Any?): Any? =
-        if (value != null && inlineClassName != null) typeMapperFor(inlineClassName)(value)
+    fun castValue(inlineClassName: String?, value: Any?): Any? =
+        if (value != null && value.javaClass.isPrimitiveClass() && inlineClassName != null)
+            typeMapperFor(inlineClassName)(value)
         else value
+
+    /** Convert [parameter] to a [RawParameter] instance and cast the value if necessary. */
+    @OptIn(UiToolingDataApi::class)
+    fun toRawParameter(parameter: ParameterInformation): RawParameter {
+        val value = castValue(parameter.inlineClass, parameter.value)
+        return RawParameter(parameter.name, value)
+    }
 
     private fun typeMapperFor(typeName: String): (Any) -> (Any) =
         typeMap.getOrPut(typeName) { loadTypeMapper(typeName.replace('.', '/')) }

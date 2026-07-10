@@ -46,8 +46,9 @@ internal class SelectionMenuManager(private val context: Context) {
     )
 
     private var cachedSelection: SelectionCache? = null
-    private val textSelectionMenuProvider = TextSelectionMenuProvider(context)
     private val goToLinkSelectionMenuProvider = GoToLinkSelectionMenuProvider(context)
+    private val hyperLinkSelectionMenuProvider = HyperLinkSelectionMenuProvider(context)
+    private val textSelectionMenuProvider = TextSelectionMenuProvider(context)
 
     suspend fun getSelectionMenuItems(selection: Selection): List<ContextMenuComponent> {
         // Check if the current selection is already cached
@@ -65,12 +66,13 @@ internal class SelectionMenuManager(private val context: Context) {
             }
             is HyperLinkSelection -> {
                 val newMenuItems: MutableList<ContextMenuComponent> = mutableListOf()
+                // Filter link to provide better context menu options depending upon link type.
+                val link = HyperLinkSelectionMenuProvider.filterLink(selection.link.toString())
                 // We use the TextSelectionMenuProvider here because it's already designed to
                 // generate smart action items using the TextClassifier API, which is ideal for
                 // creating relevant menu options for a hyperlink's URL.
-                newMenuItems +=
-                    textSelectionMenuProvider.getSmartMenuItems(selection.link.toString())
-                newMenuItems += LinkSelectionMenuProvider.getDefaultMenuItems(context)
+                newMenuItems += textSelectionMenuProvider.getSmartMenuItems(link)
+                newMenuItems += hyperLinkSelectionMenuProvider.getMenuItems(selection)
                 cachedSelection = SelectionCache(selection, newMenuItems)
                 newMenuItems
             }

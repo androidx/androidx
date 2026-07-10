@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -24,6 +25,7 @@ import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import org.jspecify.annotations.NonNull;
 
 /** Base class for dimension modifiers */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DimensionModifierOperation extends Operation
         implements ModifierOperation, VariableSupport {
 
@@ -34,10 +36,12 @@ public abstract class DimensionModifierOperation extends Operation
         WEIGHT,
         INTRINSIC_MIN,
         INTRINSIC_MAX,
-        EXACT_DP;
+        EXACT_DP,
+        FILL_PARENT_MAX_WIDTH,
+        FILL_PARENT_MAX_HEIGHT;
 
         @NonNull
-        static Type fromInt(int value) {
+        public static Type fromInt(int value) {
             switch (value) {
                 case 0:
                     return EXACT;
@@ -53,6 +57,10 @@ public abstract class DimensionModifierOperation extends Operation
                     return INTRINSIC_MAX;
                 case 6:
                     return EXACT_DP;
+                case 7:
+                    return FILL_PARENT_MAX_WIDTH;
+                case 8:
+                    return FILL_PARENT_MAX_HEIGHT;
             }
             return EXACT;
         }
@@ -121,6 +129,18 @@ public abstract class DimensionModifierOperation extends Operation
         return mType == Type.FILL;
     }
 
+    public boolean isExact() {
+        return mType == Type.EXACT || mType == Type.EXACT_DP;
+    }
+
+    public boolean isFillParentMaxWidth() {
+        return mType == Type.FILL_PARENT_MAX_WIDTH;
+    }
+
+    public boolean isFillParentMaxHeight() {
+        return mType == Type.FILL_PARENT_MAX_HEIGHT;
+    }
+
     public boolean isIntrinsicMin() {
         return mType == Type.INTRINSIC_MIN;
     }
@@ -139,6 +159,10 @@ public abstract class DimensionModifierOperation extends Operation
 
     public void setValue(float value) {
         mOutValue = mValue = value;
+    }
+
+    public void setType(@NonNull Type type) {
+        mType = type;
     }
 
     /**

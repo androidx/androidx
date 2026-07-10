@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,7 +26,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -35,12 +33,10 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api("androidx.wear.protolayout:protolayout-expression:1.0.0")
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.preference:preference:1.1.0")
-    implementation("androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0-beta01")
+    implementation("androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
@@ -63,10 +59,7 @@ android {
         aidl = true
     }
     defaultConfig {
-        minSdk = 26
-    }
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.watchface.complications.data"
 }
@@ -76,6 +69,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Wear Complications Data"
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }

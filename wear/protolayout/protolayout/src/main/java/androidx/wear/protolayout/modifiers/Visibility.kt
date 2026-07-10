@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.wear.protolayout.modifiers
 
 import android.annotation.SuppressLint
@@ -35,7 +37,7 @@ import androidx.wear.protolayout.expression.RequiresSchemaVersion
  */
 @RequiresSchemaVersion(major = 1, minor = 300)
 @ProtoLayoutExperimental
-fun LayoutModifier.visibility(
+public fun LayoutModifier.visibility(
     staticVisibility: Boolean,
     dynamicVisibility: DynamicBool? = null,
 ): LayoutModifier = this then BaseVisibilityElement(staticVisibility, dynamicVisibility)

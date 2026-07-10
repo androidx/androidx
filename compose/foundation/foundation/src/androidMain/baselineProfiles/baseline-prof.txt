@@ -113,9 +113,9 @@ HSPLandroidx/compose/foundation/RectListNode;->**(**)**
 HSPLandroidx/compose/foundation/ScrollKt**->**(**)**
 HSPLandroidx/compose/foundation/ScrollNode;->**(**)**
 HSPLandroidx/compose/foundation/ScrollState;->**(**)**
-HSPLandroidx/compose/foundation/ScrollingContainerElement;->**(**)**
-HSPLandroidx/compose/foundation/ScrollingContainerKt**->**(**)**
-HSPLandroidx/compose/foundation/ScrollingContainerNode;->**(**)**
+HSPLandroidx/compose/foundation/ScrollableAreaElement;->**(**)**
+HSPLandroidx/compose/foundation/ScrollableAreaKt**->**(**)**
+HSPLandroidx/compose/foundation/ScrollableAreaNode;->**(**)**
 HSPLandroidx/compose/foundation/ScrollingLayoutElement;->**(**)**
 HSPLandroidx/compose/foundation/StretchOverscrollNode;->**(**)**
 HSPLandroidx/compose/foundation/SystemGestureExclusionKt**->**(**)**

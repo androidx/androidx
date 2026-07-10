@@ -29,7 +29,6 @@ com/google/http-client/google-http-client/1.43.3/google-http-client-1.43.3.pom
 com/google/oauth-client/google-oauth-client/1.33.1/google-oauth-client-1.33.1.pom
 com/google/oauth-client/google-oauth-client/1.34.1/google-oauth-client-1.34.1.pom
 com/gradle/common-custom-user-data-gradle-plugin/2.0.1/common-custom-user-data-gradle-plugin-2.0.1.pom
-com/gradle/develocity-gradle-plugin/3.18.1/develocity-gradle-plugin-3.18.1.pom
 com/sun/xml/bind/jaxb-bom-ext/2.3.2/jaxb-bom-ext-2.3.2.pom
 com/sun/xml/bind/mvn/jaxb-runtime-parent/2.3.2/jaxb-runtime-parent-2.3.2.pom
 com/sun/xml/bind/mvn/jaxb-txw-parent/2.3.2/jaxb-txw-parent-2.3.2.pom

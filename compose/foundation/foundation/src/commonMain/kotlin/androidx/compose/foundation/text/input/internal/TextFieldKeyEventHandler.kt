@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.collection.MutableLongSet
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
@@ -40,7 +39,17 @@ import kotlin.jvm.JvmInline
 /** Factory function to create a platform specific [TextFieldKeyEventHandler]. */
 internal expect fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler
 
-/** Returns whether this key event is created by the software keyboard. */
+// The two values below are intermediate and demonstrate the larger problem that b/502914003 aims to
+// solve.
+
+/**
+ * Returns whether this key event is created by a physical hardware keyboard. Note that this is not
+ * simply the negation of [isFromSoftKeyboard]; some events (like dictation or simulated keys) may
+ * return false for both.
+ */
+internal expect val KeyEvent.isFromHardwareSource: Boolean
+
+/** Returns whether this key event is explicitly created by a soft keyboard. */
 internal expect val KeyEvent.isFromSoftKeyboard: Boolean
 
 /**
@@ -149,6 +158,7 @@ internal abstract class TextFieldKeyEventHandler {
                         newText = text,
                         clearComposition = true,
                         restartImeIfContentChanges = !event.isFromSoftKeyboard,
+                        isFromHardwareSource = event.isFromHardwareSource,
                     )
                     preparedSelectionState.resetCachedX()
                     true
@@ -169,6 +179,7 @@ internal abstract class TextFieldKeyEventHandler {
                 state = textFieldState,
                 textLayoutResult = layoutResult,
                 isFromSoftKeyboard = event.isFromSoftKeyboard,
+                isFromHardwareSource = event.isFromHardwareSource,
                 visibleTextLayoutHeight = visibleTextLayoutHeight,
                 textPreparedSelectionState = preparedSelectionState,
             )
@@ -181,7 +192,8 @@ internal abstract class TextFieldKeyEventHandler {
                 when (command) {
                     KeyCommand.COPY,
                     KeyCommand.PASTE,
-                    KeyCommand.CUT -> clipboardKeyCommandsHandler.handler(command)
+                    KeyCommand.CUT ->
+                        clipboardKeyCommandsHandler.handler(command, event.isFromHardwareSource)
                     KeyCommand.LEFT_CHAR -> collapseLeftOr { moveCursorLeftByChar() }
                     KeyCommand.RIGHT_CHAR -> collapseRightOr { moveCursorRightByChar() }
                     KeyCommand.LEFT_WORD -> moveCursorLeftByWord()
@@ -211,6 +223,7 @@ internal abstract class TextFieldKeyEventHandler {
                                 newText = "\n",
                                 clearComposition = true,
                                 restartImeIfContentChanges = !event.isFromSoftKeyboard,
+                                isFromHardwareSource = event.isFromHardwareSource,
                             )
                         } else {
                             consumed = onSubmit()
@@ -222,6 +235,7 @@ internal abstract class TextFieldKeyEventHandler {
                                 newText = "\t",
                                 clearComposition = true,
                                 restartImeIfContentChanges = !event.isFromSoftKeyboard,
+                                isFromHardwareSource = event.isFromHardwareSource,
                             )
                         } else {
                             consumed = false // let propagate to focus system
@@ -255,25 +269,18 @@ internal abstract class TextFieldKeyEventHandler {
                         showCharacterPalette()
                     }
                     KeyCommand.CENTER -> {
-                        // Only consume this event if the fix flag is enabled.
-                        if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
-                            keyboardController.show()
-                        } else {
-                            consumed = false
-                        }
+                        keyboardController.show()
                     }
                 }
-                if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
-                    // evaluate movement events to check whether they were actually consumed.
-                    if (
-                        command == KeyCommand.UP ||
-                            command == KeyCommand.DOWN ||
-                            command == KeyCommand.LEFT_CHAR ||
-                            command == KeyCommand.RIGHT_CHAR
-                    ) {
-                        // If selection did not change, the movement event was not consumed.
-                        consumed = initialValue.selection != selection
-                    }
+                // evaluate movement events to check whether they were actually consumed.
+                if (
+                    command == KeyCommand.UP ||
+                        command == KeyCommand.DOWN ||
+                        command == KeyCommand.LEFT_CHAR ||
+                        command == KeyCommand.RIGHT_CHAR
+                ) {
+                    // If selection did not change, the movement event was not consumed.
+                    consumed = initialValue.selection != selection
                 }
 
                 // selection changes are applied atomically at the end of context evaluation
@@ -314,4 +321,5 @@ internal abstract class TextFieldKeyEventHandler {
     }
 }
 
-@JvmInline internal value class ClipboardKeyCommandsHandler(val handler: (KeyCommand) -> Unit)
+@JvmInline
+internal value class ClipboardKeyCommandsHandler(val handler: (KeyCommand, Boolean) -> Unit)

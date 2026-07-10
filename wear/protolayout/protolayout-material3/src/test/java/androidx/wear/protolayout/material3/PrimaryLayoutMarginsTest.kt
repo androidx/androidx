@@ -75,7 +75,7 @@ class PrimaryLayoutMarginsTest {
                 defaultAvatarImageStyle = AvatarImageStyle(),
                 layoutSlotsPresence = LayoutSlotsPresence(),
                 defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
-                protoLayoutScope = ProtoLayoutScope(),
+                _protoLayoutScope = ProtoLayoutScope(),
             )
     }
 }

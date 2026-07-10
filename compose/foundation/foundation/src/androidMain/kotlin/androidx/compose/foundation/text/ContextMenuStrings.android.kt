@@ -43,7 +43,7 @@ internal actual value class ContextMenuStrings actual constructor(actual val val
             get() =
                 ContextMenuStrings(
                     if (Build.VERSION.SDK_INT <= 26) {
-                        R.string.autofill
+                        R.string.androidx_compose_foundation_autofill
                     } else {
                         android.R.string.autofill
                     }

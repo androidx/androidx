@@ -507,7 +507,7 @@ class CustomAudienceManagerTest {
         private fun setupResponse(customAudienceManager: CustomAudienceManager) {
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer).`when`(customAudienceManager).joinCustomAudience(any(), any(), any())
@@ -517,7 +517,7 @@ class CustomAudienceManagerTest {
         private fun setupFetchAndJoinResponse(customAudienceManager: CustomAudienceManager) {
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer)
@@ -536,7 +536,7 @@ class CustomAudienceManagerTest {
                     >(
                         2
                     )
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer)

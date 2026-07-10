@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -43,9 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.ExperimentalMaterial3XrApi
-import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.scenecore.scene
+import androidx.xr.compose.material3.SpaceToggleButton
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 @Composable
@@ -60,45 +57,17 @@ internal fun XrSettingsPane(
             modifier = Modifier.padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ListItem(headlineContent = { XrModeButton() })
-            ListItem(
-                headlineContent = {
-                    NavigationSuiteTypeDropdown(selectedNavSuiteType, onNavSuiteTypeChanged)
-                }
-            )
-            ListItem(
-                headlineContent = {
-                    XrNavigationOrbiterPositionDropdown(
-                        selectedOrbiterPosition,
-                        onOrbiterPositionChanged,
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun XrModeButton() {
-    val session = LocalSession.current
-    val isDeviceXr = session != null
-    val isFullSpaceMode = LocalSpatialCapabilities.current.isSpatialUiEnabled
-
-    Button(
-        modifier = Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp),
-        enabled = isDeviceXr,
-        onClick = {
-            if (isFullSpaceMode) {
-                session?.scene?.requestHomeSpaceMode()
-            } else {
-                session?.scene?.requestFullSpaceMode()
+            ListItem {
+                SpaceToggleButton(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp))
             }
-        },
-    ) {
-        Text(
-            text = if (isDeviceXr) "Toggle FullSpace/HomeSpace Mode" else "XR unsupported",
-            style = MaterialTheme.typography.bodyLarge,
-        )
+            ListItem { NavigationSuiteTypeDropdown(selectedNavSuiteType, onNavSuiteTypeChanged) }
+            ListItem {
+                XrNavigationOrbiterPositionDropdown(
+                    selectedOrbiterPosition,
+                    onOrbiterPositionChanged,
+                )
+            }
+        }
     }
 }
 
@@ -114,6 +83,8 @@ private fun NavigationSuiteTypeDropdown(
             listOf(
                 null,
                 NavigationSuiteType.NavigationRail,
+                NavigationSuiteType.WideNavigationRailExpanded,
+                NavigationSuiteType.WideNavigationRailCollapsed,
                 NavigationSuiteType.NavigationBar,
                 NavigationSuiteType.ShortNavigationBarCompact,
                 NavigationSuiteType.ShortNavigationBarMedium,
@@ -124,6 +95,8 @@ private fun NavigationSuiteTypeDropdown(
             when (it) {
                 null -> "Default"
                 NavigationSuiteType.NavigationRail -> "Rail"
+                NavigationSuiteType.WideNavigationRailExpanded -> "Expressive Rail (Expanded)"
+                NavigationSuiteType.WideNavigationRailCollapsed -> "Expressive Rail (Collapsed)"
                 NavigationSuiteType.NavigationBar -> "Bar"
                 NavigationSuiteType.ShortNavigationBarCompact -> "Expressive Bar (Compact)"
                 NavigationSuiteType.ShortNavigationBarMedium -> "Expressive Bar (Medium)"

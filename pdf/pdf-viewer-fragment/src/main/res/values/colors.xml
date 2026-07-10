@@ -18,4 +18,5 @@
     <!-- Default google colors for highlights. Use them as fallbacks if material colors are not available. -->
     <color name="selected_highlight_color">#ff9632</color>
     <color name="highlight_color">#ffff00</color>
+    <color name="saving_overlay_background_color">#52000000</color>
 </resources>

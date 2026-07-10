@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** high performance matrix processing engine */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixOperations {
 
     /** The START POINT in the float NaN space for operators */
@@ -168,27 +171,24 @@ public class MatrixOperations {
     static {
         int k = 0;
         sNames.put(k++, "NOP");
-        sNames.put(k++, "+");
-        sNames.put(k++, "-");
-        sNames.put(k++, "*");
-        sNames.put(k++, "/");
-        sNames.put(k++, "%");
-        sNames.put(k++, "min");
-        sNames.put(k++, "max");
-        sNames.put(k++, "pow");
-        sNames.put(k++, "sqrt");
-        sNames.put(k++, "abs");
-        sNames.put(k++, "sign");
-        sNames.put(k++, "copySign");
-        sNames.put(k++, "exp");
-        sNames.put(k++, "floor");
-        sNames.put(k++, "log");
-        sNames.put(k++, "ln");
-        sNames.put(k++, "round");
-        sNames.put(k++, "sin");
-        sNames.put(k++, "cos");
-        sNames.put(k++, "tan");
-        sNames.put(k++, "asin");
+        sNames.put(k++, "IDENTITY");
+        sNames.put(k++, "ROT_X");
+        sNames.put(k++, "ROT_Y");
+        sNames.put(k++, "ROT_Z");
+        sNames.put(k++, "TRANSLATE_X");
+        sNames.put(k++, "TRANSLATE_Y");
+        sNames.put(k++, "TRANSLATE_Z");
+        sNames.put(k++, "TRANSLATE2");
+        sNames.put(k++, "TRANSLATE_3");
+        sNames.put(k++, "SCALE_X");
+        sNames.put(k++, "SCALE_Y");
+        sNames.put(k++, "SCALE_Z");
+        sNames.put(k++, "SCALE2");
+        sNames.put(k++, "SCALE3");
+        sNames.put(k++, "MUL");
+        sNames.put(k++, "ROT_PZ");
+        sNames.put(k++, "ROT_AXIS");
+        sNames.put(k++, "PROJECTION");
     }
 
     /**
@@ -204,7 +204,7 @@ public class MatrixOperations {
     }
 
     /**
-     * Convert an expression encoded as an array of floats int ot a string
+     * Convert an expression encoded as an array of floats int to a string
      *
      * @param exp
      * @param labels
@@ -359,6 +359,9 @@ public class MatrixOperations {
     void opEval(int sp, int id) {
         switch (id) {
             case OP_IDENTITY:
+                if (mMatrixIndex + 1 >= mMatrices.length) {
+                    throw new RuntimeException("Matrix stack overflow");
+                }
                 mMatrices[++mMatrixIndex].setIdentity();
                 return;
             case OP_ROT_X:
@@ -401,6 +404,9 @@ public class MatrixOperations {
                 mMatrices[mMatrixIndex].setScale(mStack[sp - 3], mStack[sp - 2], mStack[sp - 1]);
                 return;
             case OP_MUL:
+                if (mMatrixIndex <= 0) {
+                    throw new RuntimeException("Matrix stack underflow");
+                }
                 Matrix.multiply(mMatrices[mMatrixIndex - 1], mMatrices[mMatrixIndex], mTmpMatrix);
                 mMatrices[mMatrixIndex - 1].copyFrom(mTmpMatrix);
                 mMatrixIndex--;

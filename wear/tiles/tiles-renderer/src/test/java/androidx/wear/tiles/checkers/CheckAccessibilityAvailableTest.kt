@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(TilesTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class CheckAccessibilityAvailableTest {
     @Test
     fun check_throwsWithNoSemantics() {

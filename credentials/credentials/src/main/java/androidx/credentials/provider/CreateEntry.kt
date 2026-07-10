@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
-import androidx.credentials.provider.CreateEntry.Api28Impl.addToSlice
 import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
@@ -665,8 +664,8 @@ internal constructor(
             "androidx.credentials.provider.extra.PENDING_INTENT_"
         private const val EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX =
             "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_"
-        private const val EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX =
-            "androidx.credentials.provider.extra.LAST_USED_TIME_"
+        private const val EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX =
+            "androidx.credentials.provider.extra.LAST_USED_TIME_MILLIS_"
         private const val EXTRA_CREATE_DESCRIPTION_PREFIX =
             "androidx.credentials.provider.extra.DESCRIPTION_"
         private const val EXTRA_CREATE_TYPE_ICON_PREFIX =
@@ -675,7 +674,8 @@ internal constructor(
             "androidx.credentials.provider.extra.CREDENTIAL_COUNT_INFO_"
 
         @RequiresApi(23)
-        internal fun List<CreateEntry>.marshall(bundle: Bundle) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun List<CreateEntry>.marshall(bundle: Bundle) {
             bundle.putInt(EXTRA_CREATE_ENTRY_SIZE, this.size)
             this.forEachIndexed { index, entry ->
                 bundle.putCharSequence("$EXTRA_CREATE_ACCOUNT_NAME_PREFIX$index", entry.accountName)
@@ -690,9 +690,9 @@ internal constructor(
                 // TODO: b/356939416 - provide backward compatible timestamp API.
                 if (Build.VERSION.SDK_INT >= 26) {
                     entry.lastUsedTime?.let {
-                        bundle.putSerializable(
-                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index",
-                            it,
+                        bundle.putLong(
+                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index",
+                            it.toEpochMilli(),
                         )
                     }
                 }
@@ -709,7 +709,8 @@ internal constructor(
         }
 
         @RequiresApi(23)
-        internal fun Bundle.unmarshallCreateEntries(): List<CreateEntry> {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun Bundle.unmarshallCreateEntries(): List<CreateEntry> {
             try {
                 val entries = mutableListOf<CreateEntry>()
                 val size = this.getInt(EXTRA_CREATE_ENTRY_SIZE, 0)
@@ -736,8 +737,23 @@ internal constructor(
                     // TODO: b/356939416 - provide backward compatible timestamp API.
                     if (Build.VERSION.SDK_INT >= 26) {
                         val lastUsedTime: Instant? =
-                            this.getSerializable("$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index")
-                                as Instant?
+                            if (
+                                this.containsKey(
+                                    "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                                )
+                            ) {
+                                try {
+                                    Instant.ofEpochMilli(
+                                        this.getLong(
+                                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                                        )
+                                    )
+                                } catch (_: Exception) {
+                                    null
+                                }
+                            } else {
+                                null
+                            }
                         entries.add(
                             CreateEntry(
                                 accountName = accountName,
@@ -764,7 +780,7 @@ internal constructor(
                     }
                 }
                 return entries
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return emptyList()
             }
         }

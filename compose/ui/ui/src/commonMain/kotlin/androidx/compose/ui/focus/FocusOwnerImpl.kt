@@ -20,7 +20,6 @@ import androidx.collection.MutableLongSet
 import androidx.collection.MutableObjectList
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
@@ -37,12 +36,13 @@ import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.node.DelegatableNode
@@ -57,6 +57,7 @@ import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitLocalDescendants
 import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.trace
@@ -141,7 +142,13 @@ internal class FocusOwnerImpl(
      * hierarchy.
      */
     override fun releaseFocus() {
-        rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
+        rootFocusNode.prepareToClearFocus(forced = true, refreshFocusEvents = true)
+        // After preparing to clear focus above, we can now release focus directly.
+        if (activeFocusTargetNode != null) {
+            val previousActive = activeFocusTargetNode
+            activeFocusTargetNode = null
+            previousActive?.dispatchFocusCallbacks(previousState = Active, newState = Inactive)
+        }
     }
 
     override fun clearOwnerFocus() {
@@ -328,7 +335,7 @@ internal class FocusOwnerImpl(
                     Default -> {
                         /* Do Nothing */
                     }
-                    else -> return customDest.findFocusTargetNode(onFound)
+                    else -> return customDest.findFocusTarget(onFound)
                 }
             }
 
@@ -417,29 +424,53 @@ internal class FocusOwnerImpl(
         return false
     }
 
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
-    override fun dispatchIndirectTouchEvent(
-        event: IndirectTouchEvent,
-        onFocusedItem: () -> Boolean,
-    ): Boolean {
+    override fun dispatchIndirectPointerEvent(event: IndirectPointerEvent): Boolean {
         if (focusInvalidationManager.hasPendingInvalidation()) {
             // Ignoring this to unblock b/379289347.
             println(
-                "$FocusWarning: Dispatching indirect touch event while the focus system is invalidated."
+                "$FocusWarning: Dispatching indirect pointer event while the focus system is invalidated."
             )
             return false
         }
 
-        val focusedIndirectTouchInputNode =
-            findFocusTargetNode()?.nearestAncestorIncludingSelf(Nodes.IndirectTouchInput)
-        focusedIndirectTouchInputNode?.traverseAncestorsIncludingSelf(
-            type = Nodes.IndirectTouchInput,
-            onPreVisit = { if (it.onPreIndirectTouchEvent(event)) return true },
-            onVisit = { if (onFocusedItem()) return true },
-            onPostVisit = { if (it.onIndirectTouchEvent(event)) return true },
-        )
+        val focusedIndirectPointerInputNode =
+            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
 
-        return false
+        focusedIndirectPointerInputNode?.let { node ->
+            val ancestors = node.ancestors(Nodes.IndirectPointerInput)
+
+            // Initial pass (tunneling)
+            ancestors?.fastForEachReversed {
+                it.onIndirectPointerEvent(event, PointerEventPass.Initial)
+            }
+            node.onIndirectPointerEvent(event, PointerEventPass.Initial)
+
+            // Main pass (bubbling)
+            node.onIndirectPointerEvent(event, PointerEventPass.Main)
+            ancestors?.fastForEach { it.onIndirectPointerEvent(event, PointerEventPass.Main) }
+
+            // Final pass (tunneling)
+            ancestors?.fastForEachReversed {
+                it.onIndirectPointerEvent(event, PointerEventPass.Final)
+            }
+            node.onIndirectPointerEvent(event, PointerEventPass.Final)
+        }
+
+        val isConsumed = event.changes.fastAny { it.isConsumed }
+        return isConsumed
+    }
+
+    override fun dispatchIndirectPointerCancel() {
+        val focusedIndirectPointerInputNode =
+            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
+
+        focusedIndirectPointerInputNode?.let { node ->
+            val ancestors = node.ancestors(Nodes.IndirectPointerInput)
+
+            // Triggers cancel from main focused node to highest ancestor (bubbling)
+            node.onCancelIndirectPointerInput()
+            ancestors?.fastForEach { it.onCancelIndirectPointerInput() }
+        }
     }
 
     override fun focusTargetAvailable() {
@@ -528,9 +559,7 @@ internal class FocusOwnerImpl(
             val previousValue = field
             field = value
             if (value == null || previousValue !== value) isFocusCaptured = false
-            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled) {
-                listeners.forEach { it.onFocusChanged(previousValue, value) }
-            }
+            listeners.forEach { it.onFocusChanged(previousValue, value) }
         }
 
     override var isFocusCaptured: Boolean = false

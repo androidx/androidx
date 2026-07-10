@@ -94,6 +94,11 @@ final @Nullable ICustomTabsCallback mCallbackBinder;
         public IBinder asBinder() {
             return this;
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     /**

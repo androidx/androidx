@@ -113,7 +113,18 @@ private class TextContextMenuGestureNode(
         TextContextMenuDataProvider {
         override fun position(destinationCoordinates: LayoutCoordinates): Offset {
             val localCoordinates = checkPreconditionNotNull(localCoordinates) { MESSAGE }
-            return destinationCoordinates.localPositionOf(localCoordinates, localClickOffset)
+            // The destinationCoordinates is not necessarily at the same LayoutNode tree with the
+            // localCoordinates of this node. e.g. The TextField is in a Dialog.
+            // We assume that the context menu's destinationCoordinates shares the same screen
+            // as the localCoordinates.
+            // Check b/441759435 for details.
+
+            // destinationCoordinates should already been checked before passing to this method.
+            if (!localCoordinates.isAttached) {
+                return Offset.Zero
+            }
+            val clickOffsetInScreen = localCoordinates.localToScreen(localClickOffset)
+            return destinationCoordinates.screenToLocal(clickOffsetInScreen)
         }
 
         override fun contentBounds(destinationCoordinates: LayoutCoordinates): Rect =

@@ -19,24 +19,30 @@ import androidx.build.ApkCopyHelperKt
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.xr.scenecore.testapp"
-    compileSdk = 35
+    compileSdk { version = release(37) }
 
     defaultConfig {
         applicationId = "androidx.xr.scenecore.testapp"
-        minSdk = 34
+        minSdk { version = release(34) }
     }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
+    }
+}
+
+androidx {
+    deviceTests {
+        enabled = false
     }
 }
 
@@ -44,18 +50,39 @@ dependencies {
     implementation(project(":xr:assets"))
     implementation(project(":xr:compose:material3:material3"))
     implementation(project(":xr:runtime:runtime"))
-    implementation(project(":xr:runtime:runtime-openxr"))
+    implementation(project(":xr:arcore:arcore-openxr"))
     implementation(project(":xr:scenecore:scenecore"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+    implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
     implementation(project(":xr:arcore:arcore"))
 
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.compose.foundation:foundation-layout:1.7.5")
+    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.compose.runtime:runtime:1.7.5")
+    implementation("androidx.compose.ui:ui:1.7.5")
+    implementation("androidx.compose.ui:ui-unit:1.7.5")
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity:1.10.1")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.media3:media3-exoplayer:1.6.0")
+    implementation("androidx.media3:media3-ui:1.5.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    compileOnly(libs.androidExtensionsXr)
+
+    // Test dependencies
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":xr:testutils"))
+
+    androidTestUtil(libs.testOrchestrator)
 }
 
 // Making this APK available via Android Build so the QA team can

@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -24,6 +26,7 @@ import org.jspecify.annotations.Nullable;
  * <p>The evaluation is based on int opMask, int[]exp exp[i] is an operator if (opMask*(1 << i) !=
  * 0)
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IntegerExpressionEvaluator {
     @NonNull static IntMap<String> sNames = new IntMap<>();
     public static final int OFFSET = 0x10000;
@@ -180,11 +183,11 @@ public class IntegerExpressionEvaluator {
                 return sp - 1;
 
             case OP_DIV: // DIV
-                mStack[sp - 1] = mStack[sp - 1] / mStack[sp];
+                mStack[sp - 1] = (mStack[sp] == 0) ? 0 : mStack[sp - 1] / mStack[sp];
                 return sp - 1;
 
             case OP_MOD: // MOD
-                mStack[sp - 1] = mStack[sp - 1] % mStack[sp];
+                mStack[sp - 1] = (mStack[sp] == 0) ? 0 : mStack[sp - 1] % mStack[sp];
                 return sp - 1;
 
             case OP_SHL: // SHL
@@ -327,7 +330,8 @@ public class IntegerExpressionEvaluator {
      * @return
      */
     @NonNull
-    public static String toString(int opMask, int @NonNull [] exp, @NonNull String[] labels) {
+    public static String toString(
+            int opMask, int @NonNull [] exp, @NonNull String[] labels) {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < exp.length; i++) {
             int v = exp[i];
@@ -352,7 +356,7 @@ public class IntegerExpressionEvaluator {
     }
 
     /**
-     * Convert an expression encoded as an array of ints int ot a string
+     * Convert an expression encoded as an array of ints int to a string
      *
      * @param opMask bit mask of operators vs commands
      * @param exp rpn sequence of values and operators

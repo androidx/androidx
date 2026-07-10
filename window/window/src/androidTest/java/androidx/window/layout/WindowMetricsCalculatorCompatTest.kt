@@ -16,6 +16,7 @@
 package androidx.window.layout
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.util.TypedValue
@@ -39,12 +40,14 @@ import androidx.window.WindowTestUtils.Companion.runActionsAcrossActivityLifecyc
 import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.AssumptionViolatedException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 
 /** Tests for [WindowMetricsCalculatorCompat] class. */
 @LargeTest
@@ -88,6 +91,72 @@ class WindowMetricsCalculatorCompatTest {
 
             val applicationMetrics =
                 calculator.computeCurrentWindowMetrics(activity.applicationContext)
+            val activityMetrics = calculator.computeCurrentWindowMetrics(activity)
+
+            val applicationMaxMetrics =
+                calculator.computeMaximumWindowMetrics(activity.applicationContext)
+            val activityMaxMetrics = calculator.computeMaximumWindowMetrics(activity)
+
+            assertEquals(activityMetrics, applicationMetrics)
+            assertEquals(activityMaxMetrics, applicationMaxMetrics)
+        }
+    }
+
+    @Test
+    fun testGetCurrentWindowMetrics_matchesSafeCall() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            val expected = calculator.computeCurrentWindowMetrics(activity.applicationContext)
+
+            val actual = calculator.computeCurrentWindowMetricsOrNull(activity.applicationContext)
+
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun testGetMaximumWindowMetrics_matchesSafeCall() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            val expected = calculator.computeMaximumWindowMetrics(activity.applicationContext)
+
+            val actual = calculator.computeMaximumWindowMetricsOrNull(activity.applicationContext)
+
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun testGetCurrentWindowMetricsOrNull_returnsNullOnOtherContext() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            val actual = calculator.computeCurrentWindowMetricsOrNull(mock(Context::class.java))
+
+            assertNull(actual)
+        }
+    }
+
+    @Test
+    fun testGetMaximumWindowMetrics_returnsNullOnOtherContext() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            val actual = calculator.computeMaximumWindowMetricsOrNull(mock(Context::class.java))
+
+            assertNull(actual)
+        }
+    }
+
+    @Test
+    fun testGetCurrentWindowMetrics_withWrappedNonUiContext() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            val applicationMetrics =
+                calculator.computeCurrentWindowMetrics(ContextWrapper(activity.applicationContext))
             val activityMetrics = calculator.computeCurrentWindowMetrics(activity)
 
             val applicationMaxMetrics =

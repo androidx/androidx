@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"訊息會在這裡顯示。\n其他文字會在第二行顯示。"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"「簡短訊息範本」示範"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"分類項目範本示範"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"精簡項目示範"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"已啟用 AlphaJump 的分類項目示範"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"圓形按鈕部分"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"切換部分"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"包含多列的部分"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"格狀項目部分"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分類項目清單示範"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"清單 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"清單 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每個清單的說明文字"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"結束圖像和操作示範"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"方塊示範"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"進度列示範"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"標題示範"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"焦點推介部分示範"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"「窗格範本」示範"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"「地點清單範本」示範"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"瀏覽地點"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"分頁範本示範"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"訊息分頁"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"窗格分頁"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"分類項目分頁"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"清單分頁"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"有長分頁標題的格線分頁"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜尋分頁"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"亦可選取列"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"已選取次要動作"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"已選取列的主要動作"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分類項目清單示範"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"清單 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"清單 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每個清單的說明文字"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"列尾圖片和操作示範"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"空白清單示範"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"清單中沒有內容"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他範本示範"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"含有內容示範的地圖"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"含有訊息範本示範的地圖"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"含有格線範本示範的地圖"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

@@ -19,7 +19,6 @@ package androidx.car.app.hardware.climate;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import org.jspecify.annotations.NonNull;
@@ -47,7 +46,6 @@ import java.util.Set;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public final class ClimateProfileRequest {
     /**
      * Possible feature flags can be used to create request.

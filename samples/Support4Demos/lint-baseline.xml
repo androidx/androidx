@@ -119,24 +119,6 @@
     </issue>
 
     <issue
-        id="MetadataTagInsideApplicationTag"
-        message="Detected &lt;application>-level meta-data tag."
-        errorLine1="        &lt;meta-data"
-        errorLine2="        ^">
-        <location
-            file="src/main/AndroidManifest.xml"/>
-    </issue>
-
-    <issue
-        id="MetadataTagInsideApplicationTag"
-        message="Detected &lt;application>-level meta-data tag."
-        errorLine1="        &lt;meta-data"
-        errorLine2="        ^">
-        <location
-            file="src/main/AndroidManifest.xml"/>
-    </issue>
-
-    <issue
         id="UnspecifiedRegisterReceiverFlag"
         message="`this` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
         errorLine1="                mService.registerReceiver(this, filter);"

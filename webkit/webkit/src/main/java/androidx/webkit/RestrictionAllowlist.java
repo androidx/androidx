@@ -16,25 +16,36 @@
 
 package androidx.webkit;
 
-import androidx.annotation.RestrictTo;
-
 import org.chromium.support_lib_boundary.WebViewBuilderBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * RestrictionAllowlist can be used to scope WebView behaviors to particular origin patterns.
  *
- * <p>Add a RestrictionAllowlist via {@link WebViewBuilder#addAllowlist}
+ * <p>Add a RestrictionAllowlist via {@link WebViewBuilder#addAllowlist}. For example:
+ * <pre class="prettyprint">
+ * WebView webview = new WebViewBuilder(WebViewBuilder.PRESET_LEGACY)
+ *         .restrictJavaScriptInterfaces()
+ *         .addAllowlist(new RestrictionAllowlist.Builder(Set.of("https://example.com"))
+ *                 .addJavaScriptInterface(someJavaScriptInterface, "myInterface")
+ *                 .build())
+ *         .build();
+ * </pre>
+ * <p>This example creates a WebView where the
+ * {@link android.webkit.WebView#addJavascriptInterface(Object, String)} and
+ * {@link android.webkit.WebView#removeJavascriptInterface(String)} APIs are disabled, but adds an
+ * allowlist that injects the {@code someJavaScriptInterface} object as {@code window.myInterface}
+ * into JavaScript only for frames with the {@code https://example.com} origin.
  */
 @WebViewBuilder.Experimental
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RestrictionAllowlist {
-    private final @NonNull List<ConfigTask> mConfigTasks;
+    private final @NonNull List<@NonNull ConfigTask> mConfigTasks;
 
-    private RestrictionAllowlist(@NonNull List<ConfigTask> configTasks) {
+    private RestrictionAllowlist(@NonNull List<@NonNull ConfigTask> configTasks) {
         mConfigTasks = configTasks;
     }
 
@@ -45,30 +56,46 @@ public final class RestrictionAllowlist {
     }
 
     /**
-     * RestrictionAllowlist builder. Add the RestrictionAllowlist produced to a WebView via {@link
-     * WebViewBuilder#addAllowlist}.
+     * RestrictionAllowlist builder. Add the RestrictionAllowlist produced to a WebView via
+     * {@link WebViewBuilder#addAllowlist}.
      */
     public static final class Builder {
-        final @NonNull List<String> mOriginPatterns;
-        final @NonNull List<ConfigTask> mConfigTasks = new ArrayList<>();
+        private final @NonNull List<@NonNull String> mOriginPatterns;
+        private final @NonNull List<@NonNull ConfigTask> mConfigTasks = new ArrayList<>();
 
-        public Builder(@NonNull List<String> originPatterns) {
-            mOriginPatterns = originPatterns;
+        /**
+         * Construct a RestrictionAllowlist Builder
+         *
+         * <p>See {@link #addWebMessageListener(WebView, String, Set, WebMessageListener)} for the
+         * rules of the {@code originPatterns} parameter.
+         *
+         * @param originPatterns List of origin patterns to allow the selected behaviors on.
+         */
+        public Builder(@NonNull Set<@NonNull String> originPatterns) {
+            mOriginPatterns = new ArrayList<@NonNull String>(originPatterns);
         }
 
         /**
-         * This API is the same as {@link WebView#addJavascriptInterface(Object, String)} expect it
+         * This API is the same as {@link WebView#addJavascriptInterface(Object, String)} except it
          * will only inject the interface into the origin patterns allowed.
+         *
+         * <p>A {@code name} value may only be used once per WebViewBuilder, regardless of whether
+         * it's the same, a different, or an equivalent allowlist.
          */
-        public @NonNull Builder javascriptInterface(@NonNull Object object, @NonNull String name) {
+        // There's no practical need for a getter with the intended use of RestrictionAllowlist.
+        // This data is only stored via variable capture, and adding getters may only complicate
+        // future changes.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public @NonNull Builder addJavaScriptInterface(@NonNull Object object,
+                @NonNull String name) {
             mConfigTasks.add(
                     config -> config.addJavascriptInterface(object, name, mOriginPatterns));
             return this;
         }
 
         /**
-         * Constructs a new RestrictionAllowlist that can be attached via {@link
-         * WebViewBuilder#setRestrictionAllowlist(RestrictionAllowlist)}.
+         * Constructs a new RestrictionAllowlist that can be attached via
+         * {@link WebViewBuilder#setRestrictionAllowlist(RestrictionAllowlist)}.
          *
          * @see WebViewBuilder
          */

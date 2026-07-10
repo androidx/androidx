@@ -16,28 +16,36 @@
 package androidx.camera.core.impl
 
 import android.os.Looper
+import android.os.Looper.getMainLooper
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
+import androidx.camera.testing.impl.fakes.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class CameraPresenceProviderTest {
 
     private val sourceObservable = MutableObservable<List<CameraIdentifier>>()
@@ -47,6 +55,7 @@ class CameraPresenceProviderTest {
     private val fakeSurfaceManager = FakeCameraDeviceSurfaceManager()
     private val fakeValidator = FakeCameraValidator()
     private val publicListener = TestCameraPresenceListener()
+    private lateinit var fakeScheduledExecutor: FakeScheduledExecutorService
 
     private lateinit var provider: CameraPresenceProvider
 
@@ -58,11 +67,167 @@ class CameraPresenceProviderTest {
         // Create the TestCameraRepository wrapper for testing
         testCameraRepository = TestCameraRepository(fakeCameraFactory)
 
-        provider = CameraPresenceProvider(MoreExecutors.directExecutor())
+        fakeScheduledExecutor = FakeScheduledExecutorService()
+
+        provider = CameraPresenceProvider(MoreExecutors.directExecutor(), fakeScheduledExecutor)
         provider.startup(fakeValidator, fakeCameraFactory, testCameraRepository)
         provider.addDependentInternalListener(fakeSurfaceManager)
         provider.addDependentInternalListener(fakeCoordinator)
         provider.addCameraPresenceListener(publicListener, MoreExecutors.directExecutor())
+    }
+
+    @After
+    fun tearDown() {
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun cameraStateError_triggersRetryScan() {
+        // Arrange: Start with one camera.
+        val cameraInfo = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera = FakeCamera(CAMERA_ID_0, null, cameraInfo)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera }
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+
+        // Act: Trigger an error state change on the camera.
+        camera.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure observer is notified
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // Assert: A refresh scan is immediately triggered.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun retryScan_isAttemptedThreeTimes_ifListDoesNotChange() {
+        // Arrange: Start with one camera and trigger an error.
+        val cameraInfo = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera = FakeCamera(CAMERA_ID_0, null, cameraInfo)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera }
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+        camera.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // Assert: First attempt is immediate.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+
+        // Act & Assert: Second attempt after 400ms.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+        assertThat(sourceObservable.fetchCount).isEqualTo(2)
+
+        // Act & Assert: Third attempt after another 400ms.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+        assertThat(sourceObservable.fetchCount).isEqualTo(3)
+
+        // Act & Assert: No more attempts are made.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+        assertThat(sourceObservable.fetchCount).isEqualTo(3)
+    }
+
+    @Test
+    fun retryScan_isCancelled_onSuccessfulUpdate() {
+        // Arrange: Start with one camera and trigger an error.
+        val cameraInfo = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera = FakeCamera(CAMERA_ID_0, null, cameraInfo)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera }
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+        camera.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // This simulates the first refresh happening instantly.
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // This makes the test's intent clearer.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+
+        // Act: A successful update arrives before the next retry is scheduled.
+        fakeCameraFactory.removeCamera(CAMERA_ID_0)
+        sourceObservable.updateData(emptyList())
+
+        // Act: Advance time past the point where the next retry would have occurred.
+        // Because the update cancelled the pending retry, this should do nothing.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+
+        // Assert: No new fetch was attempted because the update was successful.
+        // The count should still be 1.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun retryScan_isRestarted_onNewErrorTrigger() {
+        // Arrange: Start with two cameras.
+        val cameraInfo0 = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera0 = FakeCamera(CAMERA_ID_0, null, cameraInfo0)
+        val cameraInfo1 = FakeCameraInfoInternal(CAMERA_ID_1, 0, CameraSelector.LENS_FACING_FRONT)
+        val camera1 = FakeCamera(CAMERA_ID_1, null, cameraInfo1)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera0 }
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1) { camera1 }
+        sourceObservable.updateData(listOf(IDENTIFIER_0, IDENTIFIER_1))
+
+        // Act: Trigger an error on the first camera.
+        camera0.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // Assert: The first scan is triggered.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+
+        // Act: Before the first retry period ends, trigger another error on the second camera.
+        fakeScheduledExecutor.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+        camera1.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // Assert: The new error immediately triggers a new scan, restarting the sequence.
+        assertThat(sourceObservable.fetchCount).isEqualTo(2)
+
+        // Act: Advance time 400ms from the *second* trigger.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+
+        // Assert: The second attempt of the *new* sequence is executed.
+        assertThat(sourceObservable.fetchCount).isEqualTo(3)
+    }
+
+    @Test
+    fun retryScan_isCancelled_onShutdown() {
+        // Arrange: Start a retry sequence.
+        val cameraInfo = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera = FakeCamera(CAMERA_ID_0, null, cameraInfo)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera }
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+        camera.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+
+        // Act: Shut down the provider.
+        provider.shutdown()
+
+        // Act: Advance time past the next scheduled retry.
+        fakeScheduledExecutor.advanceTimeBy(400, TimeUnit.MILLISECONDS)
+
+        // Assert: No new fetches occurred after shutdown.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
     }
 
     @Test
@@ -338,25 +503,85 @@ class CameraPresenceProviderTest {
         assertThat(publicListener.addedCameras).isEmpty()
     }
 
+    @Test
+    fun cameraStateError_onInitialCamera_triggersRetryScan() {
+        // Arrange: Start with one camera already in the factory.
+        val cameraInfo = FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
+        val camera = FakeCamera(CAMERA_ID_0, null, cameraInfo)
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) { camera }
+
+        // Act: Process the initial camera list. This should register the state observer.
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+
+        // Sanity check that no refresh scans have been triggered yet.
+        assertThat(sourceObservable.fetchCount).isEqualTo(0)
+
+        // Act: Trigger an error state change on the initial camera.
+        camera.setState(
+            CameraInternal.State.CLOSED,
+            CameraState.StateError.create(CameraState.ERROR_CAMERA_IN_USE),
+        )
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure LiveData observer is notified
+        fakeScheduledExecutor.advanceTimeBy(0, TimeUnit.MILLISECONDS)
+
+        // Assert: A refresh scan is triggered because the observer was attached during startup.
+        assertThat(sourceObservable.fetchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun updateSucceedsWithFallback_whenInterrogatorThrowsException() {
+        // Arrange: Start with a known, valid state of one camera.
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) {
+            FakeCamera(CAMERA_ID_0, null, FakeCameraInfoInternal())
+        }
+        sourceObservable.updateData(listOf(IDENTIFIER_0))
+        assertThat(testCameraRepository.updateCount).isEqualTo(1) // Sanity check
+        publicListener.addedCameras.clear() // Reset for the main assertion.
+
+        // Arrange: Prepare the factory for the next state so the fallback logic can succeed.
+        fakeCameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1) {
+            FakeCamera(CAMERA_ID_1, null, FakeCameraInfoInternal())
+        }
+
+        // Arrange: Configure the factory's interrogator implementation to fail.
+        fakeCameraFactory.setShouldThrowOnInterrogate(true)
+
+        // Act: Trigger a new camera update.
+        sourceObservable.updateData(listOf(IDENTIFIER_0, IDENTIFIER_1))
+
+        // Assert: The provider should have caught the exception and fallen back,
+        // allowing the update to SUCCEED using the original logic.
+        assertThat(testCameraRepository.updateCount).isEqualTo(2)
+
+        // The repository's final state should be the new, correct list.
+        assertThat(testCameraRepository.lastReceivedIds).containsExactly(CAMERA_ID_0, CAMERA_ID_1)
+
+        // The public listener should have been correctly notified.
+        assertThat(publicListener.addedCameras).containsExactly(IDENTIFIER_1)
+    }
+
     private companion object {
         private const val CAMERA_ID_0 = "0"
         private const val CAMERA_ID_1 = "1"
         private const val CAMERA_ID_EXTERNAL = "2"
-        private val IDENTIFIER_0 = CameraIdentifier.create(CAMERA_ID_0)
-        private val IDENTIFIER_1 = CameraIdentifier.create(CAMERA_ID_1)
-        private val IDENTIFIER_EXTERNAL = CameraIdentifier.create(CAMERA_ID_EXTERNAL)
+        private val IDENTIFIER_0 = CameraIdentifier.Factory.create(CAMERA_ID_0)
+        private val IDENTIFIER_1 = CameraIdentifier.Factory.create(CAMERA_ID_1)
+        private val IDENTIFIER_EXTERNAL = CameraIdentifier.Factory.create(CAMERA_ID_EXTERNAL)
     }
 
     private class MutableObservable<T> : Observable<T> {
         private var observer: Observable.Observer<T>? = null
         private var executor: Executor? = null
+        var fetchCount = 0
 
         fun updateData(data: T) {
             executor?.execute { observer?.onNewData(data) }
         }
 
-        override fun fetchData(): ListenableFuture<T> =
-            Futures.immediateFailedFuture(RuntimeException("Not implemented"))
+        override fun fetchData(): ListenableFuture<T> {
+            fetchCount++
+            return Futures.immediateFailedFuture(RuntimeException("Not implemented for test"))
+        }
 
         override fun addObserver(executor: Executor, observer: Observable.Observer<in T>) {
             this.executor = executor

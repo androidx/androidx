@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
@@ -41,6 +42,7 @@ import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.CountingTestWorker;
 import androidx.work.testing.workers.RetryWorker;
+import androidx.work.testing.workers.SuspendingWorker;
 import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
@@ -443,6 +445,29 @@ public class TestSchedulerTest {
         WorkInfo retryWorkInfo = workManager.getWorkInfoById(request.getId()).get();
         assertThat(retryWorkInfo.getRunAttemptCount(), is(2));
         assertThat(retryWorkInfo.getState(), is(WorkInfo.State.ENQUEUED));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)  // Required for WorkInfo#getStopReason.
+    public void testStopWorkerWithReason() throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest request =
+                new OneTimeWorkRequest.Builder(SuspendingWorker.class)
+                        .setConstraints(
+                                new Constraints.Builder().setRequiresCharging(true).build())
+                        .build();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        mTestDriver.setAllConstraintsMet(request.getId());
+        WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getRunAttemptCount(), is(1));
+        assertThat(workInfo.getState(), is(WorkInfo.State.RUNNING));
+
+        mTestDriver.stopRunningWorkWithReason(
+                request.getId(), WorkInfo.STOP_REASON_CONSTRAINT_CHARGING);
+
+        workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+        assertThat(workInfo.getStopReason(), is(WorkInfo.STOP_REASON_CONSTRAINT_CHARGING));
     }
 
     private static OneTimeWorkRequest createWorkRequest() {

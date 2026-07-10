@@ -179,6 +179,7 @@ class DefaultArtToolingTest {
         assertThat(target.v2).isEqualTo("Android")
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
     @Test
     fun testExitHooksSupportVoidAndPrimitives() {
         val tooling = DefaultArtTooling(InspectorId)

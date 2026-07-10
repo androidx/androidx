@@ -15,12 +15,15 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.Nullable;
 
 /**
  * interface to allow expressions to access collections TODO: define a convention for when access is
  * unavailable
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CollectionsAccess {
 
     /**
@@ -39,6 +42,22 @@ public interface CollectionsAccess {
      * @return float array
      */
     float @Nullable [] getFloats(int id);
+
+    /**
+     * Get the array of float if it is a dynamic float array
+     *
+     * @param id the id of the float array
+     * @return float array
+     */
+    float @Nullable [] getDynamicFloats(int id);
+
+    /**
+     * Get the array operation for the given id
+     *
+     * @param id
+     * @return
+     */
+    @Nullable ArrayAccess getArray(int id);
 
     /**
      * Get the number of entries in the list

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.OperationInterface;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
@@ -22,6 +23,7 @@ import androidx.compose.remote.core.serialize.Serializable;
 import org.jspecify.annotations.NonNull;
 
 /** Represents a modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ModifierOperation extends OperationInterface, Serializable {
     /**
      * Serialize the string

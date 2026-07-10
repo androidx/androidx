@@ -38,18 +38,32 @@ import androidx.compose.ui.unit.LayoutDirection
  * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
  *   screen. By default the window is clipped to the screen boundaries. Setting this to false will
  *   allow windows to be accurately positioned. The default value is true.
+ * @property usePlatformDefaultWidth Whether the width of the popup's content should be limited to
+ *   the platform default, which is smaller than the screen width.
  */
 @Immutable
-expect class PopupProperties(
-    focusable: Boolean = false,
-    dismissOnBackPress: Boolean = true,
-    dismissOnClickOutside: Boolean = true,
-    clippingEnabled: Boolean = true,
-) {
+expect class PopupProperties {
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        clippingEnabled: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        clippingEnabled: Boolean = true,
+    )
+
     val focusable: Boolean
     val dismissOnBackPress: Boolean
     val dismissOnClickOutside: Boolean
     val clippingEnabled: Boolean
+    val usePlatformDefaultWidth: Boolean
 }
 
 /** Calculates the position of a [Popup] on screen. */

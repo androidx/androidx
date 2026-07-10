@@ -22,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val DEFAULT_WIDTH = 1920
@@ -44,6 +45,7 @@ private val DEFAULT_VIDEO_PROFILE by lazy {
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class VideoValidatedEncoderProfilesProxyTest {
 
     @Test

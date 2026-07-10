@@ -79,6 +79,12 @@ import androidx.wear.protolayout.types.dp
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -92,7 +98,6 @@ import androidx.wear.protolayout.types.dp
  *   default styling that is automatically provided by only calling [icon] with the resource ID.
  * @sample androidx.wear.protolayout.material3.samples.edgeButtonSampleIcon
  */
-// TODO: b/346958146 - link EdgeButton visuals in DAC
 public fun MaterialScope.iconEdgeButton(
     onClick: Clickable,
     modifier: LayoutModifier = LayoutModifier,
@@ -136,6 +141,12 @@ public fun MaterialScope.iconEdgeButton(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -149,7 +160,6 @@ public fun MaterialScope.iconEdgeButton(
  *   default styling that is automatically provided by only calling [text] with the content.
  * @sample androidx.wear.protolayout.material3.samples.edgeButtonSampleText
  */
-// TODO(b/346958146): link EdgeButton visuals in DAC
 public fun MaterialScope.textEdgeButton(
     onClick: Clickable,
     modifier: LayoutModifier = LayoutModifier,
@@ -217,7 +227,6 @@ public fun MaterialScope.textEdgeButton(
  * @param content The inner content to be put inside of this edge button.
  * @sample androidx.wear.protolayout.material3.samples.edgeButtonSampleIcon
  */
-// TODO(b/346958146): link EdgeButton visuals in DAC
 private fun MaterialScope.edgeButton(
     onClick: Clickable,
     colors: ButtonColors,
@@ -332,10 +341,11 @@ internal constructor(
          * Style variation for fallback implementation with text content, when there is no
          * asymmetrical corners support.
          *
-         * Without the edge hugging shape, the [topCornerRadius] value is a full cornered value and
-         * is applied to all four corners. To avoid being clipped by the screen edge, the visible
-         * button box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP].
-         * Also the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP].
+         * Without the edge hugging shape, the [topCornerRadiusDp] value is a full cornered value
+         * and is applied to all four corners. To avoid being clipped by the screen edge, the
+         * visible button box is pushed upwards with a bigger bottom margin of
+         * [BOTTOM_MARGIN_FALLBACK_DP]. Also the box height shrinks to
+         * [EDGE_BUTTON_HEIGHT_FALLBACK_DP].
          *
          * Its text content is center placed with a increased horizontal padding of
          * [TEXT_SIDE_PADDING_FALLBACK_DP].
@@ -357,10 +367,10 @@ internal constructor(
          * Style variation for fallback implementation with icon content, when there is no
          * asymmetrical corners support.
          *
-         * Without the edge hugging shape, the [topCornerRadius] value is a full cornered value and
-         * is applied to all four corners. To avoid being clipped by the screen, the visible button
-         * box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP]. Also
-         * the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP]
+         * Without the edge hugging shape, the [topCornerRadiusDp] value is a full cornered value
+         * and is applied to all four corners. To avoid being clipped by the screen, the visible
+         * button box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP].
+         * Also the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP]
          *
          * Its icon content center placed with increased horizontal padding
          * [ICON_SIDE_PADDING_FALLBACK_DP]. Also, the icon size is also increased to

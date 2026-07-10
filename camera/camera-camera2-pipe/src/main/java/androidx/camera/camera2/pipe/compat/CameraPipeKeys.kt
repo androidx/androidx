@@ -22,18 +22,18 @@ import androidx.camera.camera2.pipe.Metadata
 public object CameraPipeKeys {
     /** Keys for sessionParameters when creating Extension sessions. */
     public val camera2ExtensionMode: Metadata.Key<Int> =
-        Metadata.Key.create<Int>("androidx.camera.camera2.pipe.ExtensionMode")
+        Metadata.Key.create<Int>("androidx.camera.camera2.pipe.extensionMode")
 
     /** Key for configuring the tag for a Camera2 CaptureRequest. */
     public val camera2CaptureRequestTag: Metadata.Key<Any> =
-        Metadata.Key.create<Any>("androidx.camera.camera2.pipe.CaptureRequestTag")
+        Metadata.Key.create<Any>("androidx.camera.camera2.pipe.captureRequestTag")
 
     /**
      * Key for defaultParameters and requiredParameters that allows the users to ignore the required
      * 3A parameters stipulated by the 3A controller in CameraPipe.
      */
     public val ignore3ARequiredParameters: Metadata.Key<Boolean> =
-        Metadata.Key.create<Boolean>("androidx.camera.camera2.pipe.Ignore3ARequiredParameters")
+        Metadata.Key.create<Boolean>("androidx.camera.camera2.pipe.ignore3ARequiredParameters")
 
     /**
      * [CAMERA2_EXTENSION_MODE_AUTOMATIC]: Automatic selection of particular extensions such as HDR

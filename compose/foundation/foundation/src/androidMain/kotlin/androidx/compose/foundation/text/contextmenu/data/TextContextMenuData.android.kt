@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.contextmenu.data
 
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.view.textclassifier.TextClassification
 import androidx.compose.foundation.text.contextmenu.modifier.filterTextContextMenuComponents
 
@@ -47,9 +48,10 @@ internal class TextContextMenuTextClassificationItem(
     key: Any,
     val textClassification: TextClassification,
     val index: Int,
+    val icon: Drawable? = null,
 ) : TextContextMenuComponent(key) {
     override fun toString(): String =
-        "TextContextMenuRemoteActionItem(key=$key, textClassification=$textClassification, index=$index)"
+        "TextContextMenuTextClassificationItem(key=$key, textClassification=$textClassification, index=$index, icon=$icon)"
 }
 
 /**

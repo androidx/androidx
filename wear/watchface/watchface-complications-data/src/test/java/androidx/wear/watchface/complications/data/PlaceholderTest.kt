@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 class PlaceholderTest {
     val text = "text".complicationText

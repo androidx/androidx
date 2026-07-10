@@ -28,7 +28,6 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.extensions.LocalCallSilenceExtension
 import androidx.core.telecom.test.NotificationsUtilities.Companion.NOTIFICATION_CHANNEL_ID
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,7 +36,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
 class VoipCall(
     val context: Context,
     val attributes: CallAttributesCompat,
@@ -149,7 +147,6 @@ class VoipCall(
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    @OptIn(ExperimentalAppActions::class)
     suspend fun toggleLocalCallSilence() {
         CoroutineScope(coroutineContext).launch {
             // toggle the value for the call

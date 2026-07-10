@@ -39,12 +39,14 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowBuild
 
 /** Unit tests for [TakePictureManager]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class TakePictureManagerTest {
 
     private val imagePipeline = FakeImagePipeline()
@@ -56,8 +58,14 @@ class TakePictureManagerTest {
 
     @After
     fun tearDown() {
+        // Force-fail all pending and in-flight requests
+        takePictureManager.abortRequests()
+
         imagePipeline.close()
         imageCaptureControl.clear()
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
@@ -446,6 +454,9 @@ class TakePictureManagerTest {
 
         // Assert. new request can be issued after the capture failure of the first request
         takePictureManager.offerRequest(request2)
+
+        // Drain the failure callback of request2 to prevent cross-test leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
@@ -468,6 +479,9 @@ class TakePictureManagerTest {
 
         // Assert. new request can be issued after the capture failure of the first request
         takePictureManager.offerRequest(request2)
+
+        // Drain the failure callback of request2 to prevent cross-test leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

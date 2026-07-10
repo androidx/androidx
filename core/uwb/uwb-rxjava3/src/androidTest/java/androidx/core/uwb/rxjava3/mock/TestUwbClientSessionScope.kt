@@ -27,6 +27,7 @@ import androidx.core.uwb.UwbRangeDataNtfConfig
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
+import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason
 import com.google.android.gms.nearby.uwb.UwbDevice
 import com.google.common.collect.ImmutableList
 import kotlinx.coroutines.channels.awaitClose
@@ -103,10 +104,16 @@ class TestUwbClientSessionScope(
                     )
                 }
 
-                override fun onRangingSuspended(device: UwbDevice, reason: Int) {
+                override fun onRangingSuspended(
+                    device: UwbDevice,
+                    @RangingSuspendedReason reason: Int,
+                ) {
+                    val jetpackReason = mapGmsReasonToJetpackReason(reason)
+
                     trySend(
                         RangingResult.RangingResultPeerDisconnected(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
+                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
+                            jetpackReason,
                         )
                     )
                 }
@@ -125,6 +132,24 @@ class TestUwbClientSessionScope(
             } catch (e: ApiException) {
                 // do nothing
             }
+        }
+    }
+
+    private fun mapGmsReasonToJetpackReason(@RangingSuspendedReason gmsReason: Int): Int {
+        return when (gmsReason) {
+            RangingSuspendedReason.WRONG_PARAMETERS ->
+                RangingResult.RANGING_FAILURE_REASON_BAD_PARAMETERS
+            RangingSuspendedReason.STOPPED_BY_PEER ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_PEER
+            RangingSuspendedReason.STOP_RANGING_CALLED ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_LOCAL
+            RangingSuspendedReason.MAX_RANGING_ROUND_RETRY_REACHED ->
+                RangingResult.RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED
+            RangingSuspendedReason.SYSTEM_POLICY ->
+                RangingResult.RANGING_FAILURE_REASON_SYSTEM_POLICY
+            RangingSuspendedReason.FAILED_TO_START ->
+                RangingResult.RANGING_FAILURE_REASON_FAILED_TO_START
+            else -> RangingResult.RANGING_FAILURE_REASON_UNKNOWN
         }
     }
 

@@ -20,6 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
@@ -29,8 +30,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Translates between Platform and Jetpack versions of {@link ObserverSpec}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public final class ObserverSpecToPlatformConverter {

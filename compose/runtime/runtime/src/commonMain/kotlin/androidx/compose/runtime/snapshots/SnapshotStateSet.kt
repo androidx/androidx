@@ -111,7 +111,9 @@ internal inline fun <R, T> SnapshotStateSet<T>.writable(block: StateSetStateReco
 
 internal inline fun <R, T> SnapshotStateSet<T>.withCurrent(
     block: StateSetStateRecord<T>.() -> R
-): R = @Suppress("UNCHECKED_CAST") (firstStateRecord as StateSetStateRecord<T>).withCurrent(block)
+): R =
+    @Suppress("UNCHECKED_CAST")
+    (firstStateRecord as StateSetStateRecord<T>).withCurrent(this, block)
 
 internal fun <T> SnapshotStateSet<T>.mutateBoolean(block: (MutableSet<T>) -> Boolean): Boolean =
     mutate(block)

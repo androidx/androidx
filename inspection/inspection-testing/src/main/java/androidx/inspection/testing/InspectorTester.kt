@@ -65,9 +65,7 @@ suspend fun InspectorTester(
         environment
             ?: DefaultTestInspectorEnvironment(
                 TestInspectorExecutors(inspectorTesterJob),
-                DefaultArtTooling(inspectorId).apply {
-                    inspectorTesterJob.invokeOnCompletion { unregisterHooks() }
-                },
+                DefaultArtTooling(inspectorId),
             )
     val dispatcher = resolved.executors().primary().asCoroutineDispatcher()
     return withContext(dispatcher) {

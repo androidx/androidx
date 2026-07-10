@@ -24,8 +24,8 @@ package androidx.xr.scenecore
  */
 public class AnchorPlacement
 private constructor(
-    public val anchorablePlaneOrientations: Set<@PlaneOrientationValue Int>,
-    public val anchorablePlaneSemanticTypes: Set<@PlaneSemanticTypeValue Int>,
+    public val anchorablePlaneOrientations: Set<PlaneOrientation>,
+    public val anchorablePlaneSemanticTypes: Set<PlaneSemanticType>,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -57,8 +57,8 @@ private constructor(
          * if it is released nearby. By default this the Entity will be anchored to any plane. If no
          * PlaneOrientation or no PlaneSemanticType is set the Entity will not be anchored. This
          * setting requires [androidx.xr.runtime.Session.configure] to be called with
-         * [androidx.xr.runtime.Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] in order to be
-         * able to discover planes.
+         * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] in order to be able to
+         * discover planes.
          *
          * When an Entity is anchored to the plane the pose will be rotated so that it's Z-vector
          * will be pointing out of the plane (i.e. if it is a panel it will be flat along the
@@ -72,14 +72,24 @@ private constructor(
         @JvmStatic
         @JvmOverloads
         public fun createForPlanes(
-            anchorablePlaneOrientations: Set<@PlaneOrientationValue Int> =
-                setOf(PlaneOrientation.ANY),
-            anchorablePlaneSemanticTypes: Set<@PlaneSemanticTypeValue Int> =
-                setOf(PlaneSemanticType.ANY),
+            anchorablePlaneOrientations: Set<PlaneOrientation> = PlaneOrientation.ALL,
+            anchorablePlaneSemanticTypes: Set<PlaneSemanticType> = PlaneSemanticType.ALL,
         ): AnchorPlacement {
+
+            @Suppress("DEPRECATION")
+            // TODO: b/500464864 - Cleanup when ANY is removed
+            val planeOrientations =
+                if (anchorablePlaneOrientations.contains(PlaneOrientation.ANY)) PlaneOrientation.ALL
+                else anchorablePlaneOrientations.toSet() // defensive copy
+
+            @Suppress("DEPRECATION")
+            val planeSemanticTypes =
+                if (anchorablePlaneSemanticTypes.contains(PlaneSemanticType.ANY))
+                    PlaneSemanticType.ALL
+                else anchorablePlaneSemanticTypes.toSet() // defensive copy
             return AnchorPlacement(
-                anchorablePlaneOrientations = anchorablePlaneOrientations.toSet(),
-                anchorablePlaneSemanticTypes = anchorablePlaneSemanticTypes.toSet(),
+                anchorablePlaneOrientations = planeOrientations,
+                anchorablePlaneSemanticTypes = planeSemanticTypes,
             )
         }
     }

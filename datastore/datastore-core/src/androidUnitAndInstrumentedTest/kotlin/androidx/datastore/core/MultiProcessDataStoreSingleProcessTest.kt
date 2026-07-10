@@ -20,7 +20,7 @@ import android.os.StrictMode
 import androidx.datastore.TestFile
 import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -84,22 +84,17 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         file: F = testFile,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
-        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>(),
+        corruptionHandler: CorruptionHandler<Byte> = ReThrowCorruptionHandler<Byte>(),
     ): DataStore<Byte> {
         return DataStoreImpl(
             storage =
                 testIO.getStorage(
                     serializerConfig,
-                    {
-                        MultiProcessCoordinator(
-                            dataStoreScope.coroutineContext,
-                            getJavaFile(testFile),
-                        )
-                    },
+                    { MultiProcessCoordinator(scope.coroutineContext, getJavaFile(file)) },
                 ) {
                     file
                 },
-            scope = scope,
+            context = scope.coroutineContext,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler,
         )
@@ -899,6 +894,39 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         )
         val dataStore =
             newDataStore(file = testFile, scope = CoroutineScope(newSingleThreadContext("test")))
+        assertThat(dataStore.data.first()).isEqualTo(0)
+        StrictMode.allowThreadDiskReads()
+        StrictMode.allowThreadDiskWrites()
+    }
+
+    @Test
+    fun testCreateDataStoreAndRead_asyncCreateFile_withStrictMode() = runTest {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .penaltyDeath()
+                .build()
+        )
+        var localFile: F? = null
+        val createFile = {
+            if (localFile == null) {
+                localFile = synchronized(this) { testIO.newTempFile(parentFile = tempFolder) }
+            }
+            localFile
+        }
+        val localContext = coroutineContext + newSingleThreadContext("test")
+        val dataStore =
+            DataStoreImpl(
+                storage =
+                    testIO.getStorage(
+                        serializerConfig,
+                        { MultiProcessCoordinator(localContext, getJavaFile(createFile())) },
+                        createFile,
+                    ),
+                context = localContext,
+                corruptionHandler = ReThrowCorruptionHandler<Byte>(),
+            )
         assertThat(dataStore.data.first()).isEqualTo(0)
         StrictMode.allowThreadDiskReads()
         StrictMode.allowThreadDiskWrites()

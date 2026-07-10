@@ -1,0 +1,285 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: scroll_pos, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: 0.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 2000.0,
+              color: '0xffff00ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: scroll_pos, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: 0.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 2000.0,
+              color: '0xffff00ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Apply TouchDown
+  command: {x: 300.0, y: 500.0}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 300.0, y: 400.0, timeMillis: 10}
+  result: {}
+- description: Apply TouchUp
+  command: {x: 300.0, y: 400.0, dx: 0.0, dy: -1000.0, timeMillis: 20}
+  result: {}
+- description: Advance Time
+  command: {deltaMillis: 100}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: scroll_pos, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: 0.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -280.011, maxScrollValue: 1000.0, contentDimension: 2000.0,
+            hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 2000.0,
+              color: '0xffff00ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Advance Time
+  command: {deltaMillis: 1000}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: scroll_pos, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: 0.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -600.0305, maxScrollValue: 1000.0, contentDimension: 2000.0,
+            hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 2000.0,
+              color: '0xffff00ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

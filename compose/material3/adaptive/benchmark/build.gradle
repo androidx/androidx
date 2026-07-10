@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -33,13 +32,15 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui"))
     androidTestImplementation(project(":compose:animation:animation"))
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinTestCommon)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.junit)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.compose.material3.adaptive.benchmark"
 }
 

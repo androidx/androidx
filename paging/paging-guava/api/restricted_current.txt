@@ -6,8 +6,9 @@ package androidx.paging {
     method public T? component1();
     method public T? component2();
     method public androidx.paging.AdjacentItems<T> copy(optional T? before, optional T? after);
-    method public T? getAfter();
-    method public T? getBefore();
+    method @BytecodeOnly public static androidx.paging.AdjacentItems! copy$default(androidx.paging.AdjacentItems!, Object!, Object!, int, Object!);
+    method @InaccessibleFromKotlin public T? getAfter();
+    method @InaccessibleFromKotlin public T? getBefore();
     property public T? after;
     property public T? before;
   }
@@ -27,10 +28,14 @@ package androidx.paging {
   }
 
   public final class PagingDataFutures {
-    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate, java.util.concurrent.Executor executor);
-    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform, java.util.concurrent.Executor executor);
-    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R?> generator, java.util.concurrent.Executor executor);
-    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform, java.util.concurrent.Executor executor);
+    method @InaccessibleFromKotlin @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate, java.util.concurrent.Executor executor);
+    method @KotlinOnly @CheckResult public static <T> androidx.paging.PagingData<T> filterAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate, java.util.concurrent.Executor executor);
+    method @InaccessibleFromKotlin @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform, java.util.concurrent.Executor executor);
+    method @KotlinOnly @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform, java.util.concurrent.Executor executor);
+    method @InaccessibleFromKotlin @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R?> generator, java.util.concurrent.Executor executor);
+    method @KotlinOnly @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R?> generator, java.util.concurrent.Executor executor);
+    method @InaccessibleFromKotlin @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform, java.util.concurrent.Executor executor);
+    method @KotlinOnly @CheckResult public static <T, R> androidx.paging.PagingData<R> mapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform, java.util.concurrent.Executor executor);
   }
 
 }

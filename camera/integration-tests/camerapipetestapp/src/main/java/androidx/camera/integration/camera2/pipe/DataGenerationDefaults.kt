@@ -42,7 +42,7 @@ private fun DataGenerationParams1D.generateNewFloatOrNull(prev: Any?): Float? {
             else {
                 val change = (0..5).random()
                 val direction = (0..1).random()
-                val newValue = if (direction == 0) prev - change else prev.toFloat() + change
+                val newValue = if (direction == 0) prev - change else prev + change
                 max(min(this.valueUpperBound.toFloat(), newValue), this.valueLowerBound.toFloat())
             }
         }

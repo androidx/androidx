@@ -1,0 +1,73 @@
+# The stock Perfetto tracing config.
+
+buffers {
+  size_kb: 384000
+  fill_policy: RING_BUFFER
+}
+
+# Ftrace data from the kernel, mainly the process scheduling events.
+data_sources {
+  config {
+    name: "linux.ftrace"
+    target_buffer: 0
+    ftrace_config {
+      ftrace_events: "sched_switch"
+      ftrace_events: "sched_waking"
+      ftrace_events: "sched_wakeup_new"
+
+      ftrace_events: "task_newtask"
+      ftrace_events: "task_rename"
+
+      ftrace_events: "sched_process_exec"
+      ftrace_events: "sched_process_exit"
+      ftrace_events: "sched_process_fork"
+      ftrace_events: "sched_process_free"
+      ftrace_events: "sched_process_hang"
+      ftrace_events: "sched_process_wait"
+
+      # CPU Frequencies
+      ftrace_events: "power/cpu_frequency"
+      ftrace_events: "power/cpu_idle"
+
+      # Memory Events
+      # ftrace_events: "kmem/rss_stat"
+    }
+  }
+}
+
+# # Resolve process commandlines and parent/child relationships, to better
+# # interpret the ftrace events, which are in terms of pids.
+# # Put the process stats in their own buffer so they are not overwritten by the
+# # voluminous ftrace events in the main ring.
+data_sources {
+  config {
+    name: "linux.process_stats"
+    target_buffer: 0
+    process_stats_config {
+      scan_all_processes_on_start: true
+      proc_stats_poll_ms: 1000
+    }
+  }
+}
+
+data_sources {
+  config {
+    name: "linux.sys_stats"
+    target_buffer: 0
+    sys_stats_config {
+      meminfo_period_ms: 1000
+      vmstat_period_ms: 1000
+      stat_period_ms: 1000
+    }
+  }
+}
+
+# Reporting the list of available frequency for each CPU.
+data_sources {
+  config {
+    name: "linux.system_info"
+    target_buffer: 0
+  }
+}
+
+data_source_stop_timeout_ms: 5000

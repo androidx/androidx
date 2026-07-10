@@ -1,0 +1,128 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore
+
+import androidx.xr.runtime.math.GeospatialPose
+import androidx.xr.runtime.math.Pose
+
+/** Result of a call to [Geospatial.createPoseFromGeospatialPose]. */
+public sealed class CreatePoseFromGeospatialPoseResult
+
+/** Result of a [Geospatial.createGeospatialPoseFromPose] call. */
+public sealed class CreateGeospatialPoseFromPoseResult
+
+/**
+ * Result of a successful [Geospatial.createPoseFromGeospatialPose] call.
+ *
+ * @property pose the [Pose] that was created
+ */
+public class CreatePoseFromGeospatialPoseSuccess(public val pose: Pose) :
+    CreatePoseFromGeospatialPoseResult()
+
+/**
+ * Result of an unsuccessful [Geospatial.createPoseFromGeospatialPose] call.
+ *
+ * Geospatial is not yet tracking. Geospatial may need additional time to start tracking, or the
+ * device itself may not be tracking.
+ */
+public class CreatePoseFromGeospatialPoseNotTracking : CreatePoseFromGeospatialPoseResult()
+
+/**
+ * Result of an unsuccessful [Geospatial.createPoseFromGeospatialPose] call.
+ *
+ * Geospatial has encountered an internal error when trying to create the Pose.
+ *
+ * @property error a human-readable description of the error that occurred
+ */
+public class CreatePoseFromGeospatialPoseInternalError(public val error: String) :
+    CreatePoseFromGeospatialPoseResult()
+
+/**
+ * Prevent exhaustive when by consumers to allow for future extension of
+ * [CreatePoseFromGeospatialPoseResult].
+ */
+private class CreatePoseFromGeospatialPoseResultHidden() : CreatePoseFromGeospatialPoseResult()
+
+/**
+ * Result of a successful [Geospatial.createGeospatialPoseFromPose] call.
+ *
+ * We define horizontal accuracy as the radius of the 68th percentile confidence level around the
+ * estimated horizontal location. In other words, if you draw a circle centered at this
+ * GeospatialPose's latitude and longitude, and with a radius equal to the horizontal accuracy, then
+ * there is a 68% probability that the true location is inside the circle. Larger numbers indicate
+ * lower accuracy.
+ *
+ * For example, if the latitude is 10°, longitude is 10°, and the returned value is 15, then there
+ * is a 68% probability that the true location is within 15 meters of the (10°, 10°)
+ * latitude/longitude coordinate.
+ *
+ * We define vertical accuracy as the radius of the 68th percentile confidence level around the
+ * estimated altitude. In other words, there is a 68% probability that the true altitude is within
+ * the output value (in meters) of this GeospatialPose's altitude (above or below). Larger numbers
+ * indicate lower accuracy.
+ *
+ * For example, if this GeospatialPose's altitude is 100 meters, and the output value is 20 meters,
+ * there is a 68% chance that the true altitude is within 20 meters of 100 meters.
+ *
+ * Yaw rotation is the angle between the pose's compass direction and north, and can be determined
+ * from [GeospatialPose.eastUpSouthQuaternion].
+ *
+ * We define yaw accuracy as the estimated radius of the 68th percentile confidence level around yaw
+ * angles from [GeospatialPose.eastUpSouthQuaternion]. In other words, there is a 68% probability
+ * that the true yaw angle is within [orientationYawAccuracy] of this GeospatialPose's orientation.
+ * Larger values indicate lower accuracy.
+ *
+ * For example, if the estimated yaw angle is 60°, and the orientation yaw accuracy is 10°, then
+ * there is an estimated 68% probability of the true yaw angle being between 50° and 70°.
+ *
+ * @property pose the [GeospatialPose] that was created
+ * @property horizontalAccuracy the estimated horizontal accuracy in meters with respect to latitude
+ *   and longitude
+ * @property verticalAccuracy the estimated altitude accuracy in meters
+ * @property orientationYawAccuracy the estimated orientation yaw angle accuracy in degrees
+ */
+public class CreateGeospatialPoseFromPoseSuccess
+internal constructor(
+    public val pose: GeospatialPose,
+    public val horizontalAccuracy: Double,
+    public val verticalAccuracy: Double,
+    public val orientationYawAccuracy: Double,
+) : CreateGeospatialPoseFromPoseResult()
+
+/**
+ * Result of an unsuccessful [Geospatial.createGeospatialPoseFromPose] call.
+ *
+ * Geospatial is not yet tracking. Geospatial may need additional time to start tracking, or the
+ * device itself may not be tracking.
+ */
+public class CreateGeospatialPoseFromPoseNotTracking : CreateGeospatialPoseFromPoseResult()
+
+/**
+ * Result of an unsuccessful [Geospatial.createGeospatialPoseFromPose] call.
+ *
+ * Geospatial has encountered an internal error when trying to create the GeospatialPose.
+ *
+ * @property error a human-readable description of the error that occurred
+ */
+public class CreateGeospatialPoseFromPoseInternalError(public val error: String) :
+    CreateGeospatialPoseFromPoseResult()
+
+/**
+ * Prevent exhaustive when by consumers to allow for future extension of
+ * [CreateGeospatialPoseFromPoseResult].
+ */
+private class CreateGeospatialPoseFromPoseResultHidden() : CreateGeospatialPoseFromPoseResult()

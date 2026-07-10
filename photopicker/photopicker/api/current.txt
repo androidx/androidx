@@ -1,18 +1,19 @@
 // Signature format: 4.0
-package androidx.photopicker {
+package @SuppressCompatibility androidx.photopicker {
 
-  @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.ExperimentalPhotoPickerApi public final class EmbeddedPhotoPickerView extends android.view.ViewGroup {
+  @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.ExperimentalPhotoPickerApi public final class EmbeddedPhotoPickerView extends android.view.ViewGroup {
     ctor public EmbeddedPhotoPickerView(android.content.Context context);
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr, optional int defStyleRes);
+    ctor @BytecodeOnly public EmbeddedPhotoPickerView(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addEmbeddedPhotoPickerStateChangeListener(androidx.photopicker.EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener listener);
     method public void removeEmbeddedPhotoPickerStateChangeListener(androidx.photopicker.EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener listener);
     method public void setEmbeddedPhotoPickerFeatureInfo(android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo featureInfo);
     method public void setProvider(android.widget.photopicker.EmbeddedPhotoPickerProvider provider);
   }
 
-  public static interface EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
+  @SuppressCompatibility @androidx.photopicker.ExperimentalPhotoPickerApi public static interface EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener {
     method public void onSelectionComplete();
     method public void onSessionError(Throwable throwable);
     method public void onSessionOpened(android.widget.photopicker.EmbeddedPhotoPickerSession newSession);

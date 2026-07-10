@@ -1,0 +1,149 @@
+// Signature format: 4.0
+package androidx.ink.authoring {
+
+  @SuppressCompatibility public interface CompletedShapeRenderer<CompletedShapeT> {
+    method @UiThread public default boolean changesWithTime(CompletedShapeT shape);
+    method @UiThread public void draw(android.graphics.Canvas canvas, CompletedShapeT shape, android.graphics.Matrix strokeToScreenTransform, long systemElapsedTimeMillis);
+  }
+
+  @SuppressCompatibility public interface InProgressShape<ShapeSpecT, CompletedShapeT> {
+    method public void cancel();
+    method public boolean changesWithTime();
+    method public void enqueueInputs(androidx.ink.strokes.StrokeInputBatch realInputs, androidx.ink.strokes.StrokeInputBatch predictedInputs);
+    method public void finishInput();
+    method public void forceCompletion();
+    method public CompletedShapeT? getCompletedShape();
+    method public androidx.ink.geometry.Box? getUpdatedRegion();
+    method public default void prepareToRecycle();
+    method public void resetUpdatedRegion();
+    method public void start(ShapeSpecT shapeSpec, long systemElapsedTimeMillis);
+    method public void update(long shapeDurationMillis);
+  }
+
+  @SuppressCompatibility public interface InProgressShapeRenderer<InProgressShapeT extends androidx.ink.authoring.InProgressShape<?, ?>> {
+    method public void draw(android.graphics.Canvas canvas, InProgressShapeT shape, android.graphics.Matrix strokeToScreenTransform);
+  }
+
+  @SuppressCompatibility @UiThread public interface InProgressShapesCompletedListener<CompletedShapeT> {
+    method public default void onShapesCompleted(java.util.Map<androidx.ink.authoring.InProgressStrokeId,? extends CompletedShapeT> shapes);
+  }
+
+  @SuppressCompatibility public final class InProgressShapesView<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> extends android.widget.FrameLayout {
+    ctor public InProgressShapesView(android.content.Context context);
+    ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
+    ctor @BytecodeOnly public InProgressShapesView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void addCompletedShapesListener(androidx.ink.authoring.InProgressShapesCompletedListener<CompletedShapeT> listener);
+    method public boolean addToShape(android.view.MotionEvent event, int pointerId);
+    method public boolean addToShape(android.view.MotionEvent event, int pointerId, optional android.view.MotionEvent? prediction);
+    method public void addToShape(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId shapeId);
+    method public void addToShape(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId shapeId, optional android.view.MotionEvent? prediction);
+    method public void addToShape(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId shapeId);
+    method public void addToShape(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId shapeId, optional androidx.ink.strokes.StrokeInputBatch prediction);
+    method @BytecodeOnly public static boolean addToShape$default(androidx.ink.authoring.InProgressShapesView!, android.view.MotionEvent!, int, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToShape$default(androidx.ink.authoring.InProgressShapesView!, android.view.MotionEvent!, int, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToShape$default(androidx.ink.authoring.InProgressShapesView!, androidx.ink.strokes.StrokeInputBatch!, androidx.ink.authoring.InProgressStrokeId!, androidx.ink.strokes.StrokeInputBatch!, int, Object!);
+    method public boolean cancelShape(android.view.MotionEvent event, int pointerId);
+    method public void cancelShape(androidx.ink.authoring.InProgressStrokeId shapeId);
+    method public void cancelShape(androidx.ink.authoring.InProgressStrokeId shapeId, optional android.view.MotionEvent? event);
+    method @BytecodeOnly public static void cancelShape$default(androidx.ink.authoring.InProgressShapesView!, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
+    method public void cancelUnfinishedShapes();
+    method public void clearCompletedShapesListeners();
+    method public void eagerInit();
+    method public boolean finishShape(android.view.MotionEvent event, int pointerId);
+    method public void finishShape(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId shapeId);
+    method public void finishShape(androidx.ink.strokes.StrokeInput input, androidx.ink.authoring.InProgressStrokeId shapeId);
+    method public java.util.Map<androidx.ink.authoring.InProgressStrokeId,CompletedShapeT> getCompletedShapes();
+    method @InaccessibleFromKotlin public androidx.ink.authoring.ShapeWorkflow<ShapeSpecT,InProgressShapeT,CompletedShapeT>? getCustomShapeWorkflow();
+    method @InaccessibleFromKotlin public androidx.test.espresso.idling.CountingIdlingResource? getInProgressShapeCounter();
+    method @InaccessibleFromKotlin public android.graphics.Path? getMaskPath();
+    method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
+    method public boolean hasUnfinishedShapes();
+    method @UiThread public void removeCompletedShapes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
+    method public void removeCompletedShapesListener(androidx.ink.authoring.InProgressShapesCompletedListener<CompletedShapeT> listener);
+    method @InaccessibleFromKotlin public void setCustomShapeWorkflow(androidx.ink.authoring.ShapeWorkflow<? super ShapeSpecT,InProgressShapeT,CompletedShapeT>?);
+    method @InaccessibleFromKotlin public void setInProgressShapeCounter(androidx.test.espresso.idling.CountingIdlingResource?);
+    method @InaccessibleFromKotlin public void setMaskPath(android.graphics.Path?);
+    method @InaccessibleFromKotlin public void setMotionEventToViewTransform(android.graphics.Matrix);
+    method public androidx.ink.authoring.InProgressStrokeId startShape(android.view.MotionEvent event, int pointerId, ShapeSpecT shapeSpec);
+    method public androidx.ink.authoring.InProgressStrokeId startShape(android.view.MotionEvent event, int pointerId, ShapeSpecT shapeSpec, optional android.graphics.Matrix motionEventToWorldTransform);
+    method public androidx.ink.authoring.InProgressStrokeId startShape(android.view.MotionEvent event, int pointerId, ShapeSpecT shapeSpec, optional android.graphics.Matrix motionEventToWorldTransform, optional android.graphics.Matrix shapeToWorldTransform);
+    method public androidx.ink.authoring.InProgressStrokeId startShape(androidx.ink.strokes.StrokeInput input, ShapeSpecT shapeSpec);
+    method public androidx.ink.authoring.InProgressStrokeId startShape(androidx.ink.strokes.StrokeInput input, ShapeSpecT shapeSpec, optional android.graphics.Matrix shapeToViewTransform);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startShape$default(androidx.ink.authoring.InProgressShapesView!, android.view.MotionEvent!, int, Object!, android.graphics.Matrix!, android.graphics.Matrix!, int, Object!);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startShape$default(androidx.ink.authoring.InProgressShapesView!, androidx.ink.strokes.StrokeInput!, Object!, android.graphics.Matrix!, int, Object!);
+    property public androidx.ink.authoring.ShapeWorkflow<ShapeSpecT,InProgressShapeT,CompletedShapeT>? customShapeWorkflow;
+    property @VisibleForTesting public androidx.test.espresso.idling.CountingIdlingResource? inProgressShapeCounter;
+    property public android.graphics.Path? maskPath;
+    property public android.graphics.Matrix motionEventToViewTransform;
+  }
+
+  public final class InProgressStrokeId {
+    ctor @VisibleForTesting public InProgressStrokeId();
+  }
+
+  @UiThread public interface InProgressStrokesFinishedListener {
+    method public default void onStrokesFinished(java.util.Map<androidx.ink.authoring.InProgressStrokeId,androidx.ink.strokes.Stroke> strokes);
+  }
+
+  public final class InProgressStrokesView extends android.widget.FrameLayout {
+    ctor public InProgressStrokesView(android.content.Context context);
+    ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
+    ctor @BytecodeOnly public InProgressStrokesView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void addFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
+    method public boolean addToStroke(android.view.MotionEvent event, int pointerId);
+    method public boolean addToStroke(android.view.MotionEvent event, int pointerId, optional android.view.MotionEvent? prediction);
+    method public void addToStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public void addToStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? prediction);
+    method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId, optional androidx.ink.strokes.StrokeInputBatch prediction);
+    method @BytecodeOnly public static boolean addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.strokes.StrokeInputBatch!, androidx.ink.authoring.InProgressStrokeId!, androidx.ink.strokes.StrokeInputBatch!, int, Object!);
+    method public boolean cancelStroke(android.view.MotionEvent event, int pointerId);
+    method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? event);
+    method @BytecodeOnly public static void cancelStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
+    method public void cancelUnfinishedStrokes();
+    method public void clearFinishedStrokesListeners();
+    method public void eagerInit();
+    method public boolean finishStroke(android.view.MotionEvent event, int pointerId);
+    method public void finishStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public void finishStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public java.util.Map<androidx.ink.authoring.InProgressStrokeId,androidx.ink.strokes.Stroke> getFinishedStrokes();
+    method @InaccessibleFromKotlin public androidx.test.espresso.idling.CountingIdlingResource? getInProgressStrokeCounter();
+    method @InaccessibleFromKotlin public android.graphics.Path? getMaskPath();
+    method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
+    method @InaccessibleFromKotlin public androidx.ink.brush.TextureBitmapStore getTextureBitmapStore();
+    method public boolean hasUnfinishedStrokes();
+    method @UiThread public void removeFinishedStrokes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
+    method public void removeFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
+    method @InaccessibleFromKotlin public void setInProgressStrokeCounter(androidx.test.espresso.idling.CountingIdlingResource?);
+    method @InaccessibleFromKotlin public void setMaskPath(android.graphics.Path?);
+    method @InaccessibleFromKotlin public void setMotionEventToViewTransform(android.graphics.Matrix);
+    method @InaccessibleFromKotlin public void setTextureBitmapStore(androidx.ink.brush.TextureBitmapStore);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform, optional android.graphics.Matrix strokeToWorldTransform);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush, optional android.graphics.Matrix strokeToViewTransform);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, androidx.ink.brush.Brush!, android.graphics.Matrix!, android.graphics.Matrix!, int, Object!);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.strokes.StrokeInput!, androidx.ink.brush.Brush!, android.graphics.Matrix!, int, Object!);
+    property @VisibleForTesting public androidx.test.espresso.idling.CountingIdlingResource? inProgressStrokeCounter;
+    property public android.graphics.Path? maskPath;
+    property public android.graphics.Matrix motionEventToViewTransform;
+    property public androidx.ink.brush.TextureBitmapStore textureBitmapStore;
+  }
+
+  @SuppressCompatibility public interface ShapeWorkflow<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> {
+    method @WorkerThread public InProgressShapeT create(int shapeType);
+    method @InaccessibleFromKotlin @UiThread public androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> getCompletedShapeRenderer();
+    method @InaccessibleFromKotlin @WorkerThread public androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> getInProgressShapeRenderer();
+    method @WorkerThread public int getShapeType(ShapeSpecT shapeSpec);
+    property @UiThread public abstract androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> completedShapeRenderer;
+    property @WorkerThread public abstract androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> inProgressShapeRenderer;
+  }
+
+}
+

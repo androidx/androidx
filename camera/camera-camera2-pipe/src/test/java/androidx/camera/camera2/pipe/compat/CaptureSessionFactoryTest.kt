@@ -18,9 +18,12 @@ package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraBackend
+import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraGraph
@@ -32,18 +35,22 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.CameraPipeModule
+import androidx.camera.camera2.pipe.config.DefaultCameraBackend
 import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
-import androidx.camera.camera2.pipe.testing.FakeCameraController
+import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
+import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -65,6 +72,7 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 internal class CaptureSessionFactoryTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
@@ -91,6 +99,8 @@ internal class CaptureSessionFactoryTest {
     }
 
     @Test
+    // Robolectric doesn't stub out older create capture session methods pre-P.
+    @Config(minSdk = Build.VERSION_CODES.P)
     fun createCameraCaptureSession() = runTest {
         val component: Camera2CaptureSessionTestComponent =
             DaggerCamera2CaptureSessionTestComponent.builder()
@@ -109,7 +119,7 @@ internal class CaptureSessionFactoryTest {
         val surface = Surface(surfaceTexture)
         val threads = FakeThreads.fromTestScope(this)
 
-        val pendingOutputs =
+        val result =
             sessionFactory.create(
                 AndroidCameraDevice(
                     testCamera.metadata,
@@ -126,7 +136,8 @@ internal class CaptureSessionFactoryTest {
                         object : Camera2CaptureSequenceProcessorFactory {
                             override fun create(
                                 session: CameraCaptureSessionWrapper,
-                                surfaceMap: Map<StreamId, Surface>,
+                                streamToSurfaceMap: Map<StreamId, Surface>,
+                                outputToSurfaceMap: Map<OutputId, Surface>,
                             ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
                                 FakeCaptureSequenceProcessor()
                         },
@@ -136,11 +147,16 @@ internal class CaptureSessionFactoryTest {
                             finalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
                             closeCaptureSessionOnDisconnect = false,
                         ),
+                        concurrentSessionSequencer = null,
+                        streamMap,
+                        StrictMode(true),
                         threads,
                         this,
                     ),
             )
 
+        assertThat(result).isInstanceOf(CaptureSessionFactory.Result.Success::class.java)
+        val pendingOutputs = (result as CaptureSessionFactory.Result.Success).deferred
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
         surface.release()
@@ -176,6 +192,14 @@ class FakeCameraPipeModule(
     @Provides fun provideFakeCamera() = fakeCamera
 
     @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+
+    @Provides @Singleton fun provideFakeCameraPipeFlags(config: CameraPipe.Config) = config.flags
+
+    @Provides
+    @Singleton
+    @DefaultCameraBackend
+    fun provideCameraPipeCameraBackend(): CameraBackend =
+        FakeCameraBackend(mapOf(fakeCamera.metadata.camera to fakeCamera.metadata))
 }
 
 @Module(includes = [SharedCameraGraphModules::class])
@@ -193,9 +217,12 @@ class FakeCameraGraphModule {
 
     @Provides
     @CameraGraphScope
-    fun provideFakeCameraController(): CameraController {
+    fun provideFakeCameraController(
+        cameraContext: CameraContext,
+        cameraGraphConfig: CameraGraph.Config,
+    ): CameraController {
         val graphId = CameraGraphId.nextId()
-        return FakeCameraController(graphId)
+        return CameraControllerSimulator(cameraContext, graphId, cameraGraphConfig, mock())
     }
 }
 

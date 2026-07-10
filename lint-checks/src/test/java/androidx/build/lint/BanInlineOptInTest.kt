@@ -34,22 +34,22 @@ class BanInlineOptInTest :
         val input =
             kotlin(
                 """
-@RequiresOptIn
-annotation class ExperimentalSampleAnnotation
+                @RequiresOptIn
+                annotation class ExperimentalSampleAnnotation
 
-@OptIn(ExperimentalSampleAnnotation::class)
-inline fun String.myInlineFun() = this.length
-            """
+                @OptIn(ExperimentalSampleAnnotation::class)
+                inline fun String.myInlineFun() = this.length
+                """
                     .trimIndent()
             )
 
         val expected =
             """
-src/ExperimentalSampleAnnotation.kt:5: Error: Inline functions cannot opt into experimental APIs. [BanInlineOptIn]
-inline fun String.myInlineFun() = this.length
-                  ~~~~~~~~~~~
-1 errors, 0 warnings
-          """
+            src/ExperimentalSampleAnnotation.kt:5: Error: Inline functions cannot opt into experimental APIs. [BanInlineOptIn]
+            inline fun String.myInlineFun() = this.length
+                              ~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -60,8 +60,8 @@ inline fun String.myInlineFun() = this.length
         val input =
             kotlin(
                 """
-inline fun String.myInlineFun() = this.length
-            """
+                inline fun String.myInlineFun() = this.length
+                """
                     .trimIndent()
             )
 

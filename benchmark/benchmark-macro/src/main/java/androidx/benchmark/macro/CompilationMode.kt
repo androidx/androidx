@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import android.os.Build
 import android.util.Log
 import androidx.annotation.IntRange
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
@@ -72,67 +71,61 @@ sealed class CompilationMode {
         warmupBlock: () -> Unit,
     ) {
         val packageName = scope.packageName
-        if (Build.VERSION.SDK_INT >= 24) {
-            if (Arguments.enableCompilation || !allowCompilationSkipping) {
-                Log.d(TAG, "Clearing ART profiles for $packageName")
-                // The compilation mode chooses whether a reset is required or not.
-                // Currently the only compilation mode that does not perform a reset is
-                // CompilationMode.Ignore.
-                if (shouldReset()) {
-                    // Package reset enabled
-                    Log.d(TAG, "Resetting profiles for $packageName")
-                    // It's not possible to reset the compilation profile on `user` builds.
-                    // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
-                    // order to speed-up the profile reset. When set to false, reset is performed
-                    // uninstalling and reinstalling the app.
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        // Starting API 34, --reset restores the state of the compiled code based
-                        // on prior install state. This means, e.g. if AGP version 8.3+ installs a
-                        // DM alongside the APK, reset != clear.
-                        // Use --verify to replace the contents of the odex file with that of an
-                        // empty file.
-                        cmdPackageCompile(packageName, "verify")
-                        // This does not clear the state of the `cur` and `ref` profiles.
-                        // To do that we also need to call `pm art clear-app-profiles <package>`.
-                        // pm art clear-app-profiles returns a "Profiles cleared"
-                        // to stdout upon success. Otherwise it includes an Error: <error reason>.
-                        val output =
-                            Shell.executeScriptCaptureStdout(
-                                "pm art clear-app-profiles $packageName"
-                            )
+        if (Arguments.enableCompilation || !allowCompilationSkipping) {
+            Log.d(TAG, "Clearing ART profiles for $packageName")
+            // The compilation mode chooses whether a reset is required or not.
+            // Currently the only compilation mode that does not perform a reset is
+            // CompilationMode.Ignore.
+            if (shouldReset()) {
+                // Package reset enabled
+                Log.d(TAG, "Resetting profiles for $packageName")
+                // It's not possible to reset the compilation profile on `user` builds.
+                // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
+                // order to speed-up the profile reset. When set to false, reset is performed
+                // uninstalling and reinstalling the app.
+                if (Build.VERSION.SDK_INT >= 34) {
+                    // Starting API 34, --reset restores the state of the compiled code based
+                    // on prior install state. This means, e.g. if AGP version 8.3+ installs a
+                    // DM alongside the APK, reset != clear.
+                    // Use --verify to replace the contents of the odex file with that of an
+                    // empty file.
+                    cmdPackageCompile(packageName, "verify")
+                    // This does not clear the state of the `cur` and `ref` profiles.
+                    // To do that we also need to call `pm art clear-app-profiles <package>`.
+                    // pm art clear-app-profiles returns a "Profiles cleared"
+                    // to stdout upon success. Otherwise it includes an Error: <error reason>.
+                    val output =
+                        Shell.executeScriptCaptureStdout("pm art clear-app-profiles $packageName")
 
-                        check(output.trim() == "Profiles cleared") {
-                            compileResetErrorString(packageName, output, DeviceInfo.isEmulator)
-                        }
-                    } else if (Shell.isSessionRooted()) {
-                        cmdPackageCompileReset(packageName)
-                    } else {
-                        // User builds pre-U. Kick off a full uninstall-reinstall
-                        Log.d(TAG, "Reinstalling $packageName")
-                        reinstallPackage(packageName)
+                    check(output.trim() == "Profiles cleared") {
+                        compileResetErrorString(packageName, output, DeviceInfo.isEmulator)
                     }
+                } else if (Shell.isSessionRooted()) {
+                    cmdPackageCompileReset(packageName)
+                } else {
+                    // User builds pre-U. Kick off a full uninstall-reinstall
+                    Log.d(TAG, "Reinstalling $packageName")
+                    reinstallPackage(packageName)
                 }
-
-                // Write skip file to stop profile installer from interfering with the benchmark
-                writeProfileInstallerSkipFile(scope)
-
-                if (
-                    DeviceInfo.poisonTheRuntimeImage && !poisonedRuntimeImages.contains(packageName)
-                ) {
-                    // Sleep to allow runtime image to be flushed from profile install broadcast
-                    // above, which will produce a near-useless runtime image, and allow us to
-                    // measure worst case `CompilationMode.None`/`verify` perf
-                    DeviceInfo.sleepToAwaitRuntimeImageFlush()
-
-                    // save package name as once it's poisoned, we don't need to re-poison
-                    // unless it's reinstalled
-                    poisonedRuntimeImages.add(packageName)
-                }
-
-                compileImpl(scope, warmupBlock)
-            } else {
-                Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
             }
+
+            // Write skip file to stop profile installer from interfering with the benchmark
+            writeProfileInstallerSkipFile(scope)
+
+            if (DeviceInfo.poisonTheRuntimeImage && !poisonedRuntimeImages.contains(packageName)) {
+                // Sleep to allow runtime image to be flushed from profile install broadcast
+                // above, which will produce a near-useless runtime image, and allow us to
+                // measure worst case `CompilationMode.None`/`verify` perf
+                DeviceInfo.sleepToAwaitRuntimeImageFlush()
+
+                // save package name as once it's poisoned, we don't need to re-poison
+                // unless it's reinstalled
+                poisonedRuntimeImages.add(packageName)
+            }
+
+            compileImpl(scope, warmupBlock)
+        } else {
+            Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
         }
     }
 
@@ -235,10 +228,9 @@ sealed class CompilationMode {
         scope.killProcess()
     }
 
-    @RequiresApi(24)
     internal abstract fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit)
 
-    @RequiresApi(24) internal abstract fun shouldReset(): Boolean
+    internal abstract fun shouldReset(): Boolean
 
     internal open fun requiresClearArtRuntimeImage(): Boolean = false
 
@@ -250,7 +242,6 @@ sealed class CompilationMode {
      * (such as will `StartupMode.COLD`), as app code is jitted.
      */
     @Suppress("CanSealedSubClassBeObject")
-    @RequiresApi(24)
     class None : CompilationMode() {
 
         override fun toString(): String = "None"
@@ -300,7 +291,6 @@ sealed class CompilationMode {
      * have the ProfileInstaller library included, and have been built by AGP 7.0+ to package the
      * baseline profile in the APK.
      */
-    @RequiresApi(24)
     class Partial
     @JvmOverloads
     constructor(
@@ -394,10 +384,7 @@ sealed class CompilationMode {
         override fun toString(): String = "Full"
 
         override fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                cmdPackageCompile(scope.packageName, "speed")
-            }
-            // Noop on older versions: apps are fully compiled at install time on API 23 and below
+            cmdPackageCompile(scope.packageName, "speed")
         }
 
         override fun shouldReset(): Boolean = true
@@ -440,17 +427,8 @@ sealed class CompilationMode {
          */
         @JvmField
         val DEFAULT: CompilationMode =
-            if (Build.VERSION.SDK_INT >= 24) {
-                Partial(
-                    baselineProfileMode = BaselineProfileMode.UseIfAvailable,
-                    warmupIterations = 0,
-                )
-            } else {
-                // API 23 is always fully compiled
-                Full()
-            }
+            Partial(baselineProfileMode = BaselineProfileMode.UseIfAvailable, warmupIterations = 0)
 
-        @RequiresApi(24)
         internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
             val stdout =
                 Shell.executeScriptCaptureStdout(
@@ -461,7 +439,6 @@ sealed class CompilationMode {
             }
         }
 
-        @RequiresApi(24)
         internal fun cmdPackageCompileReset(packageName: String) {
             // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
             // Rather than rely on exit codes which are not always correct, we

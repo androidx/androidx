@@ -15,17 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -34,13 +32,9 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(37) }
         namespace = "androidx.compose.ui.graphics"
         androidResources.enable = true
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -48,67 +42,45 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(libs.androidx.annotation)
+        commonMain.dependencies {
+            api(libs.androidx.annotation)
 
-                api(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.4.2")
-            }
+            api(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
+            implementation("androidx.collection:collection:1.4.2")
         }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                // This has stub APIs for access to legacy Android APIs, so we don't want
-                // any dependency on this module.
-                compileOnly(project(":compose:ui:ui-android-stubs"))
-                implementation("androidx.graphics:graphics-path:1.0.1")
-                implementation libs.androidx.core
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
+        androidMain.dependencies {
+            // This has stub APIs for access to legacy Android APIs, so we don't want
+            // any dependency on this module.
+            compileOnly(project(":compose:ui:ui-android-stubs"))
+            implementation("androidx.graphics:graphics-path:1.0.1")
+            implementation libs.androidx.core
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:test-utils"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
 
-        androidUnitTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(project(":compose:test-utils"))
-            }
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":compose:test-utils"))
         }
     }
 }
@@ -123,16 +95,6 @@ androidx {
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     enableRobolectric()
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-}
-
-// TODO(b/407640608): Task :compose:ui:ui-inspection:connectedCheck fails without this block
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
-    }
 }

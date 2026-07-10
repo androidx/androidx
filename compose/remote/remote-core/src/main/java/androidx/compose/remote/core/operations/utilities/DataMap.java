@@ -15,8 +15,11 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DataMap {
     @NonNull public final String[] mNames;
     public final int @NonNull [] mIds;

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.IntList
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
@@ -68,7 +69,7 @@ internal fun measureLazyGrid(
     density: Density,
     itemAnimator: LazyLayoutItemAnimator<LazyGridMeasuredItem>,
     slotsPerLine: Int,
-    pinnedItems: List<Int>,
+    pinnedItems: IntList,
     isInLookaheadScope: Boolean,
     isLookingAhead: Boolean,
     approachLayoutInfo: LazyGridLayoutInfo?,
@@ -130,6 +131,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
             lineIndexProvider = lineIndexProvider,
+            stickingItemsCombinedSize = 0,
         )
     } else {
         var currentFirstLineIndex = firstVisibleLineIndex
@@ -284,9 +286,9 @@ internal fun measureLazyGrid(
         // the initial offset for lines from visibleLines list
         requirePrecondition(currentFirstLineScrollOffset >= 0) { "negative initial offset" }
         val visibleLinesScrollOffset = -currentFirstLineScrollOffset
-        var firstLine = visibleLines.first()
+        var firstLine = visibleLines.firstOrNull()
 
-        val firstItemIndex = firstLine.items.firstOrNull()?.index ?: 0
+        val firstItemIndex = firstLine?.items?.firstOrNull()?.index ?: 0
         val lastItemIndex = visibleLines.lastOrNull()?.items?.lastOrNull()?.index ?: 0
         val extraItemsBefore =
             calculateExtraItems(
@@ -413,6 +415,7 @@ internal fun measureLazyGrid(
                 afterContentPadding,
                 layoutWidth,
                 layoutHeight,
+                isVertical,
             ) {
                 val span = measuredLineProvider.spanOf(it)
                 val childConstraints = measuredLineProvider.childConstraints(0, span)
@@ -459,19 +462,20 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
             lineIndexProvider = lineIndexProvider,
+            stickingItemsCombinedSize = stickingItems.fastSumBy { it.mainAxisSize },
         )
     }
 }
 
 private inline fun calculateExtraItems(
-    pinnedItems: List<Int>,
+    pinnedItems: IntList,
     measuredItemProvider: LazyGridMeasuredItemProvider,
     measuredLineProvider: LazyGridMeasuredLineProvider,
     filter: (Int) -> Boolean,
 ): List<LazyGridMeasuredItem> {
     var items: MutableList<LazyGridMeasuredItem>? = null
 
-    pinnedItems.fastForEach { index ->
+    pinnedItems.forEach { index ->
         if (filter(index)) {
             val span = measuredLineProvider.spanOf(index)
             val constraints = measuredLineProvider.childConstraints(0, span)

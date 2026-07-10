@@ -16,12 +16,10 @@
 
 package androidx.pdf.testapp.ui.v2
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.ext.SdkExtensions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,10 +34,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.pdf.testapp.R
 import androidx.pdf.testapp.databinding.BasicPdfFragmentBinding
 import androidx.pdf.testapp.ui.OpCancellationHandler
+import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
-@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ViewerFragment : Fragment(), OpCancellationHandler {
 
@@ -70,7 +68,7 @@ class ViewerFragment : Fragment(), OpCancellationHandler {
         val searchButton: MaterialButton = pdfInteraction.searchButton
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        if (arePdfContentFeaturesAvailable()) {
             searchButton.setOnClickListener { setFindInFileViewVisible() }
         }
         return pdfInteraction.root
@@ -86,7 +84,6 @@ class ViewerFragment : Fragment(), OpCancellationHandler {
         startActivity(chooser)
     }
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     private fun setPdfView() {
         val fragmentManager: FragmentManager = childFragmentManager
 
@@ -125,19 +122,11 @@ class ViewerFragment : Fragment(), OpCancellationHandler {
 
     @VisibleForTesting
     public fun setDocumentUri(uri: Uri) {
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
-            if (!isPdfViewInitialized) {
-                setPdfView()
-                isPdfViewInitialized = true
-            }
-            pdfViewerFragment?.documentUri = uri
-        } else {
-            /**
-             * Send an intent to other apps who support opening PDFs in case PdfViewer library is
-             * not supported due to SdkExtension limitations.
-             */
-            sendIntentToOpenPdf(uri)
+        if (!isPdfViewInitialized) {
+            setPdfView()
+            isPdfViewInitialized = true
         }
+        pdfViewerFragment?.documentUri = uri
     }
 
     override fun handleCancelOperation() {

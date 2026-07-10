@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling.animation
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
 import org.jetbrains.annotations.TestOnly
 
 /** [ComposeAnimation] of type [ComposeAnimationType.INFINITE_TRANSITION]. */
@@ -49,10 +50,9 @@ private constructor(
             enumValues<ComposeAnimationType>().any { it.name == "INFINITE_TRANSITION" }
             private set
 
-        internal fun AnimationSearch.InfiniteTransitionSearchInfo.parse():
-            InfiniteTransitionComposeAnimation? {
+        internal fun InfiniteTransitionSearchInfo.parse(): InfiniteTransitionComposeAnimation? {
             if (!apiAvailable) return null
-            return InfiniteTransitionComposeAnimation(toolingState, infiniteTransition)
+            return InfiniteTransitionComposeAnimation(toolingOverride.state, infiniteTransition)
         }
 
         /** This method is for testing only. */

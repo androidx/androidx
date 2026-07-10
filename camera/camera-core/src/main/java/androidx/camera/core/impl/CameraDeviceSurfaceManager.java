@@ -21,6 +21,7 @@ import android.util.Size;
 
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.stabilization.VideoStabilization;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -45,11 +46,13 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
          * @param context            the android context
          * @param cameraManager      the camera manager object used to query the camera information.
          * @param availableCameraIds current available camera ids.
+         * @param extraSupportedSurfaceCombinations extra supported surface combinations.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
          */
         @NonNull CameraDeviceSurfaceManager newInstance(@NonNull Context context,
-                @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds)
+                @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds,
+                @Nullable String extraSupportedSurfaceCombinations)
                 throws InitializationException;
     }
 
@@ -85,7 +88,7 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
      * @param newUseCaseConfigsSupportedSizeMap  map of configurations of the use cases to the
      *                                           supported output sizes list that will be given a
      *                                           suggested stream specification
-     * @param isPreviewStabilizationOn           whether the preview stabilization is enabled.
+     * @param videoStabilization                 the video stabilization.
      * @param hasVideoCapture                    whether the use cases has video capture.
      * @param isFeatureComboInvocation           whether a code flow invoked through feature combo
      *                                           APIs (e.g. {@link
@@ -110,7 +113,7 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn,
+            @NonNull VideoStabilization videoStabilization,
             boolean hasVideoCapture,
             boolean isFeatureComboInvocation,
             boolean findMaxSupportedFrameRate);

@@ -34,6 +34,7 @@ import org.robolectric.android.util.concurrent.InlineExecutorService
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(TilesTestingTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument
 public class TestTileClientTest {
     private companion object {

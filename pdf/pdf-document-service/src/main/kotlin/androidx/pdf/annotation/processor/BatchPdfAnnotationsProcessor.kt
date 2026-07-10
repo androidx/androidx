@@ -17,100 +17,164 @@
 package androidx.pdf.annotation.processor
 
 import android.os.Parcel
-import androidx.annotation.RestrictTo
+import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
+import androidx.pdf.DraftEditOperation
+import androidx.pdf.DraftEditResult
+import androidx.pdf.EditsDraft
 import androidx.pdf.PdfDocumentRemote
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.PdfAnnotationData
+import androidx.pdf.PdfEditApplyException
 
 /**
- * A processor for handling a list of [PdfAnnotationData] objects by batching them and applying the
+ * A processor for handling a list of [DraftEditOperation] objects by batching them and applying the
  * edits to a remote PDF document.
  *
  * @property remoteDocument The [PdfDocumentRemote] interface used to apply the annotation edits.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocumentRemote) :
-    PdfAnnotationsProcessor {
+internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocumentRemote) {
 
     /**
-     * Processes a list of annotations by applying them to the remote PDF document in batches.
+     * Processes a draft of edits by applying them to the remote PDF document in batches.
      *
-     * This method prevents large lists of annotations from causing [TransactionTooLargeException]
-     * when sent over an AIDL connection. It splits the list into smaller batches based on a maximum
-     * size limit and processes each batch individually. The results from each batch are then
-     * combined into a single [AnnotationResult].
+     * This method prevents large lists of operations from causing
+     * [android.os.TransactionTooLargeException] when sent over an AIDL connection. It splits the
+     * list of operations from the [EditsDraft] into smaller batches based on a maximum size limit
+     * and processes each batch individually. The results from each batch are then combined into a
+     * single list of success IDs.
      *
-     * @param annotations The list of [PdfAnnotationData] objects to be applied.
-     * @return An [AnnotationResult] containing the combined list of successfully applied
-     *   annotations and the list of failed annotations.
+     * @param parcelableOperations List of [DraftEditOperation] containing the operations to be
+     *   applied.
+     * @param onBatchedEditsApplied callback method invoked when a batch is applied.
+     * @return A list of unique identifiers for the successfully applied edits.
+     * @throws PdfEditApplyException if there is an error in applying the edits. The exception
+     *   contains details about which operations succeeded before the failure.
      */
-    override fun process(annotations: List<PdfAnnotationData>): AnnotationResult {
-        val emptyAnnotationResult = AnnotationResult(success = emptyList(), failures = emptyList())
-        if (annotations.isEmpty()) {
-            return emptyAnnotationResult
-        }
+    fun process(
+        parcelableOperations: List<DraftEditOperation>,
+        onBatchedEditsApplied: (List<AppliedEdit>) -> Unit,
+    ): List<String> = processInBatches(parcelableOperations, onBatchedEditsApplied)
 
-        val batches = annotations.unflatten(MAX_BATCH_SIZE_IN_BYTES)
+    private fun processInBatches(
+        operations: List<DraftEditOperation>,
+        onBatchedEditsApplied: (List<AppliedEdit>) -> Unit,
+    ): List<String> {
+        val annotationIds = mutableListOf<String>()
+        if (operations.isEmpty()) return annotationIds
 
-        // The operation here applies each annotation batch and the result of each operation is
-        // folded into a single [AnnotationResult].
-        return batches.fold(emptyAnnotationResult) { prevResult, annotationsBatch ->
-            val result = remoteDocument.applyEdits(annotationsBatch)
-            AnnotationResult(
-                success = prevResult.success + result.success,
-                failures = prevResult.failures + result.failures,
-            )
-        }
-    }
+        val batchedParcelableOperations = operations.unflatten(MAX_BATCH_SIZE_IN_BYTES)
 
-    public companion object {
-        public const val MAX_BATCH_SIZE_IN_BYTES: Int = 1000000
+        var processedCount = 0
+        batchedParcelableOperations.forEach { batch ->
+            when (val result = remoteDocument.applyDraftEdits(batch)) {
+                is DraftEditResult.Success -> {
+                    annotationIds += result.ids
+                    processedCount += batch.size
 
-        /**
-         * Used to expand a 1D list to a 2D list of annotations based on [maxSizeInBytes].
-         *
-         * If the accumulated size if greater or equal to the [maxSizeInBytes] then the item is
-         * added to a new sublist else it is added to the existing one.
-         *
-         * @param maxSizeInBytes max size limit for each sublist
-         * @return 2D list divided into list of sublists
-         */
-        @VisibleForTesting
-        internal fun List<PdfAnnotationData>.unflatten(
-            maxSizeInBytes: Int
-        ): List<List<PdfAnnotationData>> {
-            return this.fold(emptyList()) { acc, annotationData ->
-                val lastSublist = acc.lastOrNull() ?: listOf()
-                val annotationSize = annotationData.parcelSizeInBytes()
+                    val appliedEdits =
+                        result.ids.mapIndexed { index, id ->
+                            AppliedEdit(batch[index].getPage(), id)
+                        }
+                    onBatchedEditsApplied(appliedEdits)
+                }
 
-                val newListSizeInBytes =
-                    lastSublist.sumOf { it.parcelSizeInBytes() } + annotationSize
-
-                if (newListSizeInBytes <= maxSizeInBytes) {
-                    // Add the item to the last sublist
-                    val newLastSublist = lastSublist + annotationData
-                    acc.dropLast(1) + listOf(newLastSublist)
-                } else if (annotationSize > maxSizeInBytes) {
-                    acc
-                } else {
-                    acc + listOf(listOf(annotationData))
+                is DraftEditResult.Failure -> {
+                    val appliedEdits =
+                        result.appliedIds.mapIndexed { index, id ->
+                            AppliedEdit(batch[index].getPage(), id)
+                        }
+                    onBatchedEditsApplied(appliedEdits)
+                    throw PdfEditApplyException(
+                        failureIndex = processedCount + result.failedBatchIndex,
+                        appliedEditIds = annotationIds + result.appliedIds,
+                        cause = Exception(result.errorMessage),
+                    )
                 }
             }
         }
 
+        return annotationIds
+    }
+
+    companion object {
+        const val MAX_BATCH_SIZE_IN_BYTES: Int = 1000000
+
         /**
-         * Calculates the size of a [PdfAnnotationData] object when flattened into a [Parcel].
+         * Splits this list of [Parcelable] items into multiple sublists (batches), where the total
+         * parcel size of the items in each batch does not exceed a specified maximum.
          *
-         * @return The size in bytes of the `PdfAnnotationData` object when written to a [Parcel].
+         * Note: Any single item whose individual parcel size is larger than [maxSizeInBytes] will
+         * be ignored and will not be included in any of the resulting batches.
+         *
+         * @param T The type of [Parcelable] items in the list.
+         * @param maxSizeInBytes The maximum permitted size in bytes for the parcelled content of
+         *   each batch.
+         * @return A `List<List<T>>` where each inner list represents a batch.
+         */
+        fun <T : Parcelable> List<T>.unflatten(maxSizeInBytes: Int): List<List<T>> {
+            if (isEmpty()) return emptyList()
+
+            val batches = mutableListOf<List<T>>()
+            var currentBatch = mutableListOf<T>()
+            var currentBatchSize = 0
+
+            for (item in this) {
+                val itemSize = item.parcelSizeInBytes()
+                // Ignore items that are individually larger than the max size.
+                if (itemSize > maxSizeInBytes) continue
+
+                // If adding the new item would exceed the max size,
+                // finalize the current batch and start a new one.
+                if (currentBatch.isNotEmpty() && currentBatchSize + itemSize > maxSizeInBytes) {
+                    batches.add(currentBatch)
+                    currentBatch = mutableListOf()
+                    currentBatchSize = 0
+                }
+                currentBatch.add(item)
+                currentBatchSize += itemSize
+            }
+            // Add the last batch if it has any items.
+            if (currentBatch.isNotEmpty()) batches.add(currentBatch)
+
+            return batches
+        }
+
+        /**
+         * Calculates the size of a [Parcelable] object when flattened into a [Parcel].
+         *
+         * @return The size in bytes of the `Parcelable` object when written to a [Parcel].
          */
         @VisibleForTesting
-        internal fun PdfAnnotationData.parcelSizeInBytes(): Int {
+        internal fun Parcelable.parcelSizeInBytes(): Int {
             val parcel = Parcel.obtain()
             this.writeToParcel(parcel, 0)
             val size = parcel.dataSize()
             parcel.recycle()
             return size
+        }
+    }
+
+    /**
+     * Represents an edit applied to a document.
+     *
+     * @param pageNum page number of the edit.
+     * @param editId id of the edit.
+     */
+    internal class AppliedEdit(val pageNum: Int, val editId: String) {
+        override fun equals(other: Any?): Boolean {
+            return other != null &&
+                other is AppliedEdit &&
+                other.pageNum == pageNum &&
+                other.editId == editId
+        }
+
+        override fun hashCode(): Int {
+            var result = pageNum
+            result = 31 * result + editId.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "AppliedEdit(pageNum=$pageNum, editId='$editId')"
         }
     }
 }

@@ -343,6 +343,7 @@ private fun getStartActivityIntent(
 
     val parametersPairs = params.asMap().map { (key, value) -> key.name to value }.toTypedArray()
 
+    @Suppress("DEPRECATION") // bundleOf is deprecated
     activityIntent.putExtras(bundleOf(*parametersPairs))
     return activityIntent
 }
@@ -374,7 +375,7 @@ private object ApplyActionApi29Impl {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private object ApplyActionApi26Impl {
+internal object ApplyActionApi26Impl {
     fun getForegroundServicePendingIntent(context: Context, intent: Intent): PendingIntent {
         return PendingIntent.getForegroundService(
             context,

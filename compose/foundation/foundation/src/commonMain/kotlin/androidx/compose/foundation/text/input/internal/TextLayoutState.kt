@@ -30,6 +30,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -37,7 +38,7 @@ import androidx.compose.ui.unit.dp
  * Manages text layout for TextField including layout coordinates of decoration box and inner text
  * field.
  */
-internal class TextLayoutState {
+internal class TextLayoutState : HeightForSingleLineFieldProvider {
     private var layoutCache = TextFieldLayoutStateCache()
 
     var onTextLayout: (Density.(() -> TextLayoutResult?) -> Unit)? = null
@@ -76,11 +77,11 @@ internal class TextLayoutState {
     var decoratorNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
 
     /** Set to a non-zero value for single line TextFields in order to prevent text cuts. */
-    var minHeightForSingleLineField by mutableStateOf(0.dp)
+    override var heightForSingleLineField by mutableStateOf(0.dp)
 
     /**
      * A [BringIntoViewRequester] that can be used to request a specific region of text be brought
-     * into view (via [TextLayoutState.bringCursorIntoView]).
+     * into view.
      *
      * This requester should only be applied to the core text field node, _inside_ the internal
      * scroll container.
@@ -262,4 +263,9 @@ internal fun TextLayoutState.fromTextLayoutToDecoration(rect: Rect): Rect {
 
     val topLeft = decoratorNode.localBoundingBoxOf(textLayoutNode, clipBounds = false).topLeft
     return rect.translate(topLeft)
+}
+
+internal interface HeightForSingleLineFieldProvider {
+    /** Set to a non-zero value for single line TextFields in order to prevent text cuts. */
+    val heightForSingleLineField: Dp
 }

@@ -233,6 +233,9 @@ public class FakeCaptureSequenceProcessor(
         public val Event.graphParameters: Map<*, Any?>
             get() = checkNotNull(captureSequence).graphParameters
 
+        public val Event.listeners: List<Request.Listener>
+            get() = checkNotNull(captureSequence).listeners
+
         public val Event.isRepeating: Boolean
             get() =
                 when (this) {

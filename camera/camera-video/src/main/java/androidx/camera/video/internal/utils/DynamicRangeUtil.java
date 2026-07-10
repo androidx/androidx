@@ -27,7 +27,6 @@ import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR
 import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8;
 import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvavSe;
 import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvheSt;
-import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain;
 import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10;
 import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10;
 import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus;
@@ -123,7 +122,8 @@ public class DynamicRangeUtil {
         //--------------------------------------------------------------------------------------//
         // DynamicRange encodings to HEVC profiles
         Map<DynamicRange, Integer> hevcMap = new HashMap<>();
-        hevcMap.put(SDR, HEVCProfileMain);
+        // Do not set SDR to HEVCProfileMain, as it causes codec configuration errors on several
+        // devices (b/489316153).
         hevcMap.put(HLG_10_BIT, HEVCProfileMain10);
         hevcMap.put(HDR10_10_BIT, HEVCProfileMain10HDR10);
         hevcMap.put(HDR10_PLUS_10_BIT, HEVCProfileMain10HDR10Plus);

@@ -21,13 +21,11 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -77,20 +75,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -343,6 +345,7 @@ fun ModalNavigationDrawer(
     var anchorsInitialized by remember { mutableStateOf(false) }
     var minValue by remember(density) { mutableFloatStateOf(0f) }
     val maxValue = 0f
+    val focusRequester = remember { FocusRequester() }
 
     // TODO Load the motionScheme tokens from the component tokens file
     val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
@@ -357,6 +360,13 @@ fun ModalNavigationDrawer(
         drawerState.anchoredDraggableMotionSpec = anchoredDraggableMotion
     }
 
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            // Keyboard focus should go to first element of the drawer when it opens
+            focusRequester.requestFocus()
+        }
+    }
+
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(
         modifier
@@ -369,14 +379,15 @@ fun ModalNavigationDrawer(
             )
     ) {
         Box { content() }
+        val onDismissRequest = {
+            if (gesturesEnabled && drawerState.confirmStateChange(DrawerValue.Closed)) {
+                scope.launch { drawerState.close() }
+            }
+        }
         Scrim(
-            open = drawerState.isOpen,
-            onClose = {
-                if (gesturesEnabled && drawerState.confirmStateChange(DrawerValue.Closed)) {
-                    scope.launch { drawerState.close() }
-                }
-            },
-            fraction = { calculateFraction(minValue, maxValue, drawerState.requireOffset()) },
+            contentDescription = getString(Strings.CloseDrawer),
+            onClick = if (drawerState.isOpen) onDismissRequest else null,
+            alpha = { calculateFraction(minValue, maxValue, drawerState.requireOffset()) },
             color = scrimColor,
         )
         Layout(
@@ -404,7 +415,20 @@ fun ModalNavigationDrawer(
                                 true
                             }
                         }
-                    },
+                    }
+                    .onKeyEvent {
+                        // Drawer should close via escape key.
+                        if (
+                            drawerState.isOpen &&
+                                it.type == KeyEventType.KeyUp &&
+                                it.key == Key.Escape
+                        ) {
+                            scope.launch { drawerState.close() }
+                            return@onKeyEvent true
+                        }
+                        return@onKeyEvent false
+                    }
+                    .focusRequester(focusRequester),
         ) { measurables, constraints ->
             val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             val placeables = measurables.fastMap { it.measure(looseConstraints) }
@@ -428,7 +452,13 @@ fun ModalNavigationDrawer(
                         }
                     )
                 }
-                placeables.fastForEach { it.placeRelative(0, 0) }
+                val isDrawerVisible =
+                    calculateFraction(minValue, maxValue, drawerState.requireOffset()) != 0f
+                if (isDrawerVisible) {
+                    // Only place the drawer when it's visible so that keyboard focus doesn't
+                    // navigate to an offscreen element.
+                    placeables.fastForEach { it.placeRelative(0, 0) }
+                }
             }
         }
     }
@@ -464,6 +494,7 @@ fun DismissibleNavigationDrawer(
 ) {
     var anchorsInitialized by remember { mutableStateOf(false) }
     val density = LocalDensity.current
+    val focusRequester = remember { FocusRequester() }
 
     // TODO Load the motionScheme tokens from the component tokens file
     val openMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value()
@@ -473,6 +504,13 @@ fun DismissibleNavigationDrawer(
         drawerState.density = density
         drawerState.openDrawerMotionSpec = openMotion
         drawerState.closeDrawerMotionSpec = closeMotion
+    }
+
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            // Keyboard focus should go to first element of the drawer when it opens
+            focusRequester.requestFocus()
+        }
     }
 
     val scope = rememberCoroutineScope()
@@ -491,16 +529,29 @@ fun DismissibleNavigationDrawer(
             content = {
                 Box(
                     Modifier.semantics {
-                        paneTitle = navigationMenu
-                        if (drawerState.isOpen) {
-                            dismiss {
-                                if (drawerState.confirmStateChange(DrawerValue.Closed)) {
-                                    scope.launch { drawerState.close() }
+                            paneTitle = navigationMenu
+                            if (drawerState.isOpen) {
+                                dismiss {
+                                    if (drawerState.confirmStateChange(DrawerValue.Closed)) {
+                                        scope.launch { drawerState.close() }
+                                    }
+                                    true
                                 }
-                                true
                             }
                         }
-                    }
+                        .onKeyEvent {
+                            // Drawer should close via escape key.
+                            if (
+                                drawerState.isOpen &&
+                                    it.type == KeyEventType.KeyUp &&
+                                    it.key == Key.Escape
+                            ) {
+                                scope.launch { drawerState.close() }
+                                return@onKeyEvent true
+                            }
+                            return@onKeyEvent false
+                        }
+                        .focusRequester(focusRequester)
                 ) {
                     drawerContent()
                 }
@@ -526,11 +577,14 @@ fun DismissibleNavigationDrawer(
                     )
                 }
 
-                contentPlaceable.placeRelative(
-                    sheetPlaceable.width + drawerState.requireOffset().roundToInt(),
-                    0,
-                )
-                sheetPlaceable.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                val contentX = sheetPlaceable.width + drawerState.requireOffset().roundToInt()
+                contentPlaceable.placeRelative(contentX, 0)
+                // The drawer is visible when the content has been offset.
+                if (contentX != 0) {
+                    // Only place the drawer when it's visible so that keyboard focus doesn't
+                    // navigate to an offscreen element.
+                    sheetPlaceable.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                }
             }
         }
     }
@@ -952,7 +1006,7 @@ internal fun DrawerPredictiveBackHandler(
         maxScaleYDistance = PredictiveBackDrawerMaxScaleYDistance.toPx()
     }
 
-    PredictiveBackHandler(enabled = drawerState.isOpen) { progress ->
+    PredictiveBackHandler(enabled = drawerState.targetValue == DrawerValue.Open) { progress ->
         try {
             progress.collect { backEvent ->
                 drawerPredictiveBackState.update(
@@ -1280,26 +1334,6 @@ private class DefaultDrawerItemsColor(
 
 private fun calculateFraction(a: Float, b: Float, pos: Float) =
     ((pos - a) / (b - a)).coerceIn(0f, 1f)
-
-@Composable
-private fun Scrim(open: Boolean, onClose: () -> Unit, fraction: () -> Float, color: Color) {
-    val closeDrawer = getString(Strings.CloseDrawer)
-    val dismissDrawer =
-        if (open) {
-            Modifier.pointerInput(onClose) { detectTapGestures { onClose() } }
-                .semantics(mergeDescendants = true) {
-                    contentDescription = closeDrawer
-                    onClick {
-                        onClose()
-                        true
-                    }
-                }
-        } else {
-            Modifier
-        }
-
-    Canvas(Modifier.fillMaxSize().then(dismissDrawer)) { drawRect(color, alpha = fraction()) }
-}
 
 private val DrawerPositionalThreshold = 0.5f
 private val DrawerVelocityThreshold = 400.dp

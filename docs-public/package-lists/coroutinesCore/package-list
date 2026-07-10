@@ -1,15 +1,18 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-
+$dokka.location:kotlinx.coroutines//asPromise/kotlinx.coroutines.Deferred[TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/kotlinx-coroutines-core/kotlinx.coroutines/[wasm-js]as-promise.html
+$dokka.location:kotlinx.coroutines//promise/kotlinx.coroutines.CoroutineScope#kotlin.coroutines.CoroutineContext#kotlinx.coroutines.CoroutineStart#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/kotlinx-coroutines-core/kotlinx.coroutines/[wasm-js]promise.html
 module:kotlinx-coroutines-android
 kotlinx.coroutines.android
 module:kotlinx-coroutines-core
 kotlinx.coroutines
 kotlinx.coroutines.channels
 kotlinx.coroutines.flow
-kotlinx.coroutines.intrinsics
+kotlinx.coroutines.future
 kotlinx.coroutines.selects
+kotlinx.coroutines.stream
 kotlinx.coroutines.sync
+kotlinx.coroutines.time
 module:kotlinx-coroutines-debug
 kotlinx.coroutines.debug
 kotlinx.coroutines.debug.junit4
@@ -18,10 +21,6 @@ module:kotlinx-coroutines-guava
 kotlinx.coroutines.guava
 module:kotlinx-coroutines-javafx
 kotlinx.coroutines.javafx
-module:kotlinx-coroutines-jdk8
-kotlinx.coroutines.future
-kotlinx.coroutines.stream
-kotlinx.coroutines.time
 module:kotlinx-coroutines-jdk9
 kotlinx.coroutines.jdk9
 module:kotlinx-coroutines-play-services

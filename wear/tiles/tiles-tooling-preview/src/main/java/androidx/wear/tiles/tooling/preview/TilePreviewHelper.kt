@@ -22,7 +22,7 @@ import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.TileBuilders
 
 /** Helper object that provides methods to create Tiles for Preview purposes. */
-object TilePreviewHelper {
+public object TilePreviewHelper {
     /**
      * Helper method that creates a [TileBuilders.Tile.Builder] with a timeline consisting of a
      * single timeline entry. The provided [LayoutElementBuilders.Layout] is used as the layout of
@@ -32,7 +32,7 @@ object TilePreviewHelper {
      *   [TileBuilders.Tile.Builder].
      */
     @JvmStatic
-    fun singleTimelineEntryTileBuilder(
+    public fun singleTimelineEntryTileBuilder(
         layout: LayoutElementBuilders.Layout
     ): TileBuilders.Tile.Builder =
         TileBuilders.Tile.Builder()
@@ -57,7 +57,7 @@ object TilePreviewHelper {
      *   center of the [LayoutElementBuilders.Box].
      */
     @JvmStatic
-    fun singleTimelineEntryTileBuilder(
+    public fun singleTimelineEntryTileBuilder(
         layoutElement: LayoutElementBuilders.LayoutElement
     ): TileBuilders.Tile.Builder =
         singleTimelineEntryTileBuilder(

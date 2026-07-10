@@ -18,7 +18,7 @@ package androidx.car.app.hardware.climate;
 
 import android.util.Pair;
 
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import org.jspecify.annotations.NonNull;
@@ -32,7 +32,7 @@ import java.util.Set;
  * ClimateProfileRequest#FEATURE_STEERING_WHEEL_HEAT} feature such as supported min/max range
  * values for the feature.
  */
-@ExperimentalCarApi
+@RequiresCarApi(5)
 public final class SteeringWheelHeatProfile {
 
     private final @NonNull Map<Set<CarZone>, Pair<Integer, Integer>>

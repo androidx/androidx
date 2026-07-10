@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.app.Activity
@@ -26,6 +28,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class FakeActivityPanelEntityTest {
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
 
@@ -34,6 +37,16 @@ class FakeActivityPanelEntityTest {
     @Before
     fun setUp() {
         underTest = FakeActivityPanelEntity()
+    }
+
+    @Test
+    fun name_isNotSetByDefault() {
+        assertThat(underTest.name).isEqualTo("")
+    }
+
+    @Test
+    fun name_isSet() {
+        assertThat(FakeActivityPanelEntity("test").name).isEqualTo("test")
     }
 
     @Test

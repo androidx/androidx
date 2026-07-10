@@ -17,9 +17,13 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
+import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
+import androidx.compose.runtime.tooling.verboseTrace
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -41,16 +45,148 @@ import kotlinx.coroutines.launch
  * [RememberObserver] event callbacks. [SideEffect]s are always run after [RememberObserver] event
  * callbacks.
  *
- * A [SideEffect] runs after **every** recomposition. To launch an ongoing task spanning potentially
- * many recompositions, see [LaunchedEffect]. To manage an event subscription or other object
- * lifecycle, see [DisposableEffect].
+ * A [SideEffect] runs after **every** recomposition when invoked without any keys. To only perform
+ * the effect once, use an overload of [SideEffect] that accepts a key. To launch an ongoing task
+ * spanning potentially many recompositions, see [LaunchedEffect]. To manage an event subscription
+ * or other object lifecycle, see [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
  */
 @Composable
 @NonRestartableComposable
 @ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
 public fun SideEffect(effect: () -> Unit) {
-    currentComposer.recordSideEffect(effect)
+    currentComposer.recordSideEffectWithTracing(effect)
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1].
+ *
+ * A [SideEffect]'s _key_ is a value that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if its [key][key1] differs from the
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, effect: () -> Unit) {
+    if (currentComposer.changed(key1)) {
+        currentComposer.recordSideEffectWithTracing(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1] or [key2].
+ *
+ * A [SideEffect]'s _keys_ are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param key2 A second key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, key2: Any?, effect: () -> Unit) {
+    if (currentComposer.changed(key1) or currentComposer.changed(key2)) {
+        currentComposer.recordSideEffectWithTracing(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1], [key2], or [key3].
+ *
+ * A [SideEffect]'s _keys_ are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param key2 A second key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param key3 A third key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, effect: () -> Unit) {
+    if (
+        currentComposer.changed(key1) or
+            currentComposer.changed(key2) or
+            currentComposer.changed(key3)
+    ) {
+        currentComposer.recordSideEffectWithTracing(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique [keys].
+ *
+ * A [SideEffect]'s [keys] are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param keys Key inputs; if recomposed with a different list of keys, [effect] will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(vararg keys: Any?, effect: () -> Unit) {
+    var invalid = currentComposer.changed(keys.size)
+    for (key in keys) invalid = invalid or currentComposer.changed(key)
+    if (invalid) {
+        currentComposer.recordSideEffectWithTracing(effect)
+    }
 }
 
 /**
@@ -76,18 +212,31 @@ public interface DisposableEffectResult {
 
 private val InternalDisposableEffectScope = DisposableEffectScope()
 
+@OptIn(ComposeToolingApi::class, InternalComposeApi::class)
+private fun Composer.recordSideEffectWithTracing(effect: () -> Unit) {
+    if (ComposeToolingFlags.isVerboseTracingEnabled) {
+        recordSideEffect { trace("Compose:SideEffect:effect", effect) }
+    } else {
+        recordSideEffect(effect)
+    }
+}
+
 private class DisposableEffectImpl(
     private val effect: DisposableEffectScope.() -> DisposableEffectResult
 ) : RememberObserver {
     private var onDispose: DisposableEffectResult? = null
 
     override fun onRemembered() {
-        onDispose = InternalDisposableEffectScope.effect()
+        verboseTrace("Compose:DisposableEffect:effect") {
+            onDispose = InternalDisposableEffectScope.effect()
+        }
     }
 
     override fun onForgotten() {
-        onDispose?.dispose()
-        onDispose = null
+        verboseTrace("Compose:DisposableEffect:dispose") {
+            onDispose?.dispose()
+            onDispose = null
+        }
     }
 
     override fun onAbandoned() {
@@ -270,16 +419,17 @@ internal class LaunchedEffectImpl(
     private val parentCoroutineContext: CoroutineContext,
     private val task: suspend CoroutineScope.() -> Unit,
 ) : RememberObserver, CoroutineExceptionHandler {
-    private val scope =
-        CoroutineScope(
-            parentCoroutineContext +
-                if (parentCoroutineContext[CompositionErrorContextImpl] != null) {
-                    this
-                } else {
-                    EmptyCoroutineContext
-                }
-        )
+    private val scope: CoroutineScope
     private var job: Job? = null
+
+    init {
+        var context = parentCoroutineContext + this
+        @OptIn(ComposeToolingApi::class)
+        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+            context += LaunchedEffectTracingContext
+        }
+        scope = CoroutineScope(context)
+    }
 
     override fun onRemembered() {
         // This should never happen but is left here for safety
@@ -288,12 +438,12 @@ internal class LaunchedEffectImpl(
     }
 
     override fun onForgotten() {
-        job?.cancel(LeftCompositionCancellationException())
+        job?.cancel(ExitedCompositionCancellationException())
         job = null
     }
 
     override fun onAbandoned() {
-        job?.cancel(LeftCompositionCancellationException())
+        job?.cancel(ExitedCompositionCancellationException())
         job = null
     }
 
@@ -387,8 +537,19 @@ public fun LaunchedEffect(
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
 
-private class LeftCompositionCancellationException :
-    PlatformOptimizedCancellationException("The coroutine scope left the composition")
+/**
+ * A subclass of [kotlinx.coroutines.CancellationException] that will be thrown to cancel
+ * composition-bound coroutines. Specifically, this exception is thrown to cancel coroutines
+ * launched by [LaunchedEffect] and [Job]s associated with CoroutineScopes created by
+ * [rememberCoroutineScope].
+ *
+ * This exception is thrown when the effect/job is canceled because the effect or coroutineScope was
+ * removed from the composition, possibly because of changed keys.
+ */
+private class ExitedCompositionCancellationException :
+    PlatformOptimizedCancellationException(
+        "The coroutine was canceled because it left the composition"
+    )
 
 /**
  * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
@@ -430,7 +591,7 @@ internal class CompositionScopedCoroutineScopeCanceller(val coroutineScope: Coro
         if (coroutineScope is RememberedCoroutineScope) {
             coroutineScope.cancelIfCreated()
         } else {
-            coroutineScope.cancel(LeftCompositionCancellationException())
+            coroutineScope.cancel(ExitedCompositionCancellationException())
         }
     }
 
@@ -439,7 +600,7 @@ internal class CompositionScopedCoroutineScopeCanceller(val coroutineScope: Coro
         if (coroutineScope is RememberedCoroutineScope) {
             coroutineScope.cancelIfCreated()
         } else {
-            coroutineScope.cancel(LeftCompositionCancellationException())
+            coroutineScope.cancel(ExitedCompositionCancellationException())
         }
     }
 }
@@ -450,9 +611,6 @@ private class CancelledCoroutineContext : CoroutineContext.Element {
 
     companion object Key : CoroutineContext.Key<CancelledCoroutineContext>
 }
-
-private class ForgottenCoroutineScopeException :
-    PlatformOptimizedCancellationException("rememberCoroutineScope left the composition")
 
 internal class RememberedCoroutineScope(
     private val parentContext: CoroutineContext,
@@ -509,10 +667,15 @@ internal class RememberedCoroutineScope(
                         val parentContext = parentContext
                         val cancelledChildJob =
                             Job(parentContext[Job]).apply {
-                                cancel(ForgottenCoroutineScopeException())
+                                cancel(ExitedCompositionCancellationException())
                             }
                         localCoroutineContext =
                             parentContext + cancelledChildJob + overlayContext + exceptionHandler
+
+                        @OptIn(ComposeToolingApi::class)
+                        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+                            localCoroutineContext += RememberedCoroutineScopeTracingContext
+                        }
                     }
                     _coroutineContext = localCoroutineContext
                 }
@@ -532,7 +695,7 @@ internal class RememberedCoroutineScope(
             } else {
                 // Ignore optimizing the case where we might be cancelling an already cancelled job;
                 // only internal callers such as RememberObservers will invoke this method.
-                context.cancel(ForgottenCoroutineScopeException())
+                context.cancel(ExitedCompositionCancellationException())
             }
         }
     }
@@ -607,4 +770,14 @@ public inline fun rememberCoroutineScope(
 ): CoroutineScope {
     val composer = currentComposer
     return remember { createCompositionCoroutineScope(getContext(), composer) }
+}
+
+private object LaunchedEffectTracingContext : TracingContext("Compose:LaunchedEffect")
+
+private object RememberedCoroutineScopeTracingContext : TracingContext("Compose:coroutineScope")
+
+internal expect abstract class TracingContext(name: String) : CoroutineContext.Element {
+    override val key: CoroutineContext.Key<*>
+
+    companion object Key : CoroutineContext.Key<TracingContext>
 }

@@ -16,12 +16,7 @@
 
 package androidx.aab
 
-import androidx.aab.AppMetadataPropsInfo.Companion.csvEntries
-import androidx.aab.DexInfo.Companion.csvEntries
-import androidx.aab.MappingFileInfo.Companion.csvEntries
-import androidx.aab.ProfInfo.Companion.csvEntries
-import androidx.aab.R8JsonFileInfo.Companion.csvEntries
-import androidx.aab.SoInfo.Companion.csvEntries
+import androidx.aab.DexInfo.Companion.toDexInfo
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -40,38 +35,44 @@ data class ApkInfo(
     val dotVersionFiles: Map<String, String>, // map maven coordinates -> version number
     val appMetadataPropsInfoMetaInf: AppMetadataPropsInfo?,
 ) {
-    fun csvEntries(): List<String> =
-        listOf(path.substringAfterLast(File.separatorChar)) +
-            profileInfo.csvEntries() +
-            dexInfo.csvEntries() +
-            soInfo.csvEntries() +
-            appMetadataPropsInfoMetaInf.csvEntries()
-
     companion object {
-        val CSV_TITLES =
-            listOf("filename") +
-                ProfInfo.CSV_TITLES +
-                DexInfo.CSV_TITLES +
-                SoInfo.CSV_TITLES +
-                AppMetadataPropsInfo.CSV_TITLES_META_INF
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<ApkInfo>(
+                    "filename",
+                    description = "Filename when tool was run",
+                    calculate = { it.path.substringAfterLast(File.separatorChar) },
+                )
+            ) +
+                ProfInfo.CSV_COLUMNS.mapAll { it.profileInfo } +
+                DexInfo.CSV_COLUMNS.mapAll { it.dexInfo } +
+                SoInfo.CSV_COLUMNS.mapAll { it.soInfo } +
+                AppMetadataPropsInfo.CSV_COLUMNS_META_INF.mapAll { it.appMetadataPropsInfoMetaInf }
 
         fun from(file: File): ApkInfo {
             return FileInputStream(file).use { from(file.path, it) }
         }
 
         fun from(path: String, inputStream: InputStream): ApkInfo {
-            val dexInfo = mutableListOf<DexInfo>()
             val soInfo = mutableListOf<SoInfo>()
+            val xmlStrings = mutableSetOf<String>()
             val dotVersionFiles = mutableMapOf<String, String>()
             var profileInfo: ProfInfo? = null
             var appMetadataPropsInfoMetaInf: AppMetadataPropsInfo? = null
+            val deferredDexFiles = mutableListOf<DexInfo.DeferredDexFile>()
             ZipInputStream(inputStream).use { zis ->
                 var entry: ZipEntry? = zis.nextEntry
 
                 while (entry != null) {
                     when {
                         entry.name.endsWith(".dex") -> {
-                            dexInfo.add(DexInfo.from(entry.name, entry.compressedSize, zis))
+                            deferredDexFiles.add(
+                                DexInfo.DeferredDexFile(
+                                    entryName = entry.name,
+                                    compressedSize = entry.compressedSize,
+                                    bytes = zis.readAllBytes(),
+                                )
+                            )
                         }
 
                         entry.name == ProfInfo.APK_LOCATION -> {
@@ -89,6 +90,12 @@ data class ApkInfo(
                         entry.name.endsWith(".so") -> {
                             soInfo.add(SoInfo(bundlePath = entry.name, size = zis.countBytes()))
                         }
+                        entry.name.endsWith(".xml") -> {
+                            XmlInfo.collectStringsFromApkResourceFile(
+                                zis.readAllBytes(),
+                                xmlStrings,
+                            )
+                        }
                     }
                     entry = zis.nextEntry
                 }
@@ -97,7 +104,7 @@ data class ApkInfo(
             return ApkInfo(
                 path = path,
                 profileInfo = profileInfo,
-                dexInfo = dexInfo,
+                dexInfo = deferredDexFiles.toDexInfo(xmlStrings),
                 soInfo = soInfo,
                 dotVersionFiles = dotVersionFiles,
                 appMetadataPropsInfoMetaInf = appMetadataPropsInfoMetaInf,

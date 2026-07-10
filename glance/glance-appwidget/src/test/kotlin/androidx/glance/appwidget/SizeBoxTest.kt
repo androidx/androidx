@@ -34,6 +34,7 @@ import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SizeBoxTest {
     private val minAppWidgetSize = DpSize(50.dp, 100.dp)
 

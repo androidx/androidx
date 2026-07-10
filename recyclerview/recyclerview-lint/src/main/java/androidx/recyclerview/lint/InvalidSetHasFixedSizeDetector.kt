@@ -122,7 +122,7 @@ class InvalidSetHasFixedSizeDetector : Detector(), XmlScanner, SourceCodeScanner
             """
             When using `setHasFixedSize() in an `RecyclerView`, `wrap_content` cannot be used as \
             a value for `size` in the scrolling direction.
-        """
+            """
                 .trimIndent()
 
         val ISSUE =

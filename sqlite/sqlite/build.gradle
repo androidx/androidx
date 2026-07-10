@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -37,10 +36,12 @@ androidXMultiplatform {
         namespace = "androidx.sqlite.db"
     }
     ios()
+    js()
     jvm()
     linux()
     mac()
     tvos()
+    wasmJs()
     watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -48,39 +49,29 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.9.1")
             }
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        nonWebMain {
+            dependsOn(commonMain)
         }
         androidMain {
-            dependsOn(commonMain)
-        }
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
-            }
+            dependsOn(nonWebMain)
         }
         jvmMain {
-            dependsOn(commonMain)
+            dependsOn(nonWebMain)
         }
         nativeMain {
-            dependsOn(commonMain)
+            dependsOn(nonWebMain)
         }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                def main = target.compilations["main"]
-                main.defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+        }
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
+            implementation(libs.truth)
         }
     }
 }
@@ -90,5 +81,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "SQLite API"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

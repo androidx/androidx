@@ -16,22 +16,18 @@
 
 package androidx.xr.runtime
 
-import androidx.annotation.RestrictTo
-
-/**
- * Represents the type of tracking calibration as indicated by
- * [SessionConfigureCalibrationRequired].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/** Tracking calibration type as indicated by [SessionConfigureCalibrationRequired]. */
 public class RequiredCalibrationType private constructor(private val value: Int) {
     public companion object {
         /** The [Session]'s [Config] requires face tracking to be calibrated. */
-        @JvmField public val FACE_TRACKING: RequiredCalibrationType = RequiredCalibrationType(0)
+        @JvmField
+        public val REQUIRED_CALIBRATION_TYPE_FACE_TRACKING: RequiredCalibrationType =
+            RequiredCalibrationType(0)
     }
 
     public override fun toString(): String =
         when (this) {
-            FACE_TRACKING -> "FACE TRACKING"
+            REQUIRED_CALIBRATION_TYPE_FACE_TRACKING -> "FACE TRACKING"
             else -> "UNKNOWN"
         }
 

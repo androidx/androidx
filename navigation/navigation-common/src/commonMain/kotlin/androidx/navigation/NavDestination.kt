@@ -27,9 +27,11 @@ import kotlin.reflect.KClass
  * Each destination is associated with a [Navigator] which knows how to navigate to this particular
  * destination.
  *
- * Destinations declare a set of [actions][putAction] that they support. These actions form a
- * navigation API for the destination; the same actions declared on different destinations that fill
- * similar roles allow application code to navigate based on semantic intent.
+ * Destinations declare a set of
+ * [actions](https://developer.android.com/reference/androidx/navigation/NavDestination#putAction(kotlin.Int,androidx.navigation.NavAction))
+ * that they support. These actions form a navigation API for the destination; the same actions
+ * declared on different destinations that fill similar roles allow application code to navigate
+ * based on semantic intent.
  *
  * Each destination has a set of [arguments][arguments] that will be applied when
  * [navigating][NavController.navigate] to that destination. Any default values for those arguments
@@ -41,8 +43,9 @@ public expect open class NavDestination(navigatorName: String) {
 
     /**
      * This optional annotation allows tooling to offer auto-complete for the `android:name`
-     * attribute. This should match the class type passed to [parseClassFromName] when parsing the
-     * `android:name` attribute.
+     * attribute. This should match the class type passed to
+     * [parseClassFromName](https://developer.android.com/reference/androidx/navigation/NavDestination#parseClassFromName(android.content.Context,kotlin.String,java.lang.Class))
+     * when parsing the `android:name` attribute.
      */
     @Retention(AnnotationRetention.BINARY)
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
@@ -115,6 +118,7 @@ public expect open class NavDestination(navigatorName: String) {
      * If using safe args, setting this manually will override the ID that was set based on route
      * from KClass.
      */
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in nonAndroidMain
     public var id: Int
 
     /**
@@ -126,6 +130,7 @@ public expect open class NavDestination(navigatorName: String) {
      */
     public var route: String?
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     public open val displayName: String
 
     /**
@@ -177,7 +182,9 @@ public expect open class NavDestination(navigatorName: String) {
      *
      * Deep links added in navigation XML files will automatically replace instances of
      * `${applicationId}` with the applicationId of your app. Programmatically added deep links
-     * should use [Context.getPackageName] directly when constructing the uriPattern.
+     * should use
+     * [Context.getPackageName](https://developer.android.com/reference/android/content/Context#getPackageManager())
+     * directly when constructing the uriPattern.
      *
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController.handleDeepLink
@@ -209,8 +216,9 @@ public expect open class NavDestination(navigatorName: String) {
      *
      * Deep link Uris, actions, and mimetypes added in navigation XML files will automatically
      * replace instances of `${applicationId}` with the applicationId of your app. Programmatically
-     * added deep links should use [Context.getPackageName] directly when constructing the
-     * uriPattern.
+     * added deep links should use
+     * [Context.getPackageName](https://developer.android.com/reference/android/content/Context#getPackageManager())
+     * directly when constructing the uriPattern.
      *
      * When matching deep links for calls to [NavController.handleDeepLink] or
      * [NavController.navigate] the order of precedence is as follows: the deep link with the most

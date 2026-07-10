@@ -57,7 +57,7 @@ class NavigationBarBenchmark {
 
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(testCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(testCaseFactory)
     }
 
     @Test
@@ -70,7 +70,7 @@ class NavigationBarBenchmark {
 
     @Test
     fun shortNavigationBar_topIcon_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(shortNavBarTopIconTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(shortNavBarTopIconTestCaseFactory)
     }
 
     @Test

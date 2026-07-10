@@ -81,6 +81,7 @@ public class Text implements LayoutElement {
     }
 
     /** Builder class for {@link Text}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull Context mContext;
         private @NonNull ColorProp mColor = argb(Colors.DEFAULT.getOnPrimary());

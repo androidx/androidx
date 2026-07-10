@@ -18,8 +18,9 @@
     <dimen name="viewer_fastscroll_edge_offset">24dp</dimen>
     <dimen name="viewer_doc_padding_y">4dp</dimen>
     <dimen name="viewer_doc_padding_x">0dp</dimen>
-    <dimen name="top_page_margin">3dp</dimen>
-    <dimen name="page_spacing">8dp</dimen>
+    <dimen name="pdf_vertical_page_spacing">8dp</dimen>
+    <!-- TODO(b/448583041): Fix the appropriate default horizontal spacing from UX. -->
+    <dimen name="pdf_horizontal_page_spacing">8dp</dimen>
 
     <!--Edit button FAB -->
     <dimen name="viewer_edit_fab_margin_bottom">16dp</dimen>
@@ -29,8 +30,6 @@
     <dimen name="find_in_file_button_size">48dp</dimen>
 
     <dimen name="text_select_handle_touch_size">48dp</dimen>
-    <dimen name="pdf_horizontal_margin">0dp</dimen>
-    <dimen name="pdf_horizontal_margin_w840dp">40dp</dimen>
 
     <!--Fast scroller -->
     <dimen name="scroll_thumb_margin_end">0dp</dimen>
@@ -39,4 +38,7 @@
     <dimen name="page_indicator_text_size">12sp</dimen>
     <dimen name="scroller_top_margin">2dp</dimen>
     <dimen name="scroller_bottom_margin">2dp</dimen>
+
+    <!-- Form Filling -->
+    <dimen name="form_widget_edit_text_boundary_width">2dp</dimen>
 </resources>

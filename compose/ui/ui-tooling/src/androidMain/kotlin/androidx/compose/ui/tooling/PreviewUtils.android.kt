@@ -16,9 +16,11 @@
 
 package androidx.compose.ui.tooling
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import kotlin.collections.removeLast as removeLastKt
 
 /** Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN. */
@@ -28,6 +30,17 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
         return Class.forName(this) as? Class<out PreviewParameterProvider<*>>
     } catch (e: ClassNotFoundException) {
         PreviewLogger.logError("Unable to find PreviewProvider '$this'", e)
+        return null
+    }
+}
+
+/** Tries to find the [Class] of the [PreviewWrapperProvider] corresponding to the given FQN. */
+internal fun String.asPreviewWrapperProviderClass(): Class<out PreviewWrapperProvider>? {
+    try {
+        @Suppress("UNCHECKED_CAST")
+        return Class.forName(this) as? Class<out PreviewWrapperProvider>
+    } catch (e: ClassNotFoundException) {
+        PreviewLogger.logError("Unable to find PreviewWrapperProvider '$this'", e)
         return null
     }
 }
@@ -72,6 +85,39 @@ internal fun getPreviewProviderParameters(
     } else {
         return emptyArray()
     }
+}
+
+/**
+ * Instantiates a [PreviewWrapperProvider] from the provided [Class].
+ *
+ * This method attempts to find a no-argument constructor on the given class and use it to creates a
+ * new instance. If [previewWrapperProvider] is `null`, it returns a no-op wrapper that just passes
+ * through its content.
+ *
+ * @param previewWrapperProvider The [Class] of the [PreviewWrapperProvider] to instantiate.
+ * @return A new instance of the [PreviewWrapperProvider] or a no-op wrapper if null.
+ * @throws IllegalArgumentException If the class does not have a public, no-argument constructor.
+ */
+internal fun instantiatePreviewWrapperProvider(
+    previewWrapperProvider: Class<out PreviewWrapperProvider>?
+): PreviewWrapperProvider {
+    if (previewWrapperProvider == null) {
+        return object : PreviewWrapperProvider {
+            @Composable
+            override fun Wrap(content: @Composable () -> Unit) {
+                content()
+            }
+        }
+    }
+
+    val constructor =
+        previewWrapperProvider.constructors
+            .singleOrNull { it.parameterTypes.isEmpty() }
+            ?.apply { isAccessible = true }
+            ?: throw IllegalArgumentException(
+                "PreviewWrapperProvider constructor can not" + " have parameters"
+            )
+    return constructor.newInstance() as PreviewWrapperProvider
 }
 
 /**

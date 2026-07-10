@@ -13,39 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:SuppressLint("AutoBoxing")
+
 package androidx.compose.remote.player.compose.context
 
-import android.graphics.Bitmap
-import android.graphics.Bitmap.createBitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
+import android.annotation.SuppressLint
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.core.types.LongConstant
+import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import java.io.IOException
-import java.net.MalformedURLException
-import java.net.URL
-import java.time.Clock
 
 /**
  * An implementation of [RemoteContext] for
- * [androidx.compose.remote.player.compose.RemoteComposePlayer].
+ * [androidx.compose.remote.player.compose.impl.RemoteComposePlayer].
  */
-internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
-    private lateinit var haptic: HapticFeedback
+internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
+    private var haptic: HapticFeedback? = null
     private var varNameHashMap: HashMap<String, VarName?> = HashMap<String, VarName?>()
 
+    public val documentRevision = mutableIntStateOf(0)
+    public val animationFrame = mutableLongStateOf(0L)
+
     public var a11yAnimationEnabled = true
+
+    private var bitmapLoader: BitmapLoader = BitmapLoader.UNSUPPORTED
+
+    /**
+     * Sets the BitmapLoader to be used by the RemoteContext for loading bitmaps from URLs. This is
+     * useful when you want to provide a custom way of loading bitmaps, for example, from a network
+     * cache or a local file system.
+     *
+     * @param bitmapLoader The BitmapLoader to be used.
+     */
+    fun setBitmapLoader(bitmapLoader: BitmapLoader) {
+        this.bitmapLoader = bitmapLoader
+    }
 
     override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {
         mRemoteComposeState.putPathData(instanceId, floatPath)
@@ -104,9 +115,17 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
         varNameHashMap[stringName] = null
     }
 
-    override fun setNamedIntegerOverride(stringName: String, value: Int) {
-        if (varNameHashMap[stringName] != null) {
-            val id = varNameHashMap[stringName]!!.id
+    override fun setNamedBooleanOverride(booleanName: String, value: Boolean) {
+        setNamedIntegerOverride(booleanName, if (value) 1 else 0)
+    }
+
+    override fun clearNamedBooleanOverride(booleanName: String) {
+        clearNamedIntegerOverride(booleanName)
+    }
+
+    override fun setNamedIntegerOverride(integerName: String, value: Int) {
+        if (varNameHashMap[integerName] != null) {
+            val id = varNameHashMap[integerName]!!.id
             overrideInt(id, value)
         }
     }
@@ -188,7 +207,15 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
     }
 
     override fun hapticEffect(type: Int) {
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
+
+    override fun loadSound(soundId: Int, data: ByteArray) {
+        mDocument.loadSound(soundId, data)
+    }
+
+    override fun playSound(soundId: Int) {
+        mDocument.playSound(soundId)
     }
 
     override fun loadBitmap(
@@ -200,89 +227,19 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
         bitmap: ByteArray,
     ) {
         if (!mRemoteComposeState.containsId(imageId)) {
-            var image: Bitmap? = null
-            when (encoding) {
-                BitmapData.ENCODING_INLINE ->
-                    when (type) {
-                        BitmapData.TYPE_PNG_8888 -> {
-                            if (CHECK_DATA_SIZE) {
-                                val opts = BitmapFactory.Options()
-                                opts.inJustDecodeBounds = true // <-- do a bounds-only pass
-                                BitmapFactory.decodeByteArray(bitmap, 0, bitmap.size, opts)
-                                if (opts.outWidth > width || opts.outHeight > height) {
-                                    throw RuntimeException(
-                                        ("dimension don't match " +
-                                            opts.outWidth +
-                                            "x" +
-                                            opts.outHeight +
-                                            " vs " +
-                                            width +
-                                            "x" +
-                                            height)
-                                    )
-                                }
-                            }
-                            image = BitmapFactory.decodeByteArray(bitmap, 0, bitmap.size)
-                        }
-                        BitmapData.TYPE_PNG_ALPHA_8 -> {
-                            image = decodePreferringAlpha8(bitmap)
-
-                            // If needed convert to ALPHA_8.
-                            if (image!!.getConfig() != Bitmap.Config.ALPHA_8) {
-                                val alpha8Bitmap =
-                                    createBitmap(
-                                        image.getWidth(),
-                                        image.getHeight(),
-                                        Bitmap.Config.ALPHA_8,
-                                    )
-                                val canvas = Canvas(alpha8Bitmap)
-                                val paint = Paint()
-                                paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
-                                canvas.drawBitmap(image, 0f, 0f, paint)
-                                image.recycle() // Release resources
-
-                                image = alpha8Bitmap
-                            }
-                        }
-                        BitmapData.TYPE_RAW8888 -> {
-                            image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                            val intData = IntArray(bitmap.size / 4)
-                            var i = 0
-                            while (i < intData.size) {
-                                val p = i * 4
-                                intData[i] =
-                                    ((bitmap[p].toInt() shl 24) or
-                                        (bitmap[p + 1].toInt() shl 16) or
-                                        (bitmap[p + 2].toInt() shl 8) or
-                                        bitmap[p + 3].toInt())
-                                i++
-                            }
-                            image.setPixels(intData, 0, width, 0, 0, width, height)
-                        }
-                        BitmapData.TYPE_RAW8 -> {
-                            image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                            val bitmapData = IntArray(bitmap.size / 4)
-                            var i = 0
-                            while (i < bitmapData.size) {
-                                bitmapData[i] = 0x1010101 * bitmap[i]
-                                i++
-                            }
-                            image.setPixels(bitmapData, 0, width, 0, 0, width, height)
-                        }
-                    }
-                BitmapData.ENCODING_FILE -> image = BitmapFactory.decodeFile(String(bitmap))
-                BitmapData.ENCODING_URL ->
-                    try {
-                        image = BitmapFactory.decodeStream(URL(String(bitmap)).openStream())
-                    } catch (e: MalformedURLException) {
-                        throw RuntimeException(e)
-                    } catch (e: IOException) {
-                        throw RuntimeException(e)
-                    }
-                BitmapData.ENCODING_EMPTY ->
-                    image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val image =
+                androidx.compose.remote.player.core.platform.RemoteBitmapDecoder.decodeBitmap(
+                    imageId,
+                    encoding,
+                    type,
+                    width,
+                    height,
+                    bitmap,
+                    bitmapLoader,
+                )
+            if (image != null) {
+                mRemoteComposeState.cacheData(imageId, image)
             }
-            mRemoteComposeState.cacheData(imageId, image!!)
         }
     }
 
@@ -298,8 +255,10 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
         return mRemoteComposeState.getFromId(id) as? String
     }
 
+    @SuppressLint("AutoboxingStateValueProperty")
     override fun loadFloat(id: Int, value: Float) {
         mRemoteComposeState.updateFloat(id, value)
+        documentRevision.value++
     }
 
     override fun overrideFloat(id: Int, value: Float) {
@@ -383,16 +342,6 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
         } else {
             false
         }
-
-    private fun decodePreferringAlpha8(data: ByteArray): Bitmap? {
-        val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ALPHA_8
-        return BitmapFactory.decodeByteArray(data, 0, data.size, options)
-    }
-
-    companion object {
-        private const val CHECK_DATA_SIZE: Boolean = true
-    }
 }
 
 private data class VarName(val name: String, val id: Int, val type: Int)

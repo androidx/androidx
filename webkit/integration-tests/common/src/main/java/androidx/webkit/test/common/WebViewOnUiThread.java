@@ -37,6 +37,8 @@ import android.webkit.WebViewClient;
 import androidx.annotation.CallSuper;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.webkit.JavaScriptExecutionWorld;
+import androidx.webkit.NavigationParameters;
 import androidx.webkit.ScriptHandler;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -292,6 +294,49 @@ public class WebViewOnUiThread implements AutoCloseable {
                 mWebView, script, allowedOriginRules));
     }
 
+    /**
+     *
+     */
+    public void addWebMessageListener(
+            @NonNull String jsObjectName,
+            @NonNull Set<String> allowedOriginRules,
+            @NonNull JavaScriptExecutionWorld world,
+            final WebViewCompat.@NonNull WebMessageListener listener) {
+        WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.addWebMessageListener(
+                        mWebView, jsObjectName, allowedOriginRules, world, listener));
+    }
+
+    /**
+     *
+     */
+    public void removeWebMessageListener(
+            final @NonNull String jsObjectName, @NonNull JavaScriptExecutionWorld world) {
+        WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.removeWebMessageListener(mWebView, world, jsObjectName));
+    }
+
+    /**
+     *
+     */
+    public @NonNull ScriptHandler addJavaScriptOnEvent(
+            @NonNull String script,
+            int eventType,
+            @NonNull Set<String> allowedOriginRules,
+            @NonNull JavaScriptExecutionWorld world) {
+        return WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.addJavaScriptOnEvent(
+                        mWebView, script, eventType, allowedOriginRules, world));
+    }
+
+    /**
+     *
+     */
+    public @NonNull JavaScriptExecutionWorld getExecutionWorld(@NonNull String worldName) {
+        return WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.getExecutionWorld(mWebView, worldName));
+    }
+
     @SuppressLint("JavascriptInterface")
     public void addJavascriptInterface(final @NonNull Object object, final @NonNull String name) {
         WebkitUtils.onMainThreadSync(() -> mWebView.addJavascriptInterface(object, name));
@@ -310,6 +355,19 @@ public class WebViewOnUiThread implements AutoCloseable {
 
     public void loadUrl(final @NonNull String url) {
         WebkitUtils.onMainThreadSync(() -> mWebView.loadUrl(url));
+    }
+
+    /**
+     * Calls navigate on the WebView and then waits for onPageFinished
+     * and onProgressChange to reach 100.
+     * Test fails if the load timeout elapses.
+     *
+     * @param url The URL to load.
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public void navigateAndWaitForCompletion(final @NonNull String url,
+            final @NonNull NavigationParameters navigationParameters) {
+        callAndWait(() -> WebViewCompat.navigate(mWebView, url, navigationParameters));
     }
 
     /**
@@ -608,5 +666,4 @@ public class WebViewOnUiThread implements AutoCloseable {
             mOnUiThread.onPageStarted();
         }
     }
-
 }

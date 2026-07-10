@@ -19,22 +19,28 @@ package androidx.appsearch.compiler;
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_CLASS_FACTORY_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_SCOPE_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.EXPERIMENTAL_APP_SEARCH_API_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.KOTLIN_OPT_IN_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.OPT_IN_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.REQUIRES_API_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentClassFactoryForClass;
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.processing.JavaPoetExtKt.toAnnotationSpec;
 import static androidx.room.compiler.processing.compat.XConverters.toJavac;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XProcessingEnv;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import org.jspecify.annotations.NonNull;
 
-import java.io.IOException;
+import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
@@ -43,6 +49,20 @@ import javax.lang.model.element.Modifier;
  * between the document class and a {@link androidx.appsearch.app.GenericDocument}.
  */
 class CodeGenerator {
+    /**
+     * An allowlist of fully qualified annotation names to propagate from the source class
+     * to the generated class.
+     *
+     * <p>We propagate specific annotations (like {@code @RequiresApi} and {@code @OptIn}) to
+     * ensure that the generated code mirrors the API requirements and experimental status of the
+     * source class.
+     */
+    private static final Set<String> PROPAGATED_ANNOTATIONS = Set.of(
+            REQUIRES_API_ANNOTATION_CLASS.getCanonicalName(),
+            OPT_IN_ANNOTATION_CLASS.getCanonicalName(),
+            KOTLIN_OPT_IN_ANNOTATION_CLASS.getCanonicalName(),
+            EXPERIMENTAL_APP_SEARCH_API_ANNOTATION_CLASS.getCanonicalName()
+    );
     private final XProcessingEnv mEnv;
     private final DocumentModel mModel;
     private final boolean mRestrictGeneratedCodeToLib;
@@ -64,7 +84,7 @@ class CodeGenerator {
         mOutputPackage = mModel.getClassElement().getPackageName();
     }
 
-    public JavaFile createJavaFile() throws IOException, ProcessingException {
+    public JavaFile createJavaFile() throws XProcessingException {
         TypeSpec outputClass = createClass();
         return JavaFile.builder(mOutputPackage, outputClass).build();
     }
@@ -73,27 +93,37 @@ class CodeGenerator {
      * Creates factory class for any class annotated with
      * {@link androidx.appsearch.annotation.Document}
      * <p>Class Example 1:
-     * For a class Foo annotated with @Document, we will generated a
+     * For a class Foo annotated with @Document, we will generate a
      * $$__AppSearch__Foo.class under the output package.
      * <p>Class Example 2:
-     * For an inner class Foo.Bar annotated with @Document, we will generated a
+     * For an inner class Foo.Bar annotated with @Document, we will generate a
      * $$__AppSearch__Foo$$__Bar.class under the output package.
      */
-    private TypeSpec createClass() throws ProcessingException {
+    private TypeSpec createClass() throws XProcessingException {
         // Gets the full name of target class.
         String qualifiedName = mModel.getQualifiedDocumentClassName();
         String className = qualifiedName.substring(mOutputPackage.length() + 1);
-        ClassName genClassName = getDocumentClassFactoryForClass(mOutputPackage, className);
+        XClassName genClassName = getDocumentClassFactoryForClass(mOutputPackage, className);
 
-        TypeName genClassType = mModel.getClassElement().getType().getTypeName();
-        TypeName factoryType =
-                ParameterizedTypeName.get(DOCUMENT_CLASS_FACTORY_CLASS, genClassType);
+        XTypeName genClassType = mModel.getClassElement().getType().asTypeName();
+        XTypeName factoryType =
+                DOCUMENT_CLASS_FACTORY_CLASS.parametrizedBy(genClassType);
 
         TypeSpec.Builder genClass = TypeSpec
-                .classBuilder(genClassName)
+                .classBuilder(toJavaPoet(genClassName))
                 .addOriginatingElement(toJavac(mModel.getClassElement()))
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterface(factoryType);
+                .addSuperinterface(toJavaPoet(factoryType));
+
+        // Propagate the annotations like @RequiresApi, @OptIn etc. to the generated class.
+        for (XAnnotation annotation :
+                mModel.getClassElement().getAllAnnotations()) {
+            String annotationQualifiedName = annotation.getQualifiedName();
+            if (PROPAGATED_ANNOTATIONS.contains(annotationQualifiedName)) {
+                genClass.addAnnotation(
+                        toAnnotationSpec(annotation, /* includeDefaultValues= */false));
+            }
+        }
 
         // Add the @Generated annotation to avoid static analysis running on these files
         GeneratedAnnotationSpecs.generatedAnnotationSpec(
@@ -105,14 +135,17 @@ class CodeGenerator {
         if (mRestrictGeneratedCodeToLib) {
             // Add @RestrictTo(LIBRARY_GROUP) to the generated class
             genClass.addAnnotation(
-                    AnnotationSpec.builder(RESTRICT_TO_ANNOTATION_CLASS)
-                            .addMember(/* name= */"value", "$T.LIBRARY", RESTRICT_TO_SCOPE_CLASS)
+                    AnnotationSpec.builder(toJavaPoet(RESTRICT_TO_ANNOTATION_CLASS))
+                            .addMember(
+                                    /* name= */"value",
+                                    "$T.LIBRARY",
+                                    toJavaPoet(RESTRICT_TO_SCOPE_CLASS))
                             .build());
         }
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
-        ToGenericDocumentCodeGenerator.generate(toJavac(mEnv), mModel, genClass);
-        FromGenericDocumentCodeGenerator.generate(toJavac(mEnv), mModel, genClass);
+        ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);
+        FromGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);
         return genClass.build();
     }
 }

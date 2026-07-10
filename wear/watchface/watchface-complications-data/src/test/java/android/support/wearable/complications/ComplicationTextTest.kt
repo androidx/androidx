@@ -17,6 +17,7 @@
 package android.support.wearable.complications
 
 import android.content.Context
+import android.os.Bundle
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationText.FORMAT_STYLE_DEFAULT
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
@@ -34,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class ComplicationTextTest {
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
 
@@ -691,6 +693,59 @@ public class ComplicationTextTest {
         val text = ComplicationText("hello" as CharSequence, DynamicString.constant("world"))
 
         Truth.assertThat(text.getTextAt(mResources, 132456789).toString()).isEqualTo("hello")
+    }
+
+    @Test
+    fun testTimeFormatText_parcelRoundtrip_and_maliciousClassRejection() {
+        val original =
+            TimeFormatText(
+                "HH:mm",
+                ComplicationText.FORMAT_STYLE_UPPER_CASE,
+                TimeZone.getTimeZone("UTC"),
+            )
+        val parcel =
+            Parcel.obtain().apply {
+                original.writeToParcel(this, 0)
+                setDataPosition(0)
+            }
+
+        // Verify backwards wire compatibility: successfully unparcels from legacy writeSerializable
+        // format.
+        val unparceled = TimeFormatText.CREATOR.createFromParcel(parcel)
+        Truth.assertThat(unparceled.getTextAt(mResources, 0).toString()).isEqualTo("00:00")
+
+        parcel.recycle()
+
+        // Verify pre-deserialization rejection: crafting a malicious Serializable class name is
+        // rejected.
+        val maliciousParcel =
+            Parcel.obtain().apply {
+                writeString("java.util.HashSet") // Malicious class name
+                writeInt(0) // dummy bytes
+                writeInt(ComplicationText.FORMAT_STYLE_UPPER_CASE)
+                writeString(null) // null timezone
+                setDataPosition(0)
+            }
+
+        Assert.assertThrows(Exception::class.java) {
+            TimeFormatText.CREATOR.createFromParcel(maliciousParcel)
+        }
+
+        maliciousParcel.recycle()
+    }
+
+    @Test
+    fun createFromParcel_emptyBundle_defaultsToEmptyString() {
+        val parcel =
+            Parcel.obtain().apply {
+                writeBundle(Bundle())
+                setDataPosition(0)
+            }
+
+        val text = ComplicationText.CREATOR.createFromParcel(parcel)
+        Truth.assertThat(text.getTextAt(mResources, 0).toString()).isEqualTo("")
+
+        parcel.recycle()
     }
 }
 

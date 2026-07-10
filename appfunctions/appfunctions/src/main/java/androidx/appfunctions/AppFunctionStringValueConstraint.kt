@@ -46,7 +46,7 @@ package androidx.appfunctions
  * // Constraining a property within an AppFunctionSerializable:
  * @AppFunctionSerializable
  * data class AppConfig(
- *     @AppFunctionStringValueConstraint(enumValues = ["ENABLED", "DISABLED"])
+ *     @property:AppFunctionStringValueConstraint(enumValues = ["ENABLED", "DISABLED"])
  *     val featureFlag: String
  * )
  * ```

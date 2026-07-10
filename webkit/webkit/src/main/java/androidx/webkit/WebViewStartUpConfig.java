@@ -18,36 +18,43 @@ package androidx.webkit;
 
 import android.content.Context;
 
+import androidx.annotation.RestrictTo;
+
+import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface.StartUpConfigField;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 
 /**
  * Configuration object for
- * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+ * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
  * <p>
  * This is different from {@link ProcessGlobalConfig}. This object defines the configuration for
  * a particular call to
- * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+ * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
  */
-@WebViewCompat.ExperimentalAsyncStartUp
 public final class WebViewStartUpConfig {
     private final Executor mExecutor;
     private final boolean mShouldRunUiThreadStartUpTasks;
-    private final @Nullable Set<String> mProfilesToLoadDuringStartup;
+    private final @Nullable Set<@NonNull String> mProfilesToLoadDuringStartup;
 
-    private WebViewStartUpConfig(
+    WebViewStartUpConfig(
             @NonNull Executor executor, boolean shouldRunUiThreadStartUpTasks,
-            @Nullable Set<String> profilesToLoadDuringStartup) {
+            @Nullable Set<@NonNull String> profilesToLoadDuringStartup) {
         mExecutor = executor;
         mShouldRunUiThreadStartUpTasks = shouldRunUiThreadStartUpTasks;
         mProfilesToLoadDuringStartup = profilesToLoadDuringStartup;
     }
 
-    public @NonNull Executor getBackgroundExecutor() {
+    /**
+     * Returns the {@link Executor} that will be used to run background startup tasks.
+     */
+    @NonNull
+    public Executor getBackgroundExecutor() {
         return mExecutor;
     }
 
@@ -55,7 +62,7 @@ public final class WebViewStartUpConfig {
      * Whether to run only parts of startup that doesn't block the UI thread.
      * <p>
      * WebView startup tasks that are required to run on the UI thread are not attempted when
-     * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+     * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
      * is called if set to {@code false}.
      * <p>
      * Defaults to `true`. If not set to `false`, UI thread startup tasks will be
@@ -66,25 +73,47 @@ public final class WebViewStartUpConfig {
     }
 
     /**
-     * Returns the {@link Set} of profiles to be loaded during the UI thread blocking
+     * Returns the {@link Set} of {@link Profile} names to be loaded during the UI thread blocking
      * parts of WebView startup.
      * <p>
      * <p>For more details on the behavior of this setting, see the documentation for
      * {@link WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)}.
      * <p>
      *
-     * @return A {@link Set} of profiles to be loaded, or {@code null} if
+     * @return A {@link Set} of {@link Profile} names to be loaded, or {@code null} if
      * this configuration setting is not active.
      * @see WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)
      */
     // The lint warning is suppressed here as the null represents a state, please see the javadoc
     // above.
     @SuppressWarnings("NullableCollection")
-    public @Nullable Set<String> getProfilesToLoadDuringStartup() {
+    public @Nullable Set<@NonNull String> getProfilesToLoadDuringStartup() {
         return mProfilesToLoadDuringStartup;
     }
 
-    @WebViewCompat.ExperimentalAsyncStartUp
+    /**
+     * Serializes the {@link WebViewStartUpConfig} to a {@link BiConsumer} for use with the
+     * support library glue layer.
+     * <p>
+     * This method is for internal library use only.
+     *
+     * @param chromiumConfig The {@link BiConsumer} to serialize the config to.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void accept(
+            @NonNull BiConsumer<@StartUpConfigField Integer, Object> chromiumConfig) {
+        chromiumConfig.accept(StartUpConfigField.BACKGROUND_EXECUTOR,
+                mExecutor);
+        if (!mShouldRunUiThreadStartUpTasks) {
+            chromiumConfig.accept(StartUpConfigField.UI_THREAD_START_UP_TASKS,
+                    false);
+        }
+        if (mProfilesToLoadDuringStartup != null) {
+            chromiumConfig.accept(StartUpConfigField.PROFILE_NAMES_TO_LOAD,
+                    mProfilesToLoadDuringStartup);
+        }
+    }
+
     public static final class Builder {
         private final Executor mExecutor;
         private boolean mShouldRunUiThreadStartUpTasks = true;
@@ -105,28 +134,20 @@ public final class WebViewStartUpConfig {
          * Setter to run only parts of startup that doesn't block the UI thread.
          * <p>
          * WebView startup tasks that are required to run on the UI thread are not attempted when
-         * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+         * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
          * is called if set to {@code false}.
          * <p>
          * Defaults to `true`. If not set to `false`, UI thread startup tasks will be
          * run.
-         *
-         * @throws IllegalArgumentException if this is set to {@code false} after a set of
-         *                                  profiles to load has already been specified via
-         *                                  {@link #setProfilesToLoadDuringStartup(Set)}.
          */
         public @NonNull Builder setShouldRunUiThreadStartUpTasks(
                 boolean shouldRunUiThreadStartUpTasks) {
-            if (mProfilesToLoadDuringStartup != null && !shouldRunUiThreadStartUpTasks) {
-                throw new IllegalArgumentException(
-                        "Can't specify profiles to load without running UI thread startup tasks");
-            }
             mShouldRunUiThreadStartUpTasks = shouldRunUiThreadStartUpTasks;
             return this;
         }
 
         /**
-         * Specifies a set of profiles to load before the startup callback is invoked.
+         * Specifies a set of {@link Profile} names to load before the startup callback is invoked.
          * <p>
          * This method allows you to specify a set of profiles that are guaranteed to have been
          * loaded before the {@link WebViewCompat.WebViewStartUpCallback} is invoked. This can
@@ -152,18 +173,11 @@ public final class WebViewStartUpConfig {
          * {@link WebViewFeature#isStartupFeatureSupported(Context, String)}
          * returns false for {@link WebViewFeature#STARTUP_FEATURE_SET_PROFILES_TO_LOAD}.
          *
-         * @param profiles A {@link Set} of profile names to pre-load or an empty Set to load none.
+         * @param profiles A {@link Set} of {@link Profile} names to preload or an empty Set to
+         *                 load none.
          * @return The {@link Builder} instance for method chaining.
-         * @throws IllegalArgumentException if this method is called when
-         *                                  {@link #setShouldRunUiThreadStartUpTasks(boolean)}
-         *                                  has been set to {@code false}.
          */
         public @NonNull Builder setProfilesToLoadDuringStartup(@NonNull Set<String> profiles) {
-            if (!mShouldRunUiThreadStartUpTasks) {
-                throw new IllegalArgumentException(
-                        "Can't specify profiles to load without running UI thread startup "
-                                + "tasks");
-            }
             this.mProfilesToLoadDuringStartup = new HashSet<>(profiles);
             return this;
         }
@@ -172,8 +186,13 @@ public final class WebViewStartUpConfig {
          * Build and return a {@link WebViewStartUpConfig} object.
          *
          * @return immutable {@link WebViewStartUpConfig} object.
+         * @throws IllegalStateException if incompatible options are requested.
          */
         public @NonNull WebViewStartUpConfig build() {
+            if (mProfilesToLoadDuringStartup != null && !mShouldRunUiThreadStartUpTasks) {
+                throw new IllegalStateException(
+                        "Can't specify profiles to load without running UI thread startup tasks");
+            }
             return new WebViewStartUpConfig(mExecutor, mShouldRunUiThreadStartUpTasks,
                     mProfilesToLoadDuringStartup);
         }

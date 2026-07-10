@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.datastore.core.DataStore#getData():
+    Source breaking change: method androidx.datastore.core.DataStore.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.core.InterProcessCoordinator#getUpdateNotifications():
+    Source breaking change: method androidx.datastore.core.InterProcessCoordinator.getUpdateNotifications() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.core.Serializer#getDefaultValue():
+    Source breaking change: method androidx.datastore.core.Serializer.getDefaultValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.core.StorageConnection#getCoordinator():
+    Source breaking change: method androidx.datastore.core.StorageConnection.getCoordinator() can no longer be resolved from Kotlin source

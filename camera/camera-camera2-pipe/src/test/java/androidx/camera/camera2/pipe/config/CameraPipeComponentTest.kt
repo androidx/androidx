@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.config
 
 import android.content.Context
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 internal class CameraPipeComponentTest {
     private val fakeCameraId = RobolectricCameras.create()
 
@@ -56,7 +58,7 @@ internal class CameraPipeComponentTest {
 
         val cameraId = fakeCameraId
         val config = CameraGraph.Config(camera = cameraId, streams = listOf())
-        val module = CameraGraphConfigModule(config)
+        val module = CameraGraphConfigModule(config, CameraGraphId.nextId())
         val builder = component.cameraGraphComponentBuilder()
         builder.cameraGraphConfigModule(module)
         val graphComponent = builder.build()
@@ -77,7 +79,8 @@ internal class CameraPipeComponentTest {
                 .cameraGraphComponentBuilder()
                 .cameraGraphConfigModule(
                     CameraGraphConfigModule(
-                        CameraGraph.Config(camera = fakeCameraId, streams = listOf())
+                        CameraGraph.Config(camera = fakeCameraId, streams = listOf()),
+                        CameraGraphId.nextId(),
                     )
                 )
                 .build()

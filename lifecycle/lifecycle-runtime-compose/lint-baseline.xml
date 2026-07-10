@@ -1,5 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessStarted(currentLifecycleState = State.INITIALIZED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessStarted(currentLifecycleState = State.CREATED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessStarted(currentLifecycleState = State.STARTED, shouldInvoke = true)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessStarted(currentLifecycleState = State.RESUMED, shouldInvoke = true)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessStarted(currentLifecycleState = State.DESTROYED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessResumed(currentLifecycleState = State.INITIALIZED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessResumed(currentLifecycleState = State.CREATED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessResumed(currentLifecycleState = State.STARTED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessResumed(currentLifecycleState = State.RESUMED, shouldInvoke = true)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testDropUnlessResumed(currentLifecycleState = State.DESTROYED, shouldInvoke = false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/DropUnlessLifecycleTest.kt"/>
+    </issue>
 
     <issue
         id="ComposableNaming"
@@ -7,7 +97,7 @@
         errorLine1="    private fun withLifecycleOwner("
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/lifecycle/compose/CollectAsStateWithLifecycleTests.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/CollectAsStateWithLifecycleTests.kt"/>
     </issue>
 
 </issues>

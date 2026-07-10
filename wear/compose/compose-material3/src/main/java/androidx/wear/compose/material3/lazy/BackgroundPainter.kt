@@ -50,6 +50,7 @@ internal class BackgroundPainter(
         }
 
         clipPath(cachedPath) {
+            with(backgroundPainter) { draw(actualSize) }
             if (border != null) {
                 drawOutline(
                     outline = shapeOutline,
@@ -57,7 +58,6 @@ internal class BackgroundPainter(
                     style = Stroke(border.width.toPx().coerceAtLeast(1f)),
                 )
             }
-            with(backgroundPainter) { draw(actualSize) }
         }
     }
 

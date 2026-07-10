@@ -15,13 +15,15 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
 
 import org.jspecify.annotations.NonNull;
 
 /** Interface to represent operations that can handle touch events */
-public interface TouchHandler {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface TouchHandler extends TouchOperation {
 
     /**
      * callback for a touch down event
@@ -31,8 +33,9 @@ public interface TouchHandler {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchDown(
+    boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -49,8 +52,9 @@ public interface TouchHandler {
      * @param y the y position of the click in document coordinates
      * @param dx
      * @param dy
+     * @return true if the event has been handled
      */
-    void onTouchUp(
+    boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -67,8 +71,9 @@ public interface TouchHandler {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchDrag(
+    boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -83,8 +88,9 @@ public interface TouchHandler {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchCancel(
+    boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,

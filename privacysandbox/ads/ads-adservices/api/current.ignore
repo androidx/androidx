@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.privacysandbox.ads.adservices.customaudience.CustomAudience#getAuctionServerRequestFlags():
-    Removed method androidx.privacysandbox.ads.adservices.customaudience.CustomAudience.getAuctionServerRequestFlags() from compatibility checked API surface
-BecameUnchecked: androidx.privacysandbox.ads.adservices.customaudience.CustomAudience#getPriority():
-    Removed method androidx.privacysandbox.ads.adservices.customaudience.CustomAudience.getPriority() from compatibility checked API surface

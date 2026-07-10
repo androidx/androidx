@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+[iosArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[iosSimulatorArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[linuxArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[linuxX64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[macosArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[mingwX64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[tvosArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[tvosSimulatorArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[watchosArm32]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[watchosArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[watchosDeviceArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider
+[watchosSimulatorArm64]: Removed declaration OnRequeryFactory from androidx.lifecycle/ViewModelProvider

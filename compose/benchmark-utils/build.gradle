@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -27,7 +26,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -35,7 +33,6 @@ dependencies {
     api(project(":compose:test-utils"))
     api(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
 
-    implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":tracing:tracing-ktx"))
@@ -46,21 +43,16 @@ dependencies {
     compileOnly(project(":compose:ui:ui-android-stubs"))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    it.kotlinOptions {
-        freeCompilerArgs += [
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add(
                 // Enable experimental benchmark APIs internally
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
-        ]
+        )
     }
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     namespace = "androidx.compose.benchmarkutils"
-
-    // workarounds for b/328649293
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
 }

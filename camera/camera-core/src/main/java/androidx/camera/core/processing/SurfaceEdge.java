@@ -51,6 +51,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.utils.TransformUtils;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -708,5 +709,22 @@ public class SurfaceEdge {
                 mProvider = null;
             });
         }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "SurfaceEdge{"
+                + "targets=" + mTargets
+                + ", format=" + mFormat
+                + ", resolution=" + mStreamSpec.getResolution()
+                + ", cropRect=" + mCropRect
+                + ", rotationDegrees=" + mRotationDegrees
+                + ", mirroring=" + mMirroring
+                + ", sensorToBufferTransform= " + mSensorToBufferTransform
+                + ", rotationInTransform= "
+                + TransformUtils.getRotationDegrees(mSensorToBufferTransform)
+                + ", isMirrorInTransform= " + TransformUtils.isMirrored(mSensorToBufferTransform)
+                + ", isClosed=" + mIsClosed + '}';
     }
 }

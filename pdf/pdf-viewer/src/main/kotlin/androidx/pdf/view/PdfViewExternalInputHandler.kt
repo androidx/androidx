@@ -57,7 +57,7 @@ internal abstract class PdfViewExternalInputHandler(val pdfView: PdfView) {
         val newZoom =
             ExternalInputUtils.calculateGreaterZoom(
                 pdfView.zoom,
-                pdfView.getDefaultZoom(),
+                pdfView.getFitToWidthZoom(),
                 ZOOM_LEVELS,
                 pdfView.maxZoom,
             )
@@ -68,7 +68,7 @@ internal abstract class PdfViewExternalInputHandler(val pdfView: PdfView) {
         val newZoom =
             ExternalInputUtils.calculateSmallerZoom(
                 pdfView.zoom,
-                pdfView.getDefaultZoom(),
+                pdfView.getFitToWidthZoom(),
                 ZOOM_LEVELS,
                 pdfView.minZoom,
             )

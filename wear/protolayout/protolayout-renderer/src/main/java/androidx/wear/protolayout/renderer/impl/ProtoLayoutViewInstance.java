@@ -1289,7 +1289,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     /**
      * Detach this layout from a parent container. Note that it is safe to call this method while
-     * the layout is inflating; see the notes on {@link ProtoLayoutViewInstance#renderAndAttach} for
+     * the layout is inflating; see the notes on {@link
+     * ProtoLayoutViewInstance#renderAndAttach(Layout, ResourceProto.Resources, ViewGroup)} for
      * more information.
      */
     @UiThread
@@ -1366,6 +1367,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @PlatformEventSources.LayoutUpdateStatus int layoutUpdateStatus) {
         if (mDataPipeline != null) {
             mDataPipeline.setLayoutUpdateStatus(layoutUpdateStatus);
+        }
+    }
+
+    /** Sets the state of interactive vs ambient display update. */
+    @RestrictTo(Scope.LIBRARY)
+    @UiThread
+    public void setAmbientModeStatus(boolean isInAmbientMode) {
+        if (mDataPipeline != null) {
+            mDataPipeline.setAmbientModeStatus(isInAmbientMode);
         }
     }
 

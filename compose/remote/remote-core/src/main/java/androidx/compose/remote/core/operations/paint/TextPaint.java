@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core.operations.paint;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.Locale;
 
 // TODO: this interface is unused. Delete it.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TextPaint {
 
     /**

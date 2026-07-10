@@ -143,7 +143,7 @@ dependencies {
 
 Documentation dependencies **must** use the `stubs` configuration:
 
-`docs-public/build.gradle`:
+`docs-tip-of-tree/build.gradle` and `docs-public/build.gradle`:
 
 ```
 dependencies {
@@ -327,13 +327,14 @@ implementation enables developers to maintain protocol compatibility across
 library versions, meaning that two clients can communicate regardless of the
 library versions included in their APKs.
 
-The Protobuf library itself, however, does not guarantee ABI compatibility
-across minor versions and a specific version **must** be used with a library to
-avoid conflict with other dependencies used by the developer. To do this, you
-must first create a new project to repackage the protobuf runtime classes, and
-then have it as a dependency in the project you generate protos in. In the
-project that generates protos, you must also relocate any import statements
-containing `com.google.protobuf` to your target package name. The
+The Protobuf library itself (`com.google.proto`), however, does not guarantee
+ABI compatibility across minor versions and a specific version **must** be used
+with a library to avoid conflict with other dependencies used by the developer.
+To do this, you must first create a new project to repackage the protobuf
+runtime classes, and then have it as a dependency in the project you generate
+protos in. In the project that generates protos, you must also relocate any
+import statements containing `com.google.protobuf` to your target package name.
+The
 [AndroidXRepackagePlugin](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/AndroidXRepackageImplPlugin.kt)
 abstracts this for you. An example of its use to repackage the protobuf runtime
 library can be found
@@ -397,14 +398,17 @@ for external clients.
 
 For this reason, we try to separate (1) and (2) by pinning the Kotlin language
 and API versions until the new compiler has been in use in AndroidX for at least
-three months.
+three months. `kotlinc` only
+[supports three previous minor language versions](https://kotlinlang.org/docs/kotlin-evolution-principles.html#compatibility-options),
+therefore if we update to a `kotlinc` version that does not support the current
+AndroidX default `kotlinVersion`, the androidx default will be changed.
 
 Library owners *may* in limited cases update their Kotlin language version early
 by specifying the `kotlinVersion` DSL property:
 
 ```
 androidx {
-    kotlinVersion KOTLIN_1_9
+    kotlinVersion KOTLIN_2_2
 }
 ```
 

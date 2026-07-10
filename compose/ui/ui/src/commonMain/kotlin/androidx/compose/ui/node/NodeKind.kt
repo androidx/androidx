@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.collection.mutableObjectIntMapOf
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.classKeyForObject
 import androidx.compose.ui.draw.DrawModifier
@@ -27,7 +26,7 @@ import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.invalidateFocusEvent
 import androidx.compose.ui.focus.invalidateFocusProperties
-import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
@@ -35,12 +34,12 @@ import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
+import androidx.compose.ui.layout.BeyondBoundsLayoutProviderModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnPlacedNode
 import androidx.compose.ui.layout.OnRemeasuredModifier
-import androidx.compose.ui.layout.OnSizeChangedNode
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
@@ -105,7 +104,7 @@ internal object Nodes {
 
     @JvmStatic
     inline val OnRemeasured
-        get() = NodeKind<LayoutAwareModifierNode>(0b1 shl 7)
+        get() = NodeKind<MeasuredSizeAwareModifierNode>(0b1 shl 7)
 
     @JvmStatic
     inline val GlobalPositionAware
@@ -153,16 +152,19 @@ internal object Nodes {
 
     @JvmStatic
     inline val Unplaced
-        get() = NodeKind<OnUnplacedModifierNode>(0b1 shl 20)
+        get() = NodeKind<UnplacedAwareModifierNode>(0b1 shl 20)
 
     @JvmStatic
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
-    inline val IndirectTouchInput
-        get() = NodeKind<IndirectTouchInputModifierNode>(0b1 shl 21)
+    inline val IndirectPointerInput
+        get() = NodeKind<IndirectPointerInputModifierNode>(0b1 shl 21)
 
     @JvmStatic
     inline val OnPlaced
         get() = NodeKind<LayoutAwareModifierNode>(0b1 shl 22)
+
+    @JvmStatic
+    inline val BeyondBoundsLayout
+        get() = NodeKind<BeyondBoundsLayoutProviderModifierNode>(0b1 shl 23)
     // ...
 }
 
@@ -236,15 +238,15 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is ParentDataModifierNode) {
             mask = mask or Nodes.ParentData
         }
-        // OnSizeChangedNode and OnPlacedNode implement the combined LayoutAwareModifierNode,
-        // But we know they only use one part of the interface, so we want to invalidate smarter.
+        // OnPlacedNode implement the combined LayoutAwareModifierNode, But we know it only uses
+        // one part of the interface, so we want to invalidate smarter.
         if (node is OnPlacedNode) {
             mask = mask or Nodes.OnPlaced
-        } else if (node is OnSizeChangedNode) {
-            mask = mask or Nodes.OnRemeasured
         } else if (node is LayoutAwareModifierNode) {
             mask = mask or Nodes.OnRemeasured
             mask = mask or Nodes.OnPlaced
+        } else if (node is MeasuredSizeAwareModifierNode) {
+            mask = mask or Nodes.OnRemeasured
         }
         if (node is GlobalPositionAwareModifierNode) {
             mask = mask or Nodes.GlobalPositionAware
@@ -279,13 +281,16 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is BringIntoViewModifierNode) {
             mask = mask or Nodes.BringIntoView
         }
-        if (node is OnUnplacedModifierNode) {
+        if (node is UnplacedAwareModifierNode) {
             mask = mask or Nodes.Unplaced
         }
-        @OptIn(ExperimentalIndirectTouchTypeApi::class)
-        if (node is IndirectTouchInputModifierNode) {
-            mask = mask or Nodes.IndirectTouchInput
+        if (node is IndirectPointerInputModifierNode) {
+            mask = mask or Nodes.IndirectPointerInput
         }
+        if (node is BeyondBoundsLayoutProviderModifierNode) {
+            mask = mask or Nodes.BeyondBoundsLayout
+        }
+        // ...
         mask
     }
 }
@@ -381,6 +386,14 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
     }
     if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode) {
         node.invalidateFocusEvent()
+    }
+
+    if (
+        Nodes.IndirectPointerInput in selfKindSet &&
+            node is IndirectPointerInputModifierNode &&
+            phase == Removed
+    ) {
+        node.onCancelIndirectPointerInput()
     }
 }
 

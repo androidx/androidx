@@ -160,6 +160,21 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * supporting ANN indexing type in {@link AppSearchSchema.EmbeddingPropertyConfig}.
+     */
+    @ExperimentalAppSearchApi
+    String SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR =
+            "SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * passing pre-quantized embedding data directly in {@link GenericDocument}.
+     */
+    @ExperimentalAppSearchApi
+    String SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA = "SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec#GROUPING_TYPE_PER_SCHEMA}
      */
     String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
@@ -236,6 +251,14 @@ public interface Features {
     String SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES = "SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This features covers whether setting
+     * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID} is supported
+     * for a property with cardinality {@link AppSearchSchema.PropertyConfig#CARDINALITY_REPEATED}.
+     */
+    @ExperimentalAppSearchApi
+    String SCHEMA_JOINABLE_REPEATED_PROPERTIES = "SCHEMA_JOINABLE_REPEATED_PROPERTIES";
+
+    /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link AppSearchSchema.LongPropertyConfig.Builder#setScoringEnabled(boolean)},
      * {@link AppSearchSchema.DoublePropertyConfig.Builder#setScoringEnabled(boolean)},
@@ -278,14 +301,19 @@ public interface Features {
             "SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS";
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link AppSearchBlobHandle}.
+     * Feature for {@link #isFeatureSupported(String)}.
+     *
+     * <p> This feature covers {@link AppSearchBlobHandle},
+     * {@link AppSearchSchema.BlobHandlePropertyConfig},
+     * {@link GenericDocument#getPropertyBlobHandle},
+     * {@link AppSearchSession#openBlobForWriteAsync},
+     * {@link AppSearchSession#commitBlobAsync},
+     * {@link AppSearchSession#removeBlobAsync},
+     * {@link AppSearchSession#openBlobForReadAsync},
+     * {@link AppSearchSession#setBlobVisibilityAsync},
+     * {@link GlobalSearchSession#openBlobForReadAsync(Set)},
      */
-    // TODO(b/273591938) improve the java doc when we support set blob property in GenericDocument
-    // TODO(b/273591938) unhide the API once it read for API review.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @ExperimentalAppSearchApi
-    String BLOB_STORAGE = "BLOB_STORAGE";
+    String SCHEMA_BLOB_HANDLE = "SCHEMA_BLOB_HANDLE";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature indicates whether or not the
@@ -364,6 +392,23 @@ public interface Features {
      */
     @ExperimentalAppSearchApi
     String SEARCH_EMBEDDING_MATCH_INFO = "SEARCH_EMBEDDING_MATCH_INFO";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature check if
+     * READ_GLOBAL_APP_SEARCH_DATA permission is supported in this environment.
+     * This permission allows documents to be visible on any system UI surface.
+     * This feature covers {@link SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem}.
+     */
+    @ExperimentalAppSearchApi
+    String SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM =
+            "SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SetSchemaRequest.Builder#setSchemaTypeWipeoutAccountPropertyPaths}.
+     */
+    @ExperimentalAppSearchApi
+    String SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT = "SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

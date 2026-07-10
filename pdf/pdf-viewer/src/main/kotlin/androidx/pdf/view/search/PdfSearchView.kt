@@ -18,6 +18,7 @@ package androidx.pdf.view.search
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -55,6 +56,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     /** Close button to dismiss pdf search view */
     public val closeButton: ImageButton
+
+    private val externalInputManager = PdfSearchViewExternalInputManager(this)
+
+    /**
+     * A callback to be invoked when a search close shortcut (e.g., esc) is detected. The fragment
+     * that owns this view is responsible for setting this callback.
+     */
+    public var onSearchCloseRequested: (() -> Unit)? = null
 
     init {
         // Inflate the layout
@@ -100,5 +109,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 bottom - top - paddingBottom,
             )
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event == null) return super.dispatchKeyEvent(event)
+
+        return externalInputManager.handleKeyEvent(event) || super.dispatchKeyEvent(event)
     }
 }

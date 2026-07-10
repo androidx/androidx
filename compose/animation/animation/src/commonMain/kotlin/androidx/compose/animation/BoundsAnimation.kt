@@ -26,14 +26,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
-@ExperimentalSharedTransitionApi
 internal class BoundsAnimation(
     val transitionScope: SharedTransitionScope,
     val transition: Transition<Boolean>,
     animation: Transition<Boolean>.DeferredAnimation<Rect, AnimationVector4D>,
     boundsTransform: BoundsTransform,
+    val momentumOffset: () -> Offset,
 ) {
     var animation: Transition<Boolean>.DeferredAnimation<Rect, AnimationVector4D> by
         mutableStateOf(animation)
@@ -64,13 +65,36 @@ internal class BoundsAnimation(
 
     var animationSpec: FiniteAnimationSpec<Rect> = DefaultBoundsAnimation
 
+    private val transitionSpecLambda: Transition.Segment<Boolean>.() -> FiniteAnimationSpec<Rect> =
+        {
+            animationSpec
+        }
+
     // It's important to back this state up by a mutable state, so that whoever read it when
     // it was null will get an invalidation when it's set.
     var animationState: State<Rect>? by mutableStateOf(null)
+
+    private var currentBoundsForLambda: Rect? = null
+    private var targetBoundsForLambda: Rect? = null
+
+    // Cache lambdas to avoid reallocating multiple times
+    private val targetValueByStateLambda: (Boolean) -> Rect = {
+        if (it == transition.targetState) {
+            targetBoundsForLambda!!
+        } else {
+            currentBoundsForLambda!!
+        }
+    }
+
     val value: Rect?
         get() =
             if (transitionScope.isTransitionActive) {
-                animationState?.value
+                animationState?.value?.let {
+                    val offset = momentumOffset()
+                    if (offset != Offset.Zero) {
+                        it.translate(offset)
+                    } else it
+                }
             } else {
                 null
             }
@@ -79,26 +103,28 @@ internal class BoundsAnimation(
         currentBounds: Rect,
         targetBounds: Rect,
         forcedBoundsTransform: BoundsTransform? = null,
+        forcedInitialValue: Rect? = null,
+        forcedInitialVelocity: AnimationVector4D? = null,
     ) {
         if (transitionScope.isTransitionActive) {
+            currentBoundsForLambda = currentBounds
+            targetBoundsForLambda = targetBounds
             if (animationState == null) {
                 // Only invoke bounds transform when animation is initialized. This means
                 // boundsTransform will not participate in interruption-handling animations.
                 animationSpec =
-                    (forcedBoundsTransform ?: boundsTransform).transform(
+                    (forcedBoundsTransform ?: boundsTransform).createAnimationSpec(
                         currentBounds,
                         targetBounds,
                     )
             }
             animationState =
-                animation.animate(transitionSpec = { animationSpec }) {
-                    if (it == transition.targetState) {
-                        // its own bounds
-                        targetBounds
-                    } else {
-                        currentBounds
-                    }
-                }
+                animation.animate(
+                    transitionSpec = transitionSpecLambda,
+                    forcedInitialValue = forcedInitialValue,
+                    forcedInitialVelocity = forcedInitialVelocity,
+                    targetValueByState = targetValueByStateLambda,
+                )
         }
     }
 

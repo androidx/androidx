@@ -20,12 +20,14 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Variance
 import com.google.devtools.ksp.symbol.Variance.CONTRAVARIANT
 import com.google.devtools.ksp.symbol.Variance.COVARIANT
@@ -215,7 +217,14 @@ fun <T : Any> KSAnnotation.requirePropertyValueOfType(
     val propertyValue =
         this.arguments.singleOrNull { it.name?.asString() == propertyName }?.value
             ?: throw ProcessingException("Unable to find property with name: $propertyName", this)
-    return expectedType.cast(propertyValue)
+    return try {
+        expectedType.cast(propertyValue)
+    } catch (e: ClassCastException) {
+        throw ProcessingException(
+            "Property $propertyName is not of expected type ${expectedType.simpleName}",
+            this,
+        )
+    }
 }
 
 // TODO: Import KotlinPoet KSP to replace these KSPUtils.
@@ -232,6 +241,51 @@ fun KSPropertyDeclaration.getQualifiedName(): String {
     return "$qualifier#$simpleName"
 }
 
+/**
+ * Checks if [KSValueParameter] is effectively optional.
+ *
+ * A [KSValueParameter] is effectively optional if the value itself has default value or any of its
+ * overridee has default value.
+ *
+ * In Kotlin, the override function implementation cannot specify a default value again. However,
+ * the parameter is still optional. For example,
+ * ```
+ * interface BaseFunction {
+ *   fun invoke(p0: String, p1: String? = null)
+ * }
+ *
+ * class Function: BaseFunction {
+ *   override fun invoke(p0: String, p1: String?) { ... }
+ * }
+ *
+ * // Usage of Function#invoke can still omit p1
+ * Function().invoke(p0 = "test")
+ * ```
+ */
+fun KSValueParameter.isEffectivelyOptional(): Boolean {
+    if (hasDefault) {
+        return true
+    }
+    val containingFunction =
+        parent as? KSFunctionDeclaration
+            ?: throw ProcessingException(
+                "Unable to resolve containing function of ${this.name}",
+                this,
+            )
+    val paramIndex = containingFunction.parameters.indexOf(this)
+    if (paramIndex == -1) {
+        throw ProcessingException("Unable to resolve parameter of ${this.name}", this)
+    }
+
+    val overridee = containingFunction.findOverridee()
+    if (overridee == null || overridee !is KSFunctionDeclaration) {
+        // No interface to check
+        return false
+    }
+
+    return overridee.parameters.getOrNull(paramIndex)?.isEffectivelyOptional() ?: false
+}
+
 internal fun TypeName.ignoreNullable(): TypeName {
     return copy(nullable = false)
 }
@@ -243,7 +297,7 @@ private fun KSType.toTypeName(arguments: List<KSTypeArgument> = emptyList()): Ty
                 val typeClassName = declaration.toClassName()
                 typeClassName.withTypeArguments(arguments.map { it.toTypeName() })
             }
-            else -> throw ProcessingException("Unable to resolve TypeName", null)
+            else -> throw ProcessingException("Unable to resolve TypeName", this.declaration)
         }
     return type.copy(nullable = isMarkedNullable)
 }

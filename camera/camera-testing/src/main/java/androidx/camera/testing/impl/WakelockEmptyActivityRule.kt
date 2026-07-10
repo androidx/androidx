@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
 import androidx.camera.testing.impl.Api27Impl.setTurnScreenOn
-import androidx.camera.testing.impl.CoreAppTestUtil.clearDeviceUI
 import androidx.camera.testing.impl.activity.EmptyActivity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -53,7 +52,7 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                 }
 
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
-                clearDeviceUI(instrumentation)
+                RequireForegroundRule.clearDeviceUI(instrumentation)
                 var activityRef: EmptyActivity? = null
                 try {
                     activityRef =

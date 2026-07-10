@@ -17,49 +17,35 @@
 package androidx.xr.arcore.playservices
 
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.internal.Anchor
-import androidx.xr.runtime.TrackingState
+import androidx.xr.arcore.runtime.Anchor
+import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import com.google.ar.core.Anchor as ARCore1xAnchor
 import java.util.UUID
 
 /**
- * Wraps the native [ARCore1xAnchor] with the [androidx.xr.arcore.internal.Anchor] interface.
+ * Wraps a [com.google.ar.core.Anchor] with the [Anchor] interface.
  *
- * @property arCoreAnchor The underlying [ARCore1xAnchor] instance.
+ * @property arCoreAnchor the underlying [ARCore1xAnchor] instance
+ * @property persistenceState the [Anchor.PersistenceState] of the anchor
+ * @property pose the [Pose] of the anchor
+ * @property trackingState the [TrackingState] of the anchor
+ * @property uuid the [UUID] of the anchor
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreAnchor internal constructor(internal val _arCoreAnchor: ARCore1xAnchor) :
     Anchor {
 
     @UnsupportedArCoreCompatApi public fun arCoreAnchor(): ARCore1xAnchor = _arCoreAnchor
 
-    /** ARCore 1.x does not support persistent anchors; this property is always [NOT_PERSISTED] */
     override val persistenceState: Anchor.PersistenceState = Anchor.PersistenceState.NOT_PERSISTED
 
-    /**
-     * The pose of the anchor.
-     *
-     * This property simply gets the pose from the underlying [ARCore1xAnchor] instance, and
-     * converts it to a [Pose].
-     *
-     * @return The pose of the anchor.
-     */
     override val pose: Pose
         get() = _arCoreAnchor.pose.toRuntimePose()
 
-    /**
-     * The tracking state of the anchor.
-     *
-     * This property simply gets the tracking state from the underlying [ARCore1xAnchor] instance,
-     * and converts it to a [TrackingState].
-     *
-     * @return The tracking state of the anchor.
-     */
     override val trackingState: TrackingState
         get() = TrackingState.fromArCoreTrackingState(_arCoreAnchor.trackingState)
 
-    /* ARCore 1.x does not support persistent anchors; this property is always null. */
     override val uuid: UUID? = null
 
     /**
@@ -71,7 +57,10 @@ public class ArCoreAnchor internal constructor(internal val _arCoreAnchor: ARCor
         _arCoreAnchor.detach()
     }
 
-    /* ARCore 1.x does not support persistent anchors; this method throws [NotImplementedError] when called. */
+    /**
+     * ARCore 1.x does not support persistent anchors; this method throws [NotImplementedError] when
+     * called.
+     */
     override fun persist() {
         throw NotImplementedError("Persistent anchors are not supported.")
     }

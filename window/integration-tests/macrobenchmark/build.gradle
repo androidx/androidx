@@ -17,12 +17,11 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
     namespace = "androidx.window.integration.macrobenchmark"
     targetProjectPath = ":window:integration-tests:macrobenchmark-target"

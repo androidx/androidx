@@ -16,9 +16,13 @@
 
 package androidx.glance.text
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+
 /** Describes the style of the font: [Normal]] or [Italic]. */
 @JvmInline
-public value class FontStyle private constructor(private val style: Int) {
+public value class FontStyle
+private constructor(@get:RestrictTo(LIBRARY_GROUP) public val style: Int) {
     public companion object {
         /** Use the upright glyphs */
         public val Normal: FontStyle = FontStyle(0)

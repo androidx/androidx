@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmMultifileClass
 @file:JvmName("SQLite")
 
 package androidx.sqlite
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 /** The data type for a 64-bit signed integer. */
@@ -50,11 +52,6 @@ public const val SQLITE_DATA_NULL: Int = 5
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class DataType
-
-/** Executes a single SQL statement that returns no values. */
-public fun SQLiteConnection.execSQL(sql: String) {
-    prepare(sql).use { it.step() }
-}
 
 /** Throws a [SQLiteException] with its message formed by the given [errorCode] amd [errorMsg]. */
 public fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {

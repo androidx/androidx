@@ -619,20 +619,7 @@ public fun ScalingLazyColumn(
 ) {
     var initialized by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    BoxWithConstraints(
-        modifier =
-            if (rotaryScrollableBehavior != null && userScrollEnabled)
-                modifier
-                    .requestFocusOnHierarchyActive()
-                    .rotaryScrollable(
-                        behavior = rotaryScrollableBehavior,
-                        focusRequester = focusRequester,
-                        reverseDirection = reverseLayout,
-                        overscrollEffect = overscrollEffect,
-                    )
-            else modifier,
-        propagateMinConstraints = true,
-    ) {
+    BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val reduceMotion = LocalReduceMotion.current
@@ -699,7 +686,18 @@ public fun ScalingLazyColumn(
                             ) {
                                 initialized = true
                             }
-                        },
+                        }
+                        .then(
+                            if (rotaryScrollableBehavior != null && userScrollEnabled)
+                                Modifier.requestFocusOnHierarchyActive()
+                                    .rotaryScrollable(
+                                        behavior = rotaryScrollableBehavior,
+                                        focusRequester = focusRequester,
+                                        reverseDirection = reverseLayout,
+                                        overscrollEffect = overscrollEffect,
+                                    )
+                            else Modifier
+                        ),
                 horizontalAlignment = horizontalAlignment,
                 overscrollEffect = overscrollEffect,
                 contentPadding = combinedPaddingValues,
@@ -865,8 +863,8 @@ public object ScalingLazyColumnDefaults {
      * central item as the fling decays.
      *
      * @param state the state of the [ScalingLazyColumn]
-     * @param snapOffset an optional offset to be applied when snapping the item. After the snap the
-     *   snapped items offset will be [snapOffset].
+     * @param snapOffset an optional offset to be applied when snapping the item. Defines the
+     *   distance from the center of the scrollable to the center of the snapped item.
      * @param decay the decay to use
      */
     @Composable

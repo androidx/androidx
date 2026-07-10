@@ -82,7 +82,7 @@ object AlertDialogDismissBenchmark : MacrobenchmarkScreen {
             SystemClock.sleep(500)
             device.findObject(By.desc(OPEN_ALERT_DIALOG)).click()
             SystemClock.sleep(500)
-            device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.9f, 400)
+            device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.95f, 400)
             SystemClock.sleep(500)
         }
 

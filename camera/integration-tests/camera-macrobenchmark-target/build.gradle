@@ -18,18 +18,16 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
     namespace = "androidx.camera.integration.macrobenchmark.target"
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
     buildFeatures {
@@ -38,7 +36,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
@@ -47,7 +44,6 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
 
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))

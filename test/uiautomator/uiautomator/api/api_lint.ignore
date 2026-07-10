@@ -1,6 +1,6 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.test.uiautomator.UiDevice#swipe(android.graphics.Point[], int) parameter #0:
-    Method parameter should be Collection<Point> (or subclass) instead of raw array; was `android.graphics.Point[]`
+    Method parameter should be Collection<android.graphics.Point> (or subclass) instead of raw array; was `android.graphics.Point[]`
 
 
 MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.BySelector):

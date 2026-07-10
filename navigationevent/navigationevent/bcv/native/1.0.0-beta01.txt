@@ -1,0 +1,188 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigationevent:navigationevent>
+abstract fun interface androidx.navigationevent/OnBackCompletedFallback { // androidx.navigationevent/OnBackCompletedFallback|null[0]
+    abstract fun onBackCompletedFallback() // androidx.navigationevent/OnBackCompletedFallback.onBackCompletedFallback|onBackCompletedFallback(){}[0]
+}
+
+abstract interface androidx.navigationevent/NavigationEventDispatcherOwner { // androidx.navigationevent/NavigationEventDispatcherOwner|null[0]
+    abstract val navigationEventDispatcher // androidx.navigationevent/NavigationEventDispatcherOwner.navigationEventDispatcher|{}navigationEventDispatcher[0]
+        abstract fun <get-navigationEventDispatcher>(): androidx.navigationevent/NavigationEventDispatcher // androidx.navigationevent/NavigationEventDispatcherOwner.navigationEventDispatcher.<get-navigationEventDispatcher>|<get-navigationEventDispatcher>(){}[0]
+}
+
+abstract class <#A: androidx.navigationevent/NavigationEventInfo> androidx.navigationevent/NavigationEventHandler { // androidx.navigationevent/NavigationEventHandler|null[0]
+    constructor <init>(#A, kotlin/Boolean) // androidx.navigationevent/NavigationEventHandler.<init>|<init>(1:0;kotlin.Boolean){}[0]
+    constructor <init>(#A, kotlin/Boolean, kotlin/Boolean) // androidx.navigationevent/NavigationEventHandler.<init>|<init>(1:0;kotlin.Boolean;kotlin.Boolean){}[0]
+
+    final var backInfo // androidx.navigationevent/NavigationEventHandler.backInfo|{}backInfo[0]
+        final fun <get-backInfo>(): kotlin.collections/List<#A> // androidx.navigationevent/NavigationEventHandler.backInfo.<get-backInfo>|<get-backInfo>(){}[0]
+    final var currentInfo // androidx.navigationevent/NavigationEventHandler.currentInfo|{}currentInfo[0]
+        final fun <get-currentInfo>(): #A // androidx.navigationevent/NavigationEventHandler.currentInfo.<get-currentInfo>|<get-currentInfo>(){}[0]
+    final var forwardInfo // androidx.navigationevent/NavigationEventHandler.forwardInfo|{}forwardInfo[0]
+        final fun <get-forwardInfo>(): kotlin.collections/List<#A> // androidx.navigationevent/NavigationEventHandler.forwardInfo.<get-forwardInfo>|<get-forwardInfo>(){}[0]
+    final var isBackEnabled // androidx.navigationevent/NavigationEventHandler.isBackEnabled|{}isBackEnabled[0]
+        final fun <get-isBackEnabled>(): kotlin/Boolean // androidx.navigationevent/NavigationEventHandler.isBackEnabled.<get-isBackEnabled>|<get-isBackEnabled>(){}[0]
+        final fun <set-isBackEnabled>(kotlin/Boolean) // androidx.navigationevent/NavigationEventHandler.isBackEnabled.<set-isBackEnabled>|<set-isBackEnabled>(kotlin.Boolean){}[0]
+    final var isForwardEnabled // androidx.navigationevent/NavigationEventHandler.isForwardEnabled|{}isForwardEnabled[0]
+        final fun <get-isForwardEnabled>(): kotlin/Boolean // androidx.navigationevent/NavigationEventHandler.isForwardEnabled.<get-isForwardEnabled>|<get-isForwardEnabled>(){}[0]
+        final fun <set-isForwardEnabled>(kotlin/Boolean) // androidx.navigationevent/NavigationEventHandler.isForwardEnabled.<set-isForwardEnabled>|<set-isForwardEnabled>(kotlin.Boolean){}[0]
+    final var transitionState // androidx.navigationevent/NavigationEventHandler.transitionState|{}transitionState[0]
+        final fun <get-transitionState>(): androidx.navigationevent/NavigationEventTransitionState // androidx.navigationevent/NavigationEventHandler.transitionState.<get-transitionState>|<get-transitionState>(){}[0]
+
+    final fun remove() // androidx.navigationevent/NavigationEventHandler.remove|remove(){}[0]
+    final fun setInfo(#A, kotlin.collections/List<#A> = ..., kotlin.collections/List<#A> = ...) // androidx.navigationevent/NavigationEventHandler.setInfo|setInfo(1:0;kotlin.collections.List<1:0>;kotlin.collections.List<1:0>){}[0]
+    open fun onBackCancelled() // androidx.navigationevent/NavigationEventHandler.onBackCancelled|onBackCancelled(){}[0]
+    open fun onBackCompleted() // androidx.navigationevent/NavigationEventHandler.onBackCompleted|onBackCompleted(){}[0]
+    open fun onBackProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventHandler.onBackProgressed|onBackProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    open fun onBackStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventHandler.onBackStarted|onBackStarted(androidx.navigationevent.NavigationEvent){}[0]
+    open fun onForwardCancelled() // androidx.navigationevent/NavigationEventHandler.onForwardCancelled|onForwardCancelled(){}[0]
+    open fun onForwardCompleted() // androidx.navigationevent/NavigationEventHandler.onForwardCompleted|onForwardCompleted(){}[0]
+    open fun onForwardProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventHandler.onForwardProgressed|onForwardProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    open fun onForwardStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventHandler.onForwardStarted|onForwardStarted(androidx.navigationevent.NavigationEvent){}[0]
+}
+
+abstract class androidx.navigationevent/NavigationEventInfo { // androidx.navigationevent/NavigationEventInfo|null[0]
+    constructor <init>() // androidx.navigationevent/NavigationEventInfo.<init>|<init>(){}[0]
+
+    final object None : androidx.navigationevent/NavigationEventInfo // androidx.navigationevent/NavigationEventInfo.None|null[0]
+}
+
+abstract class androidx.navigationevent/NavigationEventInput { // androidx.navigationevent/NavigationEventInput|null[0]
+    constructor <init>() // androidx.navigationevent/NavigationEventInput.<init>|<init>(){}[0]
+
+    final fun dispatchOnBackCancelled() // androidx.navigationevent/NavigationEventInput.dispatchOnBackCancelled|dispatchOnBackCancelled(){}[0]
+    final fun dispatchOnBackCompleted() // androidx.navigationevent/NavigationEventInput.dispatchOnBackCompleted|dispatchOnBackCompleted(){}[0]
+    final fun dispatchOnBackProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnBackProgressed|dispatchOnBackProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    final fun dispatchOnBackStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnBackStarted|dispatchOnBackStarted(androidx.navigationevent.NavigationEvent){}[0]
+    final fun dispatchOnForwardCancelled() // androidx.navigationevent/NavigationEventInput.dispatchOnForwardCancelled|dispatchOnForwardCancelled(){}[0]
+    final fun dispatchOnForwardCompleted() // androidx.navigationevent/NavigationEventInput.dispatchOnForwardCompleted|dispatchOnForwardCompleted(){}[0]
+    final fun dispatchOnForwardProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnForwardProgressed|dispatchOnForwardProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    final fun dispatchOnForwardStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnForwardStarted|dispatchOnForwardStarted(androidx.navigationevent.NavigationEvent){}[0]
+    open fun onAdded(androidx.navigationevent/NavigationEventDispatcher) // androidx.navigationevent/NavigationEventInput.onAdded|onAdded(androidx.navigationevent.NavigationEventDispatcher){}[0]
+    open fun onHasEnabledHandlersChanged(kotlin/Boolean) // androidx.navigationevent/NavigationEventInput.onHasEnabledHandlersChanged|onHasEnabledHandlersChanged(kotlin.Boolean){}[0]
+    open fun onHistoryChanged(androidx.navigationevent/NavigationEventHistory) // androidx.navigationevent/NavigationEventInput.onHistoryChanged|onHistoryChanged(androidx.navigationevent.NavigationEventHistory){}[0]
+    open fun onRemoved() // androidx.navigationevent/NavigationEventInput.onRemoved|onRemoved(){}[0]
+}
+
+final class androidx.navigationevent/DirectNavigationEventInput : androidx.navigationevent/NavigationEventInput { // androidx.navigationevent/DirectNavigationEventInput|null[0]
+    constructor <init>() // androidx.navigationevent/DirectNavigationEventInput.<init>|<init>(){}[0]
+
+    final fun backCancelled() // androidx.navigationevent/DirectNavigationEventInput.backCancelled|backCancelled(){}[0]
+    final fun backCompleted() // androidx.navigationevent/DirectNavigationEventInput.backCompleted|backCompleted(){}[0]
+    final fun backProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/DirectNavigationEventInput.backProgressed|backProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    final fun backStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/DirectNavigationEventInput.backStarted|backStarted(androidx.navigationevent.NavigationEvent){}[0]
+    final fun forwardCancelled() // androidx.navigationevent/DirectNavigationEventInput.forwardCancelled|forwardCancelled(){}[0]
+    final fun forwardCompleted() // androidx.navigationevent/DirectNavigationEventInput.forwardCompleted|forwardCompleted(){}[0]
+    final fun forwardProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/DirectNavigationEventInput.forwardProgressed|forwardProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    final fun forwardStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/DirectNavigationEventInput.forwardStarted|forwardStarted(androidx.navigationevent.NavigationEvent){}[0]
+}
+
+final class androidx.navigationevent/NavigationEvent { // androidx.navigationevent/NavigationEvent|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Long = ...) // androidx.navigationevent/NavigationEvent.<init>|<init>(kotlin.Int;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Long){}[0]
+
+    final val frameTimeMillis // androidx.navigationevent/NavigationEvent.frameTimeMillis|{}frameTimeMillis[0]
+        final fun <get-frameTimeMillis>(): kotlin/Long // androidx.navigationevent/NavigationEvent.frameTimeMillis.<get-frameTimeMillis>|<get-frameTimeMillis>(){}[0]
+    final val progress // androidx.navigationevent/NavigationEvent.progress|{}progress[0]
+        final fun <get-progress>(): kotlin/Float // androidx.navigationevent/NavigationEvent.progress.<get-progress>|<get-progress>(){}[0]
+    final val swipeEdge // androidx.navigationevent/NavigationEvent.swipeEdge|{}swipeEdge[0]
+        final fun <get-swipeEdge>(): kotlin/Int // androidx.navigationevent/NavigationEvent.swipeEdge.<get-swipeEdge>|<get-swipeEdge>(){}[0]
+    final val touchX // androidx.navigationevent/NavigationEvent.touchX|{}touchX[0]
+        final fun <get-touchX>(): kotlin/Float // androidx.navigationevent/NavigationEvent.touchX.<get-touchX>|<get-touchX>(){}[0]
+    final val touchY // androidx.navigationevent/NavigationEvent.touchY|{}touchY[0]
+        final fun <get-touchY>(): kotlin/Float // androidx.navigationevent/NavigationEvent.touchY.<get-touchY>|<get-touchY>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigationevent/NavigationEvent.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigationevent/NavigationEvent.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.navigationevent/NavigationEvent.toString|toString(){}[0]
+
+    open annotation class SwipeEdge : kotlin/Annotation { // androidx.navigationevent/NavigationEvent.SwipeEdge|null[0]
+        constructor <init>() // androidx.navigationevent/NavigationEvent.SwipeEdge.<init>|<init>(){}[0]
+    }
+
+    final object Companion { // androidx.navigationevent/NavigationEvent.Companion|null[0]
+        final const val EDGE_LEFT // androidx.navigationevent/NavigationEvent.Companion.EDGE_LEFT|{}EDGE_LEFT[0]
+            final fun <get-EDGE_LEFT>(): kotlin/Int // androidx.navigationevent/NavigationEvent.Companion.EDGE_LEFT.<get-EDGE_LEFT>|<get-EDGE_LEFT>(){}[0]
+        final const val EDGE_NONE // androidx.navigationevent/NavigationEvent.Companion.EDGE_NONE|{}EDGE_NONE[0]
+            final fun <get-EDGE_NONE>(): kotlin/Int // androidx.navigationevent/NavigationEvent.Companion.EDGE_NONE.<get-EDGE_NONE>|<get-EDGE_NONE>(){}[0]
+        final const val EDGE_RIGHT // androidx.navigationevent/NavigationEvent.Companion.EDGE_RIGHT|{}EDGE_RIGHT[0]
+            final fun <get-EDGE_RIGHT>(): kotlin/Int // androidx.navigationevent/NavigationEvent.Companion.EDGE_RIGHT.<get-EDGE_RIGHT>|<get-EDGE_RIGHT>(){}[0]
+    }
+}
+
+final class androidx.navigationevent/NavigationEventDispatcher { // androidx.navigationevent/NavigationEventDispatcher|null[0]
+    constructor <init>() // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(){}[0]
+    constructor <init>(androidx.navigationevent/NavigationEventDispatcher) // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(androidx.navigationevent.NavigationEventDispatcher){}[0]
+    constructor <init>(androidx.navigationevent/OnBackCompletedFallback) // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(androidx.navigationevent.OnBackCompletedFallback){}[0]
+
+    final val history // androidx.navigationevent/NavigationEventDispatcher.history|{}history[0]
+        final fun <get-history>(): kotlinx.coroutines.flow/StateFlow<androidx.navigationevent/NavigationEventHistory> // androidx.navigationevent/NavigationEventDispatcher.history.<get-history>|<get-history>(){}[0]
+    final val transitionState // androidx.navigationevent/NavigationEventDispatcher.transitionState|{}transitionState[0]
+        final fun <get-transitionState>(): kotlinx.coroutines.flow/StateFlow<androidx.navigationevent/NavigationEventTransitionState> // androidx.navigationevent/NavigationEventDispatcher.transitionState.<get-transitionState>|<get-transitionState>(){}[0]
+
+    final var isEnabled // androidx.navigationevent/NavigationEventDispatcher.isEnabled|{}isEnabled[0]
+        final fun <get-isEnabled>(): kotlin/Boolean // androidx.navigationevent/NavigationEventDispatcher.isEnabled.<get-isEnabled>|<get-isEnabled>(){}[0]
+        final fun <set-isEnabled>(kotlin/Boolean) // androidx.navigationevent/NavigationEventDispatcher.isEnabled.<set-isEnabled>|<set-isEnabled>(kotlin.Boolean){}[0]
+
+    final fun addHandler(androidx.navigationevent/NavigationEventHandler<*>, kotlin/Int = ...) // androidx.navigationevent/NavigationEventDispatcher.addHandler|addHandler(androidx.navigationevent.NavigationEventHandler<*>;kotlin.Int){}[0]
+    final fun addInput(androidx.navigationevent/NavigationEventInput) // androidx.navigationevent/NavigationEventDispatcher.addInput|addInput(androidx.navigationevent.NavigationEventInput){}[0]
+    final fun addInput(androidx.navigationevent/NavigationEventInput, kotlin/Int) // androidx.navigationevent/NavigationEventDispatcher.addInput|addInput(androidx.navigationevent.NavigationEventInput;kotlin.Int){}[0]
+    final fun dispose() // androidx.navigationevent/NavigationEventDispatcher.dispose|dispose(){}[0]
+    final fun removeInput(androidx.navigationevent/NavigationEventInput) // androidx.navigationevent/NavigationEventDispatcher.removeInput|removeInput(androidx.navigationevent.NavigationEventInput){}[0]
+
+    open annotation class Priority : kotlin/Annotation { // androidx.navigationevent/NavigationEventDispatcher.Priority|null[0]
+        constructor <init>() // androidx.navigationevent/NavigationEventDispatcher.Priority.<init>|<init>(){}[0]
+    }
+
+    final object Companion { // androidx.navigationevent/NavigationEventDispatcher.Companion|null[0]
+        final const val PRIORITY_DEFAULT // androidx.navigationevent/NavigationEventDispatcher.Companion.PRIORITY_DEFAULT|{}PRIORITY_DEFAULT[0]
+            final fun <get-PRIORITY_DEFAULT>(): kotlin/Int // androidx.navigationevent/NavigationEventDispatcher.Companion.PRIORITY_DEFAULT.<get-PRIORITY_DEFAULT>|<get-PRIORITY_DEFAULT>(){}[0]
+        final const val PRIORITY_OVERLAY // androidx.navigationevent/NavigationEventDispatcher.Companion.PRIORITY_OVERLAY|{}PRIORITY_OVERLAY[0]
+            final fun <get-PRIORITY_OVERLAY>(): kotlin/Int // androidx.navigationevent/NavigationEventDispatcher.Companion.PRIORITY_OVERLAY.<get-PRIORITY_OVERLAY>|<get-PRIORITY_OVERLAY>(){}[0]
+    }
+}
+
+final class androidx.navigationevent/NavigationEventHistory { // androidx.navigationevent/NavigationEventHistory|null[0]
+    final val currentIndex // androidx.navigationevent/NavigationEventHistory.currentIndex|{}currentIndex[0]
+        final fun <get-currentIndex>(): kotlin/Int // androidx.navigationevent/NavigationEventHistory.currentIndex.<get-currentIndex>|<get-currentIndex>(){}[0]
+    final val mergedHistory // androidx.navigationevent/NavigationEventHistory.mergedHistory|{}mergedHistory[0]
+        final fun <get-mergedHistory>(): kotlin.collections/List<androidx.navigationevent/NavigationEventInfo> // androidx.navigationevent/NavigationEventHistory.mergedHistory.<get-mergedHistory>|<get-mergedHistory>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigationevent/NavigationEventHistory.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigationevent/NavigationEventHistory.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.navigationevent/NavigationEventHistory.toString|toString(){}[0]
+}
+
+sealed class androidx.navigationevent/NavigationEventTransitionState { // androidx.navigationevent/NavigationEventTransitionState|null[0]
+    open annotation class Direction : kotlin/Annotation { // androidx.navigationevent/NavigationEventTransitionState.Direction|null[0]
+        constructor <init>() // androidx.navigationevent/NavigationEventTransitionState.Direction.<init>|<init>(){}[0]
+    }
+
+    final class InProgress : androidx.navigationevent/NavigationEventTransitionState { // androidx.navigationevent/NavigationEventTransitionState.InProgress|null[0]
+        constructor <init>(androidx.navigationevent/NavigationEvent, kotlin/Int) // androidx.navigationevent/NavigationEventTransitionState.InProgress.<init>|<init>(androidx.navigationevent.NavigationEvent;kotlin.Int){}[0]
+
+        final val direction // androidx.navigationevent/NavigationEventTransitionState.InProgress.direction|{}direction[0]
+            final fun <get-direction>(): kotlin/Int // androidx.navigationevent/NavigationEventTransitionState.InProgress.direction.<get-direction>|<get-direction>(){}[0]
+        final val latestEvent // androidx.navigationevent/NavigationEventTransitionState.InProgress.latestEvent|{}latestEvent[0]
+            final fun <get-latestEvent>(): androidx.navigationevent/NavigationEvent // androidx.navigationevent/NavigationEventTransitionState.InProgress.latestEvent.<get-latestEvent>|<get-latestEvent>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigationevent/NavigationEventTransitionState.InProgress.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.navigationevent/NavigationEventTransitionState.InProgress.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.navigationevent/NavigationEventTransitionState.InProgress.toString|toString(){}[0]
+    }
+
+    final object Companion { // androidx.navigationevent/NavigationEventTransitionState.Companion|null[0]
+        final const val TRANSITIONING_BACK // androidx.navigationevent/NavigationEventTransitionState.Companion.TRANSITIONING_BACK|{}TRANSITIONING_BACK[0]
+            final fun <get-TRANSITIONING_BACK>(): kotlin/Int // androidx.navigationevent/NavigationEventTransitionState.Companion.TRANSITIONING_BACK.<get-TRANSITIONING_BACK>|<get-TRANSITIONING_BACK>(){}[0]
+        final const val TRANSITIONING_FORWARD // androidx.navigationevent/NavigationEventTransitionState.Companion.TRANSITIONING_FORWARD|{}TRANSITIONING_FORWARD[0]
+            final fun <get-TRANSITIONING_FORWARD>(): kotlin/Int // androidx.navigationevent/NavigationEventTransitionState.Companion.TRANSITIONING_FORWARD.<get-TRANSITIONING_FORWARD>|<get-TRANSITIONING_FORWARD>(){}[0]
+    }
+
+    final object Idle : androidx.navigationevent/NavigationEventTransitionState { // androidx.navigationevent/NavigationEventTransitionState.Idle|null[0]
+        final fun toString(): kotlin/String // androidx.navigationevent/NavigationEventTransitionState.Idle.toString|toString(){}[0]
+    }
+}

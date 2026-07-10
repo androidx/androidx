@@ -78,16 +78,18 @@ public class DismissAction extends TakenAction {
     @Document.LongProperty
     private final int mResultRankGlobal;
 
-    DismissAction(@NonNull String namespace, @NonNull String id, long documentTtlMillis,
-            long actionTimestampMillis, @TakenAction.ActionType int actionType,
-            @Nullable String query, @Nullable String referencedQualifiedId, int resultRankInBlock,
-            int resultRankGlobal) {
-        super(namespace, id, documentTtlMillis, actionTimestampMillis, actionType);
-
-        mQuery = query;
-        mReferencedQualifiedId = referencedQualifiedId;
-        mResultRankInBlock = resultRankInBlock;
-        mResultRankGlobal = resultRankGlobal;
+    /**
+     * Constructs a {@link DismissAction} from a {@link BuilderBase}.
+     *
+     * @param builder The builder to construct the {@link DismissAction} from.
+     */
+    @ExperimentalAppSearchApi
+    public DismissAction(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mQuery = builder.mQuery;
+        mReferencedQualifiedId = builder.mReferencedQualifiedId;
+        mResultRankInBlock = builder.mResultRankInBlock;
+        mResultRankGlobal = builder.mResultRankGlobal;
     }
 
     /**
@@ -147,15 +149,9 @@ public class DismissAction extends TakenAction {
         return mResultRankGlobal;
     }
 
-    // TODO(b/372929164): redesign builder for inheritance to fix the base setter return type issue.
     /** Builder for {@link DismissAction}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
-        private String mQuery;
-        private String mReferencedQualifiedId;
-        private int mResultRankInBlock;
-        private int mResultRankGlobal;
-
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link DismissAction.Builder}.
          *
@@ -165,7 +161,7 @@ public class DismissAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_DISMISS);
+            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_DISMISS);
         }
 
         /**
@@ -175,12 +171,7 @@ public class DismissAction extends TakenAction {
          * @param dismissAction an existing {@link DismissAction} object.
          */
         public Builder(@NonNull DismissAction dismissAction) {
-            super(Preconditions.checkNotNull(dismissAction));
-
-            mQuery = dismissAction.getQuery();
-            mReferencedQualifiedId = dismissAction.getReferencedQualifiedId();
-            mResultRankInBlock = dismissAction.getResultRankInBlock();
-            mResultRankGlobal = dismissAction.getResultRankGlobal();
+            super(dismissAction);
         }
 
         /**
@@ -198,6 +189,33 @@ public class DismissAction extends TakenAction {
         Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
                 @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
+        }
+    }
+
+    /** Builder for {@link DismissAction}. */
+    @SuppressWarnings("unchecked")
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends
+            TakenAction.BuilderBase<T> {
+        private String mQuery;
+        private String mReferencedQualifiedId;
+        private int mResultRankInBlock;
+        private int mResultRankGlobal;
+
+        /**
+         * Constructs {@link DismissAction.BuilderBase} with given {@code namespace}, {@code id},
+         * {@code actionTimestampMillis} and {@code actionType}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         * @param actionType            Action type enum for the Document. See
+         *                              {@link TakenAction.ActionType}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis, @TakenAction.ActionType int actionType) {
+            super(namespace, id, actionTimestampMillis, actionType);
 
             // Default for unset result rank fields. Since negative number is invalid for ranking,
             // -1 is used as an unset value and AppSearch will ignore it.
@@ -206,13 +224,28 @@ public class DismissAction extends TakenAction {
         }
 
         /**
+         * Constructs {@link DismissAction.BuilderBase} by copying existing values from the given
+         * {@link DismissAction}.
+         *
+         * @param dismissAction an existing {@link DismissAction} object.
+         */
+        public BuilderBase(@NonNull DismissAction dismissAction) {
+            super(Preconditions.checkNotNull(dismissAction));
+
+            mQuery = dismissAction.getQuery();
+            mReferencedQualifiedId = dismissAction.getReferencedQualifiedId();
+            mResultRankInBlock = dismissAction.getResultRankInBlock();
+            mResultRankGlobal = dismissAction.getResultRankGlobal();
+        }
+
+        /**
          * Sets the user-entered search input (without any operators or rewriting) that yielded
          * the {@link androidx.appsearch.app.SearchResult} which impressed the user.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setQuery(@Nullable String query) {
+        public @NonNull T setQuery(@Nullable String query) {
             mQuery = query;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -224,9 +257,9 @@ public class DismissAction extends TakenAction {
          * String,String,String,String)} for more details.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
+        public @NonNull T setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
             mReferencedQualifiedId = referencedQualifiedId;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -236,9 +269,9 @@ public class DismissAction extends TakenAction {
          * @see DismissAction#getResultRankInBlock
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankInBlock(int resultRankInBlock) {
+        public @NonNull T setResultRankInBlock(int resultRankInBlock) {
             mResultRankInBlock = resultRankInBlock;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -247,17 +280,15 @@ public class DismissAction extends TakenAction {
          * @see DismissAction#getResultRankGlobal
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankGlobal(int resultRankGlobal) {
+        public @NonNull T setResultRankGlobal(int resultRankGlobal) {
             mResultRankGlobal = resultRankGlobal;
-            return this;
+            return (T) this;
         }
 
         /** Builds an {@link DismissAction}. */
         @Override
         public @NonNull DismissAction build() {
-            return new DismissAction(mNamespace, mId, mDocumentTtlMillis, mActionTimestampMillis,
-                    mActionType, mQuery, mReferencedQualifiedId, mResultRankInBlock,
-                    mResultRankGlobal);
+            return new DismissAction(this);
         }
     }
 }

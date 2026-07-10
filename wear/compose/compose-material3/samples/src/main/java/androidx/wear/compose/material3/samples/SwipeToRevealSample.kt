@@ -25,9 +25,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,10 +41,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.RevealValue
 import androidx.wear.compose.material3.SwipeToReveal
@@ -154,13 +157,20 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
     val transformationSpec = rememberTransformationSpec()
     val tlcState = rememberTransformingLazyColumnState()
     val coroutineScope = rememberCoroutineScope()
+    val messages = remember {
+        mutableStateListOf<String>().apply {
+            for (i in 1..100) {
+                add("Message #${i}")
+            }
+        }
+    }
 
     TransformingLazyColumn(
         state = tlcState,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(count = 100) { index ->
+        items(items = messages, key = { it }) { message ->
             val revealState = rememberRevealState()
 
             // SwipeToReveal should be reset to covered when scrolling occurs.
@@ -177,26 +187,32 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
             SwipeToReveal(
                 primaryAction = {
                     PrimaryActionButton(
-                        onClick = { /* Called when the primary action is executed. */ },
+                        onClick = { messages.remove(message) },
                         icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                         text = { Text("Delete") },
                         modifier = Modifier.height(SwipeToRevealDefaults.LargeActionButtonHeight),
                     )
                 },
                 revealState = revealState,
-                onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
-                },
+                onSwipePrimaryAction = { messages.remove(message) },
                 modifier =
-                    Modifier.transformedHeight(this@items, transformationSpec).graphicsLayer {
-                        with(transformationSpec) { applyContainerTransformation(scrollProgress) }
-                        // Is needed to disable clipping.
-                        compositingStrategy = CompositingStrategy.ModulateAlpha
-                        clip = false
-                    },
+                    Modifier.transformedHeight(this@items, transformationSpec)
+                        .animateItem()
+                        .graphicsLayer {
+                            with(transformationSpec) {
+                                applyContainerTransformation(scrollProgress)
+                            }
+                            // Is needed to disable clipping.
+                            compositingStrategy = CompositingStrategy.ModulateAlpha
+                            clip = false
+                        }
+                        .minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
             ) {
                 TitleCard(
                     onClick = {},
-                    title = { Text("Message #$index") },
+                    title = { Text(message) },
                     subtitle = { Text("Subtitle") },
                     modifier =
                         Modifier.semantics {
@@ -204,7 +220,7 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
                             customActions =
                                 listOf(
                                     CustomAccessibilityAction("Delete") {
-                                        /* Add the primary action click handler here */
+                                        messages.remove(message)
                                         true
                                     }
                                 )
@@ -223,13 +239,20 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
 fun SwipeToRevealWithScalingLazyColumnSample() {
     val slcState = rememberScalingLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val messages = remember {
+        mutableStateListOf<String>().apply {
+            for (i in 1..100) {
+                add("This Button $i has two actions")
+            }
+        }
+    }
 
     ScalingLazyColumn(
         state = slcState,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(count = 100) { index ->
+        items(items = messages, key = { it }) { message ->
             val revealState = rememberRevealState()
 
             // SwipeToReveal should be reset to covered when scrolling occurs.
@@ -247,26 +270,17 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
                 revealState = revealState,
                 primaryAction = {
                     PrimaryActionButton(
-                        onClick = { /* This block is called when the primary action is executed. */
-                        },
+                        onClick = { messages.remove(message) },
                         icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                         text = { Text("Delete") },
                     )
                 },
-                onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
-                },
+                onSwipePrimaryAction = { messages.remove(message) },
                 secondaryAction = {
                     SecondaryActionButton(
                         onClick = { /* This block is called when the secondary action is executed. */
                         },
                         icon = { Icon(Icons.Outlined.MoreVert, contentDescription = "Options") },
-                    )
-                },
-                undoPrimaryAction = {
-                    UndoActionButton(
-                        onClick = { /* This block is called when the undo primary action is executed. */
-                        },
-                        text = { Text("Undo Delete") },
                     )
                 },
             ) {
@@ -278,7 +292,7 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
                             customActions =
                                 listOf(
                                     CustomAccessibilityAction("Delete") {
-                                        /* Add the primary action click handler here */
+                                        messages.remove(message)
                                         true
                                     },
                                     CustomAccessibilityAction("Options") {
@@ -289,7 +303,7 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
                         },
                     onClick = {},
                 ) {
-                    Text("This Button has two actions", modifier = Modifier.fillMaxSize())
+                    Text(message, modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -301,32 +315,30 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
 @Sampled
 fun SwipeToRevealNoPartialRevealWithScalingLazyColumnSample() {
     val slcState = rememberScalingLazyListState()
+    val messages = remember {
+        mutableStateListOf<String>().apply {
+            for (i in 1..100) {
+                add("Message #${i}")
+            }
+        }
+    }
+
     ScalingLazyColumn(
         state = slcState,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(count = 100) { index ->
+        items(items = messages, key = { it }) { message ->
             SwipeToReveal(
                 hasPartiallyRevealedState = false,
                 primaryAction = {
                     PrimaryActionButton(
-                        onClick = { /* This block is called when the primary action is executed. */
-                        },
+                        onClick = { messages.remove(message) },
                         icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                         text = { Text("Delete") },
                     )
                 },
-                onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
-                },
-                undoPrimaryAction = {
-                    UndoActionButton(
-                        onClick = { /* This block is called when the undo primary action is executed. */
-                        },
-                        icon = { Icon(Icons.Outlined.Refresh, contentDescription = "Undo") },
-                        text = { Text("Undo") },
-                    )
-                },
+                onSwipePrimaryAction = { messages.remove(message) },
             ) {
                 Button(
                     modifier =
@@ -335,14 +347,14 @@ fun SwipeToRevealNoPartialRevealWithScalingLazyColumnSample() {
                             customActions =
                                 listOf(
                                     CustomAccessibilityAction("Delete") {
-                                        /* Add the primary action click handler here */
+                                        messages.remove(message)
                                         true
                                     }
                                 )
                         },
                     onClick = {},
                 ) {
-                    Text("Swipe to execute the primary action.", modifier = Modifier.fillMaxSize())
+                    Text(message, modifier = Modifier.fillMaxSize())
                 }
             }
         }

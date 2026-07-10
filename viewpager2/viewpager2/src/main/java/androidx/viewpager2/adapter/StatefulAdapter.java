@@ -19,8 +19,9 @@ package androidx.viewpager2.adapter;
 import android.os.Parcelable;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link ViewPager2} adapters should implement this interface to be called during

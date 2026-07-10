@@ -133,7 +133,6 @@ class Cbor {
     private fun parseItem(data: ByteArray, offset: Int): Item {
         val itemType = getType(data, offset)
         val arg = getArg(data, offset)
-        println("Type $itemType ${arg.arg} ${arg.len}")
 
         when (itemType) {
             TYPE_UNSIGNED_INT -> {
@@ -143,17 +142,11 @@ class Cbor {
                 return Item(-1 - arg.arg, arg.len)
             }
             TYPE_BYTE_STRING -> {
-                val ret =
-                    data.sliceArray(
-                        offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt()
-                    )
+                val ret = data.sliceArray(offset + arg.len until offset + arg.len + arg.arg.toInt())
                 return Item(ret, arg.len + arg.arg.toInt())
             }
             TYPE_TEXT_STRING -> {
-                val ret =
-                    data.sliceArray(
-                        offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt()
-                    )
+                val ret = data.sliceArray(offset + arg.len until offset + arg.len + arg.arg.toInt())
                 return Item(ret.toString(Charsets.UTF_8), arg.len + arg.arg.toInt())
             }
             TYPE_ARRAY -> {

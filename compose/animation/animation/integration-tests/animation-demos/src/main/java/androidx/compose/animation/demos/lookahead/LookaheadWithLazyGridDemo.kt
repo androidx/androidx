@@ -18,7 +18,6 @@ package androidx.compose.animation.demos.lookahead
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.demos.gesture.pastelColors
 import androidx.compose.animation.demos.layoutanimation.summerColors
@@ -97,7 +96,6 @@ fun LookaheadSmallerThanApproach() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @SuppressLint("PrimitiveInCollection")
 @Preview
 @Composable

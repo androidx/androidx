@@ -17,8 +17,8 @@
 package androidx.pdf.adapter
 
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
-import android.graphics.pdf.RenderParams
 import android.graphics.pdf.component.PdfAnnotation
 import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
@@ -32,6 +32,7 @@ import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
 import android.util.Pair
 import androidx.annotation.RestrictTo
+import androidx.pdf.RenderParams
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 /**
@@ -48,12 +49,15 @@ public interface PdfPage : AutoCloseable {
     /** The width of the page in pixels. */
     public val width: Int
 
+    /** Represents state of the page */
+    public var isClosed: Boolean
+
     /**
      * Renders the entire page onto the provided [Bitmap].
      *
      * @param bitmap The [Bitmap] to render the page onto.
      */
-    public fun renderPage(bitmap: Bitmap)
+    public fun renderPage(bitmap: Bitmap, renderParams: RenderParams)
 
     /**
      * Renders a specific tile of the page onto the provided [Bitmap].
@@ -73,6 +77,7 @@ public interface PdfPage : AutoCloseable {
         top: Int,
         scaledPageWidth: Int,
         scaledPageHeight: Int,
+        renderParams: RenderParams,
     )
 
     /**
@@ -138,15 +143,6 @@ public interface PdfPage : AutoCloseable {
      * @return A list of [PdfPageGotoLinkContent] objects representing the "Go to" links.
      */
     public fun getPageGotoLinks(): List<PdfPageGotoLinkContent>
-
-    /**
-     * Returns the [RenderParams] used for rendering the page.
-     *
-     * By default, this includes rendering flags for highlighting and text annotations.
-     *
-     * @return The [RenderParams] for this page.
-     */
-    public fun getRenderParams(): RenderParams
 
     /**
      * Applies a [FormEditRecord] to the given PDF.
@@ -225,4 +221,13 @@ public interface PdfPage : AutoCloseable {
      * @throws IllegalStateException if this page is already closed.
      */
     public fun removePageAnnotation(annotationId: Int)
+
+    /**
+     * Returns the topmost [PdfPageObject] at the specified coordinates on the page.
+     *
+     * @param point The [PointF] coordinates on the page.
+     * @param types An array of [PdfPageObject] types to consider.
+     * @return A [Pair] containing the ID and the [PdfPageObject] if found, otherwise `null`.
+     */
+    public fun getTopPageObjectAtPosition(point: PointF, types: IntArray): Pair<Int, PdfPageObject>?
 }

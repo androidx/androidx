@@ -17,7 +17,6 @@
 package androidx.core.telecom.extensions
 
 import androidx.core.telecom.CallControlResult
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Interface used to allow the remote surface (automotive, watch, etc...) to know if the connected
@@ -28,7 +27,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * silence is advantageous when the application wants to still receive the audio input data while
  * not transmitting audio input data to remote users.
  */
-@ExperimentalAppActions
 public interface LocalCallSilenceExtensionRemote {
 
     /**

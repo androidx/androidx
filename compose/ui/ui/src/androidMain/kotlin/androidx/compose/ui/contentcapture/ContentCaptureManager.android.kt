@@ -18,7 +18,6 @@ package androidx.compose.ui.contentcapture
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 
-@Suppress("NullAnnotationGroup")
 @ExperimentalComposeUiApi
 sealed interface ContentCaptureManager {
     companion object {
@@ -28,6 +27,6 @@ sealed interface ContentCaptureManager {
          * If you find any issues with the new feature, flip this flag to true to confirm they are
          * newly introduced then file a bug.
          */
-        @Suppress("NullAnnotationGroup") @ExperimentalComposeUiApi var isEnabled: Boolean = true
+        @ExperimentalComposeUiApi var isEnabled: Boolean = true
     }
 }

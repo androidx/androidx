@@ -76,6 +76,8 @@ abstract class Grid {
          * The call is always followed by addItem().
          *
          * @param index            0-based index of the item in provider
+         * @param spanSize         Spans ize of the item, default should be 1, 0 for not changing
+         *                         it, used with disappearingItem = true.
          * @param append           True if new item is after last visible item, false if new item is
          *                         before first visible item.
          * @param item             item[0] returns created item that will be passed in addItem()
@@ -84,7 +86,8 @@ abstract class Grid {
          *                         {@link Grid#fillDisappearingItems(int[], int, SparseIntArray)}.
          * @return length of the item.
          */
-        int createItem(int index, boolean append, Object[] item, boolean disappearingItem);
+        int createItem(int index, int spanSize, boolean append, Object[] item,
+                boolean disappearingItem);
 
         /**
          * add item to given row and given edge.  The call is always after createItem().
@@ -94,8 +97,26 @@ abstract class Grid {
          * @param length   The size of the object
          * @param rowIndex Row index to put the item
          * @param edge     min_edge if not reversed or max_edge if reversed.
+         * @param finishedCreateItems if it's the last addItem() that pairs with createItem()
+         *                            so that the grid can update the scroll limit.  It's used for
+         *                            StandardGrid, it needs call createItems() for all the items in
+         *                            one column to get max size and then decide the edge.
          */
-        void addItem(Object item, int index, int length, int rowIndex, int edge);
+        void addItem(Object item, int index, int length, int rowIndex, int edge,
+                boolean finishedCreateItems);
+
+        /**
+         * add item to given row and given edge.  Immediately after createItem().
+         *
+         * @param item     The object returned by createItem()
+         * @param index    0-based index of the item in provider
+         * @param length   The size of the object
+         * @param rowIndex Row index to put the item
+         * @param edge     min_edge if not reversed or max_edge if reversed.
+         */
+        default void addItem(Object item, int index, int length, int rowIndex, int edge) {
+            addItem(item, index, length, rowIndex, edge, /* finishedCreateItems */ true);
+        }
 
         /**
          * Remove visible item at index.
@@ -146,15 +167,22 @@ abstract class Grid {
     // the first index that grid will layout
     protected int mStartIndex = START_DEFAULT;
 
+    // When true: focus search for next item located in next span group.
+    // When false(For SingleRow or StaggeredGrid): search item on the same "row".
+    boolean mSearchFocusInNextSpanGroup = false;
+
     /**
      * Creates a single or multiple rows (can be staggered or not staggered) grid
      */
-    public static Grid createGrid(int rows) {
+    public static Grid createGrid(int rows, LeanbackSpanSizeLookup spanSizeLookup) {
         Grid grid;
         if (rows == 1) {
             grid = new SingleRow();
+        } else if (spanSizeLookup != null) {
+            grid = new StandardGrid();
+            ((StandardGrid) grid).setSpanSizeLookup(spanSizeLookup);
+            grid.setNumRows(rows);
         } else {
-            // TODO support non staggered multiple rows grid
             grid = new StaggeredGridDefault();
             grid.setNumRows(rows);
         }
@@ -290,56 +318,56 @@ abstract class Grid {
     public abstract Location getLocation(int index);
 
     /**
-     * Finds the largest or smallest row min edge of visible items,
+     * Finds the smallest row min edge of visible items,
      * the row index is returned in indices[0], the item index is returned in indices[1].
      */
-    public final int findRowMin(boolean findLarge, int @Nullable [] indices) {
-        return findRowMin(findLarge, mReversedFlow ? mLastVisibleIndex : mFirstVisibleIndex,
+    public final int findRowMin(int @Nullable [] indices) {
+        return findRowMin(mReversedFlow ? mLastVisibleIndex : mFirstVisibleIndex,
                 indices);
     }
 
     /**
-     * Finds the largest or smallest row min edge of visible items, starts searching from
+     * Finds the smallest row min edge of visible items, starts searching from
      * indexLimit, the row index is returned in indices[0], the item index is returned in
      * indices[1].
      */
-    protected abstract int findRowMin(boolean findLarge, int indexLimit, int[] rowIndex);
+    protected abstract int findRowMin(int indexLimit, int[] rowIndex);
 
     /**
-     * Finds the largest or smallest row max edge of visible items, the row index is returned in
+     * Finds the largest row max edge of visible items, the row index is returned in
      * indices[0], the item index is returned in indices[1].
      */
-    public final int findRowMax(boolean findLarge, int @Nullable [] indices) {
-        return findRowMax(findLarge, mReversedFlow ? mFirstVisibleIndex : mLastVisibleIndex,
+    public final int findRowMax(int @Nullable [] indices) {
+        return findRowMax(mReversedFlow ? mFirstVisibleIndex : mLastVisibleIndex,
                 indices);
     }
 
     /**
-     * Find largest or smallest row max edge of visible items, starts searching from indexLimit,
+     * Find largest row max edge of visible items, starts searching from indexLimit,
      * the row index is returned in indices[0], the item index is returned in indices[1].
      */
-    protected abstract int findRowMax(boolean findLarge, int indexLimit, int[] indices);
+    protected abstract int findRowMax(int indexLimit, int[] indices);
 
     /**
      * Returns true if appending item has reached "toLimit"
      */
-    protected final boolean checkAppendOverLimit(int toLimit) {
+    protected boolean checkAppendOverLimit(int toLimit) {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMin(true, null) <= toLimit + mSpacing :
-                findRowMax(false, null) >= toLimit - mSpacing;
+        return mReversedFlow ? findRowMin(null) <= toLimit + mSpacing :
+                findRowMax(null) >= toLimit - mSpacing;
     }
 
     /**
      * Returns true if prepending item has reached "toLimit"
      */
-    protected final boolean checkPrependOverLimit(int toLimit) {
+    protected boolean checkPrependOverLimit(int toLimit) {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMax(false, null) >= toLimit - mSpacing :
-                findRowMin(true, null) <= toLimit + mSpacing;
+        return mReversedFlow ? findRowMax(null) >= toLimit - mSpacing :
+                findRowMin(null) <= toLimit + mSpacing;
     }
 
     /**
@@ -496,7 +524,7 @@ abstract class Grid {
                 if (disappearingRow < 0) {
                     disappearingRow = 0; // if not found put in row 0
                 }
-                int size = mProvider.createItem(disappearingIndex, true, mTmpItem, true);
+                int size = mProvider.createItem(disappearingIndex, -1, true, mTmpItem, true);
                 mProvider.addItem(mTmpItem[0], disappearingIndex, size, disappearingRow, edge);
                 if (mReversedFlow) {
                     edge = edge - size - mSpacing;
@@ -504,6 +532,7 @@ abstract class Grid {
                     edge = edge + size + mSpacing;
                 }
             }
+            mTmpItem[0] = null;
         }
 
         final int firstPos = getFirstVisibleIndex();
@@ -524,7 +553,7 @@ abstract class Grid {
                 if (disappearingRow < 0) {
                     disappearingRow = 0; // if not found put in row 0
                 }
-                int size = mProvider.createItem(disappearingIndex, false, mTmpItem, true);
+                int size = mProvider.createItem(disappearingIndex, -1, false, mTmpItem, true);
                 if (mReversedFlow) {
                     edge = edge + mSpacing + size;
                 } else {
@@ -532,8 +561,12 @@ abstract class Grid {
                 }
                 mProvider.addItem(mTmpItem[0], disappearingIndex, size, disappearingRow, edge);
             }
+            mTmpItem[0] = null;
         }
     }
+
+    public abstract int getNextPositionOfSameSpan(int focusPosition, int count,
+            int spanGroupIndexDelta);
 
     /**
      * Queries items adjacent to the viewport (in the direction of da) into the prefetch registry.

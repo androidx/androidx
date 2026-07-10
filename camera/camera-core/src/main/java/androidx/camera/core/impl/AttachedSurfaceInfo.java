@@ -50,10 +50,11 @@ public abstract class AttachedSurfaceInfo {
             @Nullable Config implementationOptions,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate,
-            boolean isStrictFrameRateRequired) {
+            boolean isStrictFrameRateRequired,
+            int customMaxFrameRate) {
         return new AutoValue_AttachedSurfaceInfo(surfaceConfig, imageFormat, size,
                 dynamicRange, captureTypes, implementationOptions, sessionType, targetFrameRate,
-                isStrictFrameRateRequired);
+                isStrictFrameRateRequired, customMaxFrameRate);
     }
 
     /**
@@ -99,6 +100,9 @@ public abstract class AttachedSurfaceInfo {
 
     /** Returns whether strict frame rate is required. */
     public abstract boolean isStrictFrameRateRequired();
+
+    /** Returns the custom max frame rate. */
+    public abstract int getCustomMaxFrameRate();
 }
 
 

@@ -27,11 +27,13 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.os.Environment;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.creation.profile.Profile;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 
 import java.io.ByteArrayInputStream;
@@ -44,7 +46,7 @@ import java.text.DecimalFormat;
 
 public class TestUtils {
 
-    private static final Platform sPlatform = new AndroidxPlatformServices();
+    private static final RcPlatformServices sPlatform = new AndroidxRcPlatformServices();
 
     static String getMethodName() {
         return getMethodName(2);
@@ -207,7 +209,7 @@ public class TestUtils {
      * @param doc
      * @param appContext
      */
-    public static void saveDoc(String name, RemoteComposeDocument doc, Context appContext) {
+    public static void saveDoc(String name, RemoteDocument doc, Context appContext) {
         WireBuffer wb = doc.getDocument().getBuffer().getBuffer();
         int len = wb.getSize();
         byte[] buff = wb.getBuffer();
@@ -240,7 +242,7 @@ public class TestUtils {
      * @param appContext
      * @return
      */
-    public static RemoteComposeDocument getDoc(String name, Context appContext) {
+    public static RemoteDocument getDoc(String name, Context appContext) {
         File storageDir =
                 appContext.getExternalFilesDir(
                         Environment.DIRECTORY_PICTURES); // Using internal storage
@@ -249,7 +251,7 @@ public class TestUtils {
 
         try (FileInputStream fis = new FileInputStream(imageFile)) {
             // Compress and write the bitmap to the file
-            RemoteComposeDocument doc = new RemoteComposeDocument(fis);
+            RemoteDocument doc = new RemoteDocument(fis);
             return doc;
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -267,15 +269,15 @@ public class TestUtils {
      * @param doc
      * @param appContext
      */
-    public static void captureGold(String name, RemoteComposeDocument doc, Context appContext) {
+    public static void captureGold(String name, RemoteDocument doc, Context appContext) {
         if (!gold) {
             return;
         }
         name = toCamelCase(name);
         String fileName = name + ".rcd";
-        System.out.println("saveing " + fileName);
+        System.out.println("saving " + fileName);
         TestUtils.saveDoc(fileName, doc, appContext);
-        RemoteComposeDocument fileDoc = TestUtils.getDoc(fileName, appContext);
+        RemoteDocument fileDoc = TestUtils.getDoc(fileName, appContext);
         Bitmap fromFileBitmap = docToBitmap(600, 600, appContext, fileDoc);
         TestUtils.saveBitmap(appContext, fromFileBitmap, name + ".png");
     }
@@ -326,7 +328,7 @@ public class TestUtils {
         void run(RemoteComposeContextAndroid foo);
     }
 
-    static RemoteComposeDocument createDocument(RemoteContext context, final Callback cb) {
+    static RemoteDocument createDocument(RemoteContext context, final Callback cb) {
         RemoteComposeContextAndroid doc =
                 new RemoteComposeContextAndroid(
                         600,
@@ -344,8 +346,58 @@ public class TestUtils {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + memSize(bufferSize));
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        return recreatedDocument;
+    }
+
+    static RemoteDocument createDocument(
+            RemoteContext context, int apiLevel, int profilesMask, final Callback cb) {
+        RemoteComposeContextAndroid doc =
+                new RemoteComposeContextAndroid(
+                        600,
+                        600,
+                        "Demo",
+                        apiLevel,
+                        profilesMask,
+                        sPlatform,
+                        doc1 -> {
+                            if (cb != null) {
+                                cb.run(doc1);
+                            }
+
+                            return null;
+                        });
+
+        byte[] buffer = doc.buffer();
+        int bufferSize = doc.bufferSize();
+        System.out.println("size of doc " + memSize(bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        return recreatedDocument;
+    }
+
+    static RemoteDocument createDocument(
+            RemoteContext context, Profile profile, final Callback cb) {
+        RemoteComposeContextAndroid doc =
+                new RemoteComposeContextAndroid(
+                        600,
+                        600,
+                        "Demo",
+                        profile,
+                        doc1 -> {
+                            if (cb != null) {
+                                cb.run(doc1);
+                            }
+
+                            return null;
+                        });
+
+        byte[] buffer = doc.buffer();
+        int bufferSize = doc.bufferSize();
+        System.out.println("size of doc " + memSize(bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         return recreatedDocument;
     }
 
@@ -478,7 +530,7 @@ public class TestUtils {
         return bitmap;
     }
 
-    static Bitmap docToBitmap(int w, int h, Context appContext, RemoteComposeDocument doc) {
+    static Bitmap docToBitmap(int w, int h, Context appContext, RemoteDocument doc) {
         Bitmap bitmap = blank(w, h);
         RemoteComposeView remoteCanvas = new RemoteComposeView(appContext);
         remoteCanvas.layout(0, 0, w, h);
@@ -492,11 +544,7 @@ public class TestUtils {
     }
 
     static Bitmap docToBitmap(
-            int w,
-            int h,
-            Context appContext,
-            RemoteComposeDocument doc,
-            ModifyCanvas modifyCanvas) {
+            int w, int h, Context appContext, RemoteDocument doc, ModifyCanvas modifyCanvas) {
         Bitmap bitmap = blank(w, h);
         RemoteComposeView remoteCanvas = new RemoteComposeView(appContext);
         remoteCanvas.setDocument(doc);

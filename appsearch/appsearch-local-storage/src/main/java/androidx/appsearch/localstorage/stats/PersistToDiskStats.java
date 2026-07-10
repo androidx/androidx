@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 
@@ -31,8 +32,8 @@ import org.jspecify.annotations.Nullable;
  *
  * This class captures various latency metrics and status codes related to the
  * process of persisting data from AppSearch's in-memory state to disk.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PersistToDiskStats extends BaseStats {
     private final @Nullable String mPackageName;
@@ -166,6 +167,50 @@ public class PersistToDiskStats extends BaseStats {
     /** Returns the latency of persisting the embedding index in milliseconds. */
     public int getEmbeddingIndexPersistLatencyMillis() {
         return mEmbeddingIndexPersistLatencyMillis;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "PersistToDiskStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  triggerCallType=%d,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  persistType=%s,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  blobStorePersistLatencyMillis=%d,\n"
+                        + "  documentStoreTotalPersistLatencyMillis=%d,\n"
+                        + "  documentStoreComponentsPersistLatencyMillis=%d,\n"
+                        + "  documentStoreChecksumUpdateLatencyMillis=%d,\n"
+                        + "  documentLogChecksumUpdateLatencyMillis=%d,\n"
+                        + "  documentLogDataSyncLatencyMillis=%d,\n"
+                        + "  schemaStorePersistLatencyMillis=%d,\n"
+                        + "  indexPersistLatencyMillis=%d,\n"
+                        + "  integerIndexPersistLatencyMillis=%d,\n"
+                        + "  qualifiedIdJoinIndexPersistLatencyMillis=%d,\n"
+                        + "  embeddingIndexPersistLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mTriggerCallType,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mPersistType.name(),
+                mNativeLatencyMillis,
+                mBlobStorePersistLatencyMillis,
+                mDocumentStoreTotalPersistLatencyMillis,
+                mDocumentStoreComponentsPersistLatencyMillis,
+                mDocumentStoreChecksumUpdateLatencyMillis,
+                mDocumentLogChecksumUpdateLatencyMillis,
+                mDocumentLogDataSyncLatencyMillis,
+                mSchemaStorePersistLatencyMillis,
+                mIndexPersistLatencyMillis,
+                mIntegerIndexPersistLatencyMillis,
+                mQualifiedIdJoinIndexPersistLatencyMillis,
+                mEmbeddingIndexPersistLatencyMillis);
     }
 
     /** Builder for {@link PersistToDiskStats}. */

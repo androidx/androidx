@@ -18,4 +18,8 @@
     <attr name="theme_color_focused" format="reference" />
     <attr name="theme_color_pressed" format="reference" />
     <attr name="theme_color_selected" format="reference" />
+
+    <declare-styleable name="SampleAttrs">
+        <attr name="sample" format="integer" />
+    </declare-styleable>
 </resources>

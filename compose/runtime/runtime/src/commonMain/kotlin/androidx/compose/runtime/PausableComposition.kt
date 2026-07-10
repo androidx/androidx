@@ -35,6 +35,7 @@ import androidx.compose.runtime.RecordingApplier.Companion.REUSE
 import androidx.compose.runtime.RecordingApplier.Companion.UP
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
+import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.platform.SynchronizedObject
 import androidx.compose.runtime.platform.synchronized
@@ -212,12 +213,14 @@ internal class PausedCompositionImpl(
     val lock: SynchronizedObject,
 ) : PausedComposition {
     private var state = AtomicReference(PausedCompositionState.InitialPending)
+    private var owningThread = currentThreadId()
     private var invalidScopes = emptyScatterSet<RecomposeScopeImpl>()
     internal val rememberManager =
         RememberEventDispatcher().apply { prepare(abandonSet, composer.errorContext) }
     internal val pausableApplier = RecordingApplier(applier.current)
     internal val isRecomposing
-        get() = state.get() == PausedCompositionState.Recomposing
+        get() =
+            state.get() == PausedCompositionState.Recomposing && owningThread == currentThreadId()
 
     override val isComplete: Boolean
         get() = state.get() >= PausedCompositionState.ApplyPending
@@ -233,11 +236,15 @@ internal class PausedCompositionImpl(
             when (state.get()) {
                 PausedCompositionState.InitialPending -> {
                     if (reusable) composer.startReuseFromRoot()
+                    var completed = false
                     try {
                         invalidScopes =
                             context.composeInitialPaused(composition, shouldPause, content)
+                        completed = true
                     } finally {
-                        if (reusable) composer.endReuseFromRoot()
+                        // Failed initial composition aborts reuse state in the composer, so only
+                        // perform the normal root-reuse unwind after a successful compose.
+                        if (reusable && completed) composer.endReuseFromRoot()
                     }
                     updateState(
                         PausedCompositionState.InitialPending,
@@ -250,10 +257,13 @@ internal class PausedCompositionImpl(
                         PausedCompositionState.RecomposePending,
                         PausedCompositionState.Recomposing,
                     )
+                    val previousOwner = owningThread
                     try {
+                        owningThread = currentThreadId()
                         invalidScopes =
                             context.recomposePaused(composition, shouldPause, invalidScopes)
                     } finally {
+                        owningThread = previousOwner
                         updateState(
                             PausedCompositionState.Recomposing,
                             PausedCompositionState.RecomposePending,

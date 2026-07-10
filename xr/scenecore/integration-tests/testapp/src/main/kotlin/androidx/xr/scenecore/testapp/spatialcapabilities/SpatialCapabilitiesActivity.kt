@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.xr.runtime.Session
@@ -35,15 +36,15 @@ import androidx.xr.scenecore.testapp.common.EventType
 import androidx.xr.scenecore.testapp.common.SpatialEventLog
 import androidx.xr.scenecore.testapp.common.SpatialMode
 import androidx.xr.scenecore.testapp.common.currentTimestamp
+import androidx.xr.scenecore.testapp.common.format
 import androidx.xr.scenecore.testapp.common.logCapabilities
 import androidx.xr.scenecore.testapp.ui.EventLogRecyclerViewAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class SpatialCapabilitiesActivity : AppCompatActivity() {
-    private val renderingSession: Session by lazy {
-        (Session.create(this) as SessionCreateSuccess).session
-    }
+    private lateinit var renderingSession: Session
     private var spatialMode = SpatialMode.FSM
     private var spatialEventLogList = mutableListOf<SpatialEventLog>()
     private lateinit var eventLogView: RecyclerView
@@ -61,41 +62,51 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
             insets
         }
 
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
-            setSupportActionBar(it)
-            it.setTitle(R.string.cuj_spatial_capabilities_test)
-            it.setNavigationOnClickListener { this.finish() }
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@SpatialCapabilitiesActivity) }
-        }
-
-        // fsm/hsm toggle
-        val toggleButton = findViewById<Button>(R.id.spawn_activity_panel_button)
-        toggleButton.text = getString(R.string.switch_to_hsm_button_text)
-        toggleButton.setOnClickListener { toggleButton.text = toggleMode(renderingSession) }
-
-        // Log current spatial capabilities
-        val logButton = findViewById<Button>(R.id.current_spatial_capabilities_button)
-        logButton.setOnClickListener {
-            addNewSpatialLogEvent(
-                SpatialEventLog(
-                    currentTimestamp(),
-                    EventType.LOG_CAPABILITIES_CLICKED.text,
-                    logCapabilities(renderingSession),
-                )
-            )
-        }
-
-        // Listen events
-        addEventListeners()
-
         // Create event log view
         createEventLogRecyclerView()
+
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@SpatialCapabilitiesActivity)
+            if (sessionResult !is SessionCreateSuccess) {
+                finish()
+                return@launch
+            }
+            renderingSession = sessionResult.session
+            renderingSession.scene.keyEntity = renderingSession.scene.mainPanelEntity
+
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
+                setSupportActionBar(it)
+                it.setTitle(R.string.cuj_spatial_capabilities_test)
+                it.setNavigationOnClickListener { this@SpatialCapabilitiesActivity.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@SpatialCapabilitiesActivity) }
+            }
+
+            // fsm/hsm toggle
+            val toggleButton = findViewById<Button>(R.id.spawn_activity_panel_button)
+            toggleButton.text = getString(R.string.switch_to_hsm_button_text)
+            toggleButton.setOnClickListener { toggleButton.text = toggleMode(renderingSession) }
+
+            // Log current spatial capabilities
+            val logButton = findViewById<Button>(R.id.current_spatial_capabilities_button)
+            logButton.setOnClickListener {
+                addNewSpatialLogEvent(
+                    SpatialEventLog(
+                        currentTimestamp(),
+                        EventType.LOG_CAPABILITIES_CLICKED.text,
+                        logCapabilities(renderingSession),
+                    )
+                )
+            }
+
+            // Listen events
+            addEventListeners()
+        }
     }
 
     private fun addEventListeners() {
@@ -109,12 +120,14 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
             )
         }
 
-        renderingSession.scene.activitySpace.addOnBoundsChangedListener { bounds ->
+        renderingSession.scene.activitySpace.addBoundsChangedListener { bounds ->
             addNewSpatialLogEvent(
                 SpatialEventLog(
                     currentTimestamp(),
                     EventType.BOUNDS_CHANGED.text,
-                    "w=${bounds.width}, h=${bounds.height}, d=${bounds.depth}",
+                    "w=${bounds.width.format(2)}, " +
+                        "h=${bounds.height.format(2)}, " +
+                        "d=${bounds.depth.format(2)}",
                 )
             )
         }
@@ -137,15 +150,16 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
     private fun toggleMode(session: Session): String {
         when (spatialMode) {
             SpatialMode.FSM -> {
-                session.scene.requestHomeSpaceMode()
+                session.scene.requestHomeSpace()
                 spatialMode = SpatialMode.HSM
                 addNewSpatialLogEvent(
                     SpatialEventLog(currentTimestamp(), EventType.MODE_CHANGED_TO_HSM.text, "")
                 )
                 return getString(R.string.switch_to_fsm_button_text)
             }
+
             SpatialMode.HSM -> {
-                session.scene.requestFullSpaceMode()
+                session.scene.requestFullSpace()
                 spatialMode = SpatialMode.FSM
                 addNewSpatialLogEvent(
                     SpatialEventLog(currentTimestamp(), EventType.MODE_CHANGED_TO_FSM.text, "")

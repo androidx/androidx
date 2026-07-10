@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package androidx.compose.remote.creation.modifiers;
+import androidx.annotation.RestrictTo;
 
 /** Basic circle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CircleShape extends Shape {
     public CircleShape() {}
 }

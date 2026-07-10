@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"メッセージはここに表示されます。\nその他のテキストは 2 行目に表示されます。"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ショート メッセージ テンプレートのデモ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"SectionedItemTemplate のデモ"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"コンパクト アイテムのデモ"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"SectionedItem AlphaJump が有効なデモ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ラジオボタンのセクション"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"切り替えのセクション"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"行数の多いセクション"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"グリッド アイテムのセクション"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"セクションに区切られたアイテムリストのデモ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"リスト 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"リスト 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"各リストのサブテキスト"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"終了画像とアクションのデモ"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"チップのデモ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"進行状況バーのデモ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"セクション ヘッダーのデモ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"スポットライト セクションのデモ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ペイン テンプレートのデモ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"場所リスト テンプレートのデモ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"場所を見る"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"タブ テンプレートのデモ"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"メッセージタブ"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"ペインタブ"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"セクションに区切られたアイテムのタブ"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"リストタブ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"タブのタイトルが長いグリッドタブ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"検索タブ"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"行も選択できます"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"セカンダリ アクションを選択しました"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"行のプライマリ アクションを選択しました"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"セクションに区切られたアイテムリストのデモ"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"リスト 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"リスト 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"各リストのサブテキスト"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"行の終了の画像とアクションのデモ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"空のリストのデモ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"このリストは空です"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"その他のテンプレートのデモ"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"地図およびコンテンツのデモ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"地図およびメッセージ テンプレートのデモ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"地図およびグリッド テンプレートのデモ"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

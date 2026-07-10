@@ -33,8 +33,10 @@ import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public final class DynamicBoolTest {
     private static final String STATE_KEY = "state-key";
 
@@ -237,5 +239,13 @@ public final class DynamicBoolTest {
 
         assertThat(toProto.getFixed().getValue()).isTrue();
         assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
+    }
+
+    @Test
+    public void isInAmbientMode_hasTheCorrectKey() {
+        DynamicBool isInAmbientMode = PlatformEventSources.isInAmbientMode();
+
+        assertThat(isInAmbientMode.toDynamicBoolProto().getStateSource().getSourceKey())
+                .isEqualTo(PlatformEventSources.Keys.AMBIENT_MODE_STATUS.getKey());
     }
 }

@@ -20,14 +20,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig.Cardinality;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig.DataType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.DeletePropagationType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TokenizerType;
-import androidx.appsearch.app.ExperimentalAppSearchApi;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.safeparcel.stub.StubCreators.DocumentIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.EmbeddingIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.IntegerIndexingConfigParcelCreator;
@@ -49,9 +49,8 @@ import java.util.Objects;
  * types in one class.
  *
  * <p>Currently it can handle String, long, double, boolean, bytes and document type.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SafeParcelable.Class(creator = "PropertyConfigParcelCreator")
 public final class PropertyConfigParcel extends AbstractSafeParcelable {
@@ -267,7 +266,6 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     }
 
     /** Creates a {@link PropertyConfigParcel} for {@link AppSearchBlobHandle}. */
-    @ExperimentalAppSearchApi
     public static @NonNull PropertyConfigParcel createForBlobHandle(
             @NonNull String propertyName,
             @NonNull String description,

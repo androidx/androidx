@@ -32,6 +32,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ContentActionSelectedDataTest {
 
@@ -57,6 +58,25 @@ public class ContentActionSelectedDataTest {
         ContentActionSelectedData data = ContentActionSelectedData.fromIntent(intent);
         assertNotNull(data);
         assertEquals(expectedUri, data.getPageUrl());
+    }
+
+    @Test
+    public void testGetPageTitle_withExtra() {
+        Intent intent = new Intent();
+        String expectedTitle = "Example Page Title";
+        intent.putExtra(CustomTabsIntent.EXTRA_CONTEXT_PAGE_TITLE, expectedTitle);
+
+        ContentActionSelectedData data = ContentActionSelectedData.fromIntent(intent);
+        assertNotNull(data);
+        assertEquals(expectedTitle, data.getPageTitle());
+    }
+
+    @Test
+    public void testGetPageTitle_withoutExtra_returnsNull() {
+        Intent intent = new Intent();
+        ContentActionSelectedData data = ContentActionSelectedData.fromIntent(intent);
+        assertNotNull(data);
+        assertNull(data.getPageTitle());
     }
 
     @Test

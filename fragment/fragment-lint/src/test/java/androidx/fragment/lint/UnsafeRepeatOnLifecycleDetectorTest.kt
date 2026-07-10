@@ -55,7 +55,7 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
         class BaseFragment : Fragment()
         interface FragmentListener
         interface OtherFragmentListener
-    """
+        """
             .trimIndent()
 
     @Test

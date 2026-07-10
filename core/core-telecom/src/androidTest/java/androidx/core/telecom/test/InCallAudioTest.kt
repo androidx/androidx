@@ -77,7 +77,6 @@ class InCallAudioTest : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testAddCallAssertModeInCommunication() {
-        setUpV2Test()
         runBlocking_addCall_assertAudioModeInCommunication()
     }
 

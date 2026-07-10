@@ -21,10 +21,10 @@ package androidx.core.splashscreen {
   }
 
   public final class SplashScreenViewProvider {
-    method public long getIconAnimationDurationMillis();
-    method public long getIconAnimationStartMillis();
-    method public android.view.View getIconView();
-    method public android.view.View getView();
+    method @InaccessibleFromKotlin public long getIconAnimationDurationMillis();
+    method @InaccessibleFromKotlin public long getIconAnimationStartMillis();
+    method @InaccessibleFromKotlin public android.view.View getIconView();
+    method @InaccessibleFromKotlin public android.view.View getView();
     method public void remove();
     property public long iconAnimationDurationMillis;
     property public long iconAnimationStartMillis;

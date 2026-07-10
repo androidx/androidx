@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ListenerInterface: androidx.xr.runtime.testing.FakeSpatialModeChangeListener:
-    Listeners should be an interface, or otherwise renamed Callback: FakeSpatialModeChangeListener

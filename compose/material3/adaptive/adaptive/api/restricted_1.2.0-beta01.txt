@@ -1,10 +1,6 @@
 // Signature format: 4.0
 package androidx.compose.material3.adaptive {
 
-  public final class AndroidPosture_androidKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.Posture calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature> foldingFeatures);
-  }
-
   public final class AndroidWindowAdaptiveInfo_androidKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature>> collectFoldingFeaturesAsState();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature!>!> collectFoldingFeaturesAsState(androidx.compose.runtime.Composer?, int);

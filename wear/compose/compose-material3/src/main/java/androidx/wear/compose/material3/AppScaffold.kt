@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -39,6 +41,10 @@ import androidx.compose.ui.graphics.graphicsLayer
  * Example of using AppScaffold and ScreenScaffold:
  *
  * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
  * @param modifier The modifier for the top level of the scaffold.
  * @param timeText The default time (and potentially status message) to display at the top middle of
  *   the screen in this app. When [AppScaffold] is used in combination with [ScreenScaffold], the
@@ -59,11 +65,13 @@ public fun AppScaffold(
     // Run the animator coordinator if needed.
     AnimationCoordinator.Looper()
 
+    val timeTextState = rememberUpdatedState(timeText)
+    val scaffoldState = remember { ScaffoldState(appTimeText = timeTextState) }
+
     CompositionLocalProvider(
-        LocalScaffoldState provides ScaffoldState(appTimeText = timeText),
+        LocalScaffoldState provides scaffoldState,
         LocalContentColor provides contentColor,
     ) {
-        val scaffoldState = LocalScaffoldState.current
         Box(Modifier.fillMaxSize().background(containerColor)) {
             Box(
                 modifier =

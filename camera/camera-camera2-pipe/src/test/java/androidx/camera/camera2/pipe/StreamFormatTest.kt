@@ -32,6 +32,7 @@ internal class StreamFormatTest {
     fun streamFormatsHaveNames() {
         assertThat(StreamFormat(0x23).name).isEqualTo("YUV_420_888")
         assertThat(StreamFormat.RAW10.name).isEqualTo("RAW10")
+        assertThat(StreamFormat.BLOB.name).isEqualTo("BLOB")
     }
 
     @Test
@@ -46,5 +47,65 @@ internal class StreamFormatTest {
     fun streamFormatsHaveBitsPerPixel() {
         assertThat(StreamFormat(0x23).bitsPerPixel).isEqualTo(12)
         assertThat(StreamFormat.RAW10.bitsPerPixel).isEqualTo(10)
+    }
+
+    @Test
+    fun isCompressedRgb_identifiesCompressedFormats() {
+        assertThat(StreamFormat.isCompressedRgb(StreamFormat.JPEG)).isTrue()
+        assertThat(StreamFormat.isCompressedRgb(StreamFormat.HEIC)).isTrue()
+        assertThat(StreamFormat.isCompressedRgb(StreamFormat.BLOB)).isTrue()
+
+        // Negative cases
+        assertThat(StreamFormat.isCompressedRgb(StreamFormat.YUV_420_888)).isFalse()
+        assertThat(StreamFormat.isCompressedRgb(StreamFormat.RAW10)).isFalse()
+    }
+
+    @Test
+    fun isRaw_identifiesRawFormats() {
+        assertThat(StreamFormat.isRaw(StreamFormat.RAW10)).isTrue()
+        assertThat(StreamFormat.isRaw(StreamFormat.RAW_SENSOR)).isTrue()
+        assertThat(StreamFormat.isRaw(StreamFormat.RAW_DEPTH10)).isTrue()
+
+        // Negative cases
+        assertThat(StreamFormat.isRaw(StreamFormat.JPEG)).isFalse()
+        assertThat(StreamFormat.isRaw(StreamFormat.YUV_420_888)).isFalse()
+    }
+
+    @Test
+    fun bytesPerImage_calculatesForStandardFormats() {
+        val width = 100
+        val height = 100
+
+        // YUV_420_888 has 12 bpp.
+        // Formula: (width * bpp * height) / 8 -> (100 * 12 * 100) / 8 = 15000
+        assertThat(StreamFormat.bytesPerImage(StreamFormat.YUV_420_888, width, height))
+            .isEqualTo(15000L)
+
+        // RAW10 has 10 bpp.
+        // Formula: (100 * 10 * 100) / 8 = 12500
+        assertThat(StreamFormat.bytesPerImage(StreamFormat.RAW10, width, height)).isEqualTo(12500L)
+    }
+
+    @Test
+    fun bytesPerImage_estimatesForCompressedFormats() {
+        val width = 100
+        val height = 100
+
+        // Compressed formats use the rgbBitsPerPixel (24) and compression factor (4)
+        // RGB bytes: (100 * 24 * 100) / 8 = 30000
+        // Estimated final: 30000 / 4 = 7500
+        assertThat(StreamFormat.bytesPerImage(StreamFormat.JPEG, width, height)).isEqualTo(7500L)
+        assertThat(StreamFormat.bytesPerImage(StreamFormat.BLOB, width, height)).isEqualTo(7500L)
+    }
+
+    @Test
+    fun bytesPerImage_estimatesForPrivateFormat() {
+        val width = 100
+        val height = 100
+
+        // PRIVATE falls back to YUV_420_888 bpp (12)
+        // Formula: (100 * 12 * 100) / 8 = 15000
+        assertThat(StreamFormat.bytesPerImage(StreamFormat.PRIVATE, width, height))
+            .isEqualTo(15000L)
     }
 }

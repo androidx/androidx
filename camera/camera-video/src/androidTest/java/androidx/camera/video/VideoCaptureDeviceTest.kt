@@ -21,7 +21,6 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
@@ -36,11 +35,13 @@ import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.Quality.FHD
+import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.SD
 import androidx.camera.video.VideoOutput.SourceState
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
@@ -95,10 +96,6 @@ class VideoCaptureDeviceTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
@@ -107,10 +104,12 @@ class VideoCaptureDeviceTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
+
+        private val DEFAULT_QUALITY_SELECTOR =
+            QualitySelector.fromOrderedList(
+                listOf(FHD, HD, SD),
+                FallbackStrategy.higherQualityOrLowerThan(FHD),
             )
     }
 
@@ -215,17 +214,11 @@ class VideoCaptureDeviceTest(
             // Arrange.
             val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
             qualityList.forEach loop@{ quality ->
-                val profile =
-                    videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
-                val targetResolution = profile.resolution
+                val targetResolution = videoCapabilities.getResolution(quality, dynamicRange)!!
                 val videoOutput =
                     createTestVideoOutput(
                         mediaSpec =
-                            MediaSpec.builder()
-                                .configureVideo {
-                                    it.setQualitySelector(QualitySelector.from(quality))
-                                }
-                                .build(),
+                            createMediaSpec(qualitySelector = QualitySelector.from(quality)),
                         videoCapabilities = videoCapabilities,
                     )
 
@@ -471,10 +464,18 @@ class VideoCaptureDeviceTest(
     private fun createTestVideoOutput(
         streamInfo: StreamInfo =
             StreamInfo.of(StreamInfo.STREAM_ID_ANY, StreamInfo.StreamState.ACTIVE),
-        mediaSpec: MediaSpec = MediaSpec.builder().build(),
+        mediaSpec: MediaSpec = createMediaSpec(),
         videoCapabilities: VideoCapabilities = Recorder.getVideoCapabilities(cameraInfo),
     ): TestVideoOutput {
         return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities)
+    }
+
+    private fun createMediaSpec(
+        qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR
+    ): MediaSpec {
+        return MediaSpec.builder()
+            .configureVideo { config -> config.setQualitySelector(qualitySelector) }
+            .build()
     }
 
     private class TestVideoOutput(

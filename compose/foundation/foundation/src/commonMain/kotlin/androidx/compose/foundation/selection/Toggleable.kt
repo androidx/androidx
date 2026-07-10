@@ -17,8 +17,6 @@
 package androidx.compose.foundation.selection
 
 import androidx.compose.foundation.ClickableNode
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
@@ -28,6 +26,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFromBoolean
 import androidx.compose.ui.composed
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateSemantics
@@ -35,6 +36,9 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.contentDataType
+import androidx.compose.ui.semantics.fillableData
+import androidx.compose.ui.semantics.onFillData
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 
@@ -138,51 +142,17 @@ fun Modifier.toggleable(
     interactionSource: MutableInteractionSource? = null,
     onValueChange: (Boolean) -> Unit,
 ): Modifier {
-    @OptIn(ExperimentalFoundationApi::class)
-    return if (ComposeFoundationFlags.isNonComposedClickableEnabled) {
-        this.then(
-            ToggleableElement(
-                value = value,
-                interactionSource = interactionSource,
-                indicationNodeFactory = null,
-                useLocalIndication = true,
-                enabled = enabled,
-                role = role,
-                onValueChange = onValueChange,
-            )
+    return this.then(
+        ToggleableElement(
+            value = value,
+            interactionSource = interactionSource,
+            indicationNodeFactory = null,
+            useLocalIndication = true,
+            enabled = enabled,
+            role = role,
+            onValueChange = onValueChange,
         )
-    } else
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "toggleable"
-                    properties["value"] = value
-                    properties["enabled"] = enabled
-                    properties["role"] = role
-                    properties["onValueChange"] = onValueChange
-                }
-        ) {
-            val localIndication = LocalIndication.current
-            val intSource =
-                interactionSource
-                    ?: if (localIndication is IndicationNodeFactory) {
-                        // We can fast path here as it will be created inside clickable lazily
-                        null
-                    } else {
-                        // We need an interaction source to pass between the indication modifier and
-                        // clickable, so
-                        // by creating here we avoid another composed down the line
-                        remember { MutableInteractionSource() }
-                    }
-            Modifier.toggleable(
-                value = value,
-                interactionSource = intSource,
-                indication = localIndication,
-                enabled = enabled,
-                role = role,
-                onValueChange = onValueChange,
-            )
-        }
+    )
 }
 
 /**
@@ -364,7 +334,15 @@ private class ToggleableNode(
     }
 
     override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
-        toggleableState = ToggleableState(value)
+        this.toggleableState = ToggleableState(value)
+        this.contentDataType = ContentDataType.Toggle
+        FillableData.createFromBoolean(value)?.let { this.fillableData = it }
+        this.onFillData { fillableData ->
+            fillableData.booleanValue?.let {
+                this.toggleableState = ToggleableState(it)
+                true
+            } ?: false
+        }
     }
 }
 
@@ -474,51 +452,17 @@ fun Modifier.triStateToggleable(
     interactionSource: MutableInteractionSource? = null,
     onClick: () -> Unit,
 ): Modifier {
-    @OptIn(ExperimentalFoundationApi::class)
-    return if (ComposeFoundationFlags.isNonComposedClickableEnabled) {
-        this.then(
-            TriStateToggleableElement(
-                state = state,
-                interactionSource = interactionSource,
-                indicationNodeFactory = null,
-                useLocalIndication = true,
-                enabled = enabled,
-                role = role,
-                onClick = onClick,
-            )
+    return this.then(
+        TriStateToggleableElement(
+            state = state,
+            interactionSource = interactionSource,
+            indicationNodeFactory = null,
+            useLocalIndication = true,
+            enabled = enabled,
+            role = role,
+            onClick = onClick,
         )
-    } else
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "triStateToggleable"
-                    properties["state"] = state
-                    properties["enabled"] = enabled
-                    properties["role"] = role
-                    properties["onClick"] = onClick
-                }
-        ) {
-            val localIndication = LocalIndication.current
-            val intSource =
-                interactionSource
-                    ?: if (localIndication is IndicationNodeFactory) {
-                        // We can fast path here as it will be created inside clickable lazily
-                        null
-                    } else {
-                        // We need an interaction source to pass between the indication modifier and
-                        // clickable, so
-                        // by creating here we avoid another composed down the line
-                        remember { MutableInteractionSource() }
-                    }
-            Modifier.triStateToggleable(
-                state = state,
-                interactionSource = intSource,
-                indication = localIndication,
-                enabled = enabled,
-                role = role,
-                onClick = onClick,
-            )
-        }
+    )
 }
 
 /**
@@ -696,6 +640,18 @@ private class TriStateToggleableNode(
     }
 
     override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
-        toggleableState = state
+        this.toggleableState = state
+        this.contentDataType = ContentDataType.Toggle
+        // If the toggle state is not indeterminate, set the boolean value on the fillableData
+        // semantic property.
+        FillableData.createFromBoolean(state != ToggleableState.Indeterminate)?.let {
+            this.fillableData = it
+        }
+        this.onFillData { fillableData ->
+            fillableData.booleanValue?.let {
+                this.toggleableState = ToggleableState(it)
+                true
+            } ?: false
+        }
     }
 }

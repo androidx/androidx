@@ -12,7 +12,7 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.AddWatchFaceException extends java.lang.Exception {
     ctor public WatchFacePushManager.AddWatchFaceException(int errorCode, Throwable rootCause);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.AddWatchFaceException.Companion Companion;
@@ -35,7 +35,7 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.IsWatchFaceActiveException extends java.lang.Exception {
     ctor public WatchFacePushManager.IsWatchFaceActiveException(int errorCode, Throwable rootCause);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.IsWatchFaceActiveException.Companion Companion;
@@ -50,7 +50,7 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.ListWatchFacesException extends java.lang.Exception {
     ctor public WatchFacePushManager.ListWatchFacesException(int errorCode, Throwable rootCause);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.ListWatchFacesException.Companion Companion;
@@ -63,15 +63,15 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.ListWatchFacesResponse {
     ctor public WatchFacePushManager.ListWatchFacesResponse(java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> installedWatchFaceDetails, int remainingSlotCount);
-    method public java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> getInstalledWatchFaceDetails();
-    method public int getRemainingSlotCount();
+    method @InaccessibleFromKotlin public java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> getInstalledWatchFaceDetails();
+    method @InaccessibleFromKotlin public int getRemainingSlotCount();
     property public java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> installedWatchFaceDetails;
     property public int remainingSlotCount;
   }
 
   public static final class WatchFacePushManager.RemoveWatchFaceException extends java.lang.Exception {
     ctor public WatchFacePushManager.RemoveWatchFaceException(int errorCode, Throwable rootCause);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.RemoveWatchFaceException.Companion Companion;
@@ -86,7 +86,8 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.SetWatchFaceAsActiveException extends java.lang.Exception {
     ctor public WatchFacePushManager.SetWatchFaceAsActiveException(int errorCode, optional Throwable? rootCause);
-    method public int getErrorCode();
+    ctor @BytecodeOnly public WatchFacePushManager.SetWatchFaceAsActiveException(int, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.SetWatchFaceAsActiveException.Companion Companion;
@@ -105,7 +106,7 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.UpdateWatchFaceException extends java.lang.Exception {
     ctor public WatchFacePushManager.UpdateWatchFaceException(int errorCode, Throwable rootCause);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;
     field public static final androidx.wear.watchfacepush.WatchFacePushManager.UpdateWatchFaceException.Companion Companion;
@@ -129,9 +130,9 @@ package androidx.wear.watchfacepush {
   public static final class WatchFacePushManager.WatchFaceDetails {
     ctor public WatchFacePushManager.WatchFaceDetails(String slotId, long versionCode, String packageName, kotlin.jvm.functions.Function1<? super java.lang.String,? extends java.util.List<java.lang.String>> getMetaDataFunc);
     method public kotlin.jvm.functions.Function0<java.util.List<java.lang.String>> getMetaData(String key);
-    method public String getPackageName();
-    method public String getSlotId();
-    method public long getVersionCode();
+    method @InaccessibleFromKotlin public String getPackageName();
+    method @InaccessibleFromKotlin public String getSlotId();
+    method @InaccessibleFromKotlin public long getVersionCode();
     property public String packageName;
     property public String slotId;
     property public long versionCode;
@@ -139,6 +140,7 @@ package androidx.wear.watchfacepush {
 
   public final class WatchFacePushManagerFactory {
     method public static androidx.wear.watchfacepush.WatchFacePushManager createWatchFacePushManager(android.content.Context context);
+    method public static boolean isSupported();
     field public static final androidx.wear.watchfacepush.WatchFacePushManagerFactory INSTANCE;
   }
 

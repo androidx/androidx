@@ -120,7 +120,7 @@ public final class ImageProxyUtil {
                     ImageProcessingUtil.nativeNewDirectByteBuffer(
                             pos0StartedByteBufferPlane.getBuffer(),
                             1,
-                            pos0StartedByteBufferPlane.getBuffer().capacity() - 1),
+                            pos0StartedByteBufferPlane.getBuffer().limit() - 1),
                     pos0StartedByteBufferPlane.getRowStride(),
                     pos0StartedByteBufferPlane.getPixelStride(),
                     /*dataValue=*/ 1,
@@ -221,7 +221,7 @@ public final class ImageProxyUtil {
 
             {
                 int value = dataValue;
-                for (int pos = 0; pos < mBuffer.capacity();) {
+                for (int pos = 0; pos < mBuffer.limit();) {
                     mBuffer.put(pos, (byte) value);
                     pos += pixelStride;
                     if (incrementValue) {
@@ -243,6 +243,11 @@ public final class ImageProxyUtil {
             @Override
             public @NonNull ByteBuffer getBuffer() {
                 return mBuffer;
+            }
+
+            @Override
+            public <T> T unwrapAs(@NonNull Class<T> type) {
+                return null;
             }
         };
     }

@@ -106,6 +106,44 @@ class CreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructor_setConditionalToFalseByDefault() {
+        val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON)
+        val isConditionalActual = createPublicKeyCredentialRequest.isConditional
+        assertThat(isConditionalActual).isFalse()
+    }
+
+    @Test
+    fun constructor_setConditionalToTrue() {
+        val isConditionalExpected = true
+        val origin = "origin"
+        val clientDataHash = "hash".toByteArray()
+
+        val createPublicKeyCredentialRequest =
+            CreatePublicKeyCredentialRequest(
+                requestJson = TEST_REQUEST_JSON,
+                clientDataHash = clientDataHash,
+                preferImmediatelyAvailableCredentials = false,
+                origin = origin,
+                isAutoSelectAllowed = false,
+                isConditional = isConditionalExpected,
+            )
+
+        assertThat(createPublicKeyCredentialRequest.isConditional).isEqualTo(isConditionalExpected)
+        assertThat(
+                createPublicKeyCredentialRequest.candidateQueryData.getBoolean(
+                    CreatePublicKeyCredentialRequest.BUNDLE_KEY_CONDITIONAL_CREATE
+                )
+            )
+            .isTrue()
+        assertThat(
+                createPublicKeyCredentialRequest.credentialData.getBoolean(
+                    CreatePublicKeyCredentialRequest.BUNDLE_KEY_CONDITIONAL_CREATE
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
     fun constructor_defaultProviderVariant() {
         val clientDataHashExpected = "hash".toByteArray()
         val originExpected = "origin"

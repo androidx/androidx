@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"Meer opties"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"Dialoogvenster"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Uitgevouwen"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Samengevouwen"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Blad onderaan uitvouwen"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Werkbalk samenvouwen"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Werkbalk uitvouwen"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"Meer opties"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Tooltip"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Tooltip tonen"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -81,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Overschakelen naar klokmodus"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Tijd selecteren"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Tijd invoeren"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Minuut moet 0 - 59 zijn"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Uur moet 1 - 12 zijn"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"Uur moet 0 - 23 zijn"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Rail sluiten"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Navigatierail"</string>
 </resources>

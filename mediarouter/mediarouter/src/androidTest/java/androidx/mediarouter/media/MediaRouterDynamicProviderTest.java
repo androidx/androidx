@@ -50,12 +50,12 @@ import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,13 +125,16 @@ public final class MediaRouterDynamicProviderTest {
                                     MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
                         });
         Map<String, MediaRouter.RouteInfo> routeSnapshot =
-                mCallback.waitForRoutes(ROUTE_ID_1, ROUTE_ID_1);
+                mCallback.waitForRoutes(ROUTE_ID_1, ROUTE_ID_2, ROUTE_ID_3);
         mRoute1 = routeSnapshot.get(ROUTE_ID_1);
         Objects.requireNonNull(mRoute1);
         MediaRouteDescriptor mediaRouteDescriptor1 = mRoute1.getMediaRouteDescriptor();
         Objects.requireNonNull(mediaRouteDescriptor1);
         assertEquals(ROUTE_ID_1, mediaRouteDescriptor1.getId());
         assertEquals(ROUTE_NAME_1, mediaRouteDescriptor1.getName());
+        assertEquals(
+                StubDynamicMediaRouteProviderService.NEW_CLIENT_MIN_VERSION,
+                mediaRouteDescriptor1.getMinClientVersion());
 
         mRoute2 = routeSnapshot.get(ROUTE_ID_2);
         Objects.requireNonNull(mRoute2);
@@ -139,6 +142,9 @@ public final class MediaRouterDynamicProviderTest {
         Objects.requireNonNull(mediaRouteDescriptor2);
         assertEquals(ROUTE_ID_2, mediaRouteDescriptor2.getId());
         assertEquals(ROUTE_NAME_2, mediaRouteDescriptor2.getName());
+        assertEquals(
+                StubDynamicMediaRouteProviderService.NEW_CLIENT_MIN_VERSION,
+                mediaRouteDescriptor1.getMinClientVersion());
 
         mRoute3 = routeSnapshot.get(ROUTE_ID_3);
         Objects.requireNonNull(mRoute3);
@@ -651,15 +657,15 @@ public final class MediaRouterDynamicProviderTest {
         @Override
         public void onRouteSelected(
                 @NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo selectedRoute,
+                MediaRouter.@NonNull RouteInfo selectedRoute,
                 int reason,
-                @NonNull MediaRouter.RouteInfo requestedRoute) {
+                MediaRouter.@NonNull RouteInfo requestedRoute) {
             mRouteSelectedConditionVariable.open();
         }
 
         @Override
         public void onRouteAdded(
-                @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                @NonNull MediaRouter router, MediaRouter.@NonNull RouteInfo route) {
             if (getCurrentRoutesAsMap().keySet().containsAll(mRouteIdsPending)) {
                 mPendingRoutesConditionVariable.open();
             }
@@ -668,7 +674,7 @@ public final class MediaRouterDynamicProviderTest {
 
         @Override
         public void onRouteChanged(
-                @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                @NonNull MediaRouter router, MediaRouter.@NonNull RouteInfo route) {
             mChangedRoute = route;
             MediaRouter.GroupRouteInfo groupRoute = route.asGroup();
             if (groupRoute != null) {
@@ -708,8 +714,8 @@ public final class MediaRouterDynamicProviderTest {
         @Override
         public void onRouteConnected(
                 @NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo connectedRoute,
-                @NonNull MediaRouter.RouteInfo requestedRoute) {
+                MediaRouter.@NonNull RouteInfo connectedRoute,
+                MediaRouter.@NonNull RouteInfo requestedRoute) {
             mRouteConnectionState = RouteConnectionState.STATE_CONNECTED;
             mConnectedRoute = connectedRoute;
             mRequestedRoute = requestedRoute;
@@ -719,8 +725,8 @@ public final class MediaRouterDynamicProviderTest {
         @Override
         public void onRouteDisconnected(
                 @NonNull MediaRouter router,
-                @Nullable MediaRouter.RouteInfo disconnectedRoute,
-                @NonNull MediaRouter.RouteInfo requestedRoute,
+                MediaRouter.@Nullable RouteInfo disconnectedRoute,
+                MediaRouter.@NonNull RouteInfo requestedRoute,
                 int reason) {
             mRouteConnectionState = RouteConnectionState.STATE_DISCONNECTED;
             mDisconnectedRoute = disconnectedRoute;

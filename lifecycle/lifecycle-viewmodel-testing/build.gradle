@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -49,139 +48,37 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":lifecycle:lifecycle-viewmodel"))
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                implementation(project(":lifecycle:lifecycle-runtime"))
-                implementation(project(":lifecycle:lifecycle-runtime-testing"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-viewmodel"))
+            api(libs.kotlinCoroutinesCore)
+            implementation(project(":lifecycle:lifecycle-runtime"))
+            implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidDeviceTest.dependencies {
+            implementation("androidx.core:core-ktx:1.2.0")
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
 
-        androidMain {
-            dependsOn(commonMain)
-            dependsOn(jvmMain)
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependsOn(jvmTest)
-            dependencies {
-                implementation("androidx.core:core-ktx:1.2.0")
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-            }
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(commonTest)
-            dependsOn(nonAndroidTest)
-        }
-
-        darwinMain {
-            dependsOn(nativeMain)
-        }
-
-        darwinTest {
-            dependsOn(nativeTest)
-        }
-
-        linuxMain {
-            dependsOn(nativeMain)
-        }
-
-        linuxTest {
-            dependsOn(nativeTest)
-        }
-
-        mingwMain {
-            dependsOn(nativeMain)
-        }
-
-        mingwTest {
-            dependsOn(nativeTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                } else if (target.konanTarget.family == Family.MINGW) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
-                } else {
-                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        webTest.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
     }
 }

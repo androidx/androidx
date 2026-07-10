@@ -76,4 +76,13 @@ class MediaRouterActiveScanThrottlingHelper {
         }
         return mActiveScan;
     }
+
+    /**
+     * Returns true if {@code shouldActivelyScan} is true and the corresponding request timestamp is
+     * not older than {@link #MAX_ACTIVE_SCAN_DURATION_MS}.
+     */
+    public boolean isActiveScanTimedOut(boolean shouldActivelyScan, long requestTimestampMs) {
+        return shouldActivelyScan
+                && mCurrentTime - requestTimestampMs < MAX_ACTIVE_SCAN_DURATION_MS;
+    }
 }

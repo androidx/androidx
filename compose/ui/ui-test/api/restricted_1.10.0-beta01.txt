@@ -1,0 +1,834 @@
+// Signature format: 4.0
+package androidx.compose.ui.test {
+
+  public final class ActionsKt {
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performClick(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performCustomAccessibilityActionWithLabel(androidx.compose.ui.test.SemanticsNodeInteraction, String label);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performCustomAccessibilityActionWithLabelMatching(androidx.compose.ui.test.SemanticsNodeInteraction, optional String? predicateDescription, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> labelPredicate);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction! performCustomAccessibilityActionWithLabelMatching$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performFirstLinkClick(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! performFirstLinkClick$default(androidx.compose.ui.test.SemanticsNodeInteraction!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performKeyInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performMouseInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performMultiModalInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MultiModalInjectionScope,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performRotaryScrollInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollTo(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToIndex(androidx.compose.ui.test.SemanticsNodeInteraction, int index);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToKey(androidx.compose.ui.test.SemanticsNodeInteraction, Object key);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToNode(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
+    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performTouchInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction requestFocus(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection tryPerformAccessibilityChecks(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+  }
+
+  public final class AndroidActions {
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction tryPerformAccessibilityChecks(androidx.compose.ui.test.SemanticsNodeInteraction);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface AndroidComposeUiTest<A extends androidx.activity.ComponentActivity> extends androidx.compose.ui.test.ComposeUiTest {
+    method @InaccessibleFromKotlin public A? getActivity();
+    property public abstract A? activity;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public abstract class AndroidComposeUiTestEnvironment<A extends androidx.activity.ComponentActivity> {
+    ctor public AndroidComposeUiTestEnvironment();
+    ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext);
+    ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public <A extends androidx.activity.ComponentActivity> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout);
+    ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public final void cancelAndRecreateRecomposer();
+    method @InaccessibleFromKotlin protected abstract A? getActivity();
+    method @InaccessibleFromKotlin public final androidx.compose.ui.test.AndroidComposeUiTest<A> getTest();
+    method @BytecodeOnly @Deprecated public final Object! runTest(kotlin.jvm.functions.Function1!);
+    method public final <R> void runTest(kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block);
+    property protected abstract A? activity;
+    property public final androidx.compose.ui.test.AndroidComposeUiTest<A> test;
+  }
+
+  public final class AndroidImageHelpers_androidKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.ImageBitmap captureToImage(androidx.compose.ui.test.SemanticsNodeInteraction);
+  }
+
+  public final class AssertionsKt {
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assert(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.test.SemanticsMatcher matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assert$default(androidx.compose.ui.test.SemanticsNodeInteraction!, androidx.compose.ui.test.SemanticsMatcher!, kotlin.jvm.functions.Function0!, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertAll(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertAny(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertContentDescriptionContains$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, boolean, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionEquals(androidx.compose.ui.test.SemanticsNodeInteraction, java.lang.String... values);
+    method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertCountEquals(androidx.compose.ui.test.SemanticsNodeInteractionCollection, int expectedSize);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsEnabled(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsFocused(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsNotEnabled(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsNotFocused(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsNotSelected(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsOff(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsOn(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsSelectable(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertRangeInfoEquals(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.ProgressBarRangeInfo value);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextContains$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, boolean, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String[] values, optional boolean includeEditableText);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value);
+    method public static boolean isDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static boolean isNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+  }
+
+  public final class BoundsAssertionsKt {
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedMinHeight);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedHeight);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static void assertIsEqualTo(androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp expected, String subject, optional androidx.compose.ui.unit.Dp tolerance);
+    method @BytecodeOnly public static void assertIsEqualTo-cWfXhoU(float, float, String, float);
+    method @BytecodeOnly public static void assertIsEqualTo-cWfXhoU$default(float, float, String!, float, int, Object!);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedLeft);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedLeft, androidx.compose.ui.unit.Dp expectedTop);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-VpY3zN4(androidx.compose.ui.test.SemanticsNodeInteraction, float, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedTop);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedHeight);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchHeightIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedWidth);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchWidthIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedMinWidth);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedWidth);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
+    method @KotlinOnly public static androidx.compose.ui.unit.Dp getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method @BytecodeOnly public static float getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine);
+    method public static androidx.compose.ui.unit.DpRect getBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.geometry.Rect? getFirstLinkBounds(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.Rect! getFirstLinkBounds$default(androidx.compose.ui.test.SemanticsNodeInteraction!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static androidx.compose.ui.unit.DpRect getUnclippedBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
+  }
+
+  public final class ComposeTimeoutException extends java.lang.Throwable {
+    ctor public ComposeTimeoutException(String? message);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface ComposeUiTest extends androidx.compose.ui.test.SemanticsNodeInteractionsProvider {
+    method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin public androidx.compose.ui.test.MainTestClock getMainClock();
+    method public void registerIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
+    method public <T> T runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @BytecodeOnly public void setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method public void unregisterIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
+    method public void waitForIdle();
+    method public void waitUntil(optional String? conditionDescription, optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
+    method @BytecodeOnly public static void waitUntil$default(androidx.compose.ui.test.ComposeUiTest!, String!, long, kotlin.jvm.functions.Function0!, int, Object!);
+    property public abstract androidx.compose.ui.unit.Density density;
+    property public abstract androidx.compose.ui.test.MainTestClock mainClock;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class ComposeUiTestFlags {
+    property public boolean isStandardTestDispatcherSupportEnabled;
+    field public static final androidx.compose.ui.test.ComposeUiTestFlags INSTANCE;
+    field public static boolean isStandardTestDispatcherSupportEnabled;
+  }
+
+  @SuppressCompatibility public final class ComposeUiTestKt {
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilAtLeastOneExists$default(androidx.compose.ui.test.ComposeUiTest!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilDoesNotExist$default(androidx.compose.ui.test.ComposeUiTest!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilExactlyOneExists$default(androidx.compose.ui.test.ComposeUiTest!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, int count, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilNodeCount$default(androidx.compose.ui.test.ComposeUiTest!, androidx.compose.ui.test.SemanticsMatcher!, int, long, int, Object!);
+  }
+
+  @SuppressCompatibility public final class ComposeUiTest_androidKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function0<A?> activityProvider);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A!>! AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function0<? extends A!>!);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.AndroidComposeUiTestEnvironment! AndroidComposeUiTestEnvironment$default(kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A!> AndroidComposeUiTestEnvironment-exY8QGI(kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function0<? extends A!>);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.AndroidComposeUiTestEnvironment! AndroidComposeUiTestEnvironment-exY8QGI$default(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runAndroidComposeUiTest(Class!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <reified A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runAndroidComposeUiTest$default(Class!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest-zkXUZaI(Class<A!>, kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.AndroidComposeUiTest<A!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runAndroidComposeUiTest-zkXUZaI$default(Class!, kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function2!, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.coroutines.CoroutineContext runTestContext, kotlin.time.Duration testTimeout, kotlin.jvm.functions.Function2<androidx.compose.ui.test.ComposeUiTest,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest$default(kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest-exY8QGI(kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext, long, kotlin.jvm.functions.Function2<? super androidx.compose.ui.test.ComposeUiTest!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest-exY8QGI$default(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function2!, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block);
+  }
+
+  public fun interface DeviceConfigurationOverride {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void Override(kotlin.jvm.functions.Function0<kotlin.Unit> contentUnderTest);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void Override(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.compose.ui.test.DeviceConfigurationOverride.Companion Companion;
+  }
+
+  public static final class DeviceConfigurationOverride.Companion {
+  }
+
+  public final class DeviceConfigurationOverrideKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void DeviceConfigurationOverride(androidx.compose.ui.test.DeviceConfigurationOverride override, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void DeviceConfigurationOverride(androidx.compose.ui.test.DeviceConfigurationOverride, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method public static infix androidx.compose.ui.test.DeviceConfigurationOverride then(androidx.compose.ui.test.DeviceConfigurationOverride, androidx.compose.ui.test.DeviceConfigurationOverride other);
+  }
+
+  public final class DeviceConfigurationOverride_androidKt {
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride DarkMode(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isDarkMode);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride FontScale(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, float fontScale);
+    method @RequiresApi(31) public static androidx.compose.ui.test.DeviceConfigurationOverride FontWeightAdjustment(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int fontWeightAdjustment);
+    method @KotlinOnly public static androidx.compose.ui.test.DeviceConfigurationOverride ForcedSize(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly public static androidx.compose.ui.test.DeviceConfigurationOverride ForcedSize-6HolHcs(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, long);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride Keyboard(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int keyboardType, optional boolean isHardKeyboardHidden, optional boolean isHidden);
+    method @BytecodeOnly public static androidx.compose.ui.test.DeviceConfigurationOverride! Keyboard$default(androidx.compose.ui.test.DeviceConfigurationOverride.Companion!, int, boolean, boolean, int, Object!);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride LayoutDirection(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride Locales(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.text.intl.LocaleList locales);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride Navigation(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int navigationType, optional boolean isHidden);
+    method @BytecodeOnly public static androidx.compose.ui.test.DeviceConfigurationOverride! Navigation$default(androidx.compose.ui.test.DeviceConfigurationOverride.Companion!, int, boolean, int, Object!);
+    method @RequiresApi(23) public static androidx.compose.ui.test.DeviceConfigurationOverride RoundScreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isScreenRound);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride Touchscreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isTouchScreen);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride UiMode(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int uiModeType);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride WindowInsets(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.core.view.WindowInsetsCompat windowInsets);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {
+  }
+
+  public final class FiltersKt {
+    method public static androidx.compose.ui.test.SemanticsMatcher hasAnyAncestor(androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasAnyChild(androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasAnyDescendant(androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasAnySibling(androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasClickAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasContentDescription$default(String!, boolean, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescriptionExactly(java.lang.String... values);
+    method @KotlinOnly public static androidx.compose.ui.test.SemanticsMatcher hasImeAction(androidx.compose.ui.text.input.ImeAction actionType);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher hasImeAction-KlQnJC8(int);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasInsertTextAtCursorAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasNoClickAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasNoScrollAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasParent(androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasPerformImeAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasProgressBarRangeInfo(androidx.compose.ui.semantics.ProgressBarRangeInfo rangeInfo);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasRequestFocusAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToIndexAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToKeyAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToNodeAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasSetTextAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasStateDescription(String value);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasTestTag(String testTag);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasText(String text, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasText$default(String!, boolean, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasTextExactly(String[] textValues, optional boolean includeEditableText);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsMatcher! hasTextExactly$default(String![]!, boolean, int, Object!);
+    method public static androidx.compose.ui.test.SemanticsMatcher isDialog();
+    method public static androidx.compose.ui.test.SemanticsMatcher isEditable();
+    method public static androidx.compose.ui.test.SemanticsMatcher isEnabled();
+    method public static androidx.compose.ui.test.SemanticsMatcher isFocusable();
+    method public static androidx.compose.ui.test.SemanticsMatcher isFocused();
+    method public static androidx.compose.ui.test.SemanticsMatcher isHeading();
+    method public static androidx.compose.ui.test.SemanticsMatcher isHiddenFromAccessibility();
+    method public static androidx.compose.ui.test.SemanticsMatcher isNotEnabled();
+    method public static androidx.compose.ui.test.SemanticsMatcher isNotFocusable();
+    method public static androidx.compose.ui.test.SemanticsMatcher isNotFocused();
+    method public static androidx.compose.ui.test.SemanticsMatcher isNotSelected();
+    method public static androidx.compose.ui.test.SemanticsMatcher isOff();
+    method public static androidx.compose.ui.test.SemanticsMatcher isOn();
+    method public static androidx.compose.ui.test.SemanticsMatcher isPopup();
+    method public static androidx.compose.ui.test.SemanticsMatcher isRoot();
+    method public static androidx.compose.ui.test.SemanticsMatcher isSelectable();
+    method public static androidx.compose.ui.test.SemanticsMatcher isSelected();
+    method public static androidx.compose.ui.test.SemanticsMatcher isToggleable();
+  }
+
+  public final class FindersKt {
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onAllNodesWithContentDescription(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String label, optional boolean substring, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection! onAllNodesWithContentDescription$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, boolean, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String testTag, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection! onAllNodesWithTag$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String text, optional boolean substring, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection! onAllNodesWithText$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, boolean, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onNodeWithContentDescription(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String label, optional boolean substring, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction! onNodeWithContentDescription$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, boolean, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onNodeWithTag(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String testTag, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction! onNodeWithTag$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onNodeWithText(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, String text, optional boolean substring, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction! onNodeWithText$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, String!, boolean, boolean, boolean, int, Object!);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onRoot(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction! onRoot$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, boolean, int, Object!);
+  }
+
+  @Deprecated public final class GestureScope {
+    ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
+    method @BytecodeOnly @Deprecated @kotlin.PublishedApi internal androidx.compose.ui.test.MultiModalInjectionScope getDelegateScope();
+    method @BytecodeOnly @Deprecated public long getVisibleSize-YbymL2g();
+    property @Deprecated @kotlin.PublishedApi internal androidx.compose.ui.test.MultiModalInjectionScope delegateScope;
+    property @Deprecated public androidx.compose.ui.unit.IntSize visibleSize;
+    field @Deprecated @kotlin.PublishedApi internal final androidx.compose.ui.test.MultiModalInjectionScope delegateScope;
+  }
+
+  public final class GestureScopeKt {
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void advanceEventTime(androidx.compose.ui.test.GestureScope, long durationMillis);
+    method @Deprecated public static void cancel(androidx.compose.ui.test.GestureScope);
+    method @KotlinOnly @Deprecated public static void click(androidx.compose.ui.test.GestureScope, optional androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly @Deprecated public static void click-Uv8p0NA(androidx.compose.ui.test.GestureScope, long);
+    method @BytecodeOnly @Deprecated public static void click-Uv8p0NA$default(androidx.compose.ui.test.GestureScope!, long, int, Object!);
+    method @KotlinOnly @Deprecated public static void doubleClick(androidx.compose.ui.test.GestureScope, optional androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly @Deprecated public static void doubleClick-d-4ec7I(androidx.compose.ui.test.GestureScope, long, long);
+    method @BytecodeOnly @Deprecated public static void doubleClick-d-4ec7I$default(androidx.compose.ui.test.GestureScope!, long, long, int, Object!);
+    method @KotlinOnly @Deprecated public static void down(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position);
+    method @KotlinOnly @Deprecated public static void down(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly @Deprecated public static void down-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
+    method @BytecodeOnly @Deprecated public static void down-Uv8p0NA(androidx.compose.ui.test.GestureScope, long);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getBottom(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getBottomCenter(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getBottomLeft(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getBottomRight(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getCenter(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getCenterLeft(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getCenterRight(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getCenterX(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getCenterY(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline int getHeight(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getLeft(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getRight(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline float getTop(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getTopCenter(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getTopLeft(androidx.compose.ui.test.GestureScope);
+    method @BytecodeOnly @Deprecated public static long getTopRight(androidx.compose.ui.test.GestureScope);
+    method @InaccessibleFromKotlin @Deprecated public static inline int getWidth(androidx.compose.ui.test.GestureScope);
+    method @KotlinOnly @Deprecated public static void longClick(androidx.compose.ui.test.GestureScope, optional androidx.compose.ui.geometry.Offset position, optional long durationMillis);
+    method @BytecodeOnly @Deprecated public static void longClick-d-4ec7I(androidx.compose.ui.test.GestureScope, long, long);
+    method @BytecodeOnly @Deprecated public static void longClick-d-4ec7I$default(androidx.compose.ui.test.GestureScope!, long, long, int, Object!);
+    method @Deprecated public static void move(androidx.compose.ui.test.GestureScope);
+    method @KotlinOnly @Deprecated public static void moveBy(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset delta);
+    method @KotlinOnly @Deprecated public static void moveBy(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
+    method @BytecodeOnly @Deprecated public static void moveBy-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
+    method @BytecodeOnly @Deprecated public static void moveBy-Uv8p0NA(androidx.compose.ui.test.GestureScope, long);
+    method @KotlinOnly @Deprecated public static void movePointerBy(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
+    method @BytecodeOnly @Deprecated public static void movePointerBy-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
+    method @KotlinOnly @Deprecated public static void movePointerTo(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly @Deprecated public static void movePointerTo-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
+    method @KotlinOnly @Deprecated public static void moveTo(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position);
+    method @KotlinOnly @Deprecated public static void moveTo(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly @Deprecated public static void moveTo-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
+    method @BytecodeOnly @Deprecated public static void moveTo-Uv8p0NA(androidx.compose.ui.test.GestureScope, long);
+    method @KotlinOnly @Deprecated public static androidx.compose.ui.geometry.Offset percentOffset(androidx.compose.ui.test.GestureScope, optional float x, optional float y);
+    method @BytecodeOnly @Deprecated public static long percentOffset(androidx.compose.ui.test.GestureScope, float, float);
+    method @BytecodeOnly @Deprecated public static long percentOffset$default(androidx.compose.ui.test.GestureScope!, float, float, int, Object!);
+    method @KotlinOnly @Deprecated public static void pinch(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, optional long durationMillis);
+    method @BytecodeOnly @Deprecated public static void pinch-_QUENCA(androidx.compose.ui.test.GestureScope, long, long, long, long, long);
+    method @BytecodeOnly @Deprecated public static void pinch-_QUENCA$default(androidx.compose.ui.test.GestureScope!, long, long, long, long, long, int, Object!);
+    method @KotlinOnly @Deprecated public static void swipe(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, optional long durationMillis);
+    method @BytecodeOnly @Deprecated public static void swipe-DUneCvk(androidx.compose.ui.test.GestureScope, long, long, long);
+    method @BytecodeOnly @Deprecated public static void swipe-DUneCvk$default(androidx.compose.ui.test.GestureScope!, long, long, long, int, Object!);
+    method @Deprecated public static void swipeDown(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeDown(androidx.compose.ui.test.GestureScope, optional float startY, optional float endY, optional long durationMillis);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeDown$default(androidx.compose.ui.test.GestureScope!, float, float, long, int, Object!);
+    method @Deprecated public static void swipeLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeLeft(androidx.compose.ui.test.GestureScope, optional float startX, optional float endX, optional long durationMillis);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeLeft$default(androidx.compose.ui.test.GestureScope!, float, float, long, int, Object!);
+    method @Deprecated public static void swipeRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeRight(androidx.compose.ui.test.GestureScope, optional float startX, optional float endX, optional long durationMillis);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeRight$default(androidx.compose.ui.test.GestureScope!, float, float, long, int, Object!);
+    method @Deprecated public static void swipeUp(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeUp(androidx.compose.ui.test.GestureScope, optional float startY, optional float endY, optional long durationMillis);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeUp$default(androidx.compose.ui.test.GestureScope!, float, float, long, int, Object!);
+    method @KotlinOnly @Deprecated public static void swipeWithVelocity(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, float endVelocity, optional long durationMillis);
+    method @BytecodeOnly @Deprecated public static void swipeWithVelocity-5iVPX68(androidx.compose.ui.test.GestureScope, long, long, float, long);
+    method @BytecodeOnly @Deprecated public static void swipeWithVelocity-5iVPX68$default(androidx.compose.ui.test.GestureScope!, long, long, float, long, int, Object!);
+    method @Deprecated public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
+    method @BytecodeOnly @Deprecated public static void up$default(androidx.compose.ui.test.GestureScope!, int, int, Object!);
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.bottom;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.bottomCenter;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.bottomLeft;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.bottomRight;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.center;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.centerLeft;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.centerRight;
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.centerX;
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.centerY;
+    property @Deprecated public static inline int androidx.compose.ui.test.GestureScope.height;
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.left;
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.right;
+    property @Deprecated public static inline float androidx.compose.ui.test.GestureScope.top;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.topCenter;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.topLeft;
+    property @Deprecated public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.GestureScope.topRight;
+    property @Deprecated public static inline int androidx.compose.ui.test.GestureScope.width;
+  }
+
+  @SuppressCompatibility public final class GlobalAssertions {
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void addGlobalAssertion(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.SemanticsNodeInteraction,kotlin.Unit> assertion);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteractionCollection invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void removeGlobalAssertion(String name);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface IdlingResource {
+    method public default String? getDiagnosticMessageIfBusy();
+    method @InaccessibleFromKotlin public boolean isIdleNow();
+    property public abstract boolean isIdleNow;
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface InjectionScope extends androidx.compose.ui.unit.Density {
+    method public void advanceEventTime(optional long durationMillis);
+    method @BytecodeOnly public static void advanceEventTime$default(androidx.compose.ui.test.InjectionScope!, long, int, Object!);
+    method @InaccessibleFromKotlin public default float getBottom();
+    method @BytecodeOnly public default long getBottomCenter-F1C5BW0();
+    method @BytecodeOnly public default long getBottomLeft-F1C5BW0();
+    method @BytecodeOnly public default long getBottomRight-F1C5BW0();
+    method @BytecodeOnly public default long getCenter-F1C5BW0();
+    method @BytecodeOnly public default long getCenterLeft-F1C5BW0();
+    method @BytecodeOnly public default long getCenterRight-F1C5BW0();
+    method @InaccessibleFromKotlin public default float getCenterX();
+    method @InaccessibleFromKotlin public default float getCenterY();
+    method @InaccessibleFromKotlin public default long getEventPeriodMillis();
+    method @InaccessibleFromKotlin public default int getHeight();
+    method @InaccessibleFromKotlin public default float getLeft();
+    method @InaccessibleFromKotlin public default float getRight();
+    method @InaccessibleFromKotlin public default float getTop();
+    method @BytecodeOnly public default long getTopCenter-F1C5BW0();
+    method @BytecodeOnly public default long getTopLeft-F1C5BW0();
+    method @BytecodeOnly public default long getTopRight-F1C5BW0();
+    method @InaccessibleFromKotlin public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
+    method @BytecodeOnly public long getVisibleSize-YbymL2g();
+    method @InaccessibleFromKotlin public default int getWidth();
+    method @KotlinOnly public default androidx.compose.ui.geometry.Offset percentOffset(optional float x, optional float y);
+    method @BytecodeOnly public default long percentOffset-dBAh8RU(float, float);
+    method @BytecodeOnly public static long percentOffset-dBAh8RU$default(androidx.compose.ui.test.InjectionScope!, float, float, int, Object!);
+    property public default float bottom;
+    property public default androidx.compose.ui.geometry.Offset bottomCenter;
+    property public default androidx.compose.ui.geometry.Offset bottomLeft;
+    property public default androidx.compose.ui.geometry.Offset bottomRight;
+    property public default androidx.compose.ui.geometry.Offset center;
+    property public default androidx.compose.ui.geometry.Offset centerLeft;
+    property public default androidx.compose.ui.geometry.Offset centerRight;
+    property public default float centerX;
+    property public default float centerY;
+    property public default long eventPeriodMillis;
+    property public default int height;
+    property public default float left;
+    property public default float right;
+    property public default float top;
+    property public default androidx.compose.ui.geometry.Offset topCenter;
+    property public default androidx.compose.ui.geometry.Offset topLeft;
+    property public default androidx.compose.ui.geometry.Offset topRight;
+    property public abstract androidx.compose.ui.platform.ViewConfiguration viewConfiguration;
+    property public abstract androidx.compose.ui.unit.IntSize visibleSize;
+    property public default int width;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is internal API for Compose modules that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalTestApi {
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface KeyInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method @InaccessibleFromKotlin public boolean isCapsLockOn();
+    method @KotlinOnly public boolean isKeyDown(androidx.compose.ui.input.key.Key key);
+    method @BytecodeOnly public boolean isKeyDown-YVgTNJs(long);
+    method @InaccessibleFromKotlin public boolean isNumLockOn();
+    method @InaccessibleFromKotlin public boolean isScrollLockOn();
+    method @KotlinOnly public void keyDown(androidx.compose.ui.input.key.Key key);
+    method @BytecodeOnly public void keyDown-YVgTNJs(long);
+    method @KotlinOnly public void keyUp(androidx.compose.ui.input.key.Key key);
+    method @BytecodeOnly public void keyUp-YVgTNJs(long);
+    property public abstract boolean isCapsLockOn;
+    property public abstract boolean isNumLockOn;
+    property public abstract boolean isScrollLockOn;
+  }
+
+  public final class KeyInjectionScopeKt {
+    method @InaccessibleFromKotlin public static boolean isAltDown(androidx.compose.ui.test.KeyInjectionScope);
+    method @InaccessibleFromKotlin public static boolean isCtrlDown(androidx.compose.ui.test.KeyInjectionScope);
+    method @InaccessibleFromKotlin public static boolean isFnDown(androidx.compose.ui.test.KeyInjectionScope);
+    method @InaccessibleFromKotlin public static boolean isMetaDown(androidx.compose.ui.test.KeyInjectionScope);
+    method @InaccessibleFromKotlin public static boolean isShiftDown(androidx.compose.ui.test.KeyInjectionScope);
+    method @KotlinOnly public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, androidx.compose.ui.input.key.Key key, optional long pressDurationMillis);
+    method @BytecodeOnly public static void pressKey-KChvXf4(androidx.compose.ui.test.KeyInjectionScope, long, long);
+    method @BytecodeOnly public static void pressKey-KChvXf4$default(androidx.compose.ui.test.KeyInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public static void withKeyDown(androidx.compose.ui.test.KeyInjectionScope, androidx.compose.ui.input.key.Key key, kotlin.jvm.functions.Function1<androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method @BytecodeOnly public static void withKeyDown-KChvXf4(androidx.compose.ui.test.KeyInjectionScope, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope!,kotlin.Unit!>);
+    method @KotlinOnly public static void withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, androidx.compose.ui.input.key.Key key, kotlin.jvm.functions.Function1<androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method @BytecodeOnly public static void withKeyToggled-KChvXf4(androidx.compose.ui.test.KeyInjectionScope, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope!,kotlin.Unit!>);
+    method public static void withKeysDown(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static void withKeysToggled(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    property public static boolean androidx.compose.ui.test.KeyInjectionScope.isAltDown;
+    property public static boolean androidx.compose.ui.test.KeyInjectionScope.isCtrlDown;
+    property public static boolean androidx.compose.ui.test.KeyInjectionScope.isFnDown;
+    property public static boolean androidx.compose.ui.test.KeyInjectionScope.isMetaDown;
+    property public static boolean androidx.compose.ui.test.KeyInjectionScope.isShiftDown;
+  }
+
+  public final class KeyInputHelpersKt {
+    method @KotlinOnly public static boolean performKeyPress(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.input.key.KeyEvent keyEvent);
+    method @BytecodeOnly public static boolean performKeyPress-34rOyRA(androidx.compose.ui.test.SemanticsNodeInteraction, android.view.KeyEvent);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface MainTestClock {
+    method public void advanceTimeBy(long milliseconds, optional boolean ignoreFrameDuration);
+    method @BytecodeOnly public static void advanceTimeBy$default(androidx.compose.ui.test.MainTestClock!, long, boolean, int, Object!);
+    method public void advanceTimeByFrame();
+    method public void advanceTimeUntil(optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
+    method @BytecodeOnly public static void advanceTimeUntil$default(androidx.compose.ui.test.MainTestClock!, long, kotlin.jvm.functions.Function0!, int, Object!);
+    method @InaccessibleFromKotlin public boolean getAutoAdvance();
+    method @InaccessibleFromKotlin public long getCurrentTime();
+    method @InaccessibleFromKotlin public void setAutoAdvance(boolean);
+    property public abstract boolean autoAdvance;
+    property public abstract long currentTime;
+  }
+
+  @kotlin.jvm.JvmInline public final value class MouseButton {
+    ctor @KotlinOnly public MouseButton(int buttonId);
+    method @BytecodeOnly public static androidx.compose.ui.test.MouseButton! box-impl(int);
+    method @BytecodeOnly public static int constructor-impl(int);
+    method @InaccessibleFromKotlin public int getButtonId();
+    method @BytecodeOnly public int unbox-impl();
+    property public int buttonId;
+    field public static final androidx.compose.ui.test.MouseButton.Companion Companion;
+  }
+
+  public static final class MouseButton.Companion {
+    method @BytecodeOnly public int getPrimary-ipIFwKQ();
+    method @BytecodeOnly public int getSecondary-ipIFwKQ();
+    method @BytecodeOnly public int getTertiary-ipIFwKQ();
+    property public androidx.compose.ui.test.MouseButton Primary;
+    property public androidx.compose.ui.test.MouseButton Secondary;
+    property public androidx.compose.ui.test.MouseButton Tertiary;
+  }
+
+  public interface MouseInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void cancel(optional long delayMillis);
+    method @BytecodeOnly public static void cancel$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, Object!);
+    method @KotlinOnly public void enter(optional androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public void enter-3MmeM6k(long, long);
+    method @BytecodeOnly public static void enter-3MmeM6k$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public void exit(optional androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public void exit-3MmeM6k(long, long);
+    method @BytecodeOnly public static void exit-3MmeM6k$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @BytecodeOnly public long getCurrentPosition-F1C5BW0();
+    method @KotlinOnly public default void moveBy(androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
+    method @BytecodeOnly public default void moveBy-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveBy-3MmeM6k$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public void moveTo(androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public void moveTo-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveTo-3MmeM6k$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public void press(optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public void press-SMKQcqU(int);
+    method @BytecodeOnly public static void press-SMKQcqU$default(androidx.compose.ui.test.MouseInjectionScope!, int, int, Object!);
+    method @KotlinOnly public void release(optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public void release-SMKQcqU(int);
+    method @BytecodeOnly public static void release-SMKQcqU$default(androidx.compose.ui.test.MouseInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void scroll(androidx.compose.ui.geometry.Offset offset);
+    method @KotlinOnly public void scroll(float delta, optional androidx.compose.ui.test.ScrollWheel scrollWheel);
+    method @BytecodeOnly public void scroll-I7Dg0i0(float, int);
+    method @BytecodeOnly public static void scroll-I7Dg0i0$default(androidx.compose.ui.test.MouseInjectionScope!, float, int, int, Object!);
+    method @BytecodeOnly public default void scroll-k-4lQ0M(long);
+    method @KotlinOnly public default void updatePointerBy(androidx.compose.ui.geometry.Offset delta);
+    method @BytecodeOnly public default void updatePointerBy-k-4lQ0M(long);
+    method @KotlinOnly public void updatePointerTo(androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public void updatePointerTo-k-4lQ0M(long);
+    property public abstract androidx.compose.ui.geometry.Offset currentPosition;
+  }
+
+  public final class MouseInjectionScopeKt {
+    method public static void animateMoveAlong(androidx.compose.ui.test.MouseInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis);
+    method @BytecodeOnly public static void animateMoveAlong$default(androidx.compose.ui.test.MouseInjectionScope!, kotlin.jvm.functions.Function1!, long, int, Object!);
+    method @KotlinOnly public static void animateMoveBy(androidx.compose.ui.test.MouseInjectionScope, androidx.compose.ui.geometry.Offset delta, optional long durationMillis);
+    method @BytecodeOnly public static void animateMoveBy-d-4ec7I(androidx.compose.ui.test.MouseInjectionScope, long, long);
+    method @BytecodeOnly public static void animateMoveBy-d-4ec7I$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public static void animateMoveTo(androidx.compose.ui.test.MouseInjectionScope, androidx.compose.ui.geometry.Offset position, optional long durationMillis);
+    method @BytecodeOnly public static void animateMoveTo-d-4ec7I(androidx.compose.ui.test.MouseInjectionScope, long, long);
+    method @BytecodeOnly public static void animateMoveTo-d-4ec7I$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public static void click(androidx.compose.ui.test.MouseInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public static void click-xhG_qxo(androidx.compose.ui.test.MouseInjectionScope, long, int);
+    method @BytecodeOnly public static void click-xhG_qxo$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, int, Object!);
+    method @KotlinOnly public static void doubleClick(androidx.compose.ui.test.MouseInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public static void doubleClick-xhG_qxo(androidx.compose.ui.test.MouseInjectionScope, long, int);
+    method @BytecodeOnly public static void doubleClick-xhG_qxo$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, int, Object!);
+    method @KotlinOnly public static void dragAndDrop(androidx.compose.ui.test.MouseInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, optional androidx.compose.ui.test.MouseButton button, optional long durationMillis);
+    method @BytecodeOnly public static void dragAndDrop-cI4L0Fs(androidx.compose.ui.test.MouseInjectionScope, long, long, int, long);
+    method @BytecodeOnly public static void dragAndDrop-cI4L0Fs$default(androidx.compose.ui.test.MouseInjectionScope!, long, long, int, long, int, Object!);
+    method @KotlinOnly public static void longClick(androidx.compose.ui.test.MouseInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public static void longClick-xhG_qxo(androidx.compose.ui.test.MouseInjectionScope, long, int);
+    method @BytecodeOnly public static void longClick-xhG_qxo$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, int, Object!);
+    method @KotlinOnly public static void rightClick(androidx.compose.ui.test.MouseInjectionScope, optional androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public static void rightClick-Uv8p0NA(androidx.compose.ui.test.MouseInjectionScope, long);
+    method @BytecodeOnly public static void rightClick-Uv8p0NA$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, Object!);
+    method @KotlinOnly public static void smoothScroll(androidx.compose.ui.test.MouseInjectionScope, float scrollAmount, optional long durationMillis, optional androidx.compose.ui.test.ScrollWheel scrollWheel);
+    method @BytecodeOnly public static void smoothScroll-rNbqR-4(androidx.compose.ui.test.MouseInjectionScope, float, long, int);
+    method @BytecodeOnly public static void smoothScroll-rNbqR-4$default(androidx.compose.ui.test.MouseInjectionScope!, float, long, int, int, Object!);
+    method @KotlinOnly public static void tripleClick(androidx.compose.ui.test.MouseInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional androidx.compose.ui.test.MouseButton button);
+    method @BytecodeOnly public static void tripleClick-xhG_qxo(androidx.compose.ui.test.MouseInjectionScope, long, int);
+    method @BytecodeOnly public static void tripleClick-xhG_qxo$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, int, Object!);
+  }
+
+  public sealed interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void key(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public void mouse(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void rotary(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);
+    method public void touch(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
+  }
+
+  public final class OutputKt {
+    method public static void printToLog(androidx.compose.ui.test.SemanticsNodeInteraction, String tag, optional int maxDepth);
+    method public static void printToLog(androidx.compose.ui.test.SemanticsNodeInteractionCollection, String tag, optional int maxDepth);
+    method @BytecodeOnly public static void printToLog$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, int, int, Object!);
+    method @BytecodeOnly public static void printToLog$default(androidx.compose.ui.test.SemanticsNodeInteractionCollection!, String!, int, int, Object!);
+    method public static String printToString(androidx.compose.ui.test.SemanticsNodeInteraction, optional int maxDepth);
+    method public static String printToString(androidx.compose.ui.test.SemanticsNodeInteractionCollection, optional int maxDepth);
+    method @BytecodeOnly public static String! printToString$default(androidx.compose.ui.test.SemanticsNodeInteraction!, int, int, Object!);
+    method @BytecodeOnly public static String! printToString$default(androidx.compose.ui.test.SemanticsNodeInteractionCollection!, int, int, Object!);
+  }
+
+  @SuppressCompatibility public final class PlatformTextInputMethodOverrideKt {
+    method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.test.ExperimentalTestApi public static void PlatformTextInputMethodTestOverride(androidx.compose.ui.platform.PlatformTextInputSession sessionHandler, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.test.ExperimentalTestApi public static void PlatformTextInputMethodTestOverride(androidx.compose.ui.platform.PlatformTextInputSession, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public interface RotaryInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void rotateToScrollHorizontally(float horizontalScrollPixels);
+    method public void rotateToScrollVertically(float verticalScrollPixels);
+  }
+
+  @kotlin.jvm.JvmInline public final value class ScrollWheel {
+    method @BytecodeOnly public static androidx.compose.ui.test.ScrollWheel! box-impl(int);
+    method @InaccessibleFromKotlin public int getValue();
+    method @BytecodeOnly public int unbox-impl();
+    property public int value;
+    field public static final androidx.compose.ui.test.ScrollWheel.Companion Companion;
+  }
+
+  public static final class ScrollWheel.Companion {
+    method @BytecodeOnly public int getHorizontal-LTdd5XU();
+    method @BytecodeOnly public int getVertical-LTdd5XU();
+    property public androidx.compose.ui.test.ScrollWheel Horizontal;
+    property public androidx.compose.ui.test.ScrollWheel Vertical;
+  }
+
+  public final class SelectionResult {
+    ctor @BytecodeOnly public SelectionResult(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public SelectionResult(java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes, optional String? customErrorOnNoMatch);
+    method @InaccessibleFromKotlin public String? getCustomErrorOnNoMatch();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.semantics.SemanticsNode> getSelectedNodes();
+    property public String? customErrorOnNoMatch;
+    property public java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes;
+  }
+
+  public final class SelectorsKt {
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection filter(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction filterToOne(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onAncestors(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onChild(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onChildAt(androidx.compose.ui.test.SemanticsNodeInteraction, int index);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onChildren(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onFirst(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onLast(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onParent(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction onSibling(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection onSiblings(androidx.compose.ui.test.SemanticsNodeInteraction);
+  }
+
+  public final class SemanticsMatcher {
+    ctor public SemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsNode,java.lang.Boolean> matcher);
+    method public infix androidx.compose.ui.test.SemanticsMatcher and(androidx.compose.ui.test.SemanticsMatcher other);
+    method @InaccessibleFromKotlin public String getDescription();
+    method public boolean matches(androidx.compose.ui.semantics.SemanticsNode node);
+    method public boolean matchesAny(Iterable<androidx.compose.ui.semantics.SemanticsNode> nodes);
+    method public operator androidx.compose.ui.test.SemanticsMatcher not();
+    method public infix androidx.compose.ui.test.SemanticsMatcher or(androidx.compose.ui.test.SemanticsMatcher other);
+    property public String description;
+    field public static final androidx.compose.ui.test.SemanticsMatcher.Companion Companion;
+  }
+
+  public static final class SemanticsMatcher.Companion {
+    method public <T> androidx.compose.ui.test.SemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T expectedValue);
+    method public <T> androidx.compose.ui.test.SemanticsMatcher keyIsDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> androidx.compose.ui.test.SemanticsMatcher keyNotDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+  }
+
+  public final class SemanticsNodeInteraction {
+    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
+    method public void assertDoesNotExist();
+    method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
+    method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertExists$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, int, Object!);
+    method public void assertIsDeactivated(optional String? errorMessageOnFail);
+    method @BytecodeOnly public static void assertIsDeactivated$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, int, Object!);
+    method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
+    method @BytecodeOnly public static androidx.compose.ui.semantics.SemanticsNode! fetchSemanticsNode$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String!, int, Object!);
+  }
+
+  public final class SemanticsNodeInteractionCollection {
+    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
+    method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> fetchSemanticsNodes(optional boolean atLeastOneRootRequired, optional String? errorMessageOnFail);
+    method @BytecodeOnly public static java.util.List! fetchSemanticsNodes$default(androidx.compose.ui.test.SemanticsNodeInteractionCollection!, boolean, String!, int, Object!);
+    method public operator androidx.compose.ui.test.SemanticsNodeInteraction get(int index);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface SemanticsNodeInteractionsProvider {
+    method @CheckResult public androidx.compose.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.compose.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteractionCollection! onAllNodes$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, androidx.compose.ui.test.SemanticsMatcher!, boolean, int, Object!);
+    method @CheckResult public androidx.compose.ui.test.SemanticsNodeInteraction onNode(androidx.compose.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
+    method @BytecodeOnly @CheckResult public static androidx.compose.ui.test.SemanticsNodeInteraction! onNode$default(androidx.compose.ui.test.SemanticsNodeInteractionsProvider!, androidx.compose.ui.test.SemanticsMatcher!, boolean, int, Object!);
+  }
+
+  public final class SemanticsSelector {
+    ctor @BytecodeOnly public SemanticsSelector(String!, boolean, androidx.compose.ui.test.SemanticsSelector!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public SemanticsSelector(String description, boolean requiresExactlyOneNode, optional androidx.compose.ui.test.SemanticsSelector? chainedInputSelector, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.compose.ui.semantics.SemanticsNode>,androidx.compose.ui.test.SelectionResult> selector);
+    method @InaccessibleFromKotlin public String getDescription();
+    method public androidx.compose.ui.test.SelectionResult map(Iterable<androidx.compose.ui.semantics.SemanticsNode> nodes, String errorOnFail);
+    property public String description;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class StateRestorationTester {
+    ctor public StateRestorationTester(androidx.compose.ui.test.ComposeUiTest composeTest);
+    method public void emulateSaveAndRestore();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @BytecodeOnly public void setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+  }
+
+  public final class TestContext {
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi @kotlinx.coroutines.ExperimentalCoroutinesApi public final class TestMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
+    ctor @BytecodeOnly public TestMonotonicFrameClock(kotlinx.coroutines.CoroutineScope!, long, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public TestMonotonicFrameClock(kotlinx.coroutines.CoroutineScope coroutineScope, optional long frameDelayNanos, optional kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> onPerformTraversals);
+    method @BytecodeOnly public <R> R! fold(R!, kotlin.jvm.functions.Function2<? super R!,? super kotlin.coroutines.CoroutineContext.Element!,? extends R!>);
+    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E!>);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public kotlin.coroutines.ContinuationInterceptor getContinuationInterceptor();
+    method @InaccessibleFromKotlin public long getFrameDelayNanos();
+    method @InaccessibleFromKotlin public boolean getHasAwaiters();
+    method @BytecodeOnly public kotlin.coroutines.CoroutineContext minusKey(kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!>);
+    method @BytecodeOnly public kotlin.coroutines.CoroutineContext plus(kotlin.coroutines.CoroutineContext);
+    method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
+    property @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public kotlin.coroutines.ContinuationInterceptor continuationInterceptor;
+    property public long frameDelayNanos;
+    property public boolean hasAwaiters;
+  }
+
+  @SuppressCompatibility public final class TestMonotonicFrameClock_jvmKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static long getFrameDelayMillis(androidx.compose.ui.test.TestMonotonicFrameClock);
+    property @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static long androidx.compose.ui.test.TestMonotonicFrameClock.frameDelayMillis;
+  }
+
+  public final class TextActionsKt {
+    method public static void performImeAction(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static void performTextClearance(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static void performTextInput(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
+    method @KotlinOnly public static void performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.text.TextRange selection, optional boolean relativeToOriginalText);
+    method @BytecodeOnly @Deprecated public static void performTextInputSelection-FDrldGo(androidx.compose.ui.test.SemanticsNodeInteraction!, long);
+    method @BytecodeOnly public static void performTextInputSelection-Sb-Bc2M(androidx.compose.ui.test.SemanticsNodeInteraction, long, boolean);
+    method @BytecodeOnly public static void performTextInputSelection-Sb-Bc2M$default(androidx.compose.ui.test.SemanticsNodeInteraction!, long, boolean, int, Object!);
+    method public static void performTextReplacement(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface TouchInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void cancel(optional long delayMillis);
+    method @BytecodeOnly public static void cancel$default(androidx.compose.ui.test.TouchInjectionScope!, long, int, Object!);
+    method @KotlinOnly public androidx.compose.ui.geometry.Offset? currentPosition(optional int pointerId);
+    method @BytecodeOnly public androidx.compose.ui.geometry.Offset? currentPosition-x-9fifI(int);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.Offset! currentPosition-x-9fifI$default(androidx.compose.ui.test.TouchInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void down(androidx.compose.ui.geometry.Offset position);
+    method @KotlinOnly public void down(int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public void down-Uv8p0NA(int, long);
+    method @BytecodeOnly public default void down-k-4lQ0M(long);
+    method public void move(optional long delayMillis);
+    method @BytecodeOnly public static void move$default(androidx.compose.ui.test.TouchInjectionScope!, long, int, Object!);
+    method @KotlinOnly public default void moveBy(androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
+    method @KotlinOnly public default void moveBy(int pointerId, androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
+    method @BytecodeOnly public default void moveBy-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveBy-3MmeM6k$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, int, Object!);
+    method @BytecodeOnly public default void moveBy-d-4ec7I(int, long, long);
+    method @BytecodeOnly public static void moveBy-d-4ec7I$default(androidx.compose.ui.test.TouchInjectionScope!, int, long, long, int, Object!);
+    method @KotlinOnly public default void moveTo(androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @KotlinOnly public default void moveTo(int pointerId, androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public default void moveTo-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveTo-3MmeM6k$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, int, Object!);
+    method @BytecodeOnly public default void moveTo-d-4ec7I(int, long, long);
+    method @BytecodeOnly public static void moveTo-d-4ec7I$default(androidx.compose.ui.test.TouchInjectionScope!, int, long, long, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public default void moveWithHistory(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<androidx.compose.ui.geometry.Offset> historicalCoordinates, optional long delayMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void moveWithHistory$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void moveWithHistoryMultiPointer(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<? extends java.util.List<androidx.compose.ui.geometry.Offset>> historicalCoordinates, optional long delayMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void moveWithHistoryMultiPointer$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
+    method public void up(optional int pointerId);
+    method @BytecodeOnly public static void up$default(androidx.compose.ui.test.TouchInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void updatePointerBy(int pointerId, androidx.compose.ui.geometry.Offset delta);
+    method @BytecodeOnly public default void updatePointerBy-Uv8p0NA(int, long);
+    method @KotlinOnly public void updatePointerTo(int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public void updatePointerTo-Uv8p0NA(int, long);
+  }
+
+  public final class TouchInjectionScopeKt {
+    method @KotlinOnly public static void click(androidx.compose.ui.test.TouchInjectionScope, optional androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public static void click-Uv8p0NA(androidx.compose.ui.test.TouchInjectionScope, long);
+    method @BytecodeOnly public static void click-Uv8p0NA$default(androidx.compose.ui.test.TouchInjectionScope!, long, int, Object!);
+    method @KotlinOnly public static void doubleClick(androidx.compose.ui.test.TouchInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public static void doubleClick-d-4ec7I(androidx.compose.ui.test.TouchInjectionScope, long, long);
+    method @BytecodeOnly public static void doubleClick-d-4ec7I$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, int, Object!);
+    method @KotlinOnly public static void longClick(androidx.compose.ui.test.TouchInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional long durationMillis);
+    method @BytecodeOnly public static void longClick-d-4ec7I(androidx.compose.ui.test.TouchInjectionScope, long, long);
+    method @BytecodeOnly public static void longClick-d-4ec7I$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, int, Object!);
+    method public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method @BytecodeOnly public static void multiTouchSwipe$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, long, java.util.List!, int, Object!);
+    method @KotlinOnly public static void pinch(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, optional long durationMillis);
+    method @BytecodeOnly public static void pinch-_QUENCA(androidx.compose.ui.test.TouchInjectionScope, long, long, long, long, long);
+    method @BytecodeOnly public static void pinch-_QUENCA$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, long, long, long, int, Object!);
+    method @KotlinOnly public static void swipe(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, optional long durationMillis);
+    method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method @BytecodeOnly public static void swipe$default(androidx.compose.ui.test.TouchInjectionScope!, kotlin.jvm.functions.Function1!, long, java.util.List!, int, Object!);
+    method @BytecodeOnly public static void swipe-DUneCvk(androidx.compose.ui.test.TouchInjectionScope, long, long, long);
+    method @BytecodeOnly public static void swipe-DUneCvk$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, long, int, Object!);
+    method public static void swipeDown(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
+    method @BytecodeOnly public static void swipeDown$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeLeft(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
+    method @BytecodeOnly public static void swipeLeft$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeRight(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
+    method @BytecodeOnly public static void swipeRight$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeUp(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
+    method @BytecodeOnly public static void swipeUp$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
+    method @KotlinOnly public static void swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, float endVelocity, optional long durationMillis);
+    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68(androidx.compose.ui.test.TouchInjectionScope, long, long, float, long);
+    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, float, long, int, Object!);
+  }
+
+}
+
+package androidx.compose.ui.test.internal {
+
+  @SuppressCompatibility @androidx.compose.ui.test.InternalTestApi public abstract class DelayPropagatingContinuationInterceptorWrapper extends kotlin.coroutines.AbstractCoroutineContextElement implements kotlin.coroutines.ContinuationInterceptor kotlinx.coroutines.Delay {
+    ctor public DelayPropagatingContinuationInterceptorWrapper(kotlin.coroutines.ContinuationInterceptor wrappedInterceptor);
+    method @Deprecated public suspend Object? delay(long time, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method public kotlinx.coroutines.DisposableHandle invokeOnTimeout(long timeMillis, Runnable block, kotlin.coroutines.CoroutineContext context);
+    method @BytecodeOnly public void releaseInterceptedContinuation(kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public void scheduleResumeAfterDelay(long timeMillis, kotlinx.coroutines.CancellableContinuation<kotlin.Unit> continuation);
+  }
+
+}
+
+package androidx.compose.ui.test.junit4.android {
+
+  public final class ComposeNotIdleException extends java.lang.Exception {
+    ctor public ComposeNotIdleException(String? message, Throwable? cause);
+  }
+
+}
+

@@ -1,0 +1,46 @@
+diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+index 6fece502bef..f1c96195b0b 100644
+--- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
++++ b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+@@ -38,11 +38,11 @@ interface AndroidXConfiguration {
+ }
+ 
+ enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
+-    KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
+     KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
+     KOTLIN_2_3(KotlinVersion.KOTLIN_2_3, "kotlin23"),
+-    DEFAULT(KOTLIN_2_1),
+-    LATEST(KOTLIN_2_3);
++    KOTLIN_2_4(KotlinVersion.KOTLIN_2_3, "kotlin24"),
++    DEFAULT(KOTLIN_2_2),
++    LATEST(KOTLIN_2_4);
+ 
+     constructor(
+         kotlinTarget: KotlinTarget
+diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
+index e516bf8575b..bd3400df80f 100644
+--- a/buildSrc/shared.gradle
++++ b/buildSrc/shared.gradle
+@@ -44,7 +44,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
+                 "-Xskip-metadata-version-check",
+                 "-Xjdk-release=17",
+         )
+-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+-        apiVersion.set(KotlinVersion.KOTLIN_2_1)
++        languageVersion.set(KotlinVersion.KOTLIN_2_2)
++        apiVersion.set(KotlinVersion.KOTLIN_2_2)
+     }
+ }
+diff --git a/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt b/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
+index c02d9d12b62..e862d3e3b43 100644
+--- a/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
++++ b/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
+@@ -72,7 +72,7 @@ class RoomKmpGradlePluginTest {
+             |  }
+             |
+             |  compilerOptions {
+-            |    languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1
++            |    languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
+             |  }
+             |}
+             |

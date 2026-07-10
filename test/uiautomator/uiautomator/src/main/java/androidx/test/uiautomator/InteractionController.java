@@ -20,10 +20,13 @@ import android.app.Service;
 import android.app.UiAutomation;
 import android.app.UiAutomation.AccessibilityEventFilter;
 import android.graphics.Point;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.KeyCharacterMap;
@@ -36,6 +39,8 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -59,9 +64,6 @@ class InteractionController {
     private static final long REGULAR_CLICK_LENGTH = 100;
 
     private long mDownTime;
-
-    // Inserted after each motion event injection.
-    private static final int MOTION_EVENT_INJECTION_DELAY_MILLIS = 5;
 
     private static final Map<Integer, Integer> KEY_MODIFIER = new HashMap<>();
 
@@ -349,7 +351,7 @@ class InteractionController {
 
         // first touch starts exactly at the point requested
         ret = touchDown(downX, downY);
-        SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+        waitForNextFrame();
         if (drag)
             SystemClock.sleep(LONG_PRESS_DURATION_MS);
         for(int i = 1; i < swipeSteps; i++) {
@@ -357,11 +359,7 @@ class InteractionController {
             if (!ret) {
                 break;
             }
-            // set some known constant delay between steps as without it this
-            // become completely dependent on the speed of the system and results
-            // may vary on different devices. This guarantees at minimum we have
-            // a preset delay.
-            SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+            waitForNextFrame();
         }
         if (drag)
             SystemClock.sleep(REGULAR_CLICK_LENGTH);
@@ -390,7 +388,7 @@ class InteractionController {
 
         // first touch starts exactly at the point requested
         ret = touchDown(segments[0].x, segments[0].y);
-        SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+        waitForNextFrame();
         for(int seg = 0; seg < segments.length; seg++) {
             if(seg + 1 < segments.length) {
 
@@ -398,16 +396,12 @@ class InteractionController {
                 yStep = ((double)(segments[seg+1].y - segments[seg].y)) / segmentSteps;
 
                 for(int i = 1; i < swipeSteps; i++) {
-                    ret &= touchMove(segments[seg].x + (int)(xStep * i),
-                            segments[seg].y + (int)(yStep * i));
+                    ret &= touchMove(segments[seg].x + (int) (xStep * i),
+                                     segments[seg].y + (int) (yStep * i));
                     if (!ret) {
                         break;
                     }
-                    // set some known constant delay between steps as without it this
-                    // become completely dependent on the speed of the system and results
-                    // may vary on different devices. This guarantees at minimum we have
-                    // a preset delay.
-                    SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+                    waitForNextFrame();
                 }
             }
         }
@@ -560,7 +554,7 @@ class InteractionController {
                     pointerCoords, 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
             ret &= injectEventSync(event);
         }
-        SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+        waitForNextFrame();
 
         // Move all pointers
         for (int i = 1; i < maxSteps - 1; i++) {
@@ -578,7 +572,7 @@ class InteractionController {
                     0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
 
             ret &= injectEventSync(event);
-            SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
+            waitForNextFrame();
         }
 
         // For each pointer get the last coordinates
@@ -617,6 +611,28 @@ class InteractionController {
         return MotionEvent.obtain(downTime, eventTime, action, 1,
                 new PointerProperties[] { properties }, new PointerCoords[] { coords },
                 0, 0, 1.0f, 1.0f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
+    }
+
+    private void waitForNextFrame() {
+        final CountDownLatch latch = new CountDownLatch(1);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Choreographer.getInstance().postFrameCallback(new Choreographer.FrameCallback() {
+                    @Override
+                    public void doFrame(long frameTimeNanos) {
+                        latch.countDown();
+                    }
+                });
+            }
+        });
+        try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                Log.e(TAG, "Timed out waiting for VSync frame.");
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Interrupted while waiting for VSync.", e);
+        }
     }
 
     UiAutomation getUiAutomation() {

@@ -121,6 +121,15 @@ public class CapabilitiesByQuality {
     }
 
     /**
+     * Gets the resolution for the input quality or {@code null} if the quality is not supported.
+     */
+    public @Nullable Size getResolution(@NonNull Quality quality) {
+        VideoValidatedEncoderProfilesProxy encoderProfiles = getProfiles(quality);
+        return encoderProfiles != null ? encoderProfiles.getDefaultVideoProfile().getResolution()
+                : null;
+    }
+
+    /**
      * Gets a {@link VideoValidatedEncoderProfilesProxy} for the input quality or {@code null} if
      * the quality is not supported.
      */

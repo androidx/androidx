@@ -34,6 +34,7 @@ import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class MutableOptionsBundleTest {
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
     private static final Option<Object> OPTION_1_A = Option.create("option.1.a", Object.class);

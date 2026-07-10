@@ -23,9 +23,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -39,6 +39,7 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Ignore
@@ -102,6 +103,7 @@ class BottomSheetBenchmark {
         benchmarkRule.benchmarkFirstDraw(modalBottomSheetTestCaseFactory)
     }
 
+    @SdkSuppress(minSdkVersion = 24) // fails in API 23 emulator
     @Test
     fun bottomSheetScaffold_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(bottomSheetScaffoldTestCaseFactory)
@@ -137,7 +139,8 @@ internal class BottomSheetScaffoldTestCase : LayeredComposeTestCase(), Toggleabl
     override fun MeasuredContent() {
         state =
             rememberBottomSheetScaffoldState(
-                bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+                bottomSheetState =
+                    rememberBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
             )
         scope = rememberCoroutineScope()
         BottomSheetScaffold(sheetContent = {}, scaffoldState = state) {}
@@ -164,7 +167,7 @@ internal class ModalBottomSheetTestCase : LayeredComposeTestCase(), ToggleableTe
 
     @Composable
     override fun MeasuredContent() {
-        state = rememberModalBottomSheetState()
+        state = rememberBottomSheetState(initialValue = SheetValue.Hidden)
         scope = rememberCoroutineScope()
         Column { ModalBottomSheet(onDismissRequest = {}, sheetState = state) {} }
     }

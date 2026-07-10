@@ -1,0 +1,466 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ink.strokes
+
+import androidx.ink.brush.Brush
+import androidx.ink.brush.BrushCoat
+import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.BrushFamily.InputModel
+import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.StampingTexture
+import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.BrushPaint.TilingTexture
+import androidx.ink.brush.BrushTip
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.color.Color
+import androidx.ink.brush.color.colorspace.ColorSpaces
+import androidx.ink.geometry.AffineTransform
+import androidx.ink.geometry.PartitionedMesh
+import androidx.ink.nativeloader.InkInternalOnlyApi
+import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
+import androidx.kruth.assertThat
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkCustomBrushApi::class,
+    ExperimentalInkEraserApi::class,
+)
+class StrokeTest {
+
+    @Test
+    fun constructor_withBrushAndInputs() {
+        val brushIn = buildTestBrush()
+        val inputsIn = makeTestInputs()
+        val stroke = Stroke(brushIn, inputsIn)
+
+        assertThat(stroke.brush).isSameInstanceAs(brushIn)
+        assertThat(stroke.inputs).isSameInstanceAs(inputsIn)
+    }
+
+    @Test
+    fun constructor_withBrushInputsAndShape() {
+        val brushIn = buildTestBrush()
+        val inputsIn = makeTestInputs()
+        val originalStroke = Stroke(brushIn, inputsIn)
+
+        val newStroke = Stroke(brushIn, inputsIn, originalStroke.shape)
+
+        // Kotlin properties are the same
+        assertThat(newStroke.brush).isSameInstanceAs(brushIn)
+        assertThat(newStroke.inputs).isSameInstanceAs(inputsIn)
+        assertThat(newStroke.shape).isSameInstanceAs(originalStroke.shape)
+
+        // C++ Stroke is different
+        assertThat(newStroke.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun constructor_withMismatchedBrushAndShape_throwsException() {
+        // Create a [PartitionedMesh] with render group.
+        val inputs = makeTestInputs()
+        val shape = Stroke(buildTestBrush(), inputs).shape
+        assertThat(shape.getRenderGroupCount()).isEqualTo(1)
+
+        // Create a brush with two brush coats.
+        val coat = BrushCoat(BrushTip(), BrushPaint())
+        val brush = Brush(BrushFamily(listOf(coat, coat)), size = 10f, epsilon = 0.1f)
+
+        // We should get an error, because the number of render groups doesn't match the number of
+        // brush
+        // coats.
+        assertFailsWith<IllegalArgumentException> { Stroke(brush, inputs, shape) }
+    }
+
+    @Test
+    fun copy_withSameBrush_returnsSameInstance() {
+        val originalStroke = buildTestStroke()
+
+        val actual = originalStroke.copy(originalStroke.brush)
+
+        // A pure copy returns `this`.
+        assertThat(actual).isSameInstanceAs(originalStroke)
+    }
+
+    @Test
+    fun copy_withChangedBrushColor_createsCopyWithSameInputsAndShape() {
+        val originalBrush = buildTestBrush()
+        val colorChangedBrush =
+            Brush.createWithColorLong(
+                family = originalBrush.family,
+                colorLong = Color(0.1f, 0.2f, 0.3f, 0.4f, ColorSpaces.DisplayP3).value.toLong(),
+                size = originalBrush.size,
+                epsilon = originalBrush.epsilon,
+            )
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = colorChangedBrush)
+
+        // The new stroke has the changed brush.
+        assertThat(actual.brush).isSameInstanceAs(colorChangedBrush)
+        // The new stroke has the same inputs and shape as original brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.shape).isSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun copy_withChangedBrushTip_createsCopyWithSameInputs() {
+        val originalBrush = buildTestBrush()
+        val tipChangedBrush =
+            Brush.createWithColorLong(
+                family =
+                    BrushFamily(
+                        coats =
+                            originalBrush.family.coats.map { coat ->
+                                coat.copy(tip = coat.tip.copy(scaleX = 0.12345f))
+                            },
+                        clientBrushFamilyId = originalBrush.family.clientBrushFamilyId,
+                    ),
+                colorLong = originalBrush.colorLong,
+                size = originalBrush.size,
+                epsilon = originalBrush.epsilon,
+            )
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = tipChangedBrush)
+
+        // The new stroke has the original inputs and the changed brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.brush).isSameInstanceAs(tipChangedBrush)
+
+        // The new stroke has a different shape than the original stroke.
+        assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun copy_withChangedBrushPaint_createsCopyWithSameInputsAndShape() {
+        val originalBrush = buildTestBrush()
+        val paintChangedBrush =
+            originalBrush.copy(
+                family =
+                    originalBrush.family.copy(
+                        coats =
+                            originalBrush.family.coats.map { coat ->
+                                coat.copy(
+                                    paintPreferences =
+                                        listOf(
+                                            BrushPaint(
+                                                listOf(
+                                                    TilingTexture(
+                                                        clientTextureId = "test-one",
+                                                        sizeX = 123.45F,
+                                                        sizeY = 678.90F,
+                                                        offsetX = 0.1F,
+                                                        offsetY = 0.2F,
+                                                        sizeUnit =
+                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                                    ),
+                                                    TilingTexture(
+                                                        clientTextureId = "test-two",
+                                                        sizeX = 256F,
+                                                        sizeY = 256F,
+                                                        offsetX = 0.1F,
+                                                        offsetY = 0.2F,
+                                                        sizeUnit =
+                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                                    ),
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                    )
+            )
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = paintChangedBrush)
+
+        // The new stroke has the changed brush.
+        assertThat(actual.brush).isSameInstanceAs(paintChangedBrush)
+        // The new stroke has the same inputs and shape as original brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.shape).isSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun copy_withNeedsMoreAttributesBrushPaint_createsCopyWithSameInputsAndDifferentShape() {
+        val noStampingBrush = buildTestBrush()
+        val modifiedCoats = noStampingBrush.family.coats.toMutableList()
+        modifiedCoats[0] =
+            modifiedCoats[0].copy(
+                paintPreferences =
+                    listOf(BrushPaint(listOf(StampingTexture(clientTextureId = "test-one"))))
+            )
+        val stampingBrush =
+            buildTestBrush().copy(family = noStampingBrush.family.copy(coats = modifiedCoats))
+        val inputs = makeTestInputs()
+        val noStampingStroke =
+            InProgressStroke()
+                .apply {
+                    start(noStampingBrush)
+                    enqueueInputs(inputs, ImmutableStrokeInputBatch.EMPTY)
+                    finishInput()
+                    updateShape(0)
+                }
+                .toImmutableWithUnusedAttributesPruned()
+        val changedToStamping = noStampingStroke.copy(brush = stampingBrush)
+        assertThat(noStampingStroke.shape.renderGroupFormat(0).attributeCount())
+            .isLessThan(changedToStamping.shape.renderGroupFormat(0).attributeCount())
+        assertThat(changedToStamping.shape).isNotSameInstanceAs(noStampingStroke.shape)
+    }
+
+    @Test
+    fun copy_withNeedsFewerAttributesBrushPaint_createsCopyWithSameInputsAndShape() {
+        val noStampingBrush = buildTestBrush()
+        val modifiedCoats = noStampingBrush.family.coats.toMutableList()
+        modifiedCoats[0] =
+            modifiedCoats[0].copy(
+                paintPreferences =
+                    listOf(
+                        BrushPaint(
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "test-one",
+                                    sizeX = 123.45F,
+                                    sizeY = 678.90F,
+                                    offsetX = 0.1F,
+                                    offsetY = 0.2F,
+                                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                )
+                            )
+                        )
+                    )
+            )
+        val stampingBrush =
+            buildTestBrush().copy(family = noStampingBrush.family.copy(coats = modifiedCoats))
+        val inputs = makeTestInputs()
+
+        val stampingStroke =
+            InProgressStroke()
+                .apply {
+                    start(stampingBrush)
+                    enqueueInputs(inputs, ImmutableStrokeInputBatch.EMPTY)
+                    finishInput()
+                    updateShape(0)
+                }
+                .toImmutableWithUnusedAttributesPruned()
+        val changedToNoStamping = stampingStroke.copy(brush = noStampingBrush)
+        assertThat(changedToNoStamping.shape).isSameInstanceAs(stampingStroke.shape)
+    }
+
+    @Test
+    fun copy_withChangedBrushSize_createsCopyWithSameInputs() {
+        val originalBrush = buildTestBrush()
+        val sizeChangedBrush = originalBrush.copy(size = 99f)
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = sizeChangedBrush)
+
+        // The new stroke has the original inputs and the changed brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.brush).isSameInstanceAs(sizeChangedBrush)
+
+        // The new stroke has a different shape than the original stroke.
+        assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun copy_withChangedBrushEpsilon_createsCopyWithSameInputs() {
+        val originalBrush = buildTestBrush()
+        val epsilonChangedBrush = originalBrush.copy(epsilon = 0.99f)
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = epsilonChangedBrush)
+
+        // The new stroke has the original inputs and the changed brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.brush).isSameInstanceAs(epsilonChangedBrush)
+
+        // The new stroke has a different shape than the original stroke.
+        assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun copy_withChangedBrushInputModel_createsCopyWithSameInputs() {
+        val originalBrush = buildTestBrush()
+        assertThat(originalBrush.family.inputModel).isEqualTo(InputModel.DEFAULT_INPUT_MODEL)
+        val inputModelChangedBrush =
+            originalBrush.copy(
+                family = originalBrush.family.copy(inputModel = InputModel.PASSTHROUGH_MODEL)
+            )
+        val inputs = makeTestInputs()
+        val originalStroke = Stroke(originalBrush, inputs)
+
+        val actual = originalStroke.copy(brush = inputModelChangedBrush)
+
+        // The new stroke has the original inputs and the changed brush.
+        assertThat(actual.inputs).isSameInstanceAs(inputs)
+        assertThat(actual.brush).isSameInstanceAs(inputModelChangedBrush)
+
+        // The new stroke has a different shape than the original stroke.
+        assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
+
+        // The new C++ Stroke is different from the original stroke.
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun subtract_withEmptyMaskShape_returnsStroke() {
+        val stroke = buildTestStroke()
+        val emptyMaskShape = ImmutableStrokeInputBatch.EMPTY.createClosedShape()
+
+        val result =
+            stroke.subtract(emptyMaskShape, AffineTransform.IDENTITY, AffineTransform.IDENTITY)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Test
+    fun subtract_retainsBrush() {
+        val stroke = buildTestStroke()
+        val result =
+            stroke.subtract(buildTestShape(), AffineTransform.IDENTITY, AffineTransform.IDENTITY)
+
+        assertThat(result.brush).isEqualTo(stroke.brush)
+    }
+
+    @Test
+    fun subtract_retainsInputs() {
+        val stroke = buildTestStroke()
+        val result =
+            stroke.subtract(buildTestShape(), AffineTransform.IDENTITY, AffineTransform.IDENTITY)
+
+        assertThat(result.inputs.size).isEqualTo(stroke.inputs.size)
+    }
+
+    @Test
+    fun split_returnsNonEmptyStrokes() {
+        val stroke = buildTestStroke()
+        val result = stroke.split(AffineTransform.IDENTITY, 1.0f)
+        assertThat(result).isNotEmpty()
+    }
+
+    @Test
+    fun split_retainsBrush() {
+        val stroke = buildTestStroke()
+        val result = stroke.split(AffineTransform.IDENTITY, 1.0f)
+        for (fragment in result) {
+            assertThat(fragment.brush).isEqualTo(stroke.brush)
+        }
+    }
+
+    @Test
+    fun split_retainsInputs() {
+        val stroke = buildTestStroke()
+        val result = stroke.split(AffineTransform.IDENTITY, 1.0f)
+        for (fragment in result) {
+            assertThat(fragment.inputs.size).isEqualTo(stroke.inputs.size)
+        }
+    }
+
+    @Test
+    fun toString_returnsAString() {
+        val string = buildTestStroke().toString()
+
+        // Not elaborate checks - this test mainly exists to ensure that toString doesn't crash.
+        assertThat(string).contains("Stroke")
+        assertThat(string).contains("brush")
+        assertThat(string).contains("inputs")
+        assertThat(string).contains("shape")
+    }
+
+    /**
+     * Creates a brush for testing with:
+     *
+     * Family ID ="pencil", distinctly different from the default native brush family.
+     *
+     * Color has nontrivial values for all channels and the color space.
+     *
+     * Size = 7f, an arbitrary value for testing.
+     *
+     * Epsilon = 0.0012345f, an arbitrary value for testing.
+     */
+    private fun buildTestBrush() =
+        Brush.createWithColorLong(
+            BrushFamily(clientBrushFamilyId = "pencil"),
+            Color(0.6f, 0.7f, 0.8f, 0.9f, ColorSpaces.DisplayP3).value.toLong(),
+            7f,
+            0.0012345f,
+        )
+
+    /**
+     * Creates a stroke with:
+     *
+     * Brush = buildTestBrush()
+     *
+     * Inputs = [{10,3}, {20, 5}]
+     *
+     * StrokeShape generated from the inputs and brush.
+     */
+    private fun buildTestStroke(): Stroke {
+        val batch = buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).toImmutable()
+        return Stroke(buildTestBrush(), batch)
+    }
+
+    /**
+     * Creates a [PartitionedMesh] for testing as a closed shape generated from the inputs:
+     *
+     * Inputs = [{10, 3}, {20, 3}, {20, 5}]
+     */
+    private fun buildTestShape(): PartitionedMesh {
+        return buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 3f, 20f, 5f))
+            .createClosedShape()
+    }
+
+    /**
+     * Make checkmark shaped test input batch with three input points, scaling the x,y,t values by a
+     * [factor] to create varied input batches across a test case.
+     */
+    private fun makeTestInputs(factor: Int = 1): ImmutableStrokeInputBatch =
+        buildStrokeInputBatchFromPoints(
+                floatArrayOf(
+                    factor * 1f,
+                    factor * 1f,
+                    factor * 2f,
+                    factor * 3f,
+                    factor * 5f,
+                    factor * 2f,
+                )
+            )
+            .toImmutable()
+}

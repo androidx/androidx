@@ -48,7 +48,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -101,7 +100,6 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
@@ -246,7 +244,7 @@ private fun AutoScrollSideEffect(
     onAutoScrollChange(doAutoScroll)
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,
     outerBoxFocusRequester: FocusRequester,
@@ -312,11 +310,14 @@ private fun Modifier.handleKeyEvents(
         .focusProperties {
             // allow exit along horizontal axis only for first and last slide.
             // Suppressed the deprecation because onExit is not available in compose.ui 1.7.x
-            @Suppress("DEPRECATION")
-            exit = {
+            onExit = {
                 when {
-                    shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
-                        FocusRequester.Default
+                    shouldFocusExitCarousel(
+                        requestedFocusDirection,
+                        carouselState,
+                        itemCount,
+                        isLtr,
+                    ) -> FocusRequester.Default
                     else -> FocusRequester.Cancel
                 }
             }

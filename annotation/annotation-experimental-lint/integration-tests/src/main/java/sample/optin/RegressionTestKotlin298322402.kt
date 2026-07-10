@@ -18,7 +18,7 @@
 package sample.optin
 
 internal class RegressionTestKotlin298322402 {
-    fun testMethod(player: AnnotatedJavaMembers) {
+    private fun testMethod(player: AnnotatedJavaMembers) {
         player.accessor
     }
 }

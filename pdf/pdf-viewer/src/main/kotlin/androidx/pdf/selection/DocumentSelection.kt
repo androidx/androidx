@@ -16,23 +16,25 @@
 
 package androidx.pdf.selection
 
+import android.graphics.PointF
 import android.os.Parcel
 import android.util.SparseArray
-import androidx.annotation.RestrictTo
 import androidx.core.util.forEach
+import androidx.pdf.PdfPoint
 import androidx.pdf.selection.model.GoToLinkSelection
 import androidx.pdf.selection.model.HyperLinkSelection
+import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
-import androidx.pdf.selection.model.goToLinkSelectionFromParcel
-import androidx.pdf.selection.model.hyperLinkSelectionFromParcel
-import androidx.pdf.selection.model.textSelectionFromParcel
+import androidx.pdf.util.goToLinkSelectionFromParcel
+import androidx.pdf.util.hyperLinkSelectionFromParcel
+import androidx.pdf.util.imageSelectionFromParcel
+import androidx.pdf.util.textSelectionFromParcel
 
 /**
  * Represents the selected content in the document. The key is the page number and the value is a
  * list of selections in that page. Currently, multi-content selection is not supported, so only one
  * type of selection will be present.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class DocumentSelection(val selectedContents: SparseArray<List<Selection>>) {
 
     class SelectionType {
@@ -40,6 +42,7 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
             const val GOTOLINK = 1
             const val HYPERLINK = 2
             const val TEXT = 3
+            const val IMAGE = 4
         }
     }
 
@@ -73,6 +76,33 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
             return flattenedSelection.firstOrNull()
         }
 
+    /**
+     * Gets the start and end points of selection.
+     *
+     * @return A pair of [PdfPoint] objects representing the start and end of the selection.
+     */
+    fun getSelectionEndpoints(): Pair<PdfPoint, PdfPoint> {
+        // Finding the first selection bound of the first page
+        val firstPage = selectedContents.keyAt(0)
+        val firstBound: PointF =
+            selectedContents[firstPage]?.firstOrNull()?.bounds?.firstOrNull()?.let {
+                PointF(it.left, it.bottom)
+            } ?: PointF(0f, 0f)
+
+        // Finding the last selection bound of the last page
+        val lastPage = selectedContents.keyAt(selectedContents.size() - 1)
+        val lastBound: PointF =
+            selectedContents[lastPage]?.lastOrNull()?.bounds?.lastOrNull()?.let {
+                PointF(it.right, it.bottom)
+            } ?: PointF(0f, 0f)
+
+        // Create PdfPoint objects
+        val firstPdfPoint = PdfPoint(firstPage, firstBound)
+        val lastPdfPoint = PdfPoint(lastPage, lastBound)
+
+        return Pair(firstPdfPoint, lastPdfPoint)
+    }
+
     internal fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(selectedContents.size())
         selectedContents.forEach { pageNum, selections ->
@@ -90,6 +120,10 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
                     }
                     is GoToLinkSelection -> {
                         dest.writeInt(SelectionType.GOTOLINK)
+                        selection.writeToParcel(dest, flags)
+                    }
+                    is ImageSelection -> {
+                        dest.writeInt(SelectionType.IMAGE)
                         selection.writeToParcel(dest, flags)
                     }
                 }
@@ -112,6 +146,7 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
                             SelectionType.TEXT -> textSelectionFromParcel(parcel)
                             SelectionType.HYPERLINK -> hyperLinkSelectionFromParcel(parcel)
                             SelectionType.GOTOLINK -> goToLinkSelectionFromParcel(parcel)
+                            SelectionType.IMAGE -> imageSelectionFromParcel(parcel)
                             else -> null
                         }
                     selection?.let { selections.add(selection) }

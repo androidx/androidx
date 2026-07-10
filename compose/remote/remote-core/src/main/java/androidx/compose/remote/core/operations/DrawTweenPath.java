@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawTweenPath extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.DRAW_TWEEN_PATH;
     private static final String CLASS_NAME = "DrawTweenPath";
@@ -100,11 +102,11 @@ public class DrawTweenPath extends PaintOperation implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int path1Id = buffer.readInt();
-        int path2Id = buffer.readInt();
-        float tween = buffer.readFloat();
-        float start = buffer.readFloat();
-        float stop = buffer.readFloat();
+        int path1Id = buffer.readId();
+        int path2Id = buffer.readId();
+        float tween = buffer.readNanId();
+        float start = buffer.readNanId();
+        float stop = buffer.readNanId();
         DrawTweenPath op = new DrawTweenPath(path1Id, path2Id, tween, start, stop);
         operations.add(op);
     }
@@ -159,13 +161,13 @@ public class DrawTweenPath extends PaintOperation implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "pathId1", "id of path 1 high short is flags")
-                .field(DocumentedOperation.INT, "pathId2", "id of path 2 high short is flags")
-                .field(DocumentedOperation.FLOAT, "tween", "interpolate between the two paths")
-                .field(DocumentedOperation.FLOAT, "start", "trim the start of the path")
-                .field(DocumentedOperation.FLOAT, "yOffset", "trim the end of the path");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .description("Draw an interpolated path between two paths")
+                .field(DocumentedOperation.INT, "path1Id", "The ID of the first path")
+                .field(DocumentedOperation.INT, "path2Id", "The ID of the second path")
+                .field(DocumentedOperation.FLOAT, "tween", "Interpolation value [0..1]")
+                .field(DocumentedOperation.FLOAT, "start", "Trim the start of the path [0..1]")
+                .field(DocumentedOperation.FLOAT, "stop", "Trim the end of the path [0..1]");
     }
 
     @Override

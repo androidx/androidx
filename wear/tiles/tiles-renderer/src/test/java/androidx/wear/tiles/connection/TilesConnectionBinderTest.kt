@@ -53,7 +53,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-@Config(manifest = Config.NONE)
+@org.robolectric.annotation.Config(
+    manifest = Config.NONE,
+    sdk = [org.robolectric.annotation.Config.TARGET_SDK],
+)
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(TilesTestRunner::class)
 public class TilesConnectionBinderTest {

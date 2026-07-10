@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawLine extends DrawBase4 implements SerializableToString {
     private static final int OP_CODE = Operations.DRAW_LINE;
     private static final String CLASS_NAME = "DrawLine";
@@ -70,6 +72,7 @@ public class DrawLine extends DrawBase4 implements SerializableToString {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_line")
                 .description("Draw a line segment")
                 .field(
                         DocumentedOperation.FLOAT,

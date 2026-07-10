@@ -138,7 +138,7 @@ private fun AlertDialogWithConfirmAndDismiss() {
         onDismissRequest = { showDialog = false },
         icon = {
             Icon(
-                painterResource(R.drawable.ic_favorite_rounded),
+                painterResource(R.drawable.icon_favorite_rounded),
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
@@ -189,7 +189,7 @@ private fun AlertDialogWithEdgeButton() {
         onDismissRequest = { showDialog = false },
         icon = {
             Icon(
-                painterResource(R.drawable.ic_favorite_rounded),
+                painterResource(R.drawable.icon_favorite_rounded),
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,

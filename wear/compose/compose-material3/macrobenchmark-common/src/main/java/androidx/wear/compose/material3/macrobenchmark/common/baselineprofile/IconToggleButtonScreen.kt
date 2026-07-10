@@ -60,7 +60,7 @@ val IconToggleButtonScreen =
                                 Modifier.semantics { contentDescription = ToggleButtonDescription },
                         ) {
                             Icon(
-                                painterResource(R.drawable.ic_favorite_rounded),
+                                painterResource(R.drawable.icon_favorite_rounded),
                                 contentDescription = null,
                             )
                         }
@@ -71,7 +71,7 @@ val IconToggleButtonScreen =
                             checked = checked.value,
                         ) {
                             Icon(
-                                painterResource(R.drawable.ic_favorite_rounded),
+                                painterResource(R.drawable.icon_favorite_rounded),
                                 contentDescription = null,
                             )
                         }

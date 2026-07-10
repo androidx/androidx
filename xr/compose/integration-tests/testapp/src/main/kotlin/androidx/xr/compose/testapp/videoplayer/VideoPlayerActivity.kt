@@ -71,17 +71,21 @@ import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.testapp.R
+import androidx.xr.compose.testapp.common.isDrmSupported
+import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -94,7 +98,6 @@ import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
-import androidx.xr.scenecore.internal.Dimensions
 import androidx.xr.scenecore.scene
 import java.io.File
 import java.nio.file.Paths
@@ -102,6 +105,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "JXR-SurfaceEntity-VideoPlayerActivity"
 
+@SuppressLint("RestrictedApiAndroidX") // SurfaceEntity.primaryAlphaMaskTexture
 class VideoPlayerActivity : ComponentActivity() {
     private var exoPlayer: ExoPlayer? = null
     private val activity = this
@@ -116,6 +120,7 @@ class VideoPlayerActivity : ComponentActivity() {
     private var controlPanelEntity: PanelEntity? = null
 
     private lateinit var session: Session
+    private lateinit var arDevice: ArDevice
 
     private var alphaMaskTexture: Texture? = null
 
@@ -125,22 +130,30 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = (Session.create(this) as SessionCreateSuccess).session
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
-        session.configure(Config(headTracking = Config.HeadTrackingMode.LAST_KNOWN))
-
-        checkExternalStoragePermission()
-
-        // Load texture
         lifecycleScope.launch {
-            alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
-        }
+            val sessionResult = Session.create(context = this@VideoPlayerActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                session = sessionResult.session
+                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+                session.configure(
+                    Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+                )
+                arDevice = ArDevice.getInstance(session)
 
-        setContent {
-            if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                SpatialVideoPlayerUi()
+                checkExternalStoragePermission()
+
+                // Load texture
+                alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
+
+                setContent {
+                    if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                        SpatialVideoPlayerUi()
+                    } else {
+                        VideoPlayerUi()
+                    }
+                }
             } else {
-                VideoPlayerUi()
+                finish()
             }
         }
     }
@@ -150,8 +163,7 @@ class VideoPlayerActivity : ComponentActivity() {
         Subspace {
             SpatialColumn {
                 SpatialPanel(
-                    modifier = SubspaceModifier.size(DpVolumeSize(960.dp, 720.dp, 0.dp)),
-                    dragPolicy = MovePolicy(),
+                    modifier = SubspaceModifier.size(DpVolumeSize(960.dp, 720.dp, 0.dp)).movable()
                 ) {
                     VideoPlayerTestActivityUI(true, getString(R.string.video_player_test))
                 }
@@ -169,7 +181,7 @@ class VideoPlayerActivity : ComponentActivity() {
         exoPlayer?.release()
         exoPlayer = null
         if (alphaMaskTexture != null) {
-            alphaMaskTexture!!.dispose()
+            alphaMaskTexture!!.close()
             alphaMaskTexture = null
         }
     }
@@ -219,12 +231,12 @@ class VideoPlayerActivity : ComponentActivity() {
         videoPlaying = false
         exoPlayer?.release()
         exoPlayer = null
-        surfaceEntity!!.dispose()
+        surfaceEntity!!.parent = null
         surfaceEntity = null
     }
 
     fun getCanvasAspectRatio(
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         videoWidth: Int,
         videoHeight: Int,
         pixelAspectRatio: Float,
@@ -234,27 +246,20 @@ class VideoPlayerActivity : ComponentActivity() {
         val effectiveDisplayWidth = videoWidth.toFloat() * pixelAspectRatio
 
         return when (stereoMode) {
-            SurfaceEntity.StereoMode.STEREO_MODE_MONO,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY ->
+            SurfaceEntity.StereoMode.MONO,
+            SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
+            SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY ->
                 FloatSize3d(1.0f, videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM ->
+            SurfaceEntity.StereoMode.TOP_BOTTOM ->
                 FloatSize3d(1.0f, 0.5f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE ->
+            SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
                 FloatSize3d(1.0f, 2.0f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
             else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
         }
     }
 
     private fun quad() {
-        surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
-        // Move the Quad-shaped canvas to a spot in front of the User.
-        surfaceEntity!!.setPose(
-            session.scene.spatialUser.head?.transformPoseTo(
-                Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
-                session.scene.activitySpace,
-            )!!
-        )
+        surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(FloatSize2d(0.8f, 0.8f))
     }
 
     @Composable
@@ -301,10 +306,10 @@ class VideoPlayerActivity : ComponentActivity() {
                     val modifier = Modifier.weight(1F)
                     ApiButton("Toggle Passthrough", modifier) { togglePassthrough(session) }
                     ApiButton("Switch to FSM", modifier) {
-                        session.scene.requestFullSpaceMode()
+                        session.scene.requestFullSpace()
                         checkExternalStoragePermission()
                     }
-                    ApiButton("Switch to HSM", modifier) { session.scene.requestHomeSpaceMode() }
+                    ApiButton("Switch to HSM", modifier) { session.scene.requestHomeSpace() }
                 }
             }
         }
@@ -349,13 +354,13 @@ class VideoPlayerActivity : ComponentActivity() {
                         VideoButton(
                             VideoPlayerButtons.MVHEVC_LEFT_PRIMARY_BUTTON.ordinal,
                             modifier,
-                            true,
+                            isMvHevcSupported(),
                         )
 
                         VideoButton(
                             VideoPlayerButtons.MVHEVC_RIGHT_PRIMARY_BUTTON.ordinal,
                             modifier,
-                            true,
+                            isMvHevcSupported(),
                         )
                     }
                 }
@@ -379,7 +384,7 @@ class VideoPlayerActivity : ComponentActivity() {
                         VideoButton(
                             VideoPlayerButtons.NAVER_180_MVHEVC_BUTTON.ordinal,
                             modifier,
-                            true,
+                            isMvHevcSupported(),
                         )
                     }
                 }
@@ -411,7 +416,7 @@ class VideoPlayerActivity : ComponentActivity() {
                         VideoButton(
                             VideoPlayerButtons.GALAXY_360_MVHEVC_BUTTON.ordinal,
                             modifier,
-                            true,
+                            isMvHevcSupported(),
                         )
                     }
                 }
@@ -442,9 +447,15 @@ class VideoPlayerActivity : ComponentActivity() {
                         VideoButton(
                             VideoPlayerButtons.DRM_PROTECTED_MVHEVC_LEFT_PRIMARY_BUTTON.ordinal,
                             modifier,
-                            true,
+                            isMvHevcSupported(),
                         )
                     }
+                }
+                if (!isMvHevcSupported()) {
+                    ApiText(text = "MV-HEVC is not supported on this device")
+                }
+                if (!isDrmSupported()) {
+                    ApiText(text = "DRM is not supported on this device")
                 }
             }
         }
@@ -563,16 +574,15 @@ class VideoPlayerActivity : ComponentActivity() {
                 ApiRow {
                     val modifier = Modifier.weight(1F)
                     ApiButton("Mono", modifier) {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO
+                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.MONO
                     }
 
                     ApiButton("Top-Bottom", modifier) {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM
+                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
                     }
 
                     ApiButton("Side-by-Side", modifier) {
-                        surfaceEntity!!.stereoMode =
-                            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE
+                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE
                     }
                 }
             }
@@ -585,10 +595,10 @@ class VideoPlayerActivity : ComponentActivity() {
             VideoPlayerButtons.GALAXY_360_MVHEVC_BUTTON.ordinal,
             VideoPlayerButtons.NAVER_180_MVHEVC_BUTTON.ordinal,
             VideoPlayerButtons.NAVER_180_BUTTON.ordinal -> {
-                session.scene.spatialUser.head?.transformPoseTo(
-                    Pose.Identity,
+                session.scene.perceptionSpace.transformPoseTo(
+                    arDevice.state.value.devicePose,
                     session.scene.activitySpace,
-                )!!
+                )
             }
 
             else -> {
@@ -631,7 +641,7 @@ class VideoPlayerActivity : ComponentActivity() {
     }
 
     private fun createSurfaceEntity(
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         pose: Pose,
         canvasShape: SurfaceEntity.Shape,
         protected: Boolean = false,
@@ -640,9 +650,9 @@ class VideoPlayerActivity : ComponentActivity() {
         if (surfaceEntity == null) {
             val surfaceContentLevel =
                 if (protected) {
-                    SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_PROTECTED
+                    SurfaceEntity.SurfaceProtection.PROTECTED
                 } else {
-                    SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_NONE
+                    SurfaceEntity.SurfaceProtection.NONE
                 }
 
             surfaceEntity =
@@ -652,13 +662,13 @@ class VideoPlayerActivity : ComponentActivity() {
                     shape = canvasShape,
                     stereoMode = stereoMode,
                     surfaceProtection = surfaceContentLevel,
+                    parent = session.scene.activitySpace,
                 )
             // Make the video player movable (to make it easier to look at it from different
             // angles and distances)
-            movableComponent = MovableComponent.createSystemMovable(session)
-            // The quad has a radius of 1.0 meters
-            movableComponent!!.size = FloatSize3d(1.0f, 1.0f, 1.0f)
-            // component?.size = coordinates.size.toDimensionsInMeters(density)
+            movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
+            // The quad has a radius of 0.8 meters
+            movableComponent!!.size = FloatSize3d(0.8f, 0.8f, .001f)
             surfaceEntity!!.addComponent(movableComponent!!)
         }
     }
@@ -696,7 +706,7 @@ class VideoPlayerActivity : ComponentActivity() {
 
     private fun setupExoPlayer(
         videoUri: String,
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         canvasShape: SurfaceEntity.Shape,
         protected: Boolean,
     ) {
@@ -745,8 +755,7 @@ class VideoPlayerActivity : ComponentActivity() {
                                 FloatSize2d(dimensions.width, dimensions.height)
                             )
                         movableComponent?.size =
-                            (surfaceEntity?.dimensions ?: Dimensions(1.0f, 1.0f, 1.0f))
-                                as FloatSize3d
+                            (surfaceEntity?.dimensions ?: FloatSize3d(1.0f, 1.0f, 1.0f))
                     }
                 }
 
@@ -806,7 +815,7 @@ class VideoPlayerActivity : ComponentActivity() {
     }
 
     companion object {
-        val defaultPose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f))
+        val defaultPose = Pose(Vector3(0.0f, -0.8f, 0.0f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f))
         val defaultShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
         var videoAttributesMap: IntObjectMap<VideoAttributes> =
             MutableIntObjectMap<VideoAttributes>(9).apply {
@@ -815,7 +824,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play Big Buck Bunny",
                         "/Download/vid_bigbuckbunny.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+                        SurfaceEntity.StereoMode.TOP_BOTTOM,
                         false,
                         defaultPose,
                         defaultShape,
@@ -826,7 +835,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play MVHEVC Left Primary",
                         "/Download/mvhevc_flat_left_primary_1080.mov",
-                        SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+                        SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
                         false,
                         defaultPose,
                         defaultShape,
@@ -837,7 +846,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play MVHEVC Right Primary",
                         "/Download/mvhevc_flat_right_primary_1080.mov",
-                        SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY,
+                        SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY,
                         false,
                         defaultPose,
                         defaultShape,
@@ -848,7 +857,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play Naver 180 (Side-by-Side)",
                         "/Download/Naver180.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+                        SurfaceEntity.StereoMode.SIDE_BY_SIDE,
                         false,
                         defaultPose,
                         SurfaceEntity.Shape.Hemisphere(1.0f),
@@ -859,7 +868,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play Naver 180 (MV-HEVC)",
                         "/Download/Naver180_MV-HEVC.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+                        SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
                         false,
                         defaultPose,
                         SurfaceEntity.Shape.Hemisphere(1.0f),
@@ -870,7 +879,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play Galaxy 360 (Top-Bottom)",
                         "/Download/Galaxy11_VR_3D360.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+                        SurfaceEntity.StereoMode.TOP_BOTTOM,
                         false,
                         defaultPose,
                         SurfaceEntity.Shape.Sphere(1.0f),
@@ -881,7 +890,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play Galaxy 360 (MV-HEVC)",
                         "/Download/Galaxy11_VR_3D360_MV-HEVC.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+                        SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
                         false,
                         defaultPose,
                         SurfaceEntity.Shape.Sphere(1.0f),
@@ -892,7 +901,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play DRM Protected For Bigger Blazes",
                         "/Download/sdr_singleview_protected.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+                        SurfaceEntity.StereoMode.SIDE_BY_SIDE,
                         true,
                         defaultPose,
                         defaultShape,
@@ -903,7 +912,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     VideoAttributes(
                         "Play DRM Protected MVHEVC Left Primary",
                         "/Download/mvhevc_flat_left_primary_1080_protected.mp4",
-                        SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+                        SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
                         true,
                         defaultPose,
                         defaultShape,
@@ -927,7 +936,7 @@ class VideoPlayerActivity : ComponentActivity() {
     data class VideoAttributes(
         val buttonText: String,
         val videoPath: String,
-        val stereoMode: Int,
+        val stereoMode: SurfaceEntity.StereoMode,
         val protected: Boolean,
         var pose: Pose,
         var canvasShape: SurfaceEntity.Shape,

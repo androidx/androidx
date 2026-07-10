@@ -23,30 +23,30 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class FakeCameraDevicesTest {
     private val EXTERNAL_BACKEND_ID =
         CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraDevicesTest")
     private val frontMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
         )
     private val backMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK),
+            lensFacing = CameraCharacteristics.LENS_FACING_BACK,
         )
     private val extMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL
-                ),
+            lensFacing = CameraCharacteristics.LENS_FACING_EXTERNAL,
         )
     private val cameraMetadataMap =
         mapOf(

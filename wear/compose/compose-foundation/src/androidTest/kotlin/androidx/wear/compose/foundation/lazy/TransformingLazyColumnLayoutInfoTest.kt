@@ -22,11 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +46,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnLayoutInfoTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -104,7 +107,9 @@ class TransformingLazyColumnLayoutInfoTest {
         state: TransformingLazyColumnState,
         currentInfo: StableRef<TransformingLazyColumnLayoutInfo?>,
     ) {
-        currentInfo.value = state.layoutInfo
+        LaunchedEffect(Unit) {
+            snapshotFlow { state.layoutInfo }.collect { currentInfo.value = it }
+        }
     }
 
     @Test
@@ -138,11 +143,8 @@ class TransformingLazyColumnLayoutInfoTest {
     fun visibleItemsAreObservableWhenResize() {
         lateinit var state: TransformingLazyColumnState
         var size by mutableStateOf(itemSizeDp * 2)
-        var currentInfo: TransformingLazyColumnLayoutInfo? = null
-        @Composable
-        fun observingFun() {
-            currentInfo = state.layoutInfo
-        }
+        val currentInfo = StableRef<TransformingLazyColumnLayoutInfo?>(null)
+
         rule.setContent {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
@@ -150,19 +152,18 @@ class TransformingLazyColumnLayoutInfoTest {
             ) {
                 item { Box(Modifier.requiredSize(size)) }
             }
-            observingFun()
+            ObservingFun(state, currentInfo)
         }
 
         rule.runOnIdle {
-            assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx * 2)
-            currentInfo = null
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value?.assertVisibleItems(count = 1, expectedSize = itemSizePx * 2)
             size = itemSizeDp
         }
 
         rule.runOnIdle {
-            assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx)
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value?.assertVisibleItems(count = 1, expectedSize = itemSizePx)
         }
     }
 
@@ -258,9 +259,153 @@ class TransformingLazyColumnLayoutInfoTest {
             }
         }
 
-        rule.runOnIdle { runBlocking { state.scrollToItem(2, scrollOffset = -10) } }
+        rule.runOnIdle { runBlocking { state.scrollToItem(2, scrollOffset = 10) } }
         rule.runOnIdle {
             state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1, startOffset = -10)
+        }
+    }
+
+    @Test
+    fun reverseLayout_isReportedCorrectly() {
+        lateinit var state: TransformingLazyColumnState
+        var reverseLayout by mutableStateOf(false)
+
+        rule.setContent {
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
+                reverseLayout = reverseLayout,
+            ) {
+                items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.reverseLayout).isFalse()
+            reverseLayout = true
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.reverseLayout).isTrue() }
+    }
+
+    @Test
+    fun layoutInfo_reflectsDynamicPadding() {
+        lateinit var state: TransformingLazyColumnState
+        val minimumVerticalContentPaddingPx = 50
+        val minimumVerticalContentPaddingDp =
+            with(rule.density) { minimumVerticalContentPaddingPx.toDp() }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
+            ) {
+                items(100) { index ->
+                    Box(
+                        Modifier.requiredSize(itemSizeDp)
+                            .minimumVerticalContentPadding(minimumVerticalContentPaddingDp)
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(99) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
+        }
+    }
+
+    @Test
+    fun layoutInfo_reflectsDynamicPaddingWithAnimation() {
+        lateinit var state: TransformingLazyColumnState
+        val minimumVerticalContentPaddingPx = 50
+        val minimumVerticalContentPaddingDp =
+            with(rule.density) { minimumVerticalContentPaddingPx.toDp() }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
+            ) {
+                items(100) { index ->
+                    Box(
+                        Modifier.requiredSize(itemSizeDp)
+                            .animateItem()
+                            .minimumVerticalContentPadding(minimumVerticalContentPaddingDp)
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(99) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
+        }
+    }
+
+    @Test
+    fun layoutInfo_reflectsDynamicPaddingWithAnimationAfter() {
+        lateinit var state: TransformingLazyColumnState
+        val minimumVerticalContentPaddingPx = 50
+        val minimumVerticalContentPaddingDp =
+            with(rule.density) { minimumVerticalContentPaddingPx.toDp() }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
+            ) {
+                items(100) { index ->
+                    Box(
+                        Modifier.requiredSize(itemSizeDp)
+                            .minimumVerticalContentPadding(minimumVerticalContentPaddingDp)
+                            .animateItem()
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(99) } }
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding)
+                .isEqualTo(minimumVerticalContentPaddingPx)
         }
     }
 

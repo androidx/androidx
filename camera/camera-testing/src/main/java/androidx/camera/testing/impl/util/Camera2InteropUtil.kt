@@ -30,12 +30,6 @@ import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl as CPCamera2CameraControl
-import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo as CPCamera2CameraInfo
-import androidx.camera.camera2.pipe.integration.interop.Camera2Interop as CPCamera2Interop
-import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions as CPCaptureRequestOptions
-import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop as CPExperimentalCamera2Interop
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ExtendableBuilder
@@ -45,8 +39,8 @@ import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
-@kotlin.OptIn(CPExperimentalCamera2Interop::class)
 @OptIn(markerClass = [ExperimentalCamera2Interop::class])
 public object Camera2InteropUtil {
 
@@ -59,22 +53,12 @@ public object Camera2InteropUtil {
         sessionStateCallback: CameraCaptureSession.StateCallback? = null,
         physicalCameraId: String? = null,
     ) {
-        if (implName == CameraPipeConfig::class.simpleName) {
-            val extendedBuilder = CPCamera2Interop.Extender(builder)
-            captureCallback?.let { extendedBuilder.setSessionCaptureCallback(it) }
-            deviceStateCallback?.let { extendedBuilder.setDeviceStateCallback(it) }
-            sessionStateCallback?.let { extendedBuilder.setSessionStateCallback(it) }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && physicalCameraId != null) {
-                extendedBuilder.setPhysicalCameraId(physicalCameraId)
-            }
-        } else {
-            val extendedBuilder = Camera2Interop.Extender(builder)
-            captureCallback?.let { extendedBuilder.setSessionCaptureCallback(it) }
-            deviceStateCallback?.let { extendedBuilder.setDeviceStateCallback(it) }
-            sessionStateCallback?.let { extendedBuilder.setSessionStateCallback(it) }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && physicalCameraId != null) {
-                extendedBuilder.setPhysicalCameraId(physicalCameraId)
-            }
+        val extendedBuilder = Camera2Interop.Extender(builder)
+        captureCallback?.let { extendedBuilder.setSessionCaptureCallback(it) }
+        deviceStateCallback?.let { extendedBuilder.setDeviceStateCallback(it) }
+        sessionStateCallback?.let { extendedBuilder.setSessionStateCallback(it) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && physicalCameraId != null) {
+            extendedBuilder.setPhysicalCameraId(physicalCameraId)
         }
     }
 
@@ -119,23 +103,14 @@ public object Camera2InteropUtil {
 
     @JvmStatic
     public fun getCameraId(implName: String, cameraInfo: CameraInfo): String =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            CPCamera2CameraInfo.from(cameraInfo).getCameraId()
-        } else {
-            Camera2CameraInfo.from(cameraInfo).cameraId
-        }
+        Camera2CameraInfo.from(cameraInfo).cameraId
 
     @JvmStatic
     public fun <T> getCamera2CameraInfoCharacteristics(
         implName: String,
         cameraInfo: CameraInfo,
         key: CameraCharacteristics.Key<T>,
-    ): T? =
-        if (implName == Camera2Config::class.simpleName) {
-            Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(key)
-        } else {
-            CPCamera2CameraInfo.from(cameraInfo).getCameraCharacteristic(key)
-        }
+    ): T? = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(key)
 
     public interface Camera2CameraInfoWrapper {
         public fun <T> getCameraCharacteristic(key: CameraCharacteristics.Key<T>): T?
@@ -158,28 +133,12 @@ public object Camera2InteropUtil {
         implName: String,
         cameraInfo: CameraInfo,
     ): Camera2CameraInfoWrapper {
-        return when (implName) {
-            CameraPipeConfig::class.simpleName ->
-                object : Camera2CameraInfoWrapper {
-                    private val wrappedCameraInfo = CPCamera2CameraInfo.from(cameraInfo)
+        return object : Camera2CameraInfoWrapper {
+            private val wrappedCameraInfo = Camera2CameraInfo.from(cameraInfo)
 
-                    override fun <T> getCameraCharacteristic(
-                        key: CameraCharacteristics.Key<T>
-                    ): T? {
-                        return wrappedCameraInfo.getCameraCharacteristic(key)
-                    }
-                }
-            Camera2Config::class.simpleName ->
-                object : Camera2CameraInfoWrapper {
-                    private val wrappedCameraInfo = Camera2CameraInfo.from(cameraInfo)
-
-                    override fun <T> getCameraCharacteristic(
-                        key: CameraCharacteristics.Key<T>
-                    ): T? {
-                        return wrappedCameraInfo.getCameraCharacteristic(key)
-                    }
-                }
-            else -> throw IllegalArgumentException("Unexpected implementation: $implName")
+            override fun <T> getCameraCharacteristic(key: CameraCharacteristics.Key<T>): T? {
+                return wrappedCameraInfo.getCameraCharacteristic(key)
+            }
         }
     }
 
@@ -204,25 +163,6 @@ public object Camera2InteropUtil {
         implName: String
     ): CaptureRequestOptionsWrapper.Builder {
         return when (implName) {
-            CameraPipeConfig::class.simpleName ->
-                object : CaptureRequestOptionsWrapper.Builder {
-                    private val wrappedBuilder = CPCaptureRequestOptions.Builder()
-
-                    override fun <ValueT : Any> setCaptureRequestOption(
-                        key: CaptureRequest.Key<ValueT>,
-                        value: ValueT,
-                    ): CaptureRequestOptionsWrapper.Builder {
-                        wrappedBuilder.setCaptureRequestOption(key, value)
-                        return this
-                    }
-
-                    override fun build(): CaptureRequestOptionsWrapper {
-                        val wrappedOptions = wrappedBuilder.build()
-                        return object : CaptureRequestOptionsWrapper {
-                            override public fun unwrap() = wrappedOptions
-                        }
-                    }
-                }
             Camera2Config::class.simpleName ->
                 object : CaptureRequestOptionsWrapper.Builder {
                     private val wrappedBuilder = CaptureRequestOptions.Builder()
@@ -252,22 +192,6 @@ public object Camera2InteropUtil {
         cameraControl: CameraControl,
     ): Camera2CameraControlWrapper {
         return when (implName) {
-            CameraPipeConfig::class.simpleName ->
-                object : Camera2CameraControlWrapper {
-                    private val wrappedCameraControl = CPCamera2CameraControl.from(cameraControl)
-
-                    override fun setCaptureRequestOptions(
-                        bundle: CaptureRequestOptionsWrapper
-                    ): ListenableFuture<Void?> {
-                        return wrappedCameraControl.setCaptureRequestOptions(
-                            bundle.unwrap() as CPCaptureRequestOptions
-                        )
-                    }
-
-                    override fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
-                        return wrappedCameraControl.clearCaptureRequestOptions()
-                    }
-                }
             Camera2Config::class.simpleName ->
                 object : Camera2CameraControlWrapper {
                     private val wrappedCameraControl = Camera2CameraControl.from(cameraControl)
@@ -305,6 +229,9 @@ public object Camera2InteropUtil {
          *
          * @param timeout the timeout for waiting for the captures.
          * @param numOfCaptures the number of captures to wait.
+         * @param breakWhenSuccess whether verification is completed when `verifyBlock` returns
+         *   true.
+         * @param throwAtTimeout whether to throw exception when timeout is reached.
          * @param verifyBlock the block for verifying the capture requests and results. It should
          *   return `true` if the requests and results is expected, otherwise `false`.
          */
@@ -312,6 +239,7 @@ public object Camera2InteropUtil {
             timeout: Long = _timeout,
             numOfCaptures: Int = _numOfCaptures,
             breakWhenSuccess: Boolean = true,
+            throwAtTimeout: Boolean = true,
             verifyBlock:
                 (
                     captureRequests: List<CaptureRequest>, captureResults: List<TotalCaptureResult>,
@@ -327,8 +255,40 @@ public object Camera2InteropUtil {
                     verifyBlock = verifyBlock,
                 )
             waitingList.add(resultContainer)
-            withTimeout(timeout) { resultContainer.signal.await() }
+            if (throwAtTimeout) {
+                withTimeout(timeout) { resultContainer.signal.await() }
+            } else {
+                withTimeoutOrNull(timeout) { resultContainer.signal.await() }
+            }
             waitingList.remove(resultContainer)
+        }
+
+        public suspend fun verifyAlwaysSuccess(
+            timeout: Long = _timeout,
+            numOfCaptures: Int = _numOfCaptures,
+            verifyBlock:
+                (
+                    captureRequests: List<CaptureRequest>, captureResults: List<TotalCaptureResult>,
+                ) -> Boolean =
+                { _, _ ->
+                    true
+                },
+        ) {
+            var alwaysSuccess = true
+
+            verifyFor(
+                timeout = timeout,
+                numOfCaptures = numOfCaptures,
+                breakWhenSuccess = false,
+                throwAtTimeout = false,
+            ) { captureRequests, captureResults ->
+                alwaysSuccess = alwaysSuccess and verifyBlock(captureRequests, captureResults)
+                true
+            }
+
+            if (!alwaysSuccess) {
+                throw AssertionError("verifyBlock wasn't always successful.")
+            }
         }
 
         public fun <T> verifyLastCaptureRequest(
@@ -376,7 +336,7 @@ public object Camera2InteropUtil {
                         } else {
                             signal.completeExceptionally(
                                 TimeoutException(
-                                    "Test doesn't complete after waiting for $_numOfCaptures frames."
+                                    "Test doesn't complete after waiting for $initialCount frames."
                                 )
                             )
                         }
@@ -399,5 +359,7 @@ public object Camera2InteropUtil {
             { _, _ ->
                 true
             },
-    )
+    ) {
+        internal val initialCount = count
+    }
 }

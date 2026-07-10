@@ -18,6 +18,9 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
+
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
@@ -99,5 +102,27 @@ public class InternalVisibilityConfigTest {
                 visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage()
                         .getSha256Certificate())
                 .isEqualTo(packageSha256Cert);
+    }
+
+    @Test
+    public void testAddRequiredPermissions_emptySet_throwsIllegalArgumentException() {
+        // This test should only run in non-framework environments. The check for an empty
+        // permission set is a client-side validation.
+        // skip this validation when running in the framework environment to avoid
+        // breaking compatibility.
+        assumeTrue(AppSearchEnvironmentFactory.getEnvironmentInstance()
+                .getEnvironment()
+                != AppSearchEnvironment.FRAMEWORK_ENVIRONMENT);
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder();
+
+        // Attempt to add an empty set of required permissions
+        IllegalArgumentException thrown = assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.addRequiredPermissions(ImmutableSet.of())
+        );
+
+        // Verify the exception message
+        assertThat(thrown).hasMessageThat()
+                .contains("The set of required permissions cannot be empty");
     }
 }

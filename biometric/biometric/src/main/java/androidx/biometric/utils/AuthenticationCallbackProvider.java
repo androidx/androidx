@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Uses a common listener interface provided by the client to create and cache authentication
  * callback objects that are compatible with {@link android.hardware.biometrics.BiometricPrompt} or
- * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+ * {@link androidx.biometric.internal.FingerprintManagerCompat}.
  */
 @SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -36,7 +36,7 @@ public class AuthenticationCallbackProvider {
     /**
      * A listener object that can receive events from either
      * {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback} or
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat.AuthenticationCallback}.
      */
     public static class Listener {
         /**
@@ -82,11 +82,10 @@ public class AuthenticationCallbackProvider {
 
     /**
      * An authentication callback object that is compatible with
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      */
-    private androidx.core.hardware.fingerprint.FingerprintManagerCompat.@Nullable
-            AuthenticationCallback
-            mFingerprintCallback;
+    private androidx.biometric.internal.FingerprintManagerCompat.@Nullable
+            AuthenticationCallback mFingerprintCallback;
 
     /**
      * A common listener object that will receive all authentication events.
@@ -124,50 +123,54 @@ public class AuthenticationCallbackProvider {
 
     /**
      * Provides a callback object that wraps the given listener and is compatible with
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      *
      * <p>Subsequent calls to this method for the same provider instance will return the same
      * callback object.
      *
      * @return A callback object that can be passed to
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      */
-    public androidx.core.hardware.fingerprint.FingerprintManagerCompat.@NonNull AuthenticationCallback
+    public androidx.biometric.internal.FingerprintManagerCompat.@NonNull AuthenticationCallback
             getFingerprintCallback() {
         if (mFingerprintCallback == null) {
-            mFingerprintCallback = new androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                    .AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(final int errMsgId, CharSequence errString) {
-                    mListener.onError(errMsgId, errString);
-                }
+            mFingerprintCallback =
+                    new androidx.biometric.internal.FingerprintManagerCompat
+                            .AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationError(final int errMsgId,
+                                @NonNull CharSequence errString) {
+                            mListener.onError(errMsgId, errString);
+                        }
 
-                @Override
-                public void onAuthenticationHelp(int helpMsgId, final CharSequence helpString) {
-                    mListener.onHelp(helpString);
-                }
+                        @Override
+                        public void onAuthenticationHelp(int helpMsgId,
+                                @NonNull final CharSequence helpString) {
+                            mListener.onHelp(helpString);
+                        }
 
-                @Override
-                public void onAuthenticationSucceeded(final androidx.core.hardware.fingerprint
-                        .FingerprintManagerCompat.AuthenticationResult result) {
+                        @Override
+                        public void onAuthenticationSucceeded(
+                                final androidx.biometric.internal.FingerprintManagerCompat.@NonNull
+                                        AuthenticationResult result) {
 
-                    final BiometricPrompt.CryptoObject crypto = result != null
-                            ? CryptoObjectUtils.unwrapFromFingerprintManager(
-                            result.getCryptoObject())
-                            : null;
+                            final BiometricPrompt.CryptoObject crypto =
+                                    CryptoObjectUtils.unwrapFromFingerprintManager(
+                                            result.getCryptoObject());
 
-                    final BiometricPrompt.AuthenticationResult resultCompat =
-                            new BiometricPrompt.AuthenticationResult(
-                                    crypto, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC);
+                            final BiometricPrompt.AuthenticationResult resultCompat =
+                                    new BiometricPrompt.AuthenticationResult(
+                                            crypto,
+                                            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC);
 
-                    mListener.onSuccess(resultCompat);
-                }
+                            mListener.onSuccess(resultCompat);
+                        }
 
-                @Override
-                public void onAuthenticationFailed() {
-                    mListener.onFailure();
-                }
-            };
+                        @Override
+                        public void onAuthenticationFailed() {
+                            mListener.onFailure();
+                        }
+                    };
         }
         return mFingerprintCallback;
     }
@@ -217,8 +220,7 @@ public class AuthenticationCallbackProvider {
          * {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback}.
          */
         static android.hardware.biometrics.BiometricPrompt.@NonNull AuthenticationCallback
-                createCallback(
-                final @NonNull Listener listener) {
+                createCallback(final @NonNull Listener listener) {
             return new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errorCode, CharSequence errString) {

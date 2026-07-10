@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.collection.Stack
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 
 /**
@@ -293,5 +292,36 @@ internal class OffsetApplier<N>(private val applier: Applier<N>, private val off
 
     override fun reuse() {
         applier.reuse()
+    }
+}
+
+/**
+ * A stub of [Applier] that does not implement any operations and throws when called into. Used to
+ * apply pending changes that do not result in a change to the composition hierarchy and therefore
+ * do not need a real application phase after completing the composition.
+ */
+internal object ThrowingApplierStub : Applier<Any?> {
+    override val current: Any
+        get() = throwIllegalOperationException()
+
+    override fun up() = throwIllegalOperationException()
+
+    override fun remove(index: Int, count: Int) = throwIllegalOperationException()
+
+    override fun move(from: Int, to: Int, count: Int) = throwIllegalOperationException()
+
+    override fun clear() = throwIllegalOperationException()
+
+    override fun insertBottomUp(index: Int, instance: Any?) = throwIllegalOperationException()
+
+    override fun insertTopDown(index: Int, instance: Any?) = throwIllegalOperationException()
+
+    override fun down(node: Any?) = throwIllegalOperationException()
+
+    private fun throwIllegalOperationException() {
+        composeImmediateRuntimeError(
+            "ChangeList cannot call the Applier when " +
+                "executing pending changes outside of the applier phase."
+        )
     }
 }

@@ -72,4 +72,4 @@ NotCloseable: androidx.compose.ui.graphics.vector.PathBuilder:
 
 
 TopLevelBuilder: androidx.compose.ui.graphics.vector.PathBuilder:
-    Builder should be defined as inner class: androidx.compose.ui.graphics.vector.PathBuilder
+    Builder should be defined as nested class: androidx.compose.ui.graphics.vector.PathBuilder

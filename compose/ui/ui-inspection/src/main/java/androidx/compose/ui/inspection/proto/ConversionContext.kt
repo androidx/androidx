@@ -16,13 +16,13 @@
 
 package androidx.compose.ui.inspection.proto
 
-import androidx.compose.ui.inspection.RecompositionHandler
+import androidx.compose.ui.inspection.recompositions.StateReadHandler
 import androidx.compose.ui.unit.IntOffset
 
 /** Parameters for recursive protobuf constructor. */
 internal class ConversionContext(
     val stringTable: StringTable,
     val windowPos: IntOffset,
-    val recompositionHandler: RecompositionHandler,
+    val recompositionHandler: StateReadHandler,
     val reduceChildNesting: Boolean,
 )

@@ -170,7 +170,7 @@ private fun ScalingLazyListScope.expandButton(state: ExpandableState, outline: B
             label = {
                 Text("Show More")
                 Spacer(Modifier.size(6.dp))
-                DemoIcon(resourceId = R.drawable.ic_expand_more_24, contentDescription = "Expand")
+                DemoIcon(resourceId = R.drawable.icon_expand_more_24, contentDescription = "Expand")
             },
             onClick = { state.expanded = true },
             border = if (outline) ChipDefaults.outlinedChipBorder() else ChipDefaults.chipBorder(),
@@ -193,6 +193,6 @@ private fun DemoItem(label: String, color: Color) =
         label = { Text(label) },
         onClick = {},
         secondaryLabel = { Text("line 2 - Secondary") },
-        icon = { DemoIcon(resourceId = R.drawable.ic_play) },
+        icon = { DemoIcon(resourceId = R.drawable.icon_play) },
         colors = ChipDefaults.primaryChipColors(backgroundColor = color),
     )

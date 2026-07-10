@@ -16,12 +16,21 @@
 
 package androidx.glance.wear
 
+import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
-import androidx.glance.wear.data.IWearWidgetProvider
-import androidx.glance.wear.data.WearWidgetProviderImpl
+import androidx.annotation.CallSuper
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.glance.wear.core.RendererVersion
+import androidx.glance.wear.core.WearWidgetProviderInfo
+import androidx.glance.wear.parcel.IWearWidgetProvider
+import androidx.glance.wear.parcel.LegacyTileProviderImpl
+import androidx.glance.wear.parcel.WearWidgetProviderImpl
+import androidx.glance.wear.parcel.legacy.TileProvider
+import androidx.glance.wear.util.isRobolectricBuild
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 /**
  * Service used for communication between the Host and a Widget Provider.
@@ -33,27 +42,84 @@ import androidx.lifecycle.lifecycleScope
  * }
  * ```
  */
-public abstract class GlanceWearWidgetService() : LifecycleService() {
+public abstract class GlanceWearWidgetService : LifecycleService() {
+
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
+    @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+    override fun onCreate() {
+        super.onCreate()
+        // We need this flag to be false (meaning empty axis won't be send and default normal weight
+        // would be used, for the 1.6 renderer and the player that has a bug in it.
+        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
+            RendererVersion.fromPlHostPackage(this) > RendererVersion(1, 6, 0)
+        if (!isRobolectricBuild()) {
+            updateServiceMapping()
+        }
+    }
 
     /** Instance of [GlanceWearWidget] associated with this provider. */
     public abstract val widget: GlanceWearWidget
 
+    private val providerName: ComponentName by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { ComponentName(this, this.javaClass) }
+
     private val provider: IWearWidgetProvider.Stub by
         lazy(LazyThreadSafetyMode.PUBLICATION) {
-            WearWidgetProviderImpl(this, lifecycleScope, widget)
+            WearWidgetProviderImpl(this, providerName, lifecycleScope, widget)
+        }
+
+    private val legacyProvider: TileProvider.Stub by
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            LegacyTileProviderImpl(this, providerName, lifecycleScope, widget)
         }
 
     final override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
-        if (intent.action == ACTION_BIND_WIDGET_PROVIDER) {
-            return provider
+        return when (intent.action) {
+            ACTION_BIND_WIDGET_PROVIDER -> provider
+            ACTION_BIND_TILE_PROVIDER ->
+                if (
+                    intent.identifier?.equals(
+                        WearWidgetProviderInfo.WEAR_WIDGET_PROVIDER_SUPPORTED_IDENTIFIER
+                    ) == true
+                ) {
+                    provider
+                } else {
+                    legacyProvider
+                }
+
+            else -> null
         }
-        return null
+    }
+
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
+        super.onStartCommand(intent, flags, startId)
+
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+    private fun updateServiceMapping() {
+        lifecycleScope.launch {
+            GlanceWearWidgetManager(this@GlanceWearWidgetService)
+                .updateServiceMapping(this@GlanceWearWidgetService, widget)
+        }
     }
 
     public companion object {
         /** Intent action for binding to a Widget Service. */
         public const val ACTION_BIND_WIDGET_PROVIDER: String =
-            "androidx.glance.wear.action.BIND_WIDGET_PROVIDER"
+            WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER
+
+        internal const val ACTION_BIND_TILE_PROVIDER: String =
+            "androidx.wear.tiles.action.BIND_TILE_PROVIDER"
     }
 }

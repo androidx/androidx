@@ -15,23 +15,24 @@
  */
 
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(project(":pdf:pdf-core"))
     api(libs.jspecify)
     api(libs.kotlinCoroutinesCore)
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.exifinterface:exifinterface:1.3.2")
     implementation("androidx.core:core:1.13.0")
     implementation("androidx.customview:customview:1.2.0")
     implementation("androidx.annotation:annotation:1.7.0")
+    implementation("androidx.autofill:autofill:1.3.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
 
@@ -59,16 +60,15 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.mockitoKotlin4)
     androidTestImplementation(libs.espressoIntents)
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 android {
     namespace = "androidx.pdf"
-
+    compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
-        minSdk = 31
-        compileSdk = 36
-        compileSdkExtension = 18
+        minSdk { version = release(28) }
     }
 
     buildFeatures {
@@ -80,16 +80,11 @@ android {
             version = 1
         }
     }
+}
 
-    sourceSets {
-        test {
-            assets {
-                srcDirs += ["src/test/assets"]
-            }
-            resources {
-                srcDirs += ["src/test/res"]
-            }
-        }
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        (variant as HasUnitTest).unitTest.sources.resources.addStaticSourceDirectory("src/test/res")
     }
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2024-2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,38 +16,65 @@
 
 syntax = "proto2";
 
-package androidx.ink.storage.proto;
+package ink.proto;
+
+import "color.proto";
+import "options.proto";
 
 // Specifies a list of `BrushCoat`s that determine the stroke shape and dynamic
 // input response and the shading of the stroke geometry. The `BrushFamily` can
 // optionally be identified by setting a non-empty `client_brush_family_id`.
 message BrushFamily {
+  option (ink.proto.message_min_version) = 0;
 
-  // Spring-based input modeler. Stored in the `InputModel` variant below to
-  // allow future input models to be added without changing the shape of
-  // existing strokes.
-  message SpringModel {}
+  // A naive input model that passes raw inputs through unchanged, performing
+  // only base-minimal modeling to derive velocity and acceleration values for
+  // the modeled inputs. This can be useful as a point of comparison for other
+  // input models, or for callers who wish to do their own input modeling prior
+  // to passing inputs into Ink.
+  message PassthroughModel {
+    option (ink.proto.message_min_version) = 0;
+  }
 
-  // Model that attempts to preserve input positions as closely as possible.
-  // This is an experimental configuration which may be adjusted or removed
-  // later. Strokes generated with this input model might change shape if read
-  // with a later version of the code that has removed this feature.
-  message ExperimentalRawPositionModel {}
+  // Averages nearby inputs together within a sliding time window.
+  message SlidingWindowModel {
+    option (ink.proto.message_min_version) = 0;
+
+    // The duration over which to average together nearby raw inputs. Typically
+    // this should be somewhere in the 1 ms to 100 ms range. The default value
+    // is 20 ms.
+    optional float window_size_seconds = 1
+        [default = 0.02, (ink.proto.field_min_version) = 0];
+    // The maximum duration between modeled inputs; if raw inputs are spaced
+    // more than this far apart in time, then additional modeled inputs will be
+    // inserted between them. Set this to infinity to disable upsampling.  The
+    // default value is 1/180 seconds.
+    //
+    // This is an experimental field which may be removed later.
+    optional float experimental_upsampling_period_seconds = 2
+        [default = 0.00555555555, (ink.proto.field_min_version) = 0];
+  }
 
   message InputModel {
+    option (ink.proto.message_min_version) = 0;
+
     oneof input_model {
-      SpringModel spring_model = 2;
-      ExperimentalRawPositionModel experimental_raw_position_model = 3;
+      PassthroughModel passthrough_model = 4
+          [(ink.proto.field_min_version) = 0];
+      SlidingWindowModel sliding_window_model = 5
+          [(ink.proto.field_min_version) = 0];
     }
-    // Was legacy InputModel type, reserved needs to be outside oneof
+    // Removed InputModel types go here (reserved needs to be outside oneof).
     reserved 1;
+    reserved 2;
+    reserved 3;
   }
 
   // The coats of paint applied by any brush of this brush family. When a stroke
   // drawn by a multi-coat brush is rendered, each coat of paint will be drawn
   // entirely atop the previous coat, even if the stroke crosses over itself, as
   // though each coat were painted in its entirety one at a time.
-  repeated BrushCoat coats = 4;
+  repeated BrushCoat coats = 4 [(ink.proto.field_min_version) = 0];
 
   // Was `tip` and `paint`, use `coats[0].tip` and `coats[0].paint`
   // instead.
@@ -55,26 +82,66 @@ message BrushFamily {
 
   // The ID for this brush family specified by the client that created it. The
   // meaning of this ID is determined by that client.
-  optional string client_brush_family_id = 3;
+  optional string client_brush_family_id = 3
+      [(ink.proto.field_min_version) = 0];
 
   // Specifies a model for turning a sequence of raw hardware inputs (e.g. from
   // a stylus, touchscreen, or mouse) into a sequence of smoothed, modeled
   // inputs. Raw hardware inputs tend to be noisy, and must be smoothed before
   // being passed into a brush's behaviors and extruded into a mesh in order to
   // get a good-looking stroke.
-  optional InputModel input_model = 5;
+  optional InputModel input_model = 5 [(ink.proto.field_min_version) = 0];
 
   // A mapping of texture IDs (as used in `BrushPaint.TextureLayer`) to bitmaps
   // in PNG format.
-  map<string, bytes> texture_id_to_bitmap = 6;
+  map<string, bytes> texture_id_to_bitmap = 6
+      [(ink.proto.field_min_version) = 0];
+
+  // A multi-line, human-readable string with a description of the brush and how
+  // it works, with the intended audience being designers/developers who are
+  // editing the brush definition. This string is not generally intended to be
+  // displayed to end users.
+  optional string developer_comment = 7 [(ink.proto.field_min_version) = 0];
+
+  // The minimum version of the Ink API that this brush family is compatible
+  // with. This field should not be set by clients, only by the Ink serializer,
+  // as it is computed based on the features used in the brush family.
+  optional int32 min_version = 8 [(ink.proto.field_min_version) = 0];
+
+  // Specifies a list of brush families that are similar in behavior to this
+  // brush family, but with a higher `min_version`. This is intended to provide
+  // a fallback for sharing brushes between devices with different Ink API
+  // versions. The serializer will only populate this field on the lowest
+  // version, "top-level" brush family passed to `EncodeMultipleBrushFamilies`.
+  // The deserializer will only decode this field from the top-level brush
+  // family as well. Though a deeper recursive structure is possible, it is not
+  // supported, to avoid hitting parser recursion depth limits (100 for C++ by
+  // default) which are more likely to be hit than repeated field limits (only
+  // restricted by the overall message size limit of 2GiB).
+  repeated BrushFamily newer_brush_families = 9
+      [(ink.proto.field_min_version) = 0];
 }
 
-// One coat of paint applied by a brush. It includes a `BrushPaint` and a
-// `BrushTip` used to apply that paint. Multiple `BrushCoats` can be combined
-// within a single brush; see `BrushFamily.coats` for details.
+// A `BrushCoat` represents one coat of ink applied by a brush. It includes a
+// `BrushTip` that describes the structure of that coat, and a non-empty list of
+// possible `BrushPaint` objects - each one describes how to render the coat
+// structure, and the one `BrushPaint` that is actually used is the first one in
+// the list that is compatible with the device and renderer. Multiple
+// `BrushCoat`s can be combined within a single brush; when a stroke drawn by a
+// multi-coat brush is rendered, each coat of ink will be drawn entirely atop
+// the previous coat, even if the stroke crosses over itself, as though each
+// coat were painted in its entirety one at a time.
 message BrushCoat {
-  optional BrushTip tip = 1;
-  optional BrushPaint paint = 2;
+  option (ink.proto.message_min_version) = 0;
+
+  optional BrushTip tip = 1 [(ink.proto.field_min_version) = 0];
+
+  // Was `paint`; use `paint_preferences` instead.
+  reserved 2;
+
+  // If empty, the default `BrushPaint` will be used, which has no
+  // `TextureLayer`s or `ColorFunction`s, and uses `SELF_OVERLAP_ANY`.
+  repeated BrushPaint paint_preferences = 3 [(ink.proto.field_min_version) = 0];
 }
 
 // Parameters that control how stroke inputs are used to model the tip shape and
@@ -91,20 +158,23 @@ message BrushCoat {
 // color when drawing. The default values produce a static circular tip shape
 // with diameter equal to the `Brush` size and no color shift.
 message BrushTip {
+  option (ink.proto.message_min_version) = 0;
+
   // Scale used to calculate the baseline width of the tip shape relative to the
   // brush size prior to applying `slant` and `rotation`.  The baseline width of
   // the tip will be equal to the brush size multiplied by `scale_x`. Valid
   // values must be finite and non-negative, with at least one of `scale_x` and
   // `scale_y` greater than zero.
-  optional float scale_x = 1 [default = 1.0];
+  optional float scale_x = 1 [default = 1.0, (ink.proto.field_min_version) = 0];
   // Same as `scale_x`, but for baseline height.
-  optional float scale_y = 2 [default = 1.0];
+  optional float scale_y = 2 [default = 1.0, (ink.proto.field_min_version) = 0];
 
   // A normalized value in the range [0, 1] that is used to calculate the
   // baseline radius of curvature for the tip's corners. A value of 0 results in
   // sharp corners and a value of 1 results in the maximum radius of curvature
   // given the current tip dimensions.
-  optional float corner_rounding = 3 [default = 1.0];
+  optional float corner_rounding = 3
+      [default = 1.0, (ink.proto.field_min_version) = 0];
 
   // Angle used to calculate the baseline slant of the tip shape prior to
   // applying `rotation` and `pinch`.
@@ -117,7 +187,7 @@ message BrushTip {
   // The value should be in the range [-π/2, π/2] radians, and represents the
   // angle by which "vertical" lines of the tip shape will appear rotated about
   // their intersection with the x-axis.
-  optional float slant_radians = 4;
+  optional float slant_radians = 4 [(ink.proto.field_min_version) = 0];
 
   // A unitless parameter in the range [0, 1] that controls the baseline
   // separation between two of the shape's corners prior to applying `rotation`.
@@ -134,17 +204,14 @@ message BrushTip {
   //    in a (possibly slanted) trapezoidal shape.
   //  - A value of 1 will make the two corners coincide and result in a
   //    triangular shape.
-  optional float pinch = 5;
+  optional float pinch = 5 [(ink.proto.field_min_version) = 0];
 
   // Angle specifying the baseline rotation of the tip shape after applying
   // `scale`, `pinch`, and `slant`.
-  optional float rotation_radians = 6;
+  optional float rotation_radians = 6 [(ink.proto.field_min_version) = 0];
 
-  // Scales the opacity of the base brush color for this tip, independent of
-  // `brush_behavior`s. A possible example application is a highlighter brush.
-  // The multiplier must be in the range [0, 2] and the value ultimately applied
-  // can be modified by applicable `brush_behavior`s.
-  optional float opacity_multiplier = 8 [default = 1.0];
+  // Was `opacity_multiplier`; use brush paint color functions instead.
+  reserved 8;
 
   // Controls emission of particles as a function of distance traveled by the
   // stroke inputs. The value must be finite and non-negative.
@@ -154,7 +221,8 @@ message BrushTip {
   // Otherwise, the stroke will be made up of particles. A new particle will be
   // emitted after at least `particle_gap_distance_scale * brush_size` distance
   // has been traveled by the stoke inputs.
-  optional float particle_gap_distance_scale = 9;
+  optional float particle_gap_distance_scale = 9
+      [(ink.proto.field_min_version) = 0];
 
   // Parameter controlling emission of particles as a function of time elapsed
   // along the stroke. The value must be finite and non-negative.
@@ -163,45 +231,50 @@ message BrushTip {
   // be continuous, unless gaps are introduced dynamically by `BrushBehavior`s.
   // Otherwise, the stroke will be made up of particles. Particles will be
   // emitted at most once every `particle_gap_duration`.
-  optional float particle_gap_duration_seconds = 10;
+  optional float particle_gap_duration_seconds = 10
+      [(ink.proto.field_min_version) = 0];
 
   // Behaviors affecting this tip.
-  repeated BrushBehavior behaviors = 7;
+  repeated BrushBehavior behaviors = 7 [(ink.proto.field_min_version) = 0];
 }
 
 // Parameters that describe how a stroke mesh should be rendered.
 message BrushPaint {
+  option (ink.proto.message_min_version) = 0;
+
   message TextureLayer {
+    option (ink.proto.message_min_version) = 0;
+
 
     // Texture wrapping modes for specifying `TextureLayer::wrap_x` and
     // `wrap_y`.
     enum Wrap {
-      WRAP_UNSPECIFIED = 0;
+      WRAP_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
       // Repeats texture image horizontally/vertically.
-      WRAP_REPEAT = 1;
+      WRAP_REPEAT = 1 [(ink.proto.enum_value_min_version) = 0];
 
       // Repeats texture image horizontally/vertically, alternating mirror
       // images so that adjacent edges always match.
-      WRAP_MIRROR = 2;
+      WRAP_MIRROR = 2 [(ink.proto.enum_value_min_version) = 0];
 
       // Points outside of the texture have the color of the nearest texture
       // edge point. This mode is typically most useful when the edge pixels of
       // the texture image are all the same, e.g. either transparent or a single
       // solid color.
-      WRAP_CLAMP = 3;
+      WRAP_CLAMP = 3 [(ink.proto.enum_value_min_version) = 0];
     }
 
 
     // Units for specifying `TextureLayer::size`.
     enum SizeUnit {
-      SIZE_UNIT_UNSPECIFIED = 0;
+      SIZE_UNIT_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
       // In the same units as the provided `StrokeInput` position.
-      SIZE_UNIT_STROKE_COORDINATES = 1;
+      SIZE_UNIT_STROKE_COORDINATES = 1 [(ink.proto.enum_value_min_version) = 0];
 
       // As multiples of brush size.
-      SIZE_UNIT_BRUSH_SIZE = 2;
+      SIZE_UNIT_BRUSH_SIZE = 2 [(ink.proto.enum_value_min_version) = 0];
 
       reserved 3;
     }
@@ -209,43 +282,43 @@ message BrushPaint {
 
     // Specification of the origin point to use for the texture.
     enum Origin {
-      ORIGIN_UNSPECIFIED = 0;
+      ORIGIN_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
       // The texture origin is the origin of stroke space, however that happens
       // to be defined for a given stroke.
-      ORIGIN_STROKE_SPACE_ORIGIN = 1;
+      ORIGIN_STROKE_SPACE_ORIGIN = 1 [(ink.proto.enum_value_min_version) = 0];
 
       // The texture origin is the first input position for the stroke.
-      ORIGIN_FIRST_STROKE_INPUT = 2;
+      ORIGIN_FIRST_STROKE_INPUT = 2 [(ink.proto.enum_value_min_version) = 0];
 
       // The texture origin is the last input position (including predicted
       // inputs) for the stroke. Note that this means that the texture origin
       // for an in-progress stroke will move as more inputs are added.
-      ORIGIN_LAST_STROKE_INPUT = 3;
+      ORIGIN_LAST_STROKE_INPUT = 3 [(ink.proto.enum_value_min_version) = 0];
     }
 
 
     // Specification of how the texture should be applied to the stroke.
     enum Mapping {
-      MAPPING_UNSPECIFIED = 0;
+      MAPPING_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
       // The texture will repeat according to a 2D affine transformation of
       // vertex positions. Each copy of the texture will have the same size and
       // shape modulo reflections.
-      MAPPING_TILING = 1;
+      MAPPING_TILING = 1 [(ink.proto.enum_value_min_version) = 0];
 
-      // The texture will morph to "wind along the path of the stroke." The
-      // horizontal axis of texture space will lie along the width of the stroke
-      // and the vertical axis will lie along the direction of travel of the
-      // stroke at each point.
-      MAPPING_WINDING = 2;
+      // This mode is intended for use with particle brush coats (i.e. with a
+      // brush tip with a nonzero particle gap). A copy of the texture (or one
+      // animation frame thereof) will be "stamped" onto each particle of the
+      // stroke, scaled or rotated appropriately to cover the whole particle.
+      MAPPING_STAMPING = 2 [(ink.proto.enum_value_min_version) = 0];
     }
 
 
     // Setting for how an incoming ("source" / "src") color should be combined
     // with the already present ("destination" / "dst") color at a given pixel.
     enum BlendMode {
-      BLEND_MODE_UNSPECIFIED = 0;
+      BLEND_MODE_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
       // Source and destination are component-wise multiplied, including
       // opacity.
@@ -253,7 +326,7 @@ message BrushPaint {
       // Alpha = Alpha_src * Alpha_dst
       //
       // Color = Color_src * Color_dst
-      BLEND_MODE_MODULATE = 1;
+      BLEND_MODE_MODULATE = 1 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps destination pixels that cover source pixels. Discards remaining
       // source and destination pixels.
@@ -261,7 +334,7 @@ message BrushPaint {
       // Alpha = Alpha_src * Alpha_dst
       //
       // Color = Alpha_src * Color_dst
-      BLEND_MODE_DST_IN = 2;
+      BLEND_MODE_DST_IN = 2 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps the destination pixels not covered by source pixels. Discards
       // destination pixels that are covered by source pixels and all source
@@ -270,7 +343,7 @@ message BrushPaint {
       // Alpha = (1 - Alpha_src) * Alpha_dst
       //
       // Color = (1 - Alpha_src) * Color_dst
-      BLEND_MODE_DST_OUT = 3;
+      BLEND_MODE_DST_OUT = 3 [(ink.proto.enum_value_min_version) = 0];
 
       // Discards source pixels that do not cover destination pixels.
       // Draws remaining pixels over destination pixels.
@@ -278,7 +351,7 @@ message BrushPaint {
       // Alpha = Alpha_dst
       //
       // Color = Alpha_dst * Color_src + (1 - Alpha_src) * Color_dst
-      BLEND_MODE_SRC_ATOP = 4;
+      BLEND_MODE_SRC_ATOP = 4 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps the source pixels that cover destination pixels. Discards
       // remaining source and destination pixels.
@@ -286,21 +359,21 @@ message BrushPaint {
       // Alpha = Alpha_src * Alpha_dst
       //
       // Color = Color_src * Alpha_dst
-      BLEND_MODE_SRC_IN = 5;
+      BLEND_MODE_SRC_IN = 5 [(ink.proto.enum_value_min_version) = 0];
 
       // The source pixels are drawn over the destination pixels.
       //
       // Alpha = Alpha_src + (1 - Alpha_src) * Alpha_dst
       //
       // Color = Color_src + (1 - Alpha_src) * Color_dst
-      BLEND_MODE_SRC_OVER = 6;
+      BLEND_MODE_SRC_OVER = 6 [(ink.proto.enum_value_min_version) = 0];
 
       // The source pixels are drawn behind the destination pixels.
       //
       // Alpha = Alpha_dst + (1 - Alpha_dst) * Alpha_src
       //
       // Color = Color_dst + (1 - Alpha_dst) * Color_src
-      BLEND_MODE_DST_OVER = 7;
+      BLEND_MODE_DST_OVER = 7 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps the source pixels and discards the destination pixels.
       // When used on the last `TextureLayer`, this effectively causes the
@@ -310,7 +383,7 @@ message BrushPaint {
       // Alpha = Alpha_src
       //
       // Color = Color_src
-      BLEND_MODE_SRC = 8;
+      BLEND_MODE_SRC = 8 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps the destination pixels and discards the source pixels.
       // This mode is unlikely to be useful, since it effectively causes the
@@ -320,7 +393,7 @@ message BrushPaint {
       // Alpha = Alpha_dst
       //
       // Color = Color_dst
-      BLEND_MODE_DST = 9;
+      BLEND_MODE_DST = 9 [(ink.proto.enum_value_min_version) = 0];
 
       // Keeps the source pixels that do not cover destination pixels. Discards
       // destination pixels and all source pixels that cover destination pixels.
@@ -328,7 +401,7 @@ message BrushPaint {
       // Alpha = (1 - Alpha_dst) * Alpha_src
       //
       // Color = (1 - Alpha_dst) * Color_src
-      BLEND_MODE_SRC_OUT = 10;
+      BLEND_MODE_SRC_OUT = 10 [(ink.proto.enum_value_min_version) = 0];
 
       // Discards destination pixels that aren't covered by source
       // pixels. Remaining destination pixels are drawn over source pixels.
@@ -336,7 +409,7 @@ message BrushPaint {
       // Alpha = Alpha_src
       //
       // Color = Alpha_src * Color_dst + (1 - Alpha_dst) * Color_src
-      BLEND_MODE_DST_ATOP = 11;
+      BLEND_MODE_DST_ATOP = 11 [(ink.proto.enum_value_min_version) = 0];
 
       // Discards source and destination pixels that intersect; keeps source and
       // destination pixels that do not intersect.
@@ -344,43 +417,42 @@ message BrushPaint {
       // Alpha = (1 - Alpha_dst) * Alpha_src + (1 - Alpha_src) * Alpha_dst
       //
       // Color = (1 - Alpha_dst) * Color_src + (1 - Alpha_src) * Color_dst
-      BLEND_MODE_XOR = 12;
+      BLEND_MODE_XOR = 12 [(ink.proto.enum_value_min_version) = 0];
     }
 
     // String id that will be used by renderers to retrieve the color texture.
-    optional string client_texture_id = 1;
+    optional string client_texture_id = 1 [(ink.proto.field_min_version) = 0];
 
     // The x-dimension of size of (one animation frame of) the texture,
     // specified in  `size_unit`s
-    optional float size_x = 2 [default = 1];
+    optional float size_x = 2 [default = 1, (ink.proto.field_min_version) = 0];
 
     // The y-dimension of size of (one animation frame of) the texture,
     // specified in  `size_unit`s
-    optional float size_y = 3 [default = 1];
+    optional float size_y = 3 [default = 1, (ink.proto.field_min_version) = 0];
 
     // The unit for size_x and size_y.
-    optional SizeUnit size_unit = 4 [default = SIZE_UNIT_STROKE_COORDINATES];
+    optional SizeUnit size_unit = 4 [
+      default = SIZE_UNIT_STROKE_COORDINATES,
+      (ink.proto.field_min_version) = 0
+    ];
 
     // How the texture should be applied to the stroke.
-    optional Mapping mapping = 5 [default = MAPPING_TILING];
+    optional Mapping mapping = 5
+        [default = MAPPING_TILING, (ink.proto.field_min_version) = 0];
 
     // An x-offset into the texture, specified as fractions of the texture size.
-    optional float offset_x = 6;
+    optional float offset_x = 6 [(ink.proto.field_min_version) = 0];
 
     // A y-offset into the texture, specified as fractions of the texture size.
-    optional float offset_y = 7;
+    optional float offset_y = 7 [(ink.proto.field_min_version) = 0];
 
     // Angle in radians specifying the rotation of the texture. The rotation is
     // carried out about the center of the texture's first repetition along both
     // axes.
-    optional float rotation_in_radians = 8;
+    optional float rotation_in_radians = 8 [(ink.proto.field_min_version) = 0];
 
-    reserved 9 to 13;
-
-    // Overall texture layer opacity.
-    optional float opacity = 14 [default = 1];
-
-    reserved 15;
+    reserved 9 to 15;
 
     // The rule by which the texture layers up to and including this one are
     // combined with the subsequent layer.
@@ -388,18 +460,24 @@ message BrushPaint {
     // combine "src", which is the result of blending layers [0..index], with
     // "dst", which is the layer at index + 1. If index refers to the last
     // texture layer, then the layer at "index + 1" is the brush color layer.
-    optional BlendMode blend_mode = 16 [default = BLEND_MODE_MODULATE];
+    optional BlendMode blend_mode = 16
+        [default = BLEND_MODE_MODULATE, (ink.proto.field_min_version) = 0];
 
     // The origin point to use for the texture
-    optional Origin origin = 17 [default = ORIGIN_STROKE_SPACE_ORIGIN];
+    optional Origin origin = 17 [
+      default = ORIGIN_STROKE_SPACE_ORIGIN,
+      (ink.proto.field_min_version) = 0
+    ];
 
     // How points outside the texture in the x direction are treated for this
     // texture layer
-    optional Wrap wrap_x = 18 [default = WRAP_REPEAT];
+    optional Wrap wrap_x = 18
+        [default = WRAP_REPEAT, (ink.proto.field_min_version) = 0];
 
     // How points outside the texture in the y direction are treated for this
     // texture layer
-    optional Wrap wrap_y = 19 [default = WRAP_REPEAT];
+    optional Wrap wrap_y = 19
+        [default = WRAP_REPEAT, (ink.proto.field_min_version) = 0];
 
     reserved 20;
     reserved 21;
@@ -407,10 +485,47 @@ message BrushPaint {
     reserved 23;
   }
 
+  // Specifies how parts of the stroke that intersect itself should be treated
+  // during the rendering process. The simplest example of this is with
+  // translucent, solid-color strokes - such as a highlighter - where a later
+  // part of a stroke that overlaps an earlier part of itself may appear with
+  // either double the opacity (self overlap is accumulated) or the same opacity
+  // (self overlap is discarded). More complex examples may involve color or
+  // opacity variations (e.g. with
+  // `BrushBehavior::Target::HUE_OFFSET_IN_RADIANS`), or complex textures (e.g.
+  // with `BrushPaint::StampingTexture`).
+  //
+  // That being said, SELF_OVERLAP_DISCARD is incompatible on the same
+  // `BrushCoat` with `BrushBehavior`s which target opacity or color, and with
+  // `BrushPaint::StampingTexture`. This is because SELF_OVERLAP_DISCARD forces
+  // usage of the path renderer, and the aforementioned features require the
+  // mesh renderer. In the case where both are specified on the same
+  // `BrushCoat`, the effects of the `BrushBehavior`/`TextureLayer`(s) will not
+  // be rendered.
+  enum SelfOverlap {
+    SELF_OVERLAP_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
+    SELF_OVERLAP_ANY = 1 [(ink.proto.enum_value_min_version) = 0];
+    SELF_OVERLAP_ACCUMULATE = 2 [(ink.proto.enum_value_min_version) = 0];
+    SELF_OVERLAP_DISCARD = 3 [(ink.proto.enum_value_min_version) = 0];
+  }
+
   // Zero or more textures to blend together to affect this coat's appearance.
   // Each layer is blended into the next one, and finally into the color of the
   // paint, according to each layer's `blend_mode`.
-  repeated TextureLayer texture_layers = 1;
+  repeated TextureLayer texture_layers = 1 [(ink.proto.field_min_version) = 0];
+
+  // Transforms the brush color to be used as an alternative base color for any
+  // effects or textures in a `BrushCoat`. Each function is applied in the order
+  // they are specified.
+  //
+  // If this list is empty, the brush color will be used unchanged.
+  repeated ColorFunction color_functions = 2
+      [(ink.proto.field_min_version) = 0];
+
+  // How parts of the stroke that intersect itself should be treated during the
+  // rendering process. See `SelfOverlap` for more details.
+  optional SelfOverlap self_overlap = 3
+      [default = SELF_OVERLAP_ANY, (ink.proto.field_min_version) = 0];
 }
 
 // A behavior describing how stroke input properties should affect the shape and
@@ -483,245 +598,285 @@ message BrushPaint {
 // may be constrained to keep them from changing too rapidly with respect to
 // distance traveled from one input to the next.
 message BrushBehavior {
+  option (ink.proto.message_min_version) = 0;
+
 
   // A stroke input property, along with its units, that can act as a source for
   // a `BrushBehavior.SourceNode`.
+  //
+  // Behaviors that consider properties of the stroke input do not consider
+  // alterations to the visible position of that point in the stroke by brush
+  // behaviors that modify that position (e.g.
+  // Target::TARGET_POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE). That is, the
+  // position, velocity, and acceleration of the stroke input may not match the
+  // visible position, velocity, and acceleration of that point in the drawn
+  // stroke. The stroke inputs considered by these behaviors are specifically
+  // the "modeled" inputs used to construct the stroke geometry, which may be
+  // upsampled, denoised, or otherwise transformed from the raw stroke input
+  // (see `BrushFamily::InputModel`).
   enum Source {
-    SOURCE_UNSPECIFIED = 0;
+    SOURCE_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus or touch pressure with values reported in the range [0, 1].
-    SOURCE_NORMALIZED_PRESSURE = 1;
+    SOURCE_NORMALIZED_PRESSURE = 1 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus tilt with values reported in the range [0, π/2] radians.
-    SOURCE_TILT_IN_RADIANS = 2;
+    SOURCE_TILT_IN_RADIANS = 2 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus tilt along the x axis in the range [-π/2, π/2], with a positive
     // value corresponding to tilt toward the positive x-axis. In order for this
     // value to be reported, both tilt and orientation have to be populated on
     // the StrokeInput.
-    SOURCE_TILT_X_IN_RADIANS = 3;
+    SOURCE_TILT_X_IN_RADIANS = 3 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus tilt along the y axis in the range [-π/2, π/2], with a positive
     // value corresponding to tilt toward the positive y-axis. In order for this
     // value to be reported, both tilt and orientation have to be populated on
     // the StrokeInput.
-    SOURCE_TILT_Y_IN_RADIANS = 4;
+    SOURCE_TILT_Y_IN_RADIANS = 4 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus orientation with values reported in the range [0, 2π).
-    SOURCE_ORIENTATION_IN_RADIANS = 5;
+    SOURCE_ORIENTATION_IN_RADIANS = 5 [(ink.proto.enum_value_min_version) = 0];
 
     // Stylus orientation with values reported in the range (-π, π].
-    SOURCE_ORIENTATION_ABOUT_ZERO_IN_RADIANS = 6;
+    SOURCE_ORIENTATION_ABOUT_ZERO_IN_RADIANS = 6
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Pointer speed with values >= 0 in distance units per second, where one
-    // distance unit is equal to the brush size.
-    SOURCE_SPEED_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 7;
+    // Absolute speed of the modeled stroke input in multiples of the brush size
+    // per second. Note that this value doesn't take into account brush
+    // behaviors that offset the position of the visual tip of the stroke.
+    SOURCE_SPEED_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 7
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed x component of pointer velocity in distance units per second,
-    // where one distance unit is equal to the brush size.
-    SOURCE_VELOCITY_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 8;
+    // Signed x component of the velocity of the modeled stroke input in
+    // multiples of the brush size per second. Note that this value doesn't take
+    // into account brush behaviors that offset the visible position of that
+    // point in the stroke.
+    SOURCE_VELOCITY_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 8
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed y component of pointer velocity in distance units per second,
-    // where one distance unit is equal to the brush size.
-    SOURCE_VELOCITY_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 9;
+    // Signed y component of the velocity of the modeled stroke input in
+    // multiples of the brush size per second. Note that this value doesn't take
+    // into account brush behaviors that offset the visible position of that
+    // point in the stroke.
+    SOURCE_VELOCITY_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND = 9
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed x component of the normalized travel direction, with values in the
-    // range [-1, 1].
-    SOURCE_NORMALIZED_DIRECTION_X = 10;
+    // Signed x component of the modeled stroke input's current direction of
+    // travel in stroke coordinate space, normalized to the range [-1, 1].
+    SOURCE_NORMALIZED_DIRECTION_X = 10 [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed y component of the normalized travel direction, with values in the
-    // range [-1, 1].
-    SOURCE_NORMALIZED_DIRECTION_Y = 11;
+    // Signed y component of the modeled stroke input's current direction of
+    // travel in stroke coordinate space, normalized to the range [-1, 1].
+    SOURCE_NORMALIZED_DIRECTION_Y = 11 [(ink.proto.enum_value_min_version) = 0];
 
     // Distance traveled by the inputs of the current stroke, starting at 0 at
     // the first input, where one distance unit is equal to the brush size.
-    SOURCE_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE = 12;
+    SOURCE_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE = 12
+        [(ink.proto.enum_value_min_version) = 0];
 
     // The time elapsed (in seconds) from when the stroke started to when this
     // part of the stroke was drawn. The value remains fixed for any given part
     // of the stroke once drawn.
-    SOURCE_TIME_OF_INPUT_IN_SECONDS = 13;
+    SOURCE_TIME_OF_INPUT_IN_SECONDS = 13
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The time elapsed (in milliseconds) from when the stroke started to when
-    // this part of the stroke was drawn. The value remains fixed for any given
-    // part of the stroke once drawn.
-    SOURCE_TIME_OF_INPUT_IN_MILLIS = 14;
+    reserved 14;
 
     // Distance traveled by the inputs of the current prediction, starting at 0
-    // at the last non-predicted input, where one distance unit is equal to the
-    // brush size. For cases where prediction hasn't started yet, we don't
-    // return a negative value, but clamp to a min of 0.
-    SOURCE_PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE = 15;
+    // at the last non-predicted input, in multiples of the brush size. Zero for
+    // inputs before the predicted portion of the stroke.
+    SOURCE_PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE = 15
+        [(ink.proto.enum_value_min_version) = 0];
 
     // Elapsed time (in seconds) of the prediction, starting at 0 at the last
-    // non-predicted input. For cases where prediction hasn't started yet, we
-    // don't return a negative value, but clamp to a min of 0.
-    SOURCE_PREDICTED_TIME_ELAPSED_IN_SECONDS = 16;
+    // non-predicted input. Zero for inputs before the predicted portion of the
+    // stroke.
+    SOURCE_PREDICTED_TIME_ELAPSED_IN_SECONDS = 16
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Elapsed time (in milliseconds) of the prediction, starting at 0 at the
-    // last non-predicted input. For cases where prediction hasn't started yet,
-    // we don't return a negative value, but clamp to a min of 0.
-    SOURCE_PREDICTED_TIME_ELAPSED_IN_MILLIS = 17;
+    reserved 17;
 
-    // The distance left to be traveled from a given input to the current last
-    // input of the stroke, where one distance unit is equal to the brush size.
+    // The distance left to be traveled from a given modeled input to the
+    // current last modeled input of the stroke in multiples of the brush size.
     // This value changes for each input as the stroke is drawn.
-    SOURCE_DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE = 18;
+    SOURCE_DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE = 18
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The amount of time (in seconds) that has elapsed since this part of the
-    // stroke was drawn. This continues to increase even after all stroke inputs
-    // have completed, and can be used to drive stroke animations. These
-    // enumerators are only compatible with a `source_out_of_range_behavior` of
-    // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
-    SOURCE_TIME_SINCE_INPUT_IN_SECONDS = 19;
+    // Time elapsed (in seconds) since the modeled stroke input. This continues
+    // to increase even after all stroke inputs have completed, and can be used
+    // to drive wet-layer stroke animations. This source is only compatible with
+    // a `source_out_of_range_behavior` of `OUT_OF_RANGE_CLAMP`, to ensure that
+    // the animation will eventually end.
+    SOURCE_TIME_SINCE_INPUT_IN_SECONDS = 19
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The amount of time (in milliseconds) that has elapsed since this part of
-    // the stroke was drawn. This continues to increase even after all stroke
-    // inputs have completed, and can be used to drive stroke animations. These
-    // enumerators are only compatible with a `source_out_of_range_behavior` of
-    // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
-    SOURCE_TIME_SINCE_INPUT_IN_MILLIS = 20;
+    reserved 20;
 
-    // The angle of the stroke's current direction of travel in stroke space,
-    // normalized to the range [0, 2π). A value of 0 indicates the direction of
-    // the positive X-axis in stroke space; a value of π/2 indicates the
-    // direction of the positive Y-axis in stroke space.
-    SOURCE_DIRECTION_IN_RADIANS = 21;
+    // Angle of the modeled stroke input's current direction of travel in stroke
+    // coordinate space, normalized to the range [0, 2π). A value of 0 indicates
+    // the direction of the positive x-axis; a value of π/2 indicates the
+    // direction of the positive y-axis.
+    SOURCE_DIRECTION_IN_RADIANS = 21 [(ink.proto.enum_value_min_version) = 0];
 
-    // The angle of the stroke's current direction of travel in stroke space,
-    // normalized to the range (-π, π]. A value of 0 indicates the direction of
-    // the positive X-axis in stroke space; a value of π/2 indicates the
-    // direction of the positive Y-axis in stroke space.
-    SOURCE_DIRECTION_ABOUT_ZERO_IN_RADIANS = 22;
+    // Angle of the modeled stroke input's current direction of travel in stroke
+    // coordinate space, normalized to the range (-π, π]. A value of 0 indicates
+    // the direction of the positive x-axis; a value of π/2 indicates the
+    // direction of the positive y-axis.
+    SOURCE_DIRECTION_ABOUT_ZERO_IN_RADIANS = 22
+        [(ink.proto.enum_value_min_version) = 0];
 
     reserved 23;
 
-    // Directionless pointer acceleration with values >= 0 in distance units per
-    // second squared, where one distance unit is equal to the brush size.
-    SOURCE_ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 24;
+    // Absolute acceleration of the modeled stroke input in multiples of the
+    // brush size per second squared. Note that this value doesn't take into
+    // account brush behaviors that offset the position of that visible point in
+    // the stroke.
+    SOURCE_ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 24
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed x component of pointer acceleration in distance units per second
-    // squared, where one distance unit is equal to the brush size.
-    SOURCE_ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 25;
+    // Signed x component of the acceleration of the modeled stroke input
+    // in multiples of the brush size per second squared. Note that this value
+    // doesn't take into account brush behaviors that offset the position of
+    // that visible point in the stroke.
+    SOURCE_ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 25
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed y component of pointer acceleration in distance units per second
-    // squared, where one distance unit is equal to the brush size.
-    SOURCE_ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 26;
+    // Signed y component of the acceleration of the modeled stroke input
+    // in multiples of the brush size per second squared. Note that this value
+    // doesn't take into account brush behaviors that offset the position of
+    // that visible point in the stroke.
+    SOURCE_ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED = 26
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Pointer acceleration along the current direction of travel in distance
-    // units per second squared, where one distance unit is equal to the brush
-    // size. A positive value indicates that the pointer is accelerating along
-    // the current direction of travel, while a negative value indicates that
-    // the pointer is decelerating.
+    // Signed component of acceleration of the modeled stroke input in the
+    // direction of its velocity in multiples of the brush size per second
+    // squared. Note that this value doesn't take into account brush behaviors
+    // that offset the position of that visible point in the stroke.
     SOURCE_ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED =
-        27;
+        27 [(ink.proto.enum_value_min_version) = 0];
 
-    // Pointer acceleration perpendicular to the current direction of travel in
-    // distance units per second squared, where one distance unit is equal to
-    // the brush size. If the X- and Y-axes of stroke space were rotated so that
-    // the positive X-axis points in the direction of stroke travel, then a
-    // positive value for this source indicates acceleration along the positive
-    // Y-axis (and a negative value indicates acceleration along the negative
-    // Y-axis).
+    // Signed component of acceleration of the modeled stroke input
+    // perpendicular to its velocity, rotated 90 degrees in the direction from
+    // the positive x-axis towards the positive y-axis, in multiples of the
+    // brush size per second squared. Note that this value doesn't take into
+    // account brush behaviors that offset the position of that visible point
+    // in the stroke.
     SOURCE_ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED =
-        28;
+        28 [(ink.proto.enum_value_min_version) = 0];
 
-    // The physical speed of the input pointer at the point in question, in
-    // centimeters per second.
-    SOURCE_INPUT_SPEED_IN_CENTIMETERS_PER_SECOND = 29;
+    // Absolute speed of the modeled stroke input pointer in centimeters per
+    // second.
+    SOURCE_SPEED_IN_CENTIMETERS_PER_SECOND = 29
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed x component of the physical velocity of the input pointer at the
-    // point in question, in centimeters per second.
-    SOURCE_INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND = 30;
+    // Signed x component of the modeled stroke input pointer velocity
+    // in centimeters per second.
+    SOURCE_VELOCITY_X_IN_CENTIMETERS_PER_SECOND = 30
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed y component of the physical velocity of the input pointer at the
-    // point in question, in centimeters per second.
-    SOURCE_INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND = 31;
+    // Signed y component of the modeled stroke input pointer velocity
+    // in centimeters per second.
+    SOURCE_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND = 31
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The physical distance traveled by the input pointer from the start of the
-    // stroke along the input path to the point in question, in centimeters.
-    SOURCE_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS = 32;
+    // Distance in centimeters traveled by the modeled stroke input pointer
+    // along the input path from the start of the stroke.
+    SOURCE_DISTANCE_TRAVELED_IN_CENTIMETERS = 32
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The physical distance that the input pointer would have to travel from
-    // its actual last real position along its predicted path to reach the
-    // predicted point in question, in centimeters. For points on the stroke
-    // before the predicted portion, this has a value of zero.
-    SOURCE_PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS = 33;
+    // Distance in centimeters along the input path from the real portion of
+    // the modeled stroke to this input. Zero for inputs before the predicted
+    // portion of the stroke.
+    SOURCE_PREDICTED_DISTANCE_TRAVELED_IN_CENTIMETERS = 33
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The directionless physical acceleration of the input pointer at the point
-    // in question, with values >= 0, in centimeters per second squared.
-    SOURCE_INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED = 34;
+    // Absolute acceleration of the modeled stroke input pointer in centimeters
+    // per second squared.
+    SOURCE_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED = 34
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed x component of the physical acceleration of the input pointer, in
-    // centimeters per second squared.
-    SOURCE_INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED = 35;
+    // Signed x component of the acceleration of the modeled stroke input
+    // pointer in centimeters per second squared.
+    SOURCE_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED = 35
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Signed y component of the physical acceleration of the input pointer, in
-    // centimeters per second squared.
-    SOURCE_INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED = 36;
+    // Signed y component of the acceleration of the modeled stroke input
+    // pointer in centimeters per second squared.
+    SOURCE_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED = 36
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The physical acceleration of the input pointer along its current
-    // direction of travel at the point in question, in centimeters per second
-    // squared. A positive value indicates that the pointer is accelerating
-    // along the current direction of travel, while a negative value indicates
-    // that the pointer is decelerating.
-    SOURCE_INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED = 37;
+    // Signed component of acceleration of the modeled stroke input pointer in
+    // the direction of its velocity in centimeters per second squared.
+    SOURCE_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED = 37
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The physical acceleration of the input pointer perpendicular to its
-    // current direction of travel at the point in question, in centimeters per
-    // second squared. If the X- and Y-axes of stroke space were rotated so that
-    // the positive X-axis points in the direction of stroke travel, then a
-    // positive value for this source indicates acceleration along the positive
-    // Y-axis (and a negative value indicates acceleration along the negative
-    // Y-axis).
-    SOURCE_INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED = 38;
+    // Signed component of acceleration of the modeled stroke input pointer
+    // perpendicular to its velocity, rotated 90 degrees in the direction from
+    // the positive x-axis towards the positive y-axis, in centimeters per
+    // second squared.
+    SOURCE_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED = 38
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // The distance left to be traveled from a given input to the current last
-    // input of the stroke, as a fraction of the current total length of the
-    // stroke. This value changes for each input as the stroke is drawn.
-    SOURCE_DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH = 39;
+    // Distance from the current modeled input to the end of the stroke along
+    // the input path, as a fraction of the current total length of the stroke.
+    // This value changes for each input as inputs are added.
+    SOURCE_DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH = 39
+        [(ink.proto.enum_value_min_version) = 0];
+
+    // Time elapsed (in seconds) since the final input of the stroke, or zero if
+    // the final input hasn't arrived yet. This can be used to drive wet-layer
+    // stroke animations that should occur after the final input. This source is
+    // only compatible with a `source_out_of_range_behavior` of
+    // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
+    SOURCE_TIME_SINCE_STROKE_END_IN_SECONDS = 40
+        [(ink.proto.enum_value_min_version) = 1];
+
+    // Time elapsed (in seconds) from the current modeled stroke input until the
+    // last input in the stroke.
+    SOURCE_TIME_FROM_INPUT_TO_STROKE_END_IN_SECONDS = 41
+        [(ink.proto.enum_value_min_version) = 2147483647];
   }
 
 
   // `BrushTip` properties that can be modified by a `BrushBehavior`.
   enum Target {
-    TARGET_UNSPECIFIED = 0;
+    TARGET_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // Scales the brush-tip width, starting from the value calculated using
-    // `BrushTip::scale_x`. The final brush width is clamped to a maximum of
-    // twice the baseline width. If multiple behaviors have this target or
-    // `TARGET_SIZE_MULTIPLIER`, they aggregate multiplicatively. (Therefore, if
-    // one behavior scales the width down to zero over time, it "wins out" over
-    // all other width-modifying behaviors.)
-    TARGET_WIDTH_MULTIPLIER = 1;
+    // `BrushTip::scale_x`. If multiple behaviors have this target, they stack
+    // multiplicatively.
+    TARGET_WIDTH_MULTIPLIER = 1 [(ink.proto.enum_value_min_version) = 0];
 
-    // Same as `TARGET_WIDTH_MULTIPLIER` but for height. Clamping and
-    // aggregation work the same way as for width.
-    TARGET_HEIGHT_MULTIPLIER = 2;
+    // Scales the brush-tip width, starting from the value calculated using
+    // `BrushTip::scale_y`. If multiple behaviors have this target, they stack
+    // multiplicatively.
+    TARGET_HEIGHT_MULTIPLIER = 2 [(ink.proto.enum_value_min_version) = 0];
 
-    // A convenience target that affects both width and height at once, in the
-    // same way that `TARGET_WIDTH_MULTIPLIER` does.
-    TARGET_SIZE_MULTIPLIER = 3;
+    // Convenience enumerator to target both `TARGET_WIDTH_MULTIPLIER` and
+    // `TARGET_HEIGHT_MULTIPLIER`.
+    TARGET_SIZE_MULTIPLIER = 3 [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the target modifier to `BrushTip::slant`. The final brush slant
     // value is clamped to [-π/2, π/2]. If multiple behaviors have this target,
     // they stack additively.
-    TARGET_SLANT_OFFSET_IN_RADIANS = 4;
+    TARGET_SLANT_OFFSET_IN_RADIANS = 4 [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the target modifier to `BrushTip::pinch`. The final brush pinch
     // value is clamped to [0, 1]. If multiple behaviors have this target, they
     // stack additively.
-    TARGET_PINCH_OFFSET = 5;
+    TARGET_PINCH_OFFSET = 5 [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the target modifier to `BrushTip::rotation`. The final brush
     // rotation angle is effectively normalized (mod 2π). If multiple behaviors
     // have this target, they stack additively.
-    TARGET_ROTATION_OFFSET_IN_RADIANS = 6;
+    TARGET_ROTATION_OFFSET_IN_RADIANS = 6
+        [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the target modifier to `BrushTip::corner_rounding`. The final brush
     // corner rounding value is clamped to [0, 1]. If multiple behaviors have
     // this target, they stack additively.
-    TARGET_CORNER_ROUNDING_OFFSET = 7;
+    TARGET_CORNER_ROUNDING_OFFSET = 7 [(ink.proto.enum_value_min_version) = 0];
 
     // Shifts the hue of the base brush color.  A positive offset shifts around
     // the hue wheel from red towards orange, while a negative offset shifts the
@@ -732,7 +887,7 @@ message BrushBehavior {
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_HUE_OFFSET_IN_RADIANS = 8;
+    TARGET_HUE_OFFSET_IN_RADIANS = 8 [(ink.proto.enum_value_min_version) = 0];
 
     // Scales the saturation of the base brush color.  If multiple behaviors
     // have one of these targets, they stack multiplicatively.  The final
@@ -741,15 +896,17 @@ message BrushBehavior {
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_SATURATION_MULTIPLIER = 9;
+    TARGET_SATURATION_MULTIPLIER = 9 [(ink.proto.enum_value_min_version) = 0];
 
-    // Target the luminosity of the color. An offset of +/-100% corresponds to
-    // changing the luminosity by up to +/-100%.
+    // Shifts the luminosity of the base brush color. An offset of ±1.0
+    // corresponds to changing the luminosity by up to ±100%. If multiple
+    // behaviors have this target, they stack additively.  The final luminosity
+    // offset is clamped to [-1, 1].
     //
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_LUMINOSITY = 10;
+    TARGET_LUMINOSITY_OFFSET = 10 [(ink.proto.enum_value_min_version) = 0];
 
     // Scales the opacity of the base brush color.  If multiple behaviors have
     // one of these targets, they stack multiplicatively.  The final opacity
@@ -758,27 +915,34 @@ message BrushBehavior {
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_OPACITY_MULTIPLIER = 11;
+    TARGET_OPACITY_MULTIPLIER = 11 [(ink.proto.enum_value_min_version) = 0];
 
-    // Adds the target modifier to the brush tip X position, where one distance
-    // unit is equal to the brush size.
-    TARGET_POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE = 12;
+    // Adds the target modifier to the brush tip x position in multiples of
+    // the brush size.
+    TARGET_POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE = 12
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Same as `TARGET_POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE` for Y.
-    TARGET_POSITION_OFFSET_Y_IN_MULTIPLES_OF_BRUSH_SIZE = 13;
+    // Adds the target modifier to the brush tip y position in multiples of
+    // the brush size.
+    TARGET_POSITION_OFFSET_Y_IN_MULTIPLES_OF_BRUSH_SIZE = 13
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Moves the brush tip center forward (or backward, for negative values)
-    // from the input position, in the current direction of stroke travel, where
-    // one distance unit is equal to the brush size.
-    TARGET_POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE = 14;
+    // Moves the brush tip by the target modifier times the brush size in the
+    // direction of the modeled stroke input's velocity (the opposite direction
+    // if the value is negative). For example, if a stroke is moving from left
+    // to right, a positive modifier will shift the brush tip to the right,
+    // and a negative modifier will shift the brush tip to the left.
+    TARGET_POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE = 14
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Moves the brush tip center sideways from the input position, relative to
-    // the direction of stroke travel, where one distance unit is equal to the
-    // brush size. If the X- and Y-axes of stroke space were rotated so that the
-    // positive X-axis points in the direction of stroke travel, then a positive
-    // value for this offset moves the brush tip center toward positive Y (and a
-    // negative value moves it toward negative Y).
-    TARGET_POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE = 15;
+    // Moves the brush tip by the target modifier times the brush size
+    // perpendicular to the modeled stroke input's velocity, rotated 90 degrees
+    // in the direction from the positive x-axis to the positive y-axis. For
+    // example, if positive-Y is up, and a stroke is moving from left to right,
+    // a positive modifier will shift the brush tip up, and a negative modifier
+    // will shift the brush tip down.
+    TARGET_POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE = 15
+        [(ink.proto.enum_value_min_version) = 0];
 
     reserved 16;
     reserved 17;
@@ -787,14 +951,15 @@ message BrushBehavior {
 
   // Like `Target`, but for vector values.
   enum PolarTarget {
-    POLAR_UNSPECIFIED = 0;
+    POLAR_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the vector to the brush tip's absolute x/y position in stroke space,
     // where the angle input is measured in radians and the magnitude input is
     // measured in units equal to the brush size. An angle of zero indicates an
     // offset in the direction of the positive X-axis in stroke space; an angle
     // of π/2 indicates the direction of the positive Y-axis in stroke space.
-    POLAR_POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE = 1;
+    POLAR_POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE = 1
+        [(ink.proto.enum_value_min_version) = 0];
 
     // Adds the vector to the brush tip's forward/lateral position relative to
     // the current direction of input travel, where the angle input is measured
@@ -806,17 +971,18 @@ message BrushBehavior {
     // an angle of π/2 would indicate a lateral offset towards the positive
     // Y-axis, and an angle of -π/2 would indicate a lateral offset towards the
     // negative Y-axis.
-    POLAR_POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE = 2;
+    POLAR_POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE = 2
+        [(ink.proto.enum_value_min_version) = 0];
   }
 
 
   // The desired behavior when an input value is outside the bounds of
   // `source_value_range`.
   enum OutOfRange {
-    OUT_OF_RANGE_UNSPECIFIED = 0;
+    OUT_OF_RANGE_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // Values outside the range will be clamped to not exceed the bounds.
-    OUT_OF_RANGE_CLAMP = 1;
+    OUT_OF_RANGE_CLAMP = 1 [(ink.proto.enum_value_min_version) = 0];
 
     // Values will be shifted by an integer multiple of the range size so that
     // they fall within the bounds.
@@ -824,75 +990,81 @@ message BrushBehavior {
     // In this case, the range will be treated as a half-open interval, with a
     // value exactly at `source_value_range[1]` being treated as though it was
     // `source_value_range[0]`.
-    OUT_OF_RANGE_REPEAT = 2;
+    OUT_OF_RANGE_REPEAT = 2 [(ink.proto.enum_value_min_version) = 0];
 
     // Similar to `OUT_OF_RANGE_REPEAT`, but every other repetition of the
     // bounds will be mirrored, as though the two elements of
     // `source_value_range` were swapped. This means the range does not need to
     // be treated as a half-open interval like in the case of
     // `OUT_OF_RANGE_REPEAT`.
-    OUT_OF_RANGE_MIRROR = 3;
-  }
-
-
-  // List of input properties that might not be reported by `StrokeInput`.
-  enum OptionalInputProperty {
-    OPTIONAL_INPUT_UNSPECIFIED = 0;
-    OPTIONAL_INPUT_PRESSURE = 1;
-    OPTIONAL_INPUT_TILT = 2;
-    OPTIONAL_INPUT_ORIENTATION = 3;
-
-    // Tilt-x and tilt-y require both tilt and orientation to be reported.
-    OPTIONAL_INPUT_TILT_X_AND_Y = 4;
+    OUT_OF_RANGE_MIRROR = 3 [(ink.proto.enum_value_min_version) = 0];
   }
 
 
   // A binary operation for combining two values in a `BinaryOpNode`.
   enum BinaryOp {
-    BINARY_OP_UNSPECIFIED = 0;
+    BINARY_OP_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // A * B, or null if either is null
-    BINARY_OP_PRODUCT = 1;
+    BINARY_OP_PRODUCT = 1 [(ink.proto.enum_value_min_version) = 0];
 
     // A + B, or null if either is null
-    BINARY_OP_SUM = 2;
+    BINARY_OP_SUM = 2 [(ink.proto.enum_value_min_version) = 0];
+
+    // min(A, B), or null if either is null
+    BINARY_OP_MIN = 3 [(ink.proto.enum_value_min_version) = 1];
+
+    // max(A, B), or null if either is null
+    BINARY_OP_MAX = 4 [(ink.proto.enum_value_min_version) = 1];
+
+    // null if A is null, or B otherwise
+    BINARY_OP_AND_THEN = 5 [(ink.proto.enum_value_min_version) = 1];
+
+    // A if A isn't null, or B otherwise
+    BINARY_OP_OR_ELSE = 6 [(ink.proto.enum_value_min_version) = 1];
+
+    // A if B is null, or B if A is null, or null if neither is null
+    BINARY_OP_XOR_ELSE = 7 [(ink.proto.enum_value_min_version) = 1];
   }
 
 
-  // Dimensions/units for measuring the `damping_gap` field of a `DampingNode`.
-  enum DampingSource {
-    DAMPING_SOURCE_UNSPECIFIED = 0;
+  // Dimensions and units for measuring distance/time along the length/duration
+  // of a stroke.
+  enum ProgressDomain {
+    PROGRESS_DOMAIN_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
-    // Value damping occurs over time, and the `damping_gap` is measured in
+    // Progress in input time since the start of the stroke, measured in
     // seconds.
-    DAMPING_SOURCE_TIME_IN_SECONDS = 1;
+    PROGRESS_DOMAIN_TIME_IN_SECONDS = 1
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Value damping occurs over distance traveled by the input pointer, and the
-    // `damping_gap` is measured in centimeters. If the input data does not
-    // indicate the relationship between stroke units and physical units
-    // (e.g. as may be the case for programmatically-generated inputs), then no
-    // damping will be performed (i.e. the `damping_gap` will be treated as
-    // zero).
-    DAMPING_SOURCE_DISTANCE_IN_CENTIMETERS = 2;
+    // Progress in input distance traveled since the start of the stroke,
+    // measured in centimeters. If the stroke input data does not indicate the
+    // relationship between stroke units and physical units (e.g. as may be the
+    // case for programmatically-generated inputs), then any node relying on
+    // this domain will emit null.
+    PROGRESS_DOMAIN_DISTANCE_IN_CENTIMETERS = 2
+        [(ink.proto.enum_value_min_version) = 0];
 
-    // Value damping occurs over distance traveled by the input pointer, and the
-    // `damping_gap` is measured in multiples of the brush size.
-    DAMPING_SOURCE_DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE = 3;
+    // Progress in input distance traveled since the start of the stroke,
+    // measured in multiples of the brush size.
+    PROGRESS_DOMAIN_DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE = 3
+        [(ink.proto.enum_value_min_version) = 0];
   }
 
 
   // An interpolation function for combining three values in an
   // `InterpolationNode`.
   enum Interpolation {
-    INTERPOLATION_UNSPECIFIED = 0;
+    INTERPOLATION_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
     // Linear interpolation. Uses parameter A to interpolate between B (when
     // A=0) and C (when A=1).
-    INTERPOLATION_LERP = 1;
+    INTERPOLATION_LERP = 1 [(ink.proto.enum_value_min_version) = 0];
 
     // Inverse linear interpolation. Outputs 0 when A=B and 1 when A=C,
     // interpolating linearly in between. Outputs null if B=C.
-    INTERPOLATION_INVERSE_LERP = 2;
+    INTERPOLATION_INVERSE_LERP = 2 [(ink.proto.enum_value_min_version) = 0];
   }
 
   // A single node in a behavior's graph. Each node type is either a "value
@@ -901,19 +1073,26 @@ message BrushBehavior {
   // applies some effect to the brush tip (but does not produce any output
   // value).
   message Node {
+    option (ink.proto.message_min_version) = 0;
+
     oneof node {
-      SourceNode source_node = 1;
-      ConstantNode constant_node = 2;
-      FallbackFilterNode fallback_filter_node = 3;
-      ToolTypeFilterNode tool_type_filter_node = 4;
-      DampingNode damping_node = 5;
-      ResponseNode response_node = 6;
-      BinaryOpNode binary_op_node = 7;
-      TargetNode target_node = 8;
-      InterpolationNode interpolation_node = 9;
-      NoiseNode noise_node = 10;
-      PolarTargetNode polar_target_node = 11;
+      SourceNode source_node = 1 [(ink.proto.field_min_version) = 0];
+      ConstantNode constant_node = 2 [(ink.proto.field_min_version) = 0];
+      ToolTypeFilterNode tool_type_filter_node = 4
+          [(ink.proto.field_min_version) = 0];
+      DampingNode damping_node = 5 [(ink.proto.field_min_version) = 0];
+      ResponseNode response_node = 6 [(ink.proto.field_min_version) = 0];
+      BinaryOpNode binary_op_node = 7 [(ink.proto.field_min_version) = 0];
+      TargetNode target_node = 8 [(ink.proto.field_min_version) = 0];
+      InterpolationNode interpolation_node = 9
+          [(ink.proto.field_min_version) = 0];
+      NoiseNode noise_node = 10 [(ink.proto.field_min_version) = 0];
+      PolarTargetNode polar_target_node = 11
+          [(ink.proto.field_min_version) = 0];
+      IntegralNode integral_node = 12 [(ink.proto.field_min_version) = 1];
     }
+    // Removed Node types go here (reserved needs to be outside oneof).
+    reserved 3;
   }
 
   // Value node for getting data from the stroke input batch.
@@ -929,21 +1108,27 @@ message BrushBehavior {
   // To be valid:
   //   * `source` must be a valid `Source` enumerator.
   //   * `source_out_of_range_behavior` must be a valid `OutOfRange` enumerator.
-  //   * The endpoints of `source_value_range` must be finite and distinct.
+  //   * `source_value_range_start` and `source_value_range_end` must be finite
+  //     and distinct.
   message SourceNode {
+    option (ink.proto.message_min_version) = 0;
+
     // What property of the stroke input to use for source values for this node.
-    optional Source source = 1;
+    optional Source source = 1 [(ink.proto.field_min_version) = 0];
 
     // What to do with source values outside the source value range.
-    optional OutOfRange source_out_of_range_behavior = 2;
+    optional OutOfRange source_out_of_range_behavior = 2
+        [(ink.proto.field_min_version) = 0];
 
     // The source value that maps to 0.0 in the output. Below this value,
     // `out_of_range_behavior` determines the output value.
-    optional float source_value_range_start = 3;
+    optional float source_value_range_start = 3
+        [(ink.proto.field_min_version) = 0];
 
     // The source value that maps to 1.0 in the output. Above this value,
     // `out_of_range_behavior` determines the output value.
-    optional float source_value_range_end = 4;
+    optional float source_value_range_end = 4
+        [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for producing a constant value.
@@ -954,7 +1139,9 @@ message BrushBehavior {
   //
   // To be valid: `value` must be finite.
   message ConstantNode {
-    optional float value = 1;
+    option (ink.proto.message_min_version) = 0;
+
+    optional float value = 1 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for producing a continuous random noise function with values
@@ -965,33 +1152,21 @@ message BrushBehavior {
   // Output: The current random value.
   //
   // To be valid:
-  //   * `vary_over` must be a valid `DampingSource` enumerator.
+  //   * `vary_over` must be a valid `ProgressDomain` enumerator.
   //   * `base_period` must be finite and strictly positive.
   message NoiseNode {
-    optional fixed32 seed = 1;
+    option (ink.proto.message_min_version) = 0;
+
+    optional fixed32 seed = 1 [(ink.proto.field_min_version) = 0];
 
     // The domain units over which random noise is generated.
-    optional DampingSource vary_over = 2;
+    optional ProgressDomain vary_over = 2 [(ink.proto.field_min_version) = 0];
 
     // The period (in `vary_over` units) over which the output value smoothly
     // varies from one random value to another uncorrelated random value. (In
     // other words, if two points in the input are separated by at least this
     // period, their output values are uncorrelated.)
-    optional float base_period = 3;
-  }
-
-  // Value node for filtering out a branch of a behavior graph unless a
-  // particular stroke input property is missing.
-  //
-  // Inputs: 1
-  //
-  // Output: Null if the specified property is present in the stroke input
-  // batch, otherwise the input value.
-  //
-  // To be valid: `is_fallback_for` must be a valid `OptionalInputProperty`
-  // enumerator.
-  message FallbackFilterNode {
-    optional OptionalInputProperty is_fallback_for = 1;
+    optional float base_period = 3 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for filtering out a branch of a behavior graph unless this
@@ -1004,11 +1179,13 @@ message BrushBehavior {
   //
   // To be valid: At least one tool type must be enabled.
   message ToolTypeFilterNode {
+    option (ink.proto.message_min_version) = 0;
+
     // A bitset of tool types, using ink.proto.CodedStrokeInputBatch.ToolType
     // enum values as bit numbers for each tool type.  For example, if only
     // touch and stylus are enabled, then the value of this field should be:
     //   ((1 << ToolType.TOUCH) | (1 << ToolType.STYLUS))
-    optional uint32 enabled_tool_types = 1;
+    optional uint32 enabled_tool_types = 1 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for damping changes in an input value, causing the output value
@@ -1022,16 +1199,19 @@ message BrushBehavior {
   // null, the output value is null until the first non-null input.
   //
   // To be valid:
-  //   * `damping_source` must be a valid `DampingSource` enumerator.
+  //   * `damping_source` must be a valid `ProgressDomain` enumerator.
   //   * `damping_gap` must be finite and non-negative.
   message DampingNode {
+    option (ink.proto.message_min_version) = 0;
+
     // The domain units over which damping is applied.
-    optional DampingSource damping_source = 1;
+    optional ProgressDomain damping_source = 1
+        [(ink.proto.field_min_version) = 0];
 
     // A scaling factor, in `damping_source` units, for the damping. Smaller
     // gaps result in less damping, so the output follows the input more
     // closely.
-    optional float damping_gap = 2;
+    optional float damping_gap = 2 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for mapping a value through a response curve.
@@ -1043,11 +1223,17 @@ message BrushBehavior {
   //
   // To be valid: `response_curve` must be a valid `EasingFunction`.
   message ResponseNode {
+    option (ink.proto.message_min_version) = 0;
+
     oneof response_curve {
-      PredefinedEasingFunction predefined_response_curve = 1;
-      CubicBezierEasingFunction cubic_bezier_response_curve = 2;
-      LinearEasingFunction linear_response_curve = 3;
-      StepsEasingFunction steps_response_curve = 4;
+      PredefinedEasingFunction predefined_response_curve = 1
+          [(ink.proto.field_min_version) = 0];
+      CubicBezierEasingFunction cubic_bezier_response_curve = 2
+          [(ink.proto.field_min_version) = 0];
+      LinearEasingFunction linear_response_curve = 3
+          [(ink.proto.field_min_version) = 0];
+      StepsEasingFunction steps_response_curve = 4
+          [(ink.proto.field_min_version) = 0];
     }
   }
 
@@ -1061,7 +1247,9 @@ message BrushBehavior {
   //
   // To be valid: `operation` must be a valid `BinaryOp` enumerator.
   message BinaryOpNode {
-    optional BinaryOp operation = 1;
+    option (ink.proto.message_min_version) = 0;
+
+    optional BinaryOp operation = 1 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for interpolating to/from a range of two values.
@@ -1074,7 +1262,50 @@ message BrushBehavior {
   //
   // To be valid: `interpolation` must be a valid `Interpolation` enumerator.
   message InterpolationNode {
-    optional Interpolation interpolation = 1;
+    option (ink.proto.message_min_version) = 0;
+
+    optional Interpolation interpolation = 1
+        [(ink.proto.field_min_version) = 0];
+  }
+
+  // Value node for integrating an input value over time or distance.
+  //
+  // Inputs: 1
+  //
+  // Output: The integral of the input value since the start of the stroke,
+  // after inverse-lerping from the specified value range and applying the
+  // specified out-of-range behavior. If the input value ever becomes null, this
+  // node acts as though the input value were still equal to its most recent
+  // non-null value. If the input value starts out null, it is treated as zero
+  // until the first non-null input.
+  //
+  // To be valid:
+  //   * `integrate_over` must be a valid `ProgressDomain` enumerator.
+  //   * `integral_value_range_start` and `integral_value_range_end` must be
+  //     finite and distinct.
+  //   * `integral_out_of_range_behavior` must be a valid `OutOfRange`
+  //     enumerator.
+  message IntegralNode {
+    option (ink.proto.message_min_version) = 1;
+
+    // The variable and units (e.g. time or distance) over which the input value
+    // is integrated.
+    optional ProgressDomain integrate_over = 1
+        [(ink.proto.field_min_version) = 1];
+
+    // The integral value that maps to 0.0 in the output. Below this value,
+    // `out_of_range_behavior` determines the output value.
+    optional float integral_value_range_start = 2
+        [(ink.proto.field_min_version) = 1];
+
+    // The integral value that maps to 1.0 in the output. Above this value,
+    // `out_of_range_behavior` determines the output value.
+    optional float integral_value_range_end = 3
+        [(ink.proto.field_min_version) = 1];
+
+    // What to do with integral values outside the integral value range.
+    optional OutOfRange integral_out_of_range_behavior = 4
+        [(ink.proto.field_min_version) = 1];
   }
 
   // Terminal node that consumes a single input value to modify a scalar brush
@@ -1089,16 +1320,21 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `target` must be a valid `Target` enumerator.
-  //   * The endpoints of `target_modifier_range` must be finite and distinct.
+  //   * `target_modifier_range_start` and `target_modifier_range_end` must be
+  //     finite and distinct.
   message TargetNode {
+    option (ink.proto.message_min_version) = 0;
+
     // What aspect of the brush to affect, and how.
-    optional Target target = 1;
+    optional Target target = 1 [(ink.proto.field_min_version) = 0];
 
     // The output value produced by an input value of 0.0.
-    optional float target_modifier_range_start = 2;
+    optional float target_modifier_range_start = 2
+        [(ink.proto.field_min_version) = 0];
 
     // The output value produced by an input value of 1.0.
-    optional float target_modifier_range_end = 3;
+    optional float target_modifier_range_end = 3
+        [(ink.proto.field_min_version) = 0];
   }
 
   // Terminal node that consumes two input values (angle and magnitude), forming
@@ -1114,67 +1350,102 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `target` must be a valid `PolarTarget` enumerator.
-  //   * The endpoints of `angle_range` and of `magnitude_range` must be finite
-  //     and distinct.
+  //   * `angle_range_start` and `angle_range_end` must be finite and distinct.
+  //   * `magnitude_range_start` and `magnitude_range_end` must be finite and
+  //     distinct.
   message PolarTargetNode {
+    option (ink.proto.message_min_version) = 0;
+
     // What aspect of the brush to affect, and how.
-    optional PolarTarget target = 1;
+    optional PolarTarget target = 1 [(ink.proto.field_min_version) = 0];
 
     // The output angle produced by a value of 0.0 for the first input.
-    optional float angle_range_start = 2;
+    optional float angle_range_start = 2 [(ink.proto.field_min_version) = 0];
 
     // The output angle produced by a value of 1.0 for the first input.
-    optional float angle_range_end = 3;
+    optional float angle_range_end = 3 [(ink.proto.field_min_version) = 0];
 
     // The output magnitude produced by a value of 0.0 for the second input.
-    optional float magnitude_range_start = 4;
+    optional float magnitude_range_start = 4
+        [(ink.proto.field_min_version) = 0];
 
     // The output magnitude produced by a value of 1.0 for the second input.
-    optional float magnitude_range_end = 5;
+    optional float magnitude_range_end = 5 [(ink.proto.field_min_version) = 0];
   }
 
   // A post-order traversal of the graph of Nodes.
-  repeated Node nodes = 15;
+  repeated Node nodes = 15 [(ink.proto.field_min_version) = 0];
 
   // Were fields controlling brush behavior, use `nodes` instead.
   reserved 1 to 14;
+
+  // A multi-line, human-readable string with a description of this brush
+  // behavior and its purpose within the brush, with the intended audience being
+  // designers/developers who are editing the brush definition. This string is
+  // not generally intended to be displayed to end users.
+  optional string developer_comment = 16 [(ink.proto.field_min_version) = 0];
+}
+
+// Transforms the brush color to be used as an alternative base color for any
+// effects or textures in a `BrushCoat`.
+message ColorFunction {
+  option (ink.proto.message_min_version) = 0;
+
+  oneof function {
+    // Applies a multiplier to the color's opacity.  The multiplier must be
+    // finite and nonnegative.  Typical multiplier values range between 0 and 1.
+    float opacity_multiplier = 1 [(ink.proto.field_min_version) = 0];
+    // Ignores the original color and replaces it with a fixed color.
+    Color replace_color = 2 [(ink.proto.field_min_version) = 0];
+    // Applies an additive offset to the color's hue angle.  The offset angle
+    // must be finite, but can be positive or negative (or zero).
+    float hue_offset_radians = 3 [(ink.proto.field_min_version) = 2147483647];
+    // Applies a multiplier to the color's saturation.  The multiplier must be
+    // finite and nonnegative.  Typical multiplier values range between 0 and 1.
+    float saturation_multiplier = 4
+        [(ink.proto.field_min_version) = 2147483647];
+    // Applies an additive offset to the color's luminosity.  The offset must be
+    // finite, but can be positive or negative (or zero).  Typical offset values
+    // range between -1 and 1.
+    float luminosity_offset = 5 [(ink.proto.field_min_version) = 2147483647];
+  }
 }
 
 
 // Specifies a predefined easing function.
 enum PredefinedEasingFunction {
-  PREDEFINED_EASING_UNSPECIFIED = 0;
+  PREDEFINED_EASING_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
   // The linear identity function: accepts and returns values outside [0, 1].
-  PREDEFINED_EASING_LINEAR = 1;
+  PREDEFINED_EASING_LINEAR = 1 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined cubic Bezier function:
   // https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions (see note
   // on `CubicBezier` about input values outside [0, 1])
-  PREDEFINED_EASING_EASE = 2;
+  PREDEFINED_EASING_EASE = 2 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined cubic Bezier function:
   // https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions (see note
   // on `CubicBezier` about input values outside [0, 1])
-  PREDEFINED_EASING_EASE_IN = 3;
+  PREDEFINED_EASING_EASE_IN = 3 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined cubic Bezier function:
   // https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions (see note
   // on `CubicBezier` about input values outside [0, 1])
-  PREDEFINED_EASING_EASE_OUT = 4;
+  PREDEFINED_EASING_EASE_OUT = 4 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined cubic Bezier function:
   // https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions (see note
   // on `CubicBezier` about input values outside [0, 1])
-  PREDEFINED_EASING_EASE_IN_OUT = 5;
+  PREDEFINED_EASING_EASE_IN_OUT = 5 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined step functions:
   // https://www.w3.org/TR/css-easing-1/#step-easing-functions
-  PREDEFINED_EASING_STEP_START = 6;
+  PREDEFINED_EASING_STEP_START = 6 [(ink.proto.enum_value_min_version) = 0];
 
   // Predefined step functions:
   // https://www.w3.org/TR/css-easing-1/#step-easing-functions
-  PREDEFINED_EASING_STEP_END = 7;
+  PREDEFINED_EASING_STEP_END = 7 [(ink.proto.enum_value_min_version) = 0];
 }
 
 // Parameters for a custom cubic Bezier easing function.
@@ -1194,10 +1465,12 @@ enum PredefinedEasingFunction {
 // cubic Bezier that allows extrapolated values outside x in [0, 1] by
 // following end-point tangents.
 message CubicBezierEasingFunction {
-  optional float x1 = 1;
-  optional float y1 = 2;
-  optional float x2 = 3;
-  optional float y2 = 4;
+  option (ink.proto.message_min_version) = 0;
+
+  optional float x1 = 1 [(ink.proto.field_min_version) = 0];
+  optional float y1 = 2 [(ink.proto.field_min_version) = 0];
+  optional float x2 = 3 [(ink.proto.field_min_version) = 0];
+  optional float y2 = 4 [(ink.proto.field_min_version) = 0];
 }
 
 // Parameters for a custom piecewise-linear easing function.
@@ -1221,36 +1494,38 @@ message CubicBezierEasingFunction {
 // If the input x-value is outside the interval [0, 1], the output will be
 // extrapolated from the first/last line segment.
 message LinearEasingFunction {
+  option (ink.proto.message_min_version) = 0;
+
   // These two lists must have the same length.
-  repeated float x = 1 [packed = true];
-  repeated float y = 2 [packed = true];
+  repeated float x = 1 [packed = true, (ink.proto.field_min_version) = 0];
+  repeated float y = 2 [packed = true, (ink.proto.field_min_version) = 0];
 }
 
 
 // Setting to determine the desired output value of the first and last
 // step of [0, 1) for the Steps EasingFunction. See below for more context.
 enum StepPosition {
-  STEP_POSITION_UNSPECIFIED = 0;
+  STEP_POSITION_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
 
   // The step function "jumps" at the start of [0, 1):
   //   * for x in [0, 1/step_count)      =>     y = 1/step_count
   //   * for x in [1 - 1/step_count, 1)  =>     y = 1
-  STEP_POSITION_JUMP_START = 1;
+  STEP_POSITION_JUMP_START = 1 [(ink.proto.enum_value_min_version) = 0];
 
   // The step function "jumps" at the end of [0, 1):
   //   * for x in [0, 1/step_count)      =>     y = 0
   //   * for x in [1 - 1/step_count, 1)  =>     y = 1 - 1/step_count
-  STEP_POSITION_JUMP_END = 2;
+  STEP_POSITION_JUMP_END = 2 [(ink.proto.enum_value_min_version) = 0];
 
   // The step function does not "jump" at either boundary:
   //   * for x in [0, 1/step_count)      =>     y = 0
   //   * for x in [1 - 1/step_count, 1)  =>     y = 1
-  STEP_POSITION_JUMP_NONE = 3;
+  STEP_POSITION_JUMP_NONE = 3 [(ink.proto.enum_value_min_version) = 0];
 
   // The step function "jumps" at both the start and the end:
   //   * for x in [0, 1/step_count)      =>     y = 1/(step_count + 1)
   //   * for x in [1 - 1/step_count, 1)  =>     y = 1 - 1/(step_count + 1)
-  STEP_POSITION_JUMP_BOTH = 4;
+  STEP_POSITION_JUMP_BOTH = 4 [(ink.proto.enum_value_min_version) = 0];
 }
 
 // Parameters for a custom step easing function.
@@ -1264,12 +1539,14 @@ enum StepPosition {
 // The behavior and naming follows the CSS steps() specification at:
 // https:www.w3.org/TR/css-easing-1/#step-easing-functions
 message StepsEasingFunction {
+  option (ink.proto.message_min_version) = 0;
+
   // The number of steps.
   //
   // Must always be greater than 0, and must be greater than 1 if
   // `step_position` is `kJumpNone`.
-  optional int32 step_count = 1;
+  optional int32 step_count = 1 [(ink.proto.field_min_version) = 0];
 
   // Position of the step(s)
-  optional StepPosition step_position = 2;
+  optional StepPosition step_position = 2 [(ink.proto.field_min_version) = 0];
 }

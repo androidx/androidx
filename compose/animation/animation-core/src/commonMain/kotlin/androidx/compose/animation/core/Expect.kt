@@ -25,3 +25,5 @@ internal expect class AtomicReference<V>(value: V) {
 
     fun compareAndSet(expect: V, newValue: V): Boolean
 }
+
+internal expect fun getCurrentThread(): Any

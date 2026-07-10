@@ -45,6 +45,7 @@ import java.util.ArrayList;
  * Tests for {@link IntentSanitizer}
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class IntentSanitizerTest {
     //private Context mContext;
     private static final ComponentName TEST_COMPONENT = new ComponentName(

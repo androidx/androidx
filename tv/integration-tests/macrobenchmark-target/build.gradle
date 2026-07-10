@@ -18,30 +18,27 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
 
     namespace = "androidx.tv.integration.macrobenchmark.target"
 
     defaultConfig {
-        minSdk = 28
+        minSdk { version = release(28) }
     }
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+            optimization {
+                enable = true
+            }
         }
     }
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.runtime:runtime-tracing:1.7.3")
 

@@ -59,6 +59,9 @@
         <activity android:name="androidx.fragment.app.TestAppCompatActivity"
                   android:theme="@style/Theme.AppCompat.Light" />
         <activity android:name="androidx.fragment.app.AddTransitionFragmentInActivity"/>
+
+        <activity android:name="androidx.fragment.app.TestActivity"/>
+        <activity android:name="androidx.fragment.app.FragmentViewModelLazyTest$TestActivity"/>
     </application>
 
 </manifest>

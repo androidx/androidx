@@ -136,11 +136,10 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |foo
-                |  Metric   [min 0.0](file://iter0.trace),   [median 1.1](file://iter1.trace),   [max 2.2](file://iter2.trace)
-                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
-                |
-            """
+            |foo
+            |  Metric   [min 0.0](file://iter0.trace),   [median 1.1](file://iter1.trace),   [max 2.2](file://iter2.trace)
+            |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+            |"""
                 .trimMargin(),
             summary.summaryV2,
         )
@@ -164,12 +163,11 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |foo
-                |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
-                |  Metric2   [min   0.0](file://iter2.trace),   [median 111.0](file://iter1.trace),   [max 222.0](file://iter0.trace)
-                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
-                |
-            """
+            |foo
+            |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
+            |  Metric2   [min   0.0](file://iter2.trace),   [median 111.0](file://iter1.trace),   [max 222.0](file://iter0.trace)
+            |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+            |"""
                 .trimMargin(),
             summary.summaryV2,
         )
@@ -192,11 +190,10 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |foo
-                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
-                |
-            """
+            |foo
+            |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+            |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+            |"""
                 .trimMargin(),
             summary.summaryV2,
         )
@@ -218,12 +215,11 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |foo
-                |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
-                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
-                |
-            """
+            |foo
+            |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
+            |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
+            |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+            |"""
                 .trimMargin(),
             summary.summaryV2,
         )
@@ -244,9 +240,9 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |warning
-                |string
-                |            0.0 ns    foo
+            |warning
+            |string
+            |            0.0 ns    foo
             """
                 .trimMargin(),
             summary.summaryV2,
@@ -273,13 +269,12 @@ class InstrumentationResultsTest {
             )
         assertEquals(
             """
-                |warning
-                |string
-                |foo
-                |  Metric   [min 0.0](file://iter0.trace),   [median 1.0](file://iter1.trace),   [max 2.0](file://iter2.trace)
-                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
-                |
-            """
+            |warning
+            |string
+            |foo
+            |  Metric   [min 0.0](file://iter0.trace),   [median 1.0](file://iter1.trace),   [max 2.0](file://iter2.trace)
+            |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+            |"""
                 .trimMargin(),
             summary.summaryV2,
         )

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("CameraStateExt")
 
 package androidx.xr.arcore.playservices
 
 import android.os.Build
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.internal.PerceptionRuntime
+import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.StateExtender
-import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.math.Matrix4
 import com.google.ar.core.Coordinates2d
@@ -32,6 +33,9 @@ import java.nio.FloatBuffer
 import kotlin.time.ComparableTimeMark
 
 /** [StateExtender] in charge of extending [CoreState] with [CameraState]. */
+// TODO(b/500400207): Dynamically load if play-services runtime is loaded and CAMERA feature
+// detected.
+@Suppress("NotCloseable")
 internal class CameraStateExtender : StateExtender {
 
     internal companion object {
@@ -44,47 +48,94 @@ internal class CameraStateExtender : StateExtender {
 
     internal lateinit var perceptionManager: ArCorePerceptionManager
 
+    private var isInitialized = false
+    private var isPlayServicesEnvironment = false
+    private var outputVerticesBuffer: FloatBuffer? = null
+    private var hasProvidedTransform = false
+
     override fun initialize(runtimes: List<JxrRuntime>) {
-        perceptionManager =
-            runtimes.filterIsInstance<PerceptionRuntime>().first().perceptionManager
-                as ArCorePerceptionManager
+        isInitialized = true
+
+        val manager =
+            runtimes.filterIsInstance<PerceptionRuntime>().firstOrNull()?.perceptionManager
+        if (manager is ArCorePerceptionManager) {
+            perceptionManager = manager
+            isPlayServicesEnvironment = true
+        }
     }
 
     override suspend fun extend(coreState: CoreState) {
-        check(this::perceptionManager.isInitialized) { "CameraStateExtender is not initialized." }
+        check(isInitialized) { "CameraStateExtender is not initialized." }
+        if (!isPlayServicesEnvironment) return
         synchronized(perceptionManager.frameLock) { updateCameraStateMap(coreState) }
     }
 
-    internal fun close() {
+    override fun close() {
         cameraStateMap.clear()
         timeMarkQueue.clear()
+        outputVerticesBuffer = null
+        hasProvidedTransform = false
     }
 
-    private fun getTransformCoordinates2DFunction(): ((FloatBuffer) -> FloatBuffer)? =
-        if (perceptionManager.displayChanged)
-            { inputVertices: FloatBuffer ->
-                val outputVertices =
-                    ByteBuffer.allocateDirect(inputVertices.capacity() * 4)
-                        .order(ByteOrder.nativeOrder())
-                        .asFloatBuffer()
+    private fun getTransformCoordinates2DFunction(): ((FloatBuffer) -> FloatBuffer)? {
+        if (!perceptionManager.isSessionInitialized) {
+            return null
+        }
+
+        // TODO(b/505484455): Monitor the CameraConfig and/or ImageStabilizationMode of the ARCore
+        // session to force coordinate transformation recalculation when the hardware or software
+        // configuration changes.
+
+        if (!perceptionManager.displayChanged && hasProvidedTransform) {
+            return null
+        }
+
+        return { inputVertices: FloatBuffer ->
+            val originalPosition = inputVertices.position()
+            inputVertices.rewind()
+            try {
+                val requiredCapacity = inputVertices.limit()
                 synchronized(perceptionManager.frameLock) {
+                    var outputVertices = outputVerticesBuffer
+                    if (outputVertices == null || outputVertices.capacity() < requiredCapacity) {
+                        outputVertices =
+                            ByteBuffer.allocateDirect(requiredCapacity * 4)
+                                .order(ByteOrder.nativeOrder())
+                                .asFloatBuffer()
+                        outputVerticesBuffer = outputVertices
+                    }
+                    outputVertices.clear()
+                    outputVertices.limit(requiredCapacity)
+
                     perceptionManager._latestFrame.transformCoordinates2d(
                         Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
                         inputVertices,
                         Coordinates2d.TEXTURE_NORMALIZED,
                         outputVertices,
                     )
+                    perceptionManager.displayChanged = false
+                    hasProvidedTransform = true
+                    outputVertices.rewind()
+                    outputVertices
                 }
-                perceptionManager.displayChanged = false
-                outputVertices
+            } finally {
+                inputVertices.position(originalPosition)
             }
-        else {
-            null
         }
+    }
 
     private fun getCameraState(coreState: CoreState): CameraState {
         val camera = perceptionManager._latestFrame.camera
-        if (camera.trackingState == ARCoreTrackingState.TRACKING) {
+
+        /**
+         * When using the front-facing camera in ARCore 1.x, the Camera's TrackingState will always
+         * be PAUSED, so in that case we need to ignore trackingState and populate the rest of the
+         * values anyway, since an AR feature like FaceMesh tracking is likely being done.
+         */
+        if (
+            camera.trackingState == ARCoreTrackingState.TRACKING ||
+                perceptionManager.usingFrontFacingCamera
+        ) {
             val projectionMatrixData = FloatArray(16)
             camera.getProjectionMatrix(
                 projectionMatrixData,
@@ -126,7 +177,8 @@ internal class CameraStateExtender : StateExtender {
     }
 }
 
-/** The state of the ARCore 1.x Camera. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/** Camera state containing information about the device camera. */
+@Suppress("ExperimentalPropertyAnnotation")
 public val CoreState.cameraState: CameraState?
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     get() = CameraStateExtender.cameraStateMap[this.timeMark]

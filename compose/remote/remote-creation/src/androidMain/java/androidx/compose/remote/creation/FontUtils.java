@@ -21,8 +21,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapFontData;
 
 import org.jspecify.annotations.NonNull;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FontUtils {
     private FontUtils() {}
 
@@ -41,7 +43,7 @@ public class FontUtils {
      * @param paint
      * @param fontId
      */
-    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.O)
+    @RequiresApi(26)
     public static void setFontOnPaint(
             @NonNull Activity activity, @NonNull Paint paint, int fontId) {
         Typeface typeface = activity.getResources().getFont(fontId);

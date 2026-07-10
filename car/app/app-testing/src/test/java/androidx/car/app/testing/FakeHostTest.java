@@ -32,6 +32,7 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 
 /** Tests for {@link FakeHost}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class FakeHostTest {
     private final TestCarContext mCarContext =

@@ -35,14 +35,21 @@ import androidx.wear.compose.material3.FadingExpandingLabel
 @Sampled
 @Composable
 fun FadingExpandingLabelButtonSample() {
-    var text by remember { mutableStateOf("Text Text Text Text") }
+    var text by remember { mutableStateOf("Line of Text One.") }
     var lines by remember { mutableIntStateOf(1) }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(
             onClick = {
                 lines = lines % 3 + 1
-                text = (1..lines).joinToString(separator = " ") { "Text Text Text Text" }
+                text =
+                    (1..lines).joinToString(separator = "\n") {
+                        when (it) {
+                            1 -> "Line of Text One."
+                            2 -> "Line of Text Two."
+                            else -> "Line of Text Three."
+                        }
+                    }
             },
             modifier = Modifier.fillMaxWidth(),
             label = { FadingExpandingLabel(text = text, textAlign = TextAlign.Left) },

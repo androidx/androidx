@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.fragment.app.strictmode.FragmentReuseViolation#getPreviousFragmentId():
+    Source breaking change: method androidx.fragment.app.strictmode.FragmentReuseViolation.getPreviousFragmentId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.FragmentStrictMode#getDefaultPolicy():
+    Source breaking change: method androidx.fragment.app.strictmode.FragmentStrictMode.getDefaultPolicy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.FragmentStrictMode#setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy):
+    Source breaking change: method androidx.fragment.app.strictmode.FragmentStrictMode.setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.FragmentTagUsageViolation#getParentContainer():
+    Source breaking change: method androidx.fragment.app.strictmode.FragmentTagUsageViolation.getParentContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.SetTargetFragmentUsageViolation#getRequestCode():
+    Source breaking change: method androidx.fragment.app.strictmode.SetTargetFragmentUsageViolation.getRequestCode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.SetTargetFragmentUsageViolation#getTargetFragment():
+    Source breaking change: method androidx.fragment.app.strictmode.SetTargetFragmentUsageViolation.getTargetFragment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.SetUserVisibleHintViolation#isVisibleToUser():
+    Source breaking change: method androidx.fragment.app.strictmode.SetUserVisibleHintViolation.isVisibleToUser() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.Violation#getFragment():
+    Source breaking change: method androidx.fragment.app.strictmode.Violation.getFragment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.WrongFragmentContainerViolation#getContainer():
+    Source breaking change: method androidx.fragment.app.strictmode.WrongFragmentContainerViolation.getContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.WrongNestedHierarchyViolation#getContainerId():
+    Source breaking change: method androidx.fragment.app.strictmode.WrongNestedHierarchyViolation.getContainerId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.fragment.app.strictmode.WrongNestedHierarchyViolation#getExpectedParentFragment():
+    Source breaking change: method androidx.fragment.app.strictmode.WrongNestedHierarchyViolation.getExpectedParentFragment() can no longer be resolved from Kotlin source

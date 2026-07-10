@@ -42,10 +42,7 @@ class ScreenshotTestSdkSuppressAnnotationEnforcer : Detector(), SourceCodeScanne
         return object : UElementHandler() {
             override fun visitClass(node: UClass) {
                 val testPath = context.file.absolutePath
-                if (
-                    !(testPath.contains("androidTest") ||
-                        testPath.contains("androidInstrumentedTest"))
-                ) {
+                if (!(testPath.contains("androidTest") || testPath.contains("androidDeviceTest"))) {
                     return
                 }
                 if (!isScreenshotTestClass(node)) {

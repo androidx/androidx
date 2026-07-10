@@ -19,8 +19,6 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -39,10 +37,8 @@ import java.util.Set;
  * surfaces and which are accessible based on specific visibility configurations.
  *
  * @see AppSearchSession#openBlobForWriteAsync
+ * @see GlobalSearchSession#openBlobForReadAsync
  */
-//TODO(b/273591938) linked to GlobalSearchSession when openBlobRead is added there.
-@ExperimentalAppSearchApi
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
 public class SetBlobVisibilityRequest {
 
     private final Set<String> mNamespacesNotDisplayedBySystem;

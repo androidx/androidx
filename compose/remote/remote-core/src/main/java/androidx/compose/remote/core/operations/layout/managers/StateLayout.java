@@ -15,13 +15,16 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -43,6 +46,7 @@ import java.util.Map;
  * <p>States are defined as child layouts. This layout handles interpolating between the different
  * state in order to provide an automatic transition.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StateLayout extends LayoutManager {
 
     public int measuredLayoutIndex = 0;
@@ -60,6 +64,8 @@ public class StateLayout extends LayoutManager {
 
     public boolean inTransition = false;
 
+    private static final int OP_CODE = Operations.LAYOUT_STATE;
+
     public StateLayout(
             @Nullable Component parent,
             int componentId,
@@ -73,6 +79,16 @@ public class StateLayout extends LayoutManager {
         //        if (layoutInfo.visibleLayoutIndex != null) {
         //            layoutInfo.visibleLayoutIndex!!.addChangeListener(this)
         //        }
+        mIndexId = indexId;
+    }
+
+    public StateLayout(
+            int componentId,
+            int animationId,
+            int horizontalPositioning,
+            int verticalPositioning,
+            int indexId) {
+        super(null, componentId, animationId, 0f, 0f, 100f, 100f);
         mIndexId = indexId;
     }
 
@@ -162,7 +178,9 @@ public class StateLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
+            float minWidth,
             float maxWidth,
+            float minHeight,
             float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
@@ -170,17 +188,25 @@ public class StateLayout extends LayoutManager {
             @NonNull Size size) {
         LayoutManager layout = getLayout(currentLayoutIndex);
         layout.computeWrapSize(
-                context, maxWidth, maxHeight, horizontalWrap, verticalWrap, measure, size);
+                context,
+                minWidth,
+                maxWidth,
+                minHeight,
+                maxHeight,
+                horizontalWrap,
+                verticalWrap,
+                measure,
+                size);
     }
 
     @Override
-    public void onClick(
+    public boolean onClick(
             @NonNull RemoteContext context, @NonNull CoreDocument document, float x, float y) {
-        if (!contains(x, y)) {
-            return;
+        if (!contains(context, x, y)) {
+            return false;
         }
         LayoutManager layout = getLayout(currentLayoutIndex);
-        layout.onClick(context, document, x, y);
+        return layout.onClick(context, document, x, y);
     }
 
     @Override
@@ -195,6 +221,8 @@ public class StateLayout extends LayoutManager {
         // selected component that this being laid out.
         ComponentMeasure layoutMeasure = measure.get(layout.getComponentId());
         layoutMeasure.copyFrom(self);
+        layoutMeasure.setX(0f);
+        layoutMeasure.setY(0f);
 
         layout.layout(context, measure);
 
@@ -382,12 +410,23 @@ public class StateLayout extends LayoutManager {
         for (Component pane : mChildrenComponents) {
             if (pane instanceof LayoutComponent) {
                 if (index == idx) {
-                    return (LayoutManager) pane;
+                    if (pane instanceof LayoutManager) {
+                        return (LayoutManager) pane;
+                    } else {
+                        throw new RuntimeException("Child is not a LayoutManager");
+                    }
                 }
                 index++;
             }
         }
-        return (LayoutManager) mChildrenComponents.get(0);
+        if (mChildrenComponents.isEmpty()) {
+            throw new RuntimeException("StateLayout has no children");
+        }
+        Component firstChild = mChildrenComponents.get(0);
+        if (firstChild instanceof LayoutManager) {
+            return (LayoutManager) firstChild;
+        }
+        throw new RuntimeException("First child of StateLayout is not a LayoutManager");
     }
 
     @Override
@@ -476,25 +515,7 @@ public class StateLayout extends LayoutManager {
         // We paint all the components and operations of the current layout
         context.save();
         context.translate(currentLayout.getX(), currentLayout.getY());
-        for (Operation op : currentLayout.getList()) {
-            if (op instanceof Component && ((Component) op).getAnimationId() != -1) {
-                Component[] stateComponents =
-                        statePaintedComponents.get(((Component) op).getAnimationId());
-                Component component = stateComponents[measuredLayoutIndex];
-                if (needsToPaintTransition) {
-                    // We might have two components to paint, as in case two different
-                    // components share the same id, we'll fade the previous components out
-                    // and fade in the new one
-                    Component previousComponent = stateComponents[previousLayoutIndex];
-                    if (previousComponent != null && component != previousComponent) {
-                        previousComponent.paint(context);
-                    }
-                }
-                component.paint(context);
-            } else if (op instanceof PaintOperation) {
-                ((PaintOperation) op).paint(context);
-            }
-        }
+        currentLayout.paint(context);
         context.restore();
 
         if (needsToPaintTransition) {
@@ -583,16 +604,41 @@ public class StateLayout extends LayoutManager {
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     */
+    @Override
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mComponentId, mAnimationId, 0, 0, mIndexId);
+    }
+
+    /**
+     * Read this operation and add it to the list of operations
+     *
+     * @param buffer the buffer to read
+     * @param operations the list of operations that will be added to the remap context
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         buffer.readInt(); // horizontalPositioning
         buffer.readInt(); // verticalPositioning
-        int indexId = buffer.readInt();
+        int indexId = buffer.readId();
         operations.add(
                 new StateLayout(null, componentId, animationId, 0f, 0f, 100f, 100f, indexId));
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Layout Operations", OP_CODE, "StateLayout")
+                .description("A layout that switches between child layouts based on an index")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .field(INT, "indexId", "The ID of the variable providing the current state index");
     }
 
     @NonNull

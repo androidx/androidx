@@ -15,13 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -34,8 +35,7 @@ plugins {
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    implementation("androidx.room:room-compiler-processing:2.6.0")
+    implementation("androidx.room:room-compiler-processing:2.8.4")
     implementation(libs.javapoet)
     implementation(libs.kspApi)
 
@@ -43,24 +43,30 @@ dependencies {
     testImplementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.4")
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
     testImplementation(SdkHelperKt.getSdkDependency(project))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
                 "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
-        ]
+        )
     }
 }
 
 tasks.withType(Test).configureEach {
     // https://github.com/google/compile-testing/issues/222
     it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
 }
 
 androidx {
@@ -69,4 +75,5 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Compiler"
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

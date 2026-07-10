@@ -16,19 +16,19 @@
 
 package androidx.appsearch.compiler
 
-import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.isMethod
 
 /** A setter/field. */
 data class SetterOrField(
     /** The setter/field element. */
-    val element: Element
+    val element: XElement
 ) {
     /** The setter/field element's name. */
     val jvmName: String
-        get() = element.simpleName.toString()
+        get() = element.name
 
     /** Whether it is a setter. */
     val isSetter: Boolean
-        get() = element.kind == ElementKind.METHOD
+        get() = element.isMethod()
 }

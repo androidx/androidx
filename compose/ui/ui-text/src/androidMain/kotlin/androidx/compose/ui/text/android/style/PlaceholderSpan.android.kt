@@ -25,6 +25,8 @@ import androidx.compose.ui.text.internal.checkPrecondition
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.internal.throwIllegalArgumentException
 import androidx.compose.ui.text.internal.throwIllegalArgumentExceptionForNullCheck
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -32,25 +34,61 @@ import kotlin.math.min
 /**
  * A span that is used to reserve empty spaces for inline element. It's used only to tell the text
  * processor the size and vertical alignment of the inline element.
- *
- * @param width The width needed by the inline element.
- * @param widthUnit The unit of the [width]; can be Sp, Em or inherit, if it's inherit, by default
- *   it will be 1.em
- * @param height The height needed by the inline element.
- * @param heightUnit The unit of the [height]; can be Sp, Em or inherit, if it's inherit, by default
- *   it will be computed from the context FontMetrics by height = fontMetrics.descent -
- *   fontMetrics.ascent.
- * @param pxPerSp The number of pixels 1 Sp equals to.
- * @param verticalAlign How the inline element is aligned with the text.
  */
-internal class PlaceholderSpan(
+internal class PlaceholderSpan
+private constructor(
     private val width: Float,
     @Unit private val widthUnit: Int,
     private val height: Float,
     @Unit private val heightUnit: Int,
-    private val pxPerSp: Float,
+    /**
+     * A precomputed value for the width in pixels, for use only in the case where [widthUnit] is
+     * [UNIT_SP].
+     *
+     * If [widthUnit] is not [UNIT_SP], this value is undefined and should not be read.
+     */
+    private val widthAsSpInPx: Float,
+    /**
+     * A precomputed value for the height in pixels, for use only in the case where [widthUnit] is
+     * [UNIT_SP].
+     *
+     * If [heightUnit] is not [UNIT_SP], this value is undefined and should not be read.
+     */
+    private val heightAsSpInPx: Float,
     @VerticalAlign val verticalAlign: Int,
 ) : ReplacementSpan() {
+
+    /**
+     * A span that is used to reserve empty spaces for inline element. It's used only to tell the
+     * text processor the size and vertical alignment of the inline element.
+     *
+     * @param width The width needed by the inline element.
+     * @param widthUnit The unit of the [width]; can be Sp, Em or inherit, if it's inherit, by
+     *   default it will be 1.em
+     * @param height The height needed by the inline element.
+     * @param heightUnit The unit of the [height]; can be Sp, Em or inherit, if it's inherit, by
+     *   default it will be computed from the context FontMetrics by height = fontMetrics.descent -
+     *   fontMetrics.ascent.
+     * @param density The current density.
+     * @param verticalAlign How the inline element is aligned with the text.
+     */
+    constructor(
+        width: Float,
+        @Unit widthUnit: Int,
+        height: Float,
+        @Unit heightUnit: Int,
+        density: Density,
+        @VerticalAlign verticalAlign: Int,
+    ) : this(
+        width = width,
+        widthUnit = widthUnit,
+        height = height,
+        heightUnit = heightUnit,
+        widthAsSpInPx = if (widthUnit == UNIT_SP) with(density) { width.sp.toPx() } else 0f,
+        heightAsSpInPx = if (heightUnit == UNIT_SP) with(density) { height.sp.toPx() } else 0f,
+        verticalAlign = verticalAlign,
+    )
+
     companion object {
         const val ALIGN_ABOVE_BASELINE = 0
         const val ALIGN_TOP = 1
@@ -121,17 +159,17 @@ internal class PlaceholderSpan(
 
         widthPx =
             when (widthUnit) {
-                UNIT_SP -> width * pxPerSp
+                UNIT_SP -> widthAsSpInPx
                 UNIT_EM -> width * fontSize
                 else -> throwIllegalArgumentExceptionForNullCheck("Unsupported unit.")
             }.ceilToInt()
 
         heightPx =
             when (heightUnit) {
-                UNIT_SP -> (height * pxPerSp).ceilToInt()
-                UNIT_EM -> (height * fontSize).ceilToInt()
+                UNIT_SP -> heightAsSpInPx
+                UNIT_EM -> height * fontSize
                 else -> throwIllegalArgumentExceptionForNullCheck("Unsupported unit.")
-            }
+            }.ceilToInt()
 
         fm?.apply {
             ascent = fontMetrics.ascent

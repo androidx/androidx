@@ -257,8 +257,8 @@ public fun <T> compositionLocalOf(
  * [staticCompositionLocalOf]. A color, or other theme like value, might change or even be animated
  * therefore a [compositionLocalOf] should be used.
  *
- * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a a call
- * to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
+ * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a call to
+ * [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
  * [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
  * [CompositionLocal.current] but not re-provided.
  *
@@ -319,6 +319,87 @@ internal class ComputedProvidableCompositionLocal<T>(
         )
 }
 
+/**
+ * Create a [CompositionLocal] that behaves like it was provided using
+ * [ProvidableCompositionLocal.providesComputed] by default. If a value is provided using
+ * [ProvidableCompositionLocal.provides] it behaves as if the [CompositionLocal] was produced by
+ * calling [staticCompositionLocalOf].
+ *
+ * Unlike [compositionLocalWithComputedDefaultOf], reads of a provided value for
+ * [staticCompositionLocalWithComputedDefaultOf] are not tracked by the composer and changing the
+ * value provided in the [CompositionLocalProvider] call will cause the entirety of the content to
+ * be recomposed instead of just the places where in the composition the local value is used. This
+ * lack of tracking, however, makes a [staticCompositionLocalWithComputedDefaultOf] more efficient
+ * when the value provided is highly unlikely to or will never change. For example, the android
+ * context, font loaders, or similar shared values, are unlikely to change for the components in the
+ * content of a the [CompositionLocalProvider] and should consider using a
+ * [staticCompositionLocalWithComputedDefaultOf]. A color, or other theme like value, might change
+ * or even be animated therefore a [compositionLocalWithComputedDefaultOf] should be used.
+ *
+ * Reads of the computed value are tracked and modifying the computed value results in only the
+ * invalidated parts of the composition being recomposed.
+ *
+ * [staticCompositionLocalWithComputedDefaultOf] creates a [ProvidableCompositionLocal] which can be
+ * used in a call to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is
+ * made public as [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
+ * [CompositionLocal.current] but not re-provided.
+ *
+ * @param defaultComputation default computation to run when this [CompositionLocal] is not provided
+ * @see staticCompositionLocalOf
+ * @see compositionLocalWithComputedDefaultOf
+ * @see ProvidableCompositionLocal
+ */
+public fun <T> staticCompositionLocalWithComputedDefaultOf(
+    defaultComputation: CompositionLocalAccessorScope.() -> T
+): ProvidableCompositionLocal<T> = StaticComputedProvidableCompositionLocal(defaultComputation)
+
+internal class StaticComputedProvidableCompositionLocal<T>(
+    defaultComputation: CompositionLocalAccessorScope.() -> T
+) : ProvidableCompositionLocal<T>({ composeRuntimeError("Unexpected call to default provider") }) {
+    override val defaultValueHolder = ComputedValueHolder(defaultComputation)
+
+    override fun defaultProvidedValue(value: T): ProvidedValue<T> =
+        ProvidedValue(
+            compositionLocal = this,
+            value = value,
+            explicitNull = value === null,
+            mutationPolicy = null,
+            state = null,
+            compute = null,
+            isDynamic = false,
+        )
+}
+
+/**
+ * Creates a [ProvidableCompositionLocal] where the default value is resolved by querying the
+ * [LocalHostDefaultProvider] with the given [key].
+ *
+ * If a value is provided using [ProvidableCompositionLocal.provides], this behaves identically to a
+ * [CompositionLocal] created with [compositionLocalOf].
+ *
+ * When no value is provided, the default value is resolved by querying the
+ * [LocalHostDefaultProvider] currently present in the composition. This mechanism allows the
+ * default value to be determined dynamically by the hosting environment (such as an Android View)
+ * rather than being hardcoded or requiring an explicit provider at the root of the composition.
+ *
+ * This effectively acts as a bridge, decoupling the definition of the [CompositionLocal] from the
+ * platform-specific logic required to resolve its default. For example, a
+ * `LocalViewModelStoreOwner` can use this to ask the host for the owner without having a direct
+ * dependency on the Android View system.
+ *
+ * @param key An opaque key used to identify the requested value within the host's context. The type
+ *   and meaning of the key are defined by the [HostDefaultProvider] implementation (e.g., on
+ *   Android, this is typically a Resource ID).
+ * @throws NullPointerException If the host cannot find a value for [key], it returns `null`. If [T]
+ *   is a non-nullable type (e.g., `compositionLocalWithHostDefaultOf<String>`), a missing key will
+ *   result in a [NullPointerException] when the value is accessed.
+ */
+public fun <T> compositionLocalWithHostDefaultOf(
+    key: HostDefaultKey<T>
+): ProvidableCompositionLocal<T> = compositionLocalWithComputedDefaultOf {
+    LocalHostDefaultProvider.currentValue.getHostDefault(key)
+}
+
 public interface CompositionLocalAccessorScope {
     /**
      * An extension property that allows accessing the current value of a composition local in the
@@ -346,7 +427,15 @@ public interface CompositionLocalAccessorScope {
  */
 @Stable
 public class CompositionLocalContext
-internal constructor(internal val compositionLocals: PersistentCompositionLocalMap)
+internal constructor(internal val compositionLocals: PersistentCompositionLocalMap) {
+    override fun equals(other: Any?): Boolean {
+        return other is CompositionLocalContext && other.compositionLocals == this.compositionLocals
+    }
+
+    override fun hashCode(): Int {
+        return compositionLocals.hashCode()
+    }
+}
 
 /**
  * [CompositionLocalProvider] binds values to [ProvidableCompositionLocal] keys. Reading the

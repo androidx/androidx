@@ -1,0 +1,65 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.compose.subspace.draw
+
+import androidx.annotation.FloatRange
+import androidx.xr.compose.subspace.layout.CoreEntityNode
+import androidx.xr.compose.subspace.layout.CoreEntityScope
+import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
+
+/**
+ * Scale the contents of the composable by the scale factor along horizontal, vertical, and depth
+ * axes. Scaling does not change the measured size of the composable content during layout. Measured
+ * size of [androidx.xr.compose.subspace.SubspaceComposable] elements can be controlled using size
+ * Modifiers. Scale factor should be a positive number.
+ *
+ * @param scale Multiplier to scale content along vertical, horizontal, depth axes.
+ */
+public fun SubspaceModifier.scale(
+    @FloatRange(from = 0.0, fromInclusive = false) scale: Float
+): SubspaceModifier = this.then(ScaleElement(scale))
+
+private class ScaleElement(private val scale: Float) : SubspaceModifierNodeElement<ScaleNode>() {
+
+    init {
+        require(scale > 0.0f) { "scale values must be > 0.0f" }
+    }
+
+    override fun create(): ScaleNode = ScaleNode(scale)
+
+    override fun update(node: ScaleNode) {
+        node.scale = scale
+    }
+
+    override fun hashCode(): Int {
+        return scale.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ScaleElement) return false
+
+        return scale == other.scale
+    }
+}
+
+private class ScaleNode(var scale: Float) : SubspaceModifier.Node(), CoreEntityNode {
+    override fun CoreEntityScope.modifyCoreEntity() {
+        setOrAppendScale(scale)
+    }
+}

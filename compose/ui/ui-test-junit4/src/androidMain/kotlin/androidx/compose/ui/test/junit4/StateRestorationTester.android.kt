@@ -61,10 +61,11 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
     }
 
     /**
-     * Saves all the state stored via [savedInstanceState] or [rememberSaveable], disposes current
-     * composition, and composes again the content passed to [setContent]. Allows to test how your
-     * component behaves when the state restoration is happening. Note that the state stored via
-     * regular state() or remember() will be lost.
+     * Saves all the state stored via [savedInstanceState] or
+     * [androidx.compose.runtime.saveable.rememberSaveable], disposes current composition, and
+     * composes again the content passed to [setContent]. Allows to test how your component behaves
+     * when the state restoration is happening. Note that the state stored via regular state() or
+     * remember() will be lost.
      */
     fun emulateSavedInstanceStateRestore() {
         val registry = checkNotNull(registry) { "setContent should be called first!" }

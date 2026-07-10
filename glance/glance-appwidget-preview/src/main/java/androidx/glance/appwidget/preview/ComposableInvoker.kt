@@ -93,7 +93,7 @@ internal object ComposableInvoker {
      */
     private fun Class<*>.getDefaultValue(): Any? =
         when (name) {
-            "int" -> 0.toInt()
+            "int" -> 0
             "short" -> 0.toShort()
             "byte" -> 0.toByte()
             "long" -> 0.toLong()
@@ -151,7 +151,7 @@ internal object ComposableInvoker {
                     // changed parameters should be 0 to indicate "uncertain"
                     in changedStartIndex until defaultStartIndex -> 0
                     // Default values mask, all parameters set to use defaults
-                    in defaultStartIndex until totalParams -> 0b111111111111111111111.toInt()
+                    in defaultStartIndex until totalParams -> 0b111111111111111111111
                     else -> error("Unexpected index")
                 }
             }

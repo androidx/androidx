@@ -436,8 +436,8 @@ public class DatePicker extends Picker {
 
     private boolean isNewDate(int year, int month, int dayOfMonth) {
         return (mCurrentDate.get(Calendar.YEAR) != year
-                || mCurrentDate.get(Calendar.MONTH) != dayOfMonth
-                || mCurrentDate.get(Calendar.DAY_OF_MONTH) != month);
+                || mCurrentDate.get(Calendar.MONTH) != month
+                || mCurrentDate.get(Calendar.DAY_OF_MONTH) != dayOfMonth);
     }
 
     private static boolean updateMin(PickerColumn column, int value) {

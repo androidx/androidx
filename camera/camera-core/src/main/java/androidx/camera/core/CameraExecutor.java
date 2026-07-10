@@ -25,22 +25,29 @@ import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A camera executor class that executes camera operations.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CameraExecutor implements Executor {
+public class CameraExecutor implements Executor, ScheduledExecutorService {
     private static final String TAG = "CameraExecutor";
     private static final int DEFAULT_CORE_THREADS = 1;
-    private static final int DEFAULT_MAX_THREADS = DEFAULT_CORE_THREADS;
 
     /**
      * Camera threads are given higher priority due to the realtime nature of camera operations.
@@ -54,7 +61,7 @@ public class CameraExecutor implements Executor {
 
     private final Object mExecutorLock = new Object();
     @GuardedBy("mExecutorLock")
-    private @NonNull ThreadPoolExecutor mThreadPoolExecutor = createExecutor();
+    private @NonNull ScheduledThreadPoolExecutor mThreadPoolExecutor = createExecutor();
 
     private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
         private static final String THREAD_NAME_STEM =
@@ -101,7 +108,6 @@ public class CameraExecutor implements Executor {
         // Because we use LinkedBlockingQueue which is never full, we have to set max pool size
         // as core pool size to make the executor can serve n-task simultaneously.
         int corePoolSize = Math.max(1, cameraNumber);
-        executor.setMaximumPoolSize(corePoolSize);
         executor.setCorePoolSize(corePoolSize);
     }
 
@@ -130,14 +136,132 @@ public class CameraExecutor implements Executor {
         }
     }
 
-    private static ThreadPoolExecutor createExecutor() {
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(DEFAULT_CORE_THREADS,
-                DEFAULT_MAX_THREADS, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
-                THREAD_FACTORY);
+    private static ScheduledThreadPoolExecutor createExecutor() {
+        ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(
+                DEFAULT_CORE_THREADS, THREAD_FACTORY);
+        threadPoolExecutor.setKeepAliveTime(0, TimeUnit.MILLISECONDS);
 
-        threadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> Logger.e(TAG,
+        threadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> Logger.w(TAG,
                 "A rejected execution occurred in CameraExecutor!"));
 
         return threadPoolExecutor;
+    }
+
+    @Override
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.schedule(command, delay, unit);
+        }
+    }
+
+    @Override
+    public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.schedule(callable, delay, unit);
+        }
+    }
+
+    @Override
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period,
+            TimeUnit unit) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.scheduleAtFixedRate(command, initialDelay, period, unit);
+        }
+    }
+
+    @Override
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay,
+            long delay, TimeUnit unit) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        synchronized (mExecutorLock) {
+            mThreadPoolExecutor.shutdown();
+        }
+    }
+
+    @Override
+    public List<Runnable> shutdownNow() {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.shutdownNow();
+        }
+    }
+
+    @Override
+    public boolean isShutdown() {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.isShutdown();
+        }
+    }
+
+    @Override
+    public boolean isTerminated() {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.isTerminated();
+        }
+    }
+
+    @Override
+    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.awaitTermination(timeout, unit);
+        }
+    }
+
+    @Override
+    public <T> Future<T> submit(Callable<T> task) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.submit(task);
+        }
+    }
+
+    @Override
+    public <T> Future<T> submit(Runnable task, T result) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.submit(task, result);
+        }
+    }
+
+    @Override
+    public Future<?> submit(Runnable task) {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.submit(task);
+        }
+    }
+
+    @Override
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+            throws InterruptedException {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.invokeAll(tasks);
+        }
+    }
+
+    @Override
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout,
+            TimeUnit unit) throws InterruptedException {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.invokeAll(tasks, timeout, unit);
+        }
+    }
+
+    @Override
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+            throws ExecutionException, InterruptedException {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.invokeAny(tasks);
+        }
+    }
+
+    @Override
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+            throws ExecutionException, InterruptedException, TimeoutException {
+        synchronized (mExecutorLock) {
+            return mThreadPoolExecutor.invokeAny(tasks, timeout, unit);
+        }
     }
 }

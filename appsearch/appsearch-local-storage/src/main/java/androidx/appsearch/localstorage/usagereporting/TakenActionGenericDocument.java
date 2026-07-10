@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.usagereporting;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
@@ -30,9 +31,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * Abstract wrapper class for {@link GenericDocument} of all types of taken actions, which contains
  * common getters and constants.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class TakenActionGenericDocument extends GenericDocument {
     protected static final String PROPERTY_PATH_ACTION_TYPE = "actionType";

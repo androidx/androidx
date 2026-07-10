@@ -14,31 +14,40 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.internal.Component
-import androidx.xr.scenecore.internal.Entity
-import androidx.xr.scenecore.internal.InputEventListener
-import androidx.xr.scenecore.internal.SpaceValue
+import androidx.xr.scenecore.runtime.Component
+import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.Space
+import androidx.xr.scenecore.runtime.SpaceValue
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import java.util.Collections
 import java.util.concurrent.Executor
 
 /**
- * A test double for [androidx.xr.scenecore.internal.Entity], designed for use in unit or
- * integration tests.
+ * A test double for [androidx.xr.scenecore.runtime.Entity], designed for use in unit or integration
+ * tests.
  *
  * This test double offers greater control compared to the real
- * [androidx.xr.scenecore.internal.Entity] by allowing:
+ * [androidx.xr.scenecore.runtime.Entity] by allowing:
  * * Direct modification of most properties to simulate specific scenarios or states.
  * * Mocking of hit test results for predictable and verifiable interaction testing.
  *
- * @see androidx.xr.scenecore.internal.Entity
+ * @see androidx.xr.scenecore.runtime.Entity
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FakeEntity() : FakeActivityPose(), Entity {
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class FakeEntity
+internal constructor(public val name: String = "", fakeInternal: InternalFakeEntity) :
+    FakeScenePose(fakeInternal), Entity {
+
+    public constructor(name: String = "") : this(name, InternalFakeEntity())
 
     private val _children = mutableSetOf<Entity>()
 
@@ -71,6 +80,12 @@ public open class FakeEntity() : FakeActivityPose(), Entity {
 
     private var hidden = false
 
+    private val activitySpaceAlpha: Float
+        get() {
+            val parent = _parent ?: return alpha
+            return parent.getAlpha(Space.ACTIVITY) * alpha
+        }
+
     /**
      * Sets the local hidden state of this Entity. When true, this Entity and all descendants will
      * not be rendered in the scene. When the hidden state is false, an entity will be rendered if
@@ -95,11 +110,28 @@ public open class FakeEntity() : FakeActivityPose(), Entity {
 
     /** Returns the pose for this entity, relative to the given space. */
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
-        return pose
+        if (relativeTo == Space.PARENT) {
+            return pose
+        }
+
+        if (relativeTo == Space.ACTIVITY && parent == null) {
+            throw IllegalStateException(
+                "Cannot get pose in Activity Space for an entity with a null parent."
+            )
+        }
+
+        var parentPose = this.parent?.getPose(relativeTo)
+        return parentPose?.compose(pose) ?: pose
     }
 
     /** Updates the pose (position and rotation) of the Entity relative to the given space. */
     override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
+        if (relativeTo == Space.ACTIVITY && parent == null) {
+            throw IllegalStateException(
+                "Cannot set pose in Activity Space for an entity with a null parent."
+            )
+        }
+
         this.pose = pose
     }
 
@@ -136,16 +168,21 @@ public open class FakeEntity() : FakeActivityPose(), Entity {
      * @param relativeTo The space in which to evaluate the alpha.
      */
     override fun getAlpha(@SpaceValue relativeTo: Int): Float {
-        return alpha
+        return when (relativeTo) {
+            Space.REAL_WORLD,
+            Space.ACTIVITY -> activitySpaceAlpha
+            Space.PARENT -> alpha
+            else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
+        }
     }
 
     /**
-     * Sets the alpha transparency for the given Entity, relative to the given space.
+     * Sets the alpha transparency for the given Entity, relative to the parent space. Values are in
+     * the range [0, 1] with 0 being fully transparent and 1 being fully opaque.
      *
      * @param alpha Alpha transparency level for the Entity.
-     * @param relativeTo The space in which to set the alpha.
      */
-    override fun setAlpha(alpha: Float, @SpaceValue relativeTo: Int) {
+    override fun setAlpha(alpha: Float) {
         // make sure input alpha with in range [0, 1]
         val clampedAlpha = alpha.coerceIn(0f, 1f)
         this.alpha = clampedAlpha
@@ -190,8 +227,10 @@ public open class FakeEntity() : FakeActivityPose(), Entity {
      * @param listener The input event listener to add.
      */
     @Suppress("ExecutorRegistration")
-    override fun addInputEventListener(executor: Executor, listener: InputEventListener) {
-        inputEventListenerMap.put(listener, executor)
+    override fun addInputEventListener(executor: Executor?, listener: InputEventListener) {
+        if (executor != null) {
+            inputEventListenerMap[listener] = executor
+        }
     }
 
     /** Removes the given listener from the set of active input listeners. */

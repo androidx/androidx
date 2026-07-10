@@ -167,7 +167,7 @@ abstract class StaggeredGrid extends Grid {
         for (; itemIndex >= firstIndex; itemIndex--) {
             Location loc = getLocation(itemIndex);
             int rowIndex = loc.mRow;
-            int size = mProvider.createItem(itemIndex, false, mTmpItem, false);
+            int size = mProvider.createItem(itemIndex, 1, false, mTmpItem, false);
             if (size != loc.mSize) {
                 mLocations.removeFromStart(itemIndex + 1 - mFirstIndex);
                 mFirstIndex = mFirstVisibleIndex;
@@ -253,7 +253,7 @@ abstract class StaggeredGrid extends Grid {
             item = mPendingItem;
             mPendingItem = null;
         } else {
-            loc.mSize = mProvider.createItem(itemIndex, false, mTmpItem, false);
+            loc.mSize = mProvider.createItem(itemIndex, 1, false, mTmpItem, false);
             item = mTmpItem[0];
         }
         mFirstIndex = mFirstVisibleIndex = itemIndex;
@@ -323,7 +323,7 @@ abstract class StaggeredGrid extends Grid {
                 edge = edge + loc.mOffset;
             }
             int rowIndex = loc.mRow;
-            int size = mProvider.createItem(itemIndex, true, mTmpItem, false);
+            int size = mProvider.createItem(itemIndex, 1, true, mTmpItem, false);
             if (size != loc.mSize) {
                 loc.mSize = size;
                 mLocations.removeFromEnd(lastIndex - itemIndex);
@@ -387,7 +387,7 @@ abstract class StaggeredGrid extends Grid {
             item = mPendingItem;
             mPendingItem = null;
         } else {
-            loc.mSize = mProvider.createItem(itemIndex, true, mTmpItem, false);
+            loc.mSize = mProvider.createItem(itemIndex, 1, true, mTmpItem, false);
             item = mTmpItem[0];
         }
         if (mLocations.size() == 1) {
@@ -432,5 +432,18 @@ abstract class StaggeredGrid extends Grid {
         if (mLocations.size() == 0) {
             mFirstIndex = -1;
         }
+    }
+
+    @Override
+    public int getNextPositionOfSameSpan(int focusPosition, int count, int spanGroupIndexDelta) {
+        // spanGroupIndexDelta is positive or negative
+        int delta = spanGroupIndexDelta * mNumRows;
+        int position = mReversedFlow ? focusPosition - delta : focusPosition + delta;
+        if (position < 0) {
+            position = 0;
+        } else if (position > count - 1) {
+            position = count - 1;
+        }
+        return position;
     }
 }

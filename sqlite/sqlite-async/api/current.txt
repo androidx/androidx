@@ -1,0 +1,12 @@
+// Signature format: 4.0
+package androidx.sqlite.async {
+
+  public final class SQLiteAsync {
+    method public static suspend Object? executeSQL(androidx.sqlite.SQLiteConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? open(androidx.sqlite.SQLiteDriver, String fileName, kotlin.coroutines.Continuation<? super androidx.sqlite.SQLiteConnection>);
+    method public static suspend Object? prepare(androidx.sqlite.SQLiteConnection, String sql, kotlin.coroutines.Continuation<? super androidx.sqlite.SQLiteStatement>);
+    method public static suspend Object? step(androidx.sqlite.SQLiteStatement, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  }
+
+}
+

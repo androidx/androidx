@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.BooleanPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.DoublePropertyConfig;
@@ -59,6 +60,19 @@ public class AppSearchSchemaCtsTest {
         assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
         assertThat(builder.getJoinableValueType())
                 .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testStringPropertyConfigDefaultValues_withDeletePropagationType() {
+        StringPropertyConfig builder = new StringPropertyConfig.Builder("test").build();
+        assertThat(builder.getIndexingType()).isEqualTo(StringPropertyConfig.INDEXING_TYPE_NONE);
+        assertThat(builder.getTokenizerType()).isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_NONE);
+        assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(builder.getJoinableValueType())
+                .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE);
+        assertThat(builder.getDeletePropagationType())
+                .isEqualTo(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE);
     }
 
     @Test
@@ -491,6 +505,68 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testPropertyConfig_withDeletePropagationType() {
+        AppSearchSchema schema =
+                new AppSearchSchema.Builder("Test")
+                        .addProperty(
+                                new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId1")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setJoinableValueType(
+                                                AppSearchSchema.StringPropertyConfig
+                                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                        .setDeletePropagationType(
+                                                AppSearchSchema.StringPropertyConfig
+                                                        .DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                        .build())
+                        .addProperty(
+                                new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId2")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setJoinableValueType(
+                                                AppSearchSchema.StringPropertyConfig
+                                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                        .setDeletePropagationType(
+                                                StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                                        .build())
+                        .build();
+
+        assertThat(schema.getSchemaType()).isEqualTo("Test");
+        List<PropertyConfig> properties = schema.getProperties();
+        assertThat(properties).hasSize(2);
+
+        assertThat(properties.get(0).getName()).isEqualTo("qualifiedId1");
+        assertThat(properties.get(0).getCardinality())
+                .isEqualTo(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(
+                ((AppSearchSchema.StringPropertyConfig) properties.get(0))
+                        .getJoinableValueType())
+                .isEqualTo(
+                        AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        assertThat(
+                ((AppSearchSchema.StringPropertyConfig) properties.get(0))
+                        .getDeletePropagationType())
+                .isEqualTo(
+                        AppSearchSchema.StringPropertyConfig
+                                .DELETE_PROPAGATION_TYPE_PROPAGATE_FROM);
+
+        assertThat(properties.get(1).getName()).isEqualTo("qualifiedId2");
+        assertThat(properties.get(1).getCardinality())
+                .isEqualTo(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED);
+        assertThat(
+                ((AppSearchSchema.StringPropertyConfig) properties.get(1))
+                        .getJoinableValueType())
+                .isEqualTo(
+                        AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        assertThat(
+                ((AppSearchSchema.StringPropertyConfig) properties.get(1))
+                        .getDeletePropagationType())
+                .isEqualTo(
+                        AppSearchSchema.StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE);
+    }
+
+    @Test
     public void testInvalidStringPropertyConfigsTokenizerNone() {
         // Everything should work fine with the defaults.
         final StringPropertyConfig.Builder builder =
@@ -613,17 +689,19 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testInvalidStringPropertyConfigsJoinableValueType() {
-        // Setting cardinality to be REPEATED with joinable value type QUALIFIED_ID should fail.
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testSetDeletePropagationTypeWithoutJoinableValueTypeQualifiedId_throwsException() {
+        // Setting delete propagation type PROPAGATE_FROM with joinable value type other than
+        // QUALIFIED_ID should fail.
         final StringPropertyConfig.Builder builder =
                 new StringPropertyConfig.Builder("qualifiedId")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setJoinableValueType(
-                                StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setDeletePropagationType(
+                                StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM);
         IllegalStateException e =
                 assertThrows(IllegalStateException.class, () -> builder.build());
         assertThat(e).hasMessageThat().contains(
-                "Cannot set JOINABLE_VALUE_TYPE_QUALIFIED_ID with CARDINALITY_REPEATED.");
+                "Cannot set delete propagation without setting JOINABLE_VALUE_TYPE_QUALIFIED_ID.");
     }
 
     @Test
@@ -846,6 +924,69 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testAppSearchSchema_toString_withDeletePropagationType() {
+        AppSearchSchema schema =
+                new AppSearchSchema.Builder("testSchema")
+                        .addProperty(
+                                new StringPropertyConfig.Builder("qualifiedId1")
+                                        .setDescription("first qualifiedId")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setJoinableValueType(
+                                                StringPropertyConfig
+                                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                        .setDeletePropagationType(
+                                                StringPropertyConfig
+                                                        .DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                        .build())
+                        .addProperty(
+                                new StringPropertyConfig.Builder("qualifiedId2")
+                                        .setDescription("second qualifiedId")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setJoinableValueType(
+                                                StringPropertyConfig
+                                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                        .setDeletePropagationType(
+                                                StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                                        .build())
+                        .build();
+
+        String schemaString = schema.toString();
+
+        String expectedString =
+                "{\n"
+                        + "  schemaType: \"testSchema\",\n"
+                        + "  properties: [\n"
+                        + "    {\n"
+                        + "      name: \"qualifiedId1\",\n"
+                        + "      description: \"first qualifiedId\",\n"
+                        + "      indexingType: INDEXING_TYPE_NONE,\n"
+                        + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                        + "      joinableValueType: JOINABLE_VALUE_TYPE_QUALIFIED_ID,\n"
+                        + "      deletePropagationType: DELETE_PROPAGATION_TYPE_PROPAGATE_FROM,\n"
+                        + "      cardinality: CARDINALITY_REQUIRED,\n"
+                        + "      dataType: DATA_TYPE_STRING,\n"
+                        + "    },\n"
+                        + "    {\n"
+                        + "      name: \"qualifiedId2\",\n"
+                        + "      description: \"second qualifiedId\",\n"
+                        + "      indexingType: INDEXING_TYPE_NONE,\n"
+                        + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                        + "      joinableValueType: JOINABLE_VALUE_TYPE_QUALIFIED_ID,\n"
+                        + "      deletePropagationType: DELETE_PROPAGATION_TYPE_NONE,\n"
+                        + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                        + "      dataType: DATA_TYPE_STRING,\n"
+                        + "    }\n"
+                        + "  ]\n"
+                        + "}";
+
+        String[] lines = expectedString.split("\n");
+        for (String line : lines) {
+            assertThat(schemaString).contains(line);
+        }
+    }
+
+    @Test
     @SuppressWarnings({"StringConcatToTextBlock", "StringSplitter"}) // Not supported in Jetpack.
     public void testAppSearchSchema_toStringNoDescriptionSet() {
         AppSearchSchema schema =
@@ -905,6 +1046,20 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testStringPropertyConfig_setDeletePropagationType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setDeletePropagationType(5)
+                        .build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setDeletePropagationType(2)
+                        .build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("qualifiedId").setDeletePropagationType(-1)
+                        .build());
+    }
+
+    @Test
     public void testLongPropertyConfig_setIndexingType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new LongPropertyConfig.Builder("timestamp").setIndexingType(5).build());
@@ -939,7 +1094,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("Test")
@@ -1030,7 +1184,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig_defaultValues() {
         EmbeddingPropertyConfig builder =
                 new EmbeddingPropertyConfig.Builder("test").build();
@@ -1041,22 +1194,38 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingPropertyConfig_setIndexingType_ann() {
+        AppSearchSchema schema =
+                new AppSearchSchema.Builder("Test")
+                        .addProperty(
+                                new EmbeddingPropertyConfig.Builder("titleAnnEmbedding")
+                                        .setIndexingType(EmbeddingPropertyConfig
+                                                .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                                        .build())
+                        .build();
+
+        List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
+        assertThat(properties).hasSize(1);
+        assertThat(properties.get(0).getName()).isEqualTo("titleAnnEmbedding");
+        assertThat(((EmbeddingPropertyConfig) properties.get(0)).getIndexingType())
+                .isEqualTo(EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR);
+    }
+
+    @Test
     public void testEmbeddingPropertyConfig_setIndexingType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
                         .setIndexingType(5).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
-                        .setIndexingType(2).build());
+                        .setIndexingType(3).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
                         .setIndexingType(-1).build());
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_quantization() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("Test")
@@ -1110,8 +1279,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_defaultQuantizationValue() {
         EmbeddingPropertyConfig builder =
                 new EmbeddingPropertyConfig.Builder("test").build();
@@ -1120,8 +1287,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_setQuantizationType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
@@ -1187,7 +1352,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandlePropertyConfig() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Test")
                 .addProperty(
@@ -1209,7 +1373,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandlePropertyConfig_defaultValues() {
         AppSearchSchema.BlobHandlePropertyConfig builder =
                 new AppSearchSchema.BlobHandlePropertyConfig.Builder("test").build();
@@ -1219,9 +1382,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG, Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION
-    })
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)
     public void testEmbeddingPropertyConfig_SetDescription() {
         AppSearchSchema.Builder schemaBuilder =
                 new AppSearchSchema.Builder("Email")
@@ -1271,4 +1432,36 @@ public class AppSearchSchemaCtsTest {
         assertThat(schema1.toString()).contains("An embedding of the subject of the email");
         assertThat(schema3.toString()).contains("A different description");
     }
+// @exportToFramework:startStrip()
+
+    @Document
+    static class TestDocument {
+        @Document.Namespace
+        public String namespace;
+
+        @Document.Id
+        public String id;
+
+        @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+        public String subject;
+
+        @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+        public String body;
+    }
+
+    @Test
+    public void testFromDocumentClass() throws Exception {
+        AppSearchSchema expectedSchema = new AppSearchSchema.Builder("TestDocument")
+                .addProperty(new StringPropertyConfig.Builder("subject")
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()).build();
+        assertThat(AppSearchSchema.fromDocumentClass(TestDocument.class)).isEqualTo(
+                expectedSchema);
+    }
+// @exportToFramework:endStrip()
 }

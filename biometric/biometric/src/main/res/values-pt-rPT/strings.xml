@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"Caixa de diálogo de autenticação por impressão digital"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Toque no sensor de impressões digitais"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Não reconhecida."</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Hardware de impressão digital não disponível."</string>

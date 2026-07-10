@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -29,10 +28,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    compileSdk { version = release(36) }
     namespace = "androidx.appsearch"
 }
 
@@ -56,7 +52,7 @@ dependencies {
     androidTestImplementation(project(":appsearch:appsearch-play-services-storage"))
     androidTestImplementation(project(":appsearch:appsearch-test-util"))
     // Needed to check if PlayServicesAppSearch throws ApiException.
-    androidTestImplementation("com.google.android.gms:play-services-basement:18.1.0")
+    androidTestImplementation("com.google.android.gms:play-services-basement:18.6.0")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)

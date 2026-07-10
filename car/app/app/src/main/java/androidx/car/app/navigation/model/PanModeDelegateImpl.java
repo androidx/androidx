@@ -85,5 +85,10 @@ public class PanModeDelegateImpl implements PanModeDelegate {
                     }
             );
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -30,8 +29,8 @@ plugins {
 
 dependencies {
     implementation(project(":collection:collection"))
-    implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation(libs.jspecify)
 }
 
 androidx {
@@ -39,6 +38,4 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2021"
     description = "AndroidX Collection Integration Tests"
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

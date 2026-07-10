@@ -18,79 +18,68 @@
 
 package androidx.xr.scenecore.spatial.core
 
+import android.content.Context
+import android.util.DisplayMetrics
+import android.view.WindowManager
+import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.math.FieldOfView
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.internal.CameraViewActivityPose
-import androidx.xr.scenecore.internal.Dimensions
-import androidx.xr.scenecore.internal.PerceivedResolutionResult
-import androidx.xr.scenecore.internal.PixelDimensions
+import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.PerceivedResolutionResult
+import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.ScenePose
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.tan
 
 /** A small constant value used for floating-point comparisons to account for precision errors. */
-internal const val PERCEIVED_RESOLUTION_EPSILON = 0.001f
-
-/**
- * Retrieves the [CameraViewActivityPose] used for all Perceived Resolution calculations.
- *
- * It is currently set to specifically look for the left eye camera.
- *
- * @param entityManager The [EntityManager] instance that holds the system space activity poses,
- *   including camera views.
- * @return The [CameraViewActivityPose] for the left eye if found; otherwise, `null` if no such
- *   camera view is registered or available in the [EntityManager].
- */
-internal fun getPerceivedResolutionCameraView(
-    entityManager: EntityManager
-): CameraViewActivityPose? {
-    val cameraViews =
-        entityManager.getSystemSpaceActivityPoseOfType(CameraViewActivityPose::class.java)
-    for (cameraView in cameraViews) {
-        if (cameraView.cameraType == CameraViewActivityPose.CameraType.CAMERA_TYPE_LEFT_EYE) {
-            return cameraView
-        }
-    }
-
-    return null
-}
+@VisibleForTesting internal const val PERCEIVED_RESOLUTION_EPSILON = 0.001f
 
 /**
  * Calculates the perceived pixel dimensions of a 3D box as it would appear on the display.
  *
  * This function first determines the dimensions of the largest face of the 3D box and calculates
- * the distance from the camera to this face. It assumes an orientation where this largest face is
- * directed towards the camera, maximizing its potential screen coverage.
+ * the distance from the render viewpoint to this face. It assumes an orientation where this largest
+ * face is directed towards the render viewpoint, maximizing its potential screen coverage.
  *
  * Subsequently, it treats this largest face as a 2D panel at the calculated distance and computes
  * its perceived resolution on the screen using [getPerceivedResolutionOfPanel].
  *
- * @param cameraView The current pose and Field of View (FOV) information of the camera.
+ * @param renderView The [ScenePose] reflecting the pose of the render viewpoint in the activity's
+ *   coordinate system.
+ * @param fieldOfView The field of view of the render viewpoint.
+ * @param viewPlaneInPixels The size of the panel in pixels.
  * @param boxDimensionsInActivitySpace The dimensions (width, height, depth) of the 3D box in the
  *   activity's coordinate space.
  * @param boxPositionInActivitySpace The position of the center of the 3D box in the activity's
  *   coordinate space.
- * @return If Success, the calculated [PixelDimensions] (width and height in pixels) that the
- *   largest face of the 3D box would occupy on the display, assuming it's oriented towards the
- *   camera. Returns [PerceivedResolutionResult.EntityTooClose] if the box's largest face is
- *   determined to be behind or too close to the camera.
+ * @return If Success, the calculated [androidx.xr.scenecore.runtime.PixelDimensions] (width and
+ *   height in pixels) that the largest face of the 3D box would occupy on the display, assuming
+ *   it's oriented towards the render viewpoint. Returns
+ *   [androidx.xr.scenecore.runtime.PerceivedResolutionResult.EntityTooClose] if the box's largest
+ *   face is determined to be behind or too close to the render viewpoint.
  * @see getDimensionsAndDistanceOfLargest3dBoxSurface
  * @see getPerceivedResolutionOfPanel
  */
 internal fun getPerceivedResolutionOf3DBox(
-    cameraView: CameraViewActivityPose,
+    renderView: ScenePose,
+    fieldOfView: FieldOfView,
+    viewPlaneInPixels: PixelDimensions,
     boxDimensionsInActivitySpace: Dimensions,
     boxPositionInActivitySpace: Vector3,
 ): PerceivedResolutionResult {
     // Get dimensions of the largest box surface and its relative distance if it were closest.
     val surfaceDimensionsAndDistance =
         getDimensionsAndDistanceOfLargest3dBoxSurface(
-            cameraView,
+            renderView,
             boxDimensionsInActivitySpace,
             boxPositionInActivitySpace,
         )
 
     return getPerceivedResolutionOfPanel(
-        cameraView,
+        fieldOfView,
+        viewPlaneInPixels,
         surfaceDimensionsAndDistance.width,
         surfaceDimensionsAndDistance.height,
         surfaceDimensionsAndDistance.depth,
@@ -98,33 +87,36 @@ internal fun getPerceivedResolutionOf3DBox(
 }
 
 /**
- * Calculates the dimensions of the largest face of a 3D box and the distance from the camera to
- * this face.
+ * Calculates the dimensions of the largest face of a 3D box and the distance from the render
+ * viewpoint to this face.
  *
  * The function first identifies the largest face of the box and then assumes that the box is
- * oriented in such a way that the largest surface is facing the camera. This is the orientation in
- * which the 3D box could occupy the maximum amount of screen space without any translations.
+ * oriented in such a way that the largest surface is facing the render viewpoint. This is the
+ * orientation in which the 3D box could occupy the maximum amount of screen space without any
+ * translations.
  *
- * @param cameraView The current pose of the camera in the activity's coordinate space.
+ * @param renderView The [ScenePose] reflecting the pose of the render viewpoint in the activity's
+ *   coordinate system.
  * @param boxDimensionsInActivitySpace The dimensions (width, height, depth) of the 3D box in the
  *   activity's coordinate space.
  * @param boxPositionInActivitySpace The position of the center of the 3D box in the activity's
  *   coordinate space.
- * @return A [Dimensions] where:
+ * @return A [androidx.xr.scenecore.runtime.Dimensions] where:
  *     - `width`: The largest dimension of the box, considered the width of its largest surface.
  *     - `height`: The second largest dimension of the box, considered the height of its largest
  *       surface.
- *     - `depth`: The calculated distance from the camera to the largest face of the 3D box. This is
- *       derived by taking the distance from the camera to the box's center and subtracting half of
- *       the box's smallest dimension. All the values are in the units of the ActivitySpace.
+ *     - `depth`: The calculated distance from the render viewpoint to the largest face of the 3D
+ *       box. This is by taking the distance from the render viewpoint to the box's center and
+ *       subtracting half of the box's smallest dimension. All the values are in the units of the
+ *       ActivitySpace.
  */
 internal fun getDimensionsAndDistanceOfLargest3dBoxSurface(
-    cameraView: CameraViewActivityPose,
+    renderView: ScenePose,
     boxDimensionsInActivitySpace: Dimensions,
     boxPositionInActivitySpace: Vector3,
-): Dimensions {
+): FloatSize3d {
     // Get box surface with maximum size and rearrange the dimensions so that the face with the
-    // largest area is facing the camera.
+    // largest area is facing the render viewpoint.
     val sortedDimensions =
         listOf(
                 boxDimensionsInActivitySpace.width,
@@ -137,74 +129,81 @@ internal fun getDimensionsAndDistanceOfLargest3dBoxSurface(
     val depthTo3dBoxCenter = sortedDimensions[2] / 2.0f
 
     // Substract 1/2 of the depth of the 3D box from the total distance to get the distance from
-    // the camera to the largest face. Assume the largest face is always the closest to the camera.
-    val cameraPositionInActivitySpace = cameraView.activitySpacePose.translation
+    // the render viewpoint to the largest face. Assume the largest face is always the closest to
+    // the render viewpoint.
+    val renderViewpointPositionInActivitySpace = renderView.activitySpacePose.translation
     val distanceInActivitySpaceTo3DBox =
-        Vector3.distance(cameraPositionInActivitySpace, boxPositionInActivitySpace)
+        Vector3.distance(renderViewpointPositionInActivitySpace, boxPositionInActivitySpace)
     val distanceInActivitySpaceToLargestFace = distanceInActivitySpaceTo3DBox - depthTo3dBoxCenter
 
-    return Dimensions(maxWidth, maxHeight, distanceInActivitySpaceToLargestFace)
+    return FloatSize3d(maxWidth, maxHeight, distanceInActivitySpaceToLargestFace)
 }
 
 /**
  * Computes the perceived pixel dimensions of a 2D rectangular panel in 3D space as it would appear
  * on the display.
  *
- * The calculation is based on the camera's field of view (FOV) and the distance to the panel. It
- * first determines the physical dimensions of the camera's view frustum at the panel's distance.
- * Then, it calculates what proportion of this view frustum the panel occupies and converts this
- * proportion into pixel dimensions based on the screen's total resolution.
+ * The calculation is based on the render viewpoints's field of view (FOV) and the distance to the
+ * panel. It first determines the physical dimensions of the render viewpoints's view frustum at the
+ * panel's distance. Then, it calculates what proportion of this view frustum the panel occupies and
+ * converts this proportion into pixel dimensions based on the screen's total resolution.
  *
- * If the panel is determined to be too close to the camera (closer than
- * [PERCEIVED_RESOLUTION_EPSILON]), it returns [PerceivedResolutionResult.EntityTooClose] to avoid
- * issues like division by zero or infinitely large sizes.
+ * If the panel is determined to be too close to the render viewpoint (closer than
+ * [PERCEIVED_RESOLUTION_EPSILON]), it returns
+ * [androidx.xr.scenecore.runtime.PerceivedResolutionResult.EntityTooClose] to avoid issues like
+ * division by zero or infinitely large sizes.
  *
- * @param cameraView The pose and FOV information of the camera in the activity's coordinate space.
+ * @param fieldOfView The field of view of the render viewpoint.
+ * @param viewPlaneInPixels The size of the panel in pixels.
  * @param panelWidthInActivitySpace The physical width of the 2D panel in the units of the
  *   activity's coordinate space (e.g., meters).
  * @param panelHeightInActivitySpace The physical height of the 2D panel in the units of the
  *   activity's coordinate space (e.g., meters).
- * @param panelDistanceInActivitySpace The perpendicular distance from the camera to the plane of
- *   the 2D panel, in the activity's coordinate space.
- * @return If Success, The calculated [PixelDimensions] (width and height in pixels) that the panel
- *   would occupy on the display. Returns [PerceivedResolutionResult.EntityTooClose] if the panel is
- *   too close to the camera.
+ * @param panelDistanceInActivitySpace The perpendicular distance from the render viewpoint to the
+ *   plane of the 2D panel, in the activity's coordinate space.
+ * @return If Success, The calculated [androidx.xr.scenecore.runtime.PixelDimensions] (width and
+ *   height in pixels) that the panel would occupy on the display. Returns
+ *   [androidx.xr.scenecore.runtime.PerceivedResolutionResult.EntityTooClose] if the panel is too
+ *   close to the render viewpoint.
  */
 internal fun getPerceivedResolutionOfPanel(
-    cameraView: CameraViewActivityPose,
+    fieldOfView: FieldOfView,
+    viewPlaneInPixels: PixelDimensions,
     panelWidthInActivitySpace: Float,
     panelHeightInActivitySpace: Float,
     panelDistanceInActivitySpace: Float,
 ): PerceivedResolutionResult {
-    // If the panel is behind the camera or exactly at the camera's position, it's not visible
-    // or would have infinite size on screen so return maximum resolution allowed.
+    // If the panel is behind the render viewpoint or exactly at the render viewpoints's position,
+    // it's not visible or would have infinite size on screen so return maximum resolution allowed.
     if (panelDistanceInActivitySpace <= PERCEIVED_RESOLUTION_EPSILON) {
         return PerceivedResolutionResult.EntityTooClose()
     }
-    // If the distance to the camera isn't finite then there was an invalid camera state
+    // If the distance to the render viewpoint isn't finite then there was an invalid render
+    // viewpoint state
     if (!panelDistanceInActivitySpace.isFinite()) {
-        return PerceivedResolutionResult.InvalidCameraView()
+        return PerceivedResolutionResult.InvalidRenderViewpoint()
     }
 
-    // Calculate the activitySpace dimensions of the camera's view frustum at the panel's distance.
-    // These are the dimensions of a rectangular plane perpendicular to the camera's forward vector
-    // at 'distanceInActivitySpace' that precisely fits the camera's field of view.
-    // `distance * tan(angle)` gives us the half-length from the optical axis to the edge of the
-    // view in the direction of the angle. For example: adding the half-lengths of left and right
-    // angles will give us the full width.
-    val fov = cameraView.fov
+    // Calculate the activitySpace dimensions of the render viewpoints's view frustum at the panel's
+    // distance. These are the dimensions of a rectangular plane perpendicular to the render
+    // viewpoints's forward vector at 'distanceInActivitySpace' that precisely fits the render
+    // viewpoints's field of view. `distance * tan(angle)` gives us the half-length from the optical
+    // axis to the edge of the view in the direction of the angle. For example: adding the
+    // half-lengths of left and right angles will give us the full width.
     if (
-        !(fov.angleLeft.isFinite() &&
-            fov.angleRight.isFinite() &&
-            fov.angleDown.isFinite() &&
-            fov.angleUp.isFinite())
+        !(fieldOfView.angleLeft.isFinite() &&
+            fieldOfView.angleRight.isFinite() &&
+            fieldOfView.angleDown.isFinite() &&
+            fieldOfView.angleUp.isFinite())
     ) {
-        return PerceivedResolutionResult.InvalidCameraView()
+        return PerceivedResolutionResult.InvalidRenderViewpoint()
     }
     val viewPlaneWidthActivitySpace =
-        panelDistanceInActivitySpace * (abs(tan(fov.angleLeft)) + abs(tan(fov.angleRight)))
+        panelDistanceInActivitySpace *
+            (abs(tan(fieldOfView.angleLeft)) + abs(tan(fieldOfView.angleRight)))
     val viewPlaneHeightActivitySpace =
-        panelDistanceInActivitySpace * (abs(tan(fov.angleDown)) + abs(tan(fov.angleUp)))
+        panelDistanceInActivitySpace *
+            (abs(tan(fieldOfView.angleDown)) + abs(tan(fieldOfView.angleUp)))
 
     // Calculate the ratio of the panel dimensions within the view plane
     // Avoid division by zero if FOV or distance makes view plane dimensions near zero.
@@ -216,9 +215,8 @@ internal fun getPerceivedResolutionOfPanel(
         else panelHeightInActivitySpace / viewPlaneHeightActivitySpace
 
     // Calculate the width and height of the panel in pixels
-    val viewPlaneInPixels = cameraView.displayResolutionInPixels
     if (viewPlaneInPixels.width == 0 || viewPlaneInPixels.height == 0) {
-        return PerceivedResolutionResult.InvalidCameraView()
+        return PerceivedResolutionResult.InvalidRenderViewpoint()
     }
     val pixelWidth = panelWidthRatioInViewPlane * viewPlaneInPixels.width
     val pixelHeight = panelHeightRatioInViewPlane * viewPlaneInPixels.height
@@ -226,4 +224,33 @@ internal fun getPerceivedResolutionOfPanel(
     return PerceivedResolutionResult.Success(
         PixelDimensions(pixelWidth.roundToInt(), pixelHeight.roundToInt())
     )
+}
+
+/**
+ * Returns the resolution of the display in pixels for each eye.
+ *
+ * @param context The [Context] that provides the default [android.view.Display] for determining the
+ *   display resolution.
+ * @return The [PixelDimensions]s of the resolution for a single eye.
+ */
+// Suppress warnings: windowManager's getDefaultDisplay and getRealMetrics.
+@Suppress("DEPRECATION")
+internal fun getDisplayResolutionInPixels(context: Context): PixelDimensions {
+    val windowManager =
+        context.getSystemService(WindowManager::class.java)
+            // WindowManager not available, cannot get display resolution. Returning (0, 0).
+            ?: return PixelDimensions(0, 0)
+
+    val display =
+        windowManager.defaultDisplay
+            // Default display not available, cannot get display resolution. Returning
+            // (0,0).
+            ?: return PixelDimensions(0, 0)
+
+    val displayMetrics = DisplayMetrics()
+    display.getRealMetrics(displayMetrics)
+
+    // Divide the width by 2 because we want single eye resolution, not full display
+    // resolution
+    return PixelDimensions(displayMetrics.widthPixels / 2, displayMetrics.heightPixels)
 }

@@ -1,0 +1,87 @@
+# This workflow builds :room3:room3-compiler with the latest snapshot build of KSP.
+# It applies the patch file .github/integration-patches/ksp-snapshot.patch if it exists.
+name: KSP Snapshot Integration Test
+
+on:
+  # Run workflow daily.
+  schedule:
+    - cron: "0 3 * * *"
+  # Allows running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  find-ksp-version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      kspVersion: ${{ steps.version.outputs.kspVersion }}
+
+    steps:
+      - name: "Find the latest KSP snapshot version"
+        id: version
+        run: |
+          kspMetadata=$(curl 'https://central.sonatype.com/repository/maven-snapshots/com/google/devtools/ksp/com.google.devtools.ksp.gradle.plugin/maven-metadata.xml')
+
+          # 1. grep "<latest>" : Get the latest version line
+          # 2. sed ...         : Strip XML tags to get raw version numbers
+          kspVersion=$(echo "$kspMetadata" | grep "<latest>" | sed 's/.*<latest>\(.*\)<\/latest>.*/\1/')
+
+          if [ -z "$kspVersion" ]; then
+            echo "::error::Could not find any snapshot versions in maven-metadata.xml"
+            exit 1
+          fi
+          # Set the version as the step output.
+          echo "kspVersion=$kspVersion" >> "$GITHUB_OUTPUT"
+          # Add a notice to make it easy to see which version is used for the build.
+          echo "::notice title=KSP version::Using KSP version $kspVersion"
+
+  build:
+    needs: find-ksp-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v4
+
+      # Optionally apply a patch file needed to use the latest version of KSP.
+      - name: "Apply patch"
+        # If the file exists, hashFiles will return a non-empty string.
+        if: ${{ hashFiles('.github/integration-patches/ksp-snapshot.patch') != '' }}
+        run: git apply .github/integration-patches/ksp-snapshot.patch
+
+      - name: "Set KSP version"
+        env:
+          KSP_VERSION: ${{ needs.find-ksp-version.outputs.kspVersion }}
+        run: |
+          # Replace the ksp version reference with $KSP_VERSION.
+          sed -i "s/\(ksp = \"\).*\"/\1${KSP_VERSION}\"/" gradle/libs.versions.toml
+          # Output updated version line for debugging.
+          cat gradle/libs.versions.toml | grep "ksp = "
+
+      - name: "Run build"
+        uses: ./.github/actions/build-single-project
+        with:
+          project: room3
+          project-root: playground-projects/room-playground
+          gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          # Gradle flags match those used in presubmit.yml, plus:
+          # * disabling validating integration patches as a patch file may already be applied
+          # * disabling klibs cross compilation because it is not supported with cinterops
+          # * setting max workers to 2 to avoid memory exhaustion
+          gradle-flags: >
+            --max-workers=2
+            -Pkotlin.native.enableKlibsCrossCompilation=false
+            -Dorg.gradle.internal.http.connectionTimeout=60000
+            -Dorg.gradle.internal.http.socketTimeout=60000
+            -Dorg.gradle.internal.repository.max.retries=20
+            -Dorg.gradle.internal.repository.initial.backoff=500
+            --dependency-verification=off
+            --stacktrace
+            -x validateIntegrationPatches
+            -x checkKotlinApiTarget
+            -x jsBrowserTest
+            -x wasmJsBrowserTest
+          # Disable the cache since this is the only build using the latest KSP.
+          gradle-cache-disabled: true

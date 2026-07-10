@@ -80,18 +80,8 @@ class FocusRequester @RememberInComposition constructor() {
      *   canceled.
      * @sample androidx.compose.ui.samples.RequestFocusSample
      */
-    fun requestFocus(focusDirection: FocusDirection = Enter): Boolean = findFocusTargetNode {
-        it.requestFocus(focusDirection)
-    }
-
-    internal fun findFocusTargetNode(onFound: (FocusTargetNode) -> Boolean): Boolean {
-        return findFocusTarget { focusTarget ->
-            if (focusTarget.fetchFocusProperties().canFocus) {
-                onFound(focusTarget)
-            } else {
-                focusTarget.findChildCorrespondingToFocusEnter(Enter, onFound)
-            }
-        }
+    fun requestFocus(focusDirection: FocusDirection = Enter): Boolean {
+        return findFocusTarget { it.requestFocus(focusDirection) }
     }
 
     /**
@@ -156,6 +146,13 @@ class FocusRequester @RememberInComposition constructor() {
      *   and we successfully saved a reference to it.
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
+    // TODO: Deprecate once focus restoration is enabled by default via flags.
+    // @Deprecated(
+    //    message =
+    //        "The focused child is now saved automatically whenever focus changes. Just call" +
+    //            " restoreFocusedChild to restore focus.",
+    //    level = DeprecationLevel.WARNING,
+    // )
     fun saveFocusedChild(): Boolean {
         if (focusRequesterNodes.isEmpty()) {
             println("$FocusWarning: $FocusRequesterNotInitialized")
@@ -258,11 +255,10 @@ class FocusRequester @RememberInComposition constructor() {
      *
      * @param onFound the callback that is run when the child is found.
      * @return false if no focus nodes were found or if the FocusRequester is
-     *   [FocusRequester.Cancel]. Returns null if the FocusRequester is [FocusRequester.Default].
-     *   Otherwise returns a logical or of the result of calling [onFound] for each focus node
-     *   associated with this [FocusRequester].
+     *   [FocusRequester.Cancel]. Returns a logical or of the result of calling [onFound] for each
+     *   focus node associated with this [FocusRequester].
      */
-    private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
+    internal inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }
         if (focusRequesterNodes.isEmpty()) {

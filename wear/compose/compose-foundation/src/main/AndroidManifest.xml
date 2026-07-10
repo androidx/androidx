@@ -20,5 +20,6 @@
         <uses-library
             android:name="wear-sdk"
             android:required="false"/>
+
     </application>
 </manifest>

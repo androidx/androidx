@@ -1760,10 +1760,19 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (prevFocusedChild == null) {
             return null;
         }
-        LayoutParams lp = (LayoutParams) prevFocusedChild.getLayoutParams();
-        final int prevSpanStart = lp.mSpanIndex;
-        final int prevSpanEnd = lp.mSpanIndex + lp.mSpanSize;
-        View view = super.onFocusSearchFailed(focused, direction, recycler, state);
+        return onFocusSearchFailedInternal(prevFocusedChild, direction, recycler, state);
+    }
+
+    private View onFocusSearchFailedInternal(@Nullable View prevFocusedChild, int direction,
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
+        int prevSpanStart = 0;
+        int prevSpanEnd = 0;
+        if (prevFocusedChild != null) {
+            LayoutParams lp = (LayoutParams) prevFocusedChild.getLayoutParams();
+            prevSpanStart = lp.mSpanIndex;
+            prevSpanEnd = lp.mSpanIndex + lp.mSpanSize;
+        }
+        View view = super.onFocusSearchFailed(prevFocusedChild, direction, recycler, state);
         if (view == null) {
             return null;
         }
@@ -1827,7 +1836,8 @@ public class GridLayoutManager extends LinearLayoutManager {
             final LayoutParams candidateLp = (LayoutParams) candidate.getLayoutParams();
             final int candidateStart = candidateLp.mSpanIndex;
             final int candidateEnd = candidateLp.mSpanIndex + candidateLp.mSpanSize;
-            if (candidate.hasFocusable() && candidateStart == prevSpanStart
+            if (prevFocusedChild != null && candidate.hasFocusable()
+                    && candidateStart == prevSpanStart
                     && candidateEnd == prevSpanEnd) {
                 return candidate; // perfect match
             }
@@ -1836,25 +1846,40 @@ public class GridLayoutManager extends LinearLayoutManager {
                     || (!candidate.hasFocusable() && unfocusableWeakCandidate == null)) {
                 assignAsWeek = true;
             } else {
-                int maxStart = Math.max(candidateStart, prevSpanStart);
-                int minEnd = Math.min(candidateEnd, prevSpanEnd);
-                int overlap = minEnd - maxStart;
-                if (candidate.hasFocusable()) {
-                    if (overlap > focusableWeakCandidateOverlap) {
-                        assignAsWeek = true;
-                    } else if (overlap == focusableWeakCandidateOverlap
-                            && preferLastSpan == (candidateStart
-                            > focusableWeakCandidateSpanIndex)) {
-                        assignAsWeek = true;
+                if (prevFocusedChild != null) {
+                    int maxStart = Math.max(candidateStart, prevSpanStart);
+                    int minEnd = Math.min(candidateEnd, prevSpanEnd);
+                    int overlap = minEnd - maxStart;
+                    if (candidate.hasFocusable()) {
+                        if (overlap > focusableWeakCandidateOverlap) {
+                            assignAsWeek = true;
+                        } else if (overlap == focusableWeakCandidateOverlap
+                                && preferLastSpan == (candidateStart
+                                > focusableWeakCandidateSpanIndex)) {
+                            assignAsWeek = true;
+                        }
+                    } else if (focusableWeakCandidate == null
+                            && isViewPartiallyVisible(candidate, false, true)) {
+                        if (overlap > unfocusableWeakCandidateOverlap) {
+                            assignAsWeek = true;
+                        } else if (overlap == unfocusableWeakCandidateOverlap
+                                && preferLastSpan == (candidateStart
+                                        > unfocusableWeakCandidateSpanIndex)) {
+                            assignAsWeek = true;
+                        }
                     }
-                } else if (focusableWeakCandidate == null
-                        && isViewPartiallyVisible(candidate, false, true)) {
-                    if (overlap > unfocusableWeakCandidateOverlap) {
-                        assignAsWeek = true;
-                    } else if (overlap == unfocusableWeakCandidateOverlap
-                            && preferLastSpan == (candidateStart
-                                    > unfocusableWeakCandidateSpanIndex)) {
-                        assignAsWeek = true;
+                } else {
+                    if (candidate.hasFocusable()) {
+                        if (preferLastSpan == (candidateStart
+                                > focusableWeakCandidateSpanIndex)) {
+                            assignAsWeek = true;
+                        }
+                    } else if (focusableWeakCandidate == null
+                            && isViewPartiallyVisible(candidate, false, true)) {
+                        if (preferLastSpan == (candidateStart
+                                > unfocusableWeakCandidateSpanIndex)) {
+                            assignAsWeek = true;
+                        }
                     }
                 }
             }
@@ -1874,6 +1899,59 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
         }
         return (focusableWeakCandidate != null) ? focusableWeakCandidate : unfocusableWeakCandidate;
+    }
+
+    @Override
+    @Nullable
+    public View onFocusEnter(int direction,
+            RecyclerView.@NonNull Recycler recycler, RecyclerView.@NonNull State state) {
+        resolveShouldLayoutReverse();
+        if (getChildCount() == 0) {
+            return null;
+        }
+
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
+
+        if (layoutDir == LayoutState.INVALID_LAYOUT) {
+            return null;
+        }
+        ensureLayoutState();
+
+        int enterScrollPosition;
+
+        // STEP 1: Determine whether we should scroll to the beginning or end of the list
+        if ((layoutDir == LayoutState.LAYOUT_START) ^ mShouldReverseLayout) {
+            enterScrollPosition = state.getItemCount() - 1;
+        } else {
+            enterScrollPosition = 0;
+        }
+
+        // STEP 2: Scroll to the correct side of the list
+        View desiredView = findViewByPosition(enterScrollPosition);
+        if (desiredView != null) {
+            // Step 2a: if we already have the view for the side, scroll to it
+            smoothScrollToPosition(mRecyclerView, state, enterScrollPosition);
+        } else {
+            // Step 2b: otherwise, jump to it
+            mPendingScrollPosition = enterScrollPosition;
+            // And trigger a full onLayoutChildren after updating the pending scroll position
+            onLayoutChildren(recycler, state);
+        }
+
+        // STEP 3: Try to find the focusable child closest to the correct side
+        View nextFocus;
+        if (layoutDir == LayoutState.LAYOUT_START) {
+            nextFocus = findFirstFocusableChildClosestToEnd();
+        } else {
+            nextFocus = findFirstFocusableChildClosestToStart();
+        }
+        if (nextFocus != null && nextFocus.hasFocusable()) {
+            return nextFocus;
+        }
+
+        // We failed to find a focusable View within the currently rendered elements. Now that
+        // we have all the elements starting from the correct side, fallback to onFocusSearchFailed
+        return onFocusSearchFailedInternal(null, direction, recycler, state);
     }
 
     @Override

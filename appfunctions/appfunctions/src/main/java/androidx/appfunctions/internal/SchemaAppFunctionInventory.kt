@@ -29,13 +29,7 @@ import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
  * [androidx.appfunctions.AppFunctionSchemaDefinition].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class SchemaAppFunctionInventory {
-    /**
-     * A map of function IDs to their corresponding
-     * [androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata].
-     */
-    public abstract val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
-
+public abstract class SchemaAppFunctionInventory : AppFunctionInventory {
     /**
      * The map of [androidx.appfunctions.metadata.AppFunctionSchemaMetadata] to
      * [CompileTimeAppFunctionMetadata].

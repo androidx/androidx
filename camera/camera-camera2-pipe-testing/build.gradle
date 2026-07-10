@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,7 +26,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -36,10 +34,10 @@ dependencies {
 
     // Classes and types that are only needed at runtime
     implementation(libs.atomicFu)
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
     implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+    implementation(project(":camera:camera-common-testing"))
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -47,10 +45,11 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinCoroutinesCore)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
 
     lint {
         enable.add("CameraXQuirksClassDetector")
@@ -59,16 +58,15 @@ android {
 }
 
 // Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
 }
 
 androidx {
     name = "Camera2 Pipe Testing"
     type = SoftwareType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "Testing components for the Camera2 Pipe Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +

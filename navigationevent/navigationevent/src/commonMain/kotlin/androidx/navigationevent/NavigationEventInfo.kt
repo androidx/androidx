@@ -16,6 +16,8 @@
 
 package androidx.navigationevent
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Provides contextual information about a navigation state (e.g., a screen or route).
  *
@@ -31,15 +33,14 @@ package androidx.navigationevent
  * - Ensure equality reflects the logical identity of the navigation state.
  *
  * This allows you to associate custom, comparable data with a system navigation event emissions.
- *
- * @see NavigationEventState
  */
-public interface NavigationEventInfo {
+@Immutable
+public abstract class NavigationEventInfo() {
 
     /**
      * A default used when no specific information is associated with a navigation event.
      *
      * This serves as a null object when context about the UI state is unavailable or not needed.
      */
-    public object NotProvided : NavigationEventInfo
+    public object None : NavigationEventInfo()
 }

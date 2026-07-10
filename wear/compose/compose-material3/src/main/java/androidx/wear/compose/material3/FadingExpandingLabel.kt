@@ -55,6 +55,11 @@ import androidx.compose.ui.unit.TextUnit
  * change.
  *
  * @sample androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_FadingExpandingLabelButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param text Text string that will be shown.
  * @param modifier Modifier to be applied to the animated text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [textStyle] has no color
@@ -70,8 +75,8 @@ import androidx.compose.ui.unit.TextUnit
  *   [TextStyle.textDecoration].
  * @param textAlign The alignment of the text within the lines of the paragraph. See
  *   [TextStyle.textAlign].
- * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
- *   [TextStyle.lineHeight].
+ * @param lineHeight Line height for the [androidx.compose.ui.text.Paragraph] in [TextUnit] unit,
+ *   e.g. SP or EM. See [TextStyle.lineHeight].
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  *   TextAlign may have unexpected effects.
@@ -144,23 +149,12 @@ public fun FadingExpandingLabel(
             return@LaunchedEffect
         }
 
-        // If the text is expanding, update it before the fading lines animation, if it's
-        // collapsing, update it after the animation. This is because we can only animate the
-        // expanding fading effect on the larger text.
-        val isLinesDecreasing = currentTextMeasureResult.lineCount > textMeasureResult.lineCount
-        if (!isLinesDecreasing) {
-            currentText = text
-            currentTextMeasureResult = textMeasureResult
-        }
+        currentText = text
+        currentTextMeasureResult = textMeasureResult
 
         showAnimatedTextHeight = true
         // Animate to the new text height to reveal it with a fade-in animation
         animatedHeight.animateTo(textMeasureResult.size.height.toFloat(), animationSpec)
-
-        if (isLinesDecreasing) {
-            currentText = text
-            currentTextMeasureResult = textMeasureResult
-        }
     }
 
     Text(

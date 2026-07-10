@@ -8,7 +8,7 @@ package androidx.leanback.widget {
     method public void animateOut();
     method public int getChildDrawingOrder(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getExtraLayoutSpace();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getFocusScrollStrategy();
+    method public int getFocusScrollStrategy();
     method @Deprecated public int getHorizontalMargin();
     method public int getHorizontalSpacing();
     method public int getInitialPrefetchItemCount();
@@ -44,7 +44,7 @@ package androidx.leanback.widget {
     method public void setChildrenVisibility(int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setExtraLayoutSpace(int);
     method public void setFocusDrawingOrderEnabled(boolean);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setFocusScrollStrategy(int);
+    method public void setFocusScrollStrategy(int);
     method public final void setFocusSearchDisabled(boolean);
     method public void setGravity(int);
     method public void setHasOverlappingRendering(boolean);
@@ -75,6 +75,8 @@ package androidx.leanback.widget {
     method public void setSelectedPositionSmooth(int);
     method public void setSelectedPositionSmooth(int, androidx.leanback.widget.ViewHolderTask?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSelectedPositionSmoothWithSub(int, int);
+    method public void setSelectedPositionToAlignedChild();
+    method public void setSelectedPositionToUnalignedChild(android.view.View);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSelectedPositionWithSub(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSelectedPositionWithSub(int, int, int);
     method public final void setSmoothScrollByBehavior(androidx.leanback.widget.BaseGridView.SmoothScrollByBehavior?);
@@ -87,7 +89,8 @@ package androidx.leanback.widget {
     method public void setWindowAlignmentOffsetPercent(float);
     method public void setWindowAlignmentPreferKeyLineOverHighEdge(boolean);
     method public void setWindowAlignmentPreferKeyLineOverLowEdge(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
+    field public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
+    field public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = 4; // 0x4
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ITEM = 1; // 0x1
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_PAGE = 2; // 0x2
     field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
@@ -138,6 +141,8 @@ package androidx.leanback.widget {
   public final class GridLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager {
     ctor public GridLayoutManager();
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public int getViewCenter(android.view.View);
+    method public int getWindowKeyLine();
     method public void setFocusOutAllowed(boolean, boolean);
     method public void setOrientation(@androidx.recyclerview.widget.RecyclerView.Orientation int);
   }
@@ -152,6 +157,7 @@ package androidx.leanback.widget {
     method public final boolean getFadingRightEdge();
     method public final int getFadingRightEdgeLength();
     method public final int getFadingRightEdgeOffset();
+    method public int getNumRows();
     method protected void initAttributes(android.content.Context, android.util.AttributeSet?);
     method public final void setFadingLeftEdge(boolean);
     method public final void setFadingLeftEdgeLength(int);
@@ -187,6 +193,23 @@ package androidx.leanback.widget {
     method public final void setItemAlignmentViewId(int);
   }
 
+  public abstract class LeanbackSpanSizeLookup {
+    ctor public LeanbackSpanSizeLookup();
+    method public static androidx.leanback.widget.LeanbackSpanSizeLookup getDefault();
+    method public int getSpanGroupIndex(int, int);
+    method public int getSpanIndex(int, int);
+    method public abstract int getSpanSize(int);
+    method public int getSpanSize(int, int);
+    method public void invalidateSpanGroupIndexCache();
+    method public void invalidateSpanIndexCache();
+    method public boolean isSpanGroupIndexCacheEnabled();
+    method public boolean isSpanIndexCacheEnabled();
+    method public void setSpanGroupIndexCacheEnabled(boolean);
+    method public void setSpanIndexCacheEnabled(boolean);
+    field public static final int FILL_ALL_SPANS = -2; // 0xfffffffe
+    field public static final int FILL_ALL_SPANS_AND_PADDINGS = -1; // 0xffffffff
+  }
+
   public interface OnChildLaidOutListener {
     method public void onChildLaidOut(android.view.ViewGroup, android.view.View, int, long);
   }
@@ -205,6 +228,7 @@ package androidx.leanback.widget {
     ctor public VerticalGridView(android.content.Context);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet?);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet?, int);
+    method public int getNumColumns();
     method protected void initAttributes(android.content.Context, android.util.AttributeSet?);
     method public void setColumnWidth(int);
     method public void setNumColumns(int);

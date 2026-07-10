@@ -23,11 +23,12 @@ import androidx.compose.ui.inspection.testdata.BoxWithConstraintsDialogTestActiv
 import androidx.compose.ui.inspection.util.GetComposablesCommand
 import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
 import androidx.compose.ui.inspection.util.roots
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -36,7 +37,8 @@ import org.junit.rules.RuleChain
 
 @LargeTest
 class BoxWithConstraintsDialogTest {
-    private val rule = createAndroidComposeRule<BoxWithConstraintsDialogTestActivity>()
+    private val rule =
+        createAndroidComposeRule<BoxWithConstraintsDialogTestActivity>(StandardTestDispatcher())
 
     @get:Rule val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 

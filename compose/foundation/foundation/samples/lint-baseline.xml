@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.11.0-alpha03" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha03)" variant="all" version="8.11.0-alpha03">
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
     <issue
         id="UnrememberedMutableState"
@@ -17,6 +17,15 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/samples/AnchoredDraggableSample.kt"/>
+    </issue>
+
+    <issue
+        id="FrequentlyChangingValue"
+        message="Reading a value annotated with @FrequentlyChangingValue inside composition"
+        errorLine1="            Text(text = &quot;Current Page Offset Fraction: ${pagerState.currentPageOffsetFraction}&quot;)"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/samples/PagerSamples.kt"/>
     </issue>
 
     <issue
@@ -373,8 +382,8 @@
     <issue
         id="AutoboxingStateCreation"
         message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    val offset = remember { mutableStateOf(0f) }"
-        errorLine2="                            ~~~~~~~~~~~~~~">
+        errorLine1="    var offset by remember { mutableStateOf(0f) }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/samples/ScrollableSamples.kt"/>
     </issue>

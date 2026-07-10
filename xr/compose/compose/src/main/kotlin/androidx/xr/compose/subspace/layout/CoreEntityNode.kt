@@ -24,24 +24,23 @@ package androidx.xr.compose.subspace.layout
  * scale will be the product of the individual scales. See the description of each property setter
  * for more details on the particular logic that is applied.
  */
-internal interface CoreEntityNode {
+internal interface CoreEntityNode : DelegatableSubspaceNode {
     /**
      * Called during the placement of the [CoreEntity] prior to when the size and position is
      * finally set on the node.
      */
-    fun CoreEntityScope.modifyCoreEntity()
+    fun CoreEntityScope.modifyCoreEntity() {}
 }
 
 /**
- * Requests a relayout of the [CoreEntityNode] composition tree.
+ * Requests an update to the CoreEntity by triggering CoreEntityNode modifiers.
  *
- * This is used to request a relayout in stateful layout modifiers that are impacted by events that
- * don't trigger a recomposition. *Do not* call this from [CoreEntityNode.modifyCoreEntity] as
- * [CoreEntityNode.modifyCoreEntity] is called during layout and [requestRelayout] will cause a
- * relayout loop.
+ * This is used to request an update in stateful modifiers that are impacted by events that don't
+ * trigger a recomposition. *Do not* call this from [CoreEntityNode.modifyCoreEntity] to avoid an
+ * update loop.
  */
-internal fun CoreEntityNode.requestRelayout() {
-    (this as SubspaceModifier.Node).layoutNode?.requestRelayout()
+internal fun CoreEntityNode.invalidateCoreEntity() {
+    (this as SubspaceModifier.Node).layoutNode?.requestEntityUpdate()
 }
 
 /**
@@ -77,8 +76,8 @@ internal interface CoreEntityScope {
 }
 
 private class CoreEntityAccumulator : CoreEntityScope {
-    var alpha: Float = 1f
-    var scale: Float = 1f
+    var alpha: Float? = null
+    var scale: Float? = null
 
     override fun setOrAppendScale(scale: Float) {
         this.scale = scale
@@ -90,14 +89,14 @@ private class CoreEntityAccumulator : CoreEntityScope {
 
     fun merge(next: CoreEntityAccumulator): CoreEntityAccumulator {
         val result = CoreEntityAccumulator()
-        result.alpha = alpha * next.alpha
-        result.scale = scale * next.scale
+        result.alpha = alpha?.times(next.alpha ?: 1f) ?: next.alpha
+        result.scale = scale?.times(next.scale ?: 1f) ?: next.scale
         return result
     }
 
     fun applyChanges(coreEntity: CoreEntity) {
-        coreEntity.scale = scale
-        coreEntity.alpha = alpha
+        scale?.let { coreEntity.scale = it }
+        alpha?.let { coreEntity.alpha = it }
     }
 }
 

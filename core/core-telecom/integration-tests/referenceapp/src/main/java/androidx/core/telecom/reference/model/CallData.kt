@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.reference.model
 
 import androidx.core.telecom.CallAttributesCompat
@@ -21,7 +23,6 @@ import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.extensions.CallIconExtension
 import androidx.core.telecom.extensions.LocalCallSilenceExtension
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Represents the complete state and attributes of a single ongoing or recently completed call.
@@ -31,7 +32,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * state, mute status, endpoints, and potential errors).
  */
 data class CallData
-@OptIn(ExperimentalAppActions::class)
 constructor(
     val callId: String,
     val attributes: CallAttributesCompat,
@@ -51,6 +51,7 @@ constructor(
      * into the mic when it is muted. */
     val isLocalCallSilenceEnabled: Boolean = false,
     val isLocallyMuted: Boolean = false,
+    val canUserUpdateSilence: Boolean = true,
     val localCallSilenceExtension: LocalCallSilenceExtension? = null,
     /* Call Icon Extension - This data is all optional and allows voip apps to share a call
      * icon with remote surfaces (e.g. watch face, auto, etc.) */

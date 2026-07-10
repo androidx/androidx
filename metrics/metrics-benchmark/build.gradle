@@ -19,7 +19,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -35,9 +34,10 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.metrics.performance.benchmark"
     defaultConfig {
+        minSdk { version = release(24) }
         // Enable measuring on an emulator, devices with low battery, and eng builds
         // We are only concerned with allocations in this benchmark, so runtime performance
         // problems with these configurations are not relevant

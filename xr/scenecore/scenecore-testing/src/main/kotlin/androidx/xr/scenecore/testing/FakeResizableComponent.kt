@@ -14,25 +14,89 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.Dimensions
-import androidx.xr.scenecore.internal.ResizableComponent
-import androidx.xr.scenecore.internal.ResizeEventListener
+import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.InputEvent
+import androidx.xr.scenecore.runtime.ResizableComponent
+import androidx.xr.scenecore.runtime.ResizeEvent
+import androidx.xr.scenecore.runtime.ResizeEventListener
+import androidx.xr.scenecore.testing.internal.FakeResizableComponent as InternalFakeResizableComponent
 import java.util.concurrent.Executor
 
-/** Fake implementation of [androidx.xr.scenecore.internal.ResizableComponent] for testing. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeResizableComponent(
-    override var size: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),
-    override var minimumSize: Dimensions = Dimensions(1.0f, 1.0f, 1.0f),
-    override var maximumSize: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),
-    override var fixedAspectRatio: Float = 20.0f,
-    @get:Suppress("GetterSetterNames") override var autoHideContent: Boolean = false,
-    @get:Suppress("GetterSetterNames") override var autoUpdateSize: Boolean = false,
-    @get:Suppress("GetterSetterNames") override var forceShowResizeOverlay: Boolean = false,
-) : FakeComponent(), ResizableComponent {
+/** Fake implementation of [androidx.xr.scenecore.runtime.ResizableComponent] for testing. */
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FakeResizableComponent
+internal constructor(internal val fakeInternal: InternalFakeResizableComponent) :
+    FakeComponent(), ResizableComponent {
+    public constructor(
+        size: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),
+        minimumSize: Dimensions = Dimensions(1.0f, 1.0f, 1.0f),
+        maximumSize: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),
+        isFixedAspectRatioEnabled: Boolean = false,
+        autoHideContent: Boolean = false,
+        autoUpdateSize: Boolean = false,
+        forceShowResizeOverlay: Boolean = false,
+    ) : this(
+        InternalFakeResizableComponent(
+            size,
+            minimumSize,
+            maximumSize,
+            isFixedAspectRatioEnabled,
+            autoHideContent,
+            autoUpdateSize,
+            forceShowResizeOverlay,
+        )
+    )
+
+    override var size: Dimensions
+        get() = fakeInternal.size
+        set(value) {
+            fakeInternal.size = value
+        }
+
+    override var minimumSize: Dimensions
+        get() = fakeInternal.minimumSize
+        set(value) {
+            fakeInternal.minimumSize = value
+        }
+
+    override var maximumSize: Dimensions
+        get() = fakeInternal.maximumSize
+        set(value) {
+            fakeInternal.maximumSize = value
+        }
+
+    override var isFixedAspectRatioEnabled: Boolean
+        get() = fakeInternal.isFixedAspectRatioEnabled
+        set(value) {
+            fakeInternal.isFixedAspectRatioEnabled = value
+        }
+
+    @get:Suppress("GetterSetterNames")
+    override var autoHideContent: Boolean
+        get() = fakeInternal.autoHideContent
+        set(value) {
+            fakeInternal.autoHideContent = value
+        }
+
+    @get:Suppress("GetterSetterNames")
+    override var autoUpdateSize: Boolean
+        get() = fakeInternal.autoUpdateSize
+        set(value) {
+            fakeInternal.autoUpdateSize = value
+        }
+
+    @get:Suppress("GetterSetterNames")
+    override var forceShowResizeOverlay: Boolean
+        get() = fakeInternal.forceShowResizeOverlay
+        set(value) {
+            fakeInternal.forceShowResizeOverlay = value
+        }
 
     /**
      * For test purposes only.
@@ -43,7 +107,8 @@ public class FakeResizableComponent(
      *
      * <p>Map of resize event listeners to their executors.
      */
-    public val resizeEventListenersMap: MutableMap<ResizeEventListener, Executor> = mutableMapOf()
+    public val resizeEventListenersMap: Map<ResizeEventListener, Executor>
+        get() = fakeInternal.resizeEventListenersMap
 
     /**
      * Adds the listener to the set of listeners that are invoked through the resize operation, such
@@ -64,7 +129,7 @@ public class FakeResizableComponent(
         executor: Executor,
         resizeEventListener: ResizeEventListener,
     ) {
-        resizeEventListenersMap.put(resizeEventListener, executor)
+        fakeInternal.addResizeEventListener(executor, resizeEventListener)
     }
 
     /**
@@ -73,6 +138,19 @@ public class FakeResizableComponent(
      * @param resizeEventListener The listener to be removed.
      */
     override fun removeResizeEventListener(resizeEventListener: ResizeEventListener) {
-        resizeEventListenersMap.remove(resizeEventListener)
+        fakeInternal.removeResizeEventListener(resizeEventListener)
+    }
+
+    /**
+     * Simulates a resize event from the runtime, notifying all registered listeners.
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It iterates through all currently registered listeners and invokes their
+     * `onResizeEvent` method on their respective [Executor]s.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    public fun onResizeEvent(event: ResizeEvent) {
+        fakeInternal.onResizeEvent(event)
     }
 }

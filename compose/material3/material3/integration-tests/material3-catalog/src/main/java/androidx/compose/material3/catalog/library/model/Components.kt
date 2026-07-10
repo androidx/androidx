@@ -417,6 +417,18 @@ private val RadioButtons =
         examples = RadioButtonsExamples,
     )
 
+private val ScrollField =
+    Component(
+        id = nextId(),
+        name = "Scroll field",
+        description = "Scroll field allows the user to select a value, e.g. time.",
+        // No scroll field icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/scroll-field",
+        docsUrl = "", // TODO(b/441573791):  Add docs when available.
+        sourceUrl = "$Material3SourceUrl/ScrollField.kt",
+        examples = ScrollFieldExamples,
+    )
+
 private val SearchBars =
     Component(
         id = nextId(),
@@ -566,6 +578,20 @@ private val TopAppBar =
         examples = TopAppBarExamples,
     )
 
+private val Typography =
+    Component(
+        id = nextId(),
+        name = "Typography",
+        description =
+            "The Material Design type scale includes a range of contrasting styles that " +
+                "support the needs of your product and its content.",
+        // No typography icon
+        guidelinesUrl = "$StyleGuidelinesUrl/typography",
+        docsUrl = "$PackageSummaryUrl#typography",
+        sourceUrl = "$Material3SourceUrl/Typography.kt",
+        examples = TypographyExamples,
+    )
+
 /** Components for the catalog, ordered alphabetically by name. */
 val Components =
     listOf(
@@ -596,6 +622,7 @@ val Components =
         ProgressIndicators,
         PullToRefreshIndicators,
         RadioButtons,
+        ScrollField,
         SearchBars,
         SegmentedButtons,
         Sliders,
@@ -608,4 +635,5 @@ val Components =
         ToggleButtons,
         Tooltips,
         TopAppBar,
+        Typography,
     )

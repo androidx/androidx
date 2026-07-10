@@ -18,9 +18,9 @@ package androidx.pdf.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
-import android.graphics.pdf.RenderParams
 import android.graphics.pdf.component.PdfAnnotation
 import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
@@ -37,7 +37,9 @@ import android.util.Pair
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
+import androidx.pdf.RenderParams
 import androidx.pdf.utils.getTransformationMatrix
+import androidx.pdf.utils.toAndroidClass
 
 /**
  * A [PdfPage] implementation that uses the [PdfRenderer.Page] class for rendering.
@@ -53,9 +55,14 @@ import androidx.pdf.utils.getTransformationMatrix
 internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
     override val height = page.height
     override val width = page.width
+    override var isClosed = false
 
-    override fun renderPage(bitmap: Bitmap) {
-        page.render(bitmap, null, null, getRenderParams())
+    override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
+        val renderParams = renderParams.toAndroidClass()
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
+        page.render(bitmap, null, null, renderParams)
     }
 
     override fun renderTile(
@@ -64,6 +71,7 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
         top: Int,
         scaledPageWidth: Int,
         scaledPageHeight: Int,
+        renderParams: RenderParams,
     ) {
         val transformationMatrix =
             getTransformationMatrix(
@@ -74,7 +82,11 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
                 width,
                 height,
             )
-        page.render(bitmap, null, transformationMatrix, getRenderParams())
+        val renderParams = renderParams.toAndroidClass()
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
+        page.render(bitmap, null, transformationMatrix, renderParams)
     }
 
     override fun getPageTextContents(): List<PdfPageTextContent> {
@@ -110,16 +122,8 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
     }
 
     override fun close() {
+        isClosed = true
         page.close()
-    }
-
-    override fun getRenderParams(): RenderParams {
-        return RenderParams.Builder(RenderParams.RENDER_MODE_FOR_DISPLAY)
-            .setRenderFlags(
-                RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS or
-                    RenderParams.FLAG_RENDER_TEXT_ANNOTATIONS
-            )
-            .build()
     }
 
     override fun applyEdit(editRecord: FormEditRecord): List<Rect> {
@@ -172,5 +176,14 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
     @RequiresExtension(extension = Build.VERSION_CODES.VANILLA_ICE_CREAM, version = 18)
     override fun removePageAnnotation(annotationId: Int) {
         page.removePageAnnotation(annotationId)
+    }
+
+    @SuppressLint("NewApi")
+    @RequiresExtension(extension = Build.VERSION_CODES.VANILLA_ICE_CREAM, version = 19)
+    override fun getTopPageObjectAtPosition(
+        point: PointF,
+        types: IntArray,
+    ): Pair<Int, PdfPageObject>? {
+        return page.getTopPageObjectAtPosition(point, types)
     }
 }

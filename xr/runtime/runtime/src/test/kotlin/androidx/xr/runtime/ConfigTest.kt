@@ -16,6 +16,7 @@
 
 package androidx.xr.runtime
 
+import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -27,10 +28,10 @@ class ConfigTest {
     @Test
     fun equals_sameInstance_returnsTrue() {
         val config =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
 
         assertThat(config).isEqualTo(config)
     }
@@ -38,56 +39,81 @@ class ConfigTest {
     @Test
     fun equals_sameConfig_returnsTrue() {
         val config1 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
         val config2 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
 
         assertThat(config1).isEqualTo(config2)
     }
 
     @Test
     fun equals_differentPlaneTracking_returnsFalse() {
-        val config1 = Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-        val config2 = Config(planeTracking = Config.PlaneTrackingMode.DISABLED)
+        val config1 =
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        val config2 = Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build()
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentHandTracking_returnsFalse() {
-        val config1 = Config(handTracking = Config.HandTrackingMode.BOTH)
-        val config2 = Config(handTracking = Config.HandTrackingMode.DISABLED)
+        val config1 = Config.Builder().setHandTracking(HandTrackingMode.BOTH).build()
+        val config2 = Config.Builder().setHandTracking(HandTrackingMode.DISABLED).build()
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentFaceTracking_returnsFalse() {
-        val config1 = Config(faceTracking = Config.FaceTrackingMode.USER)
-        val config2 = Config(faceTracking = Config.FaceTrackingMode.DISABLED)
+        val config1 = Config.Builder().setFaceTracking(FaceTrackingMode.BLEND_SHAPES).build()
+        val config2 = Config.Builder().setFaceTracking(FaceTrackingMode.DISABLED).build()
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentDepthEstimation_returnsFalse() {
-        val config1 = Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_AND_RAW)
-        val config2 = Config(depthEstimation = Config.DepthEstimationMode.DISABLED)
+        val config1 =
+            Config.Builder().setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW).build()
+        val config2 = Config.Builder().setDepthEstimation(DepthEstimationMode.DISABLED).build()
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentAnchorPersistence_returnsFalse() {
-        val config1 = Config(anchorPersistence = Config.AnchorPersistenceMode.LOCAL)
+        val config1 = Config.Builder().setAnchorPersistence(AnchorPersistenceMode.LOCAL).build()
 
-        val config2 = Config(anchorPersistence = Config.AnchorPersistenceMode.DISABLED)
+        val config2 = Config.Builder().setAnchorPersistence(AnchorPersistenceMode.DISABLED).build()
+
+        assertThat(config1).isNotEqualTo(config2)
+    }
+
+    @Test
+    fun equals_differentImageTracking_returnsFalse() {
+        val augmentedImageDatabase =
+            AugmentedImageDatabase().apply {
+                addAugmentedImageDatabaseEntry(
+                    mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
+                    bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                )
+            }
+        val config1 = Config.Builder().setAugmentedImageDatabase(AugmentedImageDatabase()).build()
+        val config2 = Config.Builder().setAugmentedImageDatabase(augmentedImageDatabase).build()
+
+        assertThat(config1).isNotEqualTo(config2)
+    }
+
+    @Test
+    fun equals_differentQrCodeTracking_returnsFalse() {
+        val config1 = Config(qrCodeTracking = QrCodeTrackingMode.DISABLED)
+        val config2 = Config(qrCodeTracking = QrCodeTrackingMode.DYNAMIC)
 
         assertThat(config1).isNotEqualTo(config2)
     }
@@ -95,15 +121,15 @@ class ConfigTest {
     @Test
     fun hashCode_sameConfig_returnsSameHashCode() {
         val config1 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
         val config2 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
 
         assertThat(config1.hashCode()).isEqualTo(config2.hashCode())
     }
@@ -111,54 +137,26 @@ class ConfigTest {
     @Test
     fun hashCode_differentConfig_returnsDifferentHashCode() {
         val config1 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .build()
         val config2 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.DISABLED,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.DISABLED)
+                .setHandTracking(HandTrackingMode.BOTH)
 
         assertThat(config1.hashCode()).isNotEqualTo(config2.hashCode())
     }
 
     @Test
-    fun copy_createsNewInstanceWithSameValues() {
+    fun builder_constructedWithConfig_createsSameConfig() {
         val config =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
-
-        val copy = config.copy()
-
-        assertThat(copy).isEqualTo(config)
-        assertThat(copy).isNotSameInstanceAs(config)
-    }
-
-    @Test
-    fun copy_withDifferentValues_createsNewInstanceWithSameValues() {
-        val config =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.DISABLED,
-                handTracking = Config.HandTrackingMode.DISABLED,
-            )
-        val copy =
-            config.copy(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
-
-        assertThat(copy).isNotEqualTo(config)
-        assertThat(copy).isNotSameInstanceAs(config)
-    }
-
-    @Test
-    fun copy_withDefaultValues_createsNewInstanceWithSameValues() {
-        val config = Config()
-        val copy = config.copy()
+        val copy = Config.Builder(config).build()
 
         assertThat(copy).isEqualTo(config)
         assertThat(copy).isNotSameInstanceAs(config)

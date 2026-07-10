@@ -467,6 +467,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{18, 19, 20, 21, 23, 24}) {
             focusSearchAndWaitForScroll(focusedView, focusDir);
             focusedView = mRecyclerView.getFocusedChild();
+            assertFalse(focusedView == null);
             assertEquals(i, mRecyclerView.getChildViewHolder(
                     focusedView).getAbsoluteAdapterPosition());
         }

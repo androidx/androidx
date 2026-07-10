@@ -15,12 +15,16 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -38,23 +42,24 @@ import java.util.List;
 import java.util.Objects;
 
 /** Generates a path from expressions */
-public class PathExpression extends Operation implements VariableSupport, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PathExpression extends Operation
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.PATH_EXPRESSION;
     private static final String CLASS_NAME = "PathExpression";
-    private static final int MAX_EXPRESSION_LENGTH = 32;
     private final PathGenerator mPathGenerator = new PathGenerator();
-    private final int mInstanceId;
+    private int mInstanceId;
     private float[] mOutputPath = new float[0];
     private final float[] mExpressionX;
     private final float[] mExpressionY;
     private final float[] mOutExpressionX;
     private final float[] mOutExpressionY;
-    private final float mMin;
+    private float mMin;
     private float mOutMin;
-    private final float mMax;
+    private float mMax;
     private float mOutMax;
     private float mCount;
-    private final float mOutCount;
+    private float mOutCount;
     private final int mFlags;
     private boolean mPathChanged = true;
     private final int mWinding;
@@ -63,12 +68,23 @@ public class PathExpression extends Operation implements VariableSupport, Serial
     public static final int MONOTONIC = 2;
     public static final int LINEAR = 4;
     public static final int POLAR = 8;
-    public static final int WINDING_MASK =  0x3000000;
+    public static final int WINDING_MASK = 0x3000000;
 
-    PathExpression(
+    @Override
+    public int getId() {
+        return mInstanceId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mInstanceId = id;
+    }
+
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public PathExpression(
             int instanceId,
-            float[] expressionX,
-            float[] expressionY,
+            float @NonNull [] expressionX,
+            float @NonNull [] expressionY,
             float min,
             float max,
             float count,
@@ -97,7 +113,7 @@ public class PathExpression extends Operation implements VariableSupport, Serial
             mOutMin = context.getFloat(Utils.idFromNan(mMin));
         }
         if (Float.isNaN(mCount)) {
-            mCount = context.getFloat(Utils.idFromNan(mCount));
+            mOutCount = context.getFloat(Utils.idFromNan(mCount));
         }
         for (int i = 0; i < mExpressionX.length; i++) {
             float v = mExpressionX[i];
@@ -270,8 +286,9 @@ public class PathExpression extends Operation implements VariableSupport, Serial
         for (float datum : expressionX) {
             buffer.writeFloat(datum);
         }
-        if (expressionY == null) buffer.writeInt(0);
-        else {
+        if (expressionY == null) {
+            buffer.writeInt(0);
+        } else {
             buffer.writeInt(expressionY.length);
             for (float datum : expressionY) {
                 buffer.writeFloat(datum);
@@ -286,27 +303,27 @@ public class PathExpression extends Operation implements VariableSupport, Serial
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int imageId = buffer.readInt();
+        int imageId = buffer.readId();
         int flags = buffer.readInt();
-        float min = buffer.readFloat();
-        float max = buffer.readFloat();
-        float count = buffer.readFloat();
+        float min = buffer.readNanId();
+        float max = buffer.readNanId();
+        float count = buffer.readNanId();
         int len = buffer.readInt();
-        if (len > MAX_EXPRESSION_LENGTH) {
+        if (len > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Path too long");
         }
         float[] expressionX = new float[len];
         for (int i = 0; i < len; i++) {
-            expressionX[i] = buffer.readFloat();
+            expressionX[i] = buffer.readNanId();
         }
 
         len = buffer.readInt();
-        if (len > MAX_EXPRESSION_LENGTH) {
+        if (len > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Path too long");
         }
         float[] expressionY = new float[len];
         for (int i = 0; i < len; i++) {
-            expressionY[i] = buffer.readFloat();
+            expressionY[i] = buffer.readNanId();
         }
         operations.add(
                 new PathExpression(imageId, expressionX, expressionY, min, max, count, flags));
@@ -318,11 +335,18 @@ public class PathExpression extends Operation implements VariableSupport, Serial
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Encode a Path ")
-                .field(DocumentedOperation.INT, "id", "id string")
-                .field(INT, "length", "id string")
-                .field(FLOAT_ARRAY, "pathData", "length", "path encoded as floats");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Generate a path from dynamic expressions (X, Y over a range)")
+                .field(DocumentedOperation.INT, "id", "The ID of the resulting path")
+                .field(INT, "flags", "Configuration flags (LOOP, POLAR, etc.)")
+                .field(FLOAT, "min", "The minimum range value")
+                .field(FLOAT, "max", "The maximum range value")
+                .field(FLOAT, "count", "The number of points to generate")
+                .field(INT, "lenX", "The length of the X expression")
+                .field(FLOAT_ARRAY, "expressionX", "The X coordinate expression (RPN)")
+                .field(INT, "lenY", "The length of the Y expression")
+                .field(FLOAT_ARRAY, "expressionY", "The Y coordinate expression (RPN)");
     }
 
     @Override
@@ -330,7 +354,11 @@ public class PathExpression extends Operation implements VariableSupport, Serial
 
         if (mPathChanged) {
             boolean loop = (mFlags & 0x1) == LOOP;
-            int len = mPathGenerator.getReturnLength((int) mOutCount, loop);
+            int countSize = (int) mOutCount;
+            if (countSize == 0) {
+                throw new IllegalArgumentException("path length must be > 1");
+            }
+            int len = mPathGenerator.getReturnLength(countSize, loop);
             if (mOutputPath.length != len) {
                 mOutputPath = new float[len];
             }
@@ -341,7 +369,7 @@ public class PathExpression extends Operation implements VariableSupport, Serial
                         mOutExpressionY,
                         mOutMin,
                         mOutMax,
-                        (int) mOutCount,
+                        countSize,
                         (mFlags & 0x6),
                         loop,
                         Objects.requireNonNull(context.getCollectionsAccess()));
@@ -352,12 +380,12 @@ public class PathExpression extends Operation implements VariableSupport, Serial
                         mOutExpressionY,
                         mOutMin,
                         mOutMax,
-                        (int) mOutCount,
+                        countSize,
                         (mFlags & 0x6),
                         loop,
                         context.getCollectionsAccess());
             }
-            context.loadPathData(mInstanceId, mWinding,  mOutputPath);
+            context.loadPathData(mInstanceId, mWinding, mOutputPath);
         }
         mPathChanged = false;
     }

@@ -18,7 +18,7 @@ package androidx.navigationevent
 
 /**
  * A class that has an [NavigationEventDispatcher] that allows you to register a
- * [NavigationEventCallback] for handling navigation events.
+ * [NavigationEventHandler] for handling navigation events.
  *
  * It is expected that classes that implement this interface route navigation events to the
  * dispatcher.

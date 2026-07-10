@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential.Companion.TYPE_PASSWORD_CREDENTIAL
 import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDENTIAL
-import androidx.credentials.R
 import androidx.credentials.provider.CustomCredentialEntry.Companion.marshall
 import androidx.credentials.provider.PasswordCredentialEntry.Companion.marshall
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
@@ -55,7 +54,7 @@ import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
  * @property isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
  *   default credential type icon when you are the only available provider; see individual
  *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
- *   [R.drawable.adx_ic_password])
+ *   `R.drawable.adx_ic_password`)
  * @property biometricPromptData the data that is set optionally to utilize a credential manager
  *   flow that directly handles the biometric verification and presents back the response; set to
  *   null by default, so if not opted in, the embedded biometric prompt flow will not show
@@ -198,7 +197,6 @@ internal constructor(
         }
 
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun fromSlice(slice: Slice): CredentialEntry? {
             return if (Build.VERSION.SDK_INT >= 35) {
                 Api35Impl.fromSlice(slice)
@@ -242,8 +240,8 @@ internal constructor(
             "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_"
         internal const val EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX =
             "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_FROM_OPTION_"
-        internal const val EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX =
-            "androidx.credentials.provider.extra.LAST_USED_TIME_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_MILLIS_PREFIX =
+            "androidx.credentials.provider.extra.LAST_USED_TIME_MILLIS_"
         internal const val EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX =
             "androidx.credentials.provider.extra.HAS_DEFAULT_ICON_"
         internal const val EXTRA_CREDENTIAL_TITLE_PREFIX =
@@ -257,7 +255,8 @@ internal constructor(
 
         /** Marshall a list of credential entries through an intent. */
         @RequiresApi(23)
-        internal fun List<CredentialEntry>.marshall(bundle: Bundle) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun List<CredentialEntry>.marshall(bundle: Bundle) {
             bundle.putInt(EXTRA_CREDENTIAL_ENTRY_SIZE, this.size)
             for (i in indices) {
                 when (val entry = this[i]) {
@@ -296,7 +295,8 @@ internal constructor(
         }
 
         @RequiresApi(23)
-        internal fun Bundle.unmarshallCredentialEntries(): List<CredentialEntry> {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun Bundle.unmarshallCredentialEntries(): List<CredentialEntry> {
             val entries = mutableListOf<CredentialEntry>()
             val size = this.getInt(EXTRA_CREDENTIAL_ENTRY_SIZE, 0)
             for (index in 0 until size) {

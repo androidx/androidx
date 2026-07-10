@@ -303,11 +303,14 @@ class ListRemeasureTestCase(
         assertEquals(scrollingHelper.scrollAmount, listState.firstVisibleItemScrollOffset)
     }
 
-    override suspend fun programmaticScroll(amount: Int) {
-        runBlocking { listState.scrollBy(amount.toFloat()) }
+    override fun programmaticScroll(amount: Int) {
+        // Using `dispatchRawDelta` instead of `scrollBy` to avoid running a coroutine here.
+        listState.dispatchRawDelta(amount.toFloat())
     }
 
     override fun setUp() {
+        @Suppress("INVISIBLE_REFERENCE") // b/407927787
+        listState.prefetchingEnabled = false
         runBlocking { listState.scrollToItem(0, 0) }
     }
 

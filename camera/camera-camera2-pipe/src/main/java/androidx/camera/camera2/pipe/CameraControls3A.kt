@@ -16,8 +16,11 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 
@@ -28,19 +31,98 @@ import kotlinx.coroutines.Deferred
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraControls3A {
     /**
-     * Applies the given 3A parameters to the camera device.
+     * Updates the camera's 3A (Auto-Exposure, Auto-Focus, and Auto-White Balance) settings.
      *
-     * @return A [Deferred] of [Result3A] value which will contain the frame number for which these
-     *   parameters were applied. It may be cancelled with a [CancellationException] if a newer
-     *   request is submitted before completion.
+     * This method updates the camera device's repeating request with the appropriate parameters for
+     * the passed in arguments. Note that this function allows for partial updates. Any parameter
+     * left as `null` will result in the corresponding 3A setting remaining unchanged.
+     *
+     * @param aeMode the desired Auto-Exposure mode. Corresponds to
+     *   [CaptureRequest.CONTROL_AE_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_MODE).
+     *   If `null`, the current AE mode is not modified.
+     * @param afMode the desired Auto-Focus mode. Corresponds to
+     *   [CaptureRequest.CONTROL_AF_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AF_MODE).
+     *   If `null`, the current AF mode is not modified.
+     * @param awbMode the desired Auto-White Balance mode. Corresponds to
+     *   [CaptureRequest.CONTROL_AWB_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AWB_MODE).
+     *   If `null`, the current AWB mode is not modified.
+     * @param controlMode the desired overall mode of 3A. Corresponds to
+     *   [CaptureRequest.CONTROL_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_MODE.
+     *   If `null`, the current flash mode is not modified.
+     * @param flashMode the desired flash mode. Corresponds to
+     *   [CaptureRequest.FLASH_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#FLASH_MODE).
+     *   If `null`, the current flash mode is not modified.
+     * @param aeRegions a list of MeteringRectangles for Auto-Exposure metering. Corresponds to
+     *   [CaptureRequest.CONTROL_AE_REGIONS](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_REGIONS).
+     *   If `null`, the AE metering regions are not updated.
+     * @param afRegions a list of MeteringRectangles for Auto-Focus metering. Corresponds to
+     *   [CaptureRequest.CONTROL_AF_REGIONS](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AF_REGIONS).
+     *   If `null`, the AF metering regions are not updated.
+     * @param awbRegions a list of MeteringRectangle for Auto-White Balance metering. Corresponds to
+     *   [CaptureRequest.CONTROL_AWB_REGIONS](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AWB_REGIONS).
+     *   If `null`, the AWB metering regions are not updated.
+     * @param retainLocks if `true`, attempts to retain the current lock state for AE, AF, and AWB
+     *   based on their prior locked status and mode:
+     *     - **AE Lock**: The AE lock is retained if it was previously locked. Otherwise, it remains
+     *       unlocked.
+     *     - **AWB Lock**: The AWB lock is retained if it was previously locked. Otherwise, it
+     *       remains unlocked.
+     *     - **AF Lock**: The AF lock is retained *only if* it was previously locked AND the current
+     *       AF mode (either the newly provided [afMode] or the existing mode if [afMode] is null)
+     *       is a continuous mode, such as [CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE] or
+     *       [CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO], and the newly provided [afMode]
+     *       should not be the same as the existing mode. The Af lock will not be retained if this
+     *       the passed in [afMode] is null or if the above conditions are not met. This retention
+     *       is achieved by sending an `AF_TRIGGER_START` signal. If these conditions are not met,
+     *       AF will be unlocked. If `false` (default), all existing AE, AF, and AWB locks are
+     *       released regardless of their prior state.
+     *
+     * @return A [Deferred] of [Result3A] value which will contain the frame number at which the
+     *   capture result has all the needed applied parameters. It may be canceled with a
+     *   [CancellationException] if a newer request is submitted before completion.
      */
     public fun update3A(
         aeMode: AeMode? = null,
         afMode: AfMode? = null,
         awbMode: AwbMode? = null,
+        controlMode: ControlMode? = null,
+        flashMode: FlashMode? = null,
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
+        retainLocks: Boolean = false,
+    ): Deferred<Result3A>
+
+    /**
+     * Takes the 3A state machine to a converged state. We can specify if we want to converge on the
+     * values after the ongoing scan or if we want to start a fresh scan before converging.
+     *
+     * @param aeRegions the new regions for Ae before requesting convergence.
+     * @param afRegions the new regions for Af before requesting convergence.
+     * @param awbRegions the new regions for Awb before requesting convergence.
+     * @param aeBehavior if not null then the ae will be converged.
+     * @param afBehavior if not null then the af will be converged.
+     * @param awbBehavior if not null then the awb will be converged.
+     * @param convergedCondition an optional function can be used to identify if the result frame
+     *   with correct 3A converge state is received.
+     * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+     *   convergence to complete.
+     * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for
+     *   convergence to complete.
+     * @return [Result3A] for the latest frame number at which the convergence was reached or the
+     *   frame at which the method returned early because either frame limit or time limit was
+     *   reached.
+     */
+    public fun converge3A(
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
+        aeBehavior: Converge3ABehavior? = null,
+        afBehavior: Converge3ABehavior? = null,
+        awbBehavior: Converge3ABehavior? = null,
+        convergedCondition: ((FrameMetadata) -> Boolean)? = null,
+        frameLimit: Int? = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A>
 
     /**
@@ -82,4 +164,27 @@ public interface CameraControls3A {
      *   FrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>
+
+    /**
+     * [CaptureRequest] keys related to 3A state machine and controls. These should ideally be not
+     * set directly on CameraGraph, and it is recommended to use the dedicated 3A methods to achieve
+     * the designed 3A.
+     */
+    public companion object {
+        public val REQUEST_3A_KEYS: Set<CaptureRequest.Key<*>> =
+            setOf(
+                CaptureRequest.CONTROL_AE_MODE,
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AWB_MODE,
+                CaptureRequest.CONTROL_MODE,
+                CaptureRequest.FLASH_MODE,
+                CaptureRequest.CONTROL_AE_REGIONS,
+                CaptureRequest.CONTROL_AF_REGIONS,
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AWB_REGIONS,
+                CaptureRequest.CONTROL_AE_LOCK,
+                CaptureRequest.CONTROL_AWB_LOCK,
+                CaptureRequest.CONTROL_MODE,
+            )
+    }
 }

@@ -141,8 +141,8 @@ internal class EndpointUtils {
                 AudioDeviceInfo.TYPE_USB_ACCESSORY,
                 AudioDeviceInfo.TYPE_USB_HEADSET -> CallEndpointCompat.TYPE_WIRED_HEADSET
                 // Bluetooth Devices
+                // TYPE_BLUETOOTH_A2DP is not supported for voice communication
                 AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
-                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
                 AudioDeviceInfo.TYPE_HEARING_AID,
                 AudioDeviceInfo.TYPE_BLE_HEADSET,
                 AudioDeviceInfo.TYPE_BLE_SPEAKER,
@@ -155,6 +155,15 @@ internal class EndpointUtils {
         fun getSpeakerEndpoint(endpoints: List<CallEndpointCompat>): CallEndpointCompat? {
             for (e in endpoints) {
                 if (e.type == CallEndpointCompat.TYPE_SPEAKER) {
+                    return e
+                }
+            }
+            return null
+        }
+
+        fun getEarpieceEndpoint(endpoints: List<CallEndpointCompat>): CallEndpointCompat? {
+            for (e in endpoints) {
+                if (e.type == CallEndpointCompat.TYPE_EARPIECE) {
                     return e
                 }
             }
@@ -372,8 +381,12 @@ internal class EndpointUtils {
             deviceLookup: (endpoint: CallEndpointCompat) -> BluetoothDevice?,
         ): Boolean {
             if (!hasSufficientBluetoothPermission(context)) {
-                Log.w(TAG, "Permission denied. Assuming a BT device could be present.")
-                return true
+                Log.i(
+                    TAG,
+                    "hasAvailableNonWearableDevice: Permission denied. " +
+                        "Falling back to name heuristic.",
+                )
+                return isNonWearableDeviceByHeuristic(endpoints)
             }
             return try {
                 endpoints.any { endpoint ->
@@ -385,8 +398,59 @@ internal class EndpointUtils {
                     }
                 }
             } catch (e: SecurityException) {
-                Log.w(TAG, "Security Exception hit. Assuming a BT device could be present.", e)
-                return true
+                Log.i(
+                    TAG,
+                    "hasAvailableNonWearableDevice: Security Exception hit. " +
+                        "Falling back to name heuristic.",
+                )
+                return isNonWearableDeviceByHeuristic(endpoints)
+            }
+        }
+
+        fun isNonWearableDeviceByHeuristic(endpoints: List<CallEndpointCompat>): Boolean {
+            // Hardened list: Removed generic terms (fit, versa, tracker, band, cmf) to avoid
+            // false positives with Honda Fit, Nissan Versa, Chevy Tracker, and various earbuds.
+            val wearableKeywords =
+                setOf(
+                    // Explicit exact concepts
+                    "watch",
+                    "wearable",
+                    "smartwatch",
+                    "smartband",
+                    "fitness tracker",
+                    // Highly specific wearable brands/lines
+                    "ticwatch",
+                    "suunto",
+                    "fossil",
+                    "skagen",
+                    "montblanc",
+                    "tag heuer",
+                    "garmin",
+                    "fenix",
+                    "forerunner",
+                    "epix",
+                    "instinct",
+                    "venu",
+                    "amazfit",
+                    "bip",
+                    "t-rex",
+                    "fitbit", // We rely on "fitbit" instead of "sense" or "versa"
+                )
+
+            return endpoints.any { endpoint ->
+                if (endpoint.isBluetoothType()) {
+                    val name = endpoint.name.toString().lowercase()
+                    // Returns true (non-wearable) ONLY if the name contains NONE of the keywords
+                    val isNonWearable = wearableKeywords.none { keyword -> name.contains(keyword) }
+                    Log.i(
+                        TAG,
+                        "isNonWearableDeviceByHeuristic: Endpoint name=[$name] " +
+                            "isNonWearable=[$isNonWearable]",
+                    )
+                    isNonWearable
+                } else {
+                    false
+                }
             }
         }
 

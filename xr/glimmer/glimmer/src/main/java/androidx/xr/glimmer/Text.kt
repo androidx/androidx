@@ -69,6 +69,10 @@ import androidx.compose.ui.unit.TextUnit
  * @param modifier the [Modifier] to be applied to this layout node
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  *   this will be the content color provided by the nearest [surface].
+ * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
+ *   fits in the available space and lays the text out with this size. This performs multiple layout
+ *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
+ *   through [fontSize] and [style]. See [TextAutoSize].
  * @param fontSize the size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param fontStyle the typeface variant to use when drawing the letters (e.g., italic). See
  *   [TextStyle.fontStyle].
@@ -95,10 +99,6 @@ import androidx.compose.ui.unit.TextUnit
  *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
  *   text, baselines and other details. The callback can be used to add additional decoration or
  *   functionality to the text. For example, to draw selection around the text.
- * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
- *   fits in the available space and lays the text out with this size. This performs multiple layout
- *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [fontSize] and [style]. See [TextAutoSize].
  * @param style style configuration for the text such as color, font, line height etc.
  */
 @Composable
@@ -106,6 +106,7 @@ public fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
+    autoSize: TextAutoSize? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -119,7 +120,6 @@ public fun Text(
     @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
     @IntRange(from = 1) minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
-    autoSize: TextAutoSize? = null,
     style: TextStyle = LocalTextStyle.current,
 ) {
     // Color precedence rules:
@@ -191,6 +191,10 @@ public fun Text(
  * @param modifier the [Modifier] to be applied to this layout node
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  *   this will be the content color provided by the nearest [surface].
+ * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
+ *   fits in the available space and lays the text out with this size. This performs multiple layout
+ *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
+ *   through [fontSize] and [style]. See [TextAutoSize].
  * @param fontSize the size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param fontStyle the typeface variant to use when drawing the letters (e.g., italic). See
  *   [TextStyle.fontStyle].
@@ -219,10 +223,6 @@ public fun Text(
  *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
  *   text, baselines and other details. The callback can be used to add additional decoration or
  *   functionality to the text. For example, to draw selection around the text.
- * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
- *   fits in the available space and lays the text out with this size. This performs multiple layout
- *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [fontSize] and [style]. See [TextAutoSize].
  * @param style style configuration for the text such as color, font, line height etc.
  */
 @Composable
@@ -230,6 +230,7 @@ public fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
+    autoSize: TextAutoSize? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -244,7 +245,6 @@ public fun Text(
     @IntRange(from = 1) minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = emptyMap(),
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
-    autoSize: TextAutoSize? = null,
     style: TextStyle = LocalTextStyle.current,
 ) {
     // Color precedence rules:

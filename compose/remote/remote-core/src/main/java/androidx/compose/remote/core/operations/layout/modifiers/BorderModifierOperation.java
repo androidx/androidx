@@ -16,14 +16,20 @@
 package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -34,7 +40,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Component size-aware border draw */
-public class BorderModifierOperation extends DecoratorModifierOperation {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BorderModifierOperation extends DecoratorModifierOperation implements VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_BORDER;
     public static final String CLASS_NAME = "BorderModifierOperation";
 
@@ -43,20 +50,29 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
     float mWidth;
     float mHeight;
     float mBorderWidth;
+    float mBorderWidthValue;
     float mRoundedCorner;
+    float mRoundedCornerValue;
     float mR;
     float mG;
     float mB;
     float mA;
+    boolean mUseColorId = false;
+    int mColorId;
     int mShapeType = ShapeType.RECTANGLE;
+    boolean mUseLegacyDrawing;
 
-    @NonNull public PaintBundle paint = new PaintBundle();
+    /** Color is through and ID */
+    public static final int COLOR_REF = 2;
+
+    @NonNull
+    public PaintBundle mPaint = new PaintBundle();
 
     public BorderModifierOperation(
-            float x,
-            float y,
-            float width,
-            float height,
+            int flags,
+            int colorId,
+            int reserved1,
+            int reserved2,
             float borderWidth,
             float roundedCorner,
             float r,
@@ -64,17 +80,28 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
             float b,
             float a,
             int shapeType) {
-        this.mX = x;
-        this.mY = y;
-        this.mWidth = width;
-        this.mHeight = height;
+        this.mX = 0;
+        this.mY = 0;
+        this.mWidth = 0;
+        this.mHeight = 0;
         this.mBorderWidth = borderWidth;
+        if (!Float.isNaN(mBorderWidth)) {
+            mBorderWidthValue = mBorderWidth;
+        }
         this.mRoundedCorner = roundedCorner;
+        if (!Float.isNaN(mRoundedCorner)) {
+            mRoundedCornerValue = mRoundedCorner;
+        }
+        if (flags == COLOR_REF) {
+            mUseColorId = true;
+            mColorId = colorId;
+        }
         this.mR = r;
         this.mG = g;
         this.mB = b;
         this.mA = a;
         this.mShapeType = shapeType;
+        this.mUseLegacyDrawing = (reserved1 == 0);
     }
 
     @Override
@@ -113,10 +140,10 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
     public void write(@NonNull WireBuffer buffer) {
         apply(
                 buffer,
-                mX,
-                mY,
-                mWidth,
-                mHeight,
+                mUseColorId ? COLOR_REF : 0,
+                mColorId,
+                mUseLegacyDrawing ? 0 : 1,
+                0,
                 mBorderWidth,
                 mRoundedCorner,
                 mR,
@@ -184,25 +211,25 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer the WireBuffer
-     * @param x x coordinate of the border rect
-     * @param y y coordinate of the border rect
-     * @param width width of the border rect
-     * @param height height of the border rect
-     * @param borderWidth the width of the border outline
+     * @param buffer        the WireBuffer
+     * @param flags         flag
+     * @param colorId       the id of the color if flag is set
+     * @param reserve1      reserved for future expansion
+     * @param reserve2      reserved for future expansion
+     * @param borderWidth   the width of the border outline
      * @param roundedCorner rounded corner value in pixels
-     * @param r red component of the border color
-     * @param g green component of the border color
-     * @param b blue component of the border color
-     * @param a alpha component of the border color
-     * @param shapeType the shape type (0 = RECTANGLE, 1 = CIRCLE)
+     * @param r             red component of the border color
+     * @param g             green component of the border color
+     * @param b             blue component of the border color
+     * @param a             alpha component of the border color
+     * @param shapeType     the shape type (0 = RECTANGLE, 1 = CIRCLE)
      */
     public static void apply(
             @NonNull WireBuffer buffer,
-            float x,
-            float y,
-            float width,
-            float height,
+            int flags,
+            int colorId,
+            int reserve1,
+            int reserve2,
             float borderWidth,
             float roundedCorner,
             float r,
@@ -211,10 +238,10 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
             float a,
             int shapeType) {
         buffer.start(OP_CODE);
-        buffer.writeFloat(x);
-        buffer.writeFloat(y);
-        buffer.writeFloat(width);
-        buffer.writeFloat(height);
+        buffer.writeInt(flags);
+        buffer.writeInt(colorId);
+        buffer.writeInt(reserve1);
+        buffer.writeInt(reserve2);
         buffer.writeFloat(borderWidth);
         buffer.writeFloat(roundedCorner);
         buffer.writeFloat(r);
@@ -228,44 +255,137 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
-        float width = buffer.readFloat();
-        float height = buffer.readFloat();
-        float bw = buffer.readFloat();
-        float rc = buffer.readFloat();
-        float r = buffer.readFloat();
-        float g = buffer.readFloat();
-        float b = buffer.readFloat();
-        float a = buffer.readFloat();
+        int flags = buffer.readInt();
+        int colorId = buffer.readInt();
+        if ((flags & COLOR_REF) != 0) {
+            // Manual remapping since we already read it
+            if (buffer instanceof LoomWireBuffer) {
+                colorId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(colorId);
+            }
+        }
+        int reserve1 = buffer.readInt();
+        int reserve2 = buffer.readInt();
+        float bw = buffer.readNanId();
+        float rc = buffer.readNanId();
+        float r = buffer.readNanId();
+        float g = buffer.readNanId();
+        float b = buffer.readNanId();
+        float a = buffer.readNanId();
         // shape type
         int shapeType = buffer.readInt();
         operations.add(
-                new BorderModifierOperation(x, y, width, height, bw, rc, r, g, b, a, shapeType));
+                new BorderModifierOperation(
+                        flags, colorId, reserve1, reserve2, bw, rc, r, g, b, a, shapeType));
     }
 
     @Override
     public void paint(@NonNull PaintContext context) {
         context.savePaint();
-        paint.reset();
-        paint.setColor(mR, mG, mB, mA);
-        paint.setStrokeWidth(mBorderWidth * context.getContext().getDensity());
-        paint.setStyle(PaintBundle.STYLE_STROKE);
-        context.replacePaint(paint);
+        mPaint.reset();
+        if (mUseColorId) {
+            int col = context.getContext().getColor(mColorId);
+            mPaint.setColor(col);
+        } else {
+            mPaint.setColor(mR, mG, mB, mA);
+        }
+
+        float borderWidth = mBorderWidthValue;
+        float roundedCorner = mRoundedCornerValue;
+        switch (context.getDensityBehavior()) {
+            case CoreDocument.DENSITY_BEHAVIOR_DP:
+                float density = context.getDensity();
+                borderWidth *= density;
+                roundedCorner *= density;
+                break;
+            case CoreDocument.DENSITY_BEHAVIOR_LEGACY:
+                if (!isAtLeastVersion7(context.getContext())) {
+                    borderWidth = mBorderWidth * context.getContext().getDensity();
+                }
+                break;
+            case CoreDocument.DENSITY_BEHAVIOR_PIXELS:
+                // nothing to do
+        }
+
+        if (mUseLegacyDrawing) {
+            legacyDrawing(context, borderWidth, roundedCorner);
+        } else {
+            defaultDrawing(context, borderWidth, roundedCorner);
+        }
+        context.restorePaint();
+    }
+
+    /**
+     * Draws the border centered at the bounds of the component.
+     *
+     * @param context       the paint context used for drawing
+     * @param borderWidth   the width of the border stroke to draw
+     * @param roundedCorner the corner radius if the shape is ROUNDED_RECTANGLE
+     */
+    private void legacyDrawing(PaintContext context, float borderWidth, float roundedCorner) {
+        mPaint.setStrokeWidth(borderWidth);
+        mPaint.setStyle(PaintBundle.STYLE_STROKE);
+        context.replacePaint(mPaint);
         if (mShapeType == ShapeType.RECTANGLE) {
             context.drawRect(0f, 0f, mWidth, mHeight);
         } else {
-            float size = mRoundedCorner;
+            float size = roundedCorner;
             if (mShapeType == ShapeType.CIRCLE) {
                 size = Math.min(mWidth, mHeight) / 2f;
             }
             context.drawRoundRect(0f, 0f, mWidth, mHeight, size, size);
         }
-        context.restorePaint();
+    }
+
+    /**
+     * Draws the border with a stroke width inset of half of the border stroke width, shrinking the
+     * corner radii appropriately to keep the border within the component boundary. If the border
+     * width exceeds half of the component's min dimension, it fills the shape instead.
+     *
+     * @param context       the paint context used for drawing
+     * @param borderWidth   the width of the border stroke to draw
+     * @param roundedCorner the corner radius if the shape is ROUNDED_RECTANGLE
+     */
+    private void defaultDrawing(PaintContext context, float borderWidth, float roundedCorner) {
+        float maxBorderWidth = Math.min(mWidth, mHeight) / 2f;
+        if (borderWidth >= maxBorderWidth) {
+            mPaint.setStyle(PaintBundle.STYLE_FILL);
+            context.replacePaint(mPaint);
+            if (mShapeType == ShapeType.RECTANGLE) {
+                context.drawRect(0f, 0f, mWidth, mHeight);
+            } else {
+                float size = roundedCorner;
+                if (mShapeType == ShapeType.CIRCLE) {
+                    size = Math.min(mWidth, mHeight) / 2f;
+                }
+                context.drawRoundRect(0f, 0f, mWidth, mHeight, size, size);
+            }
+        } else {
+            mPaint.setStrokeWidth(borderWidth);
+            mPaint.setStyle(PaintBundle.STYLE_STROKE);
+            context.replacePaint(mPaint);
+            float halfStroke = borderWidth / 2f;
+            if (mShapeType == ShapeType.RECTANGLE) {
+                context.drawRect(halfStroke, halfStroke, mWidth - halfStroke, mHeight - halfStroke);
+            } else {
+                float size = roundedCorner;
+                if (mShapeType == ShapeType.CIRCLE) {
+                    size = Math.min(mWidth, mHeight) / 2f;
+                }
+                float rx = Math.max(0f, size - halfStroke);
+                float ry = Math.max(0f, size - halfStroke);
+                context.drawRoundRect(
+                        halfStroke,
+                        halfStroke,
+                        mWidth - halfStroke,
+                        mHeight - halfStroke,
+                        rx,
+                        ry);
+            }
+        }
     }
 
     /**
@@ -275,18 +395,19 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the Border Modifier")
-                .field(FLOAT, "x", "")
-                .field(FLOAT, "y", "")
-                .field(FLOAT, "width", "")
-                .field(FLOAT, "height", "")
-                .field(FLOAT, "borderWidth", "")
-                .field(FLOAT, "roundedCorner", "")
-                .field(FLOAT, "r", "")
-                .field(FLOAT, "g", "")
-                .field(FLOAT, "b", "")
-                .field(FLOAT, "a", "")
-                .field(FLOAT, "shapeType", "");
+                .additionalDocumentation("modifier_border")
+                .description("Define a border for a component")
+                .field(INT, "flags", "Behavior flags")
+                .field(INT, "colorId", "The ID of the color if flags include COLOR_REF")
+                .field(INT, "reserve1", "0 for legacy behavior, 1 to support dynamic radius")
+                .field(INT, "reserve2", "Reserved for future use")
+                .field(FLOAT, "borderWidth", "Width of the border")
+                .field(FLOAT, "roundedCorner", "Radius for rounded corners")
+                .field(FLOAT, "r", "Red component [0..1]")
+                .field(FLOAT, "g", "Green component [0..1]")
+                .field(FLOAT, "b", "Blue component [0..1]")
+                .field(FLOAT, "a", "Alpha component [0..1]")
+                .field(INT, "shapeType", "The shape type (0=RECTANGLE, 1=CIRCLE)");
     }
 
     @Override
@@ -299,8 +420,53 @@ public class BorderModifierOperation extends DecoratorModifierOperation {
                 .add("width", mWidth)
                 .add("height", mHeight)
                 .add("borderWidth", mBorderWidth)
-                .add("roundedCornerRadius", mRoundedCorner)
-                .add("color", mA, mR, mG, mB)
-                .add("shapeType", ShapeType.getString(mShapeType));
+                .add("roundedCornerRadius", mRoundedCorner);
+
+        if (mUseColorId) {
+            serializer.add("colorId", mColorId);
+        } else {
+            serializer.add("color", mA, mR, mG, mB);
+        }
+
+        serializer
+                .add("shapeType", ShapeType.getString(mShapeType))
+                .add("useLegacyDrawing", mUseLegacyDrawing);
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        if (isAtLeastVersion7(context)) {
+            if (Float.isNaN(mBorderWidth)) {
+                context.listensTo(Utils.idFromNan(mBorderWidth), this);
+            }
+            if (Float.isNaN(mRoundedCorner)) {
+                context.listensTo(Utils.idFromNan(mRoundedCorner), this);
+            }
+        }
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        if (isAtLeastVersion7(context)) {
+            mBorderWidthValue =
+                    Float.isNaN(mBorderWidth)
+                            ? context.getFloat(Utils.idFromNan(mBorderWidth))
+                            : mBorderWidth;
+        } else {
+            mBorderWidthValue = mBorderWidth;
+        }
+
+        if (!mUseLegacyDrawing) {
+            mRoundedCornerValue =
+                    Float.isNaN(mRoundedCorner)
+                            ? context.getFloat(Utils.idFromNan(mRoundedCorner))
+                            : mRoundedCorner;
+        } else {
+            mRoundedCornerValue = mRoundedCorner;
+        }
+    }
+
+    private static boolean isAtLeastVersion7(@NonNull RemoteContext context) {
+        return context.supportsVersion(1, 1, 0);
     }
 }

@@ -17,8 +17,11 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -42,10 +45,17 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 
 @Sampled
 @Composable
@@ -265,7 +275,7 @@ fun CompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
             )
         },
         modifier = modifier,
@@ -304,7 +314,7 @@ fun FilledTonalCompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
             )
         },
         colors = ButtonDefaults.filledTonalButtonColors(),
@@ -341,13 +351,100 @@ fun OutlinedCompactButtonSample(modifier: Modifier = Modifier) {
                 Icon(
                     Icons.Filled.KeyboardArrowUp,
                     contentDescription = "Collapse",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
                 )
             } else {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
                     contentDescription = "Expand",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
+                )
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun ButtonContentWithOneHandedGestureSample() {
+    var label by remember { mutableStateOf("Filled Button") }
+    val onClick = remember { { label = "Gestured" } }
+    val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            modifier =
+                Modifier.oneHandedGesture(
+                    gestureConfiguration = gestureConfig,
+                    onGestureLabel = "click",
+                    interactionSource = interactionSource,
+                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGesture = onClick,
+                ),
+        ) {
+            OneHandedGestureIndicator(
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
+                gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                ButtonDefaults.Content(
+                    secondaryLabel = { Text("Secondary Label") },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_favorite_rounded),
+                            contentDescription = "Favorite icon",
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(),
+                    label = { Text(label) },
+                )
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun CompactButtonContentWithOneHandedGestureSample() {
+    var label by remember { mutableStateOf("Compact Button") }
+    val onClick = remember { { label = "Gestured" } }
+    val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureIndicatorState() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CompactButton(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            modifier =
+                Modifier.oneHandedGesture(
+                    gestureConfiguration = gestureConfig,
+                    onGestureLabel = "click",
+                    interactionSource = interactionSource,
+                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGesture = onClick,
+                ),
+        ) {
+            OneHandedGestureIndicator(
+                gestureConfiguration = gestureConfig,
+                indicatorState = indicatorState,
+                gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                CompactButtonDefaults.Content(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_favorite_rounded),
+                            contentDescription = "Favorite icon",
+                            modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(),
+                    label = { Text(label) },
                 )
             }
         }

@@ -34,7 +34,7 @@ class JavaPluginTest : BasePluginTest() {
                     id('com.android.application')
                     id('androidx.navigation.safeargs')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
@@ -62,10 +62,10 @@ class JavaPluginTest : BasePluginTest() {
             .assertSuccessfulTask("assembleNotfooDebug")
             .assertSuccessfulTask("assembleFooDebug")
 
-        assertGenerated("notfoo/debug/$NEXT_DIRECTIONS.java")
-        assertGenerated("notfoo/debug/$NEXT_ARGUMENTS.java")
-        assertNotGenerated("foo/debug/$NEXT_DIRECTIONS.java")
-        assertGenerated("foo/debug/$FOO_DIRECTIONS.java")
+        assertGenerated("NotfooDebug/$NEXT_DIRECTIONS.java")
+        assertGenerated("NotfooDebug/$NEXT_ARGUMENTS.java")
+        assertNotGenerated("FooDebug/$NEXT_DIRECTIONS.java")
+        assertGenerated("FooDebug/$FOO_DIRECTIONS.java")
     }
 
     @Test
@@ -75,8 +75,8 @@ class JavaPluginTest : BasePluginTest() {
             .assertSuccessfulTask("feature:assembleNotfooDebug")
             .assertSuccessfulTask("feature:assembleFooDebug")
 
-        assertGenerated("foo/debug/$FEATURE_DIRECTIONS.java", "feature/")
-        assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS.java", "feature/")
+        assertGenerated("FooDebug/$FEATURE_DIRECTIONS.java", "feature/")
+        assertGenerated("NotfooDebug/$FEATURE_DIRECTIONS.java", "feature/")
     }
 
     @Test
@@ -86,8 +86,8 @@ class JavaPluginTest : BasePluginTest() {
             .assertSuccessfulTask("library:assembleNotfooDebug")
             .assertSuccessfulTask("library:assembleFooDebug")
 
-        assertGenerated("foo/debug/$LIBRARY_DIRECTIONS.java", "library/")
-        assertGenerated("notfoo/debug/$LIBRARY_DIRECTIONS.java", "library/")
+        assertGenerated("FooDebug/$LIBRARY_DIRECTIONS.java", "library/")
+        assertGenerated("NotfooDebug/$LIBRARY_DIRECTIONS.java", "library/")
     }
 
     @Test
@@ -97,10 +97,10 @@ class JavaPluginTest : BasePluginTest() {
             .assertSuccessfulTask("base:assembleNotfooDebug")
             .assertSuccessfulTask("base:assembleFooDebug")
 
-        assertGenerated("foo/debug/$MAIN_DIRECTIONS.java", "base/")
-        assertGenerated("notfoo/debug/$MAIN_DIRECTIONS.java", "base/")
-        assertGenerated("foo/debug/$NEXT_DIRECTIONS.java", "base/")
-        assertGenerated("notfoo/debug/$NEXT_DIRECTIONS.java", "base/")
+        assertGenerated("FooDebug/$MAIN_DIRECTIONS.java", "base/")
+        assertGenerated("NotfooDebug/$MAIN_DIRECTIONS.java", "base/")
+        assertGenerated("FooDebug/$NEXT_DIRECTIONS.java", "base/")
+        assertGenerated("NotfooDebug/$NEXT_DIRECTIONS.java", "base/")
     }
 
     @Test
@@ -110,9 +110,9 @@ class JavaPluginTest : BasePluginTest() {
             .assertSuccessfulTask("dynamic_feature:assembleNotfooDebug")
             .assertSuccessfulTask("dynamic_feature:assembleFooDebug")
 
-        assertGenerated("notfoo/debug/$NOTFOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
-        assertNotGenerated("foo/debug/$NOTFOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
-        assertGenerated("foo/debug/$FOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
-        assertNotGenerated("notfoo/debug/$FOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
+        assertGenerated("NotfooDebug/$NOTFOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
+        assertNotGenerated("FooDebug/$NOTFOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
+        assertGenerated("FooDebug/$FOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
+        assertNotGenerated("NotfooDebug/$FOO_DYNAMIC_DIRECTIONS.java", "dynamic_feature/")
     }
 }

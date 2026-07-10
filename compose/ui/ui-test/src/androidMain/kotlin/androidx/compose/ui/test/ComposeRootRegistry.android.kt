@@ -238,7 +238,11 @@ private val ComposeRootRegistry.hasComposeRoots: Boolean
 private fun ComposeRootRegistry.ensureComposeRootRegistryIsSetUp() {
     check(isSetUp) {
         "Test not setup properly. Use a ComposeTestRule in your test to be able to interact " +
-            "with composables"
+            "with composables. Also ensure that you are not using a ComposeTestRule " +
+            "(e.g. createComposeRule) inside a ComposeUiTest scope (e.g. in runComposeUiTest " +
+            "block) or any of their respective variants. Since these APIs independently " +
+            "manage the test environment, use one or the other, but not both simultaneously in a " +
+            "test case."
     }
 }
 

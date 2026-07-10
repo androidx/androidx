@@ -1,0 +1,47 @@
+digraph G {
+    fontname="Arial";
+    compound=true;
+    rankdir=LR;
+    node [shape=rect, style="filled,rounded", fillcolor="#A9C9EB", fontname="Arial", fontsize=10];
+    edge [style=dashed, arrowhead=vee, fontname="Arial", fontsize=10];
+
+    // AndroidX Webkit Cluster
+    subgraph cluster_androidx {
+        label = "AndroidX Webkit";
+        labeljust = "l";
+        app_facing [label="App-facing\ninterfaces:\nandroidx.webkit"];
+        adaptors [label="Internal adaptors:\nandroidx.webkit.internal"];
+        git_mirror [label="(Git mirror of)\nBoundary Interface"];
+
+        app_facing -> adaptors -> git_mirror;
+    }
+
+    // WebView APK Cluster
+    subgraph cluster_chromium {
+        label = "WebView APK - Chromium source code";
+        labeljust = "l";
+
+        androidx_glue [label="AndroidX glue\n//android_webview/support_library"];
+        aw_layer [label="Aw-layer\n//android_webview"];
+        boundary_interface [label="Boundary Interface\n//android_webview/support_library"];
+
+        // Internal connections
+        androidx_glue -> aw_layer;
+        androidx_glue -> boundary_interface  [style=solid,arrowhead=normal];
+    }
+
+    // Inter-cluster connections
+    boundary_interface -> git_mirror [style=dotted];
+    adaptors -> androidx_glue [style=solid];
+
+    // Legend at the bottom
+    subgraph cluster_legend {
+        peripheries=0;
+        node [shape=none, label="",style=""];
+
+        built_against_start -> built_against_end [label="Built against"];
+        built_against_end -> implements_end [label="Implements", style=solid, arrowhead=normal];
+        implements_end -> copied_end [label="Copied to", style=dotted];
+        copied_end -> reflective_end [label="Calls reflectively", style=solid];
+    }
+}

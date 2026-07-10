@@ -17,16 +17,15 @@ package androidx.appsearch.app;
 
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
-import android.os.Parcelable;
+import android.os.Parcelable.Creator;
 
-import androidx.annotation.NonNull;
 import androidx.appsearch.app.aidl.AppSearchBatchResultParcelV2;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.OpenBlobForWriteResponseCreator;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -44,15 +43,12 @@ import java.io.IOException;
  * {@link android.os.ParcelFileDescriptor} occupies a limited file descriptor in the system.
  * </p>
  */
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-// TODO(b/384721898): Switch to JSpecify annotations
-@SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
+@SuppressWarnings("HiddenSuperclass")
 @SafeParcelable.Class(creator = "OpenBlobForWriteResponseCreator")
-@ExperimentalAppSearchApi
 public final class OpenBlobForWriteResponse extends AbstractSafeParcelable implements
         Closeable {
 
-    public static final @NonNull Parcelable.Creator<OpenBlobForWriteResponse> CREATOR =
+    public static final @NonNull Creator<OpenBlobForWriteResponse> CREATOR =
             new OpenBlobForWriteResponseCreator();
 
     @Field(id = 1)

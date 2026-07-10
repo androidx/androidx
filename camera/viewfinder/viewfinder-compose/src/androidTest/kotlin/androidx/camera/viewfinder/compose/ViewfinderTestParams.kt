@@ -19,6 +19,7 @@ package androidx.camera.viewfinder.compose
 import android.util.Size
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpSize
@@ -38,11 +39,13 @@ data class ViewfinderTestParams(
     val implementationMode: ImplementationMode = ImplementationMode.EXTERNAL,
     val isMirroredHorizontally: Boolean = false,
     val isMirroredVertically: Boolean = false,
+    val transformationMode: Int = TransformationMode.DEFERRED,
     val transformationInfo: TransformationInfo =
         TransformationInfo(
             sourceRotation = sourceRotation,
             isSourceMirroredHorizontally = isMirroredHorizontally,
             isSourceMirroredVertically = isMirroredVertically,
+            transformationMode = transformationMode,
         ),
     val alignment: Alignment = Alignment.Center,
     val contentScale: ContentScale = ContentScale.Crop,

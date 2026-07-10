@@ -57,6 +57,11 @@ public class TestCarHardwareHostStub extends ICarHardwareHost.Stub {
         public void onFailure(Bundleable failureResponse) throws RemoteException {
 
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     /** Creates an instance with optional underlying mock. */
@@ -147,5 +152,10 @@ public class TestCarHardwareHostStub extends ICarHardwareHost.Stub {
             return;
         }
         mCallbackMap.remove(resultType);
+    }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
     }
 }

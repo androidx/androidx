@@ -71,6 +71,10 @@ public expect open class NavigatorProvider() {
         name: String,
         navigator: Navigator<out NavDestination>,
     ): Navigator<out NavDestination>?
+
+    internal companion object {
+        internal fun validateName(name: String?): Boolean
+    }
 }
 
 /**

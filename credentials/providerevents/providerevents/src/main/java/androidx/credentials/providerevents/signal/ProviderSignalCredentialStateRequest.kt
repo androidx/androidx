@@ -28,7 +28,6 @@ import androidx.credentials.provider.CallingAppInfo
  * @property callingRequest the complete [androidx.credentials.SignalCredentialStateRequest] coming
  *   from the calling app that is sending the credential state signal
  * @property callingAppInfo information pertaining to the calling app making the request
- * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  */
 public class ProviderSignalCredentialStateRequest(
     public val callingRequest: SignalCredentialStateRequest,

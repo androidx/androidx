@@ -17,54 +17,91 @@
 package androidx.pdf.testapp.ui.v2
 
 import android.app.AlertDialog
-import android.os.Build
+import android.graphics.Bitmap
+import android.graphics.RectF
 import android.os.Bundle
+import android.util.Size
+import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.RequiresExtension
+import android.widget.ImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.OperationCanceledException
+import androidx.lifecycle.lifecycleScope
+import androidx.pdf.PdfDocument
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.featureflag.PdfFeatureFlags
+import androidx.pdf.ocr.OcrProvider
+import androidx.pdf.ocr.playservices.MlKitOcrProvider
 import androidx.pdf.testapp.R
+import androidx.pdf.testapp.ui.FeatureFlagListener
+import androidx.pdf.testapp.ui.FeatureFlagNames.FORM_FILLING
+import androidx.pdf.testapp.ui.FeatureFlagNames.THUMBNAIL_PREVIEW
 import androidx.pdf.testapp.ui.OpCancellationHandler
+import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
+import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.PdfViewerFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * This fragment extends PdfViewerFragment to provide a custom layout and handle immersive mode. It
  * adds a FloatingActionButton for search functionality and manages its visibility based on the
- * immersive mode state.
+ * immersive mode state. It also includes a toggleable vertical thumbnail preview.
  */
-@Suppress("RestrictedApiAndroidX")
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
-class PdfViewerFragmentExtended : PdfViewerFragment() {
-    private var hostView: FrameLayout? = null
-    private var search: FloatingActionButton? = null
+class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
+
+    private lateinit var hostView: ConstraintLayout
+    private lateinit var pdfContainerFrame: FrameLayout
+    private var searchFAB: FloatingActionButton? = null
+    private var twoPageLayoutFAB: FloatingActionButton? = null
     private var lastClickedLinkUri: String? = null
+    private var activePdfDocument: PdfDocument? = null
+
+    private lateinit var pdfThumbnailToggleButton: ImageButton
+    private lateinit var pdfThumbnailRecyclerView: RecyclerView
+    private lateinit var thumbnailAdapter: ThumbnailAdapter
+    private var lastScrolledThumbnailIndex = -1
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        val pdfContainer =
-            super.onCreateView(inflater, container, savedInstanceState) as ConstraintLayout
+        val pdfContentView = super.onCreateView(inflater, container, savedInstanceState) as View
 
-        // Inflate the custom layout for this fragment.
-        hostView = inflater.inflate(R.layout.fragment_host, container, false) as FrameLayout
-        search = hostView?.findViewById(R.id.host_Search)
+        hostView = inflater.inflate(R.layout.fragment_host, container, false) as ConstraintLayout
 
-        // Add the default PDF viewer to the custom layout
-        hostView?.addView(pdfContainer)
+        pdfContainerFrame = hostView.findViewById(R.id.pdf_container_frame)
+        pdfContainerFrame.addView(pdfContentView, 0)
 
-        // Show/hide the search button based on initial toolbox visibility
-        if (isToolboxVisible) search?.show() else search?.hide()
+        searchFAB = hostView.findViewById(R.id.host_Search)
+        twoPageLayoutFAB = hostView.findViewById(R.id.two_page_layout)
+        pdfThumbnailToggleButton = hostView.findViewById(R.id.pdf_thumbnail_toggle_button)
+        pdfThumbnailRecyclerView = hostView.findViewById(R.id.pdf_thumbnail_recycler_view)
 
-        // Set up search button click listener
-        search?.setOnClickListener { isTextSearchActive = true }
+        val initialVisibility =
+            savedInstanceState?.getInt(KEY_THUMBNAIL_VISIBILITY, View.GONE) ?: View.GONE
+        setupThumbnailView(initialVisibility)
+
+        twoPageLayoutFAB?.setOnClickListener {
+            pdfView.pagesPerRow =
+                when (pdfView.pagesPerRow) {
+                    PdfView.SINGLE_PAGE -> PdfView.TWO_PAGE
+                    else -> PdfView.SINGLE_PAGE
+                }
+        }
+        searchFAB?.setOnClickListener { isTextSearchActive = true }
+        if (!arePdfContentFeaturesAvailable()) {
+            searchFAB?.visibility = View.GONE
+        }
         return hostView
     }
 
@@ -72,34 +109,165 @@ class PdfViewerFragmentExtended : PdfViewerFragment() {
         super.onViewCreated(view, savedInstanceState)
         lastClickedLinkUri = savedInstanceState?.getString(LAST_CLICKED_LINK_URI)
         lastClickedLinkUri?.let { showCustomLinkHandlerDialog(it) }
+        lastScrolledThumbnailIndex =
+            savedInstanceState?.getInt(KEY_LAST_SCROLLED_THUMBNAIL_INDEX) ?: -1
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        activePdfDocument = null
+    }
+
+    override fun onInitOcrProvider(): OcrProvider {
+        return MlKitOcrProvider()
+    }
+
+    fun resetThumbnails() {
+        if (::thumbnailAdapter.isInitialized) {
+            thumbnailAdapter.clearThumbnails()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         lastClickedLinkUri?.let { outState.putString(LAST_CLICKED_LINK_URI, it) }
+        outState.putInt(KEY_THUMBNAIL_VISIBILITY, pdfThumbnailRecyclerView.visibility)
+        outState.putInt(KEY_LAST_SCROLLED_THUMBNAIL_INDEX, lastScrolledThumbnailIndex)
+    }
+
+    private fun setupThumbnailView(initialVisibility: Int = View.GONE) {
+        if (!::thumbnailAdapter.isInitialized) {
+            thumbnailAdapter = ThumbnailAdapter { goToPage(it) }
+            pdfThumbnailRecyclerView.adapter = thumbnailAdapter
+            pdfThumbnailRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+            pdfThumbnailToggleButton.setOnClickListener {
+                pdfThumbnailRecyclerView.visibility =
+                    if (pdfThumbnailRecyclerView.visibility == View.VISIBLE) View.GONE
+                    else View.VISIBLE
+            }
+        }
+
+        // Start hidden if feature flag is off
+        val isFeatureEnabled = PdfFeatureFlags.isThumbnailPreviewEnabled
+        pdfThumbnailToggleButton.visibility = if (isFeatureEnabled) View.VISIBLE else View.GONE
+        pdfThumbnailRecyclerView.visibility = if (isFeatureEnabled) initialVisibility else View.GONE
+    }
+
+    override fun onLoadDocumentSuccess(document: PdfDocument) {
+        super.onLoadDocumentSuccess(document)
+        activePdfDocument = document
+        if (PdfFeatureFlags.isThumbnailPreviewEnabled) {
+            thumbnailAdapter.clearThumbnails()
+            generateThumbnails(document)
+            pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
+            pdfView.addOnViewportChangedListener(thumbnailViewportListener)
+        }
+    }
+
+    private val thumbnailViewportListener =
+        object : PdfView.OnViewportChangedListener {
+            override fun onViewportChanged(
+                firstVisiblePage: Int,
+                visiblePagesCount: Int,
+                pageLocations: SparseArray<RectF>,
+                zoomLevel: Float,
+            ) {
+                if (!::thumbnailAdapter.isInitialized) return
+
+                var currentPage: Int? = null
+
+                // Look through all visible pages and find the first one
+                // whose Rect is fully within the PdfView's height
+                for (i in 0 until pageLocations.size()) {
+                    val pageIndex = pageLocations.keyAt(i)
+                    val rect = pageLocations.valueAt(i)
+
+                    if (rect.top >= 0 && rect.bottom <= pdfView.height) {
+                        currentPage = pageIndex
+                        break
+                    }
+                }
+
+                // If no fully visible page was found, fall back to PdfView's firstVisiblePage
+                val resolvedPage = currentPage ?: firstVisiblePage
+
+                // Only update thumbnails if the visible page actually changed
+                if (resolvedPage != lastScrolledThumbnailIndex) {
+                    lastScrolledThumbnailIndex = resolvedPage
+                    thumbnailAdapter.updateSelectedPage(resolvedPage) // highlight correct thumbnail
+                    scrollThumbnailToVisible(resolvedPage) // scroll strip if needed
+                }
+            }
+        }
+
+    private fun scrollThumbnailToVisible(currentPage: Int) {
+        val layoutManager = pdfThumbnailRecyclerView.layoutManager as LinearLayoutManager
+        val firstVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
+        val lastVisible = layoutManager.findLastCompletelyVisibleItemPosition()
+
+        if (currentPage < firstVisible || currentPage > lastVisible) {
+            val scroller =
+                object : LinearSmoothScroller(pdfThumbnailRecyclerView.context) {
+                    override fun getVerticalSnapPreference() = SNAP_TO_START
+                }
+            scroller.targetPosition = currentPage
+            layoutManager.startSmoothScroll(scroller)
+        }
+    }
+
+    private fun generateThumbnails(document: PdfDocument) {
+        lifecycleScope.launch(Dispatchers.Default) {
+            val thumbnails = mutableListOf<Bitmap>()
+            // Defer get calls to fetch on scroll to address perf issue for large PDF b/485486734.
+            for (i in 0 until document.pageCount) {
+                val bitmap =
+                    document.getPageBitmapSource(i).getBitmap(getDynamicThumbnailSize(), null)
+                thumbnails.add(bitmap)
+            }
+
+            withContext(Dispatchers.Main) {
+                if (::thumbnailAdapter.isInitialized) {
+                    thumbnailAdapter.submitList(thumbnails)
+                    if (lastScrolledThumbnailIndex != -1) {
+                        thumbnailAdapter.updateSelectedPage(lastScrolledThumbnailIndex)
+                        scrollThumbnailToVisible(lastScrolledThumbnailIndex)
+                    }
+                }
+            }
+        }
+    }
+
+    fun goToPage(pageIndex: Int) {
+        thumbnailAdapter.updateSelectedPage(pageIndex)
+        pdfView.scrollToPage(pageIndex)
     }
 
     override fun onRequestImmersiveMode(enterImmersive: Boolean) {
         super.onRequestImmersiveMode(enterImmersive)
-        if (!enterImmersive) search?.show() else search?.hide()
+        if (!arePdfContentFeaturesAvailable()) return
+        searchFAB?.visibility = if (enterImmersive) View.GONE else View.VISIBLE
+        twoPageLayoutFAB?.visibility = if (enterImmersive) View.GONE else View.VISIBLE
+        // Toggle thumbnail button visibility only if the feature is enabled
+        if (PdfFeatureFlags.isThumbnailPreviewEnabled) {
+            pdfThumbnailToggleButton.visibility = if (enterImmersive) View.GONE else View.VISIBLE
+        }
     }
 
     override fun onLoadDocumentError(error: Throwable) {
         super.onLoadDocumentError(error)
-        when (error) {
-            is OperationCanceledException ->
-                (activity as? OpCancellationHandler)?.handleCancelOperation()
+        activePdfDocument = null
+        if (error is OperationCanceledException) {
+            (activity as? OpCancellationHandler)?.handleCancelOperation()
         }
     }
 
     override fun onLinkClicked(externalLink: ExternalLink): Boolean {
         return if (PdfFeatureFlags.isCustomLinkHandlingEnabled) {
             lastClickedLinkUri = externalLink.uri.toString()
-            lastClickedLinkUri?.let { showCustomLinkHandlerDialog(it) }
+            lastClickedLinkUri?.let(::showCustomLinkHandlerDialog)
             true
-        } else {
-            false
-        }
+        } else super.onLinkClicked(externalLink)
     }
 
     private fun showCustomLinkHandlerDialog(linkUri: String) {
@@ -110,7 +278,38 @@ class PdfViewerFragmentExtended : PdfViewerFragment() {
             .show()
     }
 
+    override fun onFeatureFlagUpdated(flagName: String, enabled: Boolean) {
+        when (flagName) {
+            THUMBNAIL_PREVIEW -> {
+                pdfThumbnailToggleButton.visibility = if (enabled) View.VISIBLE else View.GONE
+                if (!enabled) {
+                    pdfThumbnailRecyclerView.visibility = View.GONE
+                    pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
+                } else {
+                    activePdfDocument?.let {
+                        if (thumbnailAdapter.itemCount == 0) {
+                            generateThumbnails(it)
+                        }
+                        pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
+                        pdfView.addOnViewportChangedListener(thumbnailViewportListener)
+                    }
+                }
+            }
+            FORM_FILLING -> {
+                pdfView.isFormFillingEnabled = enabled
+            }
+        }
+    }
+
+    private fun getDynamicThumbnailSize(): Size {
+        val width = resources.getDimensionPixelSize(R.dimen.thumbnail_width)
+        val height = resources.getDimensionPixelSize(R.dimen.thumbnail_height)
+        return Size(width, height)
+    }
+
     companion object {
         private const val LAST_CLICKED_LINK_URI = "last_clicked_link_uri"
+        private const val KEY_THUMBNAIL_VISIBILITY = "thumbnail_visibility"
+        private const val KEY_LAST_SCROLLED_THUMBNAIL_INDEX = "last_scrolled_thumbnail_index"
     }
 }

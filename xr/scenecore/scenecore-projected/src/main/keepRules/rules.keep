@@ -1,0 +1,3 @@
+# Instantiated via reflection in androidx.xr.runtime.Session.kt
+-if class androidx.xr.runtime.Session
+-keep class androidx.xr.scenecore.projected.ProjectedSceneRuntimeFactory { *; }

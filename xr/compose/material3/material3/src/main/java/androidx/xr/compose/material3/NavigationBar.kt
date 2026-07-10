@@ -45,7 +45,7 @@ import androidx.xr.compose.material3.XrNavigationBarOverride.NavigationBar
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 
 /**
  * <a href="https://m3.material.io/components/navigation-bar/overview" class="external"
@@ -92,8 +92,6 @@ public fun NavigationBar(
             modifier = modifier,
         ) {
             Row(
-                // XR-changed: Original NavigationBar uses fillMaxWidth() and windowInsets,
-                // which do not produce the desired result in XR.
                 modifier =
                     Modifier.width(IntrinsicSize.Min)
                         .heightIn(min = XrNavigationBarTokens.ContainerHeight)
@@ -141,7 +139,7 @@ public val DefaultNavigationBarOrbiterProperties: HorizontalOrbiterProperties =
     HorizontalOrbiterProperties(
         position = ContentEdge.Horizontal.Bottom,
         offset = XrNavigationBarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterHorizontally,
         shape = XrTokens.ContainerShape,
     )

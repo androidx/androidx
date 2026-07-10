@@ -1,0 +1,1574 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.animation
+
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
+import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+@OptIn(ExperimentalDeferredTransitionApi::class, ExperimentalTransitionApi::class)
+class DeferredAnimatedContentTest {
+    @get:Rule val rule = createComposeRule()
+
+    @Test
+    fun waitToEnterTest() {
+        val state = DeferredTransitionState("A")
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        // Initial state A
+        rule.onNodeWithTag("content_A").assertExists()
+        rule.waitForIdle()
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+
+        // Switch to B, but not ready
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        // A should still be displayed (Exit held)
+        rule.onNodeWithTag("content_A").assertExists()
+
+        // B should be composed but not displayed (Enter held at PreEnter)
+        rule.onNodeWithTag("content_B").assertExists()
+
+        // Make B ready
+        rule.runOnIdle { state.animateTo("B") }
+        rule.waitForIdle()
+
+        // Wait for animation to finish
+        rule.waitForIdle()
+
+        // A gone, B displayed
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+    }
+
+    @Test
+    fun immediateEnterTest() {
+        val state = DeferredTransitionState("A")
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Switch to B
+        rule.runOnIdle { state.animateTo("B") }
+        rule.waitForIdle()
+
+        // Should transition immediately (B exists, A exists during transition)
+        rule.onNodeWithTag("content_B").assertExists()
+
+        // Wait for finish
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+    }
+
+    @Test
+    fun immediateExitTest() {
+        val state = DeferredTransitionState("A")
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(1000, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(1000, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        // Initial state
+        rule.waitForIdle()
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Trigger exit (A->B), but keep B not ready
+        rule.runOnIdle { state.defer("B") }
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeByFrame()
+
+        // A should still be displayed, as its exit is held by isReady
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+        rule.onNodeWithTag("content_B").assertExists() // B is composed, but not displayed
+
+        // Now make B ready, A's exit animation should start
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // A should still be displayed (fading out)
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Advance time to finish animation
+        rule.mainClock.advanceTimeBy(1000) // Finish fadeOut(1000)
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        // A should be gone, B should be displayed
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+    }
+
+    @Test
+    fun sizeChangeDelayedUntilReady() {
+        val state = DeferredTransitionState("A")
+        var containerSize by mutableStateOf(IntSize.Zero)
+
+        rule.setContent {
+            Box(Modifier.onGloballyPositioned { containerSize = it.size }) {
+                val transition = rememberTransition(state)
+                transition.DeferredAnimatedContent(
+                    transitionSpec = {
+                        fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                            fadeOut(tween(100, easing = LinearEasing))
+                    }
+                ) { target ->
+                    Box(
+                        Modifier.size(if (target == "A") 100.dp else 200.dp)
+                            .testTag("content_" + target)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+        val sizeA = with(rule.density) { 100.dp.roundToPx() }
+        val sizeB = with(rule.density) { 200.dp.roundToPx() }
+
+        // Initial check
+        rule.runOnIdle {
+            assertTrue(
+                "Container size should be A ($sizeA) but was $containerSize",
+                containerSize.width == sizeA && containerSize.height == sizeA,
+            )
+        }
+
+        // Switch to B, but not ready
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        // Size should STILL be A (100)
+        rule.runOnIdle {
+            assertTrue(
+                "Container size should remain A ($sizeA) while waiting, but was $containerSize",
+                containerSize.width == sizeA && containerSize.height == sizeA,
+            )
+        }
+
+        // Make B ready
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame() // Start animation
+
+        // Now it should start animating towards B (size increasing)
+        rule.runOnIdle {
+            // After animation finishes
+            assertTrue(
+                "Container size should be B ($sizeB) after animation, but was $containerSize",
+                containerSize.width == sizeB && containerSize.height == sizeB,
+            )
+        }
+    }
+
+    @Test
+    fun verifyExitAnimationAfterGateOpens() {
+        val state = DeferredTransitionState("A")
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(1000, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(1000, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag("content_$target")
+                        .background(if (target == "A") Color.Red else Color.Green)
+                )
+            }
+        }
+
+        // Initial state A
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Switch to B, but not ready
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        // A should still be displayed
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Make B ready
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Advance clock by 500ms
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+
+        // A should still be displayed (fading out)
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Finish animation
+        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+    }
+
+    @Test
+    fun flappingTest() {
+        val state = DeferredTransitionState("A")
+        var containerSize by mutableStateOf(IntSize.Zero)
+
+        rule.setContent {
+            Box(Modifier.onGloballyPositioned { containerSize = it.size }) {
+                val transition = rememberTransition(state)
+                transition.DeferredAnimatedContent(
+                    transitionSpec = {
+                        // Use Linear easing for predictable progress
+                        (fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                            fadeOut(tween(100, easing = LinearEasing))) using
+                            SizeTransform { _, _ -> tween(100, easing = LinearEasing) }
+                    }
+                ) { target ->
+                    Box(
+                        Modifier.size(if (target == "A") 100.dp else 200.dp)
+                            .testTag("content_$target")
+                    )
+                }
+            }
+        }
+
+        // Initial A (100dp)
+        rule.waitForIdle()
+        val sizeA = with(rule.density) { 100.dp.roundToPx() }
+        val sizeB = with(rule.density) { 200.dp.roundToPx() }
+
+        rule.runOnIdle { assertTrue(containerSize.width == sizeA) }
+
+        // Switch to B, ready. Start animation.
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.autoAdvance = false
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(50) // Halfway (50ms)
+
+        // Size should be halfway between 100 and 200
+        val midSize = (sizeA + sizeB) / 2
+        rule.runOnIdle {
+            // Check approximate size
+            assertTrue(containerSize.width > sizeA && containerSize.width < sizeB)
+        }
+
+        val sizeAtFlap = containerSize
+
+        // Flap: Not Ready!
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle() // Propagate state
+
+        // Advance time - Should NOT pause because we already started
+        rule.mainClock.advanceTimeBy(25)
+
+        // If it paused, size would equal sizeAtFlap.
+        // If it continued, size should be larger.
+        rule.runOnIdle {
+            assertTrue(
+                "Animation should continue despite flapping unready",
+                containerSize.width > sizeAtFlap.width,
+            )
+        }
+
+        // Finish
+        rule.mainClock.advanceTimeBy(100)
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.runOnIdle { assertTrue(containerSize.width == sizeB) }
+    }
+
+    @Test
+    fun verifyCurrentStateRemainsDuringPreparation() {
+        val state = DeferredTransitionState("A")
+        lateinit var transition: Transition<String>
+
+        rule.setContent {
+            transition = rememberTransition(state)
+            transition.DeferredAnimatedContent { target -> Box(Modifier.size(100.dp)) }
+        }
+
+        // Initial state
+        rule.waitForIdle()
+        assertTrue(transition.currentState == "A")
+        assertTrue(transition.targetState == "A")
+
+        // Switch to B, but not ready
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        // Verify we are "Held" at A
+        // Target is B, but Current should still be A because preparation is not ready
+        assertTrue("Target should still be A", transition.targetState == "A")
+        assertTrue("Current should remain A during preparation", transition.currentState == "A")
+        assertTrue("Pending Target should be B", state.pendingTargetState == "B")
+
+        // Make ready
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Should settle
+        assertTrue(transition.currentState == "B")
+    }
+
+    @Test
+    fun doubleChangeTargetWhileNotReady() {
+        val state = DeferredTransitionState(0)
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        // Initial state: content_0 is displayed.
+        rule.onNodeWithTag("content_0").assertIsDisplayed()
+
+        // Change target to 1, but content is not ready.
+        rule.runOnIdle { state.defer(1) }
+        rule.waitForIdle()
+
+        // Content_0 should remain visible as the transition to 1 is held.
+        rule.onNodeWithTag("content_0").assertIsDisplayed()
+        // Content_1 should be composed but not yet displayed.
+        rule.onNodeWithTag("content_1").assertExists()
+
+        // Change target to 2, while content is still not ready.
+        rule.runOnIdle { state.defer(2) }
+        rule.waitForIdle()
+
+        // Content_0 should still be displayed, as the transition to 2 is also held from 0.
+        rule.onNodeWithTag("content_0").assertIsDisplayed()
+        // Content_2 should be composed but not yet displayed.
+        rule.onNodeWithTag("content_2").assertExists()
+        // Content_1 should still be in the composition, as it might have manual transformations
+        // applied to it during its deferred phase, and it will be cleared once the transition
+        // settles.
+        rule.onNodeWithTag("content_1").assertExists()
+
+        // Now let the transition settle
+        rule.runOnIdle { state.animateTo(2) }
+        rule.waitForIdle()
+
+        // After settling, content_1 should finally be cleared
+        rule.onNodeWithTag("content_1").assertDoesNotExist()
+    }
+
+    @Test
+    fun interruptionRespectedOnlyWhenReady() {
+        val state = DeferredTransitionState("A")
+        var size by mutableStateOf(IntSize.Zero)
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    (fadeIn(tween(100, easing = LinearEasing)) +
+                        expandIn(tween(100, easing = LinearEasing))) togetherWith
+                        (fadeOut(tween(100, easing = LinearEasing)) +
+                            shrinkOut(tween(100, easing = LinearEasing)))
+                },
+                modifier = Modifier.onGloballyPositioned { size = it.size },
+            ) { target ->
+                // A: 100, B: 200, C: 100
+                val sizeDp = if (target == "B") 200.dp else 100.dp
+                Box(Modifier.size(sizeDp).testTag("content_$target"))
+            }
+        }
+
+        // Initial A (100dp)
+        rule.waitForIdle()
+        val sizeA = with(rule.density) { 100.dp.roundToPx() }
+        val sizeB = with(rule.density) { 200.dp.roundToPx() }
+
+        // Start A -> B
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.autoAdvance = false
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(50) // Halfway
+
+        // Size should be > sizeA
+        assertTrue(size.width > sizeA)
+
+        // Interrupt with C (100dp), but C is NOT ready.
+        // Should continue towards B (200dp).
+        rule.runOnIdle { state.defer("C") }
+
+        // Trigger frame
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        val sizeAfterInterruption = size.width
+        rule.mainClock.advanceTimeBy(20)
+
+        // It should continue to expand (towards B), so size should increase
+        assertTrue(
+            "Size should increase (continue to B) but was $size.width vs $sizeAfterInterruption",
+            size.width > sizeAfterInterruption,
+        )
+
+        // Make C ready. Now it should interrupt and start C (100dp).
+        rule.runOnIdle { state.animateTo("C") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val sizeBeforeC = size.width
+        rule.mainClock.advanceTimeBy(20)
+
+        // Now it should shrink towards C
+        assertTrue(
+            "Size should decrease (towards C) but was $size.width vs $sizeBeforeC",
+            size.width < sizeBeforeC,
+        )
+
+        // Just verify we eventually get to C
+        rule.mainClock.advanceTimeBy(1000)
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+    }
+
+    @Test
+    fun interruptionRespectedOnlyWhenReady_verifyComposition() {
+        val state = DeferredTransitionState("A")
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    (fadeIn(tween(100, easing = LinearEasing)) +
+                        expandIn(tween(100, easing = LinearEasing))) togetherWith
+                        (fadeOut(tween(100, easing = LinearEasing)) +
+                            shrinkOut(tween(100, easing = LinearEasing)))
+                }
+            ) { target ->
+                // A: 100, B: 200, C: 100
+                val sizeDp = if (target == "B") 200.dp else 100.dp
+                Box(Modifier.size(sizeDp).testTag("content_$target"))
+            }
+        }
+
+        // Initial A
+        rule.waitForIdle()
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Start A -> B
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.autoAdvance = false
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(50) // Halfway
+
+        // Verify A and B are present
+        rule.onNodeWithTag("content_A").assertExists()
+        rule.onNodeWithTag("content_B").assertExists()
+        rule.onNodeWithTag("content_C").assertDoesNotExist()
+
+        // Interrupt with C, C not ready
+        rule.runOnIdle { state.defer("C") }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        // KEY CHECK: C must enter composition immediately to prepare
+        rule.onNodeWithTag("content_C").assertExists()
+
+        // A and B should still exist as we are mid-transition and C is holding
+        rule.onNodeWithTag("content_A").assertExists()
+        rule.onNodeWithTag("content_B").assertExists()
+
+        // Make C ready
+        rule.runOnIdle { state.animateTo("C") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // Finish
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+    }
+
+    @Test
+    fun predictiveBackMutableTransformDataTest() {
+        val state = DeferredTransitionState("A")
+        var enterFullSize = IntSize.Zero
+        var exitFullSize = IntSize.Zero
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            val mutableTransform = remember {
+                MutableContentTransform {
+                    targetContentTransform { fullSize ->
+                        if (state.pendingTargetState != null && state.pendingTargetState != "A") {
+                            enterFullSize = fullSize
+                            offset = IntOffset.Zero
+                        }
+                    }
+                    initialContentTransform { fullSize ->
+                        if (state.pendingTargetState != null && state.pendingTargetState != "A") {
+                            exitFullSize = fullSize
+                            offset = IntOffset.Zero
+                        }
+                    }
+                }
+            }
+            transition.DeferredAnimatedContent(mutableTransformSpec = { mutableTransform }) { target
+                ->
+                val size = if (target == "A") 100.dp else 200.dp
+                Box(Modifier.size(size).testTag("content_$target"))
+            }
+        }
+
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+
+        // Switch to B, it will hold because we use defer
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        // Check if fullSize was captured in preparationData
+        assertTrue(
+            "Enter fullSize should be captured. Actually: $enterFullSize",
+            enterFullSize.width > 0,
+        )
+        assertTrue(
+            "Exit fullSize should be captured. Actually: $exitFullSize",
+            exitFullSize.width > 0,
+        )
+    }
+
+    @Test
+    fun animatedContent_previewTransforms_handoffCorrectly() {
+        val state = DeferredTransitionState("A")
+        var previewing by mutableStateOf(false)
+        var previewOffset by mutableStateOf(0)
+
+        var enterX = 0
+        var enterY = 0
+        var exitX = 0
+        var exitY = 0
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    slideInHorizontally(tween(160)) { 200 } togetherWith
+                        slideOutHorizontally(tween(160)) { -200 }
+                },
+                mutableTransformSpec = {
+                    if (previewing && targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { offset = IntOffset(previewOffset, 100) }
+                            initialContentTransform { offset = IntOffset(-previewOffset, 100) }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") {
+                            exitX = coords.positionInRoot().x.toInt()
+                            exitY = coords.positionInRoot().y.toInt()
+                        } else if (target == "B") {
+                            enterX = coords.positionInRoot().x.toInt()
+                            enterY = coords.positionInRoot().y.toInt()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(0, exitX)
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle {
+            previewing = true
+            state.defer("B")
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle { previewOffset = 50 }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // slideIn starts at 200, preview overrides to 50
+        assertEquals(50, enterX)
+        // slideOut starts at 0, preview overrides to -50
+        assertEquals(-50, exitX)
+
+        assertEquals(100, enterY)
+        assertEquals(100, exitY)
+
+        rule.runOnIdle {
+            previewing = false
+            state.animateTo("B")
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(80L)
+        rule.mainClock.advanceTimeByFrame()
+
+        // Enter is animating from 50 -> 0
+        assertTrue("Enter x offset should be between 0 and 50. Actually $enterX", enterX in 1..<50)
+        // Exit is animating from -50 -> -200
+        assertTrue(
+            "Exit x offset should be between -50 and -200. Actually $exitX",
+            exitX < -50 && exitX > -200,
+        )
+        assertTrue("Enter Y offset should be between 0 and 100. Actually $exitX", enterY in 1..<100)
+        assertTrue("Exit Y offset should be between 0 and 100. Actually $exitX", exitY in 1..<100)
+
+        rule.mainClock.advanceTimeBy(1000L)
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertEquals(0, enterX)
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+    }
+
+    @Test
+    fun previewScope_providesInitialAndTargetState() {
+        val state = DeferredTransitionState("A")
+        var capturedInitialState: String? = null
+        var capturedTargetState: String? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            val mutableTransform = remember { MutableContentTransform() }
+            if (state.pendingTargetState != null) {
+                capturedInitialState = transition.targetState
+                capturedTargetState = transition.pendingTargetState ?: state.pendingTargetState
+            }
+            transition.DeferredAnimatedContent(mutableTransformSpec = { mutableTransform }) { target
+                ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        assertEquals("A", capturedInitialState)
+        assertEquals("B", capturedTargetState)
+    }
+
+    @Test
+    fun previewScope_providesCorrectStates_onInterruption() {
+        val state = DeferredTransitionState("A")
+        var capturedInitialState: String? = null
+        var capturedTargetState: String? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                },
+                mutableTransformSpec = {
+                    capturedInitialState = initialState
+                    capturedTargetState = targetState
+                    null
+                },
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Start transition to B
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+
+        assertEquals(null, capturedInitialState)
+        assertEquals(null, capturedTargetState)
+
+        // Interrupt the transition to B and go back to A
+        rule.runOnIdle { state.defer("A") }
+        rule.mainClock.advanceTimeByFrame()
+
+        assertEquals("B", capturedInitialState)
+        assertEquals("A", capturedTargetState)
+    }
+
+    @Test
+    fun previewScope_providesCorrectStates_onInterruptionDuringPreviewPhase() {
+        val state = DeferredTransitionState("A")
+        var capturedInitialState: String? = null
+        var capturedTargetState: String? = null
+        var previewInvocationCount: Int = 0
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                },
+                mutableTransformSpec = {
+                    capturedInitialState = initialState
+                    capturedTargetState = targetState
+                    previewInvocationCount += 1
+                    null
+                },
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+
+        // Start transition to B, but wait
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+
+        assertEquals("A", capturedInitialState)
+        assertEquals("B", capturedTargetState)
+
+        val invocationCountAfterFirstNavigation = previewInvocationCount
+
+        // Interrupt the transition to B and go back to A
+        rule.runOnIdle { state.defer("A") }
+        rule.waitForIdle()
+        // when interrupting during the preview phase, preview lambda is not called again
+        assertEquals("A", capturedInitialState)
+        assertEquals("B", capturedTargetState)
+        assertEquals(invocationCountAfterFirstNavigation, previewInvocationCount)
+    }
+
+    @Test
+    fun animatedContent_previewTransforms_handoffVelocity() {
+        testTimeSource = { rule.mainClock.currentTime }
+
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+
+        var enterWidth = 0f
+        var exitWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(
+                        spring(stiffness = Spring.StiffnessVeryLow),
+                        initialScale = 0.2f,
+                    ) togetherWith
+                        scaleOut(spring(stiffness = Spring.StiffnessVeryLow), targetScale = 0.2f)
+                },
+                mutableTransformSpec = {
+                    if (targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") {
+                            exitWidth = coords.boundsInRoot().width
+                        } else if (target == "B") {
+                            enterWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        fun simulateGesture(isFast: Boolean): Pair<Float, Float> {
+            rule.runOnIdle { state.defer("B") }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+
+            val steps =
+                if (isFast) {
+                    listOf(0.9f, 0.7f, 0.5f)
+                } else {
+                    listOf(0.9f, 0.8f, 0.7f, 0.6f, 0.5f)
+                }
+            for (s in steps) {
+                previewScale = s
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+            }
+
+            val lastGestureEnterWidth = enterWidth
+            val lastGestureExitWidth = exitWidth
+
+            rule.runOnIdle { state.animateTo("B") }
+            repeat(3) { rule.mainClock.advanceTimeByFrame() }
+            rule.waitForIdle()
+
+            return (lastGestureEnterWidth - enterWidth) to (lastGestureExitWidth - exitWidth)
+        }
+
+        // Scenario 1: Slow gesture
+        val (enterDropSlow, exitDropSlow) = simulateGesture(isFast = false)
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { state.animateTo("A") }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        previewScale = 1f
+
+        // Scenario 2: Fast gesture
+        val (enterDropFast, exitDropFast) = simulateGesture(isFast = true)
+
+        assertTrue(
+            "Expected enterWidth drop with fast gesture ($enterDropFast) to be greater than with slow gesture ($enterDropSlow)",
+            enterDropFast > enterDropSlow,
+        )
+        assertTrue(
+            "Expected exitWidth drop with fast gesture ($exitDropFast) to be greater than with slow gesture ($exitDropSlow)",
+            exitDropFast > exitDropSlow,
+        )
+
+        testTimeSource = null
+    }
+
+    @Test
+    fun animatedContent_previewScale_interrupt_deferred_by_original_state_is_seamless() {
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    // Use linear easing and long duration to make progress predictable
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    if (targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") {
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidth
+        rule.mainClock.autoAdvance = false
+
+        // 1. Deferred phase (e.g. back gesture)
+        rule.runOnIdle {
+            state.defer("B")
+            previewScale = 0.8f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.8f, measuredWidth, 1f)
+
+        // 2. Interrupt deferred phase by navigating back to original state ("A")
+        rule.runOnIdle { state.animateTo("A") }
+        rule.mainClock.advanceTimeByFrame() // Interruption frame
+        rule.waitForIdle()
+
+        // 3. Verify it is seamless (no jump to 1.0f or 0.0f)
+        val widthAfterInterruption = measuredWidth
+        assertEquals(
+            "Width should not jump after interrupting deferred phase",
+            fullWidth * 0.8f,
+            widthAfterInterruption,
+            1f,
+        )
+
+        // 4. Verify it continues to animate back to full width
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+        assertTrue(
+            "Width should be increasing towards fullWidth. " +
+                "Was $widthAfterInterruption, now $measuredWidth",
+            measuredWidth > widthAfterInterruption,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(fullWidth, measuredWidth, 1f)
+    }
+
+    @Test
+    fun animatedContent_previewScaleTransforms_handoffUsesTweenSpec() {
+        val state = DeferredTransitionState("A")
+        var previewing by mutableStateOf(false)
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    // Use a long tween animation spec so we can easily measure intermediate values
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    if (previewing && targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "B") {
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Defer to B, set scale to 0.5f
+        rule.runOnIdle {
+            previewing = true
+            state.defer("B")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        // 2. Commit transition to B (handoff phase starts)
+        rule.runOnIdle {
+            previewing = false
+            state.animateTo("B")
+        }
+        rule.mainClock.advanceTimeByFrame() // Transition start frame
+        rule.waitForIdle()
+
+        // 3. Advance clock by 500 ms (exactly half of 1000 ms duration).
+        // Since we are transitioning from 0.5f (forcedInitialValue) to 1.0f (targetState value)
+        // using a linear tween(1000), at 500 ms the scale should be exactly:
+        // 0.5f + (1.0f - 0.5f) * 0.5 = 0.75f.
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+
+        // Assert that the scale is 0.75f (width is 75% of full width)
+        val fullWidth = with(rule.density) { 100.dp.toPx() }
+        val expectedWidth = fullWidth * 0.75f
+        assertEquals(expectedWidth, measuredWidth, 2f) // allowance of 2 pixels
+    }
+
+    @Test
+    fun animatedContent_interruption_during_deferred_phase_uses_correct_spec() {
+        val state = DeferredTransitionState("A")
+        var exitSpecForA: ExitTransition? = null
+        var exitSpecForB: ExitTransition? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    val spec =
+                        if (initialState == "A" && targetState == "B") {
+                            fadeIn() togetherWith fadeOut(tween(100))
+                        } else if (initialState == "A" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(500))
+                        } else if (initialState == "B" && targetState == "A") {
+                            fadeIn() togetherWith fadeOut(tween(800))
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    if (initialState == "A") {
+                        exitSpecForA = spec.initialContentExit
+                    }
+                    if (initialState == "B") {
+                        exitSpecForB = spec.initialContentExit
+                    }
+                    spec
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1. Defer to B. Spec for A should be fadeOut(100).
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        assertEquals(fadeOut(tween(100)), exitSpecForA)
+
+        // 2. Interrupt by animating to C.
+        // Spec for A should now be re-evaluated to fadeOut(500).
+        rule.runOnIdle { state.animateTo("C") }
+        rule.waitForIdle()
+
+        assertEquals(
+            "Exit spec for A should be re-evaluated to the one for A->C",
+            fadeOut(tween(500)),
+            exitSpecForA,
+        )
+
+        assertEquals(
+            "Exit spec for B should be the one for B->A",
+            fadeOut(tween(800)),
+            exitSpecForB,
+        )
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+    }
+
+    @Test
+    fun animatedContent_interruption_during_regular_phase_uses_correct_spec() {
+        val state = DeferredTransitionState("A")
+        var exitSpecForA: ExitTransition? = null
+        var exitSpecForB: ExitTransition? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    val spec =
+                        if (initialState == "A" && targetState == "B") {
+                            fadeIn() togetherWith fadeOut(tween(100))
+                        } else if (initialState == "A" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(500))
+                        } else if (initialState == "B" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(800))
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    if (initialState == "A") {
+                        exitSpecForA = spec.initialContentExit
+                    }
+                    if (initialState == "B") {
+                        exitSpecForB = spec.initialContentExit
+                    }
+                    spec
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Animate to B. Spec for A should be fadeOut(100).
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fadeOut(tween(100)), exitSpecForA)
+
+        // 2. Interrupt by animating to C.
+        // During a regular interruption, A is already exiting towards B.
+        // AnimatedContent does not re-evaluate the exit spec for content that is already exiting.
+        rule.runOnIdle { state.animateTo("C") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertIsDisplayed()
+        rule.onNodeWithTag("content_B").assertIsDisplayed()
+
+        assertEquals(
+            "Exit spec for A should NOT be re-evaluated (it continues its original A->B exit)",
+            fadeOut(tween(100)),
+            exitSpecForA,
+        )
+
+        assertEquals(
+            "Exit spec for B should use the B->C spec since it is now exiting",
+            fadeOut(tween(800)),
+            exitSpecForB,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+    }
+
+    @Test
+    fun nonMutatingNodeDoesNotReceiveStaleMutations() {
+        val state = DeferredTransitionState("A")
+        var positionA = IntOffset.Zero
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    (fadeIn(tween(1000, easing = LinearEasing)) +
+                        slideIn(tween(1000, easing = LinearEasing)) { IntOffset.Zero }) togetherWith
+                        (fadeOut(tween(1000, easing = LinearEasing)) +
+                            slideOut(tween(1000, easing = LinearEasing)) { IntOffset.Zero })
+                },
+                mutableTransformSpec = {
+                    if (initialState == "A" && targetState == "B") {
+                        MutableContentTransform {
+                            initialContentTransform {
+                                // Mutate A's offset by 100 pixels
+                                this.offset = IntOffset(100, 100)
+                            }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned {
+                        if (target == "A")
+                            positionA =
+                                it.positionInRoot().let { pos ->
+                                    IntOffset(pos.x.toInt(), pos.y.toInt())
+                                }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Start gesture from A -> B
+        rule.runOnIdle { state.defer("B") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // A should be mutated by the gesture and shifted by 100, 100.
+        rule.runOnIdle { assertEquals(IntOffset(100, 100), positionA) }
+
+        // 2. Gesture ends, animation starts.
+        rule.runOnIdle { state.animateTo("B") }
+
+        // Advance time a bit (100ms) so A starts animating back towards 0,0
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        // At 10% of 1000ms LinearEasing, the slide transition value should be around 90, 90.
+        val positionBeforeNewGesture = positionA
+        assertTrue(
+            "Position should be animating back to 0,0. Current: $positionBeforeNewGesture",
+            positionBeforeNewGesture.x in 80..95,
+        )
+
+        // 3. Start a NEW gesture B -> C
+        rule.runOnIdle { state.defer("C") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // 4. Verify A's position did not abruptly jump.
+        // Because A is not involved in the new B -> C gesture, it should not be considered as
+        // actively mutating and any stale mutations from the previous gesture should not be
+        // applied. Its position should continue to smoothly animate along its current transition
+        // value (~90,90) without jumping abruptly.
+        val positionAfterNewGesture = positionA
+        assertTrue(
+            "Position abruptly jumped! Expected to be around $positionBeforeNewGesture, but was $positionAfterNewGesture. " +
+                "This indicates stale mutations were applied.",
+            positionAfterNewGesture.x < 100,
+        )
+    }
+
+    @Test
+    fun deferAfterExitFinishedRecoversExitStateTest() {
+        val state = DeferredTransitionState("A")
+        var positionA = IntOffset.Zero
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    slideInHorizontally(tween(100000, easing = LinearEasing)) { 100 } togetherWith
+                        slideOutHorizontally(tween(100, easing = LinearEasing)) { -100 }
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        initialContentTransform {}
+                        targetContentTransform {}
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned {
+                        if (target == "A") {
+                            val pos = it.positionInRoot()
+                            positionA = IntOffset(pos.x.toInt(), pos.y.toInt())
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { state.animateTo("B") }
+
+        // Advance time enough for A to fully exit (since exit duration is 100ms, it finishes
+        // quickly)
+        rule.mainClock.advanceTimeBy(5000)
+        rule.waitForIdle()
+
+        val offScreenPositionA = positionA.x
+        // Ensure A has moved fully off-screen (should be around -100, absolute -96)
+        assertTrue(
+            "A should be fully off-screen, but was $offScreenPositionA",
+            offScreenPositionA < -90,
+        )
+
+        // Defer to A (simulate predictive back gesture)
+        rule.runOnIdle { state.defer("A") }
+
+        // Advance clock by 1ms to trigger recomposition and layout
+        rule.mainClock.advanceTimeBy(1)
+        rule.waitForIdle()
+
+        // Without the fix, A's exit is neutralized during active mutations (like defer),
+        // causing it to instantly jump to 0 offset (absolute position 4).
+        // With the fix, it remains at its off-screen position -100 (absolute position -96).
+        assertTrue(
+            "A jumped! Expected to remain off-screen (around -96), but was ${positionA.x}",
+            positionA.x < -90,
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testVeilMatchParentSize_isPreservedDuringHandoff() {
+        val state = DeferredTransitionState("A")
+        rule.setContent {
+            Box(Modifier.size(200.dp).background(Color.Blue).testTag("container")) {
+                val transition = rememberTransition(state)
+                transition.DeferredAnimatedContent(
+                    modifier = Modifier.matchParentSize(),
+                    transitionSpec = { fadeIn(tween(1000)) togetherWith fadeOut(tween(1000)) },
+                    mutableTransformSpec = {
+                        MutableContentTransform(targetVeilMatchParentSize = true) {
+                            targetContentTransform {
+                                scale = 0.5f
+                                veil = Color.Red
+                            }
+                        }
+                    },
+                ) { target ->
+                    // Transparent content so we can see the veil completely
+                    Box(Modifier.size(200.dp))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Start manual gesture targeting B
+        rule.runOnIdle { state.defer("B") }
+        rule.mainClock.advanceTimeBy(80L)
+        rule.waitForIdle()
+
+        // Handoff to B (gesture released)
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Capture image during the handoff animation
+        val image = rule.onNodeWithTag("container").captureToImage()
+
+        // Assert that the veil covers the entire 200x200 container.
+        // If matchParentSize was false (the bug), the veil would be shrunk by the 0.5f scale
+        // to a 50x50 box in the center, leaving the corner pixel exactly Blue.
+        // Since it's fading out to Unspecified, it might not be exactly Red, but it shouldn't be
+        // exactly Blue.
+        val pixelColor = image.toPixelMap()[0, 0]
+        assertTrue(
+            "Expected corner pixel to be covered by the Red-ish veil, but was exactly Blue",
+            pixelColor != Color.Blue,
+        )
+    }
+
+    @Test
+    fun animatedContent_manualGesture_snapsWhenIdle_springsWhenAnimating() {
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+        var measuredWidthA = 0f
+        var measuredWidthB = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f)
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        targetContentTransform { scale = previewScale }
+                        initialContentTransform { scale = previewScale }
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") measuredWidthA = coords.boundsInRoot().width
+                        if (target == "B") measuredWidthB = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidthA
+        rule.mainClock.autoAdvance = false
+
+        // PART 1: SNAP WHEN IDLE
+        // The view A is idle (isSettled = true). If we start a manual mutation, it should
+        // immediately snap to the gesture value.
+        rule.runOnIdle {
+            state.defer("B")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // It should snap immediately since it was idle!
+        // No spring catch-up here.
+        assertEquals(fullWidth * 0.5f, measuredWidthA, 1f)
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle {
+            previewScale = 1f
+            state.animateTo("A")
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // PART 2: SPRING WHEN ANIMATING
+        // Start an animation from A -> B. Wait a bit so B is entering.
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(100) // Animating! isSettled = false
+
+        // Now, while animating, start a manual mutation back to A to scale A to 0.5.
+        // It should spring (catch up), NOT snap!
+        val currentWidthA = measuredWidthA
+        rule.runOnIdle {
+            state.defer("A")
+            previewScale = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // It should NOT snap directly to 0.5x, because it was in the middle of animating!
+        val initialCatchUpWidthA = measuredWidthA
+        assertTrue(
+            "Width should not snap directly to 0.5x, expected catchup to smooth it. Was $initialCatchUpWidthA vs target ${fullWidth * 0.5f}",
+            kotlin.math.abs(initialCatchUpWidthA - fullWidth * 0.5f) > 5f,
+        )
+
+        // Advance some time, it should eventually settle exactly on 0.5x
+        rule.mainClock.advanceTimeBy(5000)
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.5f, measuredWidthA, 1f)
+    }
+
+    @Test
+    fun testUnmutatedPropertiesDoNotJump() {
+        var state by mutableStateOf<DeferredTransitionState<String>?>(null)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            testTimeSource = { rule.mainClock.currentTime }
+            state = remember { DeferredTransitionState("A") }
+            val transition = rememberTransition(state!!)
+
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(tween(1000, easing = LinearEasing), initialScale = 0.0f) togetherWith
+                        scaleOut(tween(1000, easing = LinearEasing), targetScale = 0.0f)
+                },
+                mutableTransformSpec = {
+                    MutableContentTransform {
+                        // ONLY mutate offset, do NOT mutate scale
+                        targetContentTransform { offset = IntOffset(100, 100) }
+                    }
+                },
+            ) { target ->
+                if (target == "B") {
+                    Box(
+                        Modifier.size(100.dp).onGloballyPositioned { coords ->
+                            measuredWidth = coords.boundsInRoot().width
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Start animating in
+        rule.runOnIdle { state!!.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(500) // Halfway through the 1000ms animation
+        rule.waitForIdle()
+
+        val halfwayWidth = measuredWidth
+        assertTrue("Width should be halfway: $halfwayWidth", halfwayWidth > 10f)
+
+        // Now start a manual gesture
+        rule.runOnIdle { state!!.defer("A") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Wait a few frames for the catch-up to potentially jump
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        val widthAfterGestureStart = measuredWidth
+
+        // Since the gesture only mutates the offset, the scale should continue its
+        // natural transition towards 1f. It shouldn't snap to or immediately
+        // jump to 1f (which would result in a width near 300f). It will have
+        // grown slightly as the transition progresses normally.
+        assertTrue(
+            "Width jumped! Expected around ${halfwayWidth + 40f} but was $widthAfterGestureStart",
+            widthAfterGestureStart < 200f,
+        )
+    }
+}

@@ -157,45 +157,45 @@ src/androidx/compose/lint/test.kt:7: Error: Use method asMutable${types.collecti
         val ScatterMapClass =
             kotlin(
                 """
-            package androidx.collection
-            sealed class ScatterMap<K, V> {
-                fun asMap(): Map<K, V> = mapOf()
-            }
+                package androidx.collection
+                sealed class ScatterMap<K, V> {
+                    fun asMap(): Map<K, V> = mapOf()
+                }
 
-            class MutableScatterMap<K, V> : ScatterMap<K, V>() {
-                fun asMutableMap(): MutableMap<K, V> = mutableMapOf()
-            }
-            """
+                class MutableScatterMap<K, V> : ScatterMap<K, V>() {
+                    fun asMutableMap(): MutableMap<K, V> = mutableMapOf()
+                }
+                """
                     .trimIndent()
             )
 
         val ScatterSetClass =
             kotlin(
                 """
-            package androidx.collection
-            sealed class ScatterSet<E> {
-                fun asSet(): Set<E> = setOf()
-            }
+                package androidx.collection
+                sealed class ScatterSet<E> {
+                    fun asSet(): Set<E> = setOf()
+                }
 
-            class MutableScatterSet<E> : ScatterSet<E>() {
-                fun asMutableSet(): MutableSet<E> = mutableSetOf()
-            }
-            """
+                class MutableScatterSet<E> : ScatterSet<E>() {
+                    fun asMutableSet(): MutableSet<E> = mutableSetOf()
+                }
+                """
                     .trimIndent()
             )
 
         val ObjectListClass =
             kotlin(
                 """
-            package androidx.collection
-            sealed class ObjectList<E> {
-                fun asList(): List<E> = listOf()
-            }
+                package androidx.collection
+                sealed class ObjectList<E> {
+                    fun asList(): List<E> = listOf()
+                }
 
-            class MutableObjectList<E> : ObjectList<E>() {
-                fun asMutableList(): MutableList<E> = mutableListOf()
-            }
-            """
+                class MutableObjectList<E> : ObjectList<E>() {
+                    fun asMutableList(): MutableList<E> = mutableListOf()
+                }
+                """
                     .trimIndent()
             )
     }

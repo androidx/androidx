@@ -20,25 +20,25 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
 dependencies {
     androidTestImplementation(project(":xr:glimmer:glimmer"))
+    androidTestImplementation(project(":xr:glimmer:test-utils"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinTestCommon)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.junit)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     namespace = "androidx.xr.glimmer.benchmark"
     defaultConfig {
-        minSdk = 35
+        // TODO: b/448363874 - Revert to 35 once API 35 devices are available for microbenchmarking.
+        minSdk { version = release(34) }
     }
 }
 

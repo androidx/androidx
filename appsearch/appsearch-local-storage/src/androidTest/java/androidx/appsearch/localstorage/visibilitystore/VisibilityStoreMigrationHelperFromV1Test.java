@@ -29,6 +29,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
@@ -82,17 +83,14 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         // Create AppSearchImpl with visibility document version 1;
         AppSearchImpl appSearchImplInV1 = AppSearchImpl.create(mFile,
                 mConfig,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
         InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV1.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
                 ImmutableList.of(VisibilityDocumentV1.SCHEMA),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true, // force push the old version into disk
                 /*version=*/ 1,
                 /*setSchemaStatsBuilder=*/ null,
@@ -119,6 +117,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 ImmutableList.of(
                         new AppSearchSchema.Builder("Schema").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*schemaVersion=*/ 0,
                 /*setSchemaStatsBuilder=*/ null,
@@ -138,11 +137,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         appSearchImplInV1.close();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile,
                 mConfig,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
 
         InternalVisibilityConfig actualConfig =

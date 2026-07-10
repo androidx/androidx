@@ -16,7 +16,7 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import org.jspecify.annotations.NonNull;
@@ -28,7 +28,7 @@ import java.util.Set;
  * Container class for information about the {@link
  * ClimateProfileRequest#FEATURE_HVAC_AC} feature such as supported values for the feature.
  */
-@ExperimentalCarApi
+@RequiresCarApi(5)
 public final class HvacAcProfile {
 
     final @NonNull List<Set<CarZone>> mSupportedCarZoneSets;

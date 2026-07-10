@@ -18,6 +18,7 @@ package androidx.aab.analysis
 
 import androidx.aab.ApkInfo
 import androidx.aab.BundleInfo
+import androidx.aab.CsvColumn
 
 data class LibraryAnalysis(val hasDotVersionFiles: Boolean, val hasAppBundleDependencies: Boolean) :
     ScoreReporter {
@@ -37,10 +38,21 @@ data class LibraryAnalysis(val hasDotVersionFiles: Boolean, val hasAppBundleDepe
         )
     }
 
-    fun csvEntries() = listOf(hasDotVersionFiles.toString(), hasAppBundleDependencies.toString())
-
     companion object {
-        val CSV_TITLES = listOf("libraries_hasDot", "libraries_hasProto")
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<LibraryAnalysis>(
+                    columnLabel = "libs_hasDot",
+                    description = "Has .version files present in META-INF",
+                    requiresVerbose = true,
+                    calculate = { it.hasDotVersionFiles.toString() },
+                ),
+                CsvColumn(
+                    columnLabel = "libs_hasProto",
+                    description = "Has proto library version info in BUNDLE-METADATA",
+                    calculate = { it.hasAppBundleDependencies.toString() },
+                ),
+            )
 
         fun ApkInfo.getLibraryAnalysis(): LibraryAnalysis {
             return LibraryAnalysis(

@@ -43,9 +43,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarHardwareHostDispatcherTest {
     @Rule
@@ -91,6 +93,11 @@ public class CarHardwareHostDispatcherTest {
                         assertThat(isSupported).isTrue();
                         assertThat(result).isEqualTo(desiredBundleable);
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 });
         verify(mMockCarHardwareHost).getCarHardwareResult(eq(desiredResultType),
                 eq(paramBundle), any());
@@ -115,6 +122,11 @@ public class CarHardwareHostDispatcherTest {
                         assertThat(resultType).isEqualTo(desiredResultType);
                         assertThat(isSupported).isTrue();
                         assertThat(result).isEqualTo(desiredBundleable);
+                    }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
                     }
                 });
         verify(mMockCarHardwareHost).subscribeCarHardwareResult(eq(desiredResultType),

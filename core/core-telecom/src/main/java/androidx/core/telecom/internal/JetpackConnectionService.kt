@@ -37,6 +37,7 @@ import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -78,7 +79,8 @@ internal class JetpackConnectionService : ConnectionService() {
         const val TAG = "JetpackCS"
         const val CONNECTION_CREATION_TIMEOUT: Long = 5000 // time in milli-seconds
         const val SDK_26_AND_27_ADDRESS_PREFIX = "sip:"
-        var mPendingConnectionRequests: ArrayList<PendingConnectionRequest> = ArrayList()
+        var mPendingConnectionRequests: CopyOnWriteArrayList<PendingConnectionRequest> =
+            CopyOnWriteArrayList()
     }
 
     /**

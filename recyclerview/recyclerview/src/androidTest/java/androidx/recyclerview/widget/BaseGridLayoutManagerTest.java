@@ -103,7 +103,7 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         return (GridLayoutManager.LayoutParams) view.getLayoutParams();
     }
 
-    static class Config implements Cloneable {
+    public static class Config implements Cloneable {
 
         int mSpanCount;
         int mOrientation = GridLayoutManager.VERTICAL;
@@ -355,7 +355,7 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         }
     }
 
-    class GridTestAdapter extends TestAdapter {
+    public class GridTestAdapter extends TestAdapter {
 
         Set<Integer> mFullSpanItems = new HashSet<Integer>();
         int mSpanPerItem = 1;

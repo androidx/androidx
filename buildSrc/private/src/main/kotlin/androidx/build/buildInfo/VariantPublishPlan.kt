@@ -29,8 +29,9 @@ import org.gradle.api.provider.Provider
  * @param dependencies provider that will return the dependencies of this variant when/if needed
  */
 data class VariantPublishPlan(
-    val artifactId: String,
+    val artifactId: Provider<String>,
     val taskSuffix: String = "",
     val dependencies: Provider<List<Dependency>>,
     val dependencyConstraints: Provider<List<DependencyConstraint>>,
+    val runtimeConfigurationNames: Provider<List<String>>,
 )

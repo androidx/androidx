@@ -1,9 +1,21 @@
 // Baseline format: 1.0
-AddedMethod: androidx.benchmark.macro.BaselineProfileConfig.Builder#Builder(String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
-    Added constructor androidx.benchmark.macro.BaselineProfileConfig.Builder(String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)
-AddedMethod: androidx.benchmark.macro.BaselineProfileConfig.Builder#setOutputFilePrefix(String):
-    Added method androidx.benchmark.macro.BaselineProfileConfig.Builder.setOutputFilePrefix(String)
+BecameUnchecked: androidx.benchmark.macro.MetricResultExtensionsKt:
+    Removed class androidx.benchmark.macro.MetricResultExtensionsKt from compatibility checked API surface
 
 
-InvalidNullConversion: androidx.benchmark.macro.BaselineProfileConfig#getOutputFilePrefix():
-    Attempted to change nullability of java.lang.String (from NONNULL to NULLABLE) in method androidx.benchmark.macro.BaselineProfileConfig.getOutputFilePrefix()
+RemovedClass: androidx.benchmark.macro.TraceProcessorExtensionsKt:
+    Binary breaking change: Removed class androidx.benchmark.macro.TraceProcessorExtensionsKt
+
+
+RemovedFromKotlin: androidx.benchmark.macro.BaselineProfileResult#getBaselineProfiles():
+    Source breaking change: method androidx.benchmark.macro.BaselineProfileResult.getBaselineProfiles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.BaselineProfileResult#getStartupProfiles():
+    Source breaking change: method androidx.benchmark.macro.BaselineProfileResult.getStartupProfiles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.CompilationMode.Partial#getBaselineProfileMode():
+    Source breaking change: method androidx.benchmark.macro.CompilationMode.Partial.getBaselineProfileMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.CompilationMode.Partial#getWarmupIterations():
+    Source breaking change: method androidx.benchmark.macro.CompilationMode.Partial.getWarmupIterations() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.MacrobenchmarkScope#getIteration():
+    Source breaking change: method androidx.benchmark.macro.MacrobenchmarkScope.getIteration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.MacrobenchmarkScope#getPackageName():
+    Source breaking change: method androidx.benchmark.macro.MacrobenchmarkScope.getPackageName() can no longer be resolved from Kotlin source

@@ -640,38 +640,38 @@ internal fun MessageWidget(modifier: Modifier, onDelete: () -> Unit = {}) {
     val constraintSet = remember {
         ConstraintSet(
             """
-                {
-                    gl1: { type: 'hGuideline', end: 50 },
-                    recipient: {
-                      top: ['parent', 'top', 2],
-                      width: 'spread',
-                      centerHorizontally: 'parent',
-                    },
-                    subject: { 
-                      top: ['recipient', 'bottom', 8],
-                      width: 'spread',
-                      centerHorizontally: 'parent',
-                    },
-                    message: {
-                      height: 'spread',
-                      width: 'spread',
-                      centerHorizontally: 'parent',
-                      top: ['subject', 'bottom', 8],
-                      bottom: ['gl1', 'bottom', 4],
-                    },
-                    delete: {
-                      height: 'spread',
-                      top: ['gl1', 'bottom', 0],
-                      bottom: ['parent', 'bottom', 4],
-                      start: ['parent', 'start', 0]
-                    },
-                    send: {
-                      height: 'spread',
-                      top: ['gl1', 'bottom', 0],
-                      bottom: ['parent', 'bottom', 4],
-                      end: ['parent', 'end', 0]
-                    }
+            {
+                gl1: { type: 'hGuideline', end: 50 },
+                recipient: {
+                  top: ['parent', 'top', 2],
+                  width: 'spread',
+                  centerHorizontally: 'parent',
+                },
+                subject: { 
+                  top: ['recipient', 'bottom', 8],
+                  width: 'spread',
+                  centerHorizontally: 'parent',
+                },
+                message: {
+                  height: 'spread',
+                  width: 'spread',
+                  centerHorizontally: 'parent',
+                  top: ['subject', 'bottom', 8],
+                  bottom: ['gl1', 'bottom', 4],
+                },
+                delete: {
+                  height: 'spread',
+                  top: ['gl1', 'bottom', 0],
+                  bottom: ['parent', 'bottom', 4],
+                  start: ['parent', 'start', 0]
+                },
+                send: {
+                  height: 'spread',
+                  top: ['gl1', 'bottom', 0],
+                  bottom: ['parent', 'bottom', 4],
+                  end: ['parent', 'end', 0]
                 }
+            }
             """
                 .trimIndent()
         )

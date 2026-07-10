@@ -1,0 +1,42 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.8.1")
+    implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-extensions"))
+    compileOnly(project(":annotation:annotation-sampled"))
+}
+
+android {
+    compileSdk { version = release(36) }
+    namespace = "androidx.camera.extensions.samples"
+}
+
+androidx {
+    name = "Camera Extensions Samples"
+    type = SoftwareType.SAMPLES
+    inceptionYear = "2025"
+    description = "Contains sample code for the Androidx Camera Extensions APIs"
+}

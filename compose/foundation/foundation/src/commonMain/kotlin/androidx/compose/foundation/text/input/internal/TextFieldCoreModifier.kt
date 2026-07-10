@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -84,6 +85,7 @@ import kotlinx.coroutines.launch
 internal data class TextFieldCoreModifier(
     private val isFocused: Boolean, /* true iff component is focused and the window in focus */
     private val isDragHovered: Boolean,
+    private val isTouchDragInProgress: Boolean,
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
@@ -99,6 +101,7 @@ internal data class TextFieldCoreModifier(
         TextFieldCoreModifierNode(
             isFocused = isFocused,
             isDragHovered = isDragHovered,
+            isTouchDragInProgress = isTouchDragInProgress,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -114,6 +117,7 @@ internal data class TextFieldCoreModifier(
         node.updateNode(
             isFocused = isFocused,
             isDragHovered = isDragHovered,
+            isTouchDragInProgress = isTouchDragInProgress,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -136,6 +140,7 @@ internal class TextFieldCoreModifierNode(
     // true iff this component is focused and the window is focused
     private var isFocused: Boolean,
     private var isDragHovered: Boolean,
+    isTouchDragInProgress: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
@@ -197,7 +202,7 @@ internal class TextFieldCoreModifierNode(
                 textFieldState = textFieldState,
                 textFieldSelectionState = textFieldSelectionState,
                 textLayoutState = textLayoutState,
-                visible = isFocused || isDragHovered,
+                visible = isFocused || isDragHovered || isTouchDragInProgress,
             )
         )
 
@@ -232,6 +237,7 @@ internal class TextFieldCoreModifierNode(
         // if the attributes are right during onAttach, start the cursor job immediately.
         // This is possible when BasicTextField2 decorator toggles innerTextField in-and-out of
         // composition.
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         if (isFocused && showCursor) {
             startCursorJob()
         }
@@ -241,6 +247,7 @@ internal class TextFieldCoreModifierNode(
     fun updateNode(
         isFocused: Boolean,
         isDragHovered: Boolean,
+        isTouchDragInProgress: Boolean,
         textLayoutState: TextLayoutState,
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
@@ -259,6 +266,7 @@ internal class TextFieldCoreModifierNode(
         val previousScrollState = this.scrollState
 
         this.isFocused = isFocused
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         this.isDragHovered = isDragHovered
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState
@@ -274,7 +282,7 @@ internal class TextFieldCoreModifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            visible = isFocused || isDragHovered,
+            visible = isFocused || isDragHovered || isTouchDragInProgress,
         )
 
         textContextMenuToolbarHandlerNode.update(toolbarRequester)
@@ -315,11 +323,17 @@ internal class TextFieldCoreModifierNode(
         if (value.selection.collapsed) {
             drawText(textLayoutResult)
             if (value.shouldShowSelection()) {
-                drawCursor()
+                this@TextFieldCoreModifierNode.drawCursor(
+                    scope = this,
+                    brush = cursorBrush,
+                    showCursor = showCursor,
+                    cursorAnimation = cursorAnimation,
+                    textFieldSelectionState = textFieldSelectionState,
+                )
             }
         } else {
             if (value.shouldShowSelection()) {
-                drawSelection(value.selection, textLayoutResult)
+                drawSelectionHighlight(this, value.selection, textLayoutResult)
             }
             drawText(textLayoutResult)
         }
@@ -501,26 +515,25 @@ internal class TextFieldCoreModifierNode(
             // no need to coerce again.
             // prefer to use immediate dispatch instead of suspending scroll calls
             coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                scrollState.scrollBy(offsetDifference.roundToNext())
-                // Don't bring into view if only the container size changed to avoid
-                // unexpected scrolls
+                val targetScroll = offsetDifference.roundToNext()
+                val scrolled = scrollState.scrollBy(targetScroll)
+                // Don't bring into view if scrolling has already done it
                 if (shouldBringIntoView) {
+                    val bringIntoViewRect =
+                        if (
+                            !currSelection.collapsed ||
+                                rawCursorRect.width > 0 ||
+                                (abs(targetScroll - scrolled) < 1f)
+                        ) {
+                            rawCursorRect
+                        } else {
+                            rawCursorRect.copy(right = rawCursorRect.right + 1)
+                        }
                     // make sure to use the cursor rect from text layout since bringIntoView does
                     // its own checks for RTL layouts.
-                    textLayoutState.bringIntoViewRequester.bringIntoView(rawCursorRect)
+                    textLayoutState.bringIntoViewRequester.bringIntoView(bringIntoViewRect)
                 }
             }
-        }
-    }
-
-    /** Draws the selection highlight. */
-    private fun DrawScope.drawSelection(selection: TextRange, textLayoutResult: TextLayoutResult) {
-        val start = selection.min
-        val end = selection.max
-        if (start != end) {
-            val selectionBackgroundColor = currentValueOf(LocalTextSelectionColors).backgroundColor
-            val selectionPath = textLayoutResult.getPathForRange(start, end)
-            drawPath(selectionPath, color = selectionBackgroundColor)
         }
     }
 
@@ -556,28 +569,6 @@ internal class TextFieldCoreModifierNode(
     /** Draws the text content. */
     private fun DrawScope.drawText(textLayoutResult: TextLayoutResult) {
         drawIntoCanvas { canvas -> TextPainter.paint(canvas, textLayoutResult) }
-    }
-
-    /**
-     * Draws the cursor indicator. Do not confuse it with cursor handle which is a popup that
-     * carries the cursor movement gestures.
-     */
-    private fun DrawScope.drawCursor() {
-        // Only draw cursor if it can be shown and its alpha is higher than 0f
-        // Alpha is checked before showCursor purposefully to make sure that we read
-        // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
-        val cursorAlphaValue = cursorAnimation?.cursorAlpha ?: 0f
-        if (cursorAlphaValue == 0f || !showCursor) return
-
-        val cursorRect = textFieldSelectionState.getCursorRect()
-
-        drawLine(
-            cursorBrush,
-            cursorRect.topCenter,
-            cursorRect.bottomCenter,
-            alpha = cursorAlphaValue,
-            strokeWidth = cursorRect.width,
-        )
     }
 
     /**
@@ -664,10 +655,11 @@ private fun Density.getCursorRectInScroller(
 
     val cursorRight =
         if (rtl) {
-            textLayoutSize - cursorRect.right + thickness
-        } else {
-            cursorRect.left + thickness
-        }
+                textLayoutSize - cursorRect.right + thickness
+            } else {
+                cursorRect.left + thickness
+            }
+            .coerceAtMost(textLayoutSize.toFloat())
     return cursorRect.copy(left = cursorLeft, right = cursorRight)
 }
 
@@ -681,3 +673,80 @@ private fun Float.roundToNext(): Float =
         this > 0 -> ceil(this)
         else -> floor(this)
     }
+
+/**
+ * Draws the visual highlight for the given text [selection].
+ *
+ * Platforms may override this to customize how text selection is rendered. The shared default
+ * implementation is provided by [drawDefaultSelectionHighlight].
+ *
+ * @param scope [DrawScope] used for issuing drawing commands.
+ * @param selection Range of selected text in [textLayoutResult].
+ * @param textLayoutResult Layout information used to map [selection] to canvas coordinates.
+ */
+internal expect fun TextFieldCoreModifierNode.drawSelectionHighlight(
+    scope: DrawScope,
+    selection: TextRange,
+    textLayoutResult: TextLayoutResult,
+)
+
+internal fun TextFieldCoreModifierNode.drawDefaultSelectionHighlight(
+    scope: DrawScope,
+    selection: TextRange,
+    textLayoutResult: TextLayoutResult,
+) {
+    val start = selection.min
+    val end = selection.max
+    if (start != end) {
+        val selectionBackgroundColor = currentValueOf(LocalTextSelectionColors).backgroundColor
+        val selectionPath = textLayoutResult.getPathForRange(start, end)
+        with(scope) { drawPath(selectionPath, color = selectionBackgroundColor) }
+    }
+}
+
+/**
+ * Draws the cursor indicator. Do not confuse it with cursor handle which is a popup that carries
+ * the cursor movement gestures.
+ *
+ * Platforms may override this to customize how the text cursor is rendered. The shared default
+ * implementation is provided by [drawDefaultCursor].
+ *
+ * @param scope [DrawScope] used for issuing drawing commands.
+ * @param brush [Brush] used to paint the cursor.
+ * @param showCursor Whether the cursor should be visible based on focus and writeability.
+ * @param cursorAnimation Current state of the cursor blink animation.
+ * @param textFieldSelectionState State used to calculate the cursor's position.
+ */
+internal expect fun TextFieldCoreModifierNode.drawCursor(
+    scope: DrawScope,
+    brush: Brush,
+    showCursor: Boolean,
+    cursorAnimation: CursorAnimationState?,
+    textFieldSelectionState: TextFieldSelectionState,
+)
+
+internal fun TextFieldCoreModifierNode.drawDefaultCursor(
+    scope: DrawScope,
+    brush: Brush,
+    showCursor: Boolean,
+    cursorAnimation: CursorAnimationState?,
+    textFieldSelectionState: TextFieldSelectionState,
+) {
+    // Only draw cursor if it can be shown and its alpha is higher than 0f
+    // Alpha is checked before showCursor purposefully to make sure that we read
+    // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
+    val cursorAlphaValue = cursorAnimation?.cursorAlpha ?: 0f
+    if (cursorAlphaValue == 0f || !showCursor) return
+
+    val cursorRect = textFieldSelectionState.getCursorRect()
+
+    with(scope) {
+        drawLine(
+            brush = brush,
+            start = cursorRect.topCenter,
+            end = cursorRect.bottomCenter,
+            alpha = cursorAlphaValue,
+            strokeWidth = cursorRect.width,
+        )
+    }
+}

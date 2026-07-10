@@ -20,15 +20,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Banner;
 import androidx.car.app.model.Header;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** tests for {@link MediaPlaybackTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class MediaPlaybackTemplateTest {
 
@@ -63,6 +66,15 @@ public class MediaPlaybackTemplateTest {
     }
 
     @Test
+    public void createInstance_bannerProvided_isValid() {
+        Banner banner = new Banner.Builder().setTitle("Banner").build();
+        MediaPlaybackTemplate template =
+                new MediaPlaybackTemplate.Builder().setBanner(banner).build();
+
+        assertEquals(template.getBanner(), banner);
+    }
+
+    @Test
     public void equals() {
         MediaPlaybackTemplate template1 =
                 new MediaPlaybackTemplate.Builder().setHeader(HEADER).build();
@@ -91,6 +103,18 @@ public class MediaPlaybackTemplateTest {
 
         MediaPlaybackTemplate template2 =
                 new MediaPlaybackTemplate.Builder().setHeader(null).build();
+
+        assertNotEquals(template1, template2);
+    }
+
+    @Test
+    public void notEquals_differentBanners() {
+        Banner banner = new Banner.Builder().setTitle("Banner").build();
+        MediaPlaybackTemplate template1 =
+                new MediaPlaybackTemplate.Builder().setBanner(banner).build();
+
+        MediaPlaybackTemplate template2 =
+                new MediaPlaybackTemplate.Builder().setBanner(null).build();
 
         assertNotEquals(template1, template2);
     }

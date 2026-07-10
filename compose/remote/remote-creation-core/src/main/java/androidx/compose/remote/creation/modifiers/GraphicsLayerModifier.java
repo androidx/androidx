@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -22,6 +23,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.HashMap;
 
 /** GraphicsLayer modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GraphicsLayerModifier implements RecordingModifier.Element {
     @NonNull HashMap<Integer, Object> mAttributes = new HashMap<>();
 

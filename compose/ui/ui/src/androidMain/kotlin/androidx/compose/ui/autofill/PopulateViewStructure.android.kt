@@ -28,10 +28,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
 import androidx.compose.ui.platform.toLegacyClassName
+import androidx.compose.ui.semantics.CredentialRequestData
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.mergedSemanticsConfiguration
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.state.ToggleableState
@@ -57,10 +59,16 @@ internal fun ViewStructure.populate(
     var editableTextProp: AnnotatedString? = null
     var isPasswordProp = false
     var fillableDataProp: AndroidFillableData? = null
+    // We will set the `isSensitiveData` prop to true by default; the only way this value is false
+    // is if the developer explicitly marks `isSensitiveData = false` on a node. This mirrors
+    // the `setDataIsSensitive` flag on `ViewStructure.java`, which states that "by default, all
+    // nodes are assumed to be sensitive."
+    var isSensitiveDataProp = true
     var maxTextLengthProp: Int? = null
     var roleProp: Role? = null
     var selectedProp: Boolean? = null
     var toggleableStateProp: ToggleableState? = null
+    var credentialRequestProp: Any? = null
 
     // Semantics properties form merged configuration.
     var textMergedProp: List<AnnotatedString>? = null
@@ -82,6 +90,7 @@ internal fun ViewStructure.populate(
             properties.Focused -> autofillApi.setFocused(this, value as Boolean)
             properties.MaxTextLength -> maxTextLengthProp = value as Int
             properties.Password -> isPasswordProp = true
+            properties.IsSensitiveData -> isSensitiveDataProp = value as Boolean
             properties.Role -> roleProp = value as Role
             properties.Selected -> selectedProp = value as Boolean
             properties.ToggleableState -> toggleableStateProp = value as ToggleableState
@@ -89,6 +98,12 @@ internal fun ViewStructure.populate(
             actions.OnLongClick -> autofillApi.setLongClickable(this, true)
             actions.RequestFocus -> autofillApi.setFocusable(this, true)
             actions.SetText -> hasSetTextAction = true
+        }
+
+        if (
+            Build.VERSION.SDK_INT >= 34 && property == SemanticsPropertiesAndroid.CredentialRequest
+        ) {
+            credentialRequestProp = value
         }
     }
 
@@ -129,7 +144,7 @@ internal fun ViewStructure.populate(
     contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it) }
 
     // Dimensions.
-    rectManager.rects.withRect(semanticsInfo.semanticsId) { left, top, right, bottom ->
+    rectManager.withRect(semanticsInfo.semanticsId) { left, top, right, bottom ->
         autofillApi.setDimens(this, left, top, 0, 0, right - left, bottom - top)
     }
 
@@ -151,9 +166,8 @@ internal fun ViewStructure.populate(
     val passwordHint = ContentType.Password.contentHints.first()
     val contentTypePassword = contentTypeProp?.contentHints?.contains(passwordHint) == true
     val isPassword = isPasswordProp || contentTypePassword
-    if (isPassword) {
-        autofillApi.setDataIsSensitive(this, true)
-    }
+    val isSensitive = isPassword || isSensitiveDataProp
+    autofillApi.setDataIsSensitive(this, isSensitive)
 
     // Visibility.
     // TODO(b/383198004): This only checks transparency. We should also check whether the layoutNode
@@ -190,6 +204,18 @@ internal fun ViewStructure.populate(
             autofillApi.setInputType(
                 this,
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD,
+            )
+        }
+    }
+
+    // Credential Request.
+    if (Build.VERSION.SDK_INT >= 35) {
+        credentialRequestProp?.let {
+            val requestData = it as CredentialRequestData
+            AutofillApi35Helper.setPendingCredentialRequest(
+                this,
+                requestData.request,
+                requestData.callback,
             )
         }
     }

@@ -31,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * AppSearch document representing an {@link Alarm} entity.
@@ -45,7 +44,9 @@ public class Alarm extends Thing {
             ORIGINATING_DEVICE_SMART_PHONE,
             ORIGINATING_DEVICE_SMART_WATCH})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface OriginatingDevice {}
+    public @interface OriginatingDevice {
+    }
+
     /** The {@link Alarm} belongs to an unknown device. */
     public static final int ORIGINATING_DEVICE_UNKNOWN = 0;
     /** The {@link Alarm} belongs to a smart phone device. */
@@ -91,30 +92,25 @@ public class Alarm extends Thing {
     @Document.LongProperty(name = "computingDevice")
     private final int mOriginatingDevice;
 
-    @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    Alarm(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url,
-            @NonNull List<PotentialAction> potentialActions,
-            boolean enabled, int @Nullable [] daysOfWeek, int hour, int minute,
-            @Nullable String blackoutPeriodStartDate, @Nullable String blackoutPeriodEndDate,
-            @Nullable String ringtone, boolean shouldVibrate,
-            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance,
-            int originatingDevice) {
-        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url, potentialActions);
-        mEnabled = enabled;
-        mDaysOfWeek = daysOfWeek;
-        mHour = hour;
-        mMinute = minute;
-        mBlackoutPeriodStartDate = blackoutPeriodStartDate;
-        mBlackoutPeriodEndDate = blackoutPeriodEndDate;
-        mRingtone = ringtone;
-        mShouldVibrate = shouldVibrate;
-        mPreviousInstance = previousInstance;
-        mNextInstance = nextInstance;
-        mOriginatingDevice = originatingDevice;
+    /**
+     * Constructor for {@link Alarm}.
+     *
+     * @param builder The builder to construct the {@link Alarm} from.
+     */
+    @ExperimentalAppSearchApi
+    public Alarm(@NonNull BuilderBase<?> builder) {
+        super(builder);
+        mEnabled = builder.mEnabled;
+        mDaysOfWeek = builder.mDaysOfWeek;
+        mHour = builder.mHour;
+        mMinute = builder.mMinute;
+        mBlackoutPeriodStartDate = builder.mBlackoutPeriodStartDate;
+        mBlackoutPeriodEndDate = builder.mBlackoutPeriodEndDate;
+        mRingtone = builder.mRingtone;
+        mShouldVibrate = builder.mShouldVibrate;
+        mPreviousInstance = builder.mPreviousInstance;
+        mNextInstance = builder.mNextInstance;
+        mOriginatingDevice = builder.mOriginatingDevice;
     }
 
     /** Returns whether or not the {@link Alarm} is active. */
@@ -231,13 +227,14 @@ public class Alarm extends Thing {
 
     /** Builder for {@link Alarm}. */
     @Document.BuilderProducer
-    public static final class Builder extends BuilderImpl<Builder> {
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static final class Builder extends BuilderBase<Builder> {
         /**
          * Constructor for {@link Alarm.Builder}.
          *
          * @param namespace Namespace for the Document. See
-         * {@link Document.Namespace}.
-         * @param id Unique identifier for the Document. See {@link Document.Id}.
+         *                  {@link Document.Namespace}.
+         * @param id        Unique identifier for the Document. See {@link Document.Id}.
          */
         public Builder(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
@@ -252,25 +249,37 @@ public class Alarm extends Thing {
     }
 
     @SuppressWarnings("unchecked")
-    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        protected boolean mEnabled;
-        protected int[] mDaysOfWeek;
-        protected int mHour;
-        protected int mMinute;
-        protected String mBlackoutPeriodStartDate;
-        protected String mBlackoutPeriodEndDate;
-        protected String mRingtone;
-        protected boolean mShouldVibrate;
-        protected AlarmInstance mPreviousInstance;
-        protected AlarmInstance mNextInstance;
-        protected int mOriginatingDevice;
+    @ExperimentalAppSearchApi
+    public static class BuilderBase<T extends BuilderBase<T>> extends Thing.BuilderBase<T> {
+        private boolean mEnabled;
+        private int[] mDaysOfWeek;
+        private int mHour;
+        private int mMinute;
+        private String mBlackoutPeriodStartDate;
+        private String mBlackoutPeriodEndDate;
+        private String mRingtone;
+        private boolean mShouldVibrate;
+        private AlarmInstance mPreviousInstance;
+        private AlarmInstance mNextInstance;
+        private int mOriginatingDevice;
 
-        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+        /**
+         * Constructor for {@link Alarm.BuilderBase}.
+         *
+         * @param namespace Namespace for the Document. See {@link Document.Namespace}.
+         * @param id        Unique identifier for the Document. See {@link Document.Id}.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
-        BuilderImpl(@NonNull Alarm alarm) {
-            super(new Thing.Builder(alarm).build());
+        /**
+         * Constructor for {@link Alarm.BuilderBase} with all the existing values.
+         *
+         * @param alarm The existing {@link Alarm} to copy values from.
+         */
+        public BuilderBase(@NonNull Alarm alarm) {
+            super(alarm);
             mEnabled = alarm.isEnabled();
             mDaysOfWeek = alarm.getDaysOfWeek();
             mHour = alarm.getHour();
@@ -426,12 +435,7 @@ public class Alarm extends Thing {
         /** Builds the {@link Alarm}. */
         @Override
         public @NonNull Alarm build() {
-            return new Alarm(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
-                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    mPotentialActions,
-                    mEnabled, mDaysOfWeek, mHour, mMinute, mBlackoutPeriodStartDate,
-                    mBlackoutPeriodEndDate, mRingtone, mShouldVibrate, mPreviousInstance,
-                    mNextInstance, mOriginatingDevice);
+            return new Alarm(this);
         }
     }
 }

@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -101,7 +100,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     }
 
     @Override
-    @ExperimentalAppSearchApi
     public @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         Preconditions.checkNotNull(handles);

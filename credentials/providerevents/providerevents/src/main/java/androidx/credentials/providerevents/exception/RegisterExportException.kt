@@ -18,8 +18,12 @@ package androidx.credentials.providerevents.exception
 
 import androidx.annotation.RestrictTo
 
-/** Represents an error thrown during the export registration */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents an error thrown during the export registration
+ *
+ * @see RegisterExportProviderConfigurationException
+ * @see RegisterExportUnknownErrorException
+ */
 public abstract class RegisterExportException
 @JvmOverloads
 internal constructor(

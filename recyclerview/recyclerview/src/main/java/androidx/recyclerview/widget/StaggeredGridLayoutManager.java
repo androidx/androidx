@@ -2312,15 +2312,23 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (directChild == null) {
             return null;
         }
+        return onFocusSearchFailedInternal(directChild, direction, recycler, state);
+    }
 
+    private View onFocusSearchFailedInternal(@Nullable View directChild, int direction,
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
         resolveShouldLayoutReverse();
         final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
         if (layoutDir == LayoutState.INVALID_LAYOUT) {
             return null;
         }
-        LayoutParams prevFocusLayoutParams = (LayoutParams) directChild.getLayoutParams();
-        boolean prevFocusFullSpan = prevFocusLayoutParams.mFullSpan;
-        final Span prevFocusSpan = prevFocusLayoutParams.mSpan;
+        boolean prevFocusFullSpan = false;
+        Span prevFocusSpan = null;
+        if (directChild != null) {
+            LayoutParams prevFocusLayoutParams = (LayoutParams) directChild.getLayoutParams();
+            prevFocusFullSpan = prevFocusLayoutParams.mFullSpan;
+            prevFocusSpan = prevFocusLayoutParams.mSpan;
+        }
         final int referenceChildPosition;
         if (layoutDir == LayoutState.LAYOUT_END) { // layout towards end
             referenceChildPosition = getLastChildPosition();
@@ -2336,7 +2344,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         mLayoutState.mRecycle = false;
         fill(recycler, mLayoutState, state);
         mLastLayoutFromEnd = mShouldReverseLayout;
-        if (!prevFocusFullSpan) {
+        if (directChild != null && !prevFocusFullSpan) {
             View view = prevFocusSpan.getFocusableViewAfter(referenceChildPosition, layoutDir);
             if (view != null && view != directChild) {
                 return view;
@@ -2367,7 +2375,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         // candidate is found, traverse the views in all the remaining spans.
         boolean shouldSearchFromStart = !mReverseLayout == (layoutDir == LayoutState.LAYOUT_START);
         View unfocusableCandidate = null;
-        if (!prevFocusFullSpan) {
+        if (directChild != null && !prevFocusFullSpan) {
             unfocusableCandidate = findViewByPosition(shouldSearchFromStart
                     ? prevFocusSpan.findFirstPartiallyVisibleItemPosition() :
                     prevFocusSpan.findLastPartiallyVisibleItemPosition());
@@ -2378,7 +2386,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
         if (preferLastSpan(layoutDir)) {
             for (int i = mSpanCount - 1; i >= 0; i--) {
-                if (i == prevFocusSpan.mIndex) {
+                if (directChild != null && i == prevFocusSpan.mIndex) {
                     continue;
                 }
                 unfocusableCandidate = findViewByPosition(shouldSearchFromStart
@@ -2390,6 +2398,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             }
         } else {
             for (int i = 0; i < mSpanCount; i++) {
+                if (directChild != null && i == prevFocusSpan.mIndex) {
+                    continue;
+                }
                 unfocusableCandidate = findViewByPosition(shouldSearchFromStart
                         ? mSpans[i].findFirstPartiallyVisibleItemPosition() :
                         mSpans[i].findLastPartiallyVisibleItemPosition());
@@ -2399,6 +2410,104 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             }
         }
         return null;
+    }
+
+    @Nullable View findFirstFocusableChildClosestToStart() {
+        int fromIndex;
+        int toIndex;
+        int step;
+        if (mShouldReverseLayout) {
+            fromIndex = getChildCount() - 1;
+            toIndex = -1;
+            step = -1;
+        } else {
+            fromIndex = 0;
+            toIndex = getChildCount();
+            step = 1;
+        }
+
+        for (int i = fromIndex; i != toIndex; i += step) {
+            View child = getChildAt(i);
+            if (child != null && child.hasFocusable()) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    @Nullable View findFirstFocusableChildClosestToEnd() {
+        int fromIndex;
+        int toIndex;
+        int step;
+        if (mShouldReverseLayout) {
+            fromIndex = 0;
+            toIndex = getChildCount();
+            step = 1;
+        } else {
+            fromIndex = getChildCount() - 1;
+            toIndex = -1;
+            step = -1;
+        }
+
+        for (int i = fromIndex; i != toIndex; i += step) {
+            View child = getChildAt(i);
+            if (child != null && child.hasFocusable()) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public View onFocusEnter(int direction,
+            RecyclerView.@NonNull Recycler recycler, RecyclerView.@NonNull State state) {
+        resolveShouldLayoutReverse();
+        if (getChildCount() == 0) {
+            return null;
+        }
+
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
+
+        if (layoutDir == LayoutState.INVALID_LAYOUT) {
+            return null;
+        }
+
+        int enterScrollPosition;
+
+        // STEP 1: Determine whether we should scroll to the beginning or end of the list
+        if ((layoutDir == LayoutState.LAYOUT_START) ^ mShouldReverseLayout) {
+            enterScrollPosition = state.getItemCount() - 1;
+        } else {
+            enterScrollPosition = 0;
+        }
+
+        // STEP 2: Scroll to the correct side of the list
+        View desiredView = findViewByPosition(enterScrollPosition);
+        if (desiredView != null) {
+            // Step 2a: if we already have the view for the side, scroll to it
+            smoothScrollToPosition(mRecyclerView, state, enterScrollPosition);
+        } else {
+            // Step 2b: otherwise, jump to it
+            mPendingScrollPosition = enterScrollPosition;
+            // And trigger a full onLayoutChildren after updating the pending scroll position
+            onLayoutChildren(recycler, state);
+        }
+
+        // STEP 3: Try to find the focusable child closest to the correct side
+        View nextFocus;
+        if (layoutDir == LayoutState.LAYOUT_START) {
+            nextFocus = findFirstFocusableChildClosestToEnd();
+        } else {
+            nextFocus = findFirstFocusableChildClosestToStart();
+        }
+        if (nextFocus != null && nextFocus.hasFocusable()) {
+            return nextFocus;
+        }
+
+        // We failed to find a focusable View within the currently rendered elements. Now that
+        // we have all the elements starting from the correct side, fallback to onFocusSearchFailed
+        return onFocusSearchFailedInternal(null, direction, recycler, state);
     }
 
     /**

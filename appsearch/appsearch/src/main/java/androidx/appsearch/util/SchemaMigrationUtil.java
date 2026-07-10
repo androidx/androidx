@@ -19,6 +19,7 @@ package androidx.appsearch.util;
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.Migrator;
@@ -35,8 +36,8 @@ import java.util.Set;
 
 /**
  * Utilities for schema migration.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaMigrationUtil {
     private SchemaMigrationUtil() {}

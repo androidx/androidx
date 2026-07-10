@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName")
+
 package androidx.kruth
 
 import com.google.common.base.Optional

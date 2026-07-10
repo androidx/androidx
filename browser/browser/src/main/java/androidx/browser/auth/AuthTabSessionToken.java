@@ -223,5 +223,10 @@ public final class AuthTabSessionToken {
         @Override
         public void onWarmupCompleted(Bundle extras) throws RemoteException {
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

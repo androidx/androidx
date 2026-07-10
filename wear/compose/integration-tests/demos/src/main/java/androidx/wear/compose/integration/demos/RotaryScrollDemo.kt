@@ -16,6 +16,10 @@
 
 package androidx.wear.compose.integration.demos
 
+import android.content.Context
+import android.hardware.input.InputManager
+import android.view.InputDevice
+import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.hierarchicalFocusGroup
@@ -46,6 +52,7 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
 
 @Composable
@@ -176,6 +183,45 @@ public fun NestedScrollSLCDemo() {
             }
         }
         item { BottomText() }
+    }
+}
+
+@Composable
+public fun RotaryResolutionDemo() {
+    val context = LocalContext.current
+    val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
+
+    val device: InputDevice? =
+        inputManager.inputDeviceIds
+            .map { id -> inputManager.getInputDevice(id) }
+            .firstOrNull { device ->
+                device != null && (device.sources and InputDevice.SOURCE_ROTARY_ENCODER != 0)
+            }
+
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding =
+            PaddingValues(
+                vertical = LocalConfiguration.current.screenWidthDp.dp * 0.1f,
+                horizontal = LocalConfiguration.current.screenWidthDp.dp * 0.052f,
+            ),
+        autoCentering = null,
+    ) {
+        item { ListHeader { Text("Resolution") } }
+
+        if (device == null) {
+            item { Text("No rotary device") }
+        } else {
+            val motionRange = device.getMotionRange(MotionEvent.AXIS_SCROLL)
+
+            item { Text("Resolution=" + motionRange.getResolution()) }
+            item { Text("Min=" + motionRange.getMin()) }
+            item { Text("Num ranges=" + device.getMotionRanges().size) }
+            item { Text("Max=" + motionRange.getMax()) }
+            item { Text("Flat=" + motionRange.getFlat()) }
+            item { Text("Fuzz=" + motionRange.getFuzz()) }
+        }
     }
 }
 

@@ -28,9 +28,11 @@ import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
+import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.validation.HostValidator;
@@ -256,6 +258,20 @@ final class CarAppBinder extends ICarApp.Stub {
         }
     }
 
+    @ExperimentalCarApi
+    @Override
+    public void getAppTheme(IOnDoneCallback callback) {
+        RemoteUtils.dispatchCallFromHost(
+                getCurrentLifecycle(),
+                callback,
+                "getAppTheme",
+                () -> {
+                    CarAppService carAppService = mService;
+                    return carAppService != null ? carAppService.getAppTheme()
+                            : CarAppTheme.SYSTEM_THEME;
+                });
+    }
+
     @Override
     public void onHandshakeCompleted(Bundleable handshakeInfo,
             IOnDoneCallback callback) {
@@ -375,5 +391,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @NonNull SessionInfo getCurrentSessionInfo() {
         return mCurrentSessionInfo;
+    }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
     }
 }

@@ -21,10 +21,13 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.UiContext
 import androidx.window.core.Bounds
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.layout.DisplayFoldFeature
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.SupportedWindowFeatures
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_AUDIO_ON
+import androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_VISUALS_ON
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
@@ -79,6 +82,7 @@ internal object ExtensionsWindowLayoutInfoAdapter {
         }
     }
 
+    @Suppress("DEPRECATION")
     internal fun translate(
         windowMetrics: WindowMetrics,
         info: OEMWindowLayoutInfo,
@@ -90,7 +94,22 @@ internal object ExtensionsWindowLayoutInfoAdapter {
                     else -> null
                 }
             }
-        return WindowLayoutInfo(features)
+
+        val oemEngagementModeflags =
+            if (ExtensionsUtil.safeVendorApiLevel >= 10) {
+                info.engagementModeFlags
+            } else {
+                ENGAGEMENT_MODE_FLAG_VISUALS_ON or ENGAGEMENT_MODE_FLAG_AUDIO_ON // default
+            }
+        val engagementModeSet = mutableSetOf<WindowLayoutInfo.EngagementMode>()
+        if ((oemEngagementModeflags and ENGAGEMENT_MODE_FLAG_VISUALS_ON) != 0) {
+            engagementModeSet.add(WindowLayoutInfo.EngagementMode.VISUALS_ON)
+        }
+        if ((oemEngagementModeflags and ENGAGEMENT_MODE_FLAG_AUDIO_ON) != 0) {
+            engagementModeSet.add(WindowLayoutInfo.EngagementMode.AUDIO_ON)
+        }
+
+        return WindowLayoutInfo(features, engagementModeSet.toSet())
     }
 
     internal fun translate(features: SupportedWindowFeatures): List<SupportedPosture> {

@@ -223,6 +223,8 @@ class LazyStaggeredGridAnimatedScrollTest(orientation: Orientation) :
 
         scope.launch { state.animateScrollToItem(toIndex, toOffset) }
 
+        testDispatcher.scheduler.runCurrent()
+
         while (!state.isScrollInProgress) {
             Thread.sleep(5)
         }

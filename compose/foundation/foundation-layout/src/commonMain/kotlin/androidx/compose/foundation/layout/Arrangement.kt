@@ -556,6 +556,11 @@ object Arrangement {
             }
     }
 
+    /** Calculator for SpacedAligned alignment to avoid primitive boxing. */
+    internal fun interface SpacingAlignmentCalculator {
+        fun align(size: Int, layoutDirection: LayoutDirection): Int
+    }
+
     /**
      * Arrangement with spacing between adjacent children and alignment for the spaced group. Should
      * not be instantiated directly, use [spacedBy] instead.
@@ -564,7 +569,7 @@ object Arrangement {
     internal data class SpacedAligned(
         val space: Dp,
         val rtlMirror: Boolean,
-        val alignment: ((Int, LayoutDirection) -> Int)?,
+        val alignment: SpacingAlignmentCalculator?,
     ) : HorizontalOrVertical {
 
         override val spacing = space
@@ -577,21 +582,38 @@ object Arrangement {
         ) {
             if (sizes.isEmpty()) return
             val spacePx = space.roundToPx()
-
-            var occupied = 0
+            val isRtl = rtlMirror && layoutDirection == LayoutDirection.Rtl
             var lastSpace = 0
-            val reversed = rtlMirror && layoutDirection == LayoutDirection.Rtl
-            sizes.forEachIndexed(reversed) { index, it ->
-                outPositions[index] = min(occupied, totalSize - it)
-                lastSpace = min(spacePx, totalSize - outPositions[index] - it)
-                occupied = outPositions[index] + it + lastSpace
+            var freeSpace = totalSize
+            if (isRtl) {
+                sizes.forEachIndexed { index, it ->
+                    outPositions[index] = maxOf(0, freeSpace - it)
+                    lastSpace = min(spacePx, outPositions[index])
+                    freeSpace = outPositions[index] - lastSpace
+                }
+                freeSpace += lastSpace
+            } else {
+                var occupied = 0
+                sizes.forEachIndexed { index, it ->
+                    outPositions[index] = min(occupied, totalSize - it)
+                    lastSpace = min(spacePx, totalSize - outPositions[index] - it)
+                    occupied = outPositions[index] + it + lastSpace
+                }
+                occupied -= lastSpace
+                freeSpace = totalSize - occupied
             }
-            occupied -= lastSpace
 
-            if (alignment != null && occupied < totalSize) {
-                val groupPosition = alignment.invoke(totalSize - occupied, layoutDirection)
-                for (index in outPositions.indices) {
-                    outPositions[index] += groupPosition
+            if (alignment != null && freeSpace > 0) {
+                val groupPosition = alignment.align(freeSpace, layoutDirection)
+
+                // LTR items are packed at the start (0), so shifting by groupPosition is correct.
+                // RTL items are packed at the end (remainingSpace), so shift relative to that.
+                val offset = if (isRtl) groupPosition - freeSpace else groupPosition
+
+                if (offset != 0) {
+                    for (index in outPositions.indices) {
+                        outPositions[index] += offset
+                    }
                 }
             }
         }

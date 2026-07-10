@@ -99,7 +99,7 @@ class ProtectedSignalsManagerFuturesTest {
         private fun setupResponse(protectedSignalsManager: ProtectedSignalsManager) {
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer).`when`(protectedSignalsManager).updateSignals(any(), any(), any())

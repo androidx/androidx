@@ -30,6 +30,7 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class IdleEventBroadcastReceiverTest() {
     private val receiver = IdleEventBroadcastReceiver { onIdleCalled.incrementAndGet() }
     private val onIdleCalled = AtomicInteger(0)

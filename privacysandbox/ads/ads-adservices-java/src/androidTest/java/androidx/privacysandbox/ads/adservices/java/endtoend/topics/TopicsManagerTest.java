@@ -32,6 +32,7 @@ import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -105,6 +106,7 @@ public class TopicsManagerTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testGetTopics_initialCall_returnsEmptyTopics() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(

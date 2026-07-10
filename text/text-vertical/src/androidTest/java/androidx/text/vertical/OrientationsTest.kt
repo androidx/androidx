@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import android.os.Build
 import android.text.SpannableString
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.text.vertical.OrientationMode
 import androidx.text.vertical.ResolvedOrientation
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.TextOrientationSpan
@@ -30,6 +31,7 @@ private const val SPAN_FLAG = SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // fails in API 26
 class OrientationsTest {
     private sealed interface Run
 
@@ -43,7 +45,7 @@ class OrientationsTest {
         text: CharSequence,
         start: Int = 0,
         end: Int = text.length,
-        @OrientationMode textOrientation: Int = TextOrientation.MIXED,
+        textOrientation: TextOrientation = TextOrientation.Mixed,
     ): List<Run> {
         val out = mutableListOf<Run>()
         forEachOrientation(text, start, end, textOrientation) { oStart, oEnd, orientation ->
@@ -58,11 +60,11 @@ class OrientationsTest {
 
     private fun resolve(
         text: CharSequence,
-        @OrientationMode textOrientation: Int = TextOrientation.MIXED,
+        textOrientation: TextOrientation = TextOrientation.Mixed,
     ) = resolve(text, 0, text.length, textOrientation)
 
     @Test
-    fun emptyText() {
+    fun orientation_emptyText() {
         // Empty text
         assertThat(resolve("")).isEmpty()
         assertThat(resolve("", 0, 0)).isEmpty()
@@ -76,7 +78,7 @@ class OrientationsTest {
     }
 
     @Test
-    fun noOverrideText_MixedOrientation() {
+    fun orientation_noOverrideText_MixedOrientation() {
         // Whole text
         // Japanese letters: resolved to upright.
         var runs = resolve("あいうえお")
@@ -110,63 +112,63 @@ class OrientationsTest {
     }
 
     @Test
-    fun noOverrideText_UprightOrientation() {
-        var runs = resolve("あいうえお", TextOrientation.UPRIGHT)
+    fun orientation_noOverrideText_UprightOrientation() {
+        var runs = resolve("あいうえお", TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(0, 5))
 
-        runs = resolve("abcde", TextOrientation.UPRIGHT)
+        runs = resolve("abcde", TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(0, 5))
 
-        runs = resolve("あいうえおabcde", TextOrientation.UPRIGHT)
+        runs = resolve("あいうえおabcde", TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(0, 10))
 
         // Substring
-        runs = resolve("あいうえお", 1, 3, TextOrientation.UPRIGHT)
+        runs = resolve("あいうえお", 1, 3, TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(1, 3))
 
-        runs = resolve("abcde", 1, 3, TextOrientation.UPRIGHT)
+        runs = resolve("abcde", 1, 3, TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(1, 3))
 
-        runs = resolve("あいうえおabcde", 4, 7, textOrientation = TextOrientation.UPRIGHT)
+        runs = resolve("あいうえおabcde", 4, 7, textOrientation = TextOrientation.Upright)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Upright(4, 7))
     }
 
     @Test
-    fun noOverrideText_SidewaysOrientation() {
-        var runs = resolve("あいうえお", TextOrientation.SIDEWAYS)
+    fun orientation_noOverrideText_SidewaysOrientation() {
+        var runs = resolve("あいうえお", TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(0, 5))
 
-        runs = resolve("abcde", TextOrientation.SIDEWAYS)
+        runs = resolve("abcde", TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(0, 5))
 
-        runs = resolve("あいうえおabcde", TextOrientation.SIDEWAYS)
+        runs = resolve("あいうえおabcde", TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(0, 10))
 
         // Substring
-        runs = resolve("あいうえお", 1, 3, TextOrientation.SIDEWAYS)
+        runs = resolve("あいうえお", 1, 3, TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(1, 3))
 
-        runs = resolve("abcde", 1, 3, TextOrientation.SIDEWAYS)
+        runs = resolve("abcde", 1, 3, TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(1, 3))
 
-        runs = resolve("あいうえおabcde", 4, 7, TextOrientation.SIDEWAYS)
+        runs = resolve("あいうえおabcde", 4, 7, TextOrientation.Sideways)
         assertThat(runs.size).isEqualTo(1)
         assertThat(runs[0]).isEqualTo(Rotate(4, 7))
     }
 
     @Test
-    fun overrideText_UprightOverride() {
+    fun orientation_overrideText_UprightOverride() {
         var runs =
             resolve(
                 SpannableString("あいうえお").apply {
@@ -199,7 +201,7 @@ class OrientationsTest {
     }
 
     @Test
-    fun overrideText_SidewaysOverride() {
+    fun orientation_overrideText_SidewaysOverride() {
         var runs =
             resolve(
                 SpannableString("あいうえお").apply {
@@ -232,11 +234,11 @@ class OrientationsTest {
     }
 
     @Test
-    fun tateChuToko() {
+    fun orientation_TateChuYoko() {
         var runs =
             resolve(
                 SpannableString("abcde").apply {
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 1, 2, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 1, 2, SPAN_FLAG)
                 }
             )
         assertThat(runs.size).isEqualTo(3)
@@ -248,8 +250,8 @@ class OrientationsTest {
         runs =
             resolve(
                 SpannableString("abcde").apply {
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 1, 2, SPAN_FLAG)
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 2, 4, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 1, 2, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 2, 4, SPAN_FLAG)
                 }
             )
         assertThat(runs.size).isEqualTo(4)

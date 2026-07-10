@@ -199,11 +199,11 @@ internal suspend fun TextFieldSelectionState.getContextMenuItemsAvailability():
     MenuItemsAvailability {
     updateClipboardEntry()
     return MenuItemsAvailability(
-        canCopy = canCopy(),
-        canPaste = canPaste(),
-        canCut = canCut(),
-        canSelectAll = canSelectAll(),
-        canAutofill = canAutofill(),
+        canCopy = canShowCopyMenuItem(),
+        canPaste = canShowPasteMenuItem(),
+        canCut = canShowCutMenuItem(),
+        canSelectAll = canShowSelectAllMenuItem(),
+        canAutofill = canShowAutofillMenuItem(),
     )
 }
 
@@ -211,11 +211,11 @@ internal suspend fun TextFieldSelectionManager.getContextMenuItemsAvailability()
     MenuItemsAvailability {
     updateClipboardEntry()
     return MenuItemsAvailability(
-        canCopy = canCopy(),
-        canPaste = canPaste(),
-        canCut = canCut(),
-        canSelectAll = canSelectAll(),
-        canAutofill = canAutofill(),
+        canCopy = canShowCopyMenuItem(),
+        canPaste = canShowPasteMenuItem(),
+        canCut = canShowCutMenuItem(),
+        canSelectAll = canShowSelectAllMenuItem(),
+        canAutofill = canShowAutofillMenuItem(),
     )
 }
 
@@ -243,7 +243,8 @@ internal value class MenuItemsAvailability private constructor(val value: Int) {
         private const val AUTO_FILL = 0b10000
         private const val NONE = 0
 
-        val None = MenuItemsAvailability(NONE)
+        val None
+            get() = MenuItemsAvailability(NONE)
     }
 
     val canCopy

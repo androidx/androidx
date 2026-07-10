@@ -16,42 +16,61 @@
 
 package androidx.camera.camera2.pipe.media
 
+import android.hardware.HardwareBuffer
+import android.os.Build
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.FakeImage
+import androidx.camera.common.unwrapAs
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Tests for [OutputImage] and [SharedOutputImage] */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class SharedOutputImageTest {
     private val streamId = StreamId(42)
     private val outputId = OutputId(64)
-    private val mockImage: ImageWrapper = mock { whenever(it.timestamp).thenReturn(1234) }
-    private val outputImage = OutputImage.from(streamId, outputId, mockImage)
+
+    private lateinit var fakeImage: FakeImage
+    private lateinit var outputImage: OutputImage
     private val finalizer: Finalizer<OutputImage> = mock()
+
+    @Before
+    fun init() {
+        fakeImage = FakeImage(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, IMAGE_TIMESTAMP)
+        outputImage = OutputImage.from(streamId, outputId, fakeImage)
+    }
+
+    @After
+    fun tearDown() {
+        outputImage.close()
+    }
 
     @Test
     fun sharedImagesIsNotClosedByDefault() {
         val sharedImage = SharedOutputImage.from(outputImage)
-        verify(mockImage, never()).close()
+        assertThat(fakeImage.isClosed).isFalse()
         sharedImage.close()
-        verify(mockImage, times(1)).close()
+        assertThat(fakeImage.isClosed).isTrue()
     }
 
     @Test
     fun closingSharedImageClosesWrappedImage() {
         val sharedImage = SharedOutputImage.from(outputImage)
         sharedImage.close()
-        verify(mockImage, times(1)).close()
+        assertThat(fakeImage.isClosed).isTrue()
     }
 
     @Test
@@ -60,7 +79,7 @@ class SharedOutputImageTest {
         sharedImage.close()
         sharedImage.close()
         sharedImage.close()
-        verify(mockImage, times(1)).close()
+        assertThat(fakeImage.numberOfTimesClosed).isEqualTo(1)
     }
 
     @Test
@@ -70,10 +89,10 @@ class SharedOutputImageTest {
         val sharedImage3 = sharedImage2.acquire()
         sharedImage1.close()
         sharedImage2.close()
-        verify(mockImage, never()).close()
+        assertThat(fakeImage.isClosed).isFalse()
 
         sharedImage3.close()
-        verify(mockImage, times(1)).close()
+        assertThat(fakeImage.isClosed).isTrue()
     }
 
     @Test
@@ -83,7 +102,7 @@ class SharedOutputImageTest {
 
         val sharedImage2 = sharedImage1.acquireOrNull()
         assertThat(sharedImage2).isNull()
-        verify(mockImage, times(1)).close()
+        assertThat(fakeImage.isClosed).isTrue()
     }
 
     @Test
@@ -97,7 +116,41 @@ class SharedOutputImageTest {
 
         assertThat(sharedImageFrom1).isNull()
         assertThat(sharedImageFrom2).isNotNull()
-        verify(mockImage, never()).close()
+        assertThat(fakeImage.isClosed).isFalse()
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.P)
+    @Test
+    fun unwrapAsHardwareBufferReturnsHardwareBufferFromParentClass() {
+        val imageHardwareBuffer = mock<HardwareBuffer>()
+        whenever(imageHardwareBuffer.width).thenReturn(IMAGE_WIDTH)
+        whenever(imageHardwareBuffer.height).thenReturn(IMAGE_HEIGHT)
+        val fakeImageWithHardwareBuffer =
+            FakeImage(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, IMAGE_TIMESTAMP, imageHardwareBuffer)
+        val outputImage = OutputImage.from(streamId, outputId, fakeImageWithHardwareBuffer)
+        val sharedImage = SharedOutputImage.from(outputImage)
+
+        val hardwareBuffer = sharedImage.unwrapAs<HardwareBuffer>()
+
+        checkNotNull(hardwareBuffer)
+        assertThat(imageHardwareBuffer).isSameInstanceAs(hardwareBuffer)
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.P)
+    @Test
+    fun getHardwareBufferReturnsHardwareBufferFromParentClass() {
+        val imageHardwareBuffer = mock<HardwareBuffer>()
+        whenever(imageHardwareBuffer.width).thenReturn(IMAGE_WIDTH)
+        whenever(imageHardwareBuffer.height).thenReturn(IMAGE_HEIGHT)
+        val fakeImageWithHardwareBuffer =
+            FakeImage(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, IMAGE_TIMESTAMP, imageHardwareBuffer)
+        val outputImage = OutputImage.from(streamId, outputId, fakeImageWithHardwareBuffer)
+        val sharedImage = SharedOutputImage.from(outputImage)
+
+        val hardwareBuffer = sharedImage.hardwareBuffer
+
+        checkNotNull(hardwareBuffer)
+        assertThat(imageHardwareBuffer).isSameInstanceAs(hardwareBuffer)
     }
 
     @Test
@@ -159,5 +212,61 @@ class SharedOutputImageTest {
         sharedImage1.close()
         sharedImage1.setFinalizer(finalizer)
         verify(finalizer, times(1)).finalize(null)
+    }
+
+    @Test
+    fun acquireWithOnCloseLambdaInvokesLambdaWhenClosed() {
+        var lambdaInvokedCount = 0
+        val sharedImage1 = SharedOutputImage.from(outputImage)
+
+        // Acquire with the lambda
+        val sharedImage2 = sharedImage1.acquire(onClose = { lambdaInvokedCount++ })
+
+        // Ensure it doesn't invoke prematurely
+        assertThat(lambdaInvokedCount).isEqualTo(0)
+
+        sharedImage2.close()
+
+        // Ensure it invoked upon closing
+        assertThat(lambdaInvokedCount).isEqualTo(1)
+    }
+
+    @Test
+    fun acquireOrNullWithOnCloseLambdaInvokesLambdaWhenClosed() {
+        var lambdaInvokedCount = 0
+        val sharedImage1 = SharedOutputImage.from(outputImage)
+
+        // Acquire with the lambda
+        val sharedImage2 = sharedImage1.acquireOrNull(onClose = { lambdaInvokedCount++ })
+
+        assertThat(sharedImage2).isNotNull()
+        assertThat(lambdaInvokedCount).isEqualTo(0)
+
+        sharedImage2!!.close()
+
+        // Ensure it was invoked upon closing
+        assertThat(lambdaInvokedCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onCloseLambdaInvokedOnlyOnceOnMultipleCloses() {
+        var lambdaInvokedCount = 0
+        val sharedImage1 = SharedOutputImage.from(outputImage)
+        val sharedImage2 = sharedImage1.acquire(onClose = { lambdaInvokedCount++ })
+
+        // Invoke close multiple times.
+        sharedImage2.close()
+        sharedImage2.close()
+        sharedImage2.close()
+
+        // Guarantee that the lambda was executed exactly once.
+        assertThat(lambdaInvokedCount).isEqualTo(1)
+    }
+
+    companion object {
+        private val IMAGE_HEIGHT: Int = 100
+        private val IMAGE_WIDTH: Int = 200
+        private val IMAGE_FORMAT: Int = 3
+        private val IMAGE_TIMESTAMP: Long = 1234
     }
 }

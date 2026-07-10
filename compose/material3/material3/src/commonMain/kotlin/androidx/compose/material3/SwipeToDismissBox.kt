@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.internal.ConfirmValueChangeDeprecated
-import androidx.compose.material3.internal.draggableAnchorsV2
+import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -332,7 +332,7 @@ fun SwipeToDismissBox(
         Row(
             content = content,
             modifier =
-                Modifier.draggableAnchorsV2(state.anchoredDraggableState, Orientation.Horizontal) {
+                Modifier.draggableAnchors(state.anchoredDraggableState, Orientation.Horizontal) {
                     size,
                     _ ->
                     val newAnchors = DraggableAnchors {
@@ -354,7 +354,7 @@ fun SwipeToDismissBox(
                         } else if (newAnchors.hasPositionFor(targetValue)) {
                             targetValue
                         } else SwipeToDismissBoxValue.Settled
-                    return@draggableAnchorsV2 newAnchors to newTarget
+                    return@draggableAnchors newAnchors to newTarget
                 },
         )
     }

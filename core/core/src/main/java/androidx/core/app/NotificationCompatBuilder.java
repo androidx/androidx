@@ -24,6 +24,7 @@ import static androidx.core.app.NotificationCompat.GROUP_ALERT_ALL;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.LocusId;
@@ -362,6 +363,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             Api31Impl.setAuthenticationRequired(actionBuilder,
                     action.isAuthenticationRequired());
         }
+        if (Build.VERSION.SDK_INT >= 37) {
+            Api37Impl.setEmphasisHint(actionBuilder, action.getEmphasisHint());
+            Api37Impl.setStyleHint(actionBuilder, action.getStyleHint());
+        }
 
         actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,
                 action.getShowsUserInterface());
@@ -590,6 +595,22 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         static Notification.Builder setShortCriticalText(
                 Notification.Builder builder, String shortCriticalText) {
             return builder.setShortCriticalText(shortCriticalText);
+        }
+    }
+
+    @RequiresApi(37)
+    @SuppressLint("WrongConstant") // Platform <-> Compat @IntDef with same values.
+    static final class Api37Impl {
+        private Api37Impl() {}
+
+        static Notification.Action.Builder setEmphasisHint(Notification.Action.Builder builder,
+                @NotificationCompat.Action.Emphasis int emphasis) {
+            return builder.setEmphasisHint(emphasis);
+        }
+
+        static Notification.Action.Builder setStyleHint(Notification.Action.Builder builder,
+                @NotificationCompat.Action.Style int style) {
+            return builder.setStyleHint(style);
         }
     }
 }

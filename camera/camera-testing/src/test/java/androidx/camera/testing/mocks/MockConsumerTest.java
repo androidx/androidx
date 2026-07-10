@@ -27,7 +27,9 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
+@Config(sdk = {Config.ALL_SDKS})
 public class MockConsumerTest {
     public static final String DUMMY_STRING_1 = "dummy1";
     public static final String DUMMY_STRING_2 = "dummy2";

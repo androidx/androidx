@@ -17,11 +17,12 @@
 package androidx.appsearch.platformstorage.util;
 
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -33,9 +34,8 @@ import java.util.Set;
 
 /**
  * Utilities for schema validation.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaValidationUtil {
     private SchemaValidationUtil() {

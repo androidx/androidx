@@ -167,6 +167,7 @@ private constructor(
         }
         if (isConditional) {
             candidateQueryData.putBoolean(BUNDLE_KEY_CONDITIONAL_CREATE, true)
+            credentialData.putBoolean(BUNDLE_KEY_CONDITIONAL_CREATE, true)
         }
     }
 

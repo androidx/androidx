@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,7 +25,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -34,7 +32,6 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api(project(":wear:protolayout:protolayout"))
     api(project(":wear:protolayout:protolayout-expression"))
-    api(libs.kotlinStdlib)
     implementation(project(":wear:protolayout:protolayout-material-core"))
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     compileOnly(project(":annotation:annotation-sampled"))
@@ -42,35 +39,33 @@ dependencies {
     implementation("androidx.core:core:1.15.0")
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
     testImplementation(libs.truth)
-    androidTestImplementation(libs.testUiautomator)
     testImplementation(project(":wear:protolayout:protolayout-proto"))
     testImplementation(project(":wear:protolayout:protolayout-testing"))
-    testImplementation(project(":wear:protolayout:protolayout"))
+    testImplementation("org.robolectric:annotations:4.15")
+    testImplementation("org.robolectric:shadowapi:4.15")
 
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.androidx.annotation)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
     androidTestImplementation(project(":wear:protolayout:protolayout-proto"))
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.protolayout.material3"
 }
@@ -81,7 +76,6 @@ androidx {
     samples(project(":wear:protolayout:protolayout-material3-samples"))
     inceptionYear = "2024"
     description = "Material3 components library for ProtoLayout."
-    samples(project(":wear:protolayout:protolayout-material3-samples"))
     addGoldenImageAssets()
     enableRobolectric()
 }

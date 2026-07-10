@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PersistToDiskStats;
@@ -42,9 +43,8 @@ import org.jspecify.annotations.NonNull;
  * Class contains helper functions for logging.
  *
  * <p>E.g. we need to have helper functions to copy numbers from IcingLib to stats classes.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchLoggerHelper {
     private AppSearchLoggerHelper() {
@@ -117,7 +117,20 @@ public final class AppSearchLoggerHelper {
                 .setNativeInitializeIcuDataStatusCode(
                         fromNativeStats.getInitializeIcuDataStatus().getCode().getNumber())
                 .setNativeNumFailedReindexedDocuments(
-                        fromNativeStats.getNumFailedReindexedDocuments());
+                        fromNativeStats.getNumFailedReindexedDocuments())
+                .setNativeFailureStageCode(fromNativeStats.getFailureStage())
+                .setNativeIcuSegmenterCreationStatusCode(
+                        fromNativeStats.getIcuSegmenterCreationStatus().getCode().getNumber())
+                .setNativeIcuNormalizerCreationStatusCode(
+                        fromNativeStats.getIcuNormalizerCreationStatus().getCode().getNumber())
+                .setNativeLastPersistType(fromNativeStats.getLastPersistToDiskType())
+                .addNativeAfterLastPersistFullCallTypes(
+                        fromNativeStats.getAfterLastFlushFullCallTypesList())
+                .addNativeAfterLastPersistRecoveryProofCallTypes(
+                        fromNativeStats.getAfterLastFlushRecoveryProofCallTypesList())
+                .addNativeAfterLastPersistLiteCallTypes(
+                        fromNativeStats.getAfterLastFlushLiteCallTypesList())
+                .setNativeSchemaProtoByteSize(fromNativeStats.getSchemaProtoByteSize());
     }
 
     /**
@@ -186,6 +199,13 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getQueryProcessorParserConsumeQueryLatencyMs())
                 .setNativeQueryProcessorQueryVisitorLatencyMillis(
                         fromNativeStats.getQueryProcessorQueryVisitorLatencyMs())
+                .setNativeNumUnquantizedEmbeddingsScored(
+                        fromNativeStats.getNumUnquantizedEmbeddingsScored())
+                .setNativeNumQuantizedEmbeddingsScored(
+                        fromNativeStats.getNumQuantizedEmbeddingsScored())
+                .setNativeNumEmbeddingShardsRead(fromNativeStats.getNumEmbeddingShardsRead())
+                .setNativeNumEmbeddingBytesRead(fromNativeStats.getNumEmbeddingBytesRead())
+                .setNativeNumAnnEmbeddingsScored(fromNativeStats.getNumAnnEmbeddingsScored())
                 .build();
     }
 
@@ -295,6 +315,8 @@ public final class AppSearchLoggerHelper {
                         fromProto
                                 .getSetSchemaStats()
                                 .getScorablePropertyCacheRegenerationLatencyMs())
+                .setNativeSchemaProtoByteSize(
+                        fromProto.getSetSchemaStats().getSchemaProtoByteSize())
                 .addGetVmLatencyMillis(fromProto.getGetVmLatencyMs());
     }
 

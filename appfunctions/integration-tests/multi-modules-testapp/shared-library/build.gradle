@@ -16,22 +16,19 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "androidx.appfunctions.integration.testapp.shared_library"
-    compileSdk = 36
+    compileSdk { version = release(37) }
 
     defaultConfig {
-        minSdk = 33
+        minSdk { version = release(33) }
     }
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":appfunctions:appfunctions"))
-    implementation(project(":appfunctions:appfunctions-service"))
     ksp(project(":appfunctions:appfunctions-compiler"))
 }

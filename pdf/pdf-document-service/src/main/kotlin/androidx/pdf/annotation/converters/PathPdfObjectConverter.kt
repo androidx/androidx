@@ -20,13 +20,13 @@ import android.graphics.pdf.component.PdfPagePathObject
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject as ParcelablePathPdfObject
 import androidx.pdf.utils.getPathFromPathInputs
 
-/** Converts a [PathPdfObject] to a AOSP [PdfPagePathObject]. */
+/** Converts a [ParcelablePathPdfObject] to a AOSP [PdfPagePathObject]. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal class PathPdfObjectConverter : Converter<PathPdfObject, PdfPagePathObject> {
-    override fun convert(from: PathPdfObject, vararg args: Any): PdfPagePathObject {
+internal class PathPdfObjectConverter : Converter<ParcelablePathPdfObject, PdfPagePathObject> {
+    override fun convert(from: ParcelablePathPdfObject, vararg args: Any): PdfPagePathObject {
         val path = from.inputs.getPathFromPathInputs()
         return PdfPagePathObject(path).apply {
             strokeWidth = from.brushWidth

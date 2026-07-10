@@ -55,6 +55,7 @@ import java.util.Locale;
  */
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CustomTabsIntentTest {
 

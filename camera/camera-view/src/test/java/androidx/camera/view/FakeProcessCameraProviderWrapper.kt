@@ -19,6 +19,7 @@ package androidx.camera.view
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.futures.Futures
@@ -37,23 +38,35 @@ class FakeProcessCameraProviderWrapper(
     private val bindToLifecycleException: Throwable? = null,
 ) : ProcessCameraProviderWrapper {
 
-    private var unbindInvoked = false
+    private var unbindInvokedUseCases: List<UseCase> = emptyList()
     private var shouldThrowOnGetCameraInfo = false
+    private var boundUseCases: List<UseCase> = emptyList()
 
-    fun unbindInvoked(): Boolean {
-        return unbindInvoked
+    /** Obtains the UseCases that were unbind()'d. */
+    fun getUnbindInvokedUseCases() = unbindInvokedUseCases
+
+    /** Resets the unbind()'d UseCases list. */
+    fun resetUnbindInvokedUseCases() {
+        unbindInvokedUseCases = emptyList()
     }
+
+    /** Obtains the UseCases that were bound. */
+    fun getBoundUseCases() = boundUseCases
 
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         return true
     }
 
     override fun unbind(vararg useCases: UseCase?) {
-        // no-op.
+        unbindInvokedUseCases = useCases.toList().filterNotNull()
+    }
+
+    override fun unbind(sessionConfig: SessionConfig) {
+        unbindInvokedUseCases = sessionConfig.useCases
     }
 
     override fun unbindAll() {
-        unbindInvoked = true
+        // no-op.
     }
 
     override fun bindToLifecycle(
@@ -64,6 +77,19 @@ class FakeProcessCameraProviderWrapper(
         if (bindToLifecycleException != null) {
             throw bindToLifecycleException
         }
+        boundUseCases = useCaseGroup.useCases
+        return camera
+    }
+
+    override fun bindToLifecycle(
+        lifecycleOwner: LifecycleOwner,
+        cameraSelector: CameraSelector,
+        sessionConfig: SessionConfig,
+    ): Camera {
+        if (bindToLifecycleException != null) {
+            throw bindToLifecycleException
+        }
+        boundUseCases = sessionConfig.useCases
         return camera
     }
 

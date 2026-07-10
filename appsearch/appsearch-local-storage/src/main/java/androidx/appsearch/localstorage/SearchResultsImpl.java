@@ -120,6 +120,7 @@ class SearchResultsImpl implements SearchResults {
                     }
                 }
                 searchResultPage = mAppSearchImpl.getNextPage(mPackageName, mNextPageToken,
+                        mSearchSpec.getResultCountPerPage(),
                         sStatsBuilder,
                         /*callStatsBuilder=*/null);
                 if (mLogger != null && sStatsBuilder != null) {

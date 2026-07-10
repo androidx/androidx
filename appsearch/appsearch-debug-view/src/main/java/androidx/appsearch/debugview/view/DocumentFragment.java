@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
@@ -43,9 +44,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A fragment for displaying a {@link GenericDocument} object.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentFragment extends Fragment {
     private static final String TAG = "AppSearchDocumentFrag";

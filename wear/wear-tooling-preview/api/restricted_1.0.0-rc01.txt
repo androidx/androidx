@@ -1,0 +1,17 @@
+// Signature format: 4.0
+package androidx.wear.tooling.preview.devices {
+
+  public final class WearDevices {
+    property public static String LARGE_ROUND;
+    property public static String RECT;
+    property public static String SMALL_ROUND;
+    property public static String SQUARE;
+    field public static final androidx.wear.tooling.preview.devices.WearDevices INSTANCE;
+    field public static final String LARGE_ROUND = "id:wearos_large_round";
+    field public static final String RECT = "id:wearos_rect";
+    field public static final String SMALL_ROUND = "id:wearos_small_round";
+    field public static final String SQUARE = "id:wearos_square";
+  }
+
+}
+

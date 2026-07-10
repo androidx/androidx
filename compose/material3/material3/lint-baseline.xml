@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.3.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha11)" variant="all" version="9.3.0-alpha11">
 
     <issue
         id="BanThreadSleep"
@@ -7,7 +7,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -133,7 +133,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -142,7 +142,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -151,7 +151,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -160,7 +160,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -169,7 +169,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -178,7 +178,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -187,7 +187,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -196,7 +196,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -205,7 +205,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -214,7 +214,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -223,7 +223,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -232,7 +232,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -241,7 +241,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -250,7 +250,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -259,7 +259,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SplitButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SplitButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -268,7 +268,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -277,7 +277,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -286,7 +286,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -295,7 +295,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -304,7 +304,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -313,7 +313,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -322,7 +322,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -331,7 +331,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -340,7 +340,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -349,7 +349,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -358,7 +358,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -367,7 +367,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -376,7 +376,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -385,7 +385,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -394,7 +394,7 @@
         errorLine1="                startThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -403,7 +403,7 @@
         errorLine1="                endThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -412,7 +412,7 @@
         errorLine1="                        interactionSource = MutableInteractionSource(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -421,7 +421,7 @@
         errorLine1="                        interactionSource = MutableInteractionSource(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -430,7 +430,7 @@
         errorLine1="                        interactionSource = MutableInteractionSource(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -439,7 +439,7 @@
         errorLine1="                        interactionSource = MutableInteractionSource(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -448,7 +448,7 @@
         errorLine1="        trailingIcon: (@Composable () -> Unit)? = null,"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SearchBarTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SearchBarTest.kt"/>
     </issue>
 
     <issue
@@ -457,7 +457,7 @@
         errorLine1="        tooltipContent: @Composable () -> Unit = {},"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
     </issue>
 
     <issue
@@ -475,25 +475,7 @@
         errorLine1="        tooltipContent: @Composable () -> Unit = {},"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
-    </issue>
-
-    <issue
-        id="ConfigurationScreenWidthHeight"
-        message="Using Configuration.screenHeightDp instead of LocalWindowInfo.current.containerSize"
-        errorLine1="            val screenHeight = LocalContext.current.resources.configuration.screenHeightDp.dp"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ModalBottomSheetTest.kt"/>
-    </issue>
-
-    <issue
-        id="ConfigurationScreenWidthHeight"
-        message="Using Configuration.screenHeightDp instead of LocalWindowInfo.current.containerSize"
-        errorLine1="            screenHeight = context.resources.configuration.screenHeightDp.dp"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ModalBottomSheetTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
     </issue>
 
     <issue
@@ -511,7 +493,7 @@
         errorLine1="                currentDensity.density * (currentConfiguration.screenWidthDp.dp / simulatedWidth)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ShortNavigationBarScreenshotTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ShortNavigationBarScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -520,7 +502,7 @@
         errorLine1="                currentDensity.density * (currentConfiguration.screenWidthDp.dp / simulatedWidth)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ShortNavigationBarTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ShortNavigationBarTest.kt"/>
     </issue>
 
     <issue
@@ -529,7 +511,7 @@
         errorLine1="            newConfiguration.screenHeightDp = 800"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
     </issue>
 
     <issue
@@ -538,7 +520,7 @@
         errorLine1="            newConfiguration.screenWidthDp = 500"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
     </issue>
 
     <issue
@@ -547,7 +529,7 @@
         errorLine1="            newConfiguration.screenHeightDp = 500"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
     </issue>
 
     <issue
@@ -556,43 +538,7 @@
         errorLine1="            newConfiguration.screenWidthDp = 800"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextConfigurationRead"
-        message="Reading Configuration using LocalContext.current.resources.configuration"
-        errorLine1="            val resScreenWidth = context.resources.configuration.screenWidthDp"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/AlertDialogTest.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextConfigurationRead"
-        message="Reading Configuration using LocalContext.current.resources.configuration"
-        errorLine1="            val resScreenWidth = context.resources.configuration.screenWidthDp"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/AlertDialogTest.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextConfigurationRead"
-        message="Reading Configuration using LocalContext.current.resources.configuration"
-        errorLine1="            val screenHeight = LocalContext.current.resources.configuration.screenHeightDp.dp"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ModalBottomSheetTest.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextConfigurationRead"
-        message="Reading Configuration using LocalContext.current.resources.configuration"
-        errorLine1="            screenHeight = context.resources.configuration.screenHeightDp.dp"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ModalBottomSheetTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
     </issue>
 
     <issue
@@ -601,7 +547,7 @@
         errorLine1="        textFieldModifier: Modifier = Modifier,"
         errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ExposedDropdownMenuTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ExposedDropdownMenuTest.kt"/>
     </issue>
 
     <issue
@@ -610,61 +556,88 @@
         errorLine1="        textFieldModifier: Modifier = Modifier,"
         errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ExposedDropdownMenuTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ExposedDropdownMenuTest.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                startThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/tooltip_label` is marked as private in androidx.compose.foundation:foundation-android:1.12.0-beta01"
+        errorLine1="    @Composable actual fun label(): String = stringResource(R.string.tooltip_label)"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/BasicTooltip.android.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                endThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/tooltip_description` is marked as private in androidx.compose.foundation:foundation-android:1.12.0-beta01"
+        errorLine1="    @Composable actual fun description(): String = stringResource(R.string.tooltip_description)"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/BasicTooltip.android.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                        interactionSource = MutableInteractionSource(),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/default_error_message` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.default_error_message)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                        interactionSource = MutableInteractionSource(),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/dropdown_menu` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.dropdown_menu)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                        interactionSource = MutableInteractionSource(),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/range_start` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.range_start)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
     </issue>
 
     <issue
-        id="UnrememberedMutableInteractionSource"
-        message="Creating a MutableInteractionSource during composition without using `remember`"
-        errorLine1="                        interactionSource = MutableInteractionSource(),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateResource"
+        message="The resource `@string/range_end` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.range_end)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/navigation_menu` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.navigation_menu)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/close_drawer` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.close_drawer)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/close_sheet` is marked as private in androidx.compose.ui:ui-android:1.12.0-beta01"
+        errorLine1="            get() = Strings(R.string.close_sheet)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/internal/Strings.android.kt"/>
     </issue>
 
     <issue
@@ -673,7 +646,7 @@
         errorLine1="            ) {}"
         errorLine2="              ~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/AppBarTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/AppBarTest.kt"/>
     </issue>
 
     <issue
@@ -682,7 +655,7 @@
         errorLine1="            ) {}"
         errorLine2="              ~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/AppBarTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/AppBarTest.kt"/>
     </issue>
 
     <issue
@@ -691,7 +664,7 @@
         errorLine1="                Scaffold { Text(&quot;Scaffold body&quot;) }"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -700,7 +673,7 @@
         errorLine1="            Scaffold {"
         errorLine2="                     ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -709,7 +682,7 @@
         errorLine1="            ) {"
         errorLine2="              ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -718,7 +691,7 @@
         errorLine1="            ) {"
         errorLine2="              ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -727,7 +700,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -736,7 +709,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -745,7 +718,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -754,7 +727,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -763,7 +736,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -772,7 +745,7 @@
         errorLine1="                    ) {"
         errorLine2="                      ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -781,7 +754,7 @@
         errorLine1="                ) {"
         errorLine2="                  ^">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/ScaffoldTest.kt"/>
     </issue>
 
     <issue
@@ -790,7 +763,7 @@
         errorLine1="                content = { _ ->"
         errorLine2="                            ~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -799,7 +772,7 @@
         errorLine1="                content = { _ ->"
         errorLine2="                            ~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
     </issue>
 
     <issue
@@ -822,29 +795,29 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue
@@ -853,16 +826,16 @@
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue
@@ -871,7 +844,7 @@
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
     </issue>
 
     <issue

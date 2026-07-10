@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.*
@@ -27,13 +26,14 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle-api:8.1.1")
+    compileOnly("com.android.tools.build:gradle-api:8.2.1")
     implementation(gradleApi())
 
-    testImplementation("com.android.tools.build:gradle-api:8.1.1")
+    testImplementation("com.android.tools.build:gradle-api:8.2.1")
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.junit)
@@ -45,6 +45,11 @@ gradlePlugin {
         benchmark {
             id = "androidx.benchmark"
             implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
@@ -52,8 +57,14 @@ gradlePlugin {
 androidx {
     name = "Benchmark Gradle Plugin"
     type = SoftwareType.GRADLE_PLUGIN
+    minimumGradleVersion = "8.2"
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
 }
 
-afterEvaluate { tasks.named("test") {it.dependsOn( tasks.named("publish")) }}
+afterEvaluate {
+    tasks.named("test") {
+        it.environment("PLUGIN_VERSION", androidx.LibraryVersions.BENCHMARK)
+        it.dependsOn( tasks.named("publish"))
+    }
+}

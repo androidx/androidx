@@ -25,12 +25,12 @@ import androidx.compose.ui.platform.LocalContext
 import kotlin.math.abs
 
 /**
- * A composition local to customize the focus scrolling behavior used by some scrollable containers.
- * [LocalBringIntoViewSpec] has a platform defined behavior. If the App is running on a TV device,
- * the scroll behavior will pivot around 30% of the container size. For other platforms, the scroll
- * behavior will move the least to bring the requested region into view.
+ * A composition local to customize the focus scrolling behavior used by scrollable containers (e.g.
+ * LazyLists, Pagers, LazyGrid). [LocalBringIntoViewSpec] has a platform defined behavior. If the
+ * App is running on a TV device, the scroll behavior will pivot around 30% of the container size.
+ * For other platforms, the scroll behavior will move the least to bring the requested region into
+ * view.
  */
-@ExperimentalFoundationApi
 actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     compositionLocalWithComputedDefaultOf {
         val hasTvFeature =

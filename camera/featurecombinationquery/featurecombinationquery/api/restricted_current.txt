@@ -38,14 +38,14 @@ package androidx.camera.featurecombinationquery {
   }
 
   public class SessionParametersLegacy {
-    method public <T> T? get(android.hardware.camera2.CaptureRequest.Key<T!>);
+    method public <T> T? get(android.hardware.camera2.CaptureRequest.Key<T>);
     method public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!> getKeys();
   }
 
   public static final class SessionParametersLegacy.Builder {
     ctor public SessionParametersLegacy.Builder();
     method public androidx.camera.featurecombinationquery.SessionParametersLegacy build();
-    method public <T> androidx.camera.featurecombinationquery.SessionParametersLegacy.Builder set(android.hardware.camera2.CaptureRequest.Key<T!>, T);
+    method public <T> androidx.camera.featurecombinationquery.SessionParametersLegacy.Builder set(android.hardware.camera2.CaptureRequest.Key<T>, T);
   }
 
 }

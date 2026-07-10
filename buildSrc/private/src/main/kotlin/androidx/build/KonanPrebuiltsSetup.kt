@@ -33,7 +33,7 @@ object KonanPrebuiltsSetup {
 
     /**
      * Flag that causes konan to run in a separate process whose working directory is the compiling
-     * project (i.e. frameworks/support/room/room-runtime) and not the root project
+     * project (i.e. frameworks/support/room3/room3-runtime) and not the root project
      * (frameworks/support).
      */
     private const val DISABLE_COMPILER_DAEMON_FLAG = "kotlin.native.disableCompilerDaemon"

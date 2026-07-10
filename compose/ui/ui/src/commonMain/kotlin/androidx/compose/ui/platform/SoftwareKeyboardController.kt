@@ -21,7 +21,15 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextInputService
 
-/** Provide software keyboard control. */
+/**
+ * Provides manual, programmatic control over the software keyboard.
+ *
+ * Obtain an instance using [LocalSoftwareKeyboardController]. It is commonly used to
+ * programmatically hide the keyboard (e.g., after submitting data to a network, or when executing
+ * custom done/search actions).
+ *
+ * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
+ */
 @Stable
 interface SoftwareKeyboardController {
     /**

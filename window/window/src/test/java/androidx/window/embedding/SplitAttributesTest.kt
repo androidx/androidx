@@ -38,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 
 /** Test class to verify [SplitAttributes] */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SplitAttributesTest {
     @Test
     fun testSplitAttributesEquals() {

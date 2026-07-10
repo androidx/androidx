@@ -23,6 +23,7 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.SearchTemplate;
+import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.Template;
 
 import com.google.common.collect.ImmutableSet;
@@ -36,13 +37,28 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresCarApi(7)
 public class ContentTemplateConstraints {
-    /** Allowed templates for Map with Content Templates */
-    public static final @NonNull ContentTemplateConstraints MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
+    /**
+     * The set of allowed templates as content within a map with content template since the
+     * introduction of the map with content template (API 7).
+     */
+    public static final @NonNull ContentTemplateConstraints
+        MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(
                     GridTemplate.class,
                     MessageTemplate.class,
                     ListTemplate.class,
                     PaneTemplate.class
+            ));
+
+    /** The set of allowed templates as content within a map with content template since API 8. */
+    public static final @NonNull ContentTemplateConstraints
+        MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS_API_8 =
+            new ContentTemplateConstraints(ImmutableSet.of(
+                    GridTemplate.class,
+                    MessageTemplate.class,
+                    ListTemplate.class,
+                    PaneTemplate.class,
+                    SectionedItemTemplate.class
             ));
 
     /** Allowed templates for TabContents */

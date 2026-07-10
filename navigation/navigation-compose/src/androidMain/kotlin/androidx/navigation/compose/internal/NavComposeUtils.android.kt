@@ -16,21 +16,8 @@
 
 package androidx.navigation.compose.internal
 
-import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.runtime.Composable
 import java.lang.ref.WeakReference
 import java.util.UUID
-import kotlinx.coroutines.flow.Flow
-
-internal actual typealias BackEventCompat = androidx.activity.BackEventCompat
-
-@Composable
-internal actual fun PredictiveBackHandler(
-    enabled: Boolean,
-    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
-) {
-    PredictiveBackHandler(enabled, onBack)
-}
 
 internal actual fun randomUUID(): String = UUID.randomUUID().toString()
 

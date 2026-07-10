@@ -23,6 +23,8 @@ import androidx.core.util.Consumer;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.concurrent.Executor;
+
 /**
  * Interface to implement a GPU-based post-processing effect.
  *
@@ -40,12 +42,20 @@ import org.jspecify.annotations.NonNull;
  * <p>Once the implementation throws an exception, CameraX will treat it as an unrecoverable error
  * and abort the pipeline. If the {@link SurfaceOutput#getTargets()} is
  * {@link CameraEffect#PREVIEW}, CameraX will not propagate the error to the app. It's the
- * implementation's responsibility to notify the app. For example:
+ * implementation's responsibility to notify the app.
  *
+ * <p>Since camera session closure is a complicated asynchronous process, some devices may pass a
+ * few frames for drawing even after the {@code resultListener} parameter from the
+ * {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)} method reports that surface is
+ * safe for releasing. Users should ignore any new frames that come after CameraX reports surface
+ * can be released through the {@code resultListener} parameter.
+ *
+ * <p>See the following sample code for further reference.
  * <pre><code>
- * class SurfaceProcessorImpl implements SurfaceProcessor {
+ * class SurfaceProcessorImpl implements SurfaceProcessor, SurfaceTexture.OnFrameAvailableListener {
  *
  *     Consumer&lt;Exception&gt; mErrorListener;
+ *     List&lt;SurfaceTexture&gt; mReleasedSurfaceTextures = new ArrayList&lt;&gt;();
  *
  *     SurfaceProcessorImpl(@NonNull Consumer&lt;Exception&gt; errorListener) {
  *         mErrorListener = errorListener;
@@ -53,7 +63,16 @@ import org.jspecify.annotations.NonNull;
  *
  *     void onInputSurface(@NonNull SurfaceRequest request) throws ProcessingException {
  *         try {
- *             // Setup the input stream.
+ *             // Setup the input stream, e.g. a Surface and a SurfaceTexture.
+
+ *             request.provideSurface(surface, mGlExecutor, result -> {
+ *                 surfaceTexture.setOnFrameAvailableListener(null);
+ *                 surfaceTexture.release();
+ *                 surface.release();
+ *                 mReleasedSurfaceTextures.add(surfaceTexture);
+ *             });
+ *
+ *             surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
  *         } catch (Exception e) {
  *             // Notify the app before throwing a ProcessingException.
  *             mErrorListener.accept(e)
@@ -69,6 +88,16 @@ import org.jspecify.annotations.NonNull;
  *             mErrorListener.accept(e)
  *             throw new ProcessingException(e);
  *         }
+ *     }
+ *
+ *     &#64;Override
+ *     public void onFrameAvailable(@NonNull SurfaceTexture surfaceTexture) {
+ *         if (mReleasedSurfaceTextures.contains(surfaceTexture)) {
+ *             // Ignore frame update if this surface texture is already released.
+ *             return;
+ *         }
+ *
+ *         // Draw frame from the surfaceTexture to output surface(s).
  *     }
  * }
  * </code></pre>

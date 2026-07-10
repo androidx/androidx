@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.MeasureInputs
-import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.NonMeasureInputs
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -43,7 +43,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -150,19 +149,27 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         return getOrComputeLayout(nonMeasureInputs, measureInputs)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun getOrComputeLayout(
         nonMeasureInputs: NonMeasureInputs,
         measureInputs: MeasureInputs,
     ): TextLayoutResult {
         val visualText = nonMeasureInputs.textFieldState.visualText
         val visualTextAnnotations =
-            mergeNullableLists(visualText.composingAnnotations, visualText.outputAnnotations)
+            if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+                mergeNullableLists(
+                    visualText.composingAnnotations,
+                    visualText.textFieldTextStyles?.textStyleBuffer?.getAllStyles(),
+                )
+            } else {
+                mergeNullableLists(visualText.composingAnnotations, visualText.outputAnnotations)
+            }
 
         // Use withCurrent here so the cache itself is never reported as a read state object. It
         // doesn't need to be, because it's always guaranteed to return the same value for the same
         // inputs, so it's good enough to read the input states and those will invalidate the
         // caller when they change.
-        record.withCurrent { cachedRecord ->
+        record.withCurrent(this) { cachedRecord ->
             val cachedResult = cachedRecord.layoutResult
 
             if (
@@ -293,8 +300,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             if (nonMeasureInputs.isKeyboardTypePhone) {
                 val textStyle = nonMeasureInputs.textStyle
                 val currentLocale = textStyle.localeList?.let { it[0] } ?: Locale.current
-                val textDirection =
-                    resolveTextDirectionForKeyboardTypePhone(currentLocale.platformLocale)
+                val textDirection = resolveTextDirectionForKeyboardTypePhone(currentLocale)
                 nonMeasureInputs.textStyle.merge(TextStyle(textDirection = textDirection))
             } else {
                 nonMeasureInputs.textStyle
@@ -508,7 +514,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
  * We need to use the digit direction of the [locale] while deciding TextDirection if KeyboardType
  * is configured as [KeyboardType.Phone].
  */
-internal expect fun resolveTextDirectionForKeyboardTypePhone(locale: PlatformLocale): TextDirection
+internal expect fun resolveTextDirectionForKeyboardTypePhone(locale: Locale): TextDirection
 
 /**
  * Efficiently concatenates two nullable lists. Semantically an empty list is equivalent to a null

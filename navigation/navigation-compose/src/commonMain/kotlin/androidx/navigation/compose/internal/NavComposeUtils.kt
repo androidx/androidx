@@ -16,22 +16,6 @@
 
 package androidx.navigation.compose.internal
 
-import androidx.compose.runtime.Composable
-import kotlinx.coroutines.flow.Flow
-
-internal expect class BackEventCompat {
-    val touchX: Float
-    val touchY: Float
-    val progress: Float
-    val swipeEdge: Int
-}
-
-@Composable
-internal expect fun PredictiveBackHandler(
-    enabled: Boolean = true,
-    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
-)
-
 internal expect fun randomUUID(): String
 
 /**

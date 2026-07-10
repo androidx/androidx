@@ -1,0 +1,241 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.creation.compose.modifier
+
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
+import androidx.test.filters.SdkSuppress
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@SdkSuppress(minSdkVersion = 29)
+@RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+class PaddingModifierTest {
+    val context =
+        AndroidRemoteContext().apply {
+            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+        }
+
+    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+
+    /** Tests that negative start padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeStartPadding_throws() {
+        RemoteModifier.padding(start = (-1f).rf)
+    }
+
+    /** Tests that negative top padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeTopPadding_throws() {
+        RemoteModifier.padding(top = (-1f).rf)
+    }
+
+    /** Tests that negative end padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeEndPadding_throws() {
+        RemoteModifier.padding(end = (-1f).rf)
+    }
+
+    /** Tests that negative bottom padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeBottomPadding_throws() {
+        RemoteModifier.padding(bottom = (-1f).rf)
+    }
+
+    /** Tests that negative all padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeAllPadding_throws() {
+        RemoteModifier.padding(all = (-1f).rf)
+    }
+
+    /** Tests that negative horizontal padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeHorizontalPadding_throws() {
+        RemoteModifier.padding(horizontal = (-1f).rf)
+    }
+
+    /** Tests that negative vertical padding is not allowed. */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeVerticalPadding_throws() {
+        RemoteModifier.padding(vertical = (-1f).rf)
+    }
+
+    /** Tests that the [padding]-all and [padding] factories return equivalent modifiers. */
+    @Test
+    fun allEqualToExplicitSides() {
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(10f.rf, 10f.rf, 10f.rf, 10f.rf),
+                RemoteModifier.padding(10f.rf),
+            )
+        )
+    }
+
+    /** Tests that the symmetrical-[padding] and [padding] factories return equivalent modifiers. */
+    @Test
+    fun symmetricEqualToExplicitSides() {
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(start = 10f.rf, top = 20f.rf, end = 10f.rf, bottom = 20f.rf),
+                RemoteModifier.padding(horizontal = 10f.rf, vertical = 20f.rf),
+            )
+        )
+    }
+
+    /**
+     * Tests that [RemoteDp] padding values are equivalent to [RemoteFloat] values when the density
+     * is 1.
+     */
+    @Test
+    fun remoteDpPaddingMatchesAtDensity1() {
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(all = 10f.rf),
+                RemoteModifier.padding(all = 10f.rdp),
+            )
+        )
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(horizontal = 10f.rf, vertical = 20f.rf),
+                RemoteModifier.padding(horizontal = 10f.rdp, vertical = 20f.rdp),
+            )
+        )
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(start = 10f.rf, top = 11f.rf, end = 12f.rf, bottom = 13f.rf),
+                RemoteModifier.padding(
+                    start = 10f.rdp,
+                    top = 11f.rdp,
+                    end = 12f.rdp,
+                    bottom = 13f.rdp,
+                ),
+            )
+        )
+    }
+
+    /** Tests that negative start padding is not allowed. */
+    @Test
+    fun negativeStartPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(start = (-1).rdp)
+    }
+
+    /** Tests that negative top padding is not allowed. */
+    @Test
+    fun negativeTopPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(top = (-1).rdp)
+    }
+
+    /** Tests that negative end padding is not allowed. */
+    @Test
+    fun negativeEndPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(end = (-1).rdp)
+    }
+
+    /** Tests that negative bottom padding is not allowed. */
+    @Test
+    fun negativeBottomPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(bottom = (-1).rdp)
+    }
+
+    /** Tests that negative all padding is not allowed. */
+    @Test
+    fun negativeAllPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(all = (-1).rdp)
+    }
+
+    /** Tests that negative horizontal padding is not allowed. */
+    @Test
+    fun negativeHorizontalPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(horizontal = (-1).rdp)
+    }
+
+    /** Tests that negative vertical padding is not allowed. */
+    @Test
+    fun negativeVerticalPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(vertical = (-1).rdp)
+    }
+
+    /** Tests that the [padding]-all and [padding] factories return equivalent modifiers. */
+    @Test
+    fun allRemoteDpEqualToExplicitSides() {
+        context.density = 1f
+
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(10.rdp, 10.rdp, 10.rdp, 10.rdp),
+                RemoteModifier.padding(10.rdp),
+            )
+        )
+    }
+
+    /** Tests that the symmetrical-[padding] and [padding] factories return equivalent modifiers. */
+    @Test
+    fun symmetricRemoteDpEqualToExplicitSides() {
+        context.density = 1f
+
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(10.rdp, 20.rdp, 10.rdp, 20.rdp),
+                RemoteModifier.padding(10.rdp, 20.rdp),
+            )
+        )
+    }
+
+    private fun haveSameValues(modifier1: RemoteModifier, modifier2: RemoteModifier): Boolean {
+        require(modifier1 is PaddingModifier && modifier2 is PaddingModifier) {
+            "This function only compares PaddingModifier"
+        }
+
+        val modifier1StartId = modifier1.start.getIdForCreationState(creationState)
+        val modifier1TopId = modifier1.top.getIdForCreationState(creationState)
+        val modifier1EndId = modifier1.end.getIdForCreationState(creationState)
+        val modifier1BottomId = modifier1.bottom.getIdForCreationState(creationState)
+
+        val modifier2StartId = modifier2.start.getIdForCreationState(creationState)
+        val modifier2TopId = modifier2.top.getIdForCreationState(creationState)
+        val modifier2EndId = modifier2.end.getIdForCreationState(creationState)
+        val modifier2BottomId = modifier2.bottom.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        fun areEquals(floatId1: Int, floatId2: Int) =
+            context.getFloat(floatId1) == context.getFloat(floatId2)
+
+        return areEquals(modifier1StartId, modifier2StartId) &&
+            areEquals(modifier1TopId, modifier2TopId) &&
+            areEquals(modifier1EndId, modifier2EndId) &&
+            areEquals(modifier1BottomId, modifier2BottomId)
+    }
+
+    private fun makeAndPaintCoreDocument() =
+        CoreDocument().apply {
+            val buffer = creationState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            paint(context, 0)
+        }
+}

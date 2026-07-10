@@ -15,19 +15,20 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
@@ -37,6 +38,8 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    wasmJs()
+    js()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -45,50 +48,24 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
-        commonMain {
-            dependencies {
-                api(project(":datastore:datastore-core"))
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api(libs.okio)
-            }
+        commonMain.dependencies {
+            api(project(":datastore:datastore-core"))
+            api(libs.kotlinCoroutinesCore)
+            api(libs.okio)
+            implementation(libs.kotlinSerializationJson)
         }
-        jvmMain {
-            dependsOn(commonMain)
-        }
-        commonTest {
-            dependencies {
-                api(project(":kruth:kruth"))
-                api(libs.kotlinTestCommon)
-                api(libs.kotlinTestAnnotationsCommon)
-                api(libs.kotlinCoroutinesTest)
-                implementation(project(":internal-testutils-datastore"))
-            }
-        }
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(project(":internal-testutils-datastore"))
-                api(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(project(":internal-testutils-datastore"))
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
         }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        webMain.dependencies {
+            implementation(libs.kotlinXw3c)
         }
     }
 }
@@ -98,4 +75,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

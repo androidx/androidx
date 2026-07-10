@@ -17,6 +17,7 @@
 package androidx.window.layout.util
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
@@ -33,6 +34,9 @@ internal object ContextCompatHelper {
                 return iterator
             } else if (iterator is InputMethodService) {
                 // InputMethodService are always ContextWrappers
+                return iterator
+            } else if (iterator is Application) {
+                // Applications are always ContextWrappers
                 return iterator
             } else if (iterator.baseContext == null) {
                 return iterator

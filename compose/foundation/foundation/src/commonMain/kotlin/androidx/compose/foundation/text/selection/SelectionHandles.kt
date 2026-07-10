@@ -91,7 +91,7 @@ internal fun interface OffsetProvider {
 /**
  * Adjust coordinates for given text offset.
  *
- * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next line's top
+ * Currently `android.text.Layout.getLineBottom` returns y coordinates of the next line's top
  * offset, which is not included in current line's hit area. To be able to hit current line, move up
  * this y coordinates by 1 pixel.
  */

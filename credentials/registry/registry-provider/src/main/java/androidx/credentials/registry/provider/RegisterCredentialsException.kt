@@ -22,7 +22,7 @@ package androidx.credentials.registry.provider
  * @property type the type of the error
  * @property errorMessage the error message
  */
-public abstract class RegisterCredentialsException(
-    public val type: String,
-    public val errorMessage: CharSequence? = null,
-) : Exception(errorMessage?.toString())
+public abstract class RegisterCredentialsException
+@JvmOverloads
+constructor(public val type: String, public val errorMessage: CharSequence? = null) :
+    Exception(errorMessage?.toString())

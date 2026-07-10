@@ -18,7 +18,9 @@ package androidx.compose.runtime.collection
 
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterMapOf
+import androidx.collection.mutableScatterSetOf
 import kotlin.jvm.JvmInline
 
 /** Maps values to a set of scopes. */
@@ -30,6 +32,9 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
     /** The number of values in the map. */
     val size
         get() = map.size
+
+    /** Returns a State | ScatterSet<State> for [key] */
+    operator fun get(key: Key) = map[key]
 
     /** Adds a [key]/[scope] pair to the map. */
     fun add(key: Key, scope: Scope) {
@@ -54,6 +59,29 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun addAll(key: Key, scope: ScatterSet<Scope>) {
+        map.compute(key) { _, value ->
+            when (value) {
+                null -> mutableScatterSetOf<Scope>().also { it.addAll(scope) }
+                is MutableScatterSet<*> -> {
+                    (value as MutableScatterSet<Scope>).also { it.addAll(scope) }
+                }
+                else -> {
+                    value as Scope
+                    if (scope.size == 1 && scope.contains(value)) {
+                        value
+                    } else {
+                        val set = mutableScatterSetOf<Scope>()
+                        set.addAll(scope)
+                        set.add(value)
+                        set
+                    }
+                }
+            }
+        }
+    }
+
     /** Replaces scopes for [key] with [value] */
     fun set(key: Key, value: Scope) {
         map[key] = value
@@ -61,6 +89,11 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
 
     /** Returns true if any scopes are associated with [element] */
     operator fun contains(element: Key): Boolean = map.containsKey(element)
+
+    /** Executes [block] for each key in this map. */
+    fun forEachKey(block: (key: Key) -> Unit) {
+        @Suppress("UNCHECKED_CAST") map.forEachKey(block as (Any) -> Unit)
+    }
 
     /** Executes [block] for all scopes mapped to the given [key]. */
     inline fun forEachScopeOf(key: Key, block: (scope: Scope) -> Unit) {
@@ -86,6 +119,24 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
     fun clear() {
         map.clear()
     }
+
+    /** Returns true if the map is empty, false otherwise. */
+    fun isEmpty() = map.isEmpty()
+
+    /** Returns true if the map has keys, false otherwise. */
+    fun isNotEmpty() = map.isNotEmpty()
+
+    inline fun forEach(block: (key: Key, value: Any /* Scope | ScatterSet<Scope> */) -> Unit) {
+        map.forEach { key, value -> @Suppress("UNCHECKED_CAST") block(key as Key, value) }
+    }
+
+    /**
+     * Remove all scopes associate with [key].
+     *
+     * @param key the key to remove
+     * @return true if [key] was present in the scope map.
+     */
+    fun remove(key: Key) = map.remove(key)
 
     /**
      * Remove [scope] from the scope set for [key]. If the scope set is empty after [scope] has been
@@ -135,7 +186,7 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun removeIf(crossinline predicate: (Key, Scope) -> Boolean) {
+    inline fun removeIf(predicate: (Key, Scope) -> Boolean) {
         map.removeIf { key, scopes ->
             key as Key
             when (scopes) {

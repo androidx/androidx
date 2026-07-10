@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.playservices
 
-import androidx.xr.arcore.internal.Plane
+import androidx.xr.arcore.runtime.Plane
 import com.google.ar.core.Plane.Type as ARCore1xPlaneType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

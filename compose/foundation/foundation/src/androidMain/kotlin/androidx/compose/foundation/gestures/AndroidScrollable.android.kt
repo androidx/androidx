@@ -29,7 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFold
 
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig =
-    AndroidConfig(android.view.ViewConfiguration.get(requireView().context))
+    platformScrollConfig(requireView().context)
+
+internal fun platformScrollConfig(context: android.content.Context) =
+    AndroidConfig(android.view.ViewConfiguration.get(context))
 
 internal class AndroidConfig(val viewConfiguration: android.view.ViewConfiguration) : ScrollConfig {
     // 64 dp value is taken from ViewConfiguration.java, replace with better solution
@@ -53,9 +56,16 @@ internal class AndroidConfig(val viewConfiguration: android.view.ViewConfigurati
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         val verticalScrollFactor = -getVerticalScrollFactor()
         val horizontalScrollFactor = -getHorizontalScrollFactor()
-        return event.changes
-            .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
-            .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        // Mouse wheel scrolling can be accumulated from two sources: the mouse wheel scroll
+        // in scrollDelta, and the gesturePanOffset. Combine them to get the final scroll
+        // amount.
+        val accumulatedScrollDelta =
+            event.changes
+                .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
+                .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        return accumulatedScrollDelta
     }
 }
 

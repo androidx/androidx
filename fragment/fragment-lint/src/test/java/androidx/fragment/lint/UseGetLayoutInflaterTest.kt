@@ -185,10 +185,10 @@ src/foo/TestFragment.java:16: Warning: Use of LayoutInflater.from(requireContext
             .expectWarningCount(1)
             .expectFixDiffs(
                 """
-                    Fix for src/foo/TestFragment.java line 16: Replace with getLayoutInflater():
-                    @@ -16 +16
-                    -         LayoutInflater li = LayoutInflater.from(requireContext());
-                    +         LayoutInflater li = getLayoutInflater();
+                Fix for src/foo/TestFragment.java line 16: Replace with getLayoutInflater():
+                @@ -16 +16
+                -         LayoutInflater li = LayoutInflater.from(requireContext());
+                +         LayoutInflater li = getLayoutInflater();
                 """
                     .trimIndent()
             )

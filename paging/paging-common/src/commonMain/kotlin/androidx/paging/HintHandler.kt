@@ -66,7 +66,7 @@ internal class HintHandler {
         }
     }
 
-    /** Processes the hint coming from UI. */
+    /** Processes the hint coming from UI. Can be either Access or Initial hint. */
     fun processHint(viewportHint: ViewportHint) {
         state.modify(viewportHint as? ViewportHint.Access) { prependHint, appendHint ->
             if (

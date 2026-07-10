@@ -6,16 +6,17 @@ package androidx.biometric {
   }
 
   public static final class AuthenticationRequest.Biometric extends androidx.biometric.AuthenticationRequest {
-    method public androidx.biometric.AuthenticationRequest.Biometric.Fallback getAuthFallback();
-    method public androidx.biometric.AuthenticationRequest.BodyContent? getContent();
-    method @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public android.graphics.Bitmap? getLogoBitmap();
-    method @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public String? getLogoDescription();
-    method @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public int getLogoRes();
-    method public androidx.biometric.AuthenticationRequest.Biometric.Strength getMinStrength();
-    method public String? getSubtitle();
-    method public String getTitle();
-    method public boolean isConfirmationRequired();
-    property public androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback;
+    method @InaccessibleFromKotlin public java.util.List<androidx.biometric.AuthenticationRequest.Biometric.Fallback> getAuthFallbacks();
+    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.BodyContent? getContent();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public android.graphics.Bitmap? getLogoBitmap();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public String? getLogoDescription();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public int getLogoRes();
+    method public static int getMaxFallbackOptions();
+    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.Biometric.Strength getMinStrength();
+    method @InaccessibleFromKotlin public String? getSubtitle();
+    method @InaccessibleFromKotlin public String getTitle();
+    method @InaccessibleFromKotlin public boolean isConfirmationRequired();
+    property public java.util.List<androidx.biometric.AuthenticationRequest.Biometric.Fallback> authFallbacks;
     property public androidx.biometric.AuthenticationRequest.BodyContent? content;
     property public boolean isConfirmationRequired;
     property @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public android.graphics.Bitmap? logoBitmap;
@@ -24,10 +25,11 @@ package androidx.biometric {
     property public androidx.biometric.AuthenticationRequest.Biometric.Strength minStrength;
     property public String? subtitle;
     property public String title;
+    field public static final androidx.biometric.AuthenticationRequest.Biometric.Companion Companion;
   }
 
   public static final class AuthenticationRequest.Biometric.Builder {
-    ctor public AuthenticationRequest.Biometric.Builder(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback);
+    ctor public AuthenticationRequest.Biometric.Builder(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback... authFallbacks);
     method public androidx.biometric.AuthenticationRequest.Biometric build();
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setContent(androidx.biometric.AuthenticationRequest.BodyContent? content);
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setIsConfirmationRequired(boolean isConfirmationRequired);
@@ -38,17 +40,37 @@ package androidx.biometric {
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setSubtitle(String? subtitle);
   }
 
+  public static final class AuthenticationRequest.Biometric.Companion {
+    method public int getMaxFallbackOptions();
+  }
+
   public abstract static class AuthenticationRequest.Biometric.Fallback {
+    field public static final androidx.biometric.AuthenticationRequest.Biometric.Fallback.Companion Companion;
+    field public static final int ICON_TYPE_ACCOUNT = 2; // 0x2
+    field public static final int ICON_TYPE_GENERIC = 3; // 0x3
+    field public static final int ICON_TYPE_PASSWORD = 0; // 0x0
+    field public static final int ICON_TYPE_QR_CODE = 1; // 0x1
+  }
+
+  public static final class AuthenticationRequest.Biometric.Fallback.Companion {
+    property public static int ICON_TYPE_ACCOUNT;
+    property public static int ICON_TYPE_GENERIC;
+    property public static int ICON_TYPE_PASSWORD;
+    property public static int ICON_TYPE_QR_CODE;
+  }
+
+  public static final class AuthenticationRequest.Biometric.Fallback.CustomOption extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
+    ctor public AuthenticationRequest.Biometric.Fallback.CustomOption(String text);
+    ctor public AuthenticationRequest.Biometric.Fallback.CustomOption(String text, optional int iconType);
+    ctor @BytecodeOnly public AuthenticationRequest.Biometric.Fallback.CustomOption(String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getIconType();
+    method @InaccessibleFromKotlin public String getText();
+    property public int iconType;
+    property public String text;
   }
 
   public static final class AuthenticationRequest.Biometric.Fallback.DeviceCredential extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
     field public static final androidx.biometric.AuthenticationRequest.Biometric.Fallback.DeviceCredential INSTANCE;
-  }
-
-  public static final class AuthenticationRequest.Biometric.Fallback.NegativeButton extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
-    ctor public AuthenticationRequest.Biometric.Fallback.NegativeButton(String negativeButtonText);
-    method public String getNegativeButtonText();
-    property public String negativeButtonText;
   }
 
   public abstract static class AuthenticationRequest.Biometric.Strength {
@@ -61,7 +83,8 @@ package androidx.biometric {
   public static final class AuthenticationRequest.Biometric.Strength.Class3 extends androidx.biometric.AuthenticationRequest.Biometric.Strength {
     ctor public AuthenticationRequest.Biometric.Strength.Class3();
     ctor public AuthenticationRequest.Biometric.Strength.Class3(optional androidx.biometric.BiometricPrompt.CryptoObject? cryptoObject);
-    method public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
+    ctor @BytecodeOnly public AuthenticationRequest.Biometric.Strength.Class3(androidx.biometric.BiometricPrompt.CryptoObject!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
     property public androidx.biometric.BiometricPrompt.CryptoObject? cryptoObject;
   }
 
@@ -71,36 +94,38 @@ package androidx.biometric {
   public static final class AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton extends androidx.biometric.AuthenticationRequest.BodyContent {
     ctor @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton();
     ctor @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton(optional String? description);
-    method public String? getDescription();
+    ctor @BytecodeOnly @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
   }
 
   public static final class AuthenticationRequest.BodyContent.PlainText extends androidx.biometric.AuthenticationRequest.BodyContent {
     ctor public AuthenticationRequest.BodyContent.PlainText(String description);
-    method public String getDescription();
+    method @InaccessibleFromKotlin public String getDescription();
     property public String description;
   }
 
   public static final class AuthenticationRequest.BodyContent.VerticalList extends androidx.biometric.AuthenticationRequest.BodyContent {
     ctor public AuthenticationRequest.BodyContent.VerticalList();
     ctor public AuthenticationRequest.BodyContent.VerticalList(optional String? description);
+    ctor @BytecodeOnly public AuthenticationRequest.BodyContent.VerticalList(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AuthenticationRequest.BodyContent.VerticalList(optional String? description, optional java.util.List<? extends androidx.biometric.PromptContentItem> items);
-    method public String? getDescription();
-    method public java.util.List<androidx.biometric.PromptContentItem> getItems();
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.biometric.PromptContentItem> getItems();
     property public String? description;
     property public java.util.List<androidx.biometric.PromptContentItem> items;
   }
 
   public static final class AuthenticationRequest.Companion {
-    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback, kotlin.jvm.functions.Function1<androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
-    method @InaccessibleFromJava @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.JvmSynthetic public androidx.biometric.AuthenticationRequest.Credential credentialRequest(String title, kotlin.jvm.functions.Function1<androidx.biometric.AuthenticationRequest.Credential.Builder,kotlin.Unit> init);
+    method public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback[] authFallbacks, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.biometric.AuthenticationRequest.Credential credentialRequest(String title, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Credential.Builder,kotlin.Unit> init);
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.R) public static final class AuthenticationRequest.Credential extends androidx.biometric.AuthenticationRequest {
-    method public androidx.biometric.AuthenticationRequest.BodyContent? getContent();
-    method public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
-    method public String? getSubtitle();
-    method public String getTitle();
+    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.BodyContent? getContent();
+    method @InaccessibleFromKotlin public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
+    method @InaccessibleFromKotlin public String? getSubtitle();
+    method @InaccessibleFromKotlin public String getTitle();
     property public androidx.biometric.AuthenticationRequest.BodyContent? content;
     property public androidx.biometric.BiometricPrompt.CryptoObject? cryptoObject;
     property public String? subtitle;
@@ -115,31 +140,39 @@ package androidx.biometric {
     method public androidx.biometric.AuthenticationRequest.Credential.Builder setSubtitle(String? subtitle);
   }
 
-  public sealed interface AuthenticationResult {
+  public sealed exhaustive interface AuthenticationResult {
+    method public default androidx.biometric.AuthenticationResult.CustomFallbackSelected? customFallbackSelected();
     method public default androidx.biometric.AuthenticationResult.Error? error();
+    method public default boolean isCustomFallbackSelected();
     method public default boolean isError();
     method public default boolean isSuccess();
     method public default androidx.biometric.AuthenticationResult.Success? success();
   }
 
+  public static final class AuthenticationResult.CustomFallbackSelected implements androidx.biometric.AuthenticationResult {
+    ctor public AuthenticationResult.CustomFallbackSelected(androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption fallback);
+    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption getFallback();
+    property public androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption fallback;
+  }
+
   public static final class AuthenticationResult.Error implements androidx.biometric.AuthenticationResult {
     ctor public AuthenticationResult.Error(int errorCode, CharSequence errString);
-    method public CharSequence getErrString();
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public CharSequence getErrString();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public CharSequence errString;
     property public int errorCode;
   }
 
   public static final class AuthenticationResult.Success implements androidx.biometric.AuthenticationResult {
     ctor public AuthenticationResult.Success(androidx.biometric.BiometricPrompt.CryptoObject? crypto, int authType);
-    method public int getAuthType();
-    method public androidx.biometric.BiometricPrompt.CryptoObject? getCrypto();
+    method @InaccessibleFromKotlin public int getAuthType();
+    method @InaccessibleFromKotlin public androidx.biometric.BiometricPrompt.CryptoObject? getCrypto();
     property public int authType;
     property public androidx.biometric.BiometricPrompt.CryptoObject? crypto;
   }
 
   public fun interface AuthenticationResultCallback {
-    method public default void onAuthFailure();
+    method public default void onAuthAttemptFailed();
     method public void onAuthResult(androidx.biometric.AuthenticationResult result);
   }
 
@@ -149,10 +182,10 @@ package androidx.biometric {
   }
 
   public final class AuthenticationUtils {
+    method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.activity.ComponentActivity, androidx.biometric.AuthenticationResultCallback resultCallback);
+    method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.activity.ComponentActivity, java.util.concurrent.Executor callbackExecutor, androidx.biometric.AuthenticationResultCallback resultCallback);
     method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.fragment.app.Fragment, androidx.biometric.AuthenticationResultCallback resultCallback);
     method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.fragment.app.Fragment, java.util.concurrent.Executor callbackExecutor, androidx.biometric.AuthenticationResultCallback resultCallback);
-    method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.fragment.app.FragmentActivity, androidx.biometric.AuthenticationResultCallback resultCallback);
-    method public static androidx.biometric.AuthenticationResultLauncher registerForAuthenticationResult(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor callbackExecutor, androidx.biometric.AuthenticationResultCallback resultCallback);
   }
 
   public class BiometricManager {
@@ -229,10 +262,12 @@ package androidx.biometric {
     ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public BiometricPrompt.CryptoObject(android.security.identity.PresentationSession);
     ctor public BiometricPrompt.CryptoObject(java.security.Signature);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Cipher);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public BiometricPrompt.CryptoObject(javax.crypto.KeyAgreement);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Mac);
     ctor @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public BiometricPrompt.CryptoObject(long);
     method public javax.crypto.Cipher? getCipher();
     method @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.R) public android.security.identity.IdentityCredential? getIdentityCredential();
+    method @RequiresApi(android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public javax.crypto.KeyAgreement? getKeyAgreement();
     method public javax.crypto.Mac? getMac();
     method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public long getOperationHandle();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public android.security.identity.PresentationSession? getPresentationSession();

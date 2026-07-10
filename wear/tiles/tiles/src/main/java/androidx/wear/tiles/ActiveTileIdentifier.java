@@ -45,8 +45,8 @@ public final class ActiveTileIdentifier {
 
     /**
      * Return a String that unambiguously describes both the tile id and component name contained in
-     * the ActiveTileIdentifier. You can later recover the ActiveTileIdentifier from this string
-     * through {@code unflattenFromString(String)}.
+     * the {@link ActiveTileIdentifier}. You can later recover the {@link ActiveTileIdentifier} from
+     * this string through {@code unflattenFromString(String)}.
      *
      * @return Returns a new String holding the tile id, package and class names. This is
      *     represented as the tileId, concatenated with a ':' and then the component name flattened
@@ -57,13 +57,13 @@ public final class ActiveTileIdentifier {
     }
 
     /**
-     * Recover an ActiveTileIdentifier from a String that was previously created with {@code
+     * Recover an {@link ActiveTileIdentifier from} a String that was previously created with {@code
      * flattenToString()}. It splits the string at the first ':', taking the part before as the tile
      * id and the part after as component name flattened to string.
      *
      * @param string The String that was returned by {@code flattenToString()}.
-     * @return Returns a new ActiveTileIdentifier containing the tile id and component name that
-     *     were encoded in {@code string}.
+     * @return Returns a new {@link ActiveTileIdentifier} containing the tile id and component name
+     *     that were encoded in {@code string}.
      */
     static @NonNull ActiveTileIdentifier unflattenFromString(@NonNull String string) {
         int delimiterIndex = string.indexOf(":");

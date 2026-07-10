@@ -21,6 +21,7 @@ import static androidx.appsearch.stats.SchemaMigrationStats.SECOND_CALL_APPLY_NE
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
@@ -31,9 +32,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SetSchemaStats extends BaseStats {
 
@@ -77,6 +77,7 @@ public final class SetSchemaStats extends BaseStats {
     @SchemaMigrationStats.SchemaMigrationCallType
     private final int mSchemaMigrationCallType;
     private final boolean mSkippedIcingInteraction;
+    private final long mNativeSchemaProtoByteSize;
 
     SetSchemaStats(@NonNull Builder builder) {
         super(builder);
@@ -122,6 +123,7 @@ public final class SetSchemaStats extends BaseStats {
                 builder.mPreparingChangeNotificationLatencyMillis;
         mSchemaMigrationCallType = builder.mSchemaMigrationCallType;
         mSkippedIcingInteraction = builder.mSkippedIcingInteraction;
+        mNativeSchemaProtoByteSize = builder.mNativeSchemaProtoByteSize;
     }
 
     /** Returns calling package name. */
@@ -331,6 +333,95 @@ public final class SetSchemaStats extends BaseStats {
         return mSkippedIcingInteraction;
     }
 
+    /** Gets byte size of the stored schema proto written by this SetSchema call. */
+    public long getNativeSchemaProtoByteSize() {
+        return mNativeSchemaProtoByteSize;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "SetSchemaStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  newTypeCount=%d,\n"
+                        + "  deletedTypeCount=%d,\n"
+                        + "  compatibleTypeChangeCount=%d,\n"
+                        + "  indexIncompatibleTypeChangeCount=%d,\n"
+                        + "  joinIndexIncompatibleTypeChangeCount=%d,\n"
+                        + "  scorablePropertyIncompatibleTypeChangeCount=%d,\n"
+                        + "  backwardsIncompatibleTypeChangeCount=%d,\n"
+                        + "  deletedDocumentCount=%d,\n"
+                        + "  isTermIndexRestored=%b,\n"
+                        + "  isIntegerIndexRestored=%b,\n"
+                        + "  isEmbeddingIndexRestored=%b,\n"
+                        + "  isQualifiedIdJoinIndexRestored=%b,\n"
+                        + "  verifyIncomingCallLatencyMillis=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  rebuildFromBundleLatencyMillis=%d,\n"
+                        + "  rewriteSchemaLatencyMillis=%d,\n"
+                        + "  totalNativeLatencyMillis=%d,\n"
+                        + "  nativeSchemaStoreSetSchemaLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreUpdateSchemaLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreOptimizedUpdateSchemaLatencyMillis=%d,\n"
+                        + "  nativeIndexRestorationLatencyMillis=%d,\n"
+                        + "  nativeScorablePropertyCacheRegenerationLatencyMillis=%d,\n"
+                        + "  visibilitySettingLatencyMillis=%d,\n"
+                        + "  convertToResponseLatencyMillis=%d,\n"
+                        + "  dispatchChangeNotificationsLatencyMillis=%d,\n"
+                        + "  optimizeLatencyMillis=%d,\n"
+                        + "  isPackageObserved=%b,\n"
+                        + "  getOldSchemaLatencyMillis=%d,\n"
+                        + "  getObserverLatencyMillis=%d,\n"
+                        + "  preparingChangeNotificationLatencyMillis=%d,\n"
+                        + "  schemaMigrationCallType=%d,\n"
+                        + "  skippedIcingInteraction=%b,\n"
+                        + "  nativeSchemaProtoByteSize=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mNewTypeCount,
+                mDeletedTypeCount,
+                mCompatibleTypeChangeCount,
+                mIndexIncompatibleTypeChangeCount,
+                mJoinIndexIncompatibleTypeChangeCount,
+                mScorablePropertyIncompatibleTypeChangeCount,
+                mBackwardsIncompatibleTypeChangeCount,
+                mDeletedDocumentCount,
+                mIsTermIndexRestored,
+                mIsIntegerIndexRestored,
+                mIsEmbeddingIndexRestored,
+                mIsQualifiedIdJoinIndexRestored,
+                mVerifyIncomingCallLatencyMillis,
+                mExecutorAcquisitionLatencyMillis,
+                mRebuildFromBundleLatencyMillis,
+                mRewriteSchemaLatencyMillis,
+                mTotalNativeLatencyMillis,
+                mNativeSchemaStoreSetSchemaLatencyMillis,
+                mNativeDocumentStoreUpdateSchemaLatencyMillis,
+                mNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis,
+                mNativeIndexRestorationLatencyMillis,
+                mNativeScorablePropertyCacheRegenerationLatencyMillis,
+                mVisibilitySettingLatencyMillis,
+                mConvertToResponseLatencyMillis,
+                mDispatchChangeNotificationsLatencyMillis,
+                mOptimizeLatencyMillis,
+                mIsPackageObserved,
+                mGetOldSchemaLatencyMillis,
+                mGetObserverLatencyMillis,
+                mPreparingChangeNotificationLatencyMillis,
+                mSchemaMigrationCallType,
+                mSkippedIcingInteraction,
+                mNativeSchemaProtoByteSize);
+    }
+
     /** Builder for {@link SetSchemaStats}. */
     public static class Builder extends BaseStats.Builder<SetSchemaStats.Builder> {
         final @NonNull String mPackageName;
@@ -371,6 +462,7 @@ public final class SetSchemaStats extends BaseStats {
         @SchemaMigrationStats.SchemaMigrationCallType
         int mSchemaMigrationCallType;
         boolean mSkippedIcingInteraction;
+        long mNativeSchemaProtoByteSize;
 
         /** Constructor for the {@link Builder}. */
         public Builder(@NonNull String packageName, @NonNull String database) {
@@ -639,6 +731,13 @@ public final class SetSchemaStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setSkippedIcingInteraction(boolean skippedIcingInteraction) {
             mSkippedIcingInteraction = skippedIcingInteraction;
+            return this;
+        }
+
+        /** Sets the byte size of the stored schema proto written by this setSchema call */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeSchemaProtoByteSize(long nativeSchemaProtoByteSize) {
+            mNativeSchemaProtoByteSize = nativeSchemaProtoByteSize;
             return this;
         }
 

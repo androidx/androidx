@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat
 import androidx.wear.protolayout.ResourceBuilders.ImageResource
 import androidx.wear.protolayout.ResourceBuilders.Resources
+import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
 import java.util.Objects
 
 /**
@@ -41,7 +42,9 @@ import java.util.Objects
  * This class is not thread safe and should only be used from one thread, [MainThread].
  */
 @MainThread
-public class ProtoLayoutScope() {
+public class ProtoLayoutScope
+@JvmOverloads
+constructor(private val rendererVersionInfo: VersionInfo = DEFAULT_RENDERER_VERSION) {
     /**
      * Maps String key to the [ImageResource] type describing it in ProtoLayout terms.
      *
@@ -60,6 +63,30 @@ public class ProtoLayoutScope() {
 
     /** Maps Clickable ID to the [PendingIntent]. */
     @VisibleForTesting internal val pendingIntents: Bundle = Bundle()
+
+    /**
+     * Defines the capabilities or features that a renderer can support.
+     *
+     * Support for each feature requires a certain minimum renderer version, which must be checked
+     * against the current [VersionInfo].
+     */
+    public enum class RendererCapability(private val minMinorVersion: Int) {
+        /** Indicates support for clickable response with PendingIntent. */
+        PENDING_INTENT_ACTION(526),
+        /** Indicates support for customizing Lottie animation by specifying color for slot. */
+        LOTTIE_COLOR_FOR_SLOT(527);
+
+        /**
+         * Returns whether this capability is supported by a renderer with the given [versionInfo].
+         */
+        internal fun isSupported(versionInfo: VersionInfo): Boolean =
+            versionInfo.major > 1 ||
+                (versionInfo.major == 1 && versionInfo.minor >= minMinorVersion)
+    }
+
+    /** Checks if the current tile renderer supports a specific capability. */
+    public fun hasCapability(capability: RendererCapability): Boolean =
+        capability.isSupported(rendererVersionInfo)
 
     /**
      * Registers the given Android resource that corresponds to the given String ProtoLayout
@@ -111,20 +138,8 @@ public class ProtoLayoutScope() {
      */
     public fun collectPendingIntents(): Bundle = pendingIntents.clone() as Bundle
 
-    /**
-     * Clears all collected mappings from the scope, including mappings for resources and pending
-     * intents.
-     *
-     * This should only be used by the system, otherwise tile can have unexpected behaviour, such as
-     * not showing any resources.
-     */
-    public fun clearAll() {
-        resources.clear()
-        pendingIntents.clear()
-    }
-
     /** Returns whether this scope has any registered [Resources] or not. */
-    public fun hasResources() = !resources.isEmpty()
+    public fun hasResources(): Boolean = !resources.isEmpty()
 
     /**
      * Generates String version of hash codes for all [resources].
@@ -135,4 +150,8 @@ public class ProtoLayoutScope() {
     private fun hashedResources(): String =
         Objects.hash(resources.toSortedMap().map { (id, res) -> Pair(id, res).hashCode() }.toList())
             .toString()
+
+    private companion object {
+        private val DEFAULT_RENDERER_VERSION = VersionInfo.Builder().setMajor(1).setMajor(0).build()
+    }
 }

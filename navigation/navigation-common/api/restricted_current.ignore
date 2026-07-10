@@ -21,8 +21,6 @@ RemovedFromBytecode: androidx.navigation.NavDeepLinkDslBuilderKt#navDeepLink(Str
     Binary breaking change: method androidx.navigation.NavDeepLinkDslBuilderKt.navDeepLink(String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.navigation.NavDestination.Companion#hasRoute(androidx.navigation.NavDestination):
     Binary breaking change: method androidx.navigation.NavDestination.Companion.hasRoute(androidx.navigation.NavDestination) has been removed from bytecode
-RemovedFromBytecode: androidx.navigation.NavDestinationBuilder#deepLink(String):
-    Binary breaking change: method androidx.navigation.NavDestinationBuilder.deepLink(String) has been removed from bytecode
 RemovedFromBytecode: androidx.navigation.NavDestinationBuilder#deepLink(String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>):
     Binary breaking change: method androidx.navigation.NavDestinationBuilder.deepLink(String,kotlin.jvm.functions.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.navigation.NavGraph#findNode():
@@ -53,8 +51,6 @@ RemovedFromJava: androidx.navigation.NavDeepLinkDslBuilderKt#navDeepLink(String,
     Source breaking change: method androidx.navigation.NavDeepLinkDslBuilderKt.navDeepLink(String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>) can no longer be resolved from Java source
 RemovedFromJava: androidx.navigation.NavDestination.Companion#hasRoute(androidx.navigation.NavDestination):
     Source breaking change: method androidx.navigation.NavDestination.Companion.hasRoute(androidx.navigation.NavDestination) can no longer be resolved from Java source
-RemovedFromJava: androidx.navigation.NavDestinationBuilder#deepLink(String):
-    Source breaking change: method androidx.navigation.NavDestinationBuilder.deepLink(String) can no longer be resolved from Java source
 RemovedFromJava: androidx.navigation.NavDestinationBuilder#deepLink(String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>):
     Source breaking change: method androidx.navigation.NavDestinationBuilder.deepLink(String,kotlin.jvm.functions.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>) can no longer be resolved from Java source
 RemovedFromJava: androidx.navigation.NavGraph#findNode():
@@ -83,8 +79,206 @@ RemovedFromJava: androidx.navigation.SavedStateHandleKt#toRoute(androidx.lifecyc
     Source breaking change: method androidx.navigation.SavedStateHandleKt.toRoute(androidx.lifecycle.SavedStateHandle,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>) can no longer be resolved from Java source
 
 
+RemovedFromKotlin: androidx.navigation.ActionOnlyNavDirections#getActionId():
+    Source breaking change: method androidx.navigation.ActionOnlyNavDirections.getActionId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActionOnlyNavDirections#getArguments():
+    Source breaking change: method androidx.navigation.ActionOnlyNavDirections.getArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#getEnter():
+    Source breaking change: method androidx.navigation.AnimBuilder.getEnter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#getExit():
+    Source breaking change: method androidx.navigation.AnimBuilder.getExit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#getPopEnter():
+    Source breaking change: method androidx.navigation.AnimBuilder.getPopEnter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#getPopExit():
+    Source breaking change: method androidx.navigation.AnimBuilder.getPopExit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#setEnter(int):
+    Source breaking change: method androidx.navigation.AnimBuilder.setEnter(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#setExit(int):
+    Source breaking change: method androidx.navigation.AnimBuilder.setExit(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#setPopEnter(int):
+    Source breaking change: method androidx.navigation.AnimBuilder.setPopEnter(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.AnimBuilder#setPopExit(int):
+    Source breaking change: method androidx.navigation.AnimBuilder.setPopExit(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NamedNavArgument#getArgument():
+    Source breaking change: method androidx.navigation.NamedNavArgument.getArgument() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NamedNavArgument#getName():
+    Source breaking change: method androidx.navigation.NamedNavArgument.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavAction#getDefaultArguments():
+    Source breaking change: method androidx.navigation.NavAction.getDefaultArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavAction#getDestinationId():
+    Source breaking change: method androidx.navigation.NavAction.getDestinationId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavAction#getNavOptions():
+    Source breaking change: method androidx.navigation.NavAction.getNavOptions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavAction#setDefaultArguments(android.os.Bundle):
+    Source breaking change: method androidx.navigation.NavAction.setDefaultArguments(android.os.Bundle) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavAction#setNavOptions(androidx.navigation.NavOptions):
+    Source breaking change: method androidx.navigation.NavAction.setNavOptions(androidx.navigation.NavOptions) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavActionBuilder#getDefaultArguments():
+    Source breaking change: method androidx.navigation.NavActionBuilder.getDefaultArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavActionBuilder#getDestinationId():
+    Source breaking change: method androidx.navigation.NavActionBuilder.getDestinationId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavActionBuilder#setDestinationId(int):
+    Source breaking change: method androidx.navigation.NavActionBuilder.setDestinationId(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgsLazy#getValue():
+    Source breaking change: method androidx.navigation.NavArgsLazy.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgument#getDefaultValue():
+    Source breaking change: method androidx.navigation.NavArgument.getDefaultValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgument#getType():
+    Source breaking change: method androidx.navigation.NavArgument.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgument#isDefaultValuePresent():
+    Source breaking change: method androidx.navigation.NavArgument.isDefaultValuePresent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgument#isNullable():
+    Source breaking change: method androidx.navigation.NavArgument.isNullable() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#getDefaultValue():
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.getDefaultValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#getNullable():
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.getNullable() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#getType():
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#setDefaultValue(Object):
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.setDefaultValue(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#setNullable(boolean):
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.setNullable(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavArgumentBuilder#setType(androidx.navigation.NavType<?>):
+    Source breaking change: method androidx.navigation.NavArgumentBuilder.setType(androidx.navigation.NavType<?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavBackStackEntry#getArguments():
+    Source breaking change: method androidx.navigation.NavBackStackEntry.getArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavBackStackEntry#getDestination():
+    Source breaking change: method androidx.navigation.NavBackStackEntry.getDestination() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavBackStackEntry#getId():
+    Source breaking change: method androidx.navigation.NavBackStackEntry.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavBackStackEntry#getSavedStateHandle():
+    Source breaking change: method androidx.navigation.NavBackStackEntry.getSavedStateHandle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLink#getAction():
+    Source breaking change: method androidx.navigation.NavDeepLink.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLink#getMimeType():
+    Source breaking change: method androidx.navigation.NavDeepLink.getMimeType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLink#getUriPattern():
+    Source breaking change: method androidx.navigation.NavDeepLink.getUriPattern() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#getAction():
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#getMimeType():
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.getMimeType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#getUriPattern():
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.getUriPattern() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#setAction(String):
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.setAction(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#setMimeType(String):
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.setMimeType(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkDslBuilder#setUriPattern(String):
+    Source breaking change: method androidx.navigation.NavDeepLinkDslBuilder.setUriPattern(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkRequest#getAction():
+    Source breaking change: method androidx.navigation.NavDeepLinkRequest.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkRequest#getMimeType():
+    Source breaking change: method androidx.navigation.NavDeepLinkRequest.getMimeType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDeepLinkRequest#getUri():
+    Source breaking change: method androidx.navigation.NavDeepLinkRequest.getUri() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getArguments():
+    Source breaking change: method androidx.navigation.NavDestination.getArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getHierarchy(androidx.navigation.NavDestination):
+    Source breaking change: method androidx.navigation.NavDestination.getHierarchy(androidx.navigation.NavDestination) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getId():
+    Source breaking change: method androidx.navigation.NavDestination.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getLabel():
+    Source breaking change: method androidx.navigation.NavDestination.getLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getNavigatorName():
+    Source breaking change: method androidx.navigation.NavDestination.getNavigatorName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getParent():
+    Source breaking change: method androidx.navigation.NavDestination.getParent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#getRoute():
+    Source breaking change: method androidx.navigation.NavDestination.getRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#setId(int):
+    Source breaking change: method androidx.navigation.NavDestination.setId(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#setLabel(CharSequence):
+    Source breaking change: method androidx.navigation.NavDestination.setLabel(CharSequence) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination#setRoute(String):
+    Source breaking change: method androidx.navigation.NavDestination.setRoute(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination.ClassType#value():
+    Source breaking change: method androidx.navigation.NavDestination.ClassType.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestination.Companion#getHierarchy(androidx.navigation.NavDestination):
+    Source breaking change: method androidx.navigation.NavDestination.Companion.getHierarchy(androidx.navigation.NavDestination) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestinationBuilder#getId():
+    Source breaking change: method androidx.navigation.NavDestinationBuilder.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestinationBuilder#getLabel():
+    Source breaking change: method androidx.navigation.NavDestinationBuilder.getLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestinationBuilder#getNavigator():
+    Source breaking change: method androidx.navigation.NavDestinationBuilder.getNavigator() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestinationBuilder#getRoute():
+    Source breaking change: method androidx.navigation.NavDestinationBuilder.getRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence):
+    Source breaking change: method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDirections#getActionId():
+    Source breaking change: method androidx.navigation.NavDirections.getActionId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavDirections#getArguments():
+    Source breaking change: method androidx.navigation.NavDirections.getArguments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavGraph#getStartDestinationId():
+    Source breaking change: method androidx.navigation.NavGraph.getStartDestinationId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavGraph#getStartDestinationRoute():
+    Source breaking change: method androidx.navigation.NavGraph.getStartDestinationRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavGraphBuilder#getProvider():
+    Source breaking change: method androidx.navigation.NavGraphBuilder.getProvider() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavGraphNavigator#getBackStack():
+    Source breaking change: method androidx.navigation.NavGraphNavigator.getBackStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getEnterAnim():
+    Source breaking change: method androidx.navigation.NavOptions.getEnterAnim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getExitAnim():
+    Source breaking change: method androidx.navigation.NavOptions.getExitAnim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopEnterAnim():
+    Source breaking change: method androidx.navigation.NavOptions.getPopEnterAnim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopExitAnim():
+    Source breaking change: method androidx.navigation.NavOptions.getPopExitAnim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopUpToId():
+    Source breaking change: method androidx.navigation.NavOptions.getPopUpToId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopUpToRoute():
+    Source breaking change: method androidx.navigation.NavOptions.getPopUpToRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopUpToRouteClass():
+    Source breaking change: method androidx.navigation.NavOptions.getPopUpToRouteClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptions#getPopUpToRouteObject():
+    Source breaking change: method androidx.navigation.NavOptions.getPopUpToRouteObject() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.navigation.NavOptions.Builder#setPopUpTo(boolean):
     Source breaking change: method androidx.navigation.NavOptions.Builder.setPopUpTo(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getLaunchSingleTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getPopUpTo():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getPopUpTo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getPopUpToId():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getPopUpToId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getPopUpToRoute():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getPopUpToRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getPopUpToRouteClass():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getPopUpToRouteClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getPopUpToRouteObject():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getPopUpToRouteObject() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#getRestoreState():
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.getRestoreState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#setLaunchSingleTop(boolean):
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.setLaunchSingleTop(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#setPopUpTo(int):
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.setPopUpTo(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavOptionsBuilder#setRestoreState(boolean):
+    Source breaking change: method androidx.navigation.NavOptionsBuilder.setRestoreState(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavType#getName():
+    Source breaking change: method androidx.navigation.NavType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavType#isNullableAllowed():
+    Source breaking change: method androidx.navigation.NavType.isNullableAllowed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.Navigator#getState():
+    Source breaking change: method androidx.navigation.Navigator.getState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.Navigator#isAttached():
+    Source breaking change: method androidx.navigation.Navigator.isAttached() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.Navigator.Name#value():
+    Source breaking change: method androidx.navigation.Navigator.Name.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavigatorState#getBackStack():
+    Source breaking change: method androidx.navigation.NavigatorState.getBackStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavigatorState#getTransitionsInProgress():
+    Source breaking change: method androidx.navigation.NavigatorState.getTransitionsInProgress() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.PopUpToBuilder#getInclusive():
+    Source breaking change: method androidx.navigation.PopUpToBuilder.getInclusive() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.PopUpToBuilder#getSaveState():
+    Source breaking change: method androidx.navigation.PopUpToBuilder.getSaveState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.PopUpToBuilder#setInclusive(boolean):
+    Source breaking change: method androidx.navigation.PopUpToBuilder.setInclusive(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.PopUpToBuilder#setSaveState(boolean):
+    Source breaking change: method androidx.navigation.PopUpToBuilder.setSaveState(boolean) can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.navigation.NavDestinationBuilder#deepLinkSafeArgs(String):

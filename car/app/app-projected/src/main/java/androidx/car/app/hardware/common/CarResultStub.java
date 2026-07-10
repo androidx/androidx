@@ -151,4 +151,9 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
         }
         return data;
     }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
 };

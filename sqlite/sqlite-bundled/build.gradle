@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.AndroidXConfig
@@ -49,6 +48,7 @@ def SQLITE_COMPILE_FLAGS = [
         "-DSQLITE_ENABLE_FTS4",
         "-DSQLITE_ENABLE_FTS5",
         "-DSQLITE_ENABLE_JSON1",
+        "-DSQLITE_ENABLE_MATH_FUNCTIONS",
         "-DSQLITE_ENABLE_NORMALIZE",
         "-DSQLITE_ENABLE_RTREE",
         "-DSQLITE_ENABLE_STAT4",
@@ -110,7 +110,6 @@ androidXMultiplatform {
             KonanTarget.ANDROID_X64,
             KonanTarget.ANDROID_X86,
             KonanTarget.MACOS_ARM64,
-            KonanTarget.MACOS_X64,
             KonanTarget.MINGW_X64,
             KonanTarget.LINUX_X64,
             KonanTarget.LINUX_ARM64,
@@ -161,7 +160,7 @@ androidXMultiplatform {
             )
             // add our JNI sources, i.e. the SQLite bindings
             nativeCompilation.sources.from(
-                    fileTree("src/jvmAndroidMain/jni").matching { include "**/*.cpp" }
+                    fileTree("src/jvmAndAndroidMain/jni").matching { include "**/*.cpp" }
             )
             // statically include the output of SQLite compilation
             nativeCompilation.include(sqliteCompilation)
@@ -173,16 +172,16 @@ androidXMultiplatform {
                 // KT-57848
                 nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
             }
+            if (nativeCompilation.konanTarget.family == Family.LINUX) {
+                // b/444260629: Compile with no exceptions, not used and reduces linking deps
+                nativeCompilation.freeArgs.add("-fno-exceptions")
+            }
         }
         configureTargets(requiredNativeTargets)
     }
 
     androidLibrary {
         namespace = "androidx.sqlite.driver.bundled"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("src/androidMain/proguard-rules.pro"))
-        }
         androidResources.enable = true
         addNativeLibrariesToJniLibs(it, jvmArtJniImplementation)
     }
@@ -209,41 +208,11 @@ androidXMultiplatform {
     }
 
     sourceSets {
-        //                                 commonMain
-        //              ┌───────────────────────────────────────────┐
-        //              ▼                                           ▼
-        //       jvmAndroidMain                                 nativeMain
-        //     ┌────────────────┐                       ┌──────────┬────────────┐
-        //     │                │                       │          │            │
-        //     ▼                ▼                       ▼          ▼            ▼
-        //  jvmMain        androidMain               macMain   linuxMain    iosMain
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":sqlite:sqlite"))
-            }
+        commonMain.dependencies {
+            api(project(":sqlite:sqlite"))
         }
-        jvmAndroidMain {
-            dependsOn(commonMain)
-        }
-        jvmMain {
-            dependsOn(jvmAndroidMain)
-        }
-        androidMain {
-            dependsOn(jvmAndroidMain)
-        }
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(project(":sqlite:sqlite-framework"))
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        nativeMain.dependencies {
+            implementation(project(":sqlite:sqlite-framework"))
         }
     }
 }
@@ -253,5 +222,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "The implementation of SQLite library using the bundled SQLite."
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
+    usePlatformSpecificCacheForJvmTests = true
 }

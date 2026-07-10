@@ -16,9 +16,9 @@
 package androidx.appsearch.compiler.annotationwrapper
 
 import androidx.appsearch.compiler.IntrospectionHelper
-import androidx.appsearch.compiler.ProcessingException
-import com.squareup.javapoet.ClassName
-import javax.lang.model.element.AnnotationMirror
+import androidx.appsearch.compiler.XProcessingException
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.processing.XAnnotation
 
 /**
  * An instance of an annotation for a data property e.g. `@Document.StringProperty`.
@@ -35,7 +35,7 @@ import javax.lang.model.element.AnnotationMirror
  */
 abstract class DataPropertyAnnotation
 protected constructor(
-    override val className: ClassName,
+    override val className: XClassName,
 
     /**
      * The class used to configure data properties of this kind.
@@ -43,7 +43,7 @@ protected constructor(
      * For example, [androidx.appsearch.app.AppSearchSchema.StringPropertyConfig] for
      * [StringPropertyAnnotation].
      */
-    val configClassName: ClassName,
+    val configClassName: XClassName,
     override val genericDocGetterName: String,
 
     /**
@@ -68,38 +68,38 @@ protected constructor(
 
     companion object {
         /**
-         * Attempts to parse an [AnnotationMirror] into a [DataPropertyAnnotation], or null.
+         * Attempts to parse an [XAnnotation] into a [DataPropertyAnnotation], or null.
          *
          * @param defaultName The name to use for the annotated property in case the annotation
          *   params do not mention an explicit name.
-         * @throws ProcessingException If the [AnnotationMirror] is a valid [DataPropertyAnnotation]
-         *   but its params are malformed e.g. point to an illegal serializer class etc.
+         * @throws XProcessingException If the [XAnnotation] is a valid [DataPropertyAnnotation] but
+         *   its params are malformed e.g. point to an illegal serializer class etc.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         @JvmStatic
         fun tryParse(
-            annotation: AnnotationMirror,
+            annotation: XAnnotation,
             defaultName: String,
             helper: IntrospectionHelper,
         ): DataPropertyAnnotation? {
             val annotationParams = helper.getAnnotationParams(annotation)
-            val qualifiedClassName = annotation.annotationType.toString()
+            val qualifiedClassName = annotation.qualifiedName
             return when (qualifiedClassName) {
-                BooleanPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                BooleanPropertyAnnotation.CLASS_NAME.canonicalName ->
                     BooleanPropertyAnnotation.parse(annotationParams, defaultName)
-                BytesPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                BytesPropertyAnnotation.CLASS_NAME.canonicalName ->
                     BytesPropertyAnnotation.parse(annotationParams, defaultName)
-                DocumentPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                DocumentPropertyAnnotation.CLASS_NAME.canonicalName ->
                     DocumentPropertyAnnotation.parse(annotationParams, defaultName)
-                DoublePropertyAnnotation.CLASS_NAME.canonicalName() ->
+                DoublePropertyAnnotation.CLASS_NAME.canonicalName ->
                     DoublePropertyAnnotation.parse(annotationParams, defaultName)
-                LongPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                LongPropertyAnnotation.CLASS_NAME.canonicalName ->
                     LongPropertyAnnotation.parse(annotationParams, defaultName)
-                StringPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                StringPropertyAnnotation.CLASS_NAME.canonicalName ->
                     StringPropertyAnnotation.parse(annotationParams, defaultName)
-                EmbeddingPropertyAnnotation.CLASS_NAME.canonicalName() ->
+                EmbeddingPropertyAnnotation.CLASS_NAME.canonicalName ->
                     EmbeddingPropertyAnnotation.parse(annotationParams, defaultName)
-                BlobHandlePropertyAnnotation.CLASS_NAME.canonicalName() ->
+                BlobHandlePropertyAnnotation.CLASS_NAME.canonicalName ->
                     BlobHandlePropertyAnnotation.parse(annotationParams, defaultName)
                 else -> return null
             }

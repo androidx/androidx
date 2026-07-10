@@ -142,7 +142,7 @@ public interface PositionIndicatorState {
 
 /**
  * Creates an [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
- * implementing [Modifier.verticalScroll] provides a [ScrollState].
+ * implementing [androidx.compose.foundation.verticalScroll] provides a [ScrollState].
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
@@ -187,7 +187,7 @@ public fun PositionIndicator(
 
 /**
  * Creates an [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
- * implementing [Modifier.verticalScroll] provides a [ScrollState].
+ * implementing [androidx.compose.foundation.verticalScroll] provides a [ScrollState].
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
@@ -328,7 +328,7 @@ public fun PositionIndicator(
 
 /**
  * Creates an [PositionIndicator] based on the values in a [LazyListState] object that a
- * [LazyColumn] uses.
+ * [androidx.compose.foundation.lazy.LazyColumn] uses.
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
@@ -373,7 +373,7 @@ public fun PositionIndicator(
 
 /**
  * Creates an [PositionIndicator] based on the values in a [LazyListState] object that a
- * [LazyColumn] uses.
+ * [androidx.compose.foundation.lazy.LazyColumn] uses.
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
@@ -1036,7 +1036,8 @@ internal class FractionPositionIndicatorState(private val fraction: () -> Float)
 
 /**
  * An implementation of [PositionIndicatorState] to display the amount and position of a component
- * implementing the [ScrollState] class such as a [Column] implementing [Modifier.verticalScroll].
+ * implementing the [ScrollState] class such as a [Column] implementing
+ * [androidx.compose.foundation.verticalScroll].
  *
  * @param scrollState the [ScrollState] to adapt
  * @VisibleForTesting
@@ -1326,7 +1327,7 @@ internal class MaterialScalingLazyColumnStateAdapter(
 
 /**
  * An implementation of [PositionIndicatorState] to display the amount and position of a
- * [LazyColumn] component via its [LazyListState].
+ * [androidx.compose.foundation.lazy.LazyColumn] component via its [LazyListState].
  *
  * @param state the [LazyListState] to adapt.
  * @VisibleForTesting

@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.room.OnConflictStrategy.Companion#getFAIL():
-    Binary breaking change: Removed deprecated method androidx.room.OnConflictStrategy.Companion.getFAIL()
-RemovedDeprecatedMethod: androidx.room.OnConflictStrategy.Companion#getROLLBACK():
-    Binary breaking change: Removed deprecated method androidx.room.OnConflictStrategy.Companion.getROLLBACK()
-RemovedDeprecatedMethod: androidx.room.RoomWarnings.Companion#getCURSOR_MISMATCH():
-    Binary breaking change: Removed deprecated method androidx.room.RoomWarnings.Companion.getCURSOR_MISMATCH()

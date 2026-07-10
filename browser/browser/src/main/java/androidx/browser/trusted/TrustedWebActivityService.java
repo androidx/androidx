@@ -193,6 +193,11 @@ public abstract class TrustedWebActivityService extends Service {
                     TrustedWebActivityCallbackRemote.fromBinder(callback));
         }
 
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
+
         private void checkCaller() {
             if (mVerifiedUid == -1) {
                 String[] packages = getPackageManager().getPackagesForUid(getCallingUid());

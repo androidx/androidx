@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.SceneRuntimeFactory
-import androidx.xr.scenecore.internal.SceneRuntime
 
-/** Factory for creating test-only instances of [androidx.xr.scenecore.internal.SceneRuntime]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeSceneRuntimeFactory() : SceneRuntimeFactory {
+/** Factory for creating test-only instances of [androidx.xr.scenecore.runtime.SceneRuntime]. */
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FakeSceneRuntimeFactory : SceneRuntimeFactory {
     override val requirements: Set<Feature> = emptySet()
 
-    override fun create(activity: Activity): SceneRuntime = FakeSceneRuntime()
+    override fun create(activity: Activity): FakeSceneRuntime =
+        FakeSceneRuntime(FakeScheduledExecutorService())
+
+    override fun create(
+        activity: Activity,
+        unscaledGravityAlignedActivitySpace: Boolean,
+    ): FakeSceneRuntime = create(activity)
 }

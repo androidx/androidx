@@ -16,7 +16,6 @@
 
 package androidx.camera.core.featuregroup.impl
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -36,11 +35,12 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@OptIn(ExperimentalSessionConfig::class)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class ResolvedFeatureGroupTest {
     private val fakeCameraInfo = FakeCameraInfoInternal()
 

@@ -19,11 +19,9 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
     implementation(project(":glance:glance-appwidget-multiprocess"))
@@ -32,5 +30,5 @@ dependencies {
 
 android {
     namespace = "androidx.glance.appwidget.multiprocess.testapp"
-    compileSdk = 35
+    compileSdk { version = release(37) }
 }

@@ -108,8 +108,8 @@ import androidx.compose.ui.unit.dp
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -201,8 +201,8 @@ fun ToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ElevatedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -274,8 +274,8 @@ fun ElevatedToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun TonalToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -345,8 +345,8 @@ fun TonalToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun OutlinedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -375,7 +375,6 @@ fun OutlinedToggleButton(
     )
 
 /** Contains the default values for all five toggle button types. */
-@ExperimentalMaterial3ExpressiveApi
 object ToggleButtonDefaults {
     /**
      * The default min height applied for all toggle buttons. Note that you can override it by
@@ -895,7 +894,6 @@ class ToggleButtonColors(
  * @property pressedShape is the pressed shape.
  * @property checkedShape is the checked shape.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class ToggleButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape) {
     /** Returns a copy of this ToggleButtonShapes, optionally overriding some of the values. */
@@ -940,6 +938,13 @@ internal val ToggleButtonShapes.hasRoundedCornerShapes: Boolean
             checkedShape is RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val ToggleButtonShapes.hasCornerBasedShapes: Boolean
+    get() =
+        shape is CornerBasedShape &&
+            pressedShape is CornerBasedShape &&
+            checkedShape is CornerBasedShape
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun shapeByInteraction(
     shapes: ToggleButtonShapes,
@@ -958,6 +963,8 @@ private fun shapeByInteraction(
 
     if (shapes.hasRoundedCornerShapes)
         return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    else if (shapes.hasCornerBasedShapes)
+        return key(shapes) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
 
     return shape
 }

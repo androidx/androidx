@@ -49,6 +49,8 @@ interface FillableData {
      * [defaultValue].
      */
     fun getDateMillisOrDefault(defaultValue: Long): Long = dateMillisValue ?: defaultValue
+
+    companion object
 }
 
 /**
@@ -61,18 +63,19 @@ interface FillableData {
  * @return A [FillableData] object containing the boolean data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData(booleanValue: Boolean): FillableData?
+expect fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): FillableData?
 
 /**
  * Creates a [FillableData] instance from a [CharSequence].
  *
- * This function is used to wrap a text value for autofill purposes.
+ * This function is used to wrap a text value for autofill purposes. Depending on the platform, the
+ * text might be truncated to a safe length if it is too long to prevent crashing the IPC.
  *
  * @param textValue The text data to be used for autofill.
  * @return A [FillableData] object containing the text data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData(textValue: CharSequence): FillableData?
+expect fun FillableData.Companion.createFromText(textValue: CharSequence): FillableData?
 
 /**
  * Creates a [FillableData] instance from an [Int].
@@ -85,7 +88,7 @@ expect fun FillableData(textValue: CharSequence): FillableData?
  * @return A [FillableData] object containing the integer data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData(listIndexValue: Int): FillableData?
+expect fun FillableData.Companion.createFromListIndex(listIndexValue: Int): FillableData?
 
 /**
  * Creates a [FillableData] instance from a [Long].
@@ -98,4 +101,4 @@ expect fun FillableData(listIndexValue: Int): FillableData?
  * @return A [FillableData] object containing the long data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData(dateMillisValue: Long): FillableData?
+expect fun FillableData.Companion.createFromDateMillis(dateMillisValue: Long): FillableData?

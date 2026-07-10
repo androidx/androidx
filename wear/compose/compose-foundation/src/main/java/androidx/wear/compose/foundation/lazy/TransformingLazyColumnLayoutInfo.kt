@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
@@ -108,10 +109,10 @@ public sealed interface TransformingLazyColumnVisibleItemInfo {
     public val index: Int
 
     /** The offset of the item from the start of the visible area. */
-    public val offset: Int
+    @get:FrequentlyChangingValue public val offset: Int
 
     /** The height of the item after applying height transformation. */
-    public val transformedHeight: Int
+    @get:FrequentlyChangingValue public val transformedHeight: Int
 
     /**
      * The height of the item returned during the measurement phase and before height transformation
@@ -120,7 +121,7 @@ public sealed interface TransformingLazyColumnVisibleItemInfo {
     public val measuredHeight: Int
 
     /** The scroll progress of the item, indicating its position within the visible area. */
-    public val scrollProgress: TransformingLazyColumnItemScrollProgress
+    @get:FrequentlyChangingValue public val scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /** The key of the item which was passed to the item() or items() function. */
     public val key: Any
@@ -143,12 +144,33 @@ public sealed interface TransformingLazyColumnLayoutInfo {
     /** The size of the viewport in pixels. */
     public val viewportSize: IntSize
 
+    /** True if the direction of scrolling and layout is reversed. */
+    @get:Suppress("GetterSetterNames")
+    public val reverseLayout: Boolean
+        get() = false
+
     /**
      * The content padding in pixels applied before the first item in the direction of scrolling.
+     *
+     * When the first item is visible and uses
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * this value is the maximum of the `contentPadding` parameter provided to the
+     * [TransformingLazyColumn] and the responsive padding calculated for the item.
+     *
+     * When the first item is not visible, this value reflects the `contentPadding` parameter.
      */
     public val beforeContentPadding: Int
 
-    /** The content padding in pixels applied after the last item in the direction of scrolling. */
+    /**
+     * The content padding in pixels applied after the last item in the direction of scrolling.
+     *
+     * When the last item is visible and uses
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * this value is the maximum of the `contentPadding` parameter provided to the
+     * [TransformingLazyColumn] and the responsive padding calculated for the item.
+     *
+     * When the last item is not visible, this value reflects the `contentPadding` parameter.
+     */
     public val afterContentPadding: Int
 }
 

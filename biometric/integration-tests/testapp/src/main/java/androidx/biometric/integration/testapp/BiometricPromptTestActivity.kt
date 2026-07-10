@@ -18,6 +18,7 @@ package androidx.biometric.integration.testapp
 
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
@@ -75,6 +76,8 @@ class BiometricPromptTestActivity : FragmentActivity() {
         setContentView(binding.root)
 
         // Set button callbacks.
+        binding.common.secondAuthenticateButton.visibility = View.GONE
+        binding.common.thirdAuthenticateButton.visibility = View.GONE
         binding.common.canAuthenticateButton.setOnClickListener { canAuthenticate() }
         binding.common.authenticateButton.setOnClickListener { authenticate() }
         binding.common.clearLogButton.setOnClickListener { clearLog() }
@@ -158,12 +161,6 @@ class BiometricPromptTestActivity : FragmentActivity() {
     /** Launches the [BiometricPrompt] to begin crypto-based authentication. */
     @Suppress("DEPRECATION")
     private fun authenticateWithCrypto(info: BiometricPrompt.PromptInfo) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            log("Error: Key-gen not supported prior to API 23. Falling back to non-crypto auth.")
-            biometricPrompt.authenticate(info)
-            return
-        }
-
         try {
             val cryptoObject = createCryptoObject(isBiometricAllowed, isCredentialAllowed)
             biometricPrompt.authenticate(info, cryptoObject)

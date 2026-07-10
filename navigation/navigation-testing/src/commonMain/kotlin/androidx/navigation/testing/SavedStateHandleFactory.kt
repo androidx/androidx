@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation.testing
 
 import androidx.lifecycle.SavedStateHandle
@@ -37,7 +39,8 @@ import kotlinx.serialization.serializer
  * Returns a [SavedStateHandle] populated with arguments from [route].
  *
  * Note: To use this api in non-instrumented tests, run with robolectric. This is because android's
- * [Bundle] is necessarily integrated into the parsing of route arguments.
+ * [Bundle](https://developer.android.com/reference/android/os/Bundle) is necessarily integrated
+ * into the parsing of route arguments.
  *
  * @param route The route to extract argument values from
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
@@ -79,7 +82,7 @@ public operator fun SavedStateHandle.Companion.invoke(
                     type.parseAndPutFromUri(tempSavedState, argName, value)
                 } else {
                     val previousValue = type[tempSavedState, argName]
-                    type.parseAndPut(tempSavedState, argName, value, previousValue)
+                    type.parseAndPutFromUri(tempSavedState, argName, value, previousValue)
                 }
             } catch (e: IllegalArgumentException) {
                 // parse failed, ignored

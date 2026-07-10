@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import Camera2StreamConfigurationMap
 import android.graphics.ImageFormat
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
@@ -25,6 +24,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.common.unwrapAs
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import org.junit.Rule
@@ -54,39 +54,45 @@ class Camera2StreamConfigurationMapTest {
 
     @Test
     fun getOutputFormats() {
-        val expectedFormats = intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
-        whenever(mockStreamConfigurationMap.outputFormats) doReturn expectedFormats
+        val rawFormats = intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
+        val expectedFormats =
+            listOf(StreamFormat(ImageFormat.JPEG), StreamFormat(ImageFormat.YUV_420_888))
+        whenever(mockStreamConfigurationMap.outputFormats) doReturn rawFormats
 
         val actualFormats = camera2StreamConfigurationMap.getOutputFormats()
 
         verify(mockStreamConfigurationMap, times(1)).outputFormats
-        assertThat(actualFormats).isEqualTo(expectedFormats)
+        assertThat(actualFormats).containsExactlyElementsIn(expectedFormats)
     }
 
     @Test
     fun getValidOutputFormatsForInput() {
         val inputFormat = StreamFormat(ImageFormat.RAW_SENSOR)
-        val expectedFormats = intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
+        val rawFormats = intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
+        val expectedFormats =
+            listOf(StreamFormat(ImageFormat.JPEG), StreamFormat(ImageFormat.YUV_420_888))
         whenever(
             mockStreamConfigurationMap.getValidOutputFormatsForInput(inputFormat.value)
-        ) doReturn expectedFormats
+        ) doReturn rawFormats
 
         val actualFormats = camera2StreamConfigurationMap.getValidOutputFormatsForInput(inputFormat)
 
         verify(mockStreamConfigurationMap, times(1))
             .getValidOutputFormatsForInput(inputFormat.value)
-        assertThat(actualFormats).isEqualTo(expectedFormats)
+        assertThat(actualFormats).containsExactlyElementsIn(expectedFormats)
     }
 
     @Test
     fun getInputFormats() {
-        val expectedFormats = intArrayOf(ImageFormat.RAW_SENSOR, ImageFormat.PRIVATE)
-        whenever(mockStreamConfigurationMap.inputFormats) doReturn expectedFormats
+        val rawFormats = intArrayOf(ImageFormat.RAW_SENSOR, ImageFormat.PRIVATE)
+        val expectedFormats =
+            listOf(StreamFormat(ImageFormat.RAW_SENSOR), StreamFormat(ImageFormat.PRIVATE))
+        whenever(mockStreamConfigurationMap.inputFormats) doReturn rawFormats
 
         val actualFormats = camera2StreamConfigurationMap.getInputFormats()
 
         verify(mockStreamConfigurationMap, times(1)).inputFormats
-        assertThat(actualFormats).isEqualTo(expectedFormats)
+        assertThat(actualFormats).containsExactlyElementsIn(expectedFormats)
     }
 
     @Test
@@ -98,7 +104,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getInputSizes(format)
 
         verify(mockStreamConfigurationMap, times(1)).getInputSizes(format.value)
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -141,7 +147,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getOutputSizes(klass)
 
         verify(mockStreamConfigurationMap, times(1)).getOutputSizes(klass)
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -153,7 +159,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getOutputSizes(format)
 
         verify(mockStreamConfigurationMap, times(1)).getOutputSizes(format.value)
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -164,7 +170,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getHighSpeedVideoSizes()
 
         verify(mockStreamConfigurationMap, times(1)).highSpeedVideoSizes
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -177,7 +183,7 @@ class Camera2StreamConfigurationMapTest {
         val actualRanges = camera2StreamConfigurationMap.getHighSpeedVideoFpsRangesFor(size)
 
         verify(mockStreamConfigurationMap, times(1)).getHighSpeedVideoFpsRangesFor(size)
-        assertThat(actualRanges).isEqualTo(expectedRanges)
+        assertThat(actualRanges).containsExactlyElementsIn(expectedRanges)
     }
 
     @Test
@@ -188,7 +194,7 @@ class Camera2StreamConfigurationMapTest {
         val actualRanges = camera2StreamConfigurationMap.getHighSpeedVideoFpsRanges()
 
         verify(mockStreamConfigurationMap, times(1)).highSpeedVideoFpsRanges
-        assertThat(actualRanges).isEqualTo(expectedRanges)
+        assertThat(actualRanges).containsExactlyElementsIn(expectedRanges)
     }
 
     @Test
@@ -201,7 +207,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getHighSpeedVideoSizesFor(fpsRange)
 
         verify(mockStreamConfigurationMap, times(1)).getHighSpeedVideoSizesFor(fpsRange)
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -214,7 +220,7 @@ class Camera2StreamConfigurationMapTest {
         val actualSizes = camera2StreamConfigurationMap.getHighResolutionOutputSizes(format)
 
         verify(mockStreamConfigurationMap, times(1)).getHighResolutionOutputSizes(format.value)
-        assertThat(actualSizes).isEqualTo(expectedSizes)
+        assertThat(actualSizes).containsExactlyElementsIn(expectedSizes)
     }
 
     @Test
@@ -275,7 +281,7 @@ class Camera2StreamConfigurationMapTest {
 
     @Test
     fun unwrapAs_supportedType() {
-        val unwrapped = camera2StreamConfigurationMap.unwrapAs(StreamConfigurationMap::class)
+        val unwrapped = camera2StreamConfigurationMap.unwrapAs<StreamConfigurationMap>()
 
         assertThat(unwrapped).isNotNull()
         assertThat(unwrapped).isSameInstanceAs(mockStreamConfigurationMap)
@@ -283,7 +289,7 @@ class Camera2StreamConfigurationMapTest {
 
     @Test
     fun unwrapAs_unsupportedType_shouldReturnNull() {
-        val unwrapped = camera2StreamConfigurationMap.unwrapAs(KClass::class)
+        val unwrapped = camera2StreamConfigurationMap.unwrapAs<KClass<*>>()
 
         assertThat(unwrapped).isNull()
     }

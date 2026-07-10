@@ -42,6 +42,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -124,6 +125,7 @@ public class EditTextPreferenceDialogFragmentCompatTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452703671
     @Test
     public void testImeVisibilityAfterPressedPreference() throws Throwable {
         // Make sure EditTextPreferenceDialogFragment is showing a dialog, and clicking

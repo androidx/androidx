@@ -19,11 +19,14 @@ package androidx.compose.ui.tooling.animation
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
 import org.jetbrains.annotations.TestOnly
 
 /** [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_CONTENT]. */
 internal class AnimatedContentComposeAnimation<T>
 private constructor(
+    val initialState: Any?,
+    val targetState: Any?,
     override val animationObject: Transition<T>,
     override val states: Set<Any>,
     override val label: String?,
@@ -45,11 +48,17 @@ private constructor(
          * nullable state. Compose Tooling is not handling the case if [Transition.currentState] is
          * null.
          */
-        fun Transition<*>.parseAnimatedContent(): AnimatedContentComposeAnimation<*>? {
+        fun AnimatedContentSearchInfo.parseAnimatedContent(): AnimatedContentComposeAnimation<*>? {
             if (!apiAvailable) return null
-            return currentState?.let { state ->
+            return this.transition.currentState?.let { state ->
                 val states = state.javaClass.enumConstants?.toSet() ?: setOf(state)
-                AnimatedContentComposeAnimation(this, states, label ?: state::class.simpleName)
+                AnimatedContentComposeAnimation(
+                    initialState = this.initialState,
+                    targetState = this.targetState,
+                    animationObject = this.transition,
+                    states = states,
+                    label = label,
+                )
             }
         }
 

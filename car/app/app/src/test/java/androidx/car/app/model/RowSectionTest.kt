@@ -23,6 +23,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RowSectionTest {
     private val testHeader = CarText.Builder("Test header text").build()
     private val testNoItemsMessage = CarText.create("No items")

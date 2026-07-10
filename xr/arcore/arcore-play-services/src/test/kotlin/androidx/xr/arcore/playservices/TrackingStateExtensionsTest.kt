@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.playservices
 
-import androidx.xr.runtime.TrackingState
+import androidx.xr.arcore.runtime.TrackingState
 import com.google.ar.core.TrackingState as ARCore1xTrackingState
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

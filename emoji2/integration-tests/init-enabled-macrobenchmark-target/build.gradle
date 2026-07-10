@@ -17,23 +17,21 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.emoji2.integration.macrobenchmark.enabled.target"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout, { transitive = true })
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(project(":appcompat:appcompat"))

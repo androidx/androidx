@@ -348,6 +348,7 @@ public final class AnimationParameterBuilders {
         @NonNull Easing FAST_OUT_LINEAR_IN_EASING = cubicBezier(0.4f, 0.0f, 1.0f, 1.0f);
 
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         AnimationParameterProto.@NonNull Easing toEasingProto();
 
@@ -368,6 +369,7 @@ public final class AnimationParameterBuilders {
         }
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

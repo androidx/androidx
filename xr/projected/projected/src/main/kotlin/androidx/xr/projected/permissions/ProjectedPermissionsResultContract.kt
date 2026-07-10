@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RequiresApi
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
 /**
  * An [ActivityResultContract] to request permissions from a Projected [Activity].
@@ -54,6 +55,8 @@ import androidx.annotation.RequiresApi
  * experience where the user is immediately prompted for a permission after hitting cancel in the
  * rationale UI.
  */
+@Deprecated("Use ProjectedActivityCompat.requestPermissions() instead.")
+@ExperimentalProjectedApi
 public class ProjectedPermissionsResultContract :
     ActivityResultContract<List<ProjectedPermissionsRequestParams>, Map<String, Boolean>>() {
 

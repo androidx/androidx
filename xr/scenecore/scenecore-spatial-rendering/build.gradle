@@ -15,30 +15,30 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     api(project(":xr:runtime:runtime"))
-    api(project(":xr:scenecore:scenecore"))
+    api(project(":xr:scenecore:scenecore-runtime"))
+    api(project(":xr:scenecore:scenecore-spatial-core"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("com.google.ar:impress:0.0.6")
+    implementation("com.google.ar:impress:1.0.0-beta01")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
@@ -47,23 +47,49 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation(project(":xr:scenecore:scenecore-testing"))
+    testImplementation( "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation(libs.mockitoKotlin)
 
-    // For com.android.xr.extensions.
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid5)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
+
+    // For com.android.extensions.xr
+    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
-    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    testImplementation(libs.androidExtensionsXr)
 }
 
 android {
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
+        compileSdk { version = release(36) }
     }
     namespace = "androidx.xr.scenecore.spatial.rendering"
 }
 
+androidComponents {
+    def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+    def nativeTestPath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-spatial/androidTest").absolutePath
+    def fakeAssetsPath = layout.projectDirectory
+            .dir("src/test/java/androidx/xr/scenecore/spatial/rendering/fake_assets")
+            .asFile
+            .absolutePath
+
+    onVariants(selector().all()) { variant ->
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(nativeTestPath)
+        (variant as HasUnitTest).unitTest.sources.assets.addStaticSourceDirectory(fakeAssetsPath)
+    }
+}
+
 androidx {
     name = "XR SceneCore Spatial Rendering"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "SceneCore's rendering implementation for devices with full spatial capabilities, enabling a comprehensive experience."
 

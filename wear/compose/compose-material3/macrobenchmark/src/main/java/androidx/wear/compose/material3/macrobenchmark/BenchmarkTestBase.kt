@@ -73,6 +73,6 @@ abstract class BenchmarkTestBase(
     companion object {
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
-        fun parameters() = createCompilationParams()
+        fun parameters() = createCompilationParams(listOf(CompilationMode.Partial()))
     }
 }

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw a rounded rectangle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawRoundRect extends DrawBase6 {
     private static final int OP_CODE = Operations.DRAW_ROUND_RECT;
     private static final String CLASS_NAME = "DrawRoundRect";
@@ -99,6 +101,7 @@ public class DrawRoundRect extends DrawBase6 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_round_rect")
                 .description("Draw the specified round-rect")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the rect")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the rect")

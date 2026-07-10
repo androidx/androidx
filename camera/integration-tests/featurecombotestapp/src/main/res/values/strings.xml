@@ -19,8 +19,9 @@
     <string name="app_name_camera_pipe">CXCP Feature Combo Testing App</string>
     <string name="rear">Rear</string>
     <string name="front">Front</string>
-    <string name="capture">Capture photo or video</string>
+    <string name="capture">Capture photo</string>
+    <string name="record">Record video</string>
     <string name="switch_camera">Switch camera</string>
-    <string name="toggle_photo_video">Toggle between photo and video mode</string>
     <string name="reset">Reset</string>
+    <string name="effect">Effect</string>
 </resources>

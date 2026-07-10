@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -48,76 +47,31 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                implementation(project(":paging:paging-common"))
-            }
+        commonMain.dependencies {
+            implementation(project(":paging:paging-common"))
         }
 
-        commonJvmMain {
-            dependsOn(commonMain)
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
         }
 
-        jvmMain {
-            dependsOn(commonJvmMain)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":internal-testutils-paging"))
+            implementation(project(":kruth:kruth"))
         }
 
-        androidMain {
-            dependsOn(commonJvmMain)
+        jvmAndAndroidTest.dependencies {
+            implementation(libs.junit)
         }
 
-        nonJvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
 
-        webMain {
-            dependsOn(nonJvmMain)
-        }
-
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":internal-testutils-paging"))
-                implementation(project(":kruth:kruth"))
-            }
-        }
-
-        commonJvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonJvmTest)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonJvmTest)
-            dependencies {
-                implementation(libs.testRunner)
-            }
-        }
-
-        webTest {
-            dependsOn(commonTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nonJvmMain)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        wasmJsTest.dependencies {
+            implementation(libs.kotlinXw3c)
         }
     }
 }

@@ -1,0 +1,39 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.projected.platform;
+
+import androidx.xr.projected.platform.IBatteryStateListener;
+import androidx.xr.projected.platform.IProjectedDeviceStateListener;
+import androidx.xr.projected.platform.IProjectedInputEventListener;
+import androidx.xr.projected.platform.IProjectedPermissionRequestCallback;
+import androidx.xr.projected.platform.ProjectedPermissionRequestData;
+
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
+interface IProjectedService {
+  void registerProjectedInputEventListener(in IProjectedInputEventListener listener);
+  void unregisterProjectedInputEventListener(in IProjectedInputEventListener listener);
+  void addWindowFlags(in int flags);
+  void clearWindowFlags(in int flags);
+  boolean isDisplayCapable();
+  void registerProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
+  void unregisterProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
+  int[] getAudioDeviceIds();
+  void registerBatteryStateListener(in IBatteryStateListener listener);
+  void unregisterBatteryStateListener(in IBatteryStateListener listener);
+  void launchProjectedPermissionRequest(in ProjectedPermissionRequestData data, in IProjectedPermissionRequestCallback callback);
+  void finishProjectedPermissionRequest();
+}

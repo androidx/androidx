@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Label
 import androidx.compose.material3.MaterialTheme
@@ -87,7 +86,6 @@ fun SliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun LegacySliderSample() {
@@ -126,7 +124,6 @@ fun LegacySliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -186,7 +183,6 @@ fun SliderWithCustomThumbSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -214,7 +210,6 @@ fun SliderWithCustomTrackAndThumbSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -297,7 +292,6 @@ fun SliderWithTrackIconsSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -322,7 +316,6 @@ fun CenteredSliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -384,12 +377,11 @@ fun VerticalSliderSample() {
                     trackCornerSize = 12.dp,
                 )
             },
-            reverseDirection = true,
+            topToBottom = false,
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -445,12 +437,11 @@ fun VerticalCenteredSliderSample() {
                     ),
             interactionSource = interactionSource,
             track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
-            reverseDirection = true,
+            topToBottom = false,
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -473,7 +464,6 @@ fun RangeSliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun LegacyRangeSliderSample() {
@@ -537,7 +527,6 @@ fun LegacyRangeSliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

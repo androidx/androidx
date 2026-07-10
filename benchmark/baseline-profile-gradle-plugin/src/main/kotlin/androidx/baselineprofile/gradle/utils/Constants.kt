@@ -50,6 +50,9 @@ internal const val RELEASE = "release"
 
 // Kotlin Multiplatform Plugin ID
 internal const val KOTLIN_MULTIPLATFORM_PLUGIN_ID = "org.jetbrains.kotlin.multiplatform"
+// Kotlin Multiplatform Library Plugin ID
+internal const val KOTLIN_MULTIPLATFORM_LIBRARY_PLUGIN_ID =
+    "com.android.kotlin.multiplatform.library"
 
 // Instrumentation runner arguments
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES = "androidx.benchmark.enabledRules"

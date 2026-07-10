@@ -21,7 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
 /**
@@ -37,6 +39,17 @@ import androidx.savedstate.compose.LocalSavedStateRegistryOwner
  * restored.
  */
 public interface SaveableStateHolder {
+    /**
+     * Returns the set of all keys currently registered in this [SaveableStateHolder].
+     *
+     * These are the keys that were passed to [SaveableStateProvider] and have not yet been removed
+     * via [removeState].
+     */
+    public val keys: Set<Any>
+        // Default to `emptySet` to preserve backward compatibility for existing
+        // implementations that don't override this new property.
+        get() = emptySet()
+
     /**
      * Put your content associated with a [key] inside the [content]. This will automatically save
      * all the states defined with [rememberSaveable] before disposing the content and will restore
@@ -67,6 +80,26 @@ private class SaveableStateHolderImpl(
         parentSaveableStateRegistry?.canBeSaved(it) ?: true
     }
 
+    // Lazily allocated to avoid overhead in high-frequency usage
+    // (e.g., per lazy list item) unless explicitly read by a consumer.
+    private var _keys: SnapshotStateSet<Any>? = null
+    override val keys: Set<Any>
+        get() {
+            var keys = _keys
+            if (keys == null) {
+                // When initialized, we populate it with keys from both:
+                // - `registries`: keys that are currently active (composed).
+                // - `savedStates`: keys that are currently inactive (disposed but not removed).
+                // Note that we rely on `savedStates` keeping track of all disposed keys (even
+                // those with empty state) to ensure this set is complete.
+                keys = mutableStateSetOf()
+                registries.forEachKey { key -> keys += key }
+                savedStates.keys.forEach { key -> keys += key }
+                _keys = keys
+            }
+            return keys
+        }
+
     @Composable
     override fun SaveableStateProvider(key: Any, content: @Composable () -> Unit) {
         ReusableContent(key) {
@@ -87,42 +120,39 @@ private class SaveableStateHolderImpl(
             DisposableEffect(Unit) {
                 require(key !in registries) { "Key $key was used multiple times " }
                 savedStates -= key
+                _keys?.add(key)
                 registries[key] = registry
                 onDispose {
                     if (registries.remove(key) === registry) {
-                        registry.saveTo(savedStates, key)
+                        savedStates[key] = registry.performSave()
                     }
                 }
             }
         }
     }
 
-    private fun saveAll(): MutableMap<Any, Map<String, List<Any?>>>? {
-        val map = savedStates
-        registries.forEach { key, registry -> registry.saveTo(map, key) }
-        return map.ifEmpty { null }
-    }
-
     override fun removeState(key: Any) {
+        _keys?.remove(key)
         if (registries.remove(key) == null) {
             savedStates -= key
         }
     }
 
-    private fun SaveableStateRegistry.saveTo(
-        map: MutableMap<Any, Map<String, List<Any?>>>,
-        key: Any,
-    ) {
-        val savedData = performSave()
-        if (savedData.isEmpty()) {
-            map -= key
-        } else {
-            map[key] = savedData
-        }
-    }
-
     companion object {
         val Saver: Saver<SaveableStateHolderImpl, *> =
-            Saver(save = { it.saveAll() }, restore = { SaveableStateHolderImpl(it) })
+            Saver(
+                // Only save the state if it contains actual data. If the internal state
+                // map is empty (e.g., no `rememberSaveable` was used), we drop the key
+                // to optimize bundle size. This means these keys won't be restored in
+                // the keys set after process death.
+                save = { holder ->
+                    holder.registries.forEach { key, registry ->
+                        holder.savedStates[key] = registry.performSave()
+                    }
+                    holder.savedStates.values.removeAll { it.isEmpty() }
+                    holder.savedStates.ifEmpty { null }
+                },
+                restore = { savedStates -> SaveableStateHolderImpl(savedStates) },
+            )
     }
 }

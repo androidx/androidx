@@ -43,4 +43,28 @@ public object Dependencies {
             null
         }
     }
+
+    public val aggregatedAppFunctionInventory: AggregatedAppFunctionInventory? by lazy {
+        try {
+            AggregatedAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")
+        } catch (e: Exception) {
+            Log.d(APP_FUNCTIONS_TAG, "Cannot find AggregatedAppFunctionInventory implementation", e)
+            null
+        }
+    }
+
+    /**
+     * Returns the AggregatedAppFunctionInventory if available else the SchemaAppFunctionInventory.
+     *
+     * If both are not available, returns null.
+     */
+    internal val appFunctionInventory: AppFunctionInventory? by lazy {
+        if (aggregatedAppFunctionInventory != null) return@lazy aggregatedAppFunctionInventory
+
+        return@lazy schemaAppFunctionInventory
+    }
+
+    internal val aggregatedAppFunctionInvoker: AggregatedAppFunctionInvoker by lazy {
+        AggregatedAppFunctionInvoker::class.java.findImpl(prefix = "$", suffix = "_Impl")
+    }
 }

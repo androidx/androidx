@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.ui.ComposeUiFlags.isNestedScrollDispatcherNodeFixEnabled
+import androidx.compose.ui.ComposeUiFlags.isClearNestedScrollCoroutineScopeFixEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -25,7 +25,9 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.unit.Velocity
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 
 /**
@@ -65,30 +67,22 @@ internal class NestedScrollNode(
 
     @OptIn(ExperimentalComposeUiApi::class)
     private val nestedCoroutineScope: CoroutineScope
-        get() =
-            if (isNestedScrollDispatcherNodeFixEnabled) {
-                val parentCoroutineScope = parentNestedScrollNode?.nestedCoroutineScope
-                if (
-                    // only use the parent scope if it is active, otherwise fallback to dispatcher
-                    // scope
-                    parentCoroutineScope?.isActive == true
-                ) {
-                    parentCoroutineScope
-                } else {
-                    resolvedDispatcher.scope
-                        ?: throw IllegalStateException(
-                            "in order to access nested coroutine scope you need to attach dispatcher to the " +
-                                "`Modifier.nestedScroll` first."
-                        )
-                }
+        get() {
+            val parentCoroutineScope = parentNestedScrollNode?.nestedCoroutineScope
+            return if (
+                // only use the parent scope if it is active, otherwise fallback to dispatcher
+                // scope
+                parentCoroutineScope?.isActive == true
+            ) {
+                parentCoroutineScope
             } else {
-                parentNestedScrollNode?.nestedCoroutineScope
-                    ?: resolvedDispatcher.scope
+                resolvedDispatcher.scope
                     ?: throw IllegalStateException(
                         "in order to access nested coroutine scope you need to attach dispatcher to the " +
                             "`Modifier.nestedScroll` first."
                     )
             }
+        }
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val parentPreConsumed = parentConnection?.onPreScroll(available, source) ?: Offset.Zero
@@ -125,7 +119,7 @@ internal class NestedScrollNode(
         val parent = if (isAttached) parentConnection else lastKnownParentNode
         val parentConsumed =
             parent?.onPostFling(consumed + selfConsumed, available - selfConsumed) ?: Velocity.Zero
-        return selfConsumed + parentConsumed
+        return (selfConsumed + parentConsumed)
     }
 
     // On receiving a new dispatcher, re-setting fields
@@ -153,7 +147,6 @@ internal class NestedScrollNode(
         updateDispatcherFields()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun onDetach() {
         // cache parent for detached clean up access in the dispatcher and in this node.
         lastKnownParentNode = findNearestAttachedAncestor()
@@ -175,10 +168,17 @@ internal class NestedScrollNode(
         resolvedDispatcher.scope = coroutineScope
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun resetDispatcherFields() {
         // only null this out if the modifier local node is what we set it to, since it is possible
         // it has already been reused in a different node
-        if (resolvedDispatcher.nestedScrollNode === this) resolvedDispatcher.nestedScrollNode = null
+        if (resolvedDispatcher.nestedScrollNode === this) {
+            resolvedDispatcher.nestedScrollNode = null
+            if (isClearNestedScrollCoroutineScopeFixEnabled) {
+                resolvedDispatcher.scope = null
+                resolvedDispatcher.calculateNestedScrollScope = CancelledScope
+            }
+        }
     }
 
     internal fun updateNode(
@@ -201,4 +201,8 @@ private fun <T : TraversableNode> T.findNearestAttachedAncestor(): T? {
         }
     }
     return node
+}
+
+private val CancelledScope: () -> CoroutineScope = {
+    CoroutineScope(EmptyCoroutineContext).also { it.cancel() }
 }

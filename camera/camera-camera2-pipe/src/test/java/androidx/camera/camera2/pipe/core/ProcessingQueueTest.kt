@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.core
 
 import androidx.camera.camera2.pipe.core.ProcessingQueue.Companion.processIn
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,9 +33,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
+@Config(sdk = [Config.ALL_SDKS])
 class ProcessingQueueTest {
     private val testScope = TestScope()
     private val processingScope =
@@ -211,7 +214,7 @@ class ProcessingQueueTest {
             val processingQueue =
                 ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
                         processingCalls.add(it.toMutableList())
-                        delay(100)
+                        delay(100.milliseconds)
                         it.clear()
                     }
                     .processIn(processingScope)
@@ -219,11 +222,11 @@ class ProcessingQueueTest {
             processingQueue.emitChecked(1)
             processingQueue.emitChecked(2)
             processingQueue.emitChecked(3)
-            advanceTimeBy(50) // Triggers initial processing call
+            advanceTimeBy(50.milliseconds) // Triggers initial processing call
 
             processingQueue.emitChecked(4)
             processingQueue.emitChecked(5)
-            advanceTimeBy(25) // No updates, process function is still suspended
+            advanceTimeBy(25.milliseconds) // No updates, process function is still suspended
 
             processingQueue.emitChecked(6)
             advanceUntilIdle() // Last update includes all previous updates.
@@ -240,7 +243,7 @@ class ProcessingQueueTest {
                 ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
                         processingCalls.add(it.toMutableList())
                         it.clear()
-                        delay(100)
+                        delay(100.milliseconds)
                         throw RuntimeException("Test")
                     }
                     .processIn(processingScope)
@@ -248,7 +251,7 @@ class ProcessingQueueTest {
             processingQueue.emitChecked(1)
             processingQueue.emitChecked(2)
             processingQueue.emitChecked(3)
-            advanceTimeBy(50) // Triggers initial processing call, but not exception
+            advanceTimeBy(50.milliseconds) // Triggers initial processing call, but not exception
 
             processingQueue.emitChecked(4)
             processingQueue.emitChecked(5)

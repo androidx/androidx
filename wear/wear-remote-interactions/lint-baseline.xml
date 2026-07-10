@@ -91,4 +91,12 @@
             file="src/test/java/androidx/wear/remote/interactions/RemoteActivityHelperTest.kt"/>
     </issue>
 
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`receiver` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for com.google.android.wearable.intent.action.REMOTE_INTENT"
+        errorLine1="        context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/RemoteActivityHelperTest.kt"/>
+    </issue>
 </issues>

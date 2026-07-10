@@ -55,6 +55,7 @@ public class PerfettoSdkHandshake(
      *
      * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
+    @Suppress("MissingJvmstatic")
     public fun enableTracingImmediate(librarySource: LibrarySource? = null): Response =
         safeExecute {
             val libPath =
@@ -184,7 +185,7 @@ public class PerfettoSdkHandshake(
                 ?.substringAfter(", data=\"")
                 ?.dropLast(1)
                 ?: throw PerfettoSdkHandshakeException(
-                    "Cannot parse: $rawResponse. " + "Unable to detect 'data=' section."
+                    "Cannot parse: $rawResponse. Unable to detect 'data=' section."
                 )
 
         val dataMap = parseJsonMap(dataString)
@@ -196,7 +197,7 @@ public class PerfettoSdkHandshake(
                     ),
                 dataMap[KEY_REQUIRED_VERSION]
                     ?: throw PerfettoSdkHandshakeException(
-                        "Response missing $KEY_REQUIRED_VERSION" + " value"
+                        "Response missing $KEY_REQUIRED_VERSION value"
                     ),
                 dataMap[KEY_MESSAGE],
             )

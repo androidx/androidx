@@ -63,6 +63,12 @@ import androidx.wear.protolayout.modifiers.padding
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
@@ -102,7 +108,6 @@ import androidx.wear.protolayout.modifiers.padding
  *   recommended.
  * @sample androidx.wear.protolayout.material3.samples.titleCardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.titleCard(
     onClick: Clickable,
     title: (MaterialScope.() -> LayoutElement),
@@ -194,6 +199,12 @@ public fun MaterialScope.titleCard(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param title A slot for displaying the title of the card, expected to be one line of text. Uses
@@ -234,7 +245,6 @@ public fun MaterialScope.titleCard(
  *   card's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.appCardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.appCard(
     onClick: Clickable,
     title: (MaterialScope.() -> LayoutElement),
@@ -342,6 +352,12 @@ public fun MaterialScope.appCard(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -385,7 +401,6 @@ public fun MaterialScope.appCard(
  *   card's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.dataCardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.textDataCard(
     onClick: Clickable,
     title: (MaterialScope.() -> LayoutElement),
@@ -470,6 +485,12 @@ public fun MaterialScope.textDataCard(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -515,7 +536,6 @@ public fun MaterialScope.textDataCard(
  *   card's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.dataCardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.iconDataCard(
     onClick: Clickable,
     title: (MaterialScope.() -> LayoutElement),
@@ -597,6 +617,12 @@ public fun MaterialScope.iconDataCard(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param title A slot for displaying the title of the card, expected to be one line of text. Uses
@@ -636,7 +662,6 @@ public fun MaterialScope.iconDataCard(
  *   card's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.graphicDataCardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.graphicDataCard(
     onClick: Clickable,
     graphic: (MaterialScope.() -> LayoutElement),
@@ -721,6 +746,12 @@ public fun MaterialScope.graphicDataCard(
  * It is highly recommended to set its height to fill the available space, with [expand] for optimal
  * experience across different screen sizes.
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the card is clicked it will fire the
  *   associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -743,7 +774,6 @@ public fun MaterialScope.graphicDataCard(
  * @param content The inner content to be put inside of this card.
  * @sample androidx.wear.protolayout.material3.samples.cardSample
  */
-// TODO: b/346958146 - link Card visuals in DAC
 public fun MaterialScope.card(
     onClick: Clickable,
     modifier: LayoutModifier = LayoutModifier,

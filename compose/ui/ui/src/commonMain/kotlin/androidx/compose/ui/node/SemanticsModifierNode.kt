@@ -18,7 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
@@ -67,8 +68,15 @@ interface SemanticsModifierNode : DelegatableNode {
 
     /**
      * Whether this semantics modifier node should be taken into account when computing the layout
-     * boundaries of the corresponding [SemanticsNode], which are used, for example, for
-     * accessibility. By default, all nodes are considered important for computing bounds.
+     * boundaries of the corresponding [SemanticsNode], which are used for accessibility and
+     * testing. By default, all semantics modifier nodes affect semantics bounds.
+     *
+     * This property should be set to false if this node should be skipped when looking for a
+     * semantics modifier node that will be used to determine the semantics bounds of the layout
+     * node. For example, in a chain of Modifier.outerSemantics(..).padding(..).innerSemantics(..),
+     * the outerSemantics modifier should have [isImportantForBounds] set to false if the semantics
+     * and accessibility bounds for the node should be determined by the bounds inside of the
+     * padding.
      */
     @get:Suppress("GetterSetterNames")
     val isImportantForBounds: Boolean
@@ -118,13 +126,21 @@ fun SemanticsModifierNode.invalidateSemantics() = requireLayoutNode().invalidate
 internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
     get() = getOrNull(SemanticsActions.OnClick) != null
 
-internal fun Modifier.Node.touchBoundsInRoot(useMinimumTouchTarget: Boolean): Rect {
+/** Returns bounds in root taking touch target size and clipping into consideration */
+internal fun Modifier.Node.effectiveBoundsInRoot(
+    useMinimumTouchTarget: Boolean,
+    clipBounds: Boolean,
+): Rect {
     if (!node.isAttached) {
         return Rect.Zero
     }
     if (!useMinimumTouchTarget) {
-        return requireCoordinator(Nodes.Semantics).boundsInRoot()
+        return requireCoordinator(Nodes.Semantics).boundsInRoot(clipBounds)
     }
 
     return requireCoordinator(Nodes.Semantics).touchBoundsInRoot()
 }
+
+/** The boundaries of this layout inside the root. */
+internal fun LayoutCoordinates.boundsInRoot(clipBounds: Boolean): Rect =
+    findRootCoordinates().localBoundingBoxOf(this, clipBounds)

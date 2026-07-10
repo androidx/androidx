@@ -16,8 +16,10 @@
 
 package androidx.appsearch.playservicesstorage.converter;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
@@ -44,6 +46,7 @@ public final class SetSchemaRequestToGmsConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a googleGms
      * {@link com.google.android.gms.appsearch.SetSchemaRequest}.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static com.google.android.gms.appsearch.@NonNull SetSchemaRequest toGmsSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
@@ -99,6 +102,13 @@ public final class SetSchemaRequestToGmsConverter {
                 }
             }
         }
+        // TODO(b/413089233) support this feature once its ready in gms appsearch
+        if (!jetpackRequest.getSchemasWipeoutAccountPropertyPaths().isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "set schema wipeout account property paths are not supported on this AppSearch "
+                            + "implementation.");
+        }
+
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
             Migrator jetpackMigrator = entry.getValue();
             com.google.android.gms.appsearch.Migrator gmsMigrator =

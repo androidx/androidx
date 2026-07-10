@@ -43,8 +43,10 @@ internal class TransitionClock<T>(override val animation: TransitionBasedAnimati
         TargetState(animation.animationObject.currentState, animation.animationObject.targetState)
         set(value) {
             field = value
-            setClockTime(0)
+            setClockTime(currentClockTimeNanos)
         }
+
+    private var currentClockTimeNanos: Long = 0L
 
     override fun setStateParameters(par1: Any, par2: Any?) {
         parseParametersToValue(state.initial, par1, par2)?.let { state = it }
@@ -80,6 +82,7 @@ internal class TransitionClock<T>(override val animation: TransitionBasedAnimati
     }
 
     override fun setClockTime(animationTimeNanos: Long) {
+        currentClockTimeNanos = animationTimeNanos
         animation.animationObject.setPlaytimeAfterInitialAndTargetStateEstablished(
             state.initial,
             state.target,

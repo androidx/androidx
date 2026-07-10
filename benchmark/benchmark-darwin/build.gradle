@@ -1,14 +1,12 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
@@ -20,8 +18,6 @@ androidXMultiplatform {
     ios {
         binaries.framework {
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
             xcf.add(it)
         }
     }
@@ -31,42 +27,12 @@ androidXMultiplatform {
     // the only platform built on all machines
     defaultPlatform(PlatformIdentifier.JVM)
     sourceSets {
-        darwinMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
+        iosMain.dependencies {
+            api(project(":benchmark:benchmark-darwin-core"))
         }
-        darwinTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-            }
-        }
-        iosMain {
-            dependsOn(darwinMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin-core"))
-            }
-        }
-        iosArm64Main {
-            dependsOn(iosMain)
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosMain)
-        }
-        iosX64Main {
-            dependsOn(iosMain)
-        }
+
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(darwinMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(darwinTest)
-                }
                 target.compilations.configureEach {
                     compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }

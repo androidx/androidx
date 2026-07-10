@@ -14,11 +14,39 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.InteractableComponent
+import androidx.xr.scenecore.runtime.InputEvent
+import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.InteractableComponent
+import androidx.xr.scenecore.testing.internal.FakeInteractableComponent as InternalFakeInteractableComponent
+import java.util.concurrent.Executor
 
-/** Test-only implementation of [FakeInteractableComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeInteractableComponent() : FakeComponent(), InteractableComponent
+/** Test-only implementation of [androidx.xr.scenecore.runtime.InteractableComponent] */
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FakeInteractableComponent
+internal constructor(internal val fakeInternal: InternalFakeInteractableComponent) :
+    FakeComponent(), InteractableComponent {
+
+    public constructor() : this(InternalFakeInteractableComponent())
+
+    internal val inputEventListenersMap: MutableMap<InputEventListener, Executor>
+        get() = fakeInternal.inputEventListenersMap
+
+    /**
+     * Simulates an input event from the runtime, notifying all registered listeners.
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It iterates through all currently registered listeners and invokes their
+     * `onInputEvent` method on their respective [Executor]s.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    public fun onInputEvent(event: InputEvent) {
+        fakeInternal.onInputEvent(event)
+    }
+}

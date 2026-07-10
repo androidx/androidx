@@ -38,9 +38,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Unit test for [SplitPairRule] to check the construction is correct by using it's builder. */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 internal class SplitPairRuleTest {
 
     @Test

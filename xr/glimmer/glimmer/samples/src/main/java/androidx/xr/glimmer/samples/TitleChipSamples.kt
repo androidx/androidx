@@ -17,9 +17,7 @@
 package androidx.xr.glimmer.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,20 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.TitleChip
 import androidx.xr.glimmer.TitleChipDefaults
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun TitleChipSampleUsage() {
-    VerticalList(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+    GlimmerLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {
@@ -68,7 +63,7 @@ fun TitleChipWithLeadingIconSample() {
 fun TitleChipWithCardSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         TitleChip { Text("Title Chip") }
-        Spacer(Modifier.height(TitleChipDefaults.AssociatedContentSpacing))
+        Spacer(Modifier.height(TitleChipDefaults.associatedContentSpacing))
         Card(
             title = { Text("Title") },
             subtitle = { Text("Subtitle") },

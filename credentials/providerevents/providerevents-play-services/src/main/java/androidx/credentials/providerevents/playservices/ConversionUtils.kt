@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+import androidx.credentials.providerevents.internal.UriUtils.Companion.readFromUri
 import androidx.credentials.providerevents.signal.ProviderSignalCredentialStateRequest
 import androidx.credentials.providerevents.transfer.CredentialTransferCapabilitiesRequest
 import androidx.credentials.providerevents.transfer.ExportCredentialsRequest
@@ -80,24 +81,21 @@ public class ConversionUtils {
             request: ExportCredentialsToDeviceSetupRequest,
             context: Context,
         ): ExportCredentialsRequest {
-            val credentialsJson = UriUtils.readFromUri(request.uri, context)
+            val credentialsJson = readFromUri(request.uri, context)
             return ExportCredentialsRequest(credentialsJson)
         }
 
         public fun convertToJetpackRequest(
             request: ImportCredentialsForDeviceSetupRequest
-        ): ImportCredentialsRequest {
-            return ImportCredentialsRequest(request.requestJson)
+        ): ImportCredentialsRequest? {
+            return ImportCredentialsRequest.createFrom(request.requestJson)
         }
 
         public fun convertToJetpackRequest(
             request: GetCredentialTransferCapabilitiesRequest
         ): CredentialTransferCapabilitiesRequest? {
-            val requestJson = request.requestData.getString(BUNDLE_REQUEST_JSON_KEY)
-            if (requestJson == null) {
-                return null
-            }
-            return CredentialTransferCapabilitiesRequest(requestJson)
+            val requestJson = request.requestData.getString(BUNDLE_REQUEST_JSON_KEY) ?: return null
+            return CredentialTransferCapabilitiesRequest.createFrom(requestJson)
         }
 
         @Suppress("RestrictedApiAndroidX")

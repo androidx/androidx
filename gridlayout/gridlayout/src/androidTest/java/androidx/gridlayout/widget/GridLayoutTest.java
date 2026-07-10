@@ -157,6 +157,28 @@ public class GridLayoutTest {
         assertEquals(4, generated.bottomMargin);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetRowCountExceedsMaxSize() {
+        GridLayout gridLayout = new GridLayout(mActivityTestRule.getActivity());
+        gridLayout.setRowCount(GridLayout.MAX_SIZE + 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetColumnCountExceedsMaxSize() {
+        GridLayout gridLayout = new GridLayout(mActivityTestRule.getActivity());
+        gridLayout.setColumnCount(GridLayout.MAX_SIZE + 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecMaxSpanExceeded() {
+        GridLayout.spec(GridLayout.MAX_SIZE, 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecMaxSpanOverflow() {
+        GridLayout.spec(Integer.MAX_VALUE, 1);
+    }
+
     private static class MyGridLayout extends GridLayout {
 
         public MyGridLayout(Context context) {

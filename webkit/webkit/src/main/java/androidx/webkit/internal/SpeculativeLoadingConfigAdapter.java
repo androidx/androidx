@@ -16,17 +16,24 @@
 
 package androidx.webkit.internal;
 
+import androidx.webkit.PrefetchCache;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingConfig;
 
 import org.chromium.support_lib_boundary.SpeculativeLoadingConfigBoundaryInterface;
-import org.jspecify.annotations.NonNull;
 
+/**
+ * @deprecated use {@link Profile#setMaxPrerenders(int)},
+ * {@link PrefetchCache#setMaxPrefetches(int)} and
+ * {@link PrefetchCache#setPrefetchTtlSeconds(int)} instead.
+ */
 @Profile.ExperimentalUrlPrefetch
+@Deprecated
 public class SpeculativeLoadingConfigAdapter implements SpeculativeLoadingConfigBoundaryInterface {
     private final SpeculativeLoadingConfig mSpeculativeLoadingConfig;
 
-    public SpeculativeLoadingConfigAdapter(@NonNull SpeculativeLoadingConfig config) {
+
+    public SpeculativeLoadingConfigAdapter(SpeculativeLoadingConfig config) {
         mSpeculativeLoadingConfig = config;
     }
 

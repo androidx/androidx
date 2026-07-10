@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 
@@ -99,14 +98,10 @@ class DisableDexOpt : SideEffect {
 
     override fun setup() {
         // PGO was enabled on Android N
-        if (Build.VERSION.SDK_INT >= 24) {
-            Shell.disableBackgroundDexOpt()
-        }
+        Shell.disableBackgroundDexOpt()
     }
 
     override fun tearDown() {
-        if (Build.VERSION.SDK_INT >= 24) {
-            Shell.enableBackgroundDexOpt()
-        }
+        Shell.enableBackgroundDexOpt()
     }
 }

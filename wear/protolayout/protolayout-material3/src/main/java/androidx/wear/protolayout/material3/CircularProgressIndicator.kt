@@ -72,6 +72,12 @@ import kotlin.math.min
  * if available on device. If not, or switched off by user, uses fallback [ColorScheme] defined in
  * its [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param staticProgress The static progress of this progress indicator where 0 represent no
  *   progress and 1 represents completion. Progress above 1 is also allowed. If [dynamicProgress] is
  *   also set, this static value will only be used when the dynamic value cannot be evaluated. By
@@ -177,6 +183,12 @@ public fun MaterialScope.circularProgressIndicator(
  * defined in, which defaults to [dynamicColorScheme], meaning that the colors follow system theme
  * if available on device. If not, or switched off by user, uses fallback [ColorScheme] defined in
  * its [MaterialScope].
+ *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
  *
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
  *   Has to be a number greater than or equal to 1.

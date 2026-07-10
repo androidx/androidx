@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.ActivityPanelEntity
+import androidx.xr.scenecore.runtime.ActivityPanelEntity
+import androidx.xr.scenecore.testing.internal.FakeActivityPanelEntity as InternalFakeActivityPanelEntity
 
-/** Test-only implementation of [androidx.xr.scenecore.internal.ActivityPanelEntity] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeActivityPanelEntity : FakePanelEntity(), ActivityPanelEntity {
+/** Test-only implementation of [androidx.xr.scenecore.runtime.ActivityPanelEntity] */
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FakeActivityPanelEntity
+internal constructor(name: String = "", fakeInternal: InternalFakeActivityPanelEntity) :
+    FakePanelEntity(name = name, fakeInternal = fakeInternal), ActivityPanelEntity {
+
+    public constructor(name: String = "") : this(name, InternalFakeActivityPanelEntity(name))
+
+    private val internalActivityPanelEntity: InternalFakeActivityPanelEntity
+        get() = fakeInternal as InternalFakeActivityPanelEntity
 
     /** The intent that was last used to launch an activity. */
-    public var launchIntent: Intent = Intent()
-        private set
+    public val launchIntent: Intent?
+        get() = internalActivityPanelEntity.launchIntent
 
     /** The bundle that was last used to launch an activity. */
-    public var launchBundle: Bundle? = null
-        private set
+    public val launchBundle: Bundle?
+        get() = internalActivityPanelEntity.launchBundle
 
     /**
      * Launches the given activity into the panel.
@@ -41,13 +52,12 @@ public class FakeActivityPanelEntity : FakePanelEntity(), ActivityPanelEntity {
      * @param bundle Bundle to pass to the activity, can be null.
      */
     override fun launchActivity(intent: Intent, bundle: Bundle?) {
-        launchIntent = intent
-        launchBundle = bundle
+        internalActivityPanelEntity.launchActivity(intent, bundle)
     }
 
     /** The activity that was last moved into the panel. */
-    public var movedActivity: Activity = Activity()
-        private set
+    public val movedActivity: Activity?
+        get() = internalActivityPanelEntity.movedActivity
 
     /**
      * Moves the given activity into the panel.
@@ -55,6 +65,6 @@ public class FakeActivityPanelEntity : FakePanelEntity(), ActivityPanelEntity {
      * @param activity Activity to move into the ActivityPanel.
      */
     override fun moveActivity(activity: Activity) {
-        movedActivity = activity
+        internalActivityPanelEntity.moveActivity(activity)
     }
 }

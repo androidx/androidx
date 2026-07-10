@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-RemovedFromBytecode: androidx.glance.testing.unit.UnitTestAssertionExtensionsKt#assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, androidx.glance.action.ActionParameters, android.os.Bundle):
-    Binary breaking change: method androidx.glance.testing.unit.UnitTestAssertionExtensionsKt.assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>,androidx.glance.action.ActionParameters,android.os.Bundle) has been removed from bytecode
-RemovedFromBytecode: androidx.glance.testing.unit.UnitTestFiltersKt#hasStartActivityClickAction(androidx.glance.action.ActionParameters, android.os.Bundle):
-    Binary breaking change: method androidx.glance.testing.unit.UnitTestFiltersKt.hasStartActivityClickAction(androidx.glance.action.ActionParameters,android.os.Bundle) has been removed from bytecode
+AddedMethod: androidx.glance.testing.unit.UnitTestAssertionExtensionsKt#assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion, androidx.glance.action.ActionParameters, android.os.Bundle, int, Object):
+    Added method androidx.glance.testing.unit.UnitTestAssertionExtensionsKt.assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion,androidx.glance.action.ActionParameters,android.os.Bundle,int,Object)
+AddedMethod: androidx.glance.testing.unit.UnitTestFiltersKt#hasStartActivityClickAction$default(androidx.glance.action.ActionParameters, android.os.Bundle, int, Object):
+    Added method androidx.glance.testing.unit.UnitTestFiltersKt.hasStartActivityClickAction$default(androidx.glance.action.ActionParameters,android.os.Bundle,int,Object)

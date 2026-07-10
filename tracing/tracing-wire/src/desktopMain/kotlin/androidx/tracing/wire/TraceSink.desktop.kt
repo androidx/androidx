@@ -1,0 +1,41 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:JvmName("TraceSinks") // Provide a reasonable name for Java users.
+
+package androidx.tracing.wire
+
+import java.io.File
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import okio.appendingSink
+import okio.buffer
+
+// StreamFiles is not relevant because the provided File represents a directory
+// in which new trace files are dynamically created, rather than a specific file to read/write.
+@Suppress("StreamFiles")
+@JvmOverloads
+public fun TraceSink(
+    directory: File,
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
+): TraceSink =
+    TraceSink(
+        sequenceId = sequenceId,
+        bufferedSink = directory.createPerfettoFile().appendingSink().buffer(),
+        coroutineContext = coroutineContext,
+    )

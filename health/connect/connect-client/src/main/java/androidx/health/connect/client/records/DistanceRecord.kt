@@ -15,7 +15,9 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.meters
@@ -42,9 +44,13 @@ public class DistanceRecord(
 ) : IntervalRecord {
 
     init {
-        distance.requireNotLess(other = distance.zero(), name = "distance")
-        distance.requireNotMore(other = MAX_DISTANCE, name = "distance")
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            distance.requireNotLess(other = distance.zero(), name = "distance")
+            distance.requireNotMore(other = MAX_DISTANCE, name = "distance")
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        }
     }
 
     /*

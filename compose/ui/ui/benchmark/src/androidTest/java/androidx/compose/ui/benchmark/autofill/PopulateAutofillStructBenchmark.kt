@@ -23,57 +23,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
-import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalView
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 26)
-@RunWith(Parameterized::class)
-class PopulateAutofillStructBenchmark(private val isAutofillEnabled: Boolean) {
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val previousFlagValue = isSemanticAutofillEnabled
+@RunWith(JUnit4::class)
+class PopulateAutofillStructBenchmark {
     private lateinit var ownerView: View
 
     @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "Autofill enabled = {0}")
-        fun data(): Collection<Array<Any>> {
-            val testCases = mutableListOf<Array<Any>>()
-            // Add a `false` parameter here and run locally to compare Autofill off vs on
-            for (isAutofillEnabled in listOf(true)) {
-                testCases.add(arrayOf(isAutofillEnabled))
-            }
-            return testCases
-        }
-    }
-
     @Test
     fun populateViewStructureBenchmark_textScreen() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        isSemanticAutofillEnabled = isAutofillEnabled
         measurePopulateViewStructureRepeatedOnUiThread { AutofillTextScreen() }
-        @OptIn(ExperimentalComposeUiApi::class)
-        isSemanticAutofillEnabled = previousFlagValue
     }
 
     @Test
     fun populateViewStructureBenchmark_autofillScreen() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        isSemanticAutofillEnabled = isAutofillEnabled
         measurePopulateViewStructureRepeatedOnUiThread { AutofillScreen() }
-        @OptIn(ExperimentalComposeUiApi::class)
-        isSemanticAutofillEnabled = previousFlagValue
     }
 
     private fun measurePopulateViewStructureRepeatedOnUiThread(content: @Composable () -> Unit) {

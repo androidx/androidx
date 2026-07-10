@@ -34,11 +34,11 @@ import java.util.regex.Matcher
 import kotlin.collections.Map
 
 /**
- * Represents a GPU shader, the state of its associated uniforms, and some additional draw state.
+ * GPU shader, its uniforms, and additional draw state.
  *
- * @param vertexShaderCode The vertex shader code
- * @param fragmentShaderCode The fragment shader code
- * @param defines A map of shader precompiler symbols to be defined with the given names and values
+ * @param vertexShaderCode the vertex shader code
+ * @param fragmentShaderCode the fragment shader code
+ * @param defines a map of shader precompiler symbols to be defined with the given names and values
  */
 public class Shader(
     vertexShaderCode: String,
@@ -100,7 +100,6 @@ public class Shader(
                 val infoLog: String = GLES30.glGetProgramInfoLog(programId)
                 maybeLogGLError(
                     Log.WARN,
-                    TAG,
                     "Failed to retrieve shader program info log",
                     "glGetProgramInfoLog",
                 )
@@ -113,11 +112,11 @@ public class Shader(
             // Shader objects can be flagged for deletion immediately after program creation.
             if (vertexShaderId != 0) {
                 GLES30.glDeleteShader(vertexShaderId)
-                maybeLogGLError(Log.WARN, TAG, "Failed to free vertex shader", "glDeleteShader")
+                maybeLogGLError(Log.WARN, "Failed to free vertex shader", "glDeleteShader")
             }
             if (fragmentShaderId != 0) {
                 GLES30.glDeleteShader(fragmentShaderId)
-                maybeLogGLError(Log.WARN, TAG, "Failed to free fragment shader", "glDeleteShader")
+                maybeLogGLError(Log.WARN, "Failed to free fragment shader", "glDeleteShader")
             }
         }
     }
@@ -439,7 +438,7 @@ public class Shader(
             obsoleteEntries.forEach { obsoleteEntry -> uniforms.remove(obsoleteEntry) }
         } finally {
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-            maybeLogGLError(Log.WARN, TAG, "Failed to set active texture", "glActiveTexture")
+            maybeLogGLError(Log.WARN, "Failed to set active texture", "glActiveTexture")
         }
     }
 
@@ -470,10 +469,10 @@ public class Shader(
          *
          * The file contents are interpreted as UTF-8 text.
          *
-         * @param render The [SampleRender] context
-         * @param vertexShaderFileName The name of the vertex shader file
-         * @param fragmentShaderFileName The name of the fragment shader file
-         * @param defines A map of shader precompiler symbols to be defined with the given names and
+         * @param render the [SampleRender] context
+         * @param vertexShaderFileName the name of the vertex shader file
+         * @param fragmentShaderFileName the name of the fragment shader file
+         * @param defines a map of shader precompiler symbols to be defined with the given names and
          *   values
          */
         fun createFromAssets(
@@ -609,12 +608,11 @@ public class Shader(
                 val infoLog: String = GLES30.glGetShaderInfoLog(shaderId)
                 maybeLogGLError(
                     Log.WARN,
-                    TAG,
                     "Failed to retrieve shader info log",
                     "glGetShaderInfoLog",
                 )
                 GLES30.glDeleteShader(shaderId)
-                maybeLogGLError(Log.WARN, TAG, "Failed to free shader", "glDeleteShader")
+                maybeLogGLError(Log.WARN, "Failed to free shader", "glDeleteShader")
                 throw GLException(0, "Shader compilation failed: " + infoLog)
             }
 

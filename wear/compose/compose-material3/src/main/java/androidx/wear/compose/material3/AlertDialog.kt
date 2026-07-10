@@ -24,32 +24,56 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick as semanticOnClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AlertDialogDefaults.ConfirmIcon
+import androidx.wear.compose.material3.AlertDialogDefaults.DismissIcon
+import androidx.wear.compose.material3.AlertDialogDefaults.EdgeButton
 import androidx.wear.compose.material3.PaddingDefaults.horizontalContentPadding
 import androidx.wear.compose.material3.PaddingDefaults.verticalContentPadding
 import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.Strings
 import androidx.wear.compose.material3.internal.getString
+import androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec
+import androidx.wear.compose.material3.lazy.TransformationSpec
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 
+// Confirm and dismiss buttons
 /**
  * AlertDialogs provide important prompts in a user flow. They can require an action, communicate
  * information, or help users accomplish a task. The AlertDialog is scrollable by default if the
@@ -62,9 +86,17 @@ import androidx.wear.compose.material3.internal.getString
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
  *
+ * AlertDialog now additionally offers an equivalent overload using TransformingLazyColumn, which is
+ * recommended to achieve a consistent Material 3 scrolling experience throughout your app
+ *
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithConfirmAndDismissSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
  *   right (typically also called by the [dismissButton]). Implementation of this lambda must remove
@@ -129,6 +161,109 @@ public fun AlertDialog(
 }
 
 /**
+ * AlertDialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task. The AlertDialog is scrollable by default if the
+ * content exceeds the viewport height.
+ *
+ * This overload has 2 [IconButton]s for confirmation and cancellation and it uses a
+ * [TransformationSpec] for advanced control over transformations of scrolling content.
+ *
+ * The confirmation buttons are centered horizontally at the bottom of the dialog. This overload
+ * should be used when the user will be presented with a binary decision, to either confirm or
+ * dismiss an action. Where user input is not required, such as displaying a transient success or
+ * failure message, use [ConfirmationDialog], [SuccessConfirmationDialog] or
+ * [FailureConfirmationDialog] instead.
+ *
+ * The [transformationSpec] parameter enables the use of a [TransformingLazyColumn] internally for
+ * advanced control over transformations of scrolling content, which can not be achieved with
+ * [ScalingLazyColumn].
+ *
+ * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
+ *
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissTransformingContentSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithConfirmAndDismissTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * @param visible A boolean indicating whether the dialog should be displayed.
+ * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
+ *   right (typically also called by the [dismissButton]). Implementation of this lambda must remove
+ *   the dialog from the composition hierarchy e.g. by setting [visible] to false.
+ * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy e.g. by setting [visible] to false. It's
+ *   recommended to use [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param dismissButton A slot for a [Button] indicating negative sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy e.g. by setting [visible] to false. It's
+ *   recommended to use [AlertDialogDefaults.DismissButton] in this slot with onClick callback.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. It is recommended
+ *   to use the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn]. To ensure that your custom items animate consistently with the rest
+ *   of the dialog, we recommend applying a [TransformationSpec] to every item.
+ */
+@Composable
+public fun AlertDialog(
+    visible: Boolean,
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable RowScope.() -> Unit,
+    title: @Composable () -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    dismissButton: @Composable RowScope.() -> Unit = {
+        AlertDialogDefaults.DismissButton(onDismissRequest)
+    },
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues =
+        if (icon != null) {
+            AlertDialogDefaults.confirmDismissWithIconContentPadding()
+        } else {
+            AlertDialogDefaults.confirmDismissContentPadding()
+        },
+    properties: DialogProperties = DialogProperties(),
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    Dialog(visible = visible, onDismissRequest = onDismissRequest, properties = properties) {
+        AlertDialogContent(
+            confirmButton = confirmButton,
+            title = title,
+            dismissButton = dismissButton,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            transformationSpec = transformationSpec,
+            content = content,
+        )
+    }
+}
+
+// No buttons
+/**
  * Dialogs provide important prompts in a user flow. They can require an action, communicate
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
  * exceeds the viewport height.
@@ -139,6 +274,9 @@ public fun AlertDialog(
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
+ *
+ * AlertDialog now additionally offers an equivalent overload using TransformingLazyColumn, which is
+ * recommended to achieve a consistent Material 3 scrolling experience throughout your app
  *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
@@ -198,19 +336,115 @@ public fun AlertDialog(
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
  * exceeds the viewport height.
  *
- * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog. It should
- * be used when the user will be presented with a single acknowledgement.
+ * This overload doesn't have any dedicated slots for buttons, but it does have a content slot so
+ * that the caller has flexibility in how to seek user input. It uses a [TransformationSpec] for
+ * advanced control over transformations of scrolling content.
+ *
+ * In most cases, we recommend using other AlertDialog variations with 2 confirm/dismiss buttons or
+ * a single confirmation button. Where user input is not required, such as displaying a transient
+ * success or failure message, use [ConfirmationDialog], [SuccessConfirmationDialog] or
+ * [FailureConfirmationDialog] instead.
+ *
+ * The [transformationSpec] parameter enables the use of a [TransformingLazyColumn] internally for
+ * advanced control over transformations of scrolling content, which can not be achieved with
+ * [ScalingLazyColumn].
+ *
+ * @param visible A boolean indicating whether the dialog should be displayed.
+ * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
+ *   the right or by other dismiss action. Implementation of this lambda must remove the dialog from
+ *   the composition hierarchy e.g. by setting [visible] to false.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. It is recommended
+ *   to use the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn]. To ensure that your custom items animate consistently with the rest
+ *   of the dialog, we recommend applying a [TransformationSpec] to every item.
+ */
+@Composable
+public fun AlertDialog(
+    visible: Boolean,
+    onDismissRequest: () -> Unit,
+    title: @Composable () -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: @Composable (Boolean) -> PaddingValues = { isScrollable: Boolean ->
+        if (icon != null) {
+            AlertDialogDefaults.buttonStackWithIconContentPadding(isScrollable)
+        } else {
+            AlertDialogDefaults.buttonStackContentPadding(isScrollable)
+        }
+    },
+    properties: DialogProperties = DialogProperties(),
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    Dialog(visible = visible, onDismissRequest = onDismissRequest, properties = properties) {
+        AlertDialogContent(
+            title = title,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            transformationSpec = transformationSpec,
+            content = content,
+        )
+    }
+}
+
+// Edge button
+/**
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task. The dialog is scrollable by default if the content
+ * exceeds the viewport height.
+ *
+ * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog, which
+ * should be used when the user will be presented with a single acknowledgement.
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
+ *
+ * AlertDialog now additionally offers an equivalent overload using TransformingLazyColumn, which is
+ * recommended to achieve a consistent Material 3 scrolling experience throughout your app
  *
  * Example of an [AlertDialog] with an icon, title, text and bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithEdgeButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithContentGroupsSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action. Implementation of this lambda must remove the dialog from
@@ -273,10 +507,123 @@ public fun AlertDialog(
 }
 
 /**
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task. The dialog is scrollable by default if the content
+ * exceeds the viewport height.
+ *
+ * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog, which
+ * should be used when the user will be presented with a single acknowledgement. It uses a
+ * [TransformationSpec] for advanced control over transformations of scrolling content.
+ *
+ * Where user input is not required, such as displaying a transient success or failure message, use
+ * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
+ *
+ * The [transformationSpec] parameter enables the use of a [TransformingLazyColumn] internally for
+ * advanced control over transformations of scrolling content, which can not be achieved with
+ * [ScalingLazyColumn].
+ *
+ * Example of an [AlertDialog] with an icon, title, text and bottom [EdgeButton]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonTransformingContentSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithEdgeButtonTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsTransformingContentSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_AlertDialogWithContentGroupsTransformingContentSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * @param visible A boolean indicating whether the dialog should be displayed.
+ * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
+ *   the right or by other dismiss action. Implementation of this lambda must remove the dialog from
+ *   the composition hierarchy e.g. by setting [visible] to false.
+ * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy e.g. by setting [visible] to false. It's
+ *   recommended to use [AlertDialogDefaults.EdgeButton] in this slot with onClick callback. Note
+ *   that when using an [EdgeButton] which is not Medium size, the contentPadding parameters should
+ *   be specified.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text.By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. Bottom padding
+ *   will be ignored and default spacing for the [EdgeButton] will be used. It is recommended to use
+ *   the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn]. Any buttons added in this slot that are intended to dismiss the
+ *   dialog must remove the dialog from the composition hierarchy e.g. by setting [visible] to
+ *   false. To ensure that your custom items animate consistently with the rest of the dialog, we
+ *   recommend applying a [TransformationSpec] to each of them - see samples.
+ */
+@Composable
+public fun AlertDialog(
+    visible: Boolean,
+    onDismissRequest: () -> Unit,
+    edgeButton: (@Composable BoxScope.() -> Unit),
+    title: @Composable () -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues =
+        if (icon != null) {
+            AlertDialogDefaults.contentWithIconPadding()
+        } else {
+            AlertDialogDefaults.contentPadding()
+        },
+    properties: DialogProperties = DialogProperties(),
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    Dialog(visible = visible, onDismissRequest = onDismissRequest, properties = properties) {
+        AlertDialogContent(
+            edgeButton = edgeButton,
+            title = title,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            transformationSpec = transformationSpec,
+            content = content,
+        )
+    }
+}
+
+// AlertDialogContent
+
+// Confirm and dismiss buttons
+
+/**
  * This [AlertDialogContent] overload provides the content for an [AlertDialog] with 2 buttons to
  * confirm or dismiss an action. Prefer using [AlertDialog] directly, which provides built-in
  * animations and a streamlined API. This composable may be used to provide the content for an alert
  * dialog if custom animations are required.
+ *
+ * AlertDialogContent now additionally offers an equivalent overload using TransformingLazyColumn,
+ * which is recommended to achieve a consistent Material 3 scrolling experience throughout your app
  *
  * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy. It's recommended to use
@@ -316,30 +663,173 @@ public fun AlertDialogContent(
         },
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
-    val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-    ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
-        ScalingLazyColumn(
-            scalingParams = AlertScalingParams,
-            state = state,
-            contentPadding = it,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = verticalArrangement,
-            autoCentering = null,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
-            item {
-                ConfirmDismissButtons(confirmButton = confirmButton, dismissButton = dismissButton)
+    val scrollableLayout: @Composable () -> Unit = {
+        val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+
+        ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
+            contentPadding ->
+            ScalingLazyColumn(
+                scalingParams = AlertScalingParams,
+                state = state,
+                contentPadding = contentPadding,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = verticalArrangement,
+                autoCentering = null,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
+                item {
+                    ConfirmDismissButtons(
+                        confirmButton = confirmButton,
+                        dismissButton = dismissButton,
+                        extraBottomPaddingEnabled = true,
+                    )
+                }
             }
         }
     }
+
+    if (content != null) scrollableLayout()
+    else {
+        DynamicScrollableOrFixedLayout(
+            scrollableContent = scrollableLayout,
+            fixedContent = { forMeasure ->
+                AlertDialogContentFixedWithConfirmationButtons(
+                    confirmButton = confirmButton,
+                    title = title,
+                    dismissButton = dismissButton,
+                    modifier = modifier,
+                    icon = icon,
+                    text = text,
+                    verticalArrangement = verticalArrangement,
+                    contentPadding = contentPadding,
+                    forMeasure = forMeasure,
+                )
+            },
+        )
+    }
 }
+
+/**
+ * This overload provides the content for an [AlertDialog] with 2 buttons to confirm or dismiss an
+ * action and a [TransformationSpec] for advanced control over transformations of scrolling content.
+ * Prefer using [AlertDialog] directly, which provides built-in animations and a streamlined API.
+ * This composable may be used to provide the content for an alert dialog if custom animations are
+ * required.
+ *
+ * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param dismissButton A slot for a [Button] indicating negative sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.DismissButton] in this slot with onClick callback.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. It is recommended
+ *   to use the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn]. To ensure that your custom items animate consistently with the rest
+ *   of the dialog, we recommend applying a [TransformationSpec] to each of them.
+ */
+@Composable
+public fun AlertDialogContent(
+    confirmButton: @Composable RowScope.() -> Unit,
+    title: @Composable () -> Unit,
+    dismissButton: @Composable RowScope.() -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues =
+        if (icon != null) {
+            AlertDialogDefaults.confirmDismissWithIconContentPadding()
+        } else {
+            AlertDialogDefaults.confirmDismissContentPadding()
+        },
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    val scrollableLayout: @Composable () -> Unit = {
+        val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
+
+        ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
+            contentPadding ->
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = contentPadding,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = verticalArrangement,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                alertDialogCommonContent(
+                    icon = icon,
+                    title = title,
+                    text = text,
+                    transformationSpec = transformationSpec,
+                    topItemTransformationSpec = TopItemTransformationSpec,
+                    content = content,
+                )
+                item {
+                    ConfirmDismissButtons(
+                        confirmButton = confirmButton,
+                        dismissButton = dismissButton,
+                        transformationSpec = transformationSpec,
+                        extraBottomPaddingEnabled = true,
+                    )
+                }
+            }
+        }
+    }
+
+    if (content != null) scrollableLayout()
+    else {
+        DynamicScrollableOrFixedLayout(
+            scrollableContent = scrollableLayout,
+            fixedContent = { forMeasure ->
+                AlertDialogContentFixedWithConfirmationButtons(
+                    confirmButton = confirmButton,
+                    title = title,
+                    dismissButton = dismissButton,
+                    modifier = modifier,
+                    icon = icon,
+                    text = text,
+                    verticalArrangement = verticalArrangement,
+                    contentPadding = contentPadding,
+                    forMeasure = forMeasure,
+                )
+            },
+        )
+    }
+}
+
+// No buttons
 
 /**
  * This [AlertDialogContent] overload provides the content for an [AlertDialog] without any
  * dedicated slots for buttons. Prefer using [AlertDialog] directly, which provides built-in
  * animations and a streamlined API. This composable may be used to provide the content for an alert
  * dialog if custom animations are required.
+ *
+ * AlertDialogContent now additionally offers an equivalent overload using TransformingLazyColumn,
+ * which is recommended to achieve a consistent Material 3 scrolling experience throughout your app
  *
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
  *   dialog's purpose or content and should not exceed 3 lines of text. By default,
@@ -371,19 +861,137 @@ public fun AlertDialogContent(
         },
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
-    val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-    ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
-        ScalingLazyColumn(
-            scalingParams = AlertScalingParams,
-            state = state,
-            contentPadding = it,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = verticalArrangement,
-            autoCentering = null,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            alertDialogCommonContent(icon, title, text, content)
+    val scrollableLayout: @Composable () -> Unit = {
+        val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+
+        ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
+            contentPadding ->
+            ScalingLazyColumn(
+                scalingParams = AlertScalingParams,
+                state = state,
+                contentPadding = contentPadding,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = verticalArrangement,
+                autoCentering = null,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
+            }
         }
+    }
+
+    if (content != null) scrollableLayout()
+    else {
+        DynamicScrollableOrFixedLayout(
+            scrollableContent = scrollableLayout,
+            fixedContent = { forMeasure ->
+                AlertDialogContentFixed(
+                    title = title,
+                    icon = icon,
+                    text = text,
+                    modifier = modifier,
+                    verticalArrangement = verticalArrangement,
+                    contentPadding = contentPadding,
+                    forMeasure = forMeasure,
+                )
+            },
+        )
+    }
+}
+
+/**
+ * This overload provides the content for an [AlertDialog] without any dedicated slots for buttons
+ * and a [TransformationSpec] for advanced control over transformations of scrolling content..
+ * Prefer using [AlertDialog] directly, which provides built-in animations and a streamlined API.
+ * This composable may be used to provide the content for an alert dialog if custom animations are
+ * required.
+ *
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. It is recommended
+ *   to use the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn]. To ensure that your custom items animate consistently with the rest
+ *   of the dialog, we recommend applying a [TransformationSpec] to each of them.
+ */
+@Composable
+public fun AlertDialogContent(
+    title: @Composable () -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: @Composable (Boolean) -> PaddingValues = { isScrollable: Boolean ->
+        if (icon != null) {
+            AlertDialogDefaults.buttonStackWithIconContentPadding(isScrollable)
+        } else {
+            AlertDialogDefaults.buttonStackContentPadding(isScrollable)
+        }
+    },
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    val scrollableLayout: @Composable () -> Unit = {
+        val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
+
+        ScreenScaffold(
+            scrollState = state,
+            modifier = modifier,
+            contentPadding = contentPadding(true),
+        ) { contentPadding ->
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = contentPadding,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = verticalArrangement,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                alertDialogCommonContent(
+                    icon = icon,
+                    title = title,
+                    text = text,
+                    transformationSpec = transformationSpec,
+                    topItemTransformationSpec = TopItemTransformationSpec,
+                    content = content,
+                )
+            }
+        }
+    }
+
+    if (content != null) scrollableLayout()
+    else {
+        DynamicScrollableOrFixedLayout(
+            scrollableContent = scrollableLayout,
+            fixedContent = { forMeasure ->
+                AlertDialogContentFixed(
+                    title = title,
+                    icon = icon,
+                    text = text,
+                    modifier = modifier,
+                    verticalArrangement = verticalArrangement,
+                    contentPadding = contentPadding(false),
+                    forMeasure = forMeasure,
+                )
+            },
+        )
     }
 }
 
@@ -392,6 +1000,9 @@ public fun AlertDialogContent(
  * [EdgeButton] to confirm an action. Prefer using [AlertDialog] directly, which provides built-in
  * animations and a streamlined API. This composable may be used to provide the content for an alert
  * dialog if custom animations are required.
+ *
+ * AlertDialogContent now additionally offers an equivalent overload using TransformingLazyColumn,
+ * which is recommended to achieve a consistent Material 3 scrolling experience throughout your app
  *
  * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy. It's recommended to use
@@ -429,8 +1040,12 @@ public fun AlertDialogContent(
         },
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
+    // AlertDialog + EdgeButton layout does not differentiate between scrollable/fixed content
+    // (unlike the confirm/dismiss and button-stack layouts) - so DynamicScrollableOrFixedLayout
+    // is not needed.
     val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
     val noTextAndContent = text == null && content == null
+
     ScreenScaffold(
         scrollState = state,
         edgeButton = edgeButton,
@@ -439,17 +1054,112 @@ public fun AlertDialogContent(
         edgeButtonSpacing =
             if (noTextAndContent) AlertEdgeButtonSpacingWithoutTextAndContent
             else AlertEdgeButtonSpacing,
-    ) {
+    ) { contentPadding ->
         ScalingLazyColumn(
             scalingParams = AlertScalingParams,
             state = state,
-            contentPadding = it,
+            contentPadding = contentPadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = verticalArrangement,
             autoCentering = null,
             modifier = Modifier.fillMaxSize(),
         ) {
-            alertDialogCommonContent(icon, title, text, content)
+            alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
+        }
+    }
+}
+
+/**
+ * This overload provides the content for an [AlertDialog] with a single [EdgeButton] to confirm an
+ * action and a [TransformationSpec] for advanced control over transformations of scrolling content.
+ * Prefer using [AlertDialog] directly, which provides built-in animations and a streamlined API.
+ * This composable may be used to provide the content for an alert dialog if custom animations are
+ * required.
+ *
+ * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.EdgeButton] in this slot with onClick callback. Note that when using an
+ *   [EdgeButton] which is not Medium size, the contentPadding parameters should be specified.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. This parameter is the key differentiator from the standard
+ *   [AlertDialog] overload, which uses a [ScalingLazyColumn] without per-item customizable
+ *   animations. The provided [transformationSpec] is automatically applied only to the dialog's
+ *   standard components (title, text, and buttons), while additional items in [content] lambda need
+ *   to be handled manually, by applying a [TransformationSpec] to each of them. First item has a
+ *   fixed spec, with a reduced transition area, so that the top item does not appear scaled or
+ *   faded when the dialog is initially displayed.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. Bottom padding
+ *   will be ignored and default spacing for the [EdgeButton] will be used. It is recommended to use
+ *   the defaults, which adjust to reduce the top padding when an icon is present.
+ * @param transformationSpec A spec that defines how components inside the [TransformingLazyColumn]
+ *   transform and animate as they are scrolled. It is recommended to create a spec using
+ *   [rememberTransformationSpec]. The provided [transformationSpec] is automatically applied only
+ *   to the dialog's standard components (icon, title, text, and buttons). This parameter is the key
+ *   differentiator from the standard [AlertDialog] overload, which uses a [ScalingLazyColumn] with
+ *   automatic non-customizable animations.
+ * @param content A slot for additional content, displayed within a scrollable
+ *   [TransformingLazyColumn].To ensure that your custom items animate consistently with the rest of
+ *   the dialog, we recommend applying a [TransformationSpec] to each of them.
+ */
+@Composable
+public fun AlertDialogContent(
+    edgeButton: (@Composable BoxScope.() -> Unit),
+    title: @Composable () -> Unit,
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues =
+        if (icon != null) {
+            AlertDialogDefaults.contentWithIconPadding()
+        } else {
+            AlertDialogDefaults.contentPadding()
+        },
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    /*
+       AlertDialog + EdgeButton layout does not differentiate between scrollable/fixed content (unlike the confirm/dismiss and button-stack layouts) - so DynamicScrollableOrFixedLayout is not needed.
+    */
+    val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
+    val noTextAndContent = text == null && content == null
+
+    ScreenScaffold(
+        scrollState = state,
+        modifier = modifier,
+        edgeButton = edgeButton,
+        contentPadding = contentPadding,
+        edgeButtonSpacing =
+            if (noTextAndContent) AlertEdgeButtonSpacingWithoutTextAndContent
+            else AlertEdgeButtonSpacing,
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            state = state,
+            contentPadding = contentPadding,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = verticalArrangement,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            alertDialogCommonContent(
+                icon = icon,
+                title = title,
+                text = text,
+                transformationSpec = transformationSpec,
+                topItemTransformationSpec = TopItemTransformationSpec,
+                content = content,
+            )
         }
     }
 }
@@ -501,6 +1211,7 @@ public object AlertDialogDefaults {
         val confirmWidth = 63.dp
         val confirmHeight = 54.dp
         val confirmShape = CircleShape
+
         FilledIconButton(
             onClick = onClick,
             modifier = modifier.rotate(-45f).size(confirmWidth, confirmHeight),
@@ -508,7 +1219,19 @@ public object AlertDialogDefaults {
             shapes = IconButtonDefaults.shapes(confirmShape),
         ) {
             Row(
-                modifier = Modifier.align(Alignment.Center).graphicsLayer { rotationZ = 45f },
+                modifier =
+                    Modifier.semantics(mergeDescendants = true) {
+                            semanticOnClick(
+                                action = {
+                                    onClick()
+                                    true
+                                }
+                            )
+                            role = Role.Button
+                        }
+                        .align(Alignment.Center)
+                        .graphicsLayer { rotationZ = 45f }
+                        .padding(10.dp),
                 content = content,
             )
         }
@@ -577,8 +1300,9 @@ public object AlertDialogDefaults {
     }
 
     /**
-     * The padding to apply around the content for the [AlertDialog] variation without an icon, that
-     * has a stack of buttons for options and no confirm or dismiss buttons at the end.
+     * The padding to apply around the content for the [AlertDialog] with either a stack of buttons
+     * (no confirm or dismiss buttons) or an EdgeButton, and when there is no icon. For the
+     * EdgeButton variation, the bottom padding is ignored.
      */
     @Composable
     public fun contentPadding(): PaddingValues {
@@ -592,8 +1316,9 @@ public object AlertDialogDefaults {
     }
 
     /**
-     * The padding to apply around the content for the [AlertDialog] variation with an icon, that
-     * has a stack of buttons for options and no confirm or dismiss buttons at the end.
+     * The padding to apply around the content for the [AlertDialog] with either a stack of buttons
+     * (no confirm or dismiss buttons) or an EdgeButton, and when there is an icon. For the
+     * EdgeButton variation, the bottom padding is ignored.
      */
     @Composable
     public fun contentWithIconPadding(): PaddingValues {
@@ -601,6 +1326,44 @@ public object AlertDialogDefaults {
         return PaddingValues(
             top = calculateTopPadding(hasIcon = true),
             bottom = screenHeightFraction(noEdgeButtonBottomPaddingFraction),
+            start = horizontalPadding,
+            end = horizontalPadding,
+        )
+    }
+
+    /**
+     * The padding to apply around the content for the [AlertDialog] variation using
+     * TransformingLazyColumn, without an icon, and with a stack of buttons for options. Bottom
+     * padding is calculated based on the provided [isScrollable] parameter, which favors the use of
+     * a bigger padding for scrollable content and a smaller one for fixed content.
+     */
+    @Composable
+    public fun buttonStackContentPadding(isScrollable: Boolean): PaddingValues {
+        val horizontalPadding = horizontalContentPadding()
+        return PaddingValues(
+            top = calculateTopPadding(hasIcon = false),
+            bottom =
+                if (isScrollable) screenHeightFraction(noEdgeButtonBottomPaddingFraction)
+                else verticalContentPadding(),
+            start = horizontalPadding,
+            end = horizontalPadding,
+        )
+    }
+
+    /**
+     * The padding to apply around the content for the [AlertDialog] variation using
+     * TransformingLazyColumn, with icon, and with a stack of buttons for options. Bottom padding is
+     * calculated based on the provided [isScrollable] parameter, which favors the use of a bigger
+     * padding for scrollable content and a smaller one for fixed content.
+     */
+    @Composable
+    public fun buttonStackWithIconContentPadding(isScrollable: Boolean): PaddingValues {
+        val horizontalPadding = horizontalContentPadding()
+        return PaddingValues(
+            top = calculateTopPadding(hasIcon = true),
+            bottom =
+                if (isScrollable) screenHeightFraction(noEdgeButtonBottomPaddingFraction)
+                else verticalContentPadding(),
             start = horizontalPadding,
             end = horizontalPadding,
         )
@@ -618,6 +1381,7 @@ public object AlertDialogDefaults {
     /** Default vertical arrangement for an [AlertDialog]. */
     public val VerticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically)
+
     /** Default icon for the confirm button. */
     public val ConfirmIcon: @Composable RowScope.() -> Unit = {
         Icon(
@@ -626,6 +1390,7 @@ public object AlertDialogDefaults {
             modifier = Modifier.size(28.dp).align(Alignment.CenterVertically),
         )
     }
+
     /** Default icon for the dismiss button. */
     public val DismissIcon: @Composable RowScope.() -> Unit = {
         Icon(
@@ -646,6 +1411,112 @@ public object AlertDialogDefaults {
     internal val cancelButtonPadding = 1.dp
 }
 
+@Composable
+private fun DynamicScrollableOrFixedLayout(
+    scrollableContent: @Composable () -> Unit,
+    fixedContent: @Composable (measureStep: Boolean) -> Unit,
+) {
+    val measurableContentLambda =
+        @Composable {
+            Box(modifier = Modifier.wrapContentHeight().clearAndSetSemantics {}) {
+                fixedContent(true)
+            }
+        }
+    val fixedContentLambda = @Composable { fixedContent(false) }
+    SubcomposeLayout { constraints ->
+        val fixedMeasurable =
+            subcompose("measurableContent", measurableContentLambda)
+                .first()
+                .measure(constraints.copy(maxHeight = Constraints.Infinity))
+        val isScrollable = fixedMeasurable.height > constraints.maxHeight
+
+        val placeable =
+            subcompose(
+                    if (isScrollable) "scrollableContent" else "fixedContent",
+                    if (isScrollable) scrollableContent else fixedContentLambda,
+                )
+                .first()
+                .measure(constraints)
+        layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+    }
+}
+
+@Composable
+private fun AlertDialogContentFixedWithConfirmationButtons(
+    confirmButton: @Composable RowScope.() -> Unit,
+    title: @Composable () -> Unit,
+    dismissButton: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues,
+    forMeasure: Boolean,
+) {
+    Column(
+        // Ignore the incoming modifier on measuring pass. We need to know the unconstrained height.
+        modifier =
+            if (forMeasure) Modifier.padding(contentPadding).wrapContentSize()
+            else modifier.padding(contentPadding).fillMaxSize(),
+        verticalArrangement = verticalArrangement,
+    ) {
+        Column(
+            modifier =
+                Modifier.fillMaxWidth().let { modifier ->
+                    if (!forMeasure) modifier.weight(1f) else modifier
+                },
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (icon != null) {
+                Row { IconAlert(content = icon) }
+            }
+            Row { Title(content = title) }
+            if (text != null) {
+                Row { TextMessage(content = text) }
+            }
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            contentAlignment = Alignment.Center,
+        ) {
+            ConfirmDismissButtons(
+                confirmButton = confirmButton,
+                dismissButton = dismissButton,
+                extraBottomPaddingEnabled = false,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AlertDialogContentFixed(
+    title: @Composable () -> Unit,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    modifier: Modifier,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues,
+    forMeasure: Boolean,
+) {
+    Column(
+        // Ignore the incoming modifier on measuring pass. We need to know the unconstrained height.
+        modifier =
+            if (forMeasure) Modifier.padding(contentPadding).wrapContentSize()
+            else modifier.padding(contentPadding).fillMaxSize(),
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (icon != null) {
+            Row { IconAlert(content = icon) }
+        }
+        Row { Title(content = title) }
+        if (text != null) {
+            Row { TextMessage(content = text) }
+        }
+    }
+}
+
 private fun ScalingLazyListScope.alertDialogCommonContent(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit,
@@ -653,30 +1524,98 @@ private fun ScalingLazyListScope.alertDialogCommonContent(
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
     if (icon != null) {
-        item { IconAlert(icon) }
+        item { IconAlert(content = icon) }
     }
-    item { Title(title) }
+    item { Title(content = title) }
     if (text != null) {
-        item { TextMessage(text) }
+        item { TextMessage(content = text) }
     }
     if (content != null) {
-        item { Spacer(Modifier.height(AlertContentTopSpacing)) }
+        item { Spacer(modifier = Modifier.height(AlertContentTopSpacing)) }
+        content()
+    }
+}
+
+private fun TransformingLazyColumnScope.alertDialogCommonContent(
+    icon: @Composable (() -> Unit)? = null,
+    title: @Composable () -> Unit,
+    text: @Composable (() -> Unit)? = null,
+    transformationSpec: TransformationSpec,
+    topItemTransformationSpec: TransformationSpec,
+    content: (TransformingLazyColumnScope.() -> Unit)? = null,
+) {
+    if (icon != null) {
+        item {
+            IconAlert(
+                modifier =
+                    Modifier.transformedHeight(scope = this@item, topItemTransformationSpec)
+                        .graphicsLayer {
+                            with(SurfaceTransformation(topItemTransformationSpec)) {
+                                applyContentTransformation()
+                                applyContainerTransformation()
+                            }
+                        },
+                content = icon,
+            )
+        }
+    }
+    item {
+        val transformationSpec = if (icon == null) topItemTransformationSpec else transformationSpec
+        Title(
+            modifier =
+                Modifier.transformedHeight(scope = this@item, transformationSpec).graphicsLayer {
+                    with(SurfaceTransformation(transformationSpec)) {
+                        applyContentTransformation()
+                        applyContainerTransformation()
+                    }
+                },
+            content = title,
+        )
+    }
+    if (text != null) {
+        item {
+            TextMessage(
+                modifier =
+                    Modifier.transformedHeight(scope = this@item, transformationSpec)
+                        .graphicsLayer {
+                            with(SurfaceTransformation(transformationSpec)) {
+                                applyContentTransformation()
+                                applyContainerTransformation()
+                            }
+                        },
+                content = text,
+            )
+        }
+    }
+    if (content != null) {
+        item {
+            Spacer(
+                Modifier.height(AlertContentTopSpacing)
+                    .transformedHeight(scope = this@item, transformationSpec)
+                    .graphicsLayer {
+                        with(SurfaceTransformation(transformationSpec)) {
+                            applyContentTransformation()
+                            applyContainerTransformation()
+                        }
+                    }
+            )
+        }
         content()
     }
 }
 
 @Composable
-private fun IconAlert(content: @Composable () -> Unit) {
-    Column {
+private fun IconAlert(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier = modifier) {
         content()
         Spacer(Modifier.height(AlertIconBottomSpacing))
     }
 }
 
 @Composable
-private fun Title(content: @Composable () -> Unit) {
+private fun Title(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val horizontalPadding = screenWidthFraction(TitlePaddingFraction)
-    Column(modifier = Modifier.padding(horizontal = horizontalPadding)) {
+    Column(modifier = modifier.padding(horizontal = horizontalPadding)) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             LocalTextStyle provides MaterialTheme.typography.titleMedium,
@@ -695,6 +1634,8 @@ private fun Title(content: @Composable () -> Unit) {
 private fun ConfirmDismissButtons(
     confirmButton: @Composable RowScope.() -> Unit,
     dismissButton: @Composable RowScope.() -> Unit,
+    spacingEnabled: Boolean = true,
+    extraBottomPaddingEnabled: Boolean,
 ) {
     Column {
         Spacer(modifier = Modifier.height(ConfirmDismissButtonsTopSpacing))
@@ -711,17 +1652,63 @@ private fun ConfirmDismissButtons(
             confirmButton(this)
             Spacer(modifier = Modifier.width(2.dp))
         }
-        Spacer(
-            modifier =
-                Modifier.height(screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction))
-        )
+        if (extraBottomPaddingEnabled)
+            Spacer(
+                modifier =
+                    Modifier.height(
+                        screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction)
+                    )
+            )
     }
 }
 
 @Composable
-private fun TextMessage(content: @Composable () -> Unit) {
+private fun TransformingLazyColumnItemScope.ConfirmDismissButtons(
+    confirmButton: @Composable RowScope.() -> Unit,
+    dismissButton: @Composable RowScope.() -> Unit,
+    transformationSpec: TransformationSpec,
+    extraBottomPaddingEnabled: Boolean,
+) {
+    val transformation = SurfaceTransformation(transformationSpec)
+    Column(
+        modifier =
+            Modifier.transformedHeight(scope = this@ConfirmDismissButtons, transformationSpec)
+    ) {
+        Spacer(modifier = Modifier.height(ConfirmDismissButtonsTopSpacing))
+        Row(
+            modifier =
+                Modifier.graphicsLayer {
+                    with(transformation) {
+                        applyContainerTransformation()
+                        applyContentTransformation()
+                    }
+                },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Spacer(modifier = Modifier.width(6.dp))
+            dismissButton(this)
+            Spacer(
+                modifier =
+                    Modifier.width(screenWidthFraction(ConfirmDismissBetweenButtonsPaddingFraction))
+            )
+            confirmButton(this)
+            Spacer(modifier = Modifier.width(2.dp))
+        }
+        if (extraBottomPaddingEnabled)
+            Spacer(
+                modifier =
+                    Modifier.height(
+                        screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction)
+                    )
+            )
+    }
+}
+
+@Composable
+private fun TextMessage(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val horizontalPadding = screenWidthFraction(TextPaddingFraction)
-    Column(modifier = Modifier.padding(horizontal = horizontalPadding)) {
+    Column(modifier = modifier.padding(horizontal = horizontalPadding)) {
         Spacer(Modifier.height(AlertTextMessageTopSpacing))
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
@@ -749,3 +1736,6 @@ private const val TextPaddingFraction = 0.0416f
 private const val TitlePaddingFraction = 0.12f
 private const val ConfirmDismissBetweenButtonsPaddingFraction = 0.03f
 private val AlertScalingParams = ScalingLazyColumnDefaults.scalingParams(minTransitionArea = 0.2f)
+
+private val TopItemTransformationSpec: ResponsiveTransformationSpec =
+    ResponsiveTransformationSpec.smallScreen(minTransitionAreaHeightFraction = 0.14f)

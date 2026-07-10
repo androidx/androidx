@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Represents a touch cancel modifier + actions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchCancelModifierOperation extends ListActionsOperation implements TouchHandler {
 
     private static final int OP_CODE = Operations.MODIFIER_TOUCH_CANCEL;
@@ -47,29 +49,17 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-        if (context.getDocument() == null) {
-            return;
-        }
-        RootLayoutComponent root = context.getDocument().getRootLayoutComponent();
-        if (root != null) {
-            root.setHasTouchListeners(true);
-        }
-        super.apply(context);
-    }
-
-    @Override
-    public void onTouchDown(
+    public boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchUp(
+    public boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -77,27 +67,28 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
             float y,
             float dx,
             float dy) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchCancel(
+    public boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
         applyActions(context, document, component, x, y, true);
+        return true;
     }
 
     @Override
-    public void onTouchDrag(
+    public boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     /**
@@ -138,7 +129,7 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
         doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Touch cancel modifier. This operation contains"
-                                + " a list of action executed on Touch cancel");
+                                + " a list of action operations executed on touch cancel");
     }
 
     @Override

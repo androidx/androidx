@@ -21,16 +21,18 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.InitializationException
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraFactory.Provider
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -60,12 +62,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowPackageManager
 import org.robolectric.shadows.ShadowSystemClock
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProcessCameraProviderTest {
 
@@ -129,7 +133,6 @@ class ProcessCameraProviderTest {
     }
 
     @Test
-    @OptIn(ExperimentalSessionConfig::class)
     fun bindUseCasesOrSessionConfig_withNotExistedLensFacingCamera() = runTest {
         shadowPackageManager.setSystemFeature(PackageManager.FEATURE_CAMERA, true)
         shadowPackageManager.setSystemFeature(PackageManager.FEATURE_CAMERA_FRONT, false)
@@ -146,8 +149,8 @@ class ProcessCameraProviderTest {
         val appConfigBuilder =
             CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
-                .setDeviceSurfaceManagerProvider { _, _, _ -> FakeCameraDeviceSurfaceManager() }
-                .setUseCaseConfigFactoryProvider { FakeUseCaseConfigFactory() }
+                .setDeviceSurfaceManagerProvider { _, _, _, _ -> FakeCameraDeviceSurfaceManager() }
+                .setUseCaseConfigFactoryProvider { _, _ -> FakeUseCaseConfigFactory() }
 
         ProcessCameraProvider.configureInstance(appConfigBuilder.build())
 
@@ -187,6 +190,79 @@ class ProcessCameraProviderTest {
         assertThat(cameraInfo.lensFacing).isEqualTo(LENS_FACING_BACK)
     }
 
+    @Test
+    fun getCameraInfo_returnsCorrectCameraInfo() = runTest {
+        // Arrange
+        ProcessCameraProvider.configureInstance(
+            createCameraXConfig(
+                cameraFactory = createFakeCameraFactory(frontCamera = true, backCamera = true)
+            )
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+
+        // Act & Assert
+        val backCameraInfo = provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA)
+        assertThat(backCameraInfo.lensFacing).isEqualTo(CameraSelector.LENS_FACING_BACK)
+
+        val frontCameraInfo = provider.getCameraInfo(CameraSelector.DEFAULT_FRONT_CAMERA)
+        assertThat(frontCameraInfo.lensFacing).isEqualTo(CameraSelector.LENS_FACING_FRONT)
+    }
+
+    @Test
+    fun getCameraInfoWithSessionConfig_returnsCorrectCameraInfo() = runTest {
+        // Arrange
+        ProcessCameraProvider.configureInstance(
+            createCameraXConfig(
+                cameraFactory =
+                    createFakeCameraFactory(
+                        backCamera = true,
+                        anotherBackCamera = true,
+                        frontCamera = true,
+                    )
+            )
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val sessionConfig =
+            CustomSessionConfig(
+                CameraFilter { cameraInfos ->
+                    cameraInfos.filter { (it as CameraInfoInternal).cameraId == CAMERA_ID_2 }
+                }
+            )
+
+        // Act & Assert
+        val backCameraInfo =
+            provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA, sessionConfig)
+        assertThat((backCameraInfo as CameraInfoInternal).cameraId).isEqualTo(CAMERA_ID_2)
+    }
+
+    @Test
+    fun getCameraInfoWithSessionConfig_throwsExceptionForUnavailableCamera() = runTest {
+        // Arrange
+        ProcessCameraProvider.configureInstance(
+            createCameraXConfig(
+                cameraFactory =
+                    createFakeCameraFactory(
+                        backCamera = true,
+                        anotherBackCamera = true,
+                        frontCamera = true,
+                    )
+            )
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val sessionConfig =
+            CustomSessionConfig(
+                CameraFilter { cameraInfos ->
+                    // Filter for a camera that doesn't exist
+                    cameraInfos.filter { (it as CameraInfoInternal).cameraId == "non-existent-id" }
+                }
+            )
+
+        // Act & Assert
+        assertThrows<IllegalArgumentException> {
+            provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA, sessionConfig)
+        }
+    }
+
     private fun createCameraXConfig(
         cameraFactory: CameraFactory = createFakeCameraFactory(),
         surfaceManager: CameraDeviceSurfaceManager? = FakeCameraDeviceSurfaceManager(),
@@ -197,9 +273,17 @@ class ProcessCameraProviderTest {
             .setCameraFactoryProvider(cameraFactoryProvider)
             .apply {
                 surfaceManager?.let {
-                    setDeviceSurfaceManagerProvider { _: Context?, _: Any?, _: Set<String?>? -> it }
+                    setDeviceSurfaceManagerProvider {
+                        _: Context?,
+                        _: Any?,
+                        _: Set<String?>?,
+                        _: String? ->
+                        it
+                    }
                 }
-                useCaseConfigFactory?.let { setUseCaseConfigFactoryProvider { _: Context? -> it } }
+                useCaseConfigFactory?.let {
+                    setUseCaseConfigFactoryProvider { _: Context?, _: Boolean -> it }
+                }
             }
             .build()
     }
@@ -207,6 +291,7 @@ class ProcessCameraProviderTest {
     private fun createFakeCameraFactory(
         frontCamera: Boolean = false,
         backCamera: Boolean = false,
+        anotherBackCamera: Boolean = false,
     ): CameraFactory =
         FakeCameraFactory(null).also { cameraFactory ->
             if (backCamera) {
@@ -215,6 +300,15 @@ class ProcessCameraProviderTest {
                         CAMERA_ID_0,
                         null,
                         FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK),
+                    )
+                }
+            }
+            if (anotherBackCamera) {
+                cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_2) {
+                    FakeCamera(
+                        CAMERA_ID_2,
+                        null,
+                        FakeCameraInfoInternal(CAMERA_ID_2, 0, CameraSelector.LENS_FACING_BACK),
                     )
                 }
             }
@@ -244,9 +338,21 @@ class ProcessCameraProviderTest {
         }
     }
 
+    private class CustomSessionConfig(
+        cameraFilter: CameraFilter,
+        requireNonEmptyUseCases: Boolean = false,
+        useCases: List<UseCase> = emptyList(),
+    ) :
+        SessionConfig(
+            useCases,
+            cameraFilter = cameraFilter,
+            requireNonEmptyUseCases = requireNonEmptyUseCases,
+        ) {}
+
     companion object {
         private const val CAMERA_ID_0 = "0"
         private const val CAMERA_ID_1 = "1"
+        private const val CAMERA_ID_2 = "2"
         private const val FAKE_INIT_PROCESS_TIME_MS = 33L
     }
 }

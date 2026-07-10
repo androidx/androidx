@@ -35,6 +35,7 @@ import org.robolectric.shadows.ShadowPendingIntent;
 
 /** Unit test for {@link PendingIntentCompat}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class PendingIntentCompatTest {
     private final Context context = ApplicationProvider.getApplicationContext();
 

@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.Color
  *   example, the border of a confirmation button. It should not be used to fill surfaces.
  * @property negative The negative color is used to indicate negative actions. For example, the
  *   border of a cancel button. It should not be used to fill surfaces.
- * @property surface The surface color that affect surfaces of components, such as buttons, cards,
- *   and list items. This should be [Color.Black] to ensure maximum contrast.
+ * @property background The background color that appears behind components. This should be
+ *   [Color.Black] to ensure maximum contrast.
+ * @property surface The surface color that's applied to surfaces of components, such as buttons,
+ *   cards, and list items.
  * @property outline Subtle color used for borders. This color helps to add contrast around
  *   components for accessibility purposes.
  * @property outlineVariant Utility color used for borders for decorative elements when strong
@@ -41,11 +43,12 @@ import androidx.compose.ui.graphics.Color
  */
 @Immutable
 public class Colors(
-    public val primary: Color = Color(0xFFA8C7FA),
+    public val primary: Color = Color(0xFF9BBFFF),
     public val secondary: Color = Color(0xFF4C88E9),
-    public val positive: Color = Color(0xFF4CE995),
-    public val negative: Color = Color(0xFFF57084),
-    public val surface: Color = Color.Black,
+    public val positive: Color = Color(0xFF63FEA8),
+    public val negative: Color = Color(0xFFFFA7A0),
+    public val background: Color = Color.Black,
+    public val surface: Color = Color(0xFF262626),
     public val outline: Color = Color(0xFF606460),
     public val outlineVariant: Color = Color(0xFF42434A),
 ) {
@@ -56,6 +59,7 @@ public class Colors(
         secondary: Color = this.secondary,
         positive: Color = this.positive,
         negative: Color = this.negative,
+        background: Color = this.background,
         surface: Color = this.surface,
         outline: Color = this.outline,
         outlineVariant: Color = this.outlineVariant,
@@ -65,6 +69,7 @@ public class Colors(
             secondary = secondary,
             positive = positive,
             negative = negative,
+            background = background,
             surface = surface,
             outline = outline,
             outlineVariant = outlineVariant,
@@ -78,6 +83,7 @@ public class Colors(
         if (secondary != other.secondary) return false
         if (positive != other.positive) return false
         if (negative != other.negative) return false
+        if (background != other.background) return false
         if (surface != other.surface) return false
         if (outline != other.outline) return false
         if (outlineVariant != other.outlineVariant) return false
@@ -90,6 +96,7 @@ public class Colors(
         result = 31 * result + secondary.hashCode()
         result = 31 * result + positive.hashCode()
         result = 31 * result + negative.hashCode()
+        result = 31 * result + background.hashCode()
         result = 31 * result + surface.hashCode()
         result = 31 * result + outline.hashCode()
         result = 31 * result + outlineVariant.hashCode()
@@ -97,6 +104,6 @@ public class Colors(
     }
 
     override fun toString(): String {
-        return "Colors(primary=$primary, secondary=$secondary, positive=$positive, negative=$negative, surface=$surface, outline=$outline, outlineVariant=$outlineVariant)"
+        return "Colors(primary=$primary, secondary=$secondary, positive=$positive, negative=$negative, background=$background, surface=$surface, outline=$outline, outlineVariant=$outlineVariant)"
     }
 }

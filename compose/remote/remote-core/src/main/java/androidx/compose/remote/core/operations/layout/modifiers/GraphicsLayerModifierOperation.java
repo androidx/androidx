@@ -15,14 +15,17 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.layout.AnimatableValue;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -34,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /** Represents a graphics layer modifier. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_GRAPHICS_LAYER;
     public static final String CLASS_NAME = "GraphicsLayerModifierOperation";
@@ -103,11 +107,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     boolean mHasBlurEffect = false;
 
-    /**
-     * Fill in the hashmap with the attributes values
-     *
-     * @param attributes
-     */
+    /** Fill in the hashmap with the attributes values */
     public void fillInAttributes(@NonNull HashMap<Integer, Object> attributes) {
         for (int i = 0; i < mValues.length; i++) {
             if (mValues[i].needsToWrite()) {
@@ -184,7 +184,8 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
         }
 
         public void write(WireBuffer buffer) {
-            buffer.writeInt(mId);
+            int tag = mId | (mType == FLOAT_VALUE ? DATA_TYPE_FLOAT << 10 : DATA_TYPE_INT << 10);
+            buffer.writeInt(tag);
             if (mType == FLOAT_VALUE) {
                 buffer.writeFloat(getValue());
             } else if (mType == INT_VALUE) {
@@ -210,8 +211,14 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
+        int count = 0;
+        for (int i = 0; i < mValues.length; i++) {
+            if (mValues[i].needsToWrite()) {
+                count++;
+            }
+        }
         buffer.start(OP_CODE);
-        buffer.writeInt(mValues.length);
+        buffer.writeInt(count);
         for (int i = 0; i < mValues.length; i++) {
             AttributeValue value = mValues[i];
             if (value.needsToWrite()) {
@@ -246,6 +253,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "GraphicsLayerModifierOperation("
                 + mValues[SCALE_X].getValue()
@@ -293,26 +301,14 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
         }
     }
 
-    /**
-     * Utility to write an integer attribute
-     *
-     * @param buffer
-     * @param type
-     * @param value
-     */
+    /** Utility to write an integer attribute */
     private static void writeIntAttribute(@NonNull WireBuffer buffer, int type, int value) {
         int tag = type | (DATA_TYPE_INT << 10);
         buffer.writeInt(tag);
         buffer.writeInt(value);
     }
 
-    /**
-     * Utility to write a float attribute
-     *
-     * @param buffer
-     * @param type
-     * @param value
-     */
+    /** Utility to write a float attribute */
     private static void writeFloatAttribute(@NonNull WireBuffer buffer, int type, float value) {
         int tag = type | (DATA_TYPE_FLOAT << 10);
         buffer.writeInt(tag);
@@ -328,30 +324,41 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int length = buffer.readInt();
         GraphicsLayerModifierOperation op = new GraphicsLayerModifierOperation();
+        if (length < 0 || length > op.mValues.length
+                || length > (buffer.getSize() - buffer.getIndex()) / 8) {
+            throw new RuntimeException(
+                    "attempt to allocate an invalid number of attributes: " + length);
+        }
         for (int i = 0; i < length; i++) {
             op.readAttributeValue(buffer);
         }
         operations.add(op);
     }
 
-    /**
-     * Read a single attribute value from the buffer
-     *
-     * @param buffer
-     */
+    /** Read a single attribute value from the buffer */
     private void readAttributeValue(@NonNull WireBuffer buffer) {
         int tag = buffer.readInt();
         int dataType = tag >> 10;
         int index = (short) (tag & 0x3F);
+        if (index < 0 || index >= mValues.length) {
+            throw new RuntimeException(
+                    "attempt to read an invalid attribute index: " + index);
+        }
         if (index == BLUR_RADIUS_X || index == BLUR_RADIUS_Y) {
             mHasBlurEffect = true;
             mValues[HAS_BLUR].setValue(1);
         }
         if (dataType == DATA_TYPE_FLOAT) {
-            float value = buffer.readFloat();
+            float value = buffer.readNanId();
             mValues[index].setValue(value);
         } else if (dataType == DATA_TYPE_INT) {
             int value = buffer.readInt();
+            if (index == SPOT_SHADOW_COLOR || index == AMBIENT_SHADOW_COLOR) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    value = ((LoomWireBuffer) buffer).getRemapContext().resolveId(value);
+                }
+            }
             mValues[index].setValue(value);
         }
     }
@@ -363,7 +370,17 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the GraphicsLayer Modifier");
+                .additionalDocumentation("modifier_graphics_layer")
+                .description("Define transformations (scale, rotation, alpha) for a component")
+                .field(DocumentedOperation.INT, "length", "Number of attributes")
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.FLOAT, "attributeValue", "The value of the attribute")
+                .endSubsection()
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.INT, "attributeValue", "The value of the attribute")
+                .endSubsection();
     }
 
     @Override

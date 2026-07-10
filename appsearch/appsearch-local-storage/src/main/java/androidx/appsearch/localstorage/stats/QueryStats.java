@@ -15,9 +15,12 @@
  */
 package androidx.appsearch.localstorage.stats;
 
+import android.util.ArraySet;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.SearchSpec;
@@ -29,13 +32,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#search(String, SearchSpec)}
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class QueryStats extends BaseStats {
     /** Types of Visibility scopes available for search. */
@@ -165,6 +170,7 @@ public final class QueryStats extends BaseStats {
     // Number of result states being force-evicted from ResultStateManager due to
     // budget limit. This doesn't include expired or invalidated states.
     int mNumResultStatesEvicted;
+    @NonNull final Set<String> mResultSchemas;
 
     QueryStats(@NonNull Builder builder) {
         super(builder);
@@ -200,6 +206,7 @@ public final class QueryStats extends BaseStats {
         mLiteIndexHitBufferUnsortedByteSize = builder.mLiteIndexHitBufferUnsortedByteSize;
         mPageTokenType = builder.mPageTokenType;
         mNumResultStatesEvicted = builder.mNumResultStatesEvicted;
+        mResultSchemas = Collections.unmodifiableSet(builder.mResultSchemas);
     }
 
     /** Returns the package name of the session. */
@@ -391,40 +398,71 @@ public final class QueryStats extends BaseStats {
         return mNumResultStatesEvicted;
     }
 
+    /**  Returns an unmodifiable set contains results schemas. */
+    @NonNull
+    public Set<String> getResultSchemas() {
+        return mResultSchemas;
+    }
+
     @NonNull
     @Override
     public String toString() {
         return String.format(
+                Locale.ROOT,
                 "QueryStats {\n"
-                        + "package=%s, database=%s, status=%d, total_latency=%d, "
-                        + "rewrite_search_spec_latency=%d,\n"
-                        + "rewrite_search_result_latency=%d, java_lock_acquisition_latency=%d, "
-                        + "acl_check_latency=%d, visibility_score=%d,\n"
-                        + "search_source_log_tag=%s, is_first_page=%b, requested_page_size=%d, "
-                        + "num_results_returned_current_page=%d,\n"
-                        + "native_latency=%d, ranking_latency=%d, document_retrieving_latency=%d, "
-                        + "num_results_with_snippets=%d,\n"
-                        + "native_lock_acquisition_latency=%d, java_to_native_jni_latency=%d, "
-                        + "native_to_java_jni_latency=%d,\n"
-                        + "join_latency_ms=%d, num_joined_results_current_page=%d, join_type=%d, "
-                        + "lite_index_hit_buffer_byte_size=%d,\n"
-                        + "lite_index_hit_buffer_unsorted_byte_size=%d\n"
-                        + "page_token_type=%d, num_result_states_evicted=%d\n"
-                        + "parent_search_stats=%s,\n child_search_stats=%s}",
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  rewriteSearchSpecLatencyMillis=%d,\n"
+                        + "  rewriteSearchResultLatencyMillis=%d,\n"
+                        + "  aclCheckLatencyMillis=%d,\n"
+                        + "  visibilityScope=%d,\n"
+                        + "  searchSourceLogTag=%s,\n"
+                        + "  nativeIsFirstPage=%b,\n"
+                        + "  additionalPageCount=%d,\n"
+                        + "  nativeRequestedPageSize=%d,\n"
+                        + "  nativeNumResultsReturnedCurrentPage=%d,\n"
+                        + "  numResultsReturnedAdditionalPages=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  firstNativeCallLatencyMillis=%d,\n"
+                        + "  additionalPageRetrievalLatencyMillis=%d,\n"
+                        + "  nativeRankingLatencyMillis=%d,\n"
+                        + "  nativeDocumentRetrievingLatencyMillis=%d,\n"
+                        + "  nativeNumResultsWithSnippets=%d,\n"
+                        + "  nativeLockAcquisitionLatencyMillis=%d,\n"
+                        + "  javaToNativeJniLatencyMillis=%d,\n"
+                        + "  nativeToJavaJniLatencyMillis=%d,\n"
+                        + "  nativeJoinLatencyMillis=%d,\n"
+                        + "  nativeNumJoinedResultsCurrentPage=%d,\n"
+                        + "  joinType=%d,\n"
+                        + "  parentSearchStats=%s,\n"
+                        + "  childSearchStats=%s,\n"
+                        + "  liteIndexHitBufferByteSize=%d,\n"
+                        + "  liteIndexHitBufferUnsortedByteSize=%d,\n"
+                        + "  pageTokenType=%d,\n"
+                        + "  numResultStatesEvicted=%d,\n"
+                        + "  resultSchemas=%s,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
                 mPackageName,
                 mDatabase,
                 mStatusCode,
                 mTotalLatencyMillis,
                 mRewriteSearchSpecLatencyMillis,
                 mRewriteSearchResultLatencyMillis,
-                mJavaLockAcquisitionLatencyMillis,
                 mAclCheckLatencyMillis,
                 mVisibilityScope,
                 mSearchSourceLogTag,
                 mNativeIsFirstPage,
+                mAdditionalPageCount,
                 mNativeRequestedPageSize,
                 mNativeNumResultsReturnedCurrentPage,
+                mNumResultsReturnedAdditionalPages,
                 mNativeLatencyMillis,
+                mFirstNativeCallLatencyMillis,
+                mAdditionalPageRetrievalLatencyMillis,
                 mNativeRankingLatencyMillis,
                 mNativeDocumentRetrievingLatencyMillis,
                 mNativeNumResultsWithSnippets,
@@ -434,13 +472,15 @@ public final class QueryStats extends BaseStats {
                 mNativeJoinLatencyMillis,
                 mNativeNumJoinedResultsCurrentPage,
                 mJoinType,
+                String.valueOf(mParentSearchStats).replace("\n", "\n  "),
+                String.valueOf(mChildSearchStats).replace("\n", "\n  "),
                 mLiteIndexHitBufferByteSize,
                 mLiteIndexHitBufferUnsortedByteSize,
                 mPageTokenType,
                 mNumResultStatesEvicted,
-                mParentSearchStats.toString(),
-                mChildSearchStats.toString());
+                mResultSchemas);
     }
+
     /** Builder for {@link QueryStats} */
     public static class Builder extends BaseStats.Builder<QueryStats.Builder> {
         final @NonNull String mPackageName;
@@ -476,6 +516,7 @@ public final class QueryStats extends BaseStats {
         long mLiteIndexHitBufferUnsortedByteSize;
         @PageTokenType int mPageTokenType;
         int mNumResultStatesEvicted;
+        @NonNull Set<String> mResultSchemas = new ArraySet<>();
 
         /**
          * Constructor of {@link QueryStats}.
@@ -718,6 +759,14 @@ public final class QueryStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setNumResultStatsEvicted(int numResultStatesEvicted) {
             mNumResultStatesEvicted = numResultStatesEvicted;
+            return this;
+        }
+
+        /** Sets the result schemas.         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setResultSchemas(@NonNull Set<String> resultSchemas) {
+            mResultSchemas = new ArraySet<>(resultSchemas.size());
+            mResultSchemas.addAll(resultSchemas);
             return this;
         }
 

@@ -16,110 +16,82 @@
 
 package androidx.xr.scenecore.spatial.core
 
+import androidx.core.app.ComponentActivity
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.internal.CameraViewActivityPose
-import androidx.xr.scenecore.internal.Dimensions
-import androidx.xr.scenecore.internal.PerceivedResolutionResult
-import androidx.xr.scenecore.internal.PixelDimensions
+import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.PerceivedResolutionResult
+import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import com.android.extensions.xr.XrExtensions
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.atan
 import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.android.controller.ActivityController
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class PerceivedResolutionUtilsTest {
 
-    private lateinit var mockCameraView: CameraViewActivityPose
+    private lateinit var activityController: ActivityController<ComponentActivity>
+    private lateinit var activity: ComponentActivity
+
+    private val fakeCameraView: ScenePose = mock(ScenePose::class.java)
 
     // Default camera properties
     private lateinit var cameraPose: Pose
-    private lateinit var cameraFov: CameraViewActivityPose.Fov
+    private lateinit var cameraFov: FieldOfView
     private lateinit var cameraDisplayResolution: PixelDimensions
+    private lateinit var session: Session
+    private lateinit var fakeSceneRuntime: SceneRuntime
+
+    @Suppress("DEPRECATION")
+    // TODO: b/494308962 Remove references to arcore-testing Fakes
+    private val fakePerceptionRuntimeFactory =
+        androidx.xr.arcore.testing.FakePerceptionRuntimeFactory()
 
     @Before
+    @SuppressWarnings("RestrictTo")
     fun setUp() {
-        mockCameraView = mock()
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.get()
 
         // Default camera setup: at origin, looking along -Z, 90deg HFOV, 90deg VFOV
+        `when`(fakeCameraView.activitySpacePose)
+            .thenReturn(Pose(Vector3(0f, 0f, 0f), Quaternion.Identity))
         cameraPose = Pose(Vector3(0f, 0f, 0f), Quaternion.Identity)
         cameraFov =
-            CameraViewActivityPose.Fov(
-                atan(1.0f),
-                atan(1.0f),
-                atan(1.0f),
-                atan(1.0f),
-            ) // tan(angle) = 1 => 45 deg
+            FieldOfView(atan(1.0f), atan(1.0f), atan(1.0f), atan(1.0f)) // tan(angle) = 1 => 45 deg
         cameraDisplayResolution = PixelDimensions(1000, 1000) // 1000x1000 display
 
-        whenever(mockCameraView.activitySpacePose).thenReturn(cameraPose)
-        whenever(mockCameraView.fov).thenReturn(cameraFov)
-        whenever(mockCameraView.displayResolutionInPixels).thenReturn(cameraDisplayResolution)
-    }
-
-    // --- Tests for getPerceivedResolutionCameraView ---
-
-    @Test
-    fun getPerceivedResolutionCameraView_leftEyeExists_returnsLeftEye() {
-        val leftEyeCamera: CameraViewActivityPose = mock {
-            on { cameraType } doReturn CameraViewActivityPose.CameraType.CAMERA_TYPE_LEFT_EYE
-        }
-        val rightEyeCamera: CameraViewActivityPose = mock {
-            on { cameraType } doReturn CameraViewActivityPose.CameraType.CAMERA_TYPE_RIGHT_EYE
-        }
-        val entityManager = EntityManager()
-        entityManager.addSystemSpaceActivityPose(leftEyeCamera)
-        entityManager.addSystemSpaceActivityPose(rightEyeCamera)
-
-        val result = getPerceivedResolutionCameraView(entityManager)
-
-        assertThat(result).isEqualTo(leftEyeCamera)
-    }
-
-    @Test
-    fun getPerceivedResolutionCameraView_onlyRightEyeExists_returnsNull() {
-        val rightEyeCamera: CameraViewActivityPose = mock {
-            on { cameraType } doReturn CameraViewActivityPose.CameraType.CAMERA_TYPE_RIGHT_EYE
-        }
-        val entityManager = EntityManager()
-        entityManager.addSystemSpaceActivityPose(rightEyeCamera)
-
-        val result = getPerceivedResolutionCameraView(entityManager)
-
-        assertThat(result).isNull()
-    }
-
-    @Test
-    fun getPerceivedResolutionCameraView_noCameraViews_returnsNull() {
-        val entityManager = EntityManager()
-
-        val result = getPerceivedResolutionCameraView(entityManager)
-
-        assertThat(result).isNull()
-    }
-
-    @Test
-    fun getPerceivedResolutionCameraView_noLeftEyeAmongOthers_returnsNull() {
-        val rightEyeCamera: CameraViewActivityPose = mock {
-            on { cameraType } doReturn CameraViewActivityPose.CameraType.CAMERA_TYPE_RIGHT_EYE
-        }
-        val unknownCamera: CameraViewActivityPose = mock {
-            on { cameraType } doReturn CameraViewActivityPose.CameraType.CAMERA_TYPE_UNKNOWN
-        }
-        val entityManager = EntityManager()
-        entityManager.addSystemSpaceActivityPose(rightEyeCamera)
-        entityManager.addSystemSpaceActivityPose(unknownCamera)
-
-        val result = getPerceivedResolutionCameraView(entityManager)
-
-        assertThat(result).isNull()
+        fakeSceneRuntime =
+            SpatialSceneRuntime.create(
+                activity,
+                FakeScheduledExecutorService(),
+                XrExtensions(),
+                SceneNodeRegistry(),
+            )
+        session =
+            Session(
+                activity,
+                runtimes =
+                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), fakeSceneRuntime),
+                lifecycleOwner = activity,
+            )
     }
 
     // --- Tests for getDimensionsAndDistanceOfLargest3dBoxSurface ---
@@ -136,7 +108,7 @@ class PerceivedResolutionUtilsTest {
 
         val result =
             getDimensionsAndDistanceOfLargest3dBoxSurface(
-                mockCameraView,
+                fakeCameraView,
                 boxDimensions,
                 boxPosition,
             )
@@ -158,7 +130,7 @@ class PerceivedResolutionUtilsTest {
 
         val result =
             getDimensionsAndDistanceOfLargest3dBoxSurface(
-                mockCameraView,
+                fakeCameraView,
                 boxDimensions,
                 boxPosition,
             )
@@ -170,7 +142,7 @@ class PerceivedResolutionUtilsTest {
 
     @Test
     fun getDimensionsAndDistanceOfLargest3dBoxSurface_cameraNotAtOrigin() {
-        whenever(mockCameraView.activitySpacePose)
+        `when`(fakeCameraView.activitySpacePose)
             .thenReturn(Pose(Vector3(1f, 1f, 1f), Quaternion.Identity))
         val boxDimensions = Dimensions(width = 1f, height = 2f, depth = 3f) // Smallest is width
         val boxPosition =
@@ -181,7 +153,7 @@ class PerceivedResolutionUtilsTest {
 
         val result =
             getDimensionsAndDistanceOfLargest3dBoxSurface(
-                mockCameraView,
+                fakeCameraView,
                 boxDimensions,
                 boxPosition,
             )
@@ -208,7 +180,13 @@ class PerceivedResolutionUtilsTest {
         // pixelHeight = 0.5f * 1000 = 500
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -225,7 +203,13 @@ class PerceivedResolutionUtilsTest {
         val panelDistance = PERCEIVED_RESOLUTION_EPSILON / 2f // Closer than epsilon
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
     }
@@ -237,7 +221,13 @@ class PerceivedResolutionUtilsTest {
         val panelDistance = PERCEIVED_RESOLUTION_EPSILON
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
     }
@@ -258,7 +248,13 @@ class PerceivedResolutionUtilsTest {
         val expectedPixelDim = ((1f / (4f * PERCEIVED_RESOLUTION_EPSILON)) * 1000f).roundToInt()
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -270,8 +266,7 @@ class PerceivedResolutionUtilsTest {
 
     @Test
     fun getPerceivedResolutionOfPanel_zeroFov_returnsZeroPixels() {
-        cameraFov = CameraViewActivityPose.Fov(0f, 0f, 0f, 0f)
-        whenever(mockCameraView.fov).thenReturn(cameraFov)
+        cameraFov = FieldOfView(0f, 0f, 0f, 0f)
 
         val panelWidth = 1f
         val panelHeight = 1f
@@ -279,7 +274,13 @@ class PerceivedResolutionUtilsTest {
 
         // viewPlaneWidth/Height will be 0, so ratios will be 0
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -301,7 +302,13 @@ class PerceivedResolutionUtilsTest {
         // pixelHeight = 1.0 * 1000 = 1000
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -335,7 +342,13 @@ class PerceivedResolutionUtilsTest {
         val expectedPixelHeight = 1500
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -349,37 +362,49 @@ class PerceivedResolutionUtilsTest {
     fun getPerceivedResolutionOfPanel_nonFiniteFov_returnsInvalidCameraView() {
         // Test with one non-finite angle (Positive Infinity)
         cameraFov =
-            CameraViewActivityPose.Fov(
+            FieldOfView(
                 atan(1.0f),
                 Float.POSITIVE_INFINITY, // Non-finite angle
                 atan(1.0f),
                 atan(1.0f),
             )
-        whenever(mockCameraView.fov).thenReturn(cameraFov)
 
         val panelWidth = 1f
         val panelHeight = 1f
         val panelDistance = 1f
 
         var result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
 
         // Test with another non-finite angle (NaN)
         cameraFov =
-            CameraViewActivityPose.Fov(
+            FieldOfView(
                 atan(1.0f),
                 atan(1.0f),
                 Float.NaN, // Non-finite angle
                 atan(1.0f),
             )
-        whenever(mockCameraView.fov).thenReturn(cameraFov)
 
         result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
     }
 
     @Test
@@ -389,9 +414,16 @@ class PerceivedResolutionUtilsTest {
         val panelDistance = Float.POSITIVE_INFINITY // Non-finite distance
 
         val result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                cameraDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
     }
 
     @Test
@@ -402,30 +434,48 @@ class PerceivedResolutionUtilsTest {
 
         // Test with zero width in display resolution
         var zeroDisplayResolution = PixelDimensions(0, 1000)
-        whenever(mockCameraView.displayResolutionInPixels).thenReturn(zeroDisplayResolution)
 
         var result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                zeroDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
 
         // Test with zero height in display resolution
         zeroDisplayResolution = PixelDimensions(1000, 0)
-        whenever(mockCameraView.displayResolutionInPixels).thenReturn(zeroDisplayResolution)
 
         result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                zeroDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
 
         // Test with zero width and zero height in display resolution
         zeroDisplayResolution = PixelDimensions(0, 0)
-        whenever(mockCameraView.displayResolutionInPixels).thenReturn(zeroDisplayResolution)
 
         result =
-            getPerceivedResolutionOfPanel(mockCameraView, panelWidth, panelHeight, panelDistance)
+            getPerceivedResolutionOfPanel(
+                cameraFov,
+                zeroDisplayResolution,
+                panelWidth,
+                panelHeight,
+                panelDistance,
+            )
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
     }
 
     // --- Tests for getPerceivedResolutionOf3DBox ---
@@ -448,7 +498,14 @@ class PerceivedResolutionUtilsTest {
         val expectedPixelWidth = ((3f / (4.5f * 2f)) * 1000f).roundToInt() // 333
         val expectedPixelHeight = ((2f / (4.5f * 2f)) * 1000f).roundToInt() // 222
 
-        val result = getPerceivedResolutionOf3DBox(mockCameraView, boxDimensions, boxPosition)
+        val result =
+            getPerceivedResolutionOf3DBox(
+                fakeCameraView,
+                cameraFov,
+                cameraDisplayResolution,
+                boxDimensions,
+                boxPosition,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
 
@@ -466,7 +523,14 @@ class PerceivedResolutionUtilsTest {
         val boxDimensions = Dimensions(width = 2f, height = 3f, depth = 1f)
         val boxPosition = Vector3(0f, 0f, -0.1f)
 
-        val result = getPerceivedResolutionOf3DBox(mockCameraView, boxDimensions, boxPosition)
+        val result =
+            getPerceivedResolutionOf3DBox(
+                fakeCameraView,
+                cameraFov,
+                cameraDisplayResolution,
+                boxDimensions,
+                boxPosition,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
     }
@@ -481,8 +545,30 @@ class PerceivedResolutionUtilsTest {
             Dimensions(width = 2f, height = 3f, depth = 1f) // smallest is depth = 1f
         val boxPosition = Vector3(0f, 0f, -distanceToCenter)
 
-        val result = getPerceivedResolutionOf3DBox(mockCameraView, boxDimensions, boxPosition)
+        val result =
+            getPerceivedResolutionOf3DBox(
+                fakeCameraView,
+                cameraFov,
+                cameraDisplayResolution,
+                boxDimensions,
+                boxPosition,
+            )
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
+    }
+
+    @Test
+    @Suppress("deprecation")
+    fun getDisplayResolutionInPixels_returnsPixelDimensionsOfDefaultDisplay() {
+        val viewPlaneResolution = PixelDimensions(2000, 1000)
+        val widthAndHeightConfig =
+            "+w${viewPlaneResolution.width}dp-h${viewPlaneResolution.height}dp"
+        RuntimeEnvironment.setQualifiers(widthAndHeightConfig)
+
+        val displayResolution: PixelDimensions = getDisplayResolutionInPixels(activity)
+
+        // The implementation divides width by 2 for single eye resolution
+        assertThat(displayResolution.width).isEqualTo(viewPlaneResolution.width / 2)
+        assertThat(displayResolution.height).isEqualTo(viewPlaneResolution.height)
     }
 }

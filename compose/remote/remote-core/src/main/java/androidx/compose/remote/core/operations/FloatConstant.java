@@ -17,12 +17,15 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -31,15 +34,30 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Used to represent a float */
-public class FloatConstant extends Operation implements Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FloatConstant extends Operation
+        implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.DATA_FLOAT;
     private static final String CLASS_NAME = "FloatConstant";
     public int mId;
     public float mValue;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     public FloatConstant(int id, float value) {
         this.mId = id;
-        this.mValue = value;
+        this.mValue =
+                Utils.idFromNan(value) == Utils.idFromNan(AnimatedFloatExpression.RAND)
+                        ? (float) Math.random()
+                        : value;
     }
 
     /**
@@ -101,9 +119,8 @@ public class FloatConstant extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
-        float value = buffer.readFloat();
+        int id = buffer.declareId();
+        float value = buffer.readNanId();
         operations.add(new FloatConstant(id, value));
     }
 
@@ -113,9 +130,9 @@ public class FloatConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
                 .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of float")
+                .field(DocumentedOperation.INT, "id", "id of the Float constant")
                 .field(FLOAT, "value", "32-bit float value");
     }
 

@@ -27,7 +27,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -44,6 +43,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class GestureTrackerTest {
     private val gestureHandlerSpy =
         mock<GestureTracker.GestureHandler>().apply {
@@ -240,14 +240,13 @@ class GestureTrackerTest {
         verifyNoMoreInteractions(gestureHandlerSpy)
     }
 
-    @Ignore // b/376314114
     @Test
     fun testZoomOut_pinch() {
-        // Drag pointer 1 in the negative Y direction from (500, 500) at the same time as dragging
-        // pointer 2 in the positive Y direction from (500, 500)
+        // Drag pointer 1 in the negative Y direction from (500, 100) at the same time as dragging
+        // pointer 2 in the positive Y direction from (500, 900)
         val velocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2
-        val start1 = PointF(500f, 500f)
-        val start2 = PointF(500f, 500f)
+        val start1 = PointF(500f, 100f)
+        val start2 = PointF(500f, 900f)
         val velocity1 = Point(0, -velocity)
         val velocity2 = Point(0, velocity)
         for (event in twoFingerDrag(start1, start2, velocity1, velocity2)) {
@@ -417,16 +416,17 @@ class GestureTrackerTest {
     }
 
     @Test
-    fun testDragX_nonNullViewParent_contentAtEdge_onScrollInterceptDisallowed() {
+    fun testDragX_atLeftEdge_scrollingPastLeft_interceptDisallowed() {
         val disallowInterceptCaptor = ArgumentCaptor.forClass(Boolean::class.java)
         val viewParentSpy = mock<ViewParent>().apply { requestDisallowInterceptTouchEvent(true) }
 
+        // Swipe right (velocity.x > 0) means content moves right, scrolling past left edge
         for (event in
             oneFingerDrag(
                 start = PointF(50f, 50f),
                 velocity = Point(ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2, 0),
             )) {
-            gestureTracker.feed(event, viewParentSpy, contentAtEdge = true)
+            gestureTracker.feed(event, viewParentSpy, isAtLeftEdge = true, isAtRightEdge = false)
         }
 
         verify(gestureHandlerSpy).onGestureStart()
@@ -443,6 +443,115 @@ class GestureTrackerTest {
     }
 
     @Test
+    fun testDragX_atRightEdge_scrollingPastRight_interceptDisallowed() {
+        val disallowInterceptCaptor = ArgumentCaptor.forClass(Boolean::class.java)
+        val viewParentSpy = mock<ViewParent>().apply { requestDisallowInterceptTouchEvent(true) }
+
+        // Swipe left (velocity.x < 0) means content moves left, scrolling past right edge
+        for (event in
+            oneFingerDrag(
+                start = PointF(50f, 50f),
+                velocity = Point(-ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2, 0),
+            )) {
+            gestureTracker.feed(event, viewParentSpy, isAtLeftEdge = false, isAtRightEdge = true)
+        }
+
+        verify(gestureHandlerSpy).onGestureStart()
+        verify(gestureHandlerSpy, atLeastOnce()).onScroll(any(), any(), any(), any())
+        verify(viewParentSpy, atLeastOnce())
+            .requestDisallowInterceptTouchEvent(disallowInterceptCaptor.capture())
+        assertThat(disallowInterceptCaptor.value).isFalse()
+
+        verify(gestureHandlerSpy).onGestureEnd(eq(GestureTracker.Gesture.DRAG_X))
+        assertThat(gestureTracker.matches(GestureTracker.Gesture.DRAG_X)).isTrue()
+        assertThat(disallowInterceptCaptor.value).isFalse()
+
+        verifyNoMoreInteractions(gestureHandlerSpy)
+    }
+
+    @Test
+    fun testDragX_atLeftEdge_scrollingAwayFromLeft_interceptAllowedUntilEnd() {
+        val disallowInterceptCaptor = ArgumentCaptor.forClass(Boolean::class.java)
+        val viewParentSpy = mock<ViewParent>().apply { requestDisallowInterceptTouchEvent(true) }
+
+        // Swipe left (velocity.x < 0) means content moves left, away from left edge
+        val velocity = Point(-ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2, 0)
+        val events = oneFingerDrag(start = PointF(50f, 50f), velocity = velocity)
+
+        for (i in 0 until events.size - 1) {
+            gestureTracker.feed(
+                events[i],
+                viewParentSpy,
+                isAtLeftEdge = true,
+                isAtRightEdge = false,
+            )
+        }
+
+        verify(gestureHandlerSpy).onGestureStart()
+        verify(gestureHandlerSpy, atLeastOnce()).onScroll(any(), any(), any(), any())
+        verify(viewParentSpy, atLeastOnce())
+            .requestDisallowInterceptTouchEvent(disallowInterceptCaptor.capture())
+        assertThat(disallowInterceptCaptor.value).isTrue()
+
+        gestureTracker.feed(
+            events.last(),
+            viewParentSpy,
+            isAtLeftEdge = true,
+            isAtRightEdge = false,
+        )
+
+        verify(gestureHandlerSpy).onGestureEnd(eq(GestureTracker.Gesture.DRAG_X))
+        assertThat(gestureTracker.matches(GestureTracker.Gesture.DRAG_X)).isTrue()
+
+        verify(viewParentSpy, atLeastOnce())
+            .requestDisallowInterceptTouchEvent(disallowInterceptCaptor.capture())
+        assertThat(disallowInterceptCaptor.value).isFalse()
+
+        verifyNoMoreInteractions(gestureHandlerSpy)
+    }
+
+    @Test
+    fun testDragX_atRightEdge_scrollingAwayFromRight_interceptAllowedUntilEnd() {
+        val disallowInterceptCaptor = ArgumentCaptor.forClass(Boolean::class.java)
+        val viewParentSpy = mock<ViewParent>().apply { requestDisallowInterceptTouchEvent(true) }
+
+        // Swipe right (velocity.x > 0) means content moves right, away from right edge
+        val velocity = Point(ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2, 0)
+        val events = oneFingerDrag(start = PointF(50f, 50f), velocity = velocity)
+
+        for (i in 0 until events.size - 1) {
+            gestureTracker.feed(
+                events[i],
+                viewParentSpy,
+                isAtLeftEdge = false,
+                isAtRightEdge = true,
+            )
+        }
+
+        verify(gestureHandlerSpy).onGestureStart()
+        verify(gestureHandlerSpy, atLeastOnce()).onScroll(any(), any(), any(), any())
+        verify(viewParentSpy, atLeastOnce())
+            .requestDisallowInterceptTouchEvent(disallowInterceptCaptor.capture())
+        assertThat(disallowInterceptCaptor.value).isTrue()
+
+        gestureTracker.feed(
+            events.last(),
+            viewParentSpy,
+            isAtLeftEdge = false,
+            isAtRightEdge = true,
+        )
+
+        verify(gestureHandlerSpy).onGestureEnd(eq(GestureTracker.Gesture.DRAG_X))
+        assertThat(gestureTracker.matches(GestureTracker.Gesture.DRAG_X)).isTrue()
+
+        verify(viewParentSpy, atLeastOnce())
+            .requestDisallowInterceptTouchEvent(disallowInterceptCaptor.capture())
+        assertThat(disallowInterceptCaptor.value).isFalse()
+
+        verifyNoMoreInteractions(gestureHandlerSpy)
+    }
+
+    @Test
     fun testDragX_nonNullViewParent_contentNotAtEdge_onScrollInterceptAllowed() {
         val disallowInterceptCaptor = ArgumentCaptor.forClass(Boolean::class.java)
         val viewParentSpy = mock<ViewParent>().apply { requestDisallowInterceptTouchEvent(true) }
@@ -452,7 +561,7 @@ class GestureTrackerTest {
                 start = PointF(50f, 50f),
                 velocity = Point(ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2, 0),
             )) {
-            gestureTracker.feed(event, viewParentSpy, contentAtEdge = false)
+            gestureTracker.feed(event, viewParentSpy, isAtLeftEdge = false, isAtRightEdge = false)
         }
 
         verify(gestureHandlerSpy).onGestureStart()

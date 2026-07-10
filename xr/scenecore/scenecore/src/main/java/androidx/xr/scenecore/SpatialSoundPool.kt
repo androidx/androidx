@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ public object SpatialSoundPool {
      * @param soundPool The [SoundPool] to use to the play the sound.
      * @param soundID a soundId returned by the [SoundPool.load] function.
      * @param params [PointSourceParams] to configure the sound source.
+     * @param entity The [Entity] from which the sound will be played.
      * @param volume value (range = 0.0 to 1.0)
      * @param priority stream priority (0 = lowest priority)
      * @param loop loop mode (0 = no loop, -1 = loop forever, N = loop N times)
@@ -48,15 +49,17 @@ public object SpatialSoundPool {
         soundPool: SoundPool,
         soundID: Int,
         params: PointSourceParams,
+        entity: Entity,
         @FloatRange(from = 0.0, to = 1.0) volume: Float = 1f,
         @IntRange(from = 0) priority: Int = 0,
         @IntRange(from = -1) loop: Int = 0,
         @FloatRange(from = 0.5, to = 2.0) rate: Float = 1f,
     ): Int {
-        return session.platformAdapter.soundPoolExtensionsWrapper.play(
+        return session.sceneRuntime.soundPoolExtensionsWrapper.play(
             soundPool,
             soundID,
             params.rtPointSourceParams,
+            entity.rtEntity,
             volume,
             priority,
             loop,
@@ -89,7 +92,7 @@ public object SpatialSoundPool {
         @IntRange(from = -1) loop: Int = 0,
         @FloatRange(from = 0.5, to = 2.0) rate: Float = 1f,
     ): Int {
-        return session.platformAdapter.soundPoolExtensionsWrapper.play(
+        return session.sceneRuntime.soundPoolExtensionsWrapper.play(
             soundPool,
             soundID,
             attributes.rtSoundFieldAttributes,
@@ -107,10 +110,12 @@ public object SpatialSoundPool {
      *   object.
      * @return The [SpatializerConstants.SourceType] for the given streamID.
      */
-    @JvmStatic
-    @SpatializerConstants.SourceType
-    public fun getSpatialSourceType(session: Session, soundPool: SoundPool, streamId: Int): Int {
-        return session.platformAdapter.soundPoolExtensionsWrapper
+    public fun getSpatialSourceType(
+        session: Session,
+        soundPool: SoundPool,
+        streamId: Int,
+    ): SpatializerConstants.SourceType {
+        return session.sceneRuntime.soundPoolExtensionsWrapper
             .getSpatialSourceType(soundPool, streamId)
             .sourceTypeToJxr()
     }

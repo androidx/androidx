@@ -41,7 +41,7 @@ interface ViewRootForTest : RootForTest {
 
     companion object {
         /**
-         * Called after an View implementing [ViewRootForTest] is created. Used by
+         * Called after a View implementing [ViewRootForTest] is created. Used by
          * AndroidComposeTestRule to keep track of all attached ComposeViews. Not to be set or used
          * by any other component.
          */

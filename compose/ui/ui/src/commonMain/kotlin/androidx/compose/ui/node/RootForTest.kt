@@ -18,10 +18,8 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
@@ -47,12 +45,13 @@ interface RootForTest {
     fun sendKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
-     * Send this [IndirectTouchEvent] to the focused component in this [Owner].
+     * Sends [IndirectPointerEvent] to the focused component in this [Owner] for testing. In most
+     * cases, you should use the indirect testing APIs provided in ui-test. See
+     * [androidx.compose.ui.test.IndirectPointerInjectionScope] for more information.
      *
      * @return true if the event was consumed. False otherwise.
      */
-    @ExperimentalIndirectTouchTypeApi
-    fun sendIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean = false
+    fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean = false
 
     /**
      * Force accessibility to be enabled for testing.
@@ -82,6 +81,23 @@ interface RootForTest {
      * get to idle, e.g. during a `waitForIdle` call.
      */
     fun measureAndLayoutForTest() {}
+
+    /**
+     * Recalculates semantic node bounds for previously measured and laid out nodes.
+     *
+     * This method is used in benchmarks to isolate semantics update that is usually performed out
+     * of frame.
+     */
+    fun updateSemanticsForTest() {}
+
+    /**
+     * Unregisters callbacks scheduled by delegating to the event queue (e.g. Handler on Android)
+     * and runs them immediately.
+     *
+     * This method is used to ensure that root instance does not leak when the event queue is not
+     * drained.
+     */
+    fun runAndClearPendingCallbacks() {}
 
     /**
      * Sets the [UncaughtExceptionHandler] callback to dispatch layout, measure, and draw exceptions

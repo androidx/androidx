@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
-import androidx.xr.scenecore.internal.Dimensions
-import com.android.extensions.xr.node.Node
-import com.google.androidxr.splitengine.SubspaceNode
+import androidx.xr.scenecore.runtime.Dimensions
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -28,14 +28,12 @@ class FakeSubspaceNodeEntityTest {
     @Test
     fun constructor_returnInitialValues() {
         // Arrange
-        val subspaceNode = SubspaceNode(0, Node())
         val expectedSize = Dimensions(3f, 2f, 1f)
 
         // Act
-        underTest = FakeSubspaceNodeEntity(subspaceNode, expectedSize)
+        underTest = FakeSubspaceNodeEntity(size = expectedSize)
 
         // Assert
-        assertThat(underTest.subspaceNode).isEqualTo(subspaceNode)
         // Default size of FakeSubspaceNodeEntity is (2f, 1f, 0f)
         assertThat(underTest.size).isEqualTo(expectedSize)
     }

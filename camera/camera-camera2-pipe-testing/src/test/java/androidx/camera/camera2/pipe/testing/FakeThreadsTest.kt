@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -26,9 +27,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class FakeThreadsTest {
     private val testScope = TestScope()
     private val fakeThreads = FakeThreads.fromTestScope(testScope)
@@ -36,9 +39,9 @@ class FakeThreadsTest {
     @Test
     fun fakeThreadsUseDelaySkipping() =
         testScope.runTest {
-            launch(fakeThreads.backgroundDispatcher) { delay(1000000) }.join()
-            launch(fakeThreads.lightweightDispatcher) { delay(1000000) }.join()
-            fakeThreads.cameraPipeScope.launch { delay(1000000) }.join()
+            launch(fakeThreads.backgroundDispatcher) { delay(1000.seconds) }.join()
+            launch(fakeThreads.lightweightDispatcher) { delay(1000.seconds) }.join()
+            fakeThreads.cameraPipeScope.launch { delay(1000.seconds) }.join()
 
             var backgroundTaskExecuted = false
             var lightweightTaskExecuted = false

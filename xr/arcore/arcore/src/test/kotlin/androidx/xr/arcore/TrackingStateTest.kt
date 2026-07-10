@@ -17,7 +17,7 @@
 package androidx.xr.arcore
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.TrackingState
+import androidx.xr.arcore.runtime.TrackingState as RTTrackingState
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,9 +26,20 @@ import org.junit.runner.RunWith
 class TrackingStateTest {
 
     @Test
-    fun toString_returnsCorrectString() {
-        assertThat(TrackingState.TRACKING.toString()).isEqualTo("TRACKING")
-        assertThat(TrackingState.PAUSED.toString()).isEqualTo("PAUSED")
-        assertThat(TrackingState.STOPPED.toString()).isEqualTo("STOPPED")
+    fun toRuntimeTrackingStateReturnsCorrectValue() {
+        assertThat(TrackingState.TRACKING.toRuntimeTrackingState())
+            .isEqualTo(RTTrackingState.TRACKING)
+        assertThat(TrackingState.PAUSED.toRuntimeTrackingState()).isEqualTo(RTTrackingState.PAUSED)
+        assertThat(TrackingState.STOPPED.toRuntimeTrackingState())
+            .isEqualTo(RTTrackingState.STOPPED)
+    }
+
+    @Test
+    fun toTrackingStateExtensionReturnsCorrectValue() {
+        assertThat(RTTrackingState.TRACKING_DEGRADED.toTrackingState())
+            .isEqualTo(TrackingState.PAUSED)
+        assertThat(RTTrackingState.TRACKING.toTrackingState()).isEqualTo(TrackingState.TRACKING)
+        assertThat(RTTrackingState.PAUSED.toTrackingState()).isEqualTo(TrackingState.PAUSED)
+        assertThat(RTTrackingState.STOPPED.toTrackingState()).isEqualTo(TrackingState.STOPPED)
     }
 }

@@ -22,30 +22,50 @@ import java.util.regex.Pattern
 import org.gradle.api.Project
 
 /** Utility class which represents a version */
-data class Version(val major: Int, val minor: Int, val patch: Int, val extra: String? = null) :
-    Comparable<Version>, java.io.Serializable {
+data class Version(
+    val major: Int,
+    val minor: Int,
+    val patch: Int,
+    val preRelease: String? = null,
+    val preReleaseIteration: Int? = null,
+    val buildMetadata: String? = null, // Used in JetBrains fork
+) : Comparable<Version>, java.io.Serializable {
 
     constructor(
         versionString: String
     ) : this(
-        Integer.parseInt(checkedMatcher(versionString).group(1)),
-        Integer.parseInt(checkedMatcher(versionString).group(2)),
-        Integer.parseInt(checkedMatcher(versionString).group(3)),
-        if (checkedMatcher(versionString).groupCount() == 4) checkedMatcher(versionString).group(4)
-        else null,
+        major = Integer.parseInt(checkedMatcher(versionString).group(1)),
+        minor = Integer.parseInt(checkedMatcher(versionString).group(2)),
+        patch = Integer.parseInt(checkedMatcher(versionString).group(3)),
+        preRelease = checkedMatcher(versionString).group(4)?.ifEmpty { null },
+        preReleaseIteration =
+            when (
+                val preRelease =
+                    checkedMatcher(versionString).group(4)?.lowercase(Locale.getDefault())
+            ) {
+                ALPHA -> preRelease.substring(ALPHA.length).toIntOrNull()
+                BETA -> preRelease.substring(BETA.length).toIntOrNull()
+                DEV -> preRelease.substring(DEV.length).toIntOrNull()
+                RC -> preRelease.substring(RC.length).toIntOrNull()
+                else -> null
+            },
+        buildMetadata = checkedMatcher(versionString).group(5)?.ifEmpty { null },
     )
 
-    fun isSnapshot(): Boolean = "-SNAPSHOT" == extra
+    fun isSnapshot(): Boolean = "-SNAPSHOT" == preRelease
 
-    fun isAlpha(): Boolean = extra?.lowercase(Locale.getDefault())?.startsWith("-alpha") ?: false
+    fun isPrereleasePrefix(prefix: String): Boolean =
+        preRelease?.lowercase(Locale.getDefault())?.startsWith(prefix) ?: false
 
-    fun isBeta(): Boolean = extra?.lowercase(Locale.getDefault())?.startsWith("-beta") ?: false
+    fun isAlpha(): Boolean = isPrereleasePrefix(ALPHA)
 
-    fun isDev(): Boolean = extra?.lowercase(Locale.getDefault())?.startsWith("-dev") ?: false
+    fun isBeta(): Boolean = isPrereleasePrefix(BETA)
 
-    fun isRC(): Boolean = extra?.lowercase(Locale.getDefault())?.startsWith("-rc") ?: false
+    fun isDev(): Boolean = isPrereleasePrefix(DEV)
 
-    fun isStable(): Boolean = (extra == null)
+    fun isRC(): Boolean = isPrereleasePrefix(RC)
+
+    fun isStable(): Boolean = (preRelease == null)
 
     // Returns whether the API surface is allowed to change within the current revision (see
     // go/androidx/versioning for policy definition)
@@ -58,24 +78,39 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val extra: St
             { it.major },
             { it.minor },
             { it.patch },
-            { it.extra == null }, // False (no extra) sorts above true (has extra)
-            { it.extra }, // gradle uses lexicographic ordering
+            { it.preRelease == null }, // False (no extra) sorts above true (has extra)
+            { it.preRelease }, // gradle uses lexicographic ordering
+            // Comparing shouldn'r involve [buildMetadata]
         )
 
-    override fun toString(): String {
-        return if (extra != null) {
-            "$major.$minor.$patch$extra"
-        } else "$major.$minor.$patch"
+    override fun toString(): String = buildString {
+        append("$major.$minor.$patch")
+        if (preRelease != null) {
+            append("-$preRelease")
+        }
+        if (buildMetadata != null) {
+            append("+$buildMetadata")
+        }
     }
 
     companion object {
         private const val serialVersionUID = 345435634563L
 
+        private const val ALPHA = "alpha"
+        private const val BETA = "beta"
+        private const val DEV = "dev"
+        private const val RC = "rc"
+
         private val VERSION_FILE_REGEX = Pattern.compile("^(res-)?(.*).txt$")
-        private val VERSION_REGEX = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)(-.+)?$")
+        private val SEMVER_VERSION_REGEX =
+            Pattern.compile(
+                // This expressions is taken from
+                // https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+                "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?\$"
+            )
 
         private fun checkedMatcher(versionString: String): Matcher {
-            val matcher = VERSION_REGEX.matcher(versionString)
+            val matcher = SEMVER_VERSION_REGEX.matcher(versionString)
             if (!matcher.matches()) {
                 throw IllegalArgumentException("Can not parse version: $versionString")
             }
@@ -90,7 +125,7 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val extra: St
 
         /** @return Version or null, if the given string doesn't match */
         fun parseOrNull(versionString: String): Version? {
-            val matcher = VERSION_REGEX.matcher(versionString)
+            val matcher = SEMVER_VERSION_REGEX.matcher(versionString)
             return if (matcher.matches()) Version(versionString) else null
         }
 

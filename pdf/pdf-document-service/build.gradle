@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,14 +26,11 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":pdf:pdf-viewer"))
     api("androidx.core:core:1.13.1")
-    implementation(libs.gson)
 
     testImplementation(project(":pdf:pdf-viewer"))
     testImplementation(libs.junit)
@@ -58,22 +54,21 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.mockitoKotlin4)
 }
 
 android {
     namespace = "androidx.pdf.document.service"
-
+    compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
-        minSdk = 31
-        compileSdk = 36
-        compileSdkExtension = 18
+        minSdk { version = release(28) }
     }
 
     buildFeatures.aidl = true
 
     buildTypes.configureEach {
         stableAidl {
-            version = 1
+            version = 2
         }
     }
 }

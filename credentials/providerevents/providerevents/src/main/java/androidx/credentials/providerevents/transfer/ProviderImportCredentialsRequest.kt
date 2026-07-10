@@ -17,7 +17,6 @@
 package androidx.credentials.providerevents.transfer
 
 import android.net.Uri
-import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo
 
 /**
@@ -31,10 +30,13 @@ import androidx.credentials.provider.CallingAppInfo
  * @property request a request to import the provider's credentials
  * @property callingAppInfo the caller's app info
  * @property uri the FileProvider uri that the importer will read the response from
+ * @property credId the secret id that is used to identify the [ExportEntry]. This is set while
+ *   registering export entries. This can be used to validate that the platform that registered
+ *   [ExportEntry] and the platform that is requesting the credentials are the same.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ProviderImportCredentialsRequest(
     public val request: ImportCredentialsRequest,
     public val callingAppInfo: CallingAppInfo,
     public val uri: Uri,
+    public val credId: String,
 )

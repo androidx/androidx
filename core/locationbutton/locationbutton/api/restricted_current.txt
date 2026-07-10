@@ -1,0 +1,70 @@
+// Signature format: 4.0
+package androidx.core.locationbutton {
+
+  public final class LocationButton extends android.view.ViewGroup {
+    ctor public LocationButton(android.content.Context context);
+    ctor public LocationButton(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public LocationButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor public LocationButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr, optional int defStyleRes);
+    ctor @BytecodeOnly public LocationButton(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int getCompositionOrder();
+    method @InaccessibleFromKotlin public android.app.Activity? getParentActivity();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isLocalButtonVisible();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isRemoteSessionActive();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isSurfaceViewVisible();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Activity resolveActivityForTesting();
+    method public void setCompositionOrder(int order);
+    method public void setCornerRadius(float radius);
+    method public void setIconTint(int color);
+    method public void setOnErrorListener(androidx.core.locationbutton.OnErrorListener? listener);
+    method public void setOnPermissionResultListener(androidx.core.locationbutton.OnPermissionResultListener? listener);
+    method public void setOnRequestPermissionsListener(androidx.core.locationbutton.OnRequestPermissionsListener? listener);
+    method @InaccessibleFromKotlin public void setParentActivity(android.app.Activity?);
+    method public void setPressedCornerRadius(float radius);
+    method public void setStrokeColor(int color);
+    method public void setStrokeWidth(int strokeWidth);
+    method public void setTextColor(int color);
+    method public void setTextType(@androidx.core.locationbutton.LocationButton.LocationButtonTextType int textType);
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isLocalButtonVisible;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isRemoteSessionActive;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isSurfaceViewVisible;
+    property public android.app.Activity? parentActivity;
+    field public static final androidx.core.locationbutton.LocationButton.Companion Companion;
+    field public static final int TEXT_TYPE_NEAR_MY_PRECISE_LOCATION = 4; // 0x4
+    field public static final int TEXT_TYPE_NEAR_YOUR_PRECISE_LOCATION = 5; // 0x5
+    field public static final int TEXT_TYPE_NONE = 0; // 0x0
+    field public static final int TEXT_TYPE_PRECISE_LOCATION = 1; // 0x1
+    field public static final int TEXT_TYPE_SHARE_PRECISE_LOCATION = 3; // 0x3
+    field public static final int TEXT_TYPE_USE_PRECISE_LOCATION = 2; // 0x2
+  }
+
+  public static final class LocationButton.Companion {
+    property public static int TEXT_TYPE_NEAR_MY_PRECISE_LOCATION;
+    property public static int TEXT_TYPE_NEAR_YOUR_PRECISE_LOCATION;
+    property public static int TEXT_TYPE_NONE;
+    property public static int TEXT_TYPE_PRECISE_LOCATION;
+    property public static int TEXT_TYPE_SHARE_PRECISE_LOCATION;
+    property public static int TEXT_TYPE_USE_PRECISE_LOCATION;
+  }
+
+  @IntDef({androidx.core.locationbutton.LocationButton.TEXT_TYPE_NONE, androidx.core.locationbutton.LocationButton.TEXT_TYPE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_USE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_SHARE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_NEAR_MY_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_NEAR_YOUR_PRECISE_LOCATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface LocationButton.LocationButtonTextType {
+  }
+
+  public final class LocationButtonCompat {
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static void setLocationButtonProvider(androidx.core.locationbutton.LocationButton, android.app.permissionui.LocationButtonProvider? provider);
+  }
+
+  public fun interface OnErrorListener {
+    method public void onError(Throwable throwable);
+  }
+
+  public fun interface OnPermissionResultListener {
+    method public void onPermissionResult(boolean isGranted);
+  }
+
+  public fun interface OnRequestPermissionsListener {
+    method public void onRequestPermissions();
+  }
+
+}
+

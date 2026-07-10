@@ -44,9 +44,6 @@ import org.gradle.work.DisableCachingByDefault
  */
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class GenerateTestConfigurationTask : DefaultTask() {
-
-    @get:Input abstract val testConfigType: Property<TestConfigType>
-
     /** File containing [AppApksModel] with list of App APKs to install */
     @get:InputFile
     @get:Optional
@@ -81,6 +78,8 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
     @get:Input abstract val instrumentationArgs: MapProperty<String, String>
 
+    @get:Input abstract val useOrchestrator: Property<Boolean>
+
     @get:OutputFile abstract val outputXml: RegularFileProperty
 
     /**
@@ -101,7 +100,6 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
          */
         val configBuilder = ConfigBuilder()
         configBuilder.configName(outputXml.asFile.get().name)
-        configBuilder.configType(testConfigType.get())
         if (appApksModel.isPresent) {
             val modelJson = appApksModel.get().asFile.readText()
             val model = AppApksModel.fromJson(modelJson)
@@ -111,6 +109,7 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
         configBuilder.additionalApkKeys(additionalApkKeys.get())
         val isPresubmit = presubmit.get()
         configBuilder.isPostsubmit(!isPresubmit)
+        configBuilder.useOrchestrator = useOrchestrator.get()
         // This section adds metadata tags that will help filter runners to specific modules.
         if (hasBenchmarkPlugin.get()) {
             configBuilder.isMicrobenchmark(true)

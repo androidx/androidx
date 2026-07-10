@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.squareup.wire")
+    id("androidx.stableaidl")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.9.1")
+    api(libs.kotlinCoroutinesAndroid)
+    implementation(libs.jspecify)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
+    implementation(libs.kotlinCoroutinesGuava)
+    implementation("androidx.collection:collection:1.6.0")
+    compileOnly files("../../../wear/wear_sdk/wear-sdk.jar")
+    testImplementation(libs.junit)
+    testImplementation(files("../../../wear/wear_sdk/wear-sdk.jar"))
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+
+    lintPublish(project(":glance:wear:wear-lint"))
+    lintChecks(project(":glance:wear:wear-lint"))
+}
+
+wire {
+    kotlin {}
+
+    sourcePath {
+        srcDir 'src/main/proto'
+    }
+}
+
+android {
+    namespace = "androidx.glance.wear.core"
+    defaultConfig {
+        minSdk { version = release(28) }
+    }
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version = 1
+        }
+    }
+}
+
+androidx {
+    name = "androidx.glance.wear:wear-core"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2025"
+    description = "Core functionality for Glance Wear."
+    enableRobolectric()
+}

@@ -17,49 +17,42 @@
 package androidx.glance.appwidget.demos
 
 import android.app.Service
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
-import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.action.actionStartService
-import androidx.glance.appwidget.appWidgetBackground
-import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.background
 import androidx.glance.color.ColorProvider
-import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.ColumnScope
-import androidx.glance.layout.Row
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
@@ -67,48 +60,110 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
+private const val TAG = "ActionAppWidget"
+
 class ActionAppWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
-        Content()
+        Content2()
     }
 
     override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
-        Content()
+        Content2()
     }
 }
 
-@Composable
-private fun Content() {
-    Column(
-        modifier =
-            GlanceModifier.padding(R.dimen.external_padding)
-                .fillMaxSize()
-                .appWidgetBackground()
-                .cornerRadius(R.dimen.corner_radius),
-        verticalAlignment = Alignment.Vertical.CenterVertically,
-        horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-    ) {
-        val pages = listOf("Activities", "Services", "Broadcasts")
-        var currentPage by remember { mutableStateOf(pages.first()) }
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            for (page in pages) {
-                SelectableActionItem(
-                    label = page,
-                    active = page == currentPage,
-                    onClick = { currentPage = page },
-                )
-            }
-        }
+private val ActionParameterKey = ActionParameters.Key<Int>("ActionParameterKey")
 
-        when (currentPage) {
-            "Activities" -> StartActivityActions()
-            "Services" -> StartServiceActions()
-            "Broadcasts" -> SendBroadcastActions()
-            else -> throw IllegalArgumentException("Unknown page")
+// @androidx.compose.ui.tooling.preview.Preview
+@Composable
+private fun Content2() {
+    Column {
+        Box(
+            modifier =
+                GlanceModifier.background(Color.Red).size(64.dp, 48.dp).clickable {
+                    Log.i(TAG, "Red Box was clicked")
+                }
+        ) {}
+        //         Start activity action
+        Button(
+            text = "Activity",
+            onClick =
+                actionStartActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))),
+        )
+
+        // start service action
+        Button(
+            text = "Service",
+            onClick =
+                actionStartService(
+                    isForegroundService = true,
+                    intent = Intent(LocalContext.current, ActionDemoService::class.java),
+                ),
+        )
+
+        // actionRunCallback
+        Button(
+            text = "Action",
+            onClick =
+                actionRunCallback<ActionAppWidgetCallback>(
+                    parameters = actionParametersOf(ActionParameterKey to 123456)
+                ),
+        )
+
+        // lambda button
+        Button(text = "Lambda", onClick = { Log.i(TAG, "onClick lambda") })
+
+        // broadcast button
+        Button(
+            text = "broadcast",
+            onClick =
+                actionSendBroadcast(
+                    Intent(LocalContext.current, ActionAppWidgetReceiver::class.java)
+                ),
+        )
+
+        Box(
+            modifier =
+                GlanceModifier.background(Color.Green).size(64.dp, 48.dp).clickable {
+                    Log.i(TAG, "Green Box was clicked")
+                }
+        ) {}
+
+        Text(
+            "text w/lambda",
+            style = TextStyle(fontSize = 22.sp),
+            modifier = GlanceModifier.clickable { Log.i(TAG, "text w/lambda clicked") },
+        )
+
+        Box(
+            modifier =
+                GlanceModifier.background(Color.Cyan).size(64.dp, 48.dp).clickable {
+                    Log.i(TAG, "Cyan Box was clicked")
+                }
+        ) {}
+    } // end-column
+}
+
+class ActionAppWidgetCallback : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters,
+    ) {
+        Log.d(
+            TAG,
+            "onAction() called with: context = $context, glanceId = $glanceId, parameters = $parameters",
+        )
+
+        val handler: Handler = Handler(Looper.getMainLooper())
+        handler.post {
+            Toast.makeText(
+                    context,
+                    "ActionAppWidgetCallback: onAction() executed",
+                    Toast.LENGTH_SHORT,
+                )
+                .show()
         }
     }
 }
@@ -136,91 +191,13 @@ private fun SelectableActionItem(label: String, active: Boolean, onClick: () -> 
     Text(text = label, style = style, modifier = GlanceModifier.padding(8.dp).clickable(onClick))
 }
 
-@Composable
-private fun ColumnScope.StartActivityActions() {
-    Button(
-        text = "Intent",
-        onClick = actionStartActivity(Intent(LocalContext.current, ActionDemoActivity::class.java)),
-    )
-    Button(text = "Target class", onClick = actionStartActivity<ActionDemoActivity>())
-    Button(
-        text = "Target class with params",
-        onClick =
-            actionStartActivity<ActionDemoActivity>(
-                actionParametersOf(StartMessageKey to "Start activity by target class")
-            ),
-    )
-    Button(
-        text = "Component name",
-        onClick =
-            actionStartActivity(ComponentName(LocalContext.current, ActionDemoActivity::class.java)),
-    )
-    Button(
-        text = "Component name with params",
-        onClick =
-            actionStartActivity(
-                ComponentName(LocalContext.current, ActionDemoActivity::class.java),
-                actionParametersOf(StartMessageKey to "Start activity by component name"),
-            ),
-        withSpace = false,
-    )
-}
-
-@Composable
-private fun ColumnScope.StartServiceActions() {
-    Button(
-        text = "Intent",
-        onClick = actionStartService(Intent(LocalContext.current, ActionDemoService::class.java)),
-    )
-    Button(text = "Target class", onClick = actionStartService<ActionDemoService>())
-    Button(
-        text = "In foreground",
-        onClick = actionStartService<ActionDemoService>(isForegroundService = true),
-    )
-    Button(
-        text = "Component name",
-        onClick =
-            actionStartService(ComponentName(LocalContext.current, ActionDemoService::class.java)),
-        withSpace = false,
-    )
-}
-
-@Composable
-private fun ColumnScope.SendBroadcastActions() {
-    Button(
-        text = "Intent",
-        onClick =
-            actionSendBroadcast(Intent(LocalContext.current, ActionAppWidgetReceiver::class.java)),
-    )
-    Button(text = "Action", onClick = actionSendBroadcast(AppWidgetManager.ACTION_APPWIDGET_UPDATE))
-    Button(text = "Target class", onClick = actionSendBroadcast<ActionAppWidgetReceiver>())
-    Button(
-        text = "Component name",
-        onClick =
-            actionSendBroadcast(
-                ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
-            ),
-        withSpace = false,
-    )
-}
-
-/** Reimplementation of the [androidx.glance.Button] that adds a spacer after it. */
-@Suppress("unused")
-@Composable
-private fun ColumnScope.Button(text: String, onClick: Action, withSpace: Boolean = true) {
-    androidx.glance.Button(text, onClick)
-    if (withSpace) {
-        Spacer(GlanceModifier.size(4.dp))
-    }
-}
-
 /** Placeholder activity to launch via [actionStartActivity] */
 class ActionDemoActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
         setContent {
-            Box(
+            androidx.compose.foundation.layout.Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = androidx.compose.ui.Alignment.Center,
             ) {
@@ -238,6 +215,7 @@ class ActionDemoService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(this::class.simpleName, "Action Demo Service: $intent")
+        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show()
         return super.onStartCommand(intent, flags, startId)
     }
 }

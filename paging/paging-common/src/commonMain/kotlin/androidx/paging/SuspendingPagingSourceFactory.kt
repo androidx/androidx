@@ -31,5 +31,6 @@ internal expect class SuspendingPagingSourceFactory<Key : Any, Value : Any>(
 ) {
     suspend fun create(): PagingSource<Key, Value>
 
+    @Suppress("KmpModifierMismatch") // actuals are operator
     fun invoke(): PagingSource<Key, Value>
 }

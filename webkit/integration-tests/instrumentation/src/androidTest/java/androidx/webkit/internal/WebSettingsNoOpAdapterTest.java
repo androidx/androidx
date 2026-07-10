@@ -40,6 +40,10 @@ public class WebSettingsNoOpAdapterTest {
 
         Class<WebSettingsNoOpAdapter> noOpClass = WebSettingsNoOpAdapter.class;
         for (Method method : declaredMethods) {
+            // Skip the compiler-generated synthetic methods.
+            if (method.isSynthetic()) {
+                continue;
+            }
             try {
                 noOpClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
             } catch (NoSuchMethodException e) {

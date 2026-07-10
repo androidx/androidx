@@ -23,6 +23,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.view.ViewParent
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.PausableMonotonicFrameClock
@@ -90,7 +91,10 @@ fun View.findViewTreeCompositionContext(): CompositionContext? {
     return found
 }
 
-private val animationScale = mutableMapOf<Context, StateFlow<Float>>()
+private val animationScale = mutableScatterMapOf<Context, StateFlow<Float>>()
+
+private fun Context.readAnimationScale() =
+    Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
 
 // Callers of this function should pass an application context. Passing an activity context might
 // result in activity leaks.
@@ -113,12 +117,7 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                     resolver.registerContentObserver(animationScaleUri, false, contentObserver)
                     try {
                         for (value in channel) {
-                            val newValue =
-                                Settings.Global.getFloat(
-                                    applicationContext.contentResolver,
-                                    Settings.Global.ANIMATOR_DURATION_SCALE,
-                                    1f,
-                                )
+                            val newValue = applicationContext.readAnimationScale()
                             emit(newValue)
                         }
                     } finally {
@@ -128,11 +127,7 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                 .stateIn(
                     MainScope(),
                     SharingStarted.WhileSubscribed(),
-                    Settings.Global.getFloat(
-                        applicationContext.contentResolver,
-                        Settings.Global.ANIMATOR_DURATION_SCALE,
-                        1f,
-                    ),
+                    applicationContext.readAnimationScale(),
                 )
         }
     }
@@ -270,10 +265,10 @@ object WindowRecomposerPolicy {
  * with the lifecycle of the host activity, we want that recomposer to shut down and create a new
  * one for the new activity instance.
  */
-private val View.contentChild: View
+internal val View.contentChild: View
     get() {
         var self: View = this
-        var parent: ViewParent? = self.parent
+        var parent: ViewParent? = self.getParentOrViewTreeDisjointParent()
         while (parent is View) {
             if (parent.id == android.R.id.content) return self
             self = parent
@@ -335,10 +330,12 @@ fun View.createLifecycleAwareWindowRecomposer(
     val pausableClock =
         baseContext[MonotonicFrameClock]?.let { PausableMonotonicFrameClock(it).apply { pause() } }
 
-    var systemDurationScaleSettingConsumer: MotionDurationScaleImpl? = null
+    var motionDurationScaleImpl: MotionDurationScaleImpl? = null
     val motionDurationScale =
         baseContext[MotionDurationScale]
-            ?: MotionDurationScaleImpl().also { systemDurationScaleSettingConsumer = it }
+            ?: MotionDurationScaleImpl(context.applicationContext).also {
+                motionDurationScaleImpl = it
+            }
 
     val contextWithClockAndMotionScale =
         baseContext + (pausableClock ?: EmptyCoroutineContext) + motionDurationScale
@@ -373,22 +370,14 @@ fun View.createLifecycleAwareWindowRecomposer(
                         // Undispatched launch since we've configured this scope
                         // to be on the UI thread
                         runRecomposeScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                            var durationScaleJob: Job? = null
+                            // Tied to the effect coroutine context which is cancelled on destroy
+                            // below.
+                            motionDurationScaleImpl?.coroutineScope =
+                                CoroutineScope(recomposer.effectCoroutineContext)
+
                             try {
-                                durationScaleJob =
-                                    systemDurationScaleSettingConsumer?.let {
-                                        val durationScaleStateFlow =
-                                            getAnimationScaleFlowFor(context.applicationContext)
-                                        it.scaleFactor = durationScaleStateFlow.value
-                                        launch {
-                                            durationScaleStateFlow.collect { scaleFactor ->
-                                                it.scaleFactor = scaleFactor
-                                            }
-                                        }
-                                    }
                                 recomposer.runRecomposeAndApplyChanges()
                             } finally {
-                                durationScaleJob?.cancel()
                                 // If runRecomposeAndApplyChanges returns or this coroutine is
                                 // cancelled it means we no longer care about this lifecycle.
                                 // Clean up the dangling references tied to this observer.
@@ -431,6 +420,30 @@ fun View.createLifecycleAwareWindowRecomposer(
     return recomposer
 }
 
-private class MotionDurationScaleImpl : MotionDurationScale {
-    override var scaleFactor by mutableFloatStateOf(1f)
+private class MotionDurationScaleImpl(private val applicationContext: Context) :
+    MotionDurationScale {
+    var coroutineScope: CoroutineScope? = null
+
+    private var _scaleFactor by mutableFloatStateOf(1f)
+    var job: Job? = null
+
+    override val scaleFactor: Float
+        get() {
+            if (job == null) {
+                job = startObservingSystemScaleFactor()
+            }
+            return _scaleFactor
+        }
+
+    private fun startObservingSystemScaleFactor(): Job {
+        val durationScaleStateFlow = getAnimationScaleFlowFor(applicationContext)
+        _scaleFactor = durationScaleStateFlow.value
+
+        val scope =
+            coroutineScope
+                ?: error("MotionDurationScale scale factor requested before recomposer loop start")
+        return scope.launch {
+            durationScaleStateFlow.collect { scaleFactor -> _scaleFactor = scaleFactor }
+        }
+    }
 }

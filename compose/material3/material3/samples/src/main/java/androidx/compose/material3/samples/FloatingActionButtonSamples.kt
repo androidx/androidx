@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
@@ -24,7 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -34,66 +36,158 @@ import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.MediumFloatingActionButton
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.animateFloatingActionButton
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun FloatingActionButtonSample() {
-    FloatingActionButton(onClick = { /* do something */ }) {
-        Icon(Icons.Filled.Add, "Localized description")
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        FloatingActionButton(onClick = { /* do something */ }) {
+            Icon(Icons.Filled.Add, "Localized description")
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun SmallFloatingActionButtonSample() {
-    SmallFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(Icons.Filled.Add, contentDescription = "Localized description")
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        SmallFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun MediumFloatingActionButtonSample() {
-    MediumFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(
-            Icons.Filled.Add,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-        )
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        MediumFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "Localized description",
+                modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun LargeFloatingActionButtonSample() {
-    LargeFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(
-            Icons.Filled.Add,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-        )
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        LargeFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "Localized description",
+                modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -105,19 +199,39 @@ fun AnimatedFloatingActionButtonSample() {
 
     Scaffold(
         floatingActionButton = {
-            MediumFloatingActionButton(
-                modifier =
-                    Modifier.animateFloatingActionButton(
-                        visible = fabVisible,
-                        alignment = Alignment.BottomEnd,
-                    ),
-                onClick = { /* do something */ },
+            // A FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Localized description"
+                            }
+                    ) {
+                        Text("Localized description")
+                    }
+                },
+                state = rememberTooltipState(),
             ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-                )
+                MediumFloatingActionButton(
+                    modifier =
+                        Modifier.animateFloatingActionButton(
+                            visible = fabVisible,
+                            alignment = Alignment.BottomEnd,
+                        ),
+                    onClick = { /* do something */ },
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                    )
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -137,7 +251,6 @@ fun ExtendedFloatingActionButtonTextSample() {
     ExtendedFloatingActionButton(onClick = { /* do something */ }) { Text(text = "Extended FAB") }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -147,7 +260,6 @@ fun SmallExtendedFloatingActionButtonTextSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -157,7 +269,6 @@ fun MediumExtendedFloatingActionButtonTextSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -178,7 +289,6 @@ fun ExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -190,7 +300,6 @@ fun SmallExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -208,7 +317,6 @@ fun MediumExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -226,6 +334,7 @@ fun LargeExtendedFloatingActionButtonSample() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -236,12 +345,35 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "Extended FAB") },
-            )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Localized description"
+                                }
+                        ) {
+                            Text("Localized description")
+                        }
+                    }
+                },
+                state = rememberTooltipState(),
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = { Icon(Icons.Filled.Add, "Localized Description") },
+                    text = { Text(text = "Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -253,7 +385,6 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -264,12 +395,35 @@ fun SmallAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            SmallExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "Small Extended FAB") },
-            )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Localized description"
+                                }
+                        ) {
+                            Text("Localized description")
+                        }
+                    }
+                },
+                state = rememberTooltipState(),
+            ) {
+                SmallExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = { Icon(Icons.Filled.Add, "Localized Description") },
+                    text = { Text(text = "Small Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -281,7 +435,6 @@ fun SmallAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -292,18 +445,41 @@ fun MediumAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            MediumExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Localized Description",
-                        modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-                    )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Localized description"
+                                }
+                        ) {
+                            Text("Localized description")
+                        }
+                    }
                 },
-                text = { Text(text = "Medium Extended FAB") },
-            )
+                state = rememberTooltipState(),
+            ) {
+                MediumExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = {
+                        Icon(
+                            Icons.Filled.Add,
+                            "Localized Description",
+                            modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                        )
+                    },
+                    text = { Text(text = "Medium Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -315,7 +491,6 @@ fun MediumAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -326,18 +501,41 @@ fun LargeAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            LargeExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Localized Description",
-                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-                    )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Localized description"
+                                }
+                        ) {
+                            Text("Localized description")
+                        }
+                    }
                 },
-                text = { Text(text = "Large Extended FAB") },
-            )
+                state = rememberTooltipState(),
+            ) {
+                LargeExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = {
+                        Icon(
+                            Icons.Filled.Add,
+                            "Localized Description",
+                            modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+                        )
+                    },
+                    text = { Text(text = "Large Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {

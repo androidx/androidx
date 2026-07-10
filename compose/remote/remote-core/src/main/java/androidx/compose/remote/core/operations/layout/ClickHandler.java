@@ -15,13 +15,15 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
 
 import org.jspecify.annotations.NonNull;
 
 /** Interface to represent operations that can handle click events */
-public interface ClickHandler {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface ClickHandler extends TouchOperation {
 
     /**
      * callback for a click event
@@ -31,8 +33,43 @@ public interface ClickHandler {
      * @param component the component on which the click has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onClick(
+    boolean onClick(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y);
+
+    /**
+     * callback for a long press event
+     *
+     * @param context the current context
+     * @param document the current document
+     * @param component the component on which the click has been received
+     * @param x the x position of the click in document coordinates
+     * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
+     */
+    boolean onLongPress(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y);
+
+    /**
+     * callback for a double click event
+     *
+     * @param context the current context
+     * @param document the current document
+     * @param component the component on which the click has been received
+     * @param x the x position of the click in document coordinates
+     * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
+     */
+    boolean onDoubleClick(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,

@@ -1,0 +1,34 @@
+-keep class androidx.xr.runtime.math.FieldOfView { *; }
+
+-keep class androidx.xr.runtime.math.FloatSize2d { *; }
+
+-keep class androidx.xr.runtime.math.FloatSize3d { *; }
+
+-keep class androidx.xr.runtime.math.GeospatialPose { *; }
+
+-keep class androidx.xr.runtime.math.IntSize2d { *; }
+
+-keep class androidx.xr.runtime.math.Pose { *; }
+
+-keep class androidx.xr.runtime.math.Quaternion { *; }
+
+-keep class androidx.xr.runtime.math.Vector2 { *; }
+
+-keep class androidx.xr.runtime.math.Vector3 { *; }
+
+-if class androidx.xr.runtime.DisplayBlendMode
+-keep class androidx.xr.runtime.DisplayBlendMode$Companion { *; }
+
+# while we try to utilize META-INF/services lookups instead of
+# wildcard keep rules for services, in large APKs, service lookups
+# can fail, so we have these rules here as backup.
+-keep class androidx.xr.runtime.internal.PerceptionRuntimeFactory { *; }
+-keep class ** implements androidx.xr.runtime.internal.PerceptionRuntimeFactory { *; }
+-keep class androidx.xr.runtime.internal.RenderingRuntimeFactory { *; }
+-keep class ** implements androidx.xr.runtime.internal.RenderingRuntimeFactory { *; }
+-keep class androidx.xr.runtime.internal.SceneRuntimeFactory { *; }
+-keep class ** implements androidx.xr.runtime.internal.SceneRuntimeFactory { *; }
+-keep class androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory { *; }
+-keep class ** implements androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory { *; }
+-keep class androidx.xr.runtime.StateExtender { *; }
+-keep class ** implements androidx.xr.runtime.StateExtender { *; }

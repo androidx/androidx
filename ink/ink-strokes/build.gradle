@@ -22,68 +22,40 @@ plugins {
 }
 
 androidXMultiplatform {
-  jvm()
-  androidLibrary {
-    namespace = "androidx.ink.strokes"
-  }
+    // Only supported on non-Android JVM for Linux on x86_64
+    jvm()
 
-  defaultPlatform(PlatformIdentifier.JVM)
-
-  sourceSets {
-    commonMain {
-      dependencies {
-        api(libs.kotlinStdlib)
-
-        implementation("androidx.annotation:annotation:1.8.0")
-      }
+    androidLibrary {
+        namespace = "androidx.ink.strokes"
     }
 
-    jvmAndroidMain {
-      dependsOn(commonMain)
-      dependencies {
-        implementation(project(":ink:ink-nativeloader"))
-        implementation(project(":ink:ink-geometry"))
-        implementation(project(":ink:ink-brush"))
-      }
-    }
+    defaultPlatform(PlatformIdentifier.JVM)
 
-    jvmAndroidTest {
-      dependsOn(commonTest)
-      dependencies {
-        implementation(libs.junit)
-        implementation(libs.kotlinTest)
-        implementation(libs.truth)
-        implementation(project(":ink:ink-geometry"))
-        implementation(project(":ink:ink-brush"))
-      }
-    }
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.androidx.annotation)
+            implementation(project(":ink:ink-nativeloader"))
+        }
 
-    jvmMain {
-      dependsOn(jvmAndroidMain)
-    }
+        jvmAndAndroidMain.dependencies {
+            implementation(project(":ink:ink-geometry"))
+            implementation(project(":ink:ink-brush"))
+        }
 
-    jvmTest {
-      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
-      //   in a JVM environment in addition to on Android emulators, once the
-      //   mysterious SIGSEGV is resolved.
-    }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+        }
 
-    androidMain {
-      dependsOn(jvmAndroidMain)
-    }
+        jvmAndAndroidTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.truth)
+        }
 
-    androidInstrumentedTest {
-      dependsOn(jvmAndroidTest)
-      dependencies {
-        implementation(libs.testExtJunit)
-        implementation(libs.testRules)
-        implementation(libs.testRunner)
-        implementation(libs.espressoCore)
-        implementation(libs.junit)
-        implementation(libs.truth)
-      }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+        }
     }
-  }
 }
 
 androidx {
@@ -91,4 +63,12 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Create beautiful strokes"
+    usePlatformSpecificCacheForJvmTests = true
+}
+
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

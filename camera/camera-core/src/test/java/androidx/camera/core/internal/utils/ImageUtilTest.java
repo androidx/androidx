@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.nio.ByteBuffer;
@@ -50,6 +51,7 @@ import java.nio.ByteBuffer;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(sdk = {Config.ALL_SDKS})
 public class ImageUtilTest {
     private static final int WIDTH = 160;
     private static final int HEIGHT = 120;

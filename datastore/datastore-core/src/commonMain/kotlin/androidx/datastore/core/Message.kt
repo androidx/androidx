@@ -36,5 +36,6 @@ internal sealed class Message<T> {
         val ack: CompletableDeferred<T>,
         override val lastState: State<T>?,
         val callerContext: CoroutineContext,
+        val token: DataStoreTraceToken?,
     ) : Message<T>()
 }

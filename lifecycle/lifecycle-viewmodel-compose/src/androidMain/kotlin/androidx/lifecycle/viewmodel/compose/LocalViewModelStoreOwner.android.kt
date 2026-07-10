@@ -16,11 +16,13 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.HostDefaultKey
+import androidx.compose.runtime.ViewTreeHostDefaultKey
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.viewmodel.R
 
-@Composable
-internal actual fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
-    LocalView.current.findViewTreeViewModelStoreOwner()
+public actual val ViewModelStoreOwnerHostDefaultKey: HostDefaultKey<ViewModelStoreOwner?> =
+    object : ViewTreeHostDefaultKey<ViewModelStoreOwner?> {
+        override val tagKey: Int
+            get() = R.id.view_tree_view_model_store_owner
+    }

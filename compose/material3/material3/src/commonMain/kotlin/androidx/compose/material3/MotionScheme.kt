@@ -40,7 +40,6 @@ import androidx.compose.runtime.Stable
  *
  * You can customize the motion scheme for all components in the [MaterialTheme].
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 interface MotionScheme {
     /**
@@ -120,9 +119,7 @@ interface MotionScheme {
          * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
          * recurring interactions. It provides a linear motion feel.
          */
-        @Suppress("UNCHECKED_CAST")
-        @ExperimentalMaterial3ExpressiveApi
-        fun standard(): MotionScheme = StandardMotionSchemeImpl
+        @Suppress("UNCHECKED_CAST") fun standard(): MotionScheme = StandardMotionSchemeImpl
 
         /**
          * Returns an expressive Material motion scheme.
@@ -130,12 +127,9 @@ interface MotionScheme {
          * The expressive scheme is Material's recommended motion scheme for prominent UI elements
          * and hero interactions. It provides a visually engaging motion feel.
          */
-        @Suppress("UNCHECKED_CAST")
-        @ExperimentalMaterial3ExpressiveApi
-        fun expressive(): MotionScheme = ExpressiveMotionSchemeImpl
+        @Suppress("UNCHECKED_CAST") fun expressive(): MotionScheme = ExpressiveMotionSchemeImpl
     }
 
-    @ExperimentalMaterial3ExpressiveApi
     @Suppress("UNCHECKED_CAST")
     private object StandardMotionSchemeImpl : MotionScheme {
         private val defaultSpatialSpec =
@@ -199,7 +193,6 @@ interface MotionScheme {
         }
     }
 
-    @ExperimentalMaterial3ExpressiveApi
     @Suppress("UNCHECKED_CAST")
     private object ExpressiveMotionSchemeImpl : MotionScheme {
 
@@ -275,7 +268,6 @@ interface MotionScheme {
  *
  * @param value the token's value
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Stable
 internal fun <T> MotionScheme.fromToken(value: MotionSchemeKeyTokens): FiniteAnimationSpec<T> {
     return when (value) {
@@ -294,6 +286,5 @@ internal fun <T> MotionScheme.fromToken(value: MotionSchemeKeyTokens): FiniteAni
  */
 @Composable
 @ReadOnlyComposable
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun <T> MotionSchemeKeyTokens.value(): FiniteAnimationSpec<T> =
     MaterialTheme.motionScheme.fromToken(this)

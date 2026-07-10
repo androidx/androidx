@@ -15,8 +15,10 @@
  */
 package androidx.compose.remote.core.operations.layout.animation;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -33,6 +35,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Basic component animation spec */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimationSpec extends Operation implements ModifierOperation {
     public static final AnimationSpec DEFAULT = new AnimationSpec();
     public static final AnimationSpec DISABLED = new AnimationSpec(0);
@@ -43,6 +46,9 @@ public class AnimationSpec extends Operation implements ModifierOperation {
     int mVisibilityEasingType = GeneralEasing.CUBIC_STANDARD;
     @NonNull ANIMATION mEnterAnimation = ANIMATION.FADE_IN;
     @NonNull ANIMATION mExitAnimation = ANIMATION.FADE_OUT;
+
+    private static final int OP_CODE = Operations.ANIMATION_SPEC;
+    private static final String CLASS_NAME = "AnimationSpec";
 
     public AnimationSpec(
             int animationId,
@@ -162,7 +168,8 @@ public class AnimationSpec extends Operation implements ModifierOperation {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer,
+        apply(
+                buffer,
                 mAnimationId,
                 mMotionDuration,
                 mMotionEasingType,
@@ -280,7 +287,7 @@ public class AnimationSpec extends Operation implements ModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int animationId = buffer.readInt();
+        int animationId = buffer.readId();
         float motionDuration = buffer.readFloat();
         int motionEasingType = buffer.readInt();
         float visibilityDuration = buffer.readFloat();
@@ -305,12 +312,15 @@ public class AnimationSpec extends Operation implements ModifierOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("define the animation")
-                .field(INT, "animationId", "")
-                .field(INT, "motionDuration", "")
-                .field(INT, "motionEasingType", "")
-                .field(INT, "visibilityDuration", "")
-                .field(INT, "visibilityEasingType", "");
+        doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("animation_spec")
+                .description("Define the animation specifications for a component")
+                .field(INT, "animationId", "The ID of the animation")
+                .field(FLOAT, "motionDuration", "Duration of the motion animation in ms")
+                .field(INT, "motionEasingType", "The type of easing for motion")
+                .field(FLOAT, "visibilityDuration", "Duration of visibility animation in ms")
+                .field(INT, "visibilityEasingType", "The type of easing for visibility")
+                .field(INT, "enterAnimation", "The entry animation type")
+                .field(INT, "exitAnimation", "The exit animation type");
     }
 }

@@ -17,10 +17,11 @@
 package androidx.wear.compose.foundation.lazy.layout
 
 /**
- * A key-index mapping used inside the [LazyLayoutItemProvider]. It might not contain all items in
- * the lazy layout as optimization, but it must cover items the provider is requesting during layout
- * pass. See [NearestRangeKeyIndexMap] as sample implementation that samples items near current
- * viewport.
+ * A key-index mapping used inside the
+ * [androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider]. It might not contain all items
+ * in the lazy layout as optimization, but it must cover items the provider is requesting during
+ * layout pass. See [androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap] as sample
+ * implementation that samples items near current viewport.
  */
 internal interface LazyLayoutKeyIndexMap {
     /** @return current index for given [key] or `-1` if not found. */

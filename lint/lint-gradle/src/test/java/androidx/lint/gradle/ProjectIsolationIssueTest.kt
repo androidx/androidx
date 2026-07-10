@@ -36,7 +36,7 @@ class ProjectIsolationIssueTest :
                 fun configure(project: Project) {
                     project.findProperty("example")
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -46,7 +46,7 @@ class ProjectIsolationIssueTest :
                 project.findProperty("example")
                         ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
         val expectedFixDiffs =
             """
@@ -54,7 +54,7 @@ class ProjectIsolationIssueTest :
             @@ -4 +4
             -     project.findProperty("example")
             +     project.providers.gradleProperty("example")
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -70,7 +70,7 @@ class ProjectIsolationIssueTest :
                 fun configure(project: Project) {
                     val root = project.getRootProject().tasks
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -80,7 +80,7 @@ class ProjectIsolationIssueTest :
                 val root = project.getRootProject().tasks
                                    ~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
@@ -89,7 +89,7 @@ class ProjectIsolationIssueTest :
             @@ -4 +4
             -     val root = project.getRootProject().tasks
             +     val root = project.isolated.rootProject().tasks
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -105,7 +105,7 @@ class ProjectIsolationIssueTest :
                 fun configure(project: Project) {
                     val root = project.getRootProject().getIsolated().tasks
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -115,7 +115,7 @@ class ProjectIsolationIssueTest :
                 val root = project.getRootProject().getIsolated().tasks
                                    ~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
@@ -124,7 +124,7 @@ class ProjectIsolationIssueTest :
             @@ -4 +4
             -     val root = project.getRootProject().getIsolated().tasks
             +     val root = project.isolated.rootProject().getIsolated().tasks
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -140,7 +140,7 @@ class ProjectIsolationIssueTest :
                 fun configure(project: Project) {
                     val root = project.getIsolated().getRootProject()
                 }
-            """
+                """
                     .trimIndent()
             )
         check(input).expectClean()
@@ -157,7 +157,7 @@ class ProjectIsolationIssueTest :
                     project.evaluationDependsOn(":foo:bar")
                     project.evaluationDependsOnChildren()
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -170,7 +170,7 @@ class ProjectIsolationIssueTest :
                 project.evaluationDependsOnChildren()
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             2 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)

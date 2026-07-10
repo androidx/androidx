@@ -21,11 +21,9 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation(project(":appcompat:appcompat"))
     implementation("androidx.activity:activity-compose:1.10.1")
@@ -38,32 +36,33 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
 
     // Adaptive (CAMAL) dependencies
-    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha10")
-    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0-alpha10")
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0-alpha10")
+    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0")
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
 
     // XR Adaptive integration library
     implementation(project(":xr:compose:material3:material3"))
-    implementation("androidx.xr.compose:compose:1.0.0-alpha06")
-    implementation("androidx.xr.scenecore:scenecore:1.0.0-alpha06")
+    implementation(project(":xr:compose:compose"))
+    implementation(project(":xr:scenecore:scenecore"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
 
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    compileOnly(libs.androidExtensionsXr)
 
     // TODO(b/374796755): Write unit-tests for this test app
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     namespace = "androidx.xr.compose.material3.integration.testapp"
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
 }

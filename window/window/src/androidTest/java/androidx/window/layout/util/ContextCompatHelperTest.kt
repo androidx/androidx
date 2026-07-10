@@ -17,6 +17,8 @@
 package androidx.window.layout.util
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,6 +28,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 
 /** Instrumentation tests for [ContextCompatHelper]. */
 @SmallTest
@@ -42,6 +45,55 @@ class ContextCompatHelperTest {
     fun testUnwrapContext_noContextWrapper_inputMethodService() {
         val context = mock(InputMethodService::class.java)
         assertEquals(context, unwrapContext(context))
+    }
+
+    @Test
+    fun testUnwrapContext_noContextWrapper_application() {
+        val context = mock(Application::class.java)
+        assertEquals(context, unwrapContext(context))
+    }
+
+    @Test
+    fun testUnwrapContext_contextWrapper_inputMethodService() {
+        val context = mock(InputMethodService::class.java)
+        val contextWrapper = ContextWrapper(context)
+        assertEquals(context, unwrapContext(contextWrapper))
+    }
+
+    @Test
+    fun testUnwrapContext_contextWrapper_activity_noBaseContext() {
+        val context = mock(Activity::class.java)
+        val contextWrapper = ContextWrapper(context)
+        assertEquals(context, unwrapContext(contextWrapper))
+    }
+
+    @Test
+    fun testUnwrapContext_contextWrapper_application_noBaseContext() {
+        val context = mock(Application::class.java)
+        val contextWrapper = ContextWrapper(context)
+        assertEquals(context, unwrapContext(contextWrapper))
+    }
+
+    @Test
+    fun testUnwrapContext_contextWrapper_activity_baseContext() {
+        val context = mock(Activity::class.java)
+        // Activity typically has a real context as a base
+        val baseContext = mock(Context::class.java)
+        whenever(context.baseContext).thenReturn(baseContext)
+        val contextWrapper = ContextWrapper(context)
+        // We should stop when we find the Activity context
+        assertEquals(context, unwrapContext(contextWrapper))
+    }
+
+    @Test
+    fun testUnwrapContext_contextWrapper_application_baseContext() {
+        val context = mock(Application::class.java)
+        // Application typically has a real context as a base
+        val baseContext = mock(Context::class.java)
+        whenever(context.baseContext).thenReturn(baseContext)
+        val contextWrapper = ContextWrapper(context)
+        // We should stop when we find the Application context
+        assertEquals(context, unwrapContext(contextWrapper))
     }
 
     @Test

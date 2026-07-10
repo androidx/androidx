@@ -44,7 +44,6 @@ import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.AspectRatio.RATIO_DEFAULT
@@ -55,7 +54,6 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.Preview
 import androidx.camera.integration.core.button.FrameRateButton
 import androidx.camera.integration.core.button.VideoQualityButton
@@ -65,7 +63,7 @@ import androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore
 import androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions
 import androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions
 import androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri
-import androidx.camera.video.ExperimentalHighSpeedVideo
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.HighSpeedVideoSessionConfig
 import androidx.camera.video.MediaStoreOutputOptions
@@ -83,8 +81,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 /** Activity for verifying behavior of high speed video recording. */
-@kotlin.OptIn(ExperimentalSessionConfig::class, ExperimentalHighSpeedVideo::class)
-@SuppressLint("RestrictedApiAndroidX", "NullAnnotationGroup")
+@SuppressLint("RestrictedApiAndroidX")
 class HighSpeedVideoActivity : AppCompatActivity() {
 
     // Views
@@ -106,11 +103,18 @@ class HighSpeedVideoActivity : AppCompatActivity() {
     private var videoCapabilitiesSource = VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
     private var recording: Recording? = null
     private var slowMotionVideoEnabled = false
+    private var autoRotationEnabled = true
     private var targetAspectRatio = RATIO_DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_high_speed_video)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            this,
+            R.id.root_layout,
+            listOf(R.id.switch_camera, R.id.quality_button),
+        )
 
         setupCameraConfig()
         setupViewsAndButtons()
@@ -225,6 +229,7 @@ class HighSpeedVideoActivity : AppCompatActivity() {
             HighSpeedVideoSessionConfig.Builder(videoCapture!!)
                 .setPreview(preview)
                 .setSlowMotionEnabled(slowMotionVideoEnabled)
+                .setAutoRotationEnabled(autoRotationEnabled)
 
         val supportedFpsRanges =
             cameraInfo!!.getSupportedFrameRateRanges(sessionConfigBuilder!!.build())
@@ -296,6 +301,7 @@ class HighSpeedVideoActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(ID_TO_CAMERA_CONFIG_MAP.getKey(currentCameraConfig)!!).isChecked = true
         menu.findItem(R.id.slow_motion_video_enabled).isChecked = slowMotionVideoEnabled
+        menu.findItem(R.id.auto_rotation).isChecked = autoRotationEnabled
         menu.findItem(ID_TO_ASPECT_RATIO_MAP.getKey(targetAspectRatio)!!).isChecked = true
         menu
             .findItem(ID_TO_VIDEO_CAPABILITIES_SOURCE_MAP.getKey(videoCapabilitiesSource)!!)
@@ -339,6 +345,10 @@ class HighSpeedVideoActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.slow_motion_video_enabled -> {
                 slowMotionVideoEnabled = !slowMotionVideoEnabled
+                shouldResetCamera = true
+            }
+            R.id.auto_rotation -> {
+                autoRotationEnabled = !autoRotationEnabled
                 shouldResetCamera = true
             }
         }
@@ -533,21 +543,13 @@ class HighSpeedVideoActivity : AppCompatActivity() {
                 header = "Camera2 High Speed Video",
                 cameraXConfig = Camera2Config.defaultConfig(),
             )
-        private val CAMERA_CONFIG_CAMERA_PIPE =
-            CameraConfig(
-                header = "Camera Pipe High Speed Video",
-                cameraXConfig = CameraPipeConfig.defaultConfig(),
-            )
         private val DEFAULT_CAMERA_CONFIG = CAMERA_CONFIG_CAMERA2
 
         private var currentCameraConfig: CameraConfig = DEFAULT_CAMERA_CONFIG
         private var pendingCameraConfig: CameraConfig? = null
 
         private val ID_TO_CAMERA_CONFIG_MAP: Map<Int, CameraConfig> =
-            mapOf(
-                R.id.camera_config_camera2 to CAMERA_CONFIG_CAMERA2,
-                R.id.camera_config_camera_pipe to CAMERA_CONFIG_CAMERA_PIPE,
-            )
+            mapOf(R.id.camera_config_camera2 to CAMERA_CONFIG_CAMERA2)
 
         private val ID_TO_ASPECT_RATIO_MAP: Map<Int, Int> =
             mapOf(

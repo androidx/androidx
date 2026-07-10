@@ -16,9 +16,12 @@
 
 package androidx.wear.compose.integration.navigation
 
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +34,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -47,15 +52,31 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavHostState
 
+/**
+ * Activity supports two distinct back stack management modes depending on the intent flag. Its
+ * navigation behavior is determined by the presence and value of the [EXTRA_HAS_BACKSTACK] boolean
+ * flag in the launching Intent:
+ * 1. **Standard Stack Mode (When [EXTRA_HAS_BACKSTACK] is `true` or omitted):**
+ *     * The activity ensures the main Home screen (or designated root screen) is maintained
+ *     * on the back stack. After viewing the destination screen, the user can navigate
+ *     * back to the preserved Home screen, upholding standard in-app navigation history.
+ * 2. **Clear Back Stack Mode (When [EXTRA_HAS_BACKSTACK] is `false`):**
+ *     * The activity will navigate to the target screen while clearing the entire back stack.
+ *     * The launched screen becomes the new root destination of the task. This mode is ideal
+ *     * for handling deep links, push notifications, or flows that should not allow the
+ *     * user to navigate back to previous non-standard screens.
+ */
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val hasBackstack = intent.extras?.getBoolean(EXTRA_HAS_BACKSTACK, true) ?: true
 
         setContent(parent = null) {
             MaterialTheme {
@@ -70,40 +91,69 @@ class MainActivity : ComponentActivity() {
                     composable(START) {
                         TransformingLazyColumn(
                             state = transformingLazyColumnState,
-                            modifier = Modifier.padding(horizontal = 10.dp),
+                            modifier =
+                                Modifier.then(
+                                        if (!hasBackstack) Modifier.background(Color.DarkGray)
+                                        else Modifier
+                                    )
+                                    .padding(horizontal = 10.dp),
                         ) {
                             item {
                                 ListHeader {
                                     Text(text = "Screen 1", color = MaterialTheme.colors.onSurface)
                                 }
                             }
+
+                            item {
+                                SwitchButton(
+                                    checked = !hasBackstack,
+                                    onCheckedChange = {
+                                        if (hasBackstack) startActivityWithPopBackstack()
+                                        else finish()
+                                    },
+                                ) {
+                                    Text("Empty backstack mode")
+                                }
+                            }
+
                             item {
                                 CompactChip(
-                                    onClick = { navController.navigate(SCREEN2) },
+                                    onClick = { navController.navigate(SCREEN2, hasBackstack) },
                                     label = { Text("Next screen") },
                                 )
                             }
                             item {
                                 CompactChip(
-                                    onClick = { navController.navigate(EDGE_SWIPE_SCREEN) },
+                                    onClick = {
+                                        navController.navigate(EDGE_SWIPE_SCREEN, hasBackstack)
+                                    },
                                     label = { Text("Screen with edge swipe") },
                                 )
                             }
                             item {
                                 CompactChip(
-                                    onClick = { navController.navigate(PAGER_SCAFFOLD_SCREEN) },
+                                    onClick = {
+                                        navController.navigate(PAGER_SCAFFOLD_SCREEN, hasBackstack)
+                                    },
                                     label = { Text("Screen with PagerScaffold") },
                                 )
                             }
                             item {
                                 CompactChip(
-                                    onClick = { navController.navigate(S2R_STANDARD_SCREEN) },
+                                    onClick = {
+                                        navController.navigate(S2R_STANDARD_SCREEN, hasBackstack)
+                                    },
                                     label = { Text("S2R - Standard") },
                                 )
                             }
                             item {
                                 CompactChip(
-                                    onClick = { navController.navigate(S2R_DUAL_DIRECTION_SCREEN) },
+                                    onClick = {
+                                        navController.navigate(
+                                            S2R_DUAL_DIRECTION_SCREEN,
+                                            hasBackstack,
+                                        )
+                                    },
                                     label = { Text("S2R - Dual Direction") },
                                 )
                             }
@@ -123,7 +173,7 @@ class MainActivity : ComponentActivity() {
                             )
                             Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
                             CompactChip(
-                                onClick = { navController.popBackStack() },
+                                onClick = { navController.navigateBack(SCREEN2, hasBackstack) },
                                 label = { Text("Go Back") },
                             )
                         }
@@ -142,7 +192,7 @@ class MainActivity : ComponentActivity() {
                             )
                             Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
                             CompactChip(
-                                onClick = { navController.popBackStack() },
+                                onClick = { navController.navigateBack(SCREEN3, hasBackstack) },
                                 label = { Text("Go Back") },
                             )
                         }
@@ -199,6 +249,35 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    fun startActivityWithPopBackstack() {
+        // Start this activity again as new task, but don't maintain backstack when navigating to
+        // the target screen. When swiping back from the target screen, the new activity will be
+        // closed, and we'll always return to the main menu ("Screen 1") on an initial activity.
+        // The predictive back gesture we see when swiping back is handled by the system for
+        // activity transition.
+        startActivity(
+            Intent(this@MainActivity, MainActivity::class.java).apply {
+                flags = FLAG_ACTIVITY_NEW_TASK
+                putExtra(EXTRA_HAS_BACKSTACK, false)
+            }
+        )
+    }
+}
+
+private fun NavHostController.navigateBack(currentRoute: String?, hasBackStack: Boolean = true) {
+    if (hasBackStack) popBackStack()
+    else {
+        navigate(START) { currentRoute?.let { route -> popUpTo(route) { inclusive = true } } }
+    }
+}
+
+private fun NavHostController.navigate(route: String, hasBackStack: Boolean) {
+    navigate(route) {
+        if (!hasBackStack) {
+            popUpTo(START) { inclusive = true }
+        }
+    }
 }
 
 private const val START = "start"
@@ -208,3 +287,4 @@ private const val EDGE_SWIPE_SCREEN = "edge_swipe_screen"
 private const val PAGER_SCAFFOLD_SCREEN = "pager_scaffold_screen"
 private const val S2R_STANDARD_SCREEN = "s2r_standard_screen"
 private const val S2R_DUAL_DIRECTION_SCREEN = "s2r_dual_direction_screen"
+private const val EXTRA_HAS_BACKSTACK = "extra_has_backstack"

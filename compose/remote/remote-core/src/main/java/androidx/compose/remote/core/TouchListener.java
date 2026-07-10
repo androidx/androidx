@@ -15,13 +15,16 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.layout.TouchOperation;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Interface used by objects to register for touch events */
-public interface TouchListener {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface TouchListener extends TouchOperation {
     /**
      * Called when touch down happens
      *

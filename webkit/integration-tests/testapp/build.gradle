@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.ApkCopyHelperKt
@@ -57,7 +56,10 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    compileSdk = 35
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
+    compileSdk { version = release(35) }
     lint {
         disable.add("UnusedResources")
     }
@@ -70,9 +72,9 @@ android {
 }
 
 androidx {
-    name = "WebKit Test App"
+    name = "Webkit Test App"
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2017"
-    description = "The WebKit Support Library test application is a demonstration of the APIs provided in the androidx.webkit library."
+    description = "The Jetpack Webkit Library test application is a demonstration of the APIs provided in the androidx.webkit library."
     additionalDeviceTestApkKeys.add("chrome")
 }

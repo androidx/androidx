@@ -55,6 +55,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ApplyDimensionModifierTest {
 
     private lateinit var fakeCoroutineScope: TestScope

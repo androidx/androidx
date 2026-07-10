@@ -16,63 +16,98 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.CoreState
 import kotlin.time.ComparableTimeMark
 
 /**
- * Represents the state of ARCore for Jetpack XR at an specific point in time.
+ * State of ARCore for Jetpack XR at a specific point in time.
  *
  * Can be obtained from [CoreState.perceptionState].
  *
- * @property timeMark the time at which the state was computed.
- * @property trackables the trackables that are currently being tracked.
- * @property leftHand the left hand, or null when not supported by the current platform.
- * @property rightHand the right hand, or null when not supported by the current platform.
+ * @property timeMark the time at which the state was computed
+ * @property trackableStates the state of the trackables at the [timeMark] that are currently being
+ *   tracked
+ * @property leftHandState the state of the left hand at the [timeMark], or null when not supported
+ *   by the current platform
+ * @property rightHandState the state of the right hand at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property arDeviceState the state of the currently tracked device at the [timeMark]
+ * @property leftRenderViewpointState the state of the left viewpoint used for rendering at the
+ *   [timeMark], or null when not supported by the current platform
+ * @property rightRenderViewpointState the state of the right viewpoint used for rendering at the
+ *   [timeMark], or null when not supported by the current platform
+ * @property monoRenderViewpointState the state of the mono viewpoint used for rendering at the
+ *   [timeMark], or null when not supported by the current platform
+ * @property leftDepthState the state of the left depth map at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property rightDepthState the state of the right depth map at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property monoDepthState the state of the mono depth map at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property userFaceState the state of the user's face at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property leftEyeState the state of the user's left eye at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property rightEyeState the state of the user's right eye at the [timeMark], or null when not
+ *   supported by the current platform
+ * @property geospatialState the state of the geospatial service at the [timeMark], or null when not
+ *   supported by the current platform
  */
 public class PerceptionState
 internal constructor(
     public val timeMark: ComparableTimeMark,
-    public val trackables: Collection<Trackable<Trackable.State>>,
-    public val leftHand: Hand?,
-    public val rightHand: Hand?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val arDevice: ArDevice,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val leftRenderViewpoint: RenderViewpoint?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val rightRenderViewpoint: RenderViewpoint?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val monoRenderViewpoint: RenderViewpoint?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val depthMaps: List<DepthMap>,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val userFace: Face?,
+    public val trackableStates: Collection<Trackable.State>,
+    public val leftHandState: Hand.State?,
+    public val rightHandState: Hand.State?,
+    public val arDeviceState: ArDevice.State,
+    public val leftRenderViewpointState: RenderViewpoint.State?,
+    public val rightRenderViewpointState: RenderViewpoint.State?,
+    public val monoRenderViewpointState: RenderViewpoint.State?,
+    public val leftDepthState: Depth.State?,
+    public val rightDepthState: Depth.State?,
+    public val monoDepthState: Depth.State?,
+    public val userFaceState: Face.State?,
+    public val leftEyeState: Eye.State?,
+    public val rightEyeState: Eye.State?,
+    public val geospatialState: Geospatial.State?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PerceptionState) return false
         if (timeMark != other.timeMark) return false
-        if (trackables != other.trackables) return false
-        if (leftHand != other.leftHand) return false
-        if (rightHand != other.rightHand) return false
-        if (arDevice != other.arDevice) return false
-        if (leftRenderViewpoint != other.leftRenderViewpoint) return false
-        if (rightRenderViewpoint != other.rightRenderViewpoint) return false
-        if (monoRenderViewpoint != other.monoRenderViewpoint) return false
-        if (depthMaps != other.depthMaps) return false
-        if (userFace != other.userFace) return false
+        if (trackableStates != other.trackableStates) return false
+        if (leftHandState != other.leftHandState) return false
+        if (rightHandState != other.rightHandState) return false
+        if (arDeviceState != other.arDeviceState) return false
+        if (leftRenderViewpointState != other.leftRenderViewpointState) return false
+        if (rightRenderViewpointState != other.rightRenderViewpointState) return false
+        if (monoRenderViewpointState != other.monoRenderViewpointState) return false
+        if (leftDepthState != other.leftDepthState) return false
+        if (rightDepthState != other.rightDepthState) return false
+        if (monoDepthState != other.monoDepthState) return false
+        if (userFaceState != other.userFaceState) return false
+        if (leftEyeState != other.leftEyeState) return false
+        if (rightEyeState != other.rightEyeState) return false
+        if (geospatialState != other.geospatialState) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = timeMark.hashCode()
-        result = 31 * result + trackables.hashCode()
-        result = 31 * result + leftHand.hashCode()
-        result = 31 * result + rightHand.hashCode()
-        result = 31 * result + arDevice.hashCode()
-        result = 31 * result + leftRenderViewpoint.hashCode()
-        result = 31 * result + rightRenderViewpoint.hashCode()
-        result = 31 * result + monoRenderViewpoint.hashCode()
-        result = 31 * result + depthMaps.hashCode()
-        result = 31 * result + userFace.hashCode()
+        result = 31 * result + trackableStates.hashCode()
+        result = 31 * result + leftHandState.hashCode()
+        result = 31 * result + rightHandState.hashCode()
+        result = 31 * result + arDeviceState.hashCode()
+        result = 31 * result + leftRenderViewpointState.hashCode()
+        result = 31 * result + rightRenderViewpointState.hashCode()
+        result = 31 * result + monoRenderViewpointState.hashCode()
+        result = 31 * result + leftDepthState.hashCode()
+        result = 31 * result + rightDepthState.hashCode()
+        result = 31 * result + monoDepthState.hashCode()
+        result = 31 * result + userFaceState.hashCode()
+        result = 31 * result + leftEyeState.hashCode()
+        result = 31 * result + rightEyeState.hashCode()
+        result = 31 * result + geospatialState.hashCode()
         return result
     }
 }

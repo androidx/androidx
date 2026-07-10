@@ -35,8 +35,10 @@ import kotlin.math.max
 @ExperimentalFoundationApi
 @Composable
 internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
-    return if (RobolectricImpl != null) {
-        RobolectricImpl
+    return if (isRobolectric) {
+        // Robolectric is reporting incorrect frame start time, so we have to completely
+        // disable prefetch on it.
+        remember { noopScheduler() }
     } else {
         val view = LocalView.current
         remember(view) {
@@ -61,10 +63,10 @@ internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
  * The differences with the implementation in RecyclerView:
  * 1) Prefetch is per-list-index, and performed on whole item. With RecyclerView, nested scrolling
  *    RecyclerViews would prefetch incrementally, e.g. items like the following in a scrolling
- *    vertical list could be broken up within a frame: [Row1 [a], [b], [c]] [Row2 [d], [e]]
- *    [Row3 [f], [g], [h]] You could have frames that break up this work arbitrarily: Frame 1 -
- *    prefetch [a] Frame 2 - prefetch [b], [c] Frame 3 - prefetch [d] Frame 4 - prefetch [e], [f]
- *    Something similar is not possible with LazyColumn yet.
+ *    vertical list could be broken up within a frame: `[Row1 [a], [b], [c]]` `[Row2 [d], [e]]`
+ *    `[Row3 [f], [g], [h]]` You could have frames that break up this work arbitrarily: Frame 1 -
+ *    prefetch `[a]` Frame 2 - prefetch `[b]`, `[c]` Frame 3 - prefetch `[d]` Frame 4 - prefetch
+ *    `[e]`, `[f]` Something similar is not possible with LazyColumn yet.
  * 2) Prefetching time estimation only captured during the prefetch. We currently don't track the
  *    time of the regular subcompose call happened during the regular measure pass, only the ones
  *    which are done during the prefetching. The downside is we build our prefetch information only
@@ -277,18 +279,16 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 }
 
+private val isRobolectric
+    get() = Build.FINGERPRINT != null && Build.FINGERPRINT == "robolectric"
+
 @Suppress("DEPRECATION") // b/420551535
 @ExperimentalFoundationApi
-private val RobolectricImpl =
-    if (Build.FINGERPRINT != null && Build.FINGERPRINT.lowercase() == "robolectric") {
-        object : PrefetchScheduler {
-            override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
-                // Robolectric is reporting incorrect frame start time, so we have to completely
-                // disable prefetch on it.
-            }
+private fun noopScheduler() =
+    object : PrefetchScheduler {
+        override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
+            // do nothing
         }
-    } else {
-        null
     }
 
 @Suppress("DEPRECATION") // b/420551535

@@ -1,0 +1,70 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.runtime.math
+
+/**
+ * Field of view of a virtual or rendering camera.
+ *
+ * @property angleLeft the angle in radians of the left edge of the field of view
+ * @property angleRight the angle in radians of the right edge of the field of view
+ * @property angleUp the angle in radians of the top edge of the field of view
+ * @property angleDown the angle in radians of the bottom edge of the field of view
+ */
+public class FieldOfView(
+    public val angleLeft: Float = Math.PI.toFloat() / 3,
+    public val angleRight: Float = Math.PI.toFloat() / 3,
+    public val angleUp: Float = Math.PI.toFloat() / 3,
+    public val angleDown: Float = Math.PI.toFloat() / 3,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FieldOfView) return false
+
+        if (angleLeft != other.angleLeft) return false
+        if (angleRight != other.angleRight) return false
+        if (angleUp != other.angleUp) return false
+        if (angleDown != other.angleDown) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = angleLeft.hashCode()
+        result = 31 * result + angleRight.hashCode()
+        result = 31 * result + angleUp.hashCode()
+        result = 31 * result + angleDown.hashCode()
+        return result
+    }
+
+    /**
+     * Returns a string representation of [FieldOfView] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "FieldOfView(angleLeft=$angleLeft, angleRight=$angleRight, angleUp=$angleUp, angleDown=$angleDown)"
+
+    @JvmOverloads
+    public fun copy(
+        angleLeft: Float = this.angleLeft,
+        angleRight: Float = this.angleRight,
+        angleUp: Float = this.angleUp,
+        angleDown: Float = this.angleDown,
+    ): FieldOfView {
+        return FieldOfView(angleLeft, angleRight, angleUp, angleDown)
+    }
+}

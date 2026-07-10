@@ -34,7 +34,6 @@ public class UserActivityState(public val id: Int, public val name: String) {
 
     override fun toString(): String = name
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): UserActivityStateProto =
         UserActivityStateProto.forNumber(id) ?: UserActivityStateProto.USER_ACTIVITY_STATE_UNKNOWN
 

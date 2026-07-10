@@ -24,9 +24,7 @@ final class androidx.compose.material3.windowsizeclass/WindowSizeClass { // andr
     final fun hashCode(): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowSizeClass.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.material3.windowsizeclass/WindowSizeClass.toString|toString(){}[0]
 
-    final object Companion { // androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion|null[0]
-        final fun calculateFromSize(androidx.compose.ui.unit/DpSize, kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass> = ..., kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> = ...): androidx.compose.material3.windowsizeclass/WindowSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion.calculateFromSize|calculateFromSize(androidx.compose.ui.unit.DpSize;kotlin.collections.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass>;kotlin.collections.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass>){}[0]
-    }
+    final object Companion // androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion|null[0]
 }
 
 final value class androidx.compose.material3.windowsizeclass/WindowHeightSizeClass : kotlin/Comparable<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> { // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass|null[0]

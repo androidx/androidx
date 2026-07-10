@@ -70,6 +70,12 @@ import androidx.wear.protolayout.modifiers.toProtoLayoutModifiers
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param iconContent The icon slot for content displayed in this button. It is recommended to use
@@ -97,7 +103,6 @@ import androidx.wear.protolayout.modifiers.toProtoLayoutModifiers
  *   button's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.oneSlotButtonsSample
  */
-// TODO: b/346958146 - Link Button visuals in DAC
 public fun MaterialScope.iconButton(
     onClick: Clickable,
     iconContent: (MaterialScope.() -> LayoutElement),
@@ -142,6 +147,12 @@ public fun MaterialScope.iconButton(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param labelContent The text slot for content displayed in this button. It is recommended to use
@@ -170,7 +181,6 @@ public fun MaterialScope.iconButton(
  *   button's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.oneSlotButtonsSample
  */
-// TODO: b/346958146 - Link Button visuals in DAC
 public fun MaterialScope.textButton(
     onClick: Clickable,
     labelContent: (MaterialScope.() -> LayoutElement),
@@ -215,6 +225,12 @@ public fun MaterialScope.textButton(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param labelContent The text slot for content displayed in this button. It is recommended to use
@@ -255,7 +271,6 @@ public fun MaterialScope.textButton(
  * @sample androidx.wear.protolayout.material3.samples.pillShapeButtonsSample
  * @sample androidx.wear.protolayout.material3.samples.customButtonSample
  */
-// TODO: b/346958146 - Link Button visuals in DAC
 public fun MaterialScope.button(
     onClick: Clickable,
     labelContent: (MaterialScope.() -> LayoutElement),
@@ -343,6 +358,12 @@ public fun MaterialScope.button(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param labelContent The text slot for content displayed in this button. It is recommended to use
@@ -378,7 +399,6 @@ public fun MaterialScope.button(
  *   as horizontally elements are spaced out proportionally to the buttons width.
  * @sample androidx.wear.protolayout.material3.samples.avatarButtonSample
  */
-// TODO: b/346958146 - Link Button visuals in DAC
 public fun MaterialScope.avatarButton(
     onClick: Clickable,
     labelContent: (MaterialScope.() -> LayoutElement),
@@ -505,6 +525,12 @@ public fun MaterialScope.imageButton(
  * on device. If not, or switched off by user, uses fallback [ColorScheme] defined in its
  * [MaterialScope].
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param onClick Associated [Clickable] for click events. When the button is clicked it will fire
  *   the associated action.
  * @param modifier Modifiers to set to this element. It's highly recommended to set a content
@@ -535,7 +561,6 @@ public fun MaterialScope.imageButton(
  *   button's edge. It's highly recommended to keep the default.
  * @sample androidx.wear.protolayout.material3.samples.compactButtonsSample
  */
-// TODO: b/346958146 - Link Button visuals in DAC
 public fun MaterialScope.compactButton(
     onClick: Clickable,
     modifier: LayoutModifier = LayoutModifier,

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,22 +29,20 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
-        minSdk = 27
-        targetSdk = 35
+        minSdk { version = release(27) }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.apps.whitebox.mobile"
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
 }
@@ -62,11 +59,11 @@ dependencies {
     implementation(project(":xr:arcore:arcore-play-services"))
     implementation(project(":xr:assets"))
 
-    implementation("com.google.android.gms:play-services-base:18.5.0")
+    implementation("com.google.android.gms:play-services-base:18.6.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("com.google.android.gms:play-services-tasks:18.2.0")
+    implementation("com.google.android.gms:play-services-tasks:18.2.1")
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
 
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -76,11 +73,11 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.graphics:graphics-core:1.0.3")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-    implementation("com.google.ar:core:1.49.0")
+    implementation("androidx.window:window:1.1.0")
+    implementation("com.google.ar:core:1.53.0")
     implementation("de.javagl:obj:0.4.0")
 
-    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project),
-            "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build so the QA team can

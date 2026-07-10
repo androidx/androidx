@@ -40,8 +40,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -56,6 +54,9 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
 import androidx.viewpager2.R;
 import androidx.viewpager2.adapter.StatefulAdapter;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 
@@ -309,9 +310,8 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @SuppressWarnings("ConstantConditions")
-    @Nullable
     @Override
-    protected Parcelable onSaveInstanceState() {
+    protected @Nullable Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
 
@@ -462,7 +462,7 @@ public final class ViewPager2 extends ViewGroup {
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
-    public void setAdapter(@Nullable @SuppressWarnings("rawtypes") Adapter adapter) {
+    public void setAdapter(@SuppressWarnings("rawtypes") @Nullable Adapter adapter) {
         final Adapter<?> currentAdapter = mRecyclerView.getAdapter();
         mAccessibilityProvider.onDetachAdapter(currentAdapter);
         unregisterCurrentItemDataSetTracker(currentAdapter);
@@ -1017,8 +1017,8 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public boolean performAccessibilityAction(@NonNull RecyclerView.Recycler recycler,
-                @NonNull RecyclerView.State state, int action, @Nullable Bundle args) {
+        public boolean performAccessibilityAction(RecyclerView.@NonNull Recycler recycler,
+                RecyclerView.@NonNull State state, int action, @Nullable Bundle args) {
             if (mAccessibilityProvider.handlesLmPerformAccessibilityAction(action)) {
                 return mAccessibilityProvider.onLmPerformAccessibilityAction(action);
             }
@@ -1026,23 +1026,23 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
-                @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        public void onInitializeAccessibilityNodeInfo(RecyclerView.@NonNull Recycler recycler,
+                RecyclerView.@NonNull State state, @NonNull AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(recycler, state, info);
             mAccessibilityProvider.onLmInitializeAccessibilityNodeInfo(info);
         }
 
         @Override
         public void onInitializeAccessibilityNodeInfoForItem(
-                @NonNull RecyclerView.Recycler recycler,
-                @NonNull RecyclerView.State state, @NonNull View host,
+                RecyclerView.@NonNull Recycler recycler,
+                RecyclerView.@NonNull State state, @NonNull View host,
                 @NonNull AccessibilityNodeInfoCompat info) {
             mAccessibilityProvider.onLmInitializeAccessibilityNodeInfoForItem(host, info);
         }
 
         @Override
-        protected void calculateExtraLayoutSpace(@NonNull RecyclerView.State state,
-                @NonNull int[] extraLayoutSpace) {
+        protected void calculateExtraLayoutSpace(RecyclerView.@NonNull State state,
+                int @NonNull [] extraLayoutSpace) {
             int pageLimit = getOffscreenPageLimit();
             if (pageLimit == OFFSCREEN_PAGE_LIMIT_DEFAULT) {
                 // Only do custom prefetching of offscreen pages if requested
@@ -1066,9 +1066,8 @@ public final class ViewPager2 extends ViewGroup {
         PagerSnapHelperImpl() {
         }
 
-        @Nullable
         @Override
-        public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+        public @Nullable View findSnapView(RecyclerView.LayoutManager layoutManager) {
             // When interrupting a smooth scroll with a fake drag, we stop RecyclerView's scroll
             // animation, which fires a scroll state change to IDLE. PagerSnapHelper then kicks in
             // to snap to a page, which we need to prevent here.
@@ -1192,8 +1191,7 @@ public final class ViewPager2 extends ViewGroup {
      * @return the ItemDecoration at index position
      * @throws IndexOutOfBoundsException on invalid index
      */
-    @NonNull
-    public ItemDecoration getItemDecorationAt(int index) {
+    public @NonNull ItemDecoration getItemDecorationAt(int index) {
         return mRecyclerView.getItemDecorationAt(index);
     }
 

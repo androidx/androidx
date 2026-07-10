@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.ui.calling
 
 import android.content.Context
@@ -36,7 +38,6 @@ import androidx.core.telecom.test.services.LocalCallSilenceData
 import androidx.core.telecom.test.services.MeetingSummaryData
 import androidx.core.telecom.test.services.ParticipantExtensionData
 import androidx.core.telecom.test.services.RemoteCallProvider
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.ViewModel
 import java.util.Locale
 import kotlinx.coroutines.flow.Flow
@@ -146,7 +147,6 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
     }
 
     /** map [CallIconData] to [MeetingSummaryUiState] */
-    @OptIn(ExperimentalAppActions::class)
     private fun mapToUiMeetingSummaryExtension(
         meetingSummaryData: MeetingSummaryData?
     ): MeetingSummaryUiState {
@@ -161,7 +161,6 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
     }
 
     /** map [CallIconData] to [CallIconExtensionUiState] */
-    @OptIn(ExperimentalAppActions::class)
     private fun mapToUiCallIconExtension(
         callIconExtensionData: CallIconData?
     ): CallIconExtensionUiState {
@@ -172,22 +171,21 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
         }
     }
 
-    @OptIn(ExperimentalAppActions::class)
     private fun mapToUiLocalSilenceExtension(
         localCallSilenceExtensionData: LocalCallSilenceData?
     ): LocalCallSilenceExtensionUiState {
         if (localCallSilenceExtensionData == null) {
-            return LocalCallSilenceExtensionUiState(false, {}, null)
+            return LocalCallSilenceExtensionUiState(false, true, {}, null)
         }
         return LocalCallSilenceExtensionUiState(
             localCallSilenceExtensionData.isLocallySilenced,
+            localCallSilenceExtensionData.canUserUpdateSilence,
             localCallSilenceExtensionData.onInCallServiceUiUpdate,
             localCallSilenceExtensionData.extension,
         )
     }
 
     /** Perform a map ooperation from [ParticipantExtensionData] to [ParticipantExtensionUiState] */
-    @OptIn(ExperimentalAppActions::class)
     private fun mapToUiParticipantExtension(
         participantExtensionData: ParticipantExtensionData?
     ): ParticipantExtensionUiState? {
@@ -208,7 +206,6 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
     }
 
     /** map [ParticipantExtensionData] to [ParticipantExtensionUiState] */
-    @OptIn(ExperimentalAppActions::class)
     private fun mapUiParticipants(
         participantExtensionData: ParticipantExtensionData
     ): List<ParticipantUiState> {

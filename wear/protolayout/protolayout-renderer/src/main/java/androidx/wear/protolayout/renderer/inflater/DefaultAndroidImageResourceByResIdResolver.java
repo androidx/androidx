@@ -19,6 +19,7 @@ package androidx.wear.protolayout.renderer.inflater;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
+import android.os.Build.VERSION;
 
 import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidImageResourceByResIdResolver;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 public class DefaultAndroidImageResourceByResIdResolver
         implements AndroidImageResourceByResIdResolver {
     private final @NonNull Resources mAndroidResources;
+    private final boolean mRestrictImageSize;
 
     /**
      * Constructor.
@@ -38,12 +40,32 @@ public class DefaultAndroidImageResourceByResIdResolver
      *     normally obtained from {@code PackageManager#getResourcesForApplication}.
      */
     public DefaultAndroidImageResourceByResIdResolver(@NonNull Resources androidResources) {
+        this(androidResources, /* restrictImageSize= */ false);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param androidResources An Android Resources instance for the tile service's package. This is
+     *     normally obtained from {@code PackageManager#getResourcesForApplication}.
+     * @param restrictImageSize Whether to restrict the size of the decoded image.
+     */
+    public DefaultAndroidImageResourceByResIdResolver(
+            @NonNull Resources androidResources, boolean restrictImageSize) {
         this.mAndroidResources = androidResources;
+        this.mRestrictImageSize = restrictImageSize;
     }
 
     @Override
     public @NonNull Drawable getDrawableOrThrow(@NonNull AndroidImageResourceByResId resource)
             throws ResourceAccessException {
+        if (VERSION.SDK_INT >= 28 && mRestrictImageSize) {
+            return ConstrainedImageDecoder.decodeDrawable(
+                    mAndroidResources,
+                    resource.getResourceId()
+            );
+        }
+
         try {
             return mAndroidResources.getDrawable(resource.getResourceId(), /* theme= */ null);
         } catch (NotFoundException ex) {

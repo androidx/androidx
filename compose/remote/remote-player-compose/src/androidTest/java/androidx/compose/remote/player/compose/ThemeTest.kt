@@ -25,25 +25,28 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.frontend.layout.RemoteComposable
-import androidx.compose.remote.player.compose.test.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
+import androidx.compose.remote.player.compose.test.utils.ComposableWrapper
+import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.RemoteDocScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.DarkMode
 import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class ThemeTest {
     @get:Rule
-    val remoteComposeTestRule = RemoteComposeScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+    val remoteComposeTestRule =
+        RemoteDocScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
     fun nightUnspecifiedDarkMode_darkThemeProvided_showsDarkTheme() {
@@ -51,7 +54,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -63,7 +66,7 @@ class ThemeTest {
         val document = getDocument(darkTheme = false)
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -75,7 +78,7 @@ class ThemeTest {
         val document = getDocument(darkTheme = false, unspecifiedTheme = false)
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -87,7 +90,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -99,7 +102,7 @@ class ThemeTest {
         val document = getDocument(lightTheme = false)
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -111,7 +114,7 @@ class ThemeTest {
         val document = getDocument(lightTheme = false, unspecifiedTheme = false)
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -123,7 +126,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -135,7 +138,7 @@ class ThemeTest {
         val document = getDocument(darkTheme = false)
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -147,7 +150,7 @@ class ThemeTest {
         val document = getDocument(darkTheme = false, unspecifiedTheme = false)
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -159,7 +162,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -171,7 +174,7 @@ class ThemeTest {
         val document = getDocument(lightTheme = false)
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -183,7 +186,7 @@ class ThemeTest {
         val document = getDocument(lightTheme = false, unspecifiedTheme = false)
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -194,7 +197,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
         val document = getDocument()
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -202,7 +205,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
         val document = getDocument(darkTheme = false)
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -210,7 +213,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
         val document = getDocument(darkTheme = false, unspecifiedTheme = false)
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -219,7 +222,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = false
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -230,7 +233,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         val document = getDocument()
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -238,7 +241,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         val document = getDocument(lightTheme = false)
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -246,7 +249,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         val document = getDocument(lightTheme = false, unspecifiedTheme = false)
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -255,7 +258,7 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
@@ -266,7 +269,7 @@ class ThemeTest {
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_AUTO_BATTERY)
         val document = getDocument()
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        runScreenshotTestHelper(document = document)
     }
 
     @Test
@@ -275,15 +278,26 @@ class ThemeTest {
         val document = getDocument()
         val isDarkMode = true
 
-        remoteComposeTestRule.runScreenshotTest(
+        runScreenshotTestHelper(
             document = document,
             outerContent = darkModeConfigurationOverride(isDarkMode),
         )
     }
 
+    private fun runScreenshotTestHelper(
+        document: CoreDocument,
+        outerContent: ComposableWrapper = ComposableWrappers.noop,
+    ) {
+        remoteComposeTestRule.runScreenshotTest(
+            coreDocument = document,
+            context = InstrumentationRegistry.getInstrumentation().context,
+            composableWrapper = outerContent,
+        )
+    }
+
     private fun darkModeConfigurationOverride(
         isDarkMode: Boolean
-    ): @Composable (content: @Composable @RemoteComposable () -> Unit) -> Unit =
+    ): @Composable (content: @Composable () -> Unit) -> Unit =
         @Composable { content ->
             DeviceConfigurationOverride(DeviceConfigurationOverride.DarkMode(isDarkMode)) {
                 content()

@@ -40,6 +40,7 @@ import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SelectionRendererTest {
     private lateinit var leftHandle: RecordingDrawable
     private lateinit var rightHandle: RecordingDrawable

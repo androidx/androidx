@@ -18,34 +18,361 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.glance.wear.data.WidgetUpdateClient
+import android.provider.Settings
+import androidx.glance.wear.cache.WearWidgetCache
+import androidx.glance.wear.core.ActiveWearWidgetHandle
+import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class GlanceWearWidgetTest {
 
     @Test
-    fun triggerUpdate_clientRequestsUpdate() {
+    fun triggerPullUpdate_withInstanceId_clientRequestsUpdateForInstance() {
         val mockUpdateClient = mock<WidgetUpdateClient>()
         val widget = TestWidget(mockUpdateClient)
-        val componentName = ComponentName("my.package", "my.package.MyClass")
-        val instanceId = 123
 
-        widget.triggerUpdate(getApplicationContext(), componentName, instanceId)
+        widget.triggerPullUpdate(getApplicationContext(), TEST_COMPONENT, TEST_INSTANCE_ID)
 
-        verify(mockUpdateClient).requestUpdate(any(), eq(componentName), eq(instanceId))
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(TEST_INSTANCE_ID))
     }
 
-    private class TestWidget(updateClient: WidgetUpdateClient) : GlanceWearWidget(updateClient) {
+    @Test
+    fun triggerUpdate_debuggable_sendsUpdateBroadcast() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val widget = TestWidget(mockUpdateClient, mockWidgetCache)
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(TEST_INSTANCE_ID),
+                    )
+                )
+                .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+            val context = getApplicationContext<Context>()
+            context.applicationInfo.flags =
+                context.applicationInfo.flags or android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 
-        override suspend fun provideWidgetContent(context: Context, request: WearWidgetRequest) =
-            WearWidgetContent(ByteArray(0))
+            widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+            verify(mockUpdateClient).sendUpdateBroadcast(any(), eq(null), eq(TEST_INSTANCE_ID))
+        }
+    }
+
+    @Test
+    fun triggerUpdate_notDebuggable_doesNotSendUpdateBroadcast() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val widget = TestWidget(mockUpdateClient, mockWidgetCache)
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(TEST_INSTANCE_ID),
+                    )
+                )
+                .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+            val context = getApplicationContext<Context>()
+            context.applicationInfo.flags =
+                context.applicationInfo.flags and
+                    android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE.inv()
+
+            widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+            verify(mockUpdateClient, never()).sendUpdateBroadcast(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun triggerUpdate_withInstanceId_pushedUpdate() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val widget = TestWidget(mockUpdateClient, mockWidgetCache)
+            val context = getApplicationContext<Context>()
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(TEST_INSTANCE_ID),
+                    )
+                )
+                .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+
+            widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+            verify(mockUpdateClient).pushUpdate(eq(context), any(), any())
+        }
+    }
+
+    @Test
+    @Config(maxSdk = 36)
+    fun triggerUpdate_onOlderSdk_pullsUpdate() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val handle =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = TEST_INSTANCE_ID,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val widget = TestWidget(mockUpdateClient, activeWidgets = listOf(handle))
+        val context = getApplicationContext<Context>()
+
+        widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(TEST_INSTANCE_ID))
+        verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+    }
+
+    @Test
+    @Config(maxSdk = 36)
+    fun triggerUpdate_onOlderSdk_invalidId_throws() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient, activeWidgets = listOf())
+        val context = getApplicationContext<Context>()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking { widget.triggerUpdate(context, TEST_INSTANCE_ID) }
+        }
+    }
+
+    @Test
+    @Config(maxSdk = 36)
+    fun triggerUpdateAll_onOlderSdk_pullsUpdateForAll() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val handle1 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = TEST_INSTANCE_ID,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val handle2 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = WidgetInstanceId("ns", 456),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val widget = TestWidget(mockUpdateClient, activeWidgets = listOf(handle1, handle2))
+        val context = getApplicationContext<Context>()
+
+        widget.triggerUpdateAll(context)
+
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(TEST_INSTANCE_ID))
+        verify(mockUpdateClient)
+            .requestUpdate(any(), eq(TEST_COMPONENT), eq(WidgetInstanceId("ns", 456)))
+        verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+    }
+
+    @Test
+    fun triggerUpdateAll_onNewerSdk_pushesUpdateForAll() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val handle1 =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = TEST_INSTANCE_ID,
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val handle2 =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = WidgetInstanceId("ns", 456),
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val widget =
+                TestWidget(
+                    mockUpdateClient,
+                    mockWidgetCache,
+                    activeWidgets = listOf(handle1, handle2),
+                )
+            val context = getApplicationContext<Context>()
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(TEST_INSTANCE_ID),
+                    )
+                )
+                .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(WidgetInstanceId("ns", 456))))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(WidgetInstanceId("ns", 456)),
+                    )
+                )
+                .thenReturn(testWidgetParams(WidgetInstanceId("ns", 456)))
+
+            widget.triggerUpdateAll(context)
+
+            verify(mockUpdateClient)
+                .pushUpdate(eq(context), argThat { instanceId == TEST_INSTANCE_ID }, any())
+            verify(mockUpdateClient)
+                .pushUpdate(
+                    eq(context),
+                    argThat { instanceId == WidgetInstanceId("ns", 456) },
+                    any(),
+                )
+            verify(mockUpdateClient, never()).requestUpdate(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun triggerUpdate_inDebugEnv_pullsUpdate() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val handle =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = TEST_INSTANCE_ID,
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val widget = TestWidget(mockUpdateClient, activeWidgets = listOf(handle))
+            val context = getApplicationContext<Context>()
+
+            withDevelopmentSettingsEnabled(context) {
+                widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+                verify(mockUpdateClient).requestUpdate(any(), any(), eq(TEST_INSTANCE_ID))
+                verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+            }
+        }
+    }
+
+    @Test
+    fun triggerUpdate_inDebugEnv_notActive_pullsUpdateUsingFallbackProvider() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val widget = TestWidget(mockUpdateClient, activeWidgets = emptyList())
+            val context = getApplicationContext<Context>()
+
+            val cache = WearWidgetCache(context)
+            val testComponent = ComponentName(context, TEST_COMPONENT.className)
+            cache.update {
+                putServiceToWidgetMapping(
+                    testComponent.className,
+                    TestWidget::class.java.canonicalName!!,
+                )
+            }
+
+            withDevelopmentSettingsEnabled(context) {
+                widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+                verify(mockUpdateClient)
+                    .requestUpdate(any(), eq(testComponent), eq(TEST_INSTANCE_ID))
+                verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+            }
+        }
+    }
+
+    @Test
+    fun triggerUpdateAll_inDebugEnv_noActiveWidgets_pullsUpdateForProvider() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient, activeWidgets = emptyList())
+        val context = getApplicationContext<Context>()
+
+        // Populate the real cache
+        val cache = WearWidgetCache(context)
+        val testComponent = ComponentName(context, TEST_COMPONENT.className)
+        cache.update {
+            putServiceToWidgetMapping(
+                testComponent.className,
+                TestWidget::class.java.canonicalName!!,
+            )
+        }
+
+        withDevelopmentSettingsEnabled(context) {
+            widget.triggerUpdateAll(context)
+
+            verify(mockUpdateClient).requestUpdate(any(), eq(testComponent), eq(null))
+        }
+    }
+
+    private suspend fun withDevelopmentSettingsEnabled(
+        context: Context,
+        block: suspend () -> Unit,
+    ) {
+        val contentResolver = context.contentResolver
+        val originalValue =
+            Settings.Global.getInt(contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0)
+        Settings.Global.putInt(contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1)
+        try {
+            block()
+        } finally {
+            Settings.Global.putInt(
+                contentResolver,
+                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+                originalValue,
+            )
+        }
+    }
+
+    private class TestWidget(
+        updateClient: WidgetUpdateClient,
+        widgetCache: WearWidgetCache? = null,
+        private val activeWidgets: List<ActiveWearWidgetHandle> = emptyList(),
+    ) : GlanceWearWidget(updateClient, widgetCache) {
+
+        override suspend fun provideWidgetData(context: Context, params: WearWidgetParams) =
+            WearWidgetDocument(background = WearWidgetBrush) {}
+
+        override suspend fun findActiveWidgetById(context: Context, instanceId: WidgetInstanceId) =
+            activeWidgets.find { it.instanceId == instanceId }
+
+        override suspend fun fetchActiveWidgets(context: Context) = activeWidgets
+    }
+
+    private companion object {
+        val TEST_COMPONENT = ComponentName("my.package", "my.package.MyClass")
+        val TEST_INSTANCE_ID = WidgetInstanceId("ns", 123)
+
+        fun testWidgetParams(instanceId: WidgetInstanceId) =
+            WearWidgetParams(
+                instanceId,
+                ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 100f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+            )
+
+        suspend fun withForceAtLeast37(block: suspend () -> Unit) {
+            GlanceWearWidget.forceIsAtLeast37ForTesting = true
+            try {
+                block.invoke()
+            } finally {
+                GlanceWearWidget.forceIsAtLeast37ForTesting = null
+            }
+        }
     }
 }

@@ -17,6 +17,8 @@
 package androidx.webkit.internal;
 
 import androidx.webkit.NoVarySearchHeader;
+import androidx.webkit.PrefetchParameters;
+import androidx.webkit.PrerenderParameters;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 
@@ -39,6 +41,14 @@ public class SpeculativeLoadingParametersAdapter
         mSpeculativeLoadingParameters = impl;
     }
 
+    public SpeculativeLoadingParametersAdapter(@Nullable PrerenderParameters impl) {
+        mSpeculativeLoadingParameters = new SpeculativeLoadingParameters(impl);
+    }
+
+    public SpeculativeLoadingParametersAdapter(@Nullable PrefetchParameters impl) {
+        mSpeculativeLoadingParameters = new SpeculativeLoadingParameters(impl);
+    }
+
     @Override
     public @NonNull Map<String, String> getAdditionalHeaders() {
         if (mSpeculativeLoadingParameters == null) return new HashMap<>();
@@ -59,5 +69,11 @@ public class SpeculativeLoadingParametersAdapter
     public boolean isJavaScriptEnabled() {
         if (mSpeculativeLoadingParameters == null) return false;
         return mSpeculativeLoadingParameters.isJavaScriptEnabled();
+    }
+
+    @Override
+    public @Nullable Integer getVariationsId() {
+        if (mSpeculativeLoadingParameters == null) return null;
+        return mSpeculativeLoadingParameters.getVariationsId();
     }
 }

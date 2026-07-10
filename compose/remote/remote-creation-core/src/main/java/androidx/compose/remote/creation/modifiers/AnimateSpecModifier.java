@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Width modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimateSpecModifier implements RecordingModifier.Element {
 
     int mAnimationId;
@@ -30,6 +32,14 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
     int mVisibilityEasingType;
     AnimationSpec.@NonNull ANIMATION mEnterAnimation;
     AnimationSpec.@NonNull ANIMATION mExitAnimation;
+
+    public AnimateSpecModifier(int animationId) {
+        this(animationId,
+                300, androidx.compose.remote.core.operations.utilities.easing.Easing.CUBIC_STANDARD,
+                300, androidx.compose.remote.core.operations.utilities.easing.Easing.CUBIC_STANDARD,
+                AnimationSpec.ANIMATION.FADE_IN,
+                AnimationSpec.ANIMATION.FADE_OUT);
+    }
 
     public AnimateSpecModifier(
             int animationId,

@@ -16,13 +16,12 @@
 
 package androidx.appfunctions.integration.testapp.library
 
-import android.net.Uri
-import android.util.Log
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionInstruction
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
-import androidx.appfunctions.service.AppFunction
 
 @Suppress("UNUSED_PARAMETER")
 class TestFunctions2 {
@@ -33,18 +32,8 @@ class TestFunctions2 {
      * @param str2 The second string.
      * @return The result of concatenating the two strings.
      */
-    @AppFunction(isDescribedByKdoc = true)
+    @AppFunction(isDescribedByKDoc = true)
     fun concat(appFunctionContext: AppFunctionContext, str1: String, str2: String) = str1 + str2
-
-    @AppFunction
-    fun logUri(appFunctionContext: AppFunctionContext, androidUri: Uri) {
-        Log.d("TestFunctions2", "URI: $androidUri")
-    }
-
-    @AppFunction
-    fun getUri(appFunctionContext: AppFunctionContext): Uri {
-        return Uri.parse("https://www.google.com/")
-    }
 
     @AppFunction
     fun functionWithSerializableParameter(
@@ -60,17 +49,35 @@ class TestFunctions2 {
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
     ): Int = 10
+
+    /** @param arg2 This arg2 shouldn't be overridden */
+    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionInstruction("instruction for function")
+    fun functionWithInstruction(
+        appFunctionContext: AppFunctionContext,
+        @AppFunctionInstruction("instruction for param1") param1: String,
+        arg2: String,
+    ): @AppFunctionInstruction("instruction for return") String = param1 + arg2
+
+    @AppFunction
+    @AppFunctionInstruction("instruction for function without kdoc")
+    fun functionWithInstructionWithoutKdoc(
+        appFunctionContext: AppFunctionContext,
+        @AppFunctionInstruction("instruction for param1 without kdoc") param1: String,
+        arg2: String,
+    ): @AppFunctionInstruction("instruction for return without kdoc") String = param1 + arg2
 }
 
 /** AppFunctionSerializable in non-root library. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionInstruction("Instruction for ExampleSerializable.")
+@AppFunctionSerializable(isDescribedByKDoc = true)
 class ExampleSerializable(
     /** Int property of ExampleSerializable. */
-    val intProperty: Int
+    @AppFunctionInstruction("Instruction for intProperty.") val intProperty: Int
 )
 
 /** Example parameterized AppFunctionSerializable in another package. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 class GenericSerializable<T>(
     /** Value property of GenericSerializable. */
     val value: T

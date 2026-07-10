@@ -18,6 +18,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
+        <intent>
+            <action android:name="androidx.security.state.provider.UPDATE_INFO_SERVICE" />
+        </intent>
         <package android:name="com.google.android.modulemetadata" />
         <package android:name="com.google.mainline.telemetry" />
         <package android:name="com.google.mainline.adservices" />

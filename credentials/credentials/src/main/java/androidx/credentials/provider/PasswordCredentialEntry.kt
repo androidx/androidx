@@ -33,7 +33,6 @@ import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.provider.PasswordCredentialEntry.Api28Impl.toSlice
-import androidx.credentials.provider.PasswordCredentialEntry.Companion.toSlice
 import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
@@ -684,9 +683,9 @@ internal constructor(
             // TODO: b/356939416 - provide backward compatible timestamp API.
             if (Build.VERSION.SDK_INT >= 26) {
                 this.lastUsedTime?.let {
-                    bundle.putSerializable(
-                        "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX$index",
-                        it,
+                    bundle.putLong(
+                        "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index",
+                        it.toEpochMilli(),
                     )
                 }
             }
@@ -734,9 +733,23 @@ internal constructor(
                 // TODO: b/356939416 - provide backward compatible timestamp API.
                 return if (Build.VERSION.SDK_INT >= 26) {
                     val lastUsedTime: Instant? =
-                        bundle.getSerializable(
-                            "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX$index"
-                        ) as Instant?
+                        if (
+                            bundle.containsKey(
+                                "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                            )
+                        ) {
+                            try {
+                                Instant.ofEpochMilli(
+                                    bundle.getLong(
+                                        "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                                    )
+                                )
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
                     PasswordCredentialEntry(
                         username = username,
                         displayName = displayName,

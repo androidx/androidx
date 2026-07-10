@@ -27,8 +27,6 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.OptionSetter
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -972,7 +970,6 @@ src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLi
 
     @Test
     fun smartcastToNonNull() {
-        assumeTrue("Test fails under K1: b/353980920", useFirUast())
         check(
                 kotlin(
                         """
@@ -992,10 +989,7 @@ src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLi
                 """
                     )
                     .indented()
-            ) { flags ->
-                // smart-cast info is more accurate in AA FIR
-                flags.setUseK2Uast(true)
-            }
+            )
             .expectClean()
     }
 

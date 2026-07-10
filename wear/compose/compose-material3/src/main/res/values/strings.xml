@@ -15,9 +15,9 @@
   -->
 
 <resources>
-    <string description="Lets the user know that the time unit being changed is hour. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_hour">Hour</string>
-    <string description="Lets the user know that the time unit being changed is minute. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_minute">Minute</string>
-    <string description="Lets the user know that the time unit being changed is second. Appears on the top of the TimePicker component. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_second">Second</string>
+    <string description="Lets the user know that the time unit being changed is hour. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_hour">Hour</string>
+    <string description="Lets the user know that the time unit being changed is minute. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_minute">Minute</string>
+    <string description="Lets the user know that the time unit being changed is second. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_second">Second</string>
     <plurals description="Content description of the current number of hours being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_hours_content_description">
         <item quantity="one">%d Hour</item>
         <item quantity="other">%d Hours</item>
@@ -36,6 +36,7 @@
     <string description="Lets the user know that this picker is to change the value of the month date unit. Appears on the DatePicker component, on top of the month picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_month">Month</string>
     <string description="Lets the user know that this picker is to change the value of the year date unit. Appears on the DatePicker component, on top of the year picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_year">Year</string>
     <string description="Heading at the top of the DatePicker to instruct the user to set the date by scrolling. [CHAR_LIMIT=NONE]" name="wear_m3c_date_picker_heading">Scroll to set date</string>
+    <string name="wear_m3c_date_picker_content_description" description="Content description of the DatePicker component. It combines the label (e.g. Day, Year) and the selected value. [CHAR_LIMIT=NONE]">%1$s, %2$d</string>
     <string description="Hint of the click to adjust the value action for the Picker" name="wear_m3c_picker_click_to_adjust_hint">Adjust the value</string>
     <string description="Hint of the click to select the value action for the Picker" name="wear_m3c_picker_click_to_select_hint">Select the value</string>
     <string description="Content description of the confirm button of DatePicker and TimePicker components. It lets the user confirm the date or time selected. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_confirm_button_content_description">Confirm</string>
@@ -46,4 +47,18 @@
     <string description="Content description of the Dismiss icon of AlertDialog components. It lets the user dismiss the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_dismiss_button">Dismiss</string>
     <string description="A message which is used to indicate than the user should continue their action on their phone, used in OpenOnPhone component [CHAR_LIMIT=12]" name="wear_m3c_open_on_phone">Check your phone</string>
     <string description="Content description of the icon of OpenOnPhone component. [CHAR_LIMIT=NONE]" name="wear_m3c_open_on_phone_icon_content_description">Check your phone icon</string>
+    <string description="State description of Switch components when their state is on." name="wear_m3c_capital_on_state_description">ON</string>
+    <string description="State description of Switch components when their state is off." name="wear_m3c_capital_off_state_description">OFF</string>
+    <string description="State description of Checkbox components when their state is checked." name="wear_m3c_checked_state_description">checked</string>
+    <string description="State description of Checkbox components when their state is not checked." name="wear_m3c_not_checked_state_description">not checked</string>
+    <!-- Accessibility text for primary gesture -->
+    <string name="one_handed_gesture_primary_action_accessibility_text">Double-pinch gesture to %s</string>
+    <!-- Accessibility text for dismiss gesture -->
+    <string name="one_handed_gesture_dismiss_action_accessibility_text">Wrist-turn gesture to %s</string>
+    <!-- Accessibility text for dismiss gesture in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_dismiss_action_accessibility_text">dismiss</string>
+    <!-- Accessibility text for primary gesture for Confirm Button in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text">confirm</string>
+    <!-- Accessibility text for primary gesture to scroll content in AlertDialog -->
+    <string name="one_handed_gesture_alert_dialog_primary_action_scroll_accessibility_text">scroll down</string>
 </resources>

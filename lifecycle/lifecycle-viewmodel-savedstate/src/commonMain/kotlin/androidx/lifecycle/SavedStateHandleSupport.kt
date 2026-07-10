@@ -44,11 +44,16 @@ internal const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHand
  * with [SavedStateHandle] is requested.
  */
 @MainThread
-public fun <T> T.enableSavedStateHandles() where
-T : SavedStateRegistryOwner,
-T : ViewModelStoreOwner {
+public fun <T> T.enableSavedStateHandles()
+    where T : SavedStateRegistryOwner, T : ViewModelStoreOwner {
     val currentState = lifecycle.currentState
-    require(currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED)
+    require(
+        currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED
+    ) {
+        "Failed to enable `SavedStateHandle` for `$this`. The `Lifecycle.State` must be " +
+            "`INITIALIZED` or `CREATED`, but was `$currentState`. You must call " +
+            "`enableSavedStateHandles()` before the `Lifecycle.State` moves to `STARTED`."
+    }
 
     // Add the SavedStateProvider used to save SavedStateHandles
     // if we haven't already registered the provider
@@ -91,22 +96,19 @@ private fun createSavedStateHandle(
 @MainThread
 public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
     val savedStateRegistryOwner =
-        this[SAVED_STATE_REGISTRY_OWNER_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `SAVED_STATE_REGISTRY_OWNER_KEY`"
-            )
+        requireNotNull(this[SAVED_STATE_REGISTRY_OWNER_KEY]) {
+            "CreationExtras must have a value by `SAVED_STATE_REGISTRY_OWNER_KEY`"
+        }
     val viewModelStateRegistryOwner =
-        this[VIEW_MODEL_STORE_OWNER_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
-            )
+        requireNotNull(this[VIEW_MODEL_STORE_OWNER_KEY]) {
+            "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
+        }
+    val key =
+        requireNotNull(this[VIEW_MODEL_KEY]) {
+            "CreationExtras must have a value by `VIEW_MODEL_KEY`"
+        }
 
     val defaultArgs = this[DEFAULT_ARGS_KEY]
-    val key =
-        this[VIEW_MODEL_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `VIEW_MODEL_KEY`"
-            )
     return createSavedStateHandle(
         savedStateRegistryOwner,
         viewModelStateRegistryOwner,
@@ -132,12 +134,13 @@ internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
             )[VIEWMODEL_KEY, SavedStateHandlesVM::class]
 
 internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
-    get() =
-        savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider
-            ?: throw IllegalStateException(
-                "enableSavedStateHandles() wasn't called " +
-                    "prior to createSavedStateHandle() call"
-            )
+    get() {
+        val provider = savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY)
+        check(provider is SavedStateHandlesProvider) {
+            "enableSavedStateHandles() wasn't called prior to createSavedStateHandle() call"
+        }
+        return provider
+    }
 
 internal class SavedStateHandlesVM : ViewModel() {
     val handles = mutableMapOf<String, SavedStateHandle>()

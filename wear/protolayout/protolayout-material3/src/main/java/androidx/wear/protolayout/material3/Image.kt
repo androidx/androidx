@@ -75,7 +75,7 @@ public fun MaterialScope.backgroundImage(
     overlayColor: LayoutColor? = defaultBackgroundImageStyle.overlayColor,
     @ContentScaleMode contentScaleMode: Int = defaultBackgroundImageStyle.contentScaleMode,
 ): LayoutElement {
-    require(protoLayoutScope != null) {
+    require(hasProtoLayoutScope) {
         "APIs for automatic resource registration must have ProtoLayoutScope in MaterialScope."
     }
     return backgroundImageHelper(
@@ -124,7 +124,7 @@ public fun MaterialScope.avatarImage(
     modifier: LayoutModifier = LayoutModifier,
     @ContentScaleMode contentScaleMode: Int = defaultAvatarImageStyle.contentScaleMode,
 ): LayoutElement {
-    require(protoLayoutScope != null) {
+    require(hasProtoLayoutScope) {
         "APIs for automatic resource registration must have ProtoLayoutScope in MaterialScope."
     }
     return protoLayoutScope.basicImage(
@@ -163,6 +163,9 @@ public fun MaterialScope.avatarImage(
  * @param contentScaleMode The content scale mode for the image to define how image will adapt to
  *   the given size
  */
+@Deprecated(
+    "Use backgroundImage(ImageResource, String, LayoutModifier, ImageDimension, ImageDimension, LayoutColor?, Int) instead, in combination with [androidx.wear.tiles.Material3TileService] that creates scopes for you."
+)
 @Suppress("deprecation")
 public fun MaterialScope.backgroundImage(
     protoLayoutResourceId: String,
@@ -204,6 +207,9 @@ public fun MaterialScope.backgroundImage(
  * @param contentScaleMode The content scale mode for the image to define how image will adapt to
  *   the given size
  */
+@Deprecated(
+    "Use avatarImage(ImageResource, String, ImageDimension, ImageDimension, LayoutModifier, Int) instead, in combination with [androidx.wear.tiles.Material3TileService] that creates scopes for you."
+)
 @Suppress("deprecation")
 public fun MaterialScope.avatarImage(
     protoLayoutResourceId: String,

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw text along a path. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawTextOnPath extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.DRAW_TEXT_ON_PATH;
     private static final String CLASS_NAME = "DrawTextOnPath";
@@ -59,6 +61,7 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
         if (Float.isNaN(mHOffset)) {
             context.listensTo(Utils.idFromNan(mHOffset), this);
         }
@@ -92,10 +95,10 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int pathId = buffer.readInt();
-        float vOffset = buffer.readFloat();
-        float hOffset = buffer.readFloat();
+        int textId = buffer.readId();
+        int pathId = buffer.readId();
+        float vOffset = buffer.readNanId();
+        float hOffset = buffer.readNanId();
         DrawTextOnPath op = new DrawTextOnPath(textId, pathId, hOffset, vOffset);
         operations.add(op);
     }
@@ -143,12 +146,16 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(DocumentedOperation.INT, "pathId", "id of the path")
-                .field(DocumentedOperation.FLOAT, "xOffset", "x Shift of the text")
-                .field(DocumentedOperation.FLOAT, "yOffset", "y Shift of the text");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text_on_path")
+                .description("Draw text along a path")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text")
+                .field(DocumentedOperation.INT, "pathId", "The ID of the path")
+                .field(DocumentedOperation.FLOAT, "hOffset", "Horizontal offset along the path")
+                .field(
+                        DocumentedOperation.FLOAT,
+                        "vOffset",
+                        "Vertical offset relative to the path");
     }
 
     @Override

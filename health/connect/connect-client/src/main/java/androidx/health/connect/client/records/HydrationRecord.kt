@@ -40,10 +40,10 @@ public class HydrationRecord(
      * See b/400965398 for more context.
      */
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.toPlatformRecord()
         } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             volume.requireNotLess(other = volume.zero(), name = "volume")
             volume.requireNotMore(other = MAX_VOLUME, name = "volume")
         }

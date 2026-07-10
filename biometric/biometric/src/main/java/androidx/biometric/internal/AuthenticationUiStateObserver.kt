@@ -16,14 +16,29 @@
 
 package androidx.biometric.internal
 
+import androidx.biometric.internal.viewmodel.AuthenticationViewModel
+import kotlinx.coroutines.Job
+
 /**
- * An interface for classes that manage the connection and disconnection of [BiometricViewModel]
- * observers for the authentication UI state.
+ * An abstraction for managing the connection and disconnection of [AuthenticationViewModel]
+ * observers.
  */
-internal interface AuthenticationUiStateObserver {
+internal abstract class AuthenticationUiStateObserver {
+    private var uiStateObserverJob: Job? = null
+
+    /**
+     * Defines the observation logic. Returns the Job so the parent class can manage its lifecycle.
+     */
+    protected abstract fun createObserverJob(): Job
+
     /** Connects all necessary observers to their respective data sources. */
-    fun connectObservers()
+    fun connectObservers() {
+        uiStateObserverJob = createObserverJob()
+    }
 
     /** Disconnects all observers, stopping the observation process. */
-    fun disconnectObservers()
+    fun disconnectObservers() {
+        uiStateObserverJob?.cancel()
+        uiStateObserverJob = null
+    }
 }

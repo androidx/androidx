@@ -1,0 +1,101 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.glance.wear
+
+import android.content.Context
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.glance.wear.composable.WearWidgetContainer
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import kotlin.test.Test
+import org.junit.Rule
+import org.junit.runner.RunWith
+
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(AndroidJUnit4::class)
+class WearWidgetContainerScreenshotTest {
+
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
+
+    @Test
+    fun containerSmall_appliesCornerAndPadding() {
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = getCreationDisplayInfo(SMALL_WIDGET_HEIGHT),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+        ) {
+            TestWearWidget()
+        }
+    }
+
+    @Test
+    fun containerLarge_appliesCornerAndPadding() {
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = getCreationDisplayInfo(LARGE_WIDGET_HEIGHT),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+        ) {
+            TestWearWidget()
+        }
+    }
+
+    private companion object {
+        const val WIDGET_WIDTH = 216
+        const val SMALL_WIDGET_HEIGHT = 88
+        const val LARGE_WIDGET_HEIGHT = 128
+
+        private fun getCreationDisplayInfo(heightDp: Int): RemoteCreationDisplayInfo {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val density = context.resources.displayMetrics.density
+            val densityDpi = context.resources.displayMetrics.densityDpi
+            val widthPx = (WIDGET_WIDTH * density).toInt()
+            val heightPx = (heightDp * density).toInt()
+            return RemoteCreationDisplayInfo(widthPx, heightPx, densityDpi, 1.0f)
+        }
+    }
+}
+
+@RemoteComposable
+@Composable
+private fun TestWearWidget() {
+    WearWidgetContainer(
+        horizontalPadding = 8.rdp,
+        verticalPadding = 8.rdp,
+        cornerRadius = 26.rdp,
+        background = WearWidgetBrush.color(Color.Blue.rc),
+    ) {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow))
+    }
+}

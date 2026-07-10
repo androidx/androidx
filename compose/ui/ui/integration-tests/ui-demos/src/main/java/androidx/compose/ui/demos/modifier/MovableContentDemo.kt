@@ -45,17 +45,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ComposeUiFlags.isAdaptiveRefreshRateEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.unit.dp
 
-internal val isArrEnabled =
-    @OptIn(ExperimentalComposeUiApi::class) isAdaptiveRefreshRateEnabled &&
-        SDK_INT >= VANILLA_ICE_CREAM
+internal val isArrEnabled = SDK_INT >= VANILLA_ICE_CREAM
 
 @RequiresApi(VANILLA_ICE_CREAM)
 internal inline fun <reified T> findOwner(context: Context): T? {

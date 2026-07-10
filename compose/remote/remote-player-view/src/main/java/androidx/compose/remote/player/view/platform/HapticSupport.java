@@ -24,6 +24,8 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.core.view.HapticFeedbackConstantsCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** Provides haptic support */
 @RestrictTo(LIBRARY_GROUP)
 public class HapticSupport {
@@ -94,7 +96,7 @@ public class HapticSupport {
      *
      * @param view
      */
-    public void setupHaptics(RemoteComposeView view) {
+    public void setupHaptics(@NonNull RemoteComposeView view) {
         view.setHapticEngine(
                 new CoreDocument.HapticEngine() {
                     @RequiresApi(api = Build.VERSION_CODES.S) // REMOVE IN PLATFORM

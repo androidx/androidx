@@ -12,18 +12,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="5dip" />
-            <solid android:color="@color/glance_colorPrimaryContainer" />
+            <solid android:color="@color/glance_colorPrimaryContainer" tools:ignore="PrivateResource" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <corners android:radius="5dip" />
-                <solid android:color="@color/glance_colorPrimary" />
+                <solid android:color="@color/glance_colorPrimary" tools:ignore="PrivateResource" />
             </shape>
         </clip>
     </item>

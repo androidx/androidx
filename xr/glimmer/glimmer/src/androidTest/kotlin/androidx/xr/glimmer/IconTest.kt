@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -31,8 +32,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.platform.LocalDensity
@@ -44,8 +47,8 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -55,8 +58,10 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.glimmer.testutils.captureToImage
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,7 +72,7 @@ import org.junit.runner.RunWith
 // available below 33)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class IconTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val iconTag = "Icon"
 
@@ -994,6 +999,55 @@ class IconTest {
             .onNodeWithTag(testTag)
             .assertContentDescriptionEquals("qwerty")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
+    }
+
+    @Test
+    fun painter_updatesWhenPainterChanges() {
+        // Under the hood, `Icon()` can change both sizes and colors. Therefore, the only fair way
+        // to isolate and test this case is by verifying the icon's shape. To do this, draw a
+        // horizontal line, then draw a vertical line with the same size and tint, and then check
+        // that the icon updates correctly. Use `drawRect()` instead of `drawLine()` to avoid
+        // anti-aliasing.
+        val horizontalLinePainter =
+            object : Painter() {
+                override val intrinsicSize: Size = Size(500f, 500f)
+
+                override fun DrawScope.onDraw() {
+                    // Draw a 1px horizontal line along the top edge.
+                    drawRect(Color.White, Offset.Zero, Size(size.width, 1f))
+                }
+            }
+        val verticalLinePainter =
+            object : Painter() {
+                override val intrinsicSize: Size = Size(500f, 500f)
+
+                override fun DrawScope.onDraw() {
+                    // Draw a 1px vertical line along the left edge.
+                    drawRect(Color.White, Offset.Zero, Size(1f, size.height))
+                }
+            }
+
+        val painterState = mutableStateOf<Painter>(horizontalLinePainter)
+        rule.setGlimmerThemeContent(density = Density(1f)) {
+            Icon(
+                painter = painterState.value,
+                contentDescription = iconTag,
+                modifier = Modifier.contentColorProvider(Color.White),
+            )
+        }
+
+        // Initially, verify the horizontal line is present at the top.
+        rule.onNodeWithContentDescription(iconTag).captureToImage().assertPixels { position ->
+            if (position.y == 0) Color.White else Color.Black
+        }
+
+        // Switch the painter to the vertical line.
+        painterState.value = verticalLinePainter
+
+        // Verify the cache was invalidated and we now see the vertical line on the left.
+        rule.onNodeWithContentDescription(iconTag).captureToImage().assertPixels { position ->
+            if (position.x == 0) Color.White else Color.Black
+        }
     }
 
     private fun createVectorWithColor(width: Dp, height: Dp, color: Color): ImageVector {

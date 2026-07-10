@@ -32,11 +32,13 @@ import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.time.Duration;
 import java.time.Instant;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public final class DynamicDataValueTest {
     @Test
     public void boolDynamicDataValue() {

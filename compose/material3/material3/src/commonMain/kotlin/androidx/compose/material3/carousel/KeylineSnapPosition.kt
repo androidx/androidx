@@ -69,7 +69,7 @@ internal fun getSnapPositionOffset(strategy: Strategy, itemIndex: Int, itemCount
             )
         val endKeylines = strategy.endKeylineSteps[stepIndex]
         offset =
-            (endKeylines.firstFocal.unadjustedOffset - strategy.itemMainAxisSize / 2f).roundToInt()
+            (endKeylines.lastFocal.unadjustedOffset - strategy.itemMainAxisSize / 2f).roundToInt()
     }
 
     return offset

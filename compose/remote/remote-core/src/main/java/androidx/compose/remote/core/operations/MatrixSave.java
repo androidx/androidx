@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** The save the matrix state command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixSave extends PaintOperation implements Serializable {
     private static final int OP_CODE = Operations.MATRIX_SAVE;
     private static final String CLASS_NAME = "MatrixSave";
@@ -89,7 +91,8 @@ public class MatrixSave extends PaintOperation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_save")
                 .description("Save the matrix and clip to a stack");
     }
 

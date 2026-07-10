@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Base class for commands that take 3 float */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DrawBase3 extends PaintOperation implements VariableSupport, Serializable {
 
     @NonNull protected String mName = "DrawRectBase";
@@ -79,6 +81,7 @@ public abstract class DrawBase3 extends PaintOperation implements VariableSuppor
     protected abstract void write(@NonNull WireBuffer buffer, float v1, float v2, float v3);
 
     /** interface for the operation builder with 3 float parameters */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Maker {
         /**
          * creation function for operation with 3 float parameters
@@ -112,9 +115,9 @@ public abstract class DrawBase3 extends PaintOperation implements VariableSuppor
      */
     public static void read(
             @NonNull WireBuffer buffer, @NonNull List<Operation> operations, @NonNull Maker maker) {
-        float v1 = buffer.readFloat();
-        float v2 = buffer.readFloat();
-        float v3 = buffer.readFloat();
+        float v1 = buffer.readNanId();
+        float v2 = buffer.readNanId();
+        float v3 = buffer.readNanId();
         Operation op = maker.create(v1, v2, v3);
         operations.add(op);
     }

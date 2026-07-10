@@ -1,0 +1,281 @@
+<!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <!-- Bluetooth permissions for Android 12+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+
+    <!-- File storage permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <application
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Remote Compose Experiments"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RemoteComposeDemos"
+        >
+<!--        <activity-->
+<!--            android:name=".BluetoothClientActivity"-->
+<!--            android:configChanges="uiMode"-->
+<!--            android:exported="true"-->
+<!--            android:label="Client BT"-->
+<!--            android:theme="@android:style/Theme.Material.Light.NoActionBar">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity
+            android:name=".ActivityLongRun"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:label="RCLong"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ExperimentActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ExperimentComposeActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+<!--        <activity-->
+<!--            android:name=".SduiCalculator"-->
+<!--            android:configChanges="uiMode"-->
+<!--            android:exported="true"-->
+<!--            android:label="RCCalc"-->
+<!--            android:theme="@android:style/Theme.Material.Light.NoActionBar">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity
+            android:name=".DocPlayerActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:label="RC Player"
+            android:icon="@drawable/viewer"
+            android:roundIcon="@drawable/viewer"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:mimeType="application/remote-compose-doc" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ExperimentRecyclerActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC View"
+            android:icon="@drawable/recycler"
+            android:roundIcon="@drawable/recycler"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ExampleJsonRecyclerActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC JSON Recycler"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RawViewActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC View"
+            android:icon="@drawable/recycler"
+            android:roundIcon="@drawable/recycler"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".CalendarDemoActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC Calendar"
+            android:icon="@drawable/recycler"
+            android:roundIcon="@drawable/recycler"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <receiver android:name=".widgets.MyWidget"
+            android:exported="true"
+            android:label="RC Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".widgets.MyPWidget"
+            android:exported="true"
+            android:label="Procedural RCWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".widgets.CalendarWidget"
+            android:exported="true"
+            android:label="RC Calendar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/calendar_widget" />
+        </receiver>
+
+        <receiver
+            android:name=".ExperimentWidgetProvider"
+            android:exported="true"
+            android:label="Experimental Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.oldName"
+                android:value="com.android.deskclock.AnalogAppWidgetProvider" />
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <activity
+            android:name=".TickerActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC View"
+            android:icon="@drawable/chart"
+            android:roundIcon="@drawable/chart"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".TickerWidgetProvider"
+            android:exported="true"
+            android:label="Stock ticker Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.compose.remote.integration.view.demos.TickerWidgetProvider"
+                android:value="androidx.compose.remote.integration.view.demos" />
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ticker_widget" />
+        </receiver>
+
+        <activity
+            android:name=".DumperActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC Dumper"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+
+    </application>
+</manifest>

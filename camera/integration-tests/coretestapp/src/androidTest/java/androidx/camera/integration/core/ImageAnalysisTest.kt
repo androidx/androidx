@@ -16,18 +16,22 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
+import android.hardware.HardwareBuffer
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ExperimentalUseCaseApi
@@ -38,6 +42,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.SessionConfig
@@ -51,18 +56,29 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -84,10 +100,6 @@ internal class ImageAnalysisTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -100,11 +112,7 @@ internal class ImageAnalysisTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val analysisResultLock = Any()
@@ -149,6 +157,34 @@ internal class ImageAnalysisTest(
 
         if (::handler.isInitialized) {
             handlerThread.quitSafely()
+        }
+    }
+
+    @Test
+    fun canSetOutputImageFormatToPrivate() {
+        assumeTrue(isHardwareBufferSupportedOnDevice())
+
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+        assertThat(imageAnalysis.outputImageFormat)
+            .isEqualTo(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+    }
+
+    @Test
+    fun throwException_whenBindWithPrivateFormatOnUnsupportedDevice() {
+        assumeTrue(!isHardwareBufferSupportedOnDevice())
+
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        runOnMainSync {
+            assertThrows<IllegalArgumentException> {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+            }
         }
     }
 
@@ -557,6 +593,192 @@ internal class ImageAnalysisTest(
         )
     }
 
+    @Test
+    fun bind_previewImageCaptureImageAnalysis_withPrivateFormat_onLegacyDevice_throwsException() {
+        // LEGACY devices' guaranteed supported configurations table doesn't include PRIV + PRIV +
+        // JPEG, so we expect an IllegalArgumentException if someone tries to bind this
+        // combination.
+        assumeTrue(isLegacyLevelDevice() && isHardwareBufferSupportedOnDevice())
+
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        runOnMainSync {
+            assertThrows<IllegalArgumentException> {
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageCapture,
+                    imageAnalysis,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun bind_previewImageCaptureImageAnalysis_withPrivateFormat_onLimitedDevice_receivesImages() {
+        assumeTrue(!isLegacyLevelDevice() && isHardwareBufferSupportedOnDevice())
+
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        runOnMainSync {
+            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                cameraSelector,
+                preview,
+                imageCapture,
+                imageAnalysis,
+            )
+        }
+
+        setAnalyzerAndVerifyNewImageReceivedWithCorrectFormat(imageAnalysis, ImageFormat.PRIVATE)
+    }
+
+    @Test
+    fun bind_previewVideoImageCaptureImageAnalysis_withPrivateFormat_onLimitedDevice_receivesImages() =
+        runBlocking {
+            assumeTrue(!isLegacyLevelDevice() && isHardwareBufferSupportedOnDevice())
+
+            val preview = Preview.Builder().build()
+            val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+            val imageCapture = ImageCapture.Builder().build()
+            val imageAnalysis =
+                ImageAnalysis.Builder()
+                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                    .build()
+
+            withContext(Dispatchers.Main) {
+                preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    videoCapture,
+                    imageCapture,
+                    imageAnalysis,
+                )
+            }
+
+            setAnalyzerAndVerifyNewImageReceivedWithCorrectFormat(
+                imageAnalysis,
+                ImageFormat.PRIVATE,
+            )
+        }
+
+    @Test
+    fun imageAnalysisCapabilities_reportsPrivateSupportCorrectly() {
+        val cameraInfo = cameraSelector.filter(cameraProvider.availableCameraInfos).first()
+        val capabilities = ImageAnalysis.getImageAnalysisCapabilities(cameraInfo)
+        val isSupported =
+            capabilities.isOutputFormatSupported(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+
+        if (Build.VERSION.SDK_INT < 29) {
+            assertThat(isSupported).isFalse()
+        } else {
+            (cameraInfo as CameraInfoInternal).getSupportedResolutions(ImageFormat.PRIVATE).let {
+                outputSizes ->
+                val maxResolution = SizeUtil.getMaxSize(outputSizes)!!
+                assertThat(isSupported)
+                    .isEqualTo(
+                        try {
+                            HardwareBuffer.isSupported(
+                                maxResolution.width,
+                                maxResolution.height,
+                                ImageFormat.PRIVATE,
+                                1,
+                                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE,
+                            )
+                        } catch (e: IllegalArgumentException) {
+                            false
+                        }
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun imageProxyPlanesAreEmpty_whenPrivateFormatIsUsed() {
+        assumeTrue(isHardwareBufferSupportedOnDevice())
+
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        analysisResultsSemaphore = Semaphore(0)
+        val planesEmpty = AtomicBoolean(false)
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler)) { image ->
+            planesEmpty.set(image.planes.isEmpty())
+            image.close()
+            analysisResultsSemaphore.release()
+        }
+
+        runOnMainSync {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+        }
+
+        assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(planesEmpty.get()).isTrue()
+    }
+
+    @Test
+    fun imageReaderHasCorrectUsage_whenPrivateFormatIsUsed() {
+        assumeTrue(isHardwareBufferSupportedOnDevice())
+
+        val imageReaderUsage = AtomicLong(-1L)
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .setImageReaderProxyProvider { width, height, format, queueDepth, usage ->
+                    imageReaderUsage.set(usage)
+                    FakeImageReaderProxy.newInstance(width, height, format, queueDepth, usage)
+                }
+                .build()
+
+        runOnMainSync {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+        }
+
+        assertThat(imageReaderUsage.get())
+            .isEqualTo(android.hardware.HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
+    }
+
+    private fun isLegacyLevelDevice(): Boolean =
+        cameraSelector.filter(cameraProvider.availableCameraInfos).first().let {
+            it.implementationType == CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+        }
+
+    private fun isHardwareBufferSupportedOnDevice(): Boolean =
+        cameraSelector.filter(cameraProvider.availableCameraInfos).first().let {
+            return ImageAnalysis.getImageAnalysisCapabilities(it)
+                .isOutputFormatSupported(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+        }
+
+    private fun setAnalyzerAndVerifyNewImageReceivedWithCorrectFormat(
+        imageAnalysis: ImageAnalysis,
+        expectedFormat: Int,
+    ) {
+        analysisResultsSemaphore = Semaphore(0)
+        synchronized(analysisResultLock) { analysisResults.clear() }
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
+        assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        synchronized(analysisResultLock) {
+            assertThat(analysisResults).isNotEmpty()
+            assertThat(analysisResults.last().format).isEqualTo(expectedFormat)
+        }
+    }
+
     @RequiresApi(23)
     private fun analyzerAnalyzesImages_withRotationEnabledAndReusedToHaveDifferentSize(
         outputImageFormat: Int
@@ -669,5 +891,83 @@ internal class ImageAnalysisTest(
             image.imageInfo.timestamp,
             image.imageInfo.rotationDegrees,
         )
+    }
+
+    @LabTestRule.LabTestFrontCamera
+    @Test
+    fun verifyHardwareBufferContentWithMLKit_onLabDevice_frontCamera() = runBlocking {
+        verifyHardwareBufferContentWithMLKit(CameraSelector.DEFAULT_FRONT_CAMERA)
+    }
+
+    @LabTestRule.LabTestRearCamera
+    @Test
+    fun verifyHardwareBufferContentWithMLKit_onLabDevice_rearCamera() = runBlocking {
+        verifyHardwareBufferContentWithMLKit(CameraSelector.DEFAULT_BACK_CAMERA)
+    }
+
+    private suspend fun verifyHardwareBufferContentWithMLKit(cameraSelector: CameraSelector) {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
+        assumeTrue(!isLegacyLevelDevice() && isHardwareBufferSupportedOnDevice())
+
+        val barcodeScanner =
+            BarcodeScanning.getClient(
+                BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
+            )
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        val framesToSkip = 10
+        val framesToAnalyze = 5
+        val frameCounter = java.util.concurrent.atomic.AtomicInteger(0)
+        val latchForBarcodeDetect = CountDownLatch(1)
+
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler)) { image ->
+            if (Build.VERSION.SDK_INT >= 28) {
+                val currentFrame = frameCounter.incrementAndGet()
+                if (currentFrame > framesToSkip && currentFrame <= framesToSkip + framesToAnalyze) {
+                    Api28Impl.getHardwareBuffer(image)?.use { hwBuffer ->
+                        val width = hwBuffer.width
+                        val height = hwBuffer.height
+                        val rgbaArray = ByteArray(width * height * 4)
+
+                        if (
+                            androidx.camera.testing.impl.NativeHardwareBufferConverter
+                                .convertToRgba(hwBuffer, rgbaArray)
+                        ) {
+                            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                            bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(rgbaArray))
+
+                            val inputImage =
+                                InputImage.fromBitmap(bitmap, image.imageInfo.rotationDegrees)
+                            barcodeScanner.process(inputImage).addOnSuccessListener { barcodes ->
+                                barcodes.forEach { barcode ->
+                                    if ("Hi, CamX!" == barcode.displayValue) {
+                                        latchForBarcodeDetect.countDown()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            image.close()
+        }
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+        }
+
+        assertThat(latchForBarcodeDetect.await(15000, TimeUnit.MILLISECONDS)).isTrue()
+        barcodeScanner.close()
+    }
+
+    @RequiresApi(28)
+    private object Api28Impl {
+        @DoNotInline
+        fun getHardwareBuffer(image: ImageProxy): HardwareBuffer? {
+            return image.hardwareBuffer
+        }
     }
 }

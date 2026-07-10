@@ -43,8 +43,8 @@ internal suspend fun createSearchSession(context: Context): GlobalSearchSession 
 }
 
 /**
- * Reads all [SearchResults] and returns a list of [T] by transforming the [SearchResult] to [T] or
- * null.
+ * Consume all [SearchResults] and returns a list of [T] by transforming the [SearchResult] to [T]
+ * or null.
  *
  * @param T the type of document to transform the [SearchResult] to.
  * @param transformToDocumentClassOrNull a function to transform the [SearchResult] to [T] or `null`
@@ -53,14 +53,16 @@ internal suspend fun createSearchSession(context: Context): GlobalSearchSession 
  *   empty list if nothing is found.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public suspend fun <T : Any> SearchResults.readAll(
+public suspend fun <T : Any> SearchResults.consumeAll(
     transformToDocumentClassOrNull: (SearchResult) -> T?
 ): List<T?> {
-    return buildList<T?> {
-        var nextPage = nextPageAsync.await()
-        while (nextPage.isNotEmpty()) {
-            nextPage.map(transformToDocumentClassOrNull).forEach(::add)
-            nextPage = nextPageAsync.await()
+    return use {
+        buildList<T?> {
+            var nextPage = nextPageAsync.await()
+            while (nextPage.isNotEmpty()) {
+                nextPage.map(transformToDocumentClassOrNull).forEach(::add)
+                nextPage = nextPageAsync.await()
+            }
         }
     }
 }

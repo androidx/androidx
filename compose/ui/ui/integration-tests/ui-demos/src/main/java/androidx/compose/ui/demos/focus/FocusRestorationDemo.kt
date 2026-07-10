@@ -36,9 +36,9 @@ fun FocusRestorationDemo() {
     Column {
         Text(
             """
-                Use the DPad to move focus among these three rows
-                and notice how focus is restored to the previously
-                focused item.
+            Use the DPad to move focus among these three rows
+            and notice how focus is restored to the previously
+            focused item.
             """
                 .trimIndent()
         )

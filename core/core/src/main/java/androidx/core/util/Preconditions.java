@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,6 @@ import java.util.Locale;
 /**
  * Simple static methods to be called at the start of your own methods to verify
  * correct arguments and state.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public final class Preconditions {
@@ -44,7 +43,7 @@ public final class Preconditions {
      *
      * @param expression the expression to check
      * @param errorMessage the exception message to use if the check fails; will
-     *     be converted to a string using {@link String#valueOf(Object)}
+     * be converted to a string using {@link String#valueOf(Object)}
      * @throws IllegalArgumentException if {@code expression} is false
      */
     public static void checkArgument(boolean expression, @NonNull Object errorMessage) {
@@ -58,7 +57,7 @@ public final class Preconditions {
      *
      * @param expression the expression to check
      * @param messageTemplate a printf-style message template to use if the check fails; will
-     *     be converted to a string using {@link String#format(String, Object...)}
+     * be converted to a string using {@link String#format(String, Object...)}
      * @param messageArgs arguments for {@code messageTemplate}
      * @throws IllegalArgumentException if {@code expression} is false
      */
@@ -72,10 +71,10 @@ public final class Preconditions {
     }
 
     /**
-     * Ensures that an string reference passed as a parameter to the calling
+     * Ensures that a string reference passed as a parameter to the calling
      * method is not empty.
      *
-     * @param string an string reference
+     * @param string a string reference
      * @return the string reference that was validated
      * @throws IllegalArgumentException if {@code string} is empty
      */
@@ -88,12 +87,12 @@ public final class Preconditions {
     }
 
     /**
-     * Ensures that an string reference passed as a parameter to the calling
+     * Ensures that a string reference passed as a parameter to the calling
      * method is not empty.
      *
-     * @param string an string reference
+     * @param string a string reference
      * @param errorMessage the exception message to use if the check fails; will
-     *     be converted to a string using {@link String#valueOf(Object)}
+     * be converted to a string using {@link String#valueOf(Object)}
      * @return the string reference that was validated
      * @throws IllegalArgumentException if {@code string} is empty
      */
@@ -106,11 +105,11 @@ public final class Preconditions {
     }
 
     /**
-     * Ensures that an string reference passed as a parameter to the calling method is not empty.
+     * Ensures that a string reference passed as a parameter to the calling method is not empty.
      *
-     * @param string an string reference
+     * @param string a string reference
      * @param messageTemplate a printf-style message template to use if the check fails; will be
-     *     converted to a string using {@link String#format(String, Object...)}
+     * converted to a string using {@link String#format(String, Object...)}
      * @param messageArgs arguments for {@code messageTemplate}
      * @return the string reference that was validated
      * @throws IllegalArgumentException if {@code string} is empty
@@ -145,7 +144,7 @@ public final class Preconditions {
      *
      * @param reference an object reference
      * @param errorMessage the exception message to use if the check fails; will
-     *     be converted to a string using {@link String#valueOf(Object)}
+     * be converted to a string using {@link String#valueOf(Object)}
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
@@ -184,7 +183,7 @@ public final class Preconditions {
     /**
      * Check the requested flags, throwing if any requested flags are outside the allowed set.
      *
-     * @return the validated requested flags.
+     * @return the validated requested flags
      */
     public static int checkFlagsArgument(final int requestedFlags, final int allowedFlags) {
         if ((requestedFlags & allowedFlags) != requestedFlags) {
@@ -216,7 +215,6 @@ public final class Preconditions {
      * Ensures that that the argument numeric value is non-negative.
      *
      * @param value a numeric int value
-     *
      * @return the validated numeric value
      * @throws IllegalArgumentException if {@code value} was negative
      */
@@ -235,9 +233,7 @@ public final class Preconditions {
      * @param lower the lower endpoint of the inclusive range
      * @param upper the upper endpoint of the inclusive range
      * @param valueName the name of the argument to use if the check fails
-     *
      * @return the validated int value
-     *
      * @throws IllegalArgumentException if {@code value} was not within the range
      */
     public static int checkArgumentInRange(int value, int lower, int upper,
@@ -262,9 +258,7 @@ public final class Preconditions {
      * @param lower the lower endpoint of the inclusive range
      * @param upper the upper endpoint of the inclusive range
      * @param valueName the name of the argument to use if the check fails
-     *
      * @return the validated long value
-     *
      * @throws IllegalArgumentException if {@code value} was not within the range
      */
     public static long checkArgumentInRange(long value, long lower, long upper,
@@ -289,9 +283,7 @@ public final class Preconditions {
      * @param lower the lower endpoint of the inclusive range
      * @param upper the upper endpoint of the inclusive range
      * @param valueName the name of the argument to use if the check fails
-     *
      * @return the validated float value
-     *
      * @throws IllegalArgumentException if {@code value} was not within the range
      */
     public static float checkArgumentInRange(float value, float lower, float upper,
@@ -316,9 +308,7 @@ public final class Preconditions {
      * @param lower the lower endpoint of the inclusive range
      * @param upper the upper endpoint of the inclusive range
      * @param valueName the name of the argument to use if the check fails
-     *
      * @return the validated double value
-     *
      * @throws IllegalArgumentException if {@code value} was not within the range
      */
     public static double checkArgumentInRange(double value, double lower, double upper,
@@ -344,9 +334,7 @@ public final class Preconditions {
      *
      * @param value a floating point value
      * @param valueName the name of the argument to use if the check fails
-     *
      * @return the validated floating point value
-     *
      * @throws IllegalArgumentException if {@code value} was not finite
      */
     public static float checkArgumentFinite(float value, @NonNull String valueName) {

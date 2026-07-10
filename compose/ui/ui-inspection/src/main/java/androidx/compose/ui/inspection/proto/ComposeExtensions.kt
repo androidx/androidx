@@ -17,14 +17,18 @@
 package androidx.compose.ui.inspection.proto
 
 import android.view.inspector.WindowInspector
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.inspection.ComposeLayoutInspector.CacheTree
 import androidx.compose.ui.inspection.LambdaLocation
 import androidx.compose.ui.inspection.inspector.InspectorNode
+import androidx.compose.ui.inspection.inspector.LayoutInspectorTree
 import androidx.compose.ui.inspection.inspector.NodeParameter
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.inspector.ParameterKind
 import androidx.compose.ui.inspection.inspector.ParameterType
 import androidx.compose.ui.inspection.inspector.systemPackages
+import androidx.compose.ui.inspection.recompositions.ObservedReadResult
+import androidx.compose.ui.inspection.recompositions.StateReadRecord
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Bounds
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableRoot
@@ -33,6 +37,9 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Paramet
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Quad
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StackTraceLine
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRead
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadGroup
 
 internal fun InspectorNode.toComposableNode(context: ConversionContext): ComposableNode {
     return toNodeBuilder(context).build()
@@ -105,7 +112,7 @@ private fun InspectorNode.toFlatNode(context: ConversionContext): ComposableNode
 
         flags = flags()
         viewId = inspectorNode.viewId
-        context.recompositionHandler.getCounts(inspectorNode.key, inspectorNode.anchorId)?.let {
+        context.recompositionHandler.getCounts(inspectorNode.anchorId)?.let {
             recomposeCount = it.count
             recomposeSkips = it.skips
         }
@@ -177,26 +184,26 @@ private fun Parameter.Builder.setValue(stringTable: StringTable, value: Any?) {
     when (type) {
         Parameter.Type.ITERABLE,
         Parameter.Type.STRING -> {
-            int32Value = stringTable.put(value as String)
+            int32Value = stringTable.put(value as? String ?: "")
         }
         Parameter.Type.BOOLEAN -> {
-            int32Value = if (value as Boolean) 1 else 0
+            int32Value = if (value as? Boolean == true) 1 else 0
         }
         Parameter.Type.DOUBLE -> {
-            doubleValue = value as Double
+            doubleValue = value as? Double ?: 0.0
         }
         Parameter.Type.FLOAT,
         Parameter.Type.DIMENSION_DP,
         Parameter.Type.DIMENSION_SP,
         Parameter.Type.DIMENSION_EM -> {
-            floatValue = value as Float
+            floatValue = value as? Float ?: 0.0f
         }
         Parameter.Type.INT32,
         Parameter.Type.COLOR -> {
-            int32Value = value as Int
+            int32Value = value as? Int ?: 0
         }
         Parameter.Type.INT64 -> {
-            int64Value = value as Long
+            int64Value = value as? Long ?: 0
         }
         Parameter.Type.RESOURCE -> setResourceType(value, stringTable)
         Parameter.Type.LAMBDA -> setFunctionType(value, stringTable)
@@ -226,7 +233,6 @@ private fun Parameter.Builder.setFunctionType(value: Any?, stringTable: StringTa
             .apply {
                 packageName = stringTable.put(location.packageName)
                 functionName = function?.let { stringTable.put(it) } ?: 0
-                lambdaName = stringTable.put(location.lambdaName)
                 fileName = stringTable.put(location.fileName)
                 startLineNumber = location.startLine
                 endLineNumber = location.endLine
@@ -274,4 +280,58 @@ internal fun CacheTree.toComposableRoot(context: ConversionContext): ComposableR
 
 fun Iterable<NodeParameter>.convertAll(stringTable: StringTable): List<Parameter> {
     return this.map { it.convert(stringTable) }
+}
+
+// Omit stacktrace lines from these classes.
+// This helps with filtering out stacktraces with very similar nature.
+private val ignoreStackTraceFromClasses =
+    listOf(
+        SnapshotStateList::class.java.name,
+        "androidx.compose.runtime.snapshots.StateListIterator",
+    )
+
+private fun StateReadRecord.convert(
+    stringTable: StringTable,
+    layoutInspectorTree: LayoutInspectorTree,
+): StateRead {
+    val value = layoutInspectorTree.convertStateValue("value", this.value)
+    val elements = this.trace.stackTrace
+    val builder = StateRead.newBuilder()
+    builder.value = value?.convert(stringTable) ?: Parameter.getDefaultInstance()
+    builder.valueInstanceHash = this.valueInstanceHash
+    builder.invalidated = this.invalidated
+    for (index in 1 until elements.size) {
+        val element = elements[index]
+        if (element.className in ignoreStackTraceFromClasses) {
+            continue
+        }
+        builder.addStackTraceLine(
+            StackTraceLine.newBuilder().apply {
+                declaringClass = stringTable.put(element.className.orEmpty())
+                methodName = stringTable.put(element.methodName.orEmpty())
+                fileName = stringTable.put(element.fileName.orEmpty())
+                lineNumber = element.lineNumber
+            }
+        )
+    }
+    return builder.build()
+}
+
+internal fun ObservedReadResult.convert(
+    stringTable: StringTable,
+    layoutInspectorTree: LayoutInspectorTree,
+): StateReadGroup {
+    val builder = StateReadGroup.newBuilder()
+    builder.recompositionNumber = recomposition
+    val parameters =
+        parameterChanges.mapNotNull {
+            layoutInspectorTree.convertStateValue(it.name, it.value)?.convert(stringTable)
+        }
+    builder.addAllParameterChanges(parameters)
+
+    // Collapse state reads that are identical:
+    val convertedReads = mutableSetOf<StateRead>()
+    reads.mapTo(convertedReads) { it.convert(stringTable, layoutInspectorTree) }
+    builder.addAllRead(convertedReads)
+    return builder.build()
 }

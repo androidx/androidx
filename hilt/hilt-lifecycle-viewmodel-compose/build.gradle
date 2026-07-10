@@ -15,30 +15,28 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
     id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
+    id("com.google.dagger.hilt.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     api(project(":hilt:hilt-lifecycle-viewmodel"))
     api("androidx.compose.runtime:runtime:1.8.2")
     api("androidx.compose.ui:ui:1.8.2")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     api(libs.hiltAndroid)
 
     androidTestImplementation(libs.testExtJunit)
@@ -58,10 +56,11 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2025"
     description = "ViewModel Compose Hilt Extension"
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.lifecycle.viewmodel.compose.TestRunner"
     }

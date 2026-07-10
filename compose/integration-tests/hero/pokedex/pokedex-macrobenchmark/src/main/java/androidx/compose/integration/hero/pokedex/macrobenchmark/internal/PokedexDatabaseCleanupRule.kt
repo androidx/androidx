@@ -19,6 +19,7 @@ package androidx.compose.integration.hero.pokedex.macrobenchmark.internal
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.benchmark.Shell
+import kotlin.collections.filter
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -47,24 +48,64 @@ internal class PokedexDatabaseCleanupRule(
     @SuppressLint("SdCardPath") // We don't have access to the target context and need to hardcode
     private val databasePath = "/data/data/$targetPackageName/databases"
 
-    private fun deleteDatabaseFiles() {
+    fun deleteDatabaseFiles() {
+        // First, check if the database directory exists
+        val dirExists =
+            Shell.executeScriptCaptureStdout(
+                    "if [ -d $databasePath ]; then echo 'true'; else echo 'false'; fi"
+                )
+                .trim() == "true"
+
+        if (!dirExists) {
+            Log.d(
+                "PokedexDatabaseCleanupRule",
+                "Database directory $databasePath does not exist for package $targetPackageName. Nothing to delete.",
+            )
+            return
+        }
+
+        // List all files in the directory and filter for those starting with databaseName
+        // Using -name for globbing directly in find or ls
         val foundDatabaseFiles =
-            Shell.executeScriptCaptureStdout("ls -1a $databasePath | grep '$databaseName'")
-                .split("\n")
-                .filter { it.isNotEmpty() }
+            listDatabaseFiles(databasePath = databasePath, databaseName = databaseName).filter {
+                it.isNotEmpty()
+            }
+
         if (foundDatabaseFiles.isEmpty()) {
             Log.d(
                 "PokedexDatabaseCleanupRule",
-                "No database files found for package $targetPackageName.",
+                "No database files found for package $targetPackageName with prefix '$databaseName'.",
             )
         } else {
             Log.d(
                 "PokedexDatabaseCleanupRule",
                 "Found database files: $foundDatabaseFiles. Removing.",
             )
+
+            // Construct a single rm command for all found files for efficiency
+            val filesToDelete = foundDatabaseFiles.joinToString(separator = " ") { it }
+            Shell.executeScriptSilent("rm $filesToDelete")
+
+            // Optionally, you might want to try deleting the entire directory
+            // if you are certain no other files should be there and it's safe.
+            // Shell.executeScriptSilent("rm -rf $databasePath")
+            // If you delete the directory, you might want to recreate it if the app expects it to
+            // exist.
         }
-        for (databaseFile in foundDatabaseFiles) {
-            Shell.executeScriptSilent("rm $databasePath/$databaseFile")
-        }
+    }
+
+    internal fun listDatabaseFiles(
+        databaseName: String = this.databaseName,
+        databasePath: String = this.databasePath,
+    ): List<String> {
+        // List all files in the directory and filter for those starting with databaseName
+        // Using -name for globbing directly in find or ls
+        return Shell.executeScriptCaptureStdout(
+                """
+                find $databasePath -maxdepth 1 -type f -name "$databaseName*"
+            """
+                    .trimIndent()
+            )
+            .split("\n")
     }
 }

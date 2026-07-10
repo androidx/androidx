@@ -36,11 +36,11 @@ class BanKeepAnnotationTest :
 
         val expected =
             """
-src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanKeepAnnotation]
-@Keep
-~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanKeepAnnotation]
+            @Keep
+            ~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -52,11 +52,11 @@ src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanK
 
         val expected =
             """
-src/androidx/KeepAnnotationUsageKotlin.kt:21: Error: Uses @Keep annotation [BanKeepAnnotation]
-@Keep class KeepAnnotationUsageKotlin
-~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/KeepAnnotationUsageKotlin.kt:21: Error: Uses @Keep annotation [BanKeepAnnotation]
+            @Keep class KeepAnnotationUsageKotlin
+            ~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

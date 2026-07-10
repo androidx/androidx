@@ -160,5 +160,14 @@ public class LabTestRule : TestRule {
                 CameraSelector.LENS_FACING_FRONT -> Log.isLoggable("frontCameraE2E", Log.DEBUG)
                 else -> false
             }
+
+        @JvmStatic
+        public fun assumeLensFacingEnabledInLabTest(cameraSelector: CameraSelector) {
+            assumeTrue(
+                "Not CameraX lab environment," +
+                    " or lensFacing:${cameraSelector.lensFacing!!} camera is not enabled",
+                isLensFacingEnabledInLabTest(lensFacing = cameraSelector.lensFacing!!),
+            )
+        }
     }
 }

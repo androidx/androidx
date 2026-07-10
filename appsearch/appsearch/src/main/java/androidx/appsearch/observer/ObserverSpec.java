@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassFactoryRegistry;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -48,7 +49,8 @@ import java.util.Set;
  * match against.
  */
 @SafeParcelable.Class(creator = "ObserverSpecCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class ObserverSpec extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -62,7 +64,7 @@ public final class ObserverSpec extends AbstractSafeParcelable {
     /** Populated on first use */
     private volatile @Nullable Set<String> mFilterSchemasCached;
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
     public ObserverSpec(

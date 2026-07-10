@@ -401,9 +401,9 @@ class ResourceInspectionProcessorTest {
                                 mColorObjectId = propertyMapper
                                     .mapColor("colorObject", R.attr.colorObject);
                                 mGravityIntId = propertyMapper
-                                    .mapGravity("gravityInt", R.attr.gravityInt)
+                                    .mapGravity("gravityInt", R.attr.gravityInt);
                                 mIntArrayId = propertyMapper
-                                    .mapObject("intArray", R.attr.intArray)
+                                    .mapObject("intArray", R.attr.intArray);
                                 mLayoutResourceIdId = propertyMapper
                                     .mapResourceId("layoutResourceId", R.attr.layoutResourceId);
                                 mTestBooleanId = propertyMapper

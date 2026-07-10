@@ -16,14 +16,10 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
-import androidx.xr.arcore.internal.Anchor
-import androidx.xr.arcore.internal.AnchorResourcesExhaustedException
-import androidx.xr.arcore.internal.AugmentedObject as RuntimeObject
+import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
 import androidx.xr.runtime.AugmentedObjectCategory as Category
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,23 +41,28 @@ import kotlinx.coroutines.flow.transform
  *
  * The label is an instance of [androidx.xr.runtime.AugmentedObjectCategory] that describes what the
  * object is.
+ *
+ * @property state a [StateFlow] that contains the latest [State] of the AugmentedObject
  */
+@SuppressWarnings("HiddenSuperclass")
 public class AugmentedObject
 internal constructor(
     internal val runtimeObject: RuntimeObject,
     private val xrResourceManager: XrResourcesManager,
-) : Trackable<AugmentedObject.State>, Updatable {
+) : Trackable<AugmentedObject.State>, Updatable() {
     public companion object {
         /**
-         * Subscribes to a flow of [AugmentedObject]s.
+         * Subscribes to a flow of AugmentedObjects.
          *
-         * The flow emits a new collection of [AugmentedObject]s whenever the underlying XR system
+         * The flow emits a new collection of AugmentedObjects whenever the underlying XR system
          * detects new objects or updates the state of existing ones. This typically happens on each
          * frame update of the XR system.
          *
-         * @param session The [Session] to subscribe to.
-         * @throws IllegalStateException if the given [Session]'s [Config.augmentedObjectCategories]
-         *   is empty.
+         * @param session the [Session] to subscribe to
+         * @return a [StateFlow] that emits a collection of AugmentedObjects
+         * @throws [IllegalStateException] if the given [Session]'s
+         *   [Config.augmentedObjectCategories] is empty
+         * @sample androidx.xr.arcore.samples.getAugmentedObjects
          */
         @JvmStatic
         public fun subscribe(session: Session): StateFlow<Collection<AugmentedObject>> {
@@ -72,88 +73,103 @@ internal constructor(
             return session.state
                 .transform { state ->
                     state.perceptionState?.let { perceptionState ->
-                        emit(perceptionState.trackables.filterIsInstance<AugmentedObject>())
+                        emit(
+                            perceptionState.trackableStates
+                                .filterIsInstance<AugmentedObject.State>()
+                                .map { it.owner }
+                        )
                     }
                 }
                 .stateIn(
                     session.coroutineScope,
                     SharingStarted.Eagerly,
                     session.state.value.perceptionState
-                        ?.trackables
-                        ?.filterIsInstance<AugmentedObject>() ?: emptyList(),
+                        ?.trackableStates
+                        ?.filterIsInstance<AugmentedObject.State>()
+                        ?.map { it.owner } ?: emptyList(),
                 )
         }
     }
 
-    /** The representation of the current state of an [AugmentedObject]. */
-    public class State(
+    /**
+     * The representation of the current state of an AugmentedObject.
+     *
+     * @property trackingState the [androidx.xr.arcore.TrackingState] of the object
+     * @property category the [Category] of the augmented object
+     * @property centerPose the [Pose] determined to represent the center of this object
+     * @property extents the dimensions of the object, axis aligned relative to the center pose,
+     *   representing the full length of the specific axis
+     * @property owner self-reference to the object that owns this state
+     */
+    public class State
+    internal constructor(
         public override val trackingState: TrackingState,
-        /**
-         * * The category of the augmented object.
-         *
-         * @see Category
-         */
         public val category: Category,
-        /**
-         * The [Pose] determined to represent the center of this object.
-         *
-         * This value may or may not overlap with the object's center of gravity.
-         */
         public val centerPose: Pose,
-        /**
-         * The dimensions of the object, axis aligned relative to the center pose. These values
-         * represent the full length of the specific axis.
-         */
         public val extents: FloatSize3d,
-    ) : Trackable.State {}
+        public val owner: AugmentedObject,
+    ) : Trackable.State {
+        override fun hashCode(): Int {
+            var result = trackingState.hashCode()
+            result = 31 * result + category.hashCode()
+            result = 31 * result + centerPose.hashCode()
+            result = 31 * result + extents.hashCode()
+            result = 31 * result + owner.hashCode()
+            return result
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is State) return false
+            return trackingState == other.trackingState &&
+                category == other.category &&
+                centerPose == other.centerPose &&
+                extents == other.extents &&
+                owner == other.owner
+        }
+
+        /**
+         * Returns a string representation of [AugmentedObject.State] for debugging.
+         *
+         * Note: Not intended for production use.
+         */
+        override fun toString(): String =
+            "State(trackingState=$trackingState, category=$category, centerPose=$centerPose, extents=$extents)"
+    }
 
     private val _state =
         MutableStateFlow(
             State(
-                runtimeObject.trackingState,
+                runtimeObject.trackingState.toTrackingState(),
                 runtimeObject.category,
                 runtimeObject.centerPose,
                 runtimeObject.extents,
+                owner = this,
             )
         )
 
-    /** A [StateFlow] that contains the latest [State] of the [AugmentedObject]. */
     public override val state: StateFlow<State> = _state.asStateFlow()
 
     /**
      * This function is used by the runtime to propagate internal state changes. It is not intended
      * to be called directly by a developer.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(
-                runtimeObject.trackingState,
+                runtimeObject.trackingState.toTrackingState(),
                 runtimeObject.category,
                 runtimeObject.centerPose,
                 runtimeObject.extents,
+                owner = this,
             )
         )
     }
 
     /**
-     * Creates an [Anchor] that is attached to this trackable, using the given initial [pose].
+     * Returns a string representation of [AugmentedObject] for debugging.
      *
-     * @throws [IllegalStateException] if [Session.config.augmentedObjectCategories] is empty.
+     * Note: Not intended for production use.
      */
-    override fun createAnchor(pose: Pose): AnchorCreateResult {
-        check(!xrResourceManager.lifecycleManager.config.augmentedObjectCategories.isEmpty()) {
-            "Config.augmentedObjectCategories is empty."
-        }
-
-        val runtimeAnchor: Anchor
-        try {
-            runtimeAnchor = runtimeObject.createAnchor(pose)
-        } catch (e: AnchorResourcesExhaustedException) {
-            return AnchorCreateResourcesExhausted()
-        }
-        val anchor = Anchor(runtimeAnchor, xrResourceManager)
-        xrResourceManager.addUpdatable(anchor)
-        return AnchorCreateSuccess(anchor)
-    }
+    override fun toString(): String = "AugmentedObject(state=${state.value})"
 }

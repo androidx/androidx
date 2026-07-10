@@ -20,9 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Simple interface for predicting motion points.
@@ -37,6 +38,5 @@ public interface KalmanPredictor {
     boolean onTouchEvent(@NonNull MotionEvent event);
 
     /** @return null if not possible to make a prediction. */
-    @Nullable
-    MotionEvent predict(int predictionTargetMillis);
+    @Nullable MotionEvent predict(int predictionTargetMillis);
 }

@@ -22,19 +22,16 @@ import android.os.Build
 import android.os.LocaleList
 import android.view.textclassifier.TextClassificationManager
 import android.view.textclassifier.TextClassifier
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.selection.model.TextSelection
-import androidx.pdf.util.ClipboardUtils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 
 internal class TextSelectionMenuProvider(private val context: Context) :
     SelectionMenuProvider<TextSelection> {
-    private var textClassificationManager: TextClassificationManager? = null
     private var textClassifier: TextClassifier? = null
 
     init {
-        textClassificationManager =
+        val textClassificationManager =
             context.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)
                 as? TextClassificationManager?
         textClassifier = textClassificationManager?.textClassifier
@@ -42,50 +39,12 @@ internal class TextSelectionMenuProvider(private val context: Context) :
 
     override suspend fun getMenuItems(selection: TextSelection): List<ContextMenuComponent> {
         val menuItems: MutableList<ContextMenuComponent> = mutableListOf()
-        if (PdfFeatureFlags.isSmartActionMenuComponentEnabled) {
-            menuItems += getSmartMenuItems(selection.text)
-        }
-        menuItems += getDefaultMenuItems()
+        menuItems += getSmartMenuItems(selection.text)
+        menuItems += DefaultSelectionMenuProvider.getMenuItems(context)
         return menuItems
     }
 
-    private fun getDefaultMenuItems(): List<ContextMenuComponent> {
-        val defaultMenuItems =
-            listOf<ContextMenuComponent>(
-                DefaultSelectionMenuComponent(
-                    key = PdfSelectionMenuKeys.CopyKey,
-                    label = context.getString(android.R.string.copy),
-                ) { pdfView ->
-                    val localCurrentSelection = pdfView.currentSelection
-                    if (localCurrentSelection is TextSelection) {
-                        ClipboardUtils.copyToClipboard(
-                            context,
-                            localCurrentSelection.text.toString(),
-                        )
-                    }
-                    // close the context menu upon copy action
-                    close()
-                    // After completion of action the selection should be cleared.
-                    pdfView.clearSelection()
-                },
-                DefaultSelectionMenuComponent(
-                    key = PdfSelectionMenuKeys.SelectAllKey,
-                    label = context.getString(android.R.string.selectAll),
-                ) { pdfView ->
-                    val page = pdfView.currentSelection?.bounds?.first()?.pageNum
-                    // We can't select all if we don't know what page the selection is on, or if
-                    // we don't know the size of that page
-                    if (page != null) {
-                        // Action mode for old selection should be closed which will be triggered
-                        // after select all is completed with current selection.
-                        close()
-                        pdfView.selectAllTextOnPage(page)
-                    }
-                },
-            )
-        return defaultMenuItems
-    }
-
+    // Text Classification actions are available on Android P+ (API Level 28 or above) devices
     internal suspend fun getSmartMenuItems(text: CharSequence): List<ContextMenuComponent> =
         coroutineScope {
             val smartMenuItems: MutableList<ContextMenuComponent> = mutableListOf()
@@ -94,7 +53,7 @@ internal class TextSelectionMenuProvider(private val context: Context) :
             val textLength = text.length
             // This is the char limit for the textClassifier library to produce
             // any meaningful action item.
-            if (textLength > MAX_CHAR_LIMIT) {
+            if (textLength <= 0 || textLength > MAX_CHAR_LIMIT) {
                 return@coroutineScope smartMenuItems
             }
             // Make sure that the backgroundScope is active before starting classifyText operation.
@@ -120,7 +79,7 @@ internal class TextSelectionMenuProvider(private val context: Context) :
                                 // TODO(b/431669141): Propagate Exception to Host App.
                             } finally {
                                 close()
-                                pdfView.clearSelection()
+                                pdfView.clearCurrentSelection()
                             }
                         },
                     )
@@ -129,32 +88,28 @@ internal class TextSelectionMenuProvider(private val context: Context) :
             smartMenuItems
         }
 
-    @Suppress("DEPRECATION")
     private fun sendIntentAllowBackgroundActivityStart(pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= 36) {
-            // For API 36+, MODE_BACKGROUND_ACTIVITY_START_ALLOWED is deprecated.
-            // Use MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS to grant background start privileges.
-            pendingIntent.send(
-                ActivityOptions.makeBasic()
-                    .setPendingIntentBackgroundActivityStartMode(
-                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
-                    )
-                    .toBundle()
-            )
-        } else if (Build.VERSION.SDK_INT >= 34) {
-            // For API 34 & 35, use MODE_BACKGROUND_ACTIVITY_START_ALLOWED.
-            pendingIntent.send(
-                ActivityOptions.makeBasic()
-                    .setPendingIntentBackgroundActivityStartMode(
-                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-                    )
-                    .toBundle()
-            )
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        val intent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                // For API 36 and above, MODE_BACKGROUND_ACTIVITY_START_ALLOWED is deprecated.
+                // Use MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS to grant background start
+                // privileges.
+                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
+            } else {
+                // For API 34 & 35, use MODE_BACKGROUND_ACTIVITY_START_ALLOWED.
+                @Suppress("DEPRECATION") ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+            }
+
+        pendingIntent.send(
+            ActivityOptions.makeBasic()
+                .setPendingIntentBackgroundActivityStartMode(intent)
+                .toBundle()
+        )
     }
 
     private fun sendPendingIntent(pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             sendIntentAllowBackgroundActivityStart(pendingIntent)
         } else {
             pendingIntent.send()

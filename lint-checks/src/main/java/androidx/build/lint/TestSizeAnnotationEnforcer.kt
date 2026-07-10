@@ -101,7 +101,7 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
         private val ANDROID_TEST_DIRS =
             listOf(
                 "androidTest",
-                "androidInstrumentedTest",
+                "androidDeviceTest",
                 "androidDeviceTest",
                 "androidDeviceTestDebug",
                 "androidDeviceTestRelease",

@@ -46,11 +46,11 @@ private class DatabaseImpl(driver: SqlDriver) : TransacterImpl(driver), Database
             driver.execute(
                 null,
                 """
-          |CREATE TABLE TestEntity(
-          |    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-          |    value TEXT NOT NULL
-          |)
-          """
+                |CREATE TABLE TestEntity(
+                |    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                |    value TEXT NOT NULL
+                |)
+                """
                     .trimMargin(),
                 0,
             )
@@ -84,11 +84,11 @@ private class TestEntityQueriesImpl(
         driver.execute(
             -2020431062,
             """
-    |INSERT OR REPLACE INTO TestEntity(
-    |  value
-    |)
-    |VALUES (?1)
-    """
+            |INSERT OR REPLACE INTO TestEntity(
+            |  value
+            |)
+            |VALUES (?1)
+            """
                 .trimMargin(),
             1,
         ) {

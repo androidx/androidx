@@ -27,11 +27,17 @@ import android.graphics.pdf.models.FormEditRecord;
 import android.graphics.pdf.models.FormWidgetInfo;
 import android.graphics.pdf.models.selection.PageSelection;
 import android.graphics.pdf.models.selection.SelectionBoundary;
+import android.graphics.PointF;
 import android.os.ParcelFileDescriptor;
+import androidx.pdf.DraftEditOperation;
+import androidx.pdf.DraftEditResult;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.annotation.models.PdfAnnotation;
-import androidx.pdf.annotation.models.AnnotationResult;
-import androidx.pdf.annotation.models.PdfAnnotationData;
+import androidx.pdf.annotation.models.PaginatedAnnotations;
+import androidx.pdf.annotation.models.KeyedPdfObject;
+import androidx.pdf.models.PaginatedObjects;
+import androidx.pdf.RenderParams;
+import androidx.pdf.annotation.models.PdfObject;
 
 /** Remote interface for interacting with a PDF document */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
@@ -67,9 +73,10 @@ interface PdfDocumentRemote {
      * @param pageNum The zero-based page number to render.
      * @param width The desired width of the resulting Bitmap.
      * @param height The desired height of the resulting Bitmap.
+     * @param renderParams The set of parameters used for rendering a page bitmap.
      * @return A Bitmap representation of the specified page, or null if an error occurs.
      */
-    Bitmap getPageBitmap(int pageNum, int width, int height);
+    Bitmap getPageBitmap(int pageNum, int width, int height, in RenderParams renderParams);
 
     /**
      * Renders a tile of the specified page into a Bitmap.
@@ -84,9 +91,10 @@ interface PdfDocumentRemote {
      * @param pageHeight The height of the whole PDF page.
      * @param offsetX The horizontal offset of the tile within the page.
      * @param offsetY The vertical offset of the tile within the page.
+     * @param renderParams The set of parameters used for rendering a tile bitmap.
      * @return A Bitmap representation of the specified tile, or null if an error occurs.
      */
-    Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY);
+    Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY, in RenderParams renderParams);
 
     /**
      * Gets the text content of the specified page.
@@ -138,13 +146,6 @@ interface PdfDocumentRemote {
      * @return A list of {@link PdfPageImageContent} on the page.
      */
     List<PdfPageImageContent> getPageImageContent(int pageNum);
-
-    /**
-     * Checks if the PDF is linearized (optimized for fast web viewing).
-     *
-     * @return True if the PDF is linearized, false otherwise.
-     */
-    boolean isPdfLinearized();
 
     /**
      * Gets the type of form present in the document.
@@ -202,30 +203,63 @@ interface PdfDocumentRemote {
     */
     void write(in ParcelFileDescriptor destination, boolean removePasswordProtection);
 
-
     /**
-    * Adds the annotations present in the given file to the document.
-    *
-    * @param pfd The file descriptor for the file from which annotations will be added.
-    *            The file should contain annotations intended for the currently opened PDF.
-    * @return A {@link AnnotationResult} object indicating the success or failure of the operation.
-    */
-    AnnotationResult addAnnotations(in ParcelFileDescriptor pfd);
-
-    /**
-    * Retrieves all annotations present on the specified page.
+    * Retrieves the annotations present on the specified page in the paginated format.
     *
     * @param pageNum The 0-based index of the page from which to retrieve annotations.
-    * @return A list of {@link PdfAnnotation} objects representing all annotations on the page.
-    *         Returns an empty list if there are no annotations or if the page number is invalid.
+    * @return Continuation token
     */
-    List<PdfAnnotation> getPageAnnotations(int pageNum);
+    PaginatedAnnotations getPageAnnotations(int pageNum);
 
     /**
-    * Applies the given list of annotations to the document.
+    * Retrieves the annotations present on the specified page for the specific batch.
     *
-    * @param annotations The list of annotations to apply.
-    * @return A {@link AnnotationResult} object indicating the success or failure of the operation.
+    * @param pageNum The 0-based index of the page from which to retrieve annotations.
+    * @return Continuation token
     */
-    AnnotationResult applyEdits(in List<PdfAnnotationData> annots);
+    PaginatedAnnotations getBatchedPageAnnotations(int pageNum, in int batchIndex);
+
+    /**
+    * Applies a list of draft edit operations (insert, update, remove) to the PDF document.
+    *
+    * @param operations The list of [DraftEditOperation] objects to apply.
+    * @return A [DraftEditResult] indicating the outcome of the batch operation.
+    */
+    DraftEditResult applyDraftEdits(in List<DraftEditOperation> operations);
+
+    /**
+     * Gets the topmost PDF object at a given position on a page, filtered by object types.
+     *
+     * @param point The position on the page to check, where coordinates are relative to the top-left
+     * of the page.
+     * @param types An array of integers representing the types of PDF objects to consider.
+     * @return The {@link PdfObject} found at the specified position, or null if no object is found.
+     */
+    PdfObject getTopPageObjectAtPosition( int pageNum, in PointF point, in int[] types);
+
+    /**
+     * Gets the linearization status of the document.
+     *
+     * @return An int representing the document's linearization status.
+     */
+     int getLinearizationStatus();
+
+    /**
+    * Retrieves the objects present on the specified page in the paginated format.
+    *
+    * @param pageNum The 0-based index of the page from which to retrieve objects.
+    * @param types The types of objects to retrieve as a bitmask.
+    * @return Continuation token
+    */
+    PaginatedObjects getPageObjects(int pageNum, long types);
+
+    /**
+    * Retrieves the objects present on the specified page for the specific batch.
+    *
+    * @param pageNum The 0-based index of the page from which to retrieve objects.
+    * @param batchIndex The index of the batch to retrieve.
+    * @param types The types of objects to retrieve as a bitmask.
+    * @return Continuation token
+    */
+    PaginatedObjects getBatchedPageObjects(int pageNum, in int batchIndex, long types);
 }

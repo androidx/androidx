@@ -235,7 +235,6 @@ public class WorkContinuationImpl extends WorkContinuation {
      *                     marked as visited.
      * @return {@code true} if the {@link WorkContinuationImpl} has a cycle.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     private static boolean hasCycles(
             @NonNull WorkContinuationImpl continuation,
             @NonNull Set<String> visited) {

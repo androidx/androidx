@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
@@ -22,7 +22,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        style="?attr/guidanceContainerStyle" >
+        style="?attr/guidanceContainerStyle"
+        tools:ignore="PrivateResource" >
 
         <ImageView
             android:id="@+id/guidance_icon"
@@ -32,15 +33,18 @@
 
         <TextView
             android:id="@+id/guidance_title"
-            style="?attr/guidanceTitleStyle" />
+            style="?attr/guidanceTitleStyle"
+            tools:ignore="PrivateResource" />
 
         <TextView
             android:id="@+id/guidance_breadcrumb"
-            style="?attr/guidanceBreadcrumbStyle" />
+            style="?attr/guidanceBreadcrumbStyle"
+            tools:ignore="PrivateResource" />
 
         <TextView
             android:id="@+id/guidance_description"
-            style="?attr/guidanceDescriptionStyle" />
+            style="?attr/guidanceDescriptionStyle"
+            tools:ignore="PrivateResource" />
 
     </RelativeLayout>
 

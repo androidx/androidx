@@ -19,11 +19,14 @@ package androidx.credentials.providerevents
 import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Looper
+import androidx.credentials.providerevents.exception.ClearExportProviderConfigurationException
 import androidx.credentials.providerevents.exception.ImportCredentialsProviderConfigurationException
 import androidx.credentials.providerevents.exception.RegisterExportProviderConfigurationException
+import androidx.credentials.providerevents.transfer.ClearExportRequest
 import androidx.credentials.providerevents.transfer.CredentialTypes
 import androidx.credentials.providerevents.transfer.ExportEntry
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
+import androidx.credentials.providerevents.transfer.KnownExtensions
 import androidx.credentials.providerevents.transfer.RegisterExportRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -55,7 +58,13 @@ class ProviderEventsManagerTest {
             assertThrows<ImportCredentialsProviderConfigurationException> {
                 providerEventsManager.importCredentials(
                     Activity(),
-                    ImportCredentialsRequest(CXP_REQUEST),
+                    ImportCredentialsRequest(
+                        setOf(
+                            CredentialTypes.CREDENTIAL_TYPE_BASIC_AUTH,
+                            CredentialTypes.CREDENTIAL_TYPE_PUBLIC_KEY,
+                        ),
+                        setOf(KnownExtensions.KNOWN_EXTENSION_SHARED),
+                    ),
                 )
             }
         }
@@ -68,7 +77,8 @@ class ProviderEventsManagerTest {
             }
             assertThrows<RegisterExportProviderConfigurationException> {
                 providerEventsManager.registerExport(
-                    RegisterExportRequest(
+                    RegisterExportRequest.create(
+                        context,
                         listOf(
                             ExportEntry(
                                 "id",
@@ -77,9 +87,20 @@ class ProviderEventsManagerTest {
                                 Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888),
                                 setOf(CredentialTypes.CREDENTIAL_TYPE_BASIC_AUTH),
                             )
-                        )
+                        ),
                     )
                 )
+            }
+        }
+
+    @Test
+    fun clearExport_throws() =
+        runBlocking<Unit> {
+            if (Looper.myLooper() == null) {
+                Looper.prepare()
+            }
+            assertThrows<ClearExportProviderConfigurationException> {
+                providerEventsManager.clearExport(ClearExportRequest())
             }
         }
 

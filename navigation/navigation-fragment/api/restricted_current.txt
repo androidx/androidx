@@ -6,16 +6,14 @@ package androidx.navigation {
     method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> navGraphViewModels(androidx.fragment.app.Fragment, String navGraphRoute, optional kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
   }
 
-  public typealias NavUri = android.net.Uri;
-
 }
 
 package androidx.navigation.fragment {
 
   public abstract class AbstractListDetailFragment extends androidx.fragment.app.Fragment {
     ctor public AbstractListDetailFragment();
-    method public final androidx.navigation.fragment.NavHostFragment getDetailPaneNavHostFragment();
-    method public final androidx.slidingpanelayout.widget.SlidingPaneLayout getSlidingPaneLayout();
+    method @InaccessibleFromKotlin public final androidx.navigation.fragment.NavHostFragment getDetailPaneNavHostFragment();
+    method @InaccessibleFromKotlin public final androidx.slidingpanelayout.widget.SlidingPaneLayout getSlidingPaneLayout();
     method public androidx.navigation.fragment.NavHostFragment onCreateDetailPaneNavHostFragment();
     method public abstract android.view.View onCreateListPaneView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
     method @CallSuper public final android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
@@ -33,7 +31,7 @@ package androidx.navigation.fragment {
   @androidx.navigation.NavDestination.ClassType(DialogFragment::class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
     ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination> fragmentNavigator);
     ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
-    method public final String getClassName();
+    method @InaccessibleFromKotlin public final String getClassName();
     method public final androidx.navigation.fragment.DialogFragmentNavigator.Destination setClassName(String className);
     property public final String className;
   }
@@ -71,13 +69,13 @@ package androidx.navigation.fragment {
   @androidx.navigation.NavDestination.ClassType(Fragment::class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
     ctor public FragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
     ctor public FragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
-    method public final String getClassName();
+    method @InaccessibleFromKotlin public final String getClassName();
     method public final androidx.navigation.fragment.FragmentNavigator.Destination setClassName(String className);
     property public final String className;
   }
 
   public static final class FragmentNavigator.Extras implements androidx.navigation.Navigator.Extras {
-    method public java.util.Map<android.view.View,java.lang.String> getSharedElements();
+    method @InaccessibleFromKotlin public java.util.Map<android.view.View,java.lang.String> getSharedElements();
     property public java.util.Map<android.view.View,java.lang.String> sharedElements;
   }
 
@@ -114,7 +112,7 @@ package androidx.navigation.fragment {
     method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
     method public static final androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
-    method public final androidx.navigation.NavController getNavController();
+    method @InaccessibleFromKotlin public final androidx.navigation.NavController getNavController();
     method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController navController);
     method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController navHostController);
     property public final androidx.navigation.NavController navController;
@@ -124,6 +122,7 @@ package androidx.navigation.fragment {
   public static final class NavHostFragment.Companion {
     method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
     method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method @BytecodeOnly public static androidx.navigation.fragment.NavHostFragment! create$default(androidx.navigation.fragment.NavHostFragment.Companion!, int, android.os.Bundle!, int, Object!);
     method public androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
   }
 

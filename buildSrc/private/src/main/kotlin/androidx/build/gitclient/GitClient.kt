@@ -16,11 +16,11 @@
 
 package androidx.build.gitclient
 
+import androidx.build.getCheckoutRoot
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
 import javax.inject.Inject
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -36,54 +36,36 @@ import org.gradle.process.ExecOperations
  *   default to using git.
  */
 fun Project.getChangedFilesProvider(baseCommitOverride: Provider<String>): Provider<List<String>> {
-    val changeInfo = providers.environmentVariable("CHANGE_INFO")
-    val manifest = providers.environmentVariable("MANIFEST")
-
-    val presence =
-        changeInfo
-            .map { true }
-            .orElse(false)
-            .zip(manifest.map { true }.orElse(false)) { ci, mf -> ci to mf }
-
-    return presence.flatMap { (hasChangeInfo, hasManifest) ->
-        when {
-            hasChangeInfo && hasManifest -> {
-                if (baseCommitOverride.isPresent) {
-                    throw GradleException(
-                        "Overriding base commit is not supported when using CHANGE_INFO and MANIFEST"
-                    )
-                }
-                getChangedFilesFromChangeInfoProvider(manifest, changeInfo)
-            }
-
-            hasChangeInfo xor hasManifest -> {
-                providers.provider {
-                    throw GradleException(
-                        if (hasChangeInfo) "Setting CHANGE_INFO requires also setting MANIFEST"
-                        else "Setting MANIFEST requires also setting CHANGE_INFO"
-                    )
-                }
-            }
-            else -> {
-                providers.of(GitChangedFilesSource::class.java) {
-                    it.parameters.workingDir.set(rootProject.layout.projectDirectory)
-                    it.parameters.baseCommitOverride.set(baseCommitOverride)
-                }
-            }
+    return providers
+        .of(NonGitChangedFilesSource::class.java) {
+            it.parameters.projectDirRelativeToRoot.set(
+                projectDir.relativeTo(getCheckoutRoot()).toString()
+            )
+            it.parameters.baseCommitOverridePresent.set(
+                baseCommitOverride.map { true }.orElse(false)
+            )
         }
-    }
+        .orElse(
+            providers.of(GitChangedFilesSource::class.java) {
+                it.parameters.workingDir.set(rootProject.layout.projectDirectory)
+                it.parameters.baseCommitOverride.set(baseCommitOverride)
+            }
+        )
 }
 
 /**
  * @return provider of HEAD SHA. It will use MANIFEST to get the SHA if the environmental variable
  *   is set, otherwise it will default to using git.
  */
-fun getHeadShaProvider(project: Project): Provider<String> {
-    val manifestPath = project.providers.environmentVariable("MANIFEST")
-    return manifestPath
-        .flatMap { project.getHeadShaFromManifestProvider(manifestPath) }
+fun Project.getHeadShaProvider(): Provider<String> {
+    return providers
+        .of(NonGitHeadShaSource::class.java) {
+            it.parameters.projectDirRelativeToRoot.set(
+                projectDir.relativeTo(getCheckoutRoot()).toString()
+            )
+        }
         .orElse(
-            project.providers.of(GitHeadShaSource::class.java) {
+            providers.of(GitHeadShaSource::class.java) {
                 it.parameters.workingDir.set(project.layout.projectDirectory)
             }
         )

@@ -16,21 +16,25 @@
 
 package androidx.pdf
 
-import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
-import androidx.pdf.PdfDocument.Companion.INCLUDE_FORM_WIDGET_INFO
 import androidx.pdf.SandboxedPdfDocumentTest.Companion.withDocument
-import androidx.pdf.models.FormEditRecord
+import androidx.pdf.SandboxedPdfDocumentTest.Companion.withEditableDocument
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,32 +119,32 @@ class PdfFormFillingTest {
 
         val combo1Choices: List<ListItem> =
             listOf(
-                ListItem(label = "Apple", selected = false),
-                ListItem(label = "Banana", selected = true),
-                ListItem(label = "Cherry", selected = false),
-                ListItem(label = "Date", selected = false),
-                ListItem(label = "Elderberry", selected = false),
-                ListItem(label = "Fig", selected = false),
-                ListItem(label = "Guava", selected = false),
-                ListItem(label = "Honeydew", selected = false),
-                ListItem(label = "Indian Fig", selected = false),
-                ListItem(label = "Jackfruit", selected = false),
-                ListItem(label = "Kiwi", selected = false),
-                ListItem(label = "Lemon", selected = false),
-                ListItem(label = "Mango", selected = false),
-                ListItem(label = "Nectarine", selected = false),
-                ListItem(label = "Orange", selected = false),
-                ListItem(label = "Persimmon", selected = false),
-                ListItem(label = "Quince", selected = false),
-                ListItem(label = "Raspberry", selected = false),
-                ListItem(label = "Strawberry", selected = false),
-                ListItem(label = "Tamarind", selected = false),
-                ListItem(label = "Ugli Fruit", selected = false),
-                ListItem(label = "Voavanga", selected = false),
-                ListItem(label = "Wolfberry", selected = false),
-                ListItem(label = "Xigua", selected = false),
-                ListItem(label = "Yangmei", selected = false),
-                ListItem(label = "Zucchini", selected = false),
+                ListItem(label = "Apple", isSelected = false),
+                ListItem(label = "Banana", isSelected = true),
+                ListItem(label = "Cherry", isSelected = false),
+                ListItem(label = "Date", isSelected = false),
+                ListItem(label = "Elderberry", isSelected = false),
+                ListItem(label = "Fig", isSelected = false),
+                ListItem(label = "Guava", isSelected = false),
+                ListItem(label = "Honeydew", isSelected = false),
+                ListItem(label = "Indian Fig", isSelected = false),
+                ListItem(label = "Jackfruit", isSelected = false),
+                ListItem(label = "Kiwi", isSelected = false),
+                ListItem(label = "Lemon", isSelected = false),
+                ListItem(label = "Mango", isSelected = false),
+                ListItem(label = "Nectarine", isSelected = false),
+                ListItem(label = "Orange", isSelected = false),
+                ListItem(label = "Persimmon", isSelected = false),
+                ListItem(label = "Quince", isSelected = false),
+                ListItem(label = "Raspberry", isSelected = false),
+                ListItem(label = "Strawberry", isSelected = false),
+                ListItem(label = "Tamarind", isSelected = false),
+                ListItem(label = "Ugli Fruit", isSelected = false),
+                ListItem(label = "Voavanga", isSelected = false),
+                ListItem(label = "Wolfberry", isSelected = false),
+                ListItem(label = "Xigua", isSelected = false),
+                ListItem(label = "Yangmei", isSelected = false),
+                ListItem(label = "Zucchini", isSelected = false),
             )
 
         val comboBox1 =
@@ -157,9 +161,9 @@ class PdfFormFillingTest {
 
         val editableChoices =
             listOf(
-                ListItem(label = "Foo", selected = false),
-                ListItem(label = "Bar", selected = false),
-                ListItem(label = "Qux", selected = false),
+                ListItem(label = "Foo", isSelected = false),
+                ListItem(label = "Bar", isSelected = false),
+                ListItem(label = "Qux", isSelected = false),
             )
 
         val editableComboBox =
@@ -181,59 +185,57 @@ class PdfFormFillingTest {
     @Test
     fun getFormWidgetInfosOfType_checkbox_inClickForm() = runTest {
         val readOnlyCheckBox =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 0,
                 widgetRect = Rect(135, 30, 155, 50),
                 textValue = "true",
                 accessibilityLabel = "readOnlyCheckbox",
-                readOnly = true,
+                isReadOnly = true,
             )
 
         val checkBox =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
                 widgetRect = Rect(135, 70, 155, 90),
                 textValue = "false",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
 
         verifyFormWidgetInfos(
             CLICK_FORM,
             0,
-            intArrayOf(FormWidgetInfo.WIDGET_TYPE_CHECKBOX),
+            PdfDocument.FORM_WIDGET_INCLUDE_CHECKBOX_TYPE,
             listOf(readOnlyCheckBox, checkBox),
         )
     }
 
     @Test
     fun applyEdit_clickOnCheckBox() = runTest {
+        val widgetArea = Rect(135, 70, 155, 90)
         val before =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
-                widgetRect = Rect(135, 70, 155, 90),
+                widgetRect = widgetArea,
                 textValue = "false",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
 
-        val clickPoint = Point(145, 80)
-        val editRec = FormEditRecord(0, before.widgetIndex, clickPoint = clickPoint)
+        val clickPoint = PdfPoint(pageNum = 0, x = 145f, y = 80f)
+        val editRec = FormEditInfo.createClick(before.widgetIndex, clickPoint = clickPoint)
 
         val after =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
-                widgetRect = Rect(135, 70, 155, 90),
+                widgetRect = widgetArea,
                 textValue = "true",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
 
-        verifyApplyEdit(CLICK_FORM, 0, editRec, before, after)
+        val expectedDirtyArea: List<Rect> = listOf(widgetArea)
+        verifyApplyEdit(CLICK_FORM, 0, editRec, before, after, expectedDirtyArea)
     }
 
     @Test
@@ -247,8 +249,8 @@ class PdfFormFillingTest {
                 textValue = "false",
                 accessibilityLabel = "",
             )
-        val clickPoint = Point(95, 240)
-        val click = FormEditRecord(pageNumber = 0, widgetIndex = 5, clickPoint = clickPoint)
+        val clickPoint = PdfPoint(pageNum = 0, x = 95f, y = 240f)
+        val click = FormEditInfo.createClick(widgetIndex = 5, clickPoint = clickPoint)
         val after =
             makeRadioButton(
                 widgetIndex = 5,
@@ -266,9 +268,9 @@ class PdfFormFillingTest {
         val comboboxArea = Rect(100, 220, 200, 250)
         val choicesBefore =
             listOf(
-                ListItem(label = "Foo", selected = false),
-                ListItem(label = "Bar", selected = false),
-                ListItem(label = "Qux", selected = false),
+                ListItem(label = "Foo", isSelected = false),
+                ListItem(label = "Bar", isSelected = false),
+                ListItem(label = "Qux", isSelected = false),
             )
         val widgetBefore =
             makeComboBox(
@@ -282,12 +284,16 @@ class PdfFormFillingTest {
                 listItems = choicesBefore,
             )
         val selectBar =
-            FormEditRecord(pageNumber = 0, widgetIndex = 0, selectedIndices = intArrayOf(1))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 0,
+                selectedIndices = intArrayOf(1),
+            )
         val choicesAfter =
             listOf(
-                ListItem(label = "Foo", selected = false),
-                ListItem(label = "Bar", selected = true),
-                ListItem(label = "Qux", selected = false),
+                ListItem(label = "Foo", isSelected = false),
+                ListItem(label = "Bar", isSelected = true),
+                ListItem(label = "Qux", isSelected = false),
             )
         val widgetAfter =
             makeComboBox(
@@ -316,9 +322,9 @@ class PdfFormFillingTest {
         val comboboxArea = Rect(100, 220, 200, 250)
         val choicesBefore =
             listOf(
-                ListItem(label = "Foo", selected = false),
-                ListItem(label = "Bar", selected = false),
-                ListItem(label = "Qux", selected = false),
+                ListItem(label = "Foo", isSelected = false),
+                ListItem(label = "Bar", isSelected = false),
+                ListItem(label = "Qux", isSelected = false),
             )
         val widgetBefore =
             makeComboBox(
@@ -331,7 +337,8 @@ class PdfFormFillingTest {
                 fontSize = 12.0f,
                 listItems = choicesBefore,
             )
-        val setText = FormEditRecord(pageNumber = 0, widgetIndex = 0, text = "Gecko tail")
+        val setText =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 0, text = "Gecko tail")
 
         val widgetAfter =
             makeComboBox(
@@ -353,16 +360,16 @@ class PdfFormFillingTest {
         val widgetArea = Rect(100, 470, 200, 500)
         val choicesBefore =
             listOf(
-                ListItem(label = "Alberta", selected = false),
-                ListItem(label = "British Columbia", selected = false),
-                ListItem(label = "Manitoba", selected = false),
-                ListItem(label = "New Brunswick", selected = false),
-                ListItem(label = "Newfoundland and Labrador", selected = false),
-                ListItem(label = "Nova Scotia", selected = false),
-                ListItem(label = "Ontario", selected = false),
-                ListItem(label = "Prince Edward Island", selected = false),
-                ListItem(label = "Quebec", selected = false),
-                ListItem(label = "Saskatchewan", selected = true),
+                ListItem(label = "Alberta", isSelected = false),
+                ListItem(label = "British Columbia", isSelected = false),
+                ListItem(label = "Manitoba", isSelected = false),
+                ListItem(label = "New Brunswick", isSelected = false),
+                ListItem(label = "Newfoundland and Labrador", isSelected = false),
+                ListItem(label = "Nova Scotia", isSelected = false),
+                ListItem(label = "Ontario", isSelected = false),
+                ListItem(label = "Prince Edward Island", isSelected = false),
+                ListItem(label = "Quebec", isSelected = false),
+                ListItem(label = "Saskatchewan", isSelected = true),
             )
         val widgetBefore =
             makeListbox(
@@ -375,19 +382,23 @@ class PdfFormFillingTest {
                 listItems = choicesBefore,
             )
         val clearSelection =
-            FormEditRecord(pageNumber = 0, widgetIndex = 6, selectedIndices = intArrayOf(0))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 6,
+                selectedIndices = intArrayOf(0),
+            )
         val choicesAfter =
             listOf(
-                ListItem(label = "Alberta", selected = true),
-                ListItem(label = "British Columbia", selected = false),
-                ListItem(label = "Manitoba", selected = false),
-                ListItem(label = "New Brunswick", selected = false),
-                ListItem(label = "Newfoundland and Labrador", selected = false),
-                ListItem(label = "Nova Scotia", selected = false),
-                ListItem(label = "Ontario", selected = false),
-                ListItem(label = "Prince Edward Island", selected = false),
-                ListItem(label = "Quebec", selected = false),
-                ListItem(label = "Saskatchewan", selected = false),
+                ListItem(label = "Alberta", isSelected = true),
+                ListItem(label = "British Columbia", isSelected = false),
+                ListItem(label = "Manitoba", isSelected = false),
+                ListItem(label = "New Brunswick", isSelected = false),
+                ListItem(label = "Newfoundland and Labrador", isSelected = false),
+                ListItem(label = "Nova Scotia", isSelected = false),
+                ListItem(label = "Ontario", isSelected = false),
+                ListItem(label = "Prince Edward Island", isSelected = false),
+                ListItem(label = "Quebec", isSelected = false),
+                ListItem(label = "Saskatchewan", isSelected = false),
             )
         val widgetAfter =
             makeListbox(
@@ -426,7 +437,8 @@ class PdfFormFillingTest {
                 fontSize = 12.0f,
             )
 
-        val setText = FormEditRecord(pageNumber = 0, widgetIndex = 0, text = "Gecko tail")
+        val setText =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 0, text = "Gecko tail")
 
         val widgetAfter =
             makeTextField(
@@ -449,32 +461,32 @@ class PdfFormFillingTest {
         val widgetArea = Rect(100, 170, 200, 200)
         val choicesBefore =
             listOf(
-                ListItem(label = "Apple", selected = false),
-                ListItem(label = "Banana", selected = true),
-                ListItem(label = "Cherry", selected = false),
-                ListItem(label = "Date", selected = false),
-                ListItem(label = "Elderberry", selected = false),
-                ListItem(label = "Fig", selected = false),
-                ListItem(label = "Guava", selected = false),
-                ListItem(label = "Honeydew", selected = false),
-                ListItem(label = "Indian Fig", selected = false),
-                ListItem(label = "Jackfruit", selected = false),
-                ListItem(label = "Kiwi", selected = false),
-                ListItem(label = "Lemon", selected = false),
-                ListItem(label = "Mango", selected = false),
-                ListItem(label = "Nectarine", selected = false),
-                ListItem(label = "Orange", selected = false),
-                ListItem(label = "Persimmon", selected = false),
-                ListItem(label = "Quince", selected = false),
-                ListItem(label = "Raspberry", selected = false),
-                ListItem(label = "Strawberry", selected = false),
-                ListItem(label = "Tamarind", selected = false),
-                ListItem(label = "Ugli Fruit", selected = false),
-                ListItem(label = "Voavanga", selected = false),
-                ListItem(label = "Wolfberry", selected = false),
-                ListItem(label = "Xigua", selected = false),
-                ListItem(label = "Yangmei", selected = false),
-                ListItem(label = "Zucchini", selected = false),
+                ListItem(label = "Apple", isSelected = false),
+                ListItem(label = "Banana", isSelected = true),
+                ListItem(label = "Cherry", isSelected = false),
+                ListItem(label = "Date", isSelected = false),
+                ListItem(label = "Elderberry", isSelected = false),
+                ListItem(label = "Fig", isSelected = false),
+                ListItem(label = "Guava", isSelected = false),
+                ListItem(label = "Honeydew", isSelected = false),
+                ListItem(label = "Indian Fig", isSelected = false),
+                ListItem(label = "Jackfruit", isSelected = false),
+                ListItem(label = "Kiwi", isSelected = false),
+                ListItem(label = "Lemon", isSelected = false),
+                ListItem(label = "Mango", isSelected = false),
+                ListItem(label = "Nectarine", isSelected = false),
+                ListItem(label = "Orange", isSelected = false),
+                ListItem(label = "Persimmon", isSelected = false),
+                ListItem(label = "Quince", isSelected = false),
+                ListItem(label = "Raspberry", isSelected = false),
+                ListItem(label = "Strawberry", isSelected = false),
+                ListItem(label = "Tamarind", isSelected = false),
+                ListItem(label = "Ugli Fruit", isSelected = false),
+                ListItem(label = "Voavanga", isSelected = false),
+                ListItem(label = "Wolfberry", isSelected = false),
+                ListItem(label = "Xigua", isSelected = false),
+                ListItem(label = "Yangmei", isSelected = false),
+                ListItem(label = "Zucchini", isSelected = false),
             )
         val widgetBefore =
             makeListbox(
@@ -487,35 +499,39 @@ class PdfFormFillingTest {
                 listItems = choicesBefore,
             )
         val selectMultiple =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, selectedIndices = intArrayOf(1, 2, 3))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 1,
+                selectedIndices = intArrayOf(1, 2, 3),
+            )
         val choicesAfter =
             listOf(
-                ListItem(label = "Apple", selected = false),
-                ListItem(label = "Banana", selected = true),
-                ListItem(label = "Cherry", selected = true),
-                ListItem(label = "Date", selected = true),
-                ListItem(label = "Elderberry", selected = false),
-                ListItem(label = "Fig", selected = false),
-                ListItem(label = "Guava", selected = false),
-                ListItem(label = "Honeydew", selected = false),
-                ListItem(label = "Indian Fig", selected = false),
-                ListItem(label = "Jackfruit", selected = false),
-                ListItem(label = "Kiwi", selected = false),
-                ListItem(label = "Lemon", selected = false),
-                ListItem(label = "Mango", selected = false),
-                ListItem(label = "Nectarine", selected = false),
-                ListItem(label = "Orange", selected = false),
-                ListItem(label = "Persimmon", selected = false),
-                ListItem(label = "Quince", selected = false),
-                ListItem(label = "Raspberry", selected = false),
-                ListItem(label = "Strawberry", selected = false),
-                ListItem(label = "Tamarind", selected = false),
-                ListItem(label = "Ugli Fruit", selected = false),
-                ListItem(label = "Voavanga", selected = false),
-                ListItem(label = "Wolfberry", selected = false),
-                ListItem(label = "Xigua", selected = false),
-                ListItem(label = "Yangmei", selected = false),
-                ListItem(label = "Zucchini", selected = false),
+                ListItem(label = "Apple", isSelected = false),
+                ListItem(label = "Banana", isSelected = true),
+                ListItem(label = "Cherry", isSelected = true),
+                ListItem(label = "Date", isSelected = true),
+                ListItem(label = "Elderberry", isSelected = false),
+                ListItem(label = "Fig", isSelected = false),
+                ListItem(label = "Guava", isSelected = false),
+                ListItem(label = "Honeydew", isSelected = false),
+                ListItem(label = "Indian Fig", isSelected = false),
+                ListItem(label = "Jackfruit", isSelected = false),
+                ListItem(label = "Kiwi", isSelected = false),
+                ListItem(label = "Lemon", isSelected = false),
+                ListItem(label = "Mango", isSelected = false),
+                ListItem(label = "Nectarine", isSelected = false),
+                ListItem(label = "Orange", isSelected = false),
+                ListItem(label = "Persimmon", isSelected = false),
+                ListItem(label = "Quince", isSelected = false),
+                ListItem(label = "Raspberry", isSelected = false),
+                ListItem(label = "Strawberry", isSelected = false),
+                ListItem(label = "Tamarind", isSelected = false),
+                ListItem(label = "Ugli Fruit", isSelected = false),
+                ListItem(label = "Voavanga", isSelected = false),
+                ListItem(label = "Wolfberry", isSelected = false),
+                ListItem(label = "Xigua", isSelected = false),
+                ListItem(label = "Yangmei", isSelected = false),
+                ListItem(label = "Zucchini", isSelected = false),
             )
         val widgetAfter =
             makeListbox(
@@ -543,16 +559,16 @@ class PdfFormFillingTest {
         val widgetArea = Rect(100, 470, 200, 500)
         val choicesBefore =
             listOf(
-                ListItem(label = "Alberta", selected = false),
-                ListItem(label = "British Columbia", selected = false),
-                ListItem(label = "Manitoba", selected = false),
-                ListItem(label = "New Brunswick", selected = false),
-                ListItem(label = "Newfoundland and Labrador", selected = false),
-                ListItem(label = "Nova Scotia", selected = false),
-                ListItem(label = "Ontario", selected = false),
-                ListItem(label = "Prince Edward Island", selected = false),
-                ListItem(label = "Quebec", selected = false),
-                ListItem(label = "Saskatchewan", selected = true),
+                ListItem(label = "Alberta", isSelected = false),
+                ListItem(label = "British Columbia", isSelected = false),
+                ListItem(label = "Manitoba", isSelected = false),
+                ListItem(label = "New Brunswick", isSelected = false),
+                ListItem(label = "Newfoundland and Labrador", isSelected = false),
+                ListItem(label = "Nova Scotia", isSelected = false),
+                ListItem(label = "Ontario", isSelected = false),
+                ListItem(label = "Prince Edward Island", isSelected = false),
+                ListItem(label = "Quebec", isSelected = false),
+                ListItem(label = "Saskatchewan", isSelected = true),
             )
         val widgetBefore =
             makeListbox(
@@ -565,19 +581,23 @@ class PdfFormFillingTest {
                 listItems = choicesBefore,
             )
         val clearSelection =
-            FormEditRecord(pageNumber = 0, widgetIndex = 6, selectedIndices = IntArray(0))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 6,
+                selectedIndices = IntArray(0),
+            )
         val choicesAfter =
             listOf(
-                ListItem(label = "Alberta", selected = false),
-                ListItem(label = "British Columbia", selected = false),
-                ListItem(label = "Manitoba", selected = false),
-                ListItem(label = "New Brunswick", selected = false),
-                ListItem(label = "Newfoundland and Labrador", selected = false),
-                ListItem(label = "Nova Scotia", selected = false),
-                ListItem(label = "Ontario", selected = false),
-                ListItem(label = "Prince Edward Island", selected = false),
-                ListItem(label = "Quebec", selected = false),
-                ListItem(label = "Saskatchewan", selected = false),
+                ListItem(label = "Alberta", isSelected = false),
+                ListItem(label = "British Columbia", isSelected = false),
+                ListItem(label = "Manitoba", isSelected = false),
+                ListItem(label = "New Brunswick", isSelected = false),
+                ListItem(label = "Newfoundland and Labrador", isSelected = false),
+                ListItem(label = "Nova Scotia", isSelected = false),
+                ListItem(label = "Ontario", isSelected = false),
+                ListItem(label = "Prince Edward Island", isSelected = false),
+                ListItem(label = "Quebec", isSelected = false),
+                ListItem(label = "Saskatchewan", isSelected = false),
             )
         val widgetAfter =
             makeListbox(
@@ -615,7 +635,7 @@ class PdfFormFillingTest {
                 maxLength = 10,
                 fontSize = 12.0f,
             )
-        val clearText = FormEditRecord(pageNumber = 0, widgetIndex = 2, text = "")
+        val clearText = FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 2, text = "")
         val widgetAfter =
             makeTextField(
                 widgetIndex = 2,
@@ -635,146 +655,221 @@ class PdfFormFillingTest {
     @Test
     fun applyEdit_clickOnReadOnlyCheckbox() = runTest {
         val clickOnROCheckbox =
-            FormEditRecord(pageNumber = 0, widgetIndex = 0, clickPoint = Point(145, 40))
+            FormEditInfo.createClick(
+                widgetIndex = 0,
+                clickPoint = PdfPoint(pageNum = 0, x = 145f, y = 40f),
+            )
 
-        verifyApplyEditThrowsException(CLICK_FORM, 0, clickOnROCheckbox)
+        verifyApplyEditThrowsException(CLICK_FORM, clickOnROCheckbox)
     }
 
     @Test
     fun applyEdit_clickOnReadOnlyRadioButton() = runTest {
         val clickOnRORadioButton =
-            FormEditRecord(pageNumber = 0, widgetIndex = 2, clickPoint = Point(95, 190))
+            FormEditInfo.createClick(
+                widgetIndex = 2,
+                clickPoint = PdfPoint(pageNum = 0, x = 95f, y = 190f),
+            )
 
-        verifyApplyEditThrowsException(CLICK_FORM, 0, clickOnRORadioButton)
+        verifyApplyEditThrowsException(CLICK_FORM, clickOnRORadioButton)
     }
 
     @Test
     fun applyEdit_setTextOnClickTypeWidget() = runTest {
-        val setTextOnCheckbox = FormEditRecord(pageNumber = 0, widgetIndex = 1, text = "New text")
+        val setTextOnCheckbox =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 1, text = "New text")
 
-        verifyApplyEditThrowsException(CLICK_FORM, 0, setTextOnCheckbox)
+        verifyApplyEditThrowsException(CLICK_FORM, setTextOnCheckbox)
     }
 
     @Test
     fun applyEdit_setChoiceSelectionOnClickTypeWidget() = runTest {
         val setChoiceOnCB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, selectedIndices = intArrayOf(1, 2, 3))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 1,
+                selectedIndices = intArrayOf(1, 2, 3),
+            )
 
-        verifyApplyEditThrowsException(CLICK_FORM, 0, setChoiceOnCB)
+        verifyApplyEditThrowsException(CLICK_FORM, setChoiceOnCB)
     }
 
     @Test
     fun applyEdit_clickOnInvalidPoint() = runTest {
         val clickOnNothing =
-            FormEditRecord(pageNumber = 0, widgetIndex = 0, clickPoint = Point(0, 0))
+            FormEditInfo.createClick(
+                widgetIndex = 0,
+                clickPoint = PdfPoint(pageNum = 0, x = 0f, y = 0f),
+            )
 
-        verifyApplyEditThrowsException(CLICK_FORM, 0, clickOnNothing)
+        verifyApplyEditThrowsException(CLICK_FORM, clickOnNothing)
     }
 
     @Test
     fun applyEdit_setChoiceSelectionOnReadOnlyCombobox() = runTest {
         val setChoiceOnROCB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 2, selectedIndices = intArrayOf(1))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 2,
+                selectedIndices = intArrayOf(1),
+            )
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, setChoiceOnROCB)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, setChoiceOnROCB)
     }
 
     @Test
     fun applyEdit_setInvalidChoiceSelectionOnCombobox() = runTest {
         val setBadChoice =
-            FormEditRecord(
+            FormEditInfo.createSetIndices(
                 pageNumber = 0,
                 widgetIndex = 1,
                 selectedIndices = intArrayOf(100, 365, 1436),
             )
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, setBadChoice)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, setBadChoice)
     }
 
     @Test
     fun applyEdit_setTextOnReadOnlyCombobox() = runTest {
-        val setTextOnROCB = FormEditRecord(pageNumber = 0, widgetIndex = 2, text = "new text")
+        val setTextOnROCB =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 2, text = "new text")
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, setTextOnROCB)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, setTextOnROCB)
     }
 
     @Test
     fun applyEdit_setTextOnUneditableCombobox() = runTest {
         val setTextOnUneditableCB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, text = "new text")
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 1, text = "new text")
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, setTextOnUneditableCB)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, setTextOnUneditableCB)
     }
 
     @Test
     fun applyEdit_clickOnCombobox() = runTest {
         val clickOnCB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, clickPoint = Point(150, 185))
+            FormEditInfo.createClick(
+                widgetIndex = 1,
+                clickPoint = PdfPoint(pageNum = 0, x = 150f, y = 185f),
+            )
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, clickOnCB)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, clickOnCB)
     }
 
     // applyEdit edge cases - listbox
     @Test
     fun applyEdit_setMultipleChoiceSelectionOnSingleSelectionListbox() = runTest {
         val pickMultipleOnSingleChoice =
-            FormEditRecord(pageNumber = 0, widgetIndex = 0, selectedIndices = intArrayOf(1, 2))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 0,
+                selectedIndices = intArrayOf(1, 2),
+            )
 
-        verifyApplyEditThrowsException(LIST_BOX_FORM, 0, pickMultipleOnSingleChoice)
+        verifyApplyEditThrowsException(LIST_BOX_FORM, pickMultipleOnSingleChoice)
     }
 
     @Test
     fun applyEdit_setChoiceSelectionOnReadOnlyListbox() = runTest {
         val setChoiceOnROLB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 2, selectedIndices = intArrayOf(1))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 2,
+                selectedIndices = intArrayOf(1),
+            )
 
-        verifyApplyEditThrowsException(LIST_BOX_FORM, 0, setChoiceOnROLB)
+        verifyApplyEditThrowsException(LIST_BOX_FORM, setChoiceOnROLB)
     }
 
     @Test
     fun applyEdit_clickOnListbox() = runTest {
         val clickOnLB =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, clickPoint = Point(150, 235))
+            FormEditInfo.createClick(
+                widgetIndex = 1,
+                clickPoint = PdfPoint(pageNum = 0, x = 150f, y = 235f),
+            )
 
-        verifyApplyEditThrowsException(LIST_BOX_FORM, 0, clickOnLB)
+        verifyApplyEditThrowsException(LIST_BOX_FORM, clickOnLB)
     }
 
     @Test
     fun applyEdit_setTextOnListbox() = runTest {
-        val setTextOnLB = FormEditRecord(pageNumber = 0, widgetIndex = 1, text = "new text")
+        val setTextOnLB =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 1, text = "new text")
 
-        verifyApplyEditThrowsException(COMBO_BOX_FORM, 0, setTextOnLB)
+        verifyApplyEditThrowsException(COMBO_BOX_FORM, setTextOnLB)
     }
 
     @Test
     fun getFormWidgetInfo_assertNoWidgetsInNonFormPdf() = runTest {
         withDocument("sample.pdf") { document ->
-            val widgetInfos = document.getFormWidgetInfos(0, intArrayOf())
+            val widgetInfos = document.getFormWidgetInfos(0)
             assertThat(widgetInfos).hasSize(0)
         }
     }
 
     @Test
     fun applyEdit_setTextOnReadOnlyTextField() = runTest {
-        val setTextOnROTF = FormEditRecord(pageNumber = 0, widgetIndex = 1, text = "new text")
+        val setTextOnROTF =
+            FormEditInfo.createSetText(pageNumber = 0, widgetIndex = 1, text = "new text")
 
-        verifyApplyEditThrowsException(TEXT_FORM, 0, setTextOnROTF)
+        verifyApplyEditThrowsException(TEXT_FORM, setTextOnROTF)
     }
 
     @Test
     fun applyEdit_clickOnTextField() = runTest {
         val clickOnTF =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, clickPoint = Point(150, 185))
+            FormEditInfo.createClick(
+                widgetIndex = 1,
+                clickPoint = PdfPoint(pageNum = 0, x = 150f, y = 185f),
+            )
 
-        verifyApplyEditThrowsException(TEXT_FORM, 0, clickOnTF)
+        verifyApplyEditThrowsException(TEXT_FORM, clickOnTF)
     }
 
     @Test
     fun applyEdit_setChoiceSelectionOnTextField() = runTest {
         val setChoiceOnTF =
-            FormEditRecord(pageNumber = 0, widgetIndex = 1, selectedIndices = intArrayOf(1, 2, 3))
+            FormEditInfo.createSetIndices(
+                pageNumber = 0,
+                widgetIndex = 1,
+                selectedIndices = intArrayOf(1, 2, 3),
+            )
 
-        verifyApplyEditThrowsException(TEXT_FORM, 0, setChoiceOnTF)
+        verifyApplyEditThrowsException(TEXT_FORM, setChoiceOnTF)
+    }
+
+    @Test
+    fun pdfContentInvalidatedListener_calledOnCorrectExecutorThread() = runTest {
+        withEditableDocument(CLICK_FORM) { document ->
+            var listenerThread: Thread? = null
+            val listenerLatch = CountDownLatch(1)
+
+            val callingThread: Thread = Thread.currentThread()
+            val customThreadName = "CustomThread"
+
+            val customExecutor =
+                Executors.newSingleThreadExecutor { command -> Thread(command, customThreadName) }
+
+            document.addOnPdfContentInvalidatedListener(
+                customExecutor,
+                object : PdfDocument.OnPdfContentInvalidatedListener {
+                    override fun onPdfContentInvalidated(pageNumber: Int, dirtyAreas: List<Rect>) {
+                        listenerThread = Thread.currentThread()
+                        listenerLatch.countDown()
+                    }
+                },
+            )
+            val clickPoint = PdfPoint(pageNum = 0, x = 145f, y = 80f)
+            val editRec = FormEditInfo.createClick(1, clickPoint = clickPoint)
+
+            document.applyEdit(editRec)
+
+            assertTrue(listenerLatch.await(5, TimeUnit.SECONDS))
+            assertNotEquals(callingThread, listenerThread)
+            assertEquals(listenerThread?.name, customThreadName)
+            customExecutor.shutdown()
+        }
     }
 
     companion object {
@@ -790,10 +885,7 @@ class PdfFormFillingTest {
         ) {
             withDocument(fileName) { document ->
                 val actualFormWidgetInfos =
-                    document.getPageInfo(
-                        pageNum,
-                        PdfDocument.PageInfoFlags.of(INCLUDE_FORM_WIDGET_INFO),
-                    )
+                    document.getPageInfo(pageNum, PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET)
                 assertThat(actualFormWidgetInfos.formWidgetInfos)
                     .hasSize(expectedWidgetInfoList.size)
                 for (i in 0..expectedWidgetInfoList.size - 1) {
@@ -808,7 +900,7 @@ class PdfFormFillingTest {
         private suspend fun verifyFormWidgetInfos(
             fileName: String,
             pageNum: Int,
-            types: IntArray = intArrayOf(),
+            types: Long,
             expectedWidgetInfoList: List<FormWidgetInfo>,
         ) {
             withDocument(fileName) { document ->
@@ -823,24 +915,35 @@ class PdfFormFillingTest {
         private suspend fun verifyApplyEdit(
             fileName: String,
             pageNum: Int,
-            editRecord: FormEditRecord,
+            editRecord: FormEditInfo,
             before: FormWidgetInfo,
             after: FormWidgetInfo,
-            expectedDirtyArea: List<Rect>? = null,
+            expectedDirtyArea: List<Rect>,
         ) {
-            withDocument(fileName) { document ->
+            withEditableDocument(fileName) { document ->
+                document.addOnPdfContentInvalidatedListener(
+                    { command -> command.run() },
+                    object : PdfDocument.OnPdfContentInvalidatedListener {
+                        override fun onPdfContentInvalidated(
+                            pageNumber: Int,
+                            dirtyAreas: List<Rect>,
+                        ) {
+                            assertThat(fullyContains(expectedDirtyArea, dirtyAreas)).isTrue()
+                        }
+                    },
+                )
                 val formWidgetInfos =
-                    document.getFormWidgetInfos(pageNum, intArrayOf(before.widgetType))
+                    document.getFormWidgetInfos(pageNum, (1 shl before.widgetType).toLong())
                 for (i in 0..formWidgetInfos.size - 1) {
                     if (formWidgetInfos[i].widgetIndex == before.widgetIndex) {
                         assertEquals(formWidgetInfos[i], before)
                     }
                 }
 
-                document.applyEdit(pageNum, editRecord)
+                document.applyEdit(editRecord)
 
                 val actualFormWidgetInfos =
-                    document.getFormWidgetInfos(pageNum, intArrayOf(before.widgetType))
+                    document.getFormWidgetInfos(pageNum, (1 shl before.widgetType).toLong())
                 for (i in 0..actualFormWidgetInfos.size - 1) {
                     if (actualFormWidgetInfos[i].widgetIndex == after.widgetIndex) {
                         assertEquals(actualFormWidgetInfos[i], after)
@@ -849,14 +952,22 @@ class PdfFormFillingTest {
             }
         }
 
+        /**
+         * Returns true if every rect in [innerRects] is contained by at least one rect in
+         * [outerRects].
+         */
+        private fun fullyContains(innerRects: List<Rect>, outerRects: List<Rect>): Boolean {
+            return innerRects.all { inner -> outerRects.any { outer -> outer.contains(inner) } }
+        }
+
         private suspend fun verifyApplyEditThrowsException(
             fileName: String,
-            pageNum: Int,
-            editRecord: FormEditRecord,
+            editRecord: FormEditInfo,
         ) {
             withDocument(fileName) { document ->
+                document as EditablePdfDocument
                 assertThrows(IllegalArgumentException::class.java) {
-                    runBlocking { document.applyEdit(pageNum, editRecord) }
+                    runBlocking { document.applyEdit(editRecord) }
                 }
             }
         }
@@ -871,15 +982,14 @@ class PdfFormFillingTest {
             fontSize: Float,
             listItems: List<ListItem>,
         ): FormWidgetInfo {
-            return FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_COMBOBOX,
+            return FormWidgetInfo.createComboBox(
                 widgetIndex = widgetIndex,
                 widgetRect = widgetRect,
                 textValue = textValue,
                 accessibilityLabel = accessibilityLabel,
-                readOnly = readOnly,
-                editableText = editableText,
-                fontSize = fontSize.takeIf { it > 0 },
+                isReadOnly = readOnly,
+                isEditableText = editableText,
+                fontSize = fontSize.takeIf { it > 0 } ?: 0f,
                 listItems = listItems,
             )
         }
@@ -891,13 +1001,12 @@ class PdfFormFillingTest {
             textValue: String,
             accessibilityLabel: String,
         ): FormWidgetInfo {
-            return FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            return FormWidgetInfo.createRadioButton(
                 widgetIndex = widgetIndex,
                 widgetRect = widgetRect,
                 textValue = textValue,
                 accessibilityLabel = accessibilityLabel,
-                readOnly = readOnly,
+                isReadOnly = readOnly,
             )
         }
 
@@ -910,14 +1019,13 @@ class PdfFormFillingTest {
             multiSelect: Boolean,
             listItems: List<ListItem>,
         ): FormWidgetInfo {
-            return FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+            return FormWidgetInfo.createListBox(
                 widgetIndex = widgetIndex,
                 widgetRect = widgetRect,
                 textValue = textValue,
                 accessibilityLabel = accessibilityLabel,
-                readOnly = readOnly,
-                multiSelect = multiSelect,
+                isReadOnly = readOnly,
+                isMultiSelect = multiSelect,
                 listItems = listItems,
             )
         }
@@ -933,17 +1041,16 @@ class PdfFormFillingTest {
             maxLength: Int,
             fontSize: Float,
         ): FormWidgetInfo {
-            return FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            return FormWidgetInfo.createTextField(
                 widgetIndex = widgetIndex,
                 widgetRect = widgetRect,
                 textValue = textValue,
                 accessibilityLabel = accessibilityLabel,
-                readOnly = readOnly,
-                editableText = editableText,
-                multiLineText = multiLineText,
-                maxLength = maxLength.takeIf { it >= 0 }, // Only include if > 0
-                fontSize = fontSize.takeIf { it > 0 }, // Only include if > 0
+                isReadOnly = readOnly,
+                isEditableText = editableText,
+                isMultiLineText = multiLineText,
+                maxLength = maxLength.takeIf { it >= 0 } ?: 0, // Only include if > 0
+                fontSize = fontSize.takeIf { it > 0 } ?: 0f, // Only include if > 0
             )
         }
     }

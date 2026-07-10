@@ -244,6 +244,7 @@ internal class LayoutModifierNodeCoordinator(
         // our position in order ot know how to offset the value we provided).
         if (isShallowPlacing) return
         onPlaced()
+        val wrapped = wrappedNonNull
         approachMeasureScope?.let {
             with(it.approachNode) {
                 val approachComplete =
@@ -253,13 +254,16 @@ internal class LayoutModifierNodeCoordinator(
                         ) &&
                             !it.approachMeasureRequired &&
                             size == lookaheadDelegate?.size &&
-                            wrappedNonNull.size == wrappedNonNull.lookaheadDelegate?.size
+                            wrapped.size == wrapped.lookaheadDelegate?.size
                     }
-                wrappedNonNull.forcePlaceWithLookaheadOffset = approachComplete
+                wrapped.forcePlaceWithLookaheadOffset = approachComplete
             }
         }
+        val wasPlacingForAlignment = wrapped.isPlacingForAlignment
+        wrapped.isPlacingForAlignment = isPlacingForAlignment
         measureResult.placeChildren()
-        wrappedNonNull.forcePlaceWithLookaheadOffset = false
+        wrapped.isPlacingForAlignment = wasPlacingForAlignment
+        wrapped.forcePlaceWithLookaheadOffset = false
     }
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {
@@ -302,11 +306,13 @@ private fun LookaheadCapablePlaceable.calculateAlignmentAndPlaceChildAsNeeded(
         return AlignmentLine.Unspecified
     }
     // Place our wrapped to obtain their position inside ourselves.
+    val wasShallowPlacing = isShallowPlacing
+    val wasPlacingForAlignment = isPlacingForAlignment
     child.isShallowPlacing = true
     isPlacingForAlignment = true
     replace()
-    child.isShallowPlacing = false
-    isPlacingForAlignment = false
+    child.isShallowPlacing = wasShallowPlacing
+    isPlacingForAlignment = wasPlacingForAlignment
     return if (alignmentLine is HorizontalAlignmentLine) {
         positionInWrapped + child.position.y
     } else {

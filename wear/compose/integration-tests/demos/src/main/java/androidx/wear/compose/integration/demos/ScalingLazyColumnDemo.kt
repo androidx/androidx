@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -69,16 +72,25 @@ fun ScalingLazyColumnDetail() {
             )
         }
         items(20, key = { ix -> ix }) { ix ->
-            val item = state.layoutInfo.visibleItemsInfo.find { i -> i.index == ix + 1 }
-            var description = ""
-            if (item != null) {
-                val itemStart = item.offset - item.size / 2f + halfScreenHeightPx
-                val itemEnd = itemStart + item.size
-                description +=
-                    "I:${item.index}/${item.offset}: Start:${itemStart.roundToInt()} " +
-                        "End:${itemEnd.roundToInt()} USize:${item.unadjustedSize}px " +
-                        "Scale:${String.format("%.2f", item.scale)} CI:${state.centerItemIndex}/" +
-                        "${state.centerItemScrollOffset}"
+            val description by remember {
+                derivedStateOf {
+                    val item = state.layoutInfo.visibleItemsInfo.find { i -> i.index == ix + 1 }
+                    if (item != null) {
+                        val itemStart = item.offset - item.size / 2f + halfScreenHeightPx
+                        val itemEnd = itemStart + item.size
+                        "I:${item.index}/${item.offset}: Start:${itemStart.roundToInt()} " +
+                            "End:${itemEnd.roundToInt()} USize:${item.unadjustedSize}px " +
+                            "Scale:${
+                                    String.format(
+                                        "%.2f",
+                                        item.scale,
+                                    )
+                                } CI:${state.centerItemIndex}/" +
+                            "${state.centerItemScrollOffset}"
+                    } else {
+                        ""
+                    }
+                }
             }
             Chip(
                 onClick = {},
@@ -108,7 +120,7 @@ fun ScalingLazyColumnMixedTypes() {
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item {
@@ -117,7 +129,7 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
+                        resourceId = R.drawable.icon_maps_icon,
                         size = CardDefaults.AppImageSize,
                     )
                 },
@@ -137,7 +149,7 @@ fun ScalingLazyColumnMixedTypes() {
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item { ListHeader { Text("Activity") } }
@@ -147,7 +159,7 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
+                        resourceId = R.drawable.icon_maps_icon,
                         size = CardDefaults.AppImageSize,
                     )
                 },
@@ -172,7 +184,7 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
+                        resourceId = R.drawable.icon_maps_icon,
                         size = CardDefaults.AppImageSize,
                     )
                 },

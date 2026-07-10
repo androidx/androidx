@@ -23,11 +23,12 @@ import static org.junit.Assert.assertEquals;
 import android.graphics.Path;
 import android.util.Log;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.serialization.yaml.YAMLSerializer;
 import androidx.test.filters.SdkSuppress;
 
@@ -41,7 +42,7 @@ import java.io.ByteArrayInputStream;
 @RunWith(JUnit4.class)
 public class DrawCommandsTest {
 
-    private final Platform mPlatform = new AndroidxPlatformServices();
+    private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
 
     // ########################### TEST UTILS ######################################
 
@@ -49,7 +50,7 @@ public class DrawCommandsTest {
         void run(RemoteComposeContextAndroid foo);
     }
 
-    private RemoteComposeDocument createDocument(RemoteContext context, final Callback cb) {
+    private RemoteDocument createDocument(RemoteContext context, final Callback cb) {
 
         RemoteComposeContextAndroid doc =
                 new RemoteComposeContextAndroid(
@@ -68,8 +69,8 @@ public class DrawCommandsTest {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);
         return recreatedDocument;
     }
@@ -78,7 +79,7 @@ public class DrawCommandsTest {
         int tw = 600;
         int th = 600;
         DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -88,7 +89,7 @@ public class DrawCommandsTest {
         int tw = 600;
         int th = 600;
         DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return doc.toString();
@@ -98,7 +99,7 @@ public class DrawCommandsTest {
         int tw = 600;
         int th = 600;
         DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
         YAMLSerializer serializer = new YAMLSerializer();
         //        JSONSerializer serializer = new JSONSerializer();

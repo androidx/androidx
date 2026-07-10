@@ -16,15 +16,9 @@
 
 package androidx.xr.arcore.testapp.facetracking
 
-import android.app.Activity
-import android.content.ComponentName
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,20 +46,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.arcore.Face
 import androidx.xr.arcore.FaceBlendShapeType
-import androidx.xr.arcore.FaceConfidenceRegionType
+import androidx.xr.arcore.FaceConfidenceRegion
+import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.RequiredCalibrationType
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.TrackingState
 import kotlinx.coroutines.launch
 
 class FaceTrackingActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
-    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
 
     var currentExpression = Expression.NEUTRAL
 
@@ -85,25 +79,11 @@ class FaceTrackingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        resultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode != Activity.RESULT_OK) {
-                    Toast.makeText(
-                            this,
-                            "Returned from calibration with result ${result.resultCode}",
-                            Toast.LENGTH_SHORT,
-                        )
-                        .show()
-                } else {
-                    sessionHelper.tryCreateSession()
-                }
-            }
-
         // Create session and renderers.
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(faceTracking = Config.FaceTrackingMode.USER),
+                Config.Builder().setFaceTracking(FaceTrackingMode.BLEND_SHAPES).build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     lifecycleScope.launch {
@@ -113,7 +93,10 @@ class FaceTrackingActivity : ComponentActivity() {
                     }
                 },
                 onSessionCalibrationRequired = { calibrationType ->
-                    if (calibrationType == RequiredCalibrationType.FACE_TRACKING) {
+                    if (
+                        calibrationType ==
+                            RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
+                    ) {
                         lifecycleScope.launch {
                             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                                 setContent { CalibrationPanel() }
@@ -125,6 +108,7 @@ class FaceTrackingActivity : ComponentActivity() {
                         )
                     }
                 },
+                context = applicationContext,
             )
         sessionHelper.tryCreateSession()
     }
@@ -159,11 +143,12 @@ class FaceTrackingActivity : ComponentActivity() {
                         .padding(innerPadding)
                         .padding(horizontal = 20.dp)
             ) {
-                Row { Text("Face Tracker has not been calibrated", fontSize = 30.sp) }
                 Row {
-                    Button(onClick = { launchCalibrationActivity() }) {
-                        Text(text = "Launch calibration", fontSize = 20.sp)
-                    }
+                    Text(
+                        "Face Tracking has not been calibrated!\n" +
+                            "Calibration must be completed before tracking can begin.",
+                        fontSize = 30.sp,
+                    )
                 }
             }
         }
@@ -171,7 +156,12 @@ class FaceTrackingActivity : ComponentActivity() {
 
     @Composable
     private fun MainPanel(session: Session) {
-        val face = Face.getUserFace(session)
+        val face =
+            if (session.config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+                runCatching { Face.getUserFace(session) }.getOrNull()
+            } else {
+                null
+            }
 
         var title = intent.getStringExtra("TITLE")
         if (title == null) title = "Face Tracking"
@@ -212,21 +202,19 @@ class FaceTrackingActivity : ComponentActivity() {
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                         modifier = Modifier.padding(20.dp),
                     ) {
-                        Text("Face Tracking State: ${faceState.trackingState}")
+                        Text("Face Tracking State: ${faceState.trackingState.asString()}")
                     }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                         modifier = Modifier.padding(20.dp),
                     ) {
                         Text("Region Confidences: ")
+                        Text("LOWER: ${faceState.getConfidence(FaceConfidenceRegion.LOWER)}")
                         Text(
-                            "LOWER: ${faceState.getConfidence(FaceConfidenceRegionType.FACE_CONFIDENCE_REGION_TYPE_LOWER)}"
+                            "LEFT_UPPER: ${faceState.getConfidence(FaceConfidenceRegion.LEFT_UPPER)}"
                         )
                         Text(
-                            "LEFT_UPPER: ${faceState.getConfidence(FaceConfidenceRegionType.FACE_CONFIDENCE_REGION_TYPE_LEFT_UPPER)}"
-                        )
-                        Text(
-                            "RIGHT_UPPER: ${faceState.getConfidence(FaceConfidenceRegionType.FACE_CONFIDENCE_REGION_TYPE_RIGHT_UPPER)}"
+                            "RIGHT_UPPER: ${faceState.getConfidence(FaceConfidenceRegion.RIGHT_UPPER)}"
                         )
                     }
                     if (faceState.trackingState == TrackingState.TRACKING) {
@@ -248,24 +236,6 @@ class FaceTrackingActivity : ComponentActivity() {
         }
     }
 
-    private fun launchCalibrationActivity() {
-        val packageName =
-            "com.google.xr.facetracking.calibration" // Replace with the other app's package name
-        val className =
-            "com.google.xr.facetracking.calibration.FaceTrackingCalibrationActivity" // Replace with
-        // the other
-        // app's
-        // activity
-        // class name
-
-        val intent = Intent().apply { component = ComponentName(packageName, className) }
-        try {
-            resultLauncher.launch(intent)
-        } catch (e: android.content.ActivityNotFoundException) {
-            Toast.makeText(this, "Activity not found", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun parseBlendShapesToExpression(faceState: Face.State): Expression {
         if (faceState.blendShapes.entries.size != 68) {
             return currentExpression
@@ -273,93 +243,68 @@ class FaceTrackingActivity : ComponentActivity() {
 
         // smile
         if (
-            faceState.blendShapes[
-                    FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_LEFT]!! >= .3f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_RIGHT]!! >=
-                    .3f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_LEFT]!! >= .3f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_RIGHT]!! >= .3f
+            faceState.blendShapes[FaceBlendShapeType.LIP_CORNER_PULLER_LEFT]!! >= .3f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_CORNER_PULLER_RIGHT]!! >= .3f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_PRESSOR_LEFT]!! >= .3f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_PRESSOR_RIGHT]!! >= .3f
         ) {
             return Expression.SMILE
         }
 
         // blink
         if (
-            faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_LEFT]!! ==
-                1f &&
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_RIGHT]!! == 1f
+            faceState.blendShapes[FaceBlendShapeType.EYES_CLOSED_LEFT]!! == 1f &&
+                faceState.blendShapes[FaceBlendShapeType.EYES_CLOSED_RIGHT]!! == 1f
         ) {
             return Expression.BLINK
         }
 
         // frown
         if (
-            faceState.blendShapes[
-                    FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_LEFT]!! >= .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_RIGHT]!! >=
-                    .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_LEFT]!! >= .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_RIGHT]!! >= .5f ||
-                faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_JAW_THRUST]!! >=
-                    .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_CHIN_RAISER_BOTTOM]!! >= .7f
+            faceState.blendShapes[FaceBlendShapeType.LIP_CORNER_DEPRESSOR_LEFT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_CORNER_DEPRESSOR_RIGHT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_STRETCHER_LEFT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.LIP_STRETCHER_RIGHT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.JAW_THRUST]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.CHIN_RAISER_BOTTOM]!! >= .7f
         ) {
             return Expression.FROWN
         }
 
         // wink
         if (
-            faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_LEFT]!! >=
-                .6f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_RIGHT]!! >= .6f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_LEFT]!! >= .6f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_RIGHT]!! >= .6f
+            faceState.blendShapes[FaceBlendShapeType.EYES_CLOSED_LEFT]!! >= .6f ||
+                faceState.blendShapes[FaceBlendShapeType.EYES_CLOSED_RIGHT]!! >= .6f ||
+                faceState.blendShapes[FaceBlendShapeType.LID_TIGHTENER_LEFT]!! >= .6f ||
+                faceState.blendShapes[FaceBlendShapeType.LID_TIGHTENER_RIGHT]!! >= .6f
         ) {
             return Expression.WINK
         }
 
         // eyebrow(s) raised
         if (
-            faceState.blendShapes[
-                    FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_LEFT]!! >= .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_RIGHT]!! >=
-                    .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_LEFT]!! >= .5f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_RIGHT]!! >= .5f
+            faceState.blendShapes[FaceBlendShapeType.OUTER_BROW_RAISER_LEFT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.OUTER_BROW_RAISER_RIGHT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.INNER_BROW_RAISER_LEFT]!! >= .5f ||
+                faceState.blendShapes[FaceBlendShapeType.INNER_BROW_RAISER_RIGHT]!! >= .5f
         ) {
             return Expression.EYEBROW_RAISED
         }
 
         // mouth open
-        if (faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_JAW_DROP]!! >= .6f) {
+        if (faceState.blendShapes[FaceBlendShapeType.JAW_DROP]!! >= .6f) {
             return Expression.MOUTH_OPEN
         }
 
         // tongue out
-        if (faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_TONGUE_OUT]!! >= .8f) {
+        if (faceState.blendShapes[FaceBlendShapeType.TONGUE_OUT]!! >= .8f) {
             return Expression.TONGUE_OUT
         }
 
         // angry
         if (
-            faceState.blendShapes[FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_LEFT]!! >=
-                .2f ||
-                faceState.blendShapes[
-                        FaceBlendShapeType.FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_RIGHT]!! >= .2f
+            faceState.blendShapes[FaceBlendShapeType.BROW_LOWERER_LEFT]!! >= .2f ||
+                faceState.blendShapes[FaceBlendShapeType.BROW_LOWERER_RIGHT]!! >= .2f
         ) {
             return Expression.ANGRY
         }

@@ -19,7 +19,6 @@ package com.example.android.appcompat;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -58,11 +57,9 @@ public class AppCompatLintDemo extends AppCompatActivity {
         Drawable dr = getResources().getDrawable(R.drawable.app_sample_code);
         noop.setCompoundDrawables(dr, null, null, null);
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // These should be flagged to use TextViewCompat
-            noop.setCompoundDrawableTintList(csl);
-            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
-        }
+        // These should be flagged to use TextViewCompat
+        noop.setCompoundDrawableTintList(csl);
+        noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
 
         // The following usage of the core Switch widget should be flagged by our Lint rule
         Switch mySwitch = new Switch(this);

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // TODO(b/444197999): add a jvmname
+
 package androidx.test.uiautomator
 
+import android.app.ActivityManager
 import android.app.Instrumentation
 import android.app.UiAutomation
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.internal.AppManager
+import androidx.test.shell.Shell
 import androidx.test.uiautomator.watcher.ScopedUiWatcher
 import androidx.test.uiautomator.watcher.WatcherRegistration
 
@@ -73,13 +78,24 @@ public open class UiAutomatorTestScope protected constructor() {
     public val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     public val uiAutomation: UiAutomation = instrumentation.uiAutomation
     public val device: UiDevice = UiDevice.getInstance(instrumentation)
-
-    private val appManager = AppManager(context = instrumentation.targetContext)
     private val watcherRegistrations = mutableSetOf<WatcherRegistration>()
+
+    /**
+     * Default implementation of synchronous activity launch.
+     *
+     * This isn't exposed to callers, just to subclasses for overriding to enable e.g.
+     * Macrobenchmark to verify synchronous launches more aggressively.
+     */
+    protected open fun startIntentAndWait(intent: Intent) {
+        Shell.application.amStartActivityIntent(intent)
+    }
 
     /** Unregisters all the watchers previously registered with [watchFor]. */
     public fun unregisterWatchers() {
-        watcherRegistrations.forEach { it.unregister() }
+        // watcherRegistrations set will be modified in this loop, so we need to iterate on a copy.
+        for (registration in watcherRegistrations.toSet()) {
+            registration.unregister()
+        }
     }
 
     /**
@@ -209,22 +225,18 @@ public open class UiAutomatorTestScope protected constructor() {
      * Waits for an application to become visible. Note that internally it checks if an
      * accessibility node with the given [appPackageName] exists in the accessibility tree.
      *
-     * @param appPackageName the package name of the app to wait for. By default is the target app
-     *   package name.
+     * @param appPackageName the package name of the app to wait for.
      * @param timeoutMs a timeout for the app to become visible.
      * @return whether the app became visible in the given timeout.
      */
     @JvmOverloads
-    public fun waitForAppToBeVisible(
-        appPackageName: String = instrumentation.targetContext.packageName,
-        timeoutMs: Long = 10000L,
-    ): Boolean =
+    public fun waitForAppToBeVisible(appPackageName: String, timeoutMs: Long = 10000L): Boolean =
         device.waitForAppToBeVisible(appPackageName = appPackageName, timeoutMs = timeoutMs)
 
     /**
      * Types the given [text] string simulating key press through [Instrumentation.sendKeySync].
      * This is similar to tapping the keys on a virtual keyboard and will trigger the same listeners
-     * in the target app, as opposed to [AccessibilityNodeInfo.setText] that programmaticaly sets
+     * in the target app, as opposed to [AccessibilityNodeInfo.setText] that programmatically sets
      * the given text in the target node.
      *
      * @param text the text to type.
@@ -286,47 +298,106 @@ public open class UiAutomatorTestScope protected constructor() {
             requireStableScreenshot = requireStableScreenshot,
         )
 
-    /**
-     * Returns the active window root node. Note that calling this method after [startApp],
-     * [startActivity] or [startIntent] without waiting for the app to be visible, will return the
-     * active window root at the time of starting the app, i.e. the root of the launcher if starting
-     * from there.
-     */
+    /** Returns the active window root node. */
     public fun activeWindowRoot(): AccessibilityNodeInfo = device.waitForRootInActiveWindow()
 
-    /** Starts the instrumentation test target app using the target app package name. */
-    public fun startApp(): Unit = startApp(instrumentation.targetContext.packageName)
-
     /**
-     * Starts the app with the given [packageName].
+     * Starts the app with the given [packageName]. This method is blocking and awaits for a view
+     * with the given package name to be visible.
      *
      * @param packageName the package name of the app to start
+     * @param intentFlags a list of flags to add to the intent before launching it, see
+     *   [Intent.addFlags].
+     * @return whether an accessibility node with the given package name was found before the given
+     *   timeout.
      */
-    public fun startApp(packageName: String): Unit = appManager.startApp(packageName = packageName)
+    @JvmOverloads
+    public fun startApp(packageName: String, intentFlags: List<Int> = listOf()) {
+        val packageManager = instrumentation.targetContext.packageManager
+        var intent = packageManager.getLaunchIntentForPackage(packageName)
+        if (intent == null) {
+            intent = packageManager.getLeanbackLaunchIntentForPackage(packageName)
+        }
+        if (intent == null) {
+            intent = Intent(Intent.ACTION_MAIN).apply { setPackage(packageName) }
+            val resolveInfo = packageManager.resolveActivity(intent, 0)
+            if (resolveInfo != null && resolveInfo.activityInfo != null) {
+                intent.setComponent(
+                    ComponentName(
+                        resolveInfo.activityInfo.packageName,
+                        resolveInfo.activityInfo.name,
+                    )
+                )
+            }
+        }
+        intentFlags.forEach { intent.addFlags(it) }
+        return startActivityIntent(intent = intent)
+    }
 
     /**
-     * Starts an activity with the given [packageName] and [activityName].
+     * Starts an activity with the given [packageName] and [activityName]. This method is blocking
+     * and awaits for a new window to be displayed.
      *
      * @param packageName the app package name of the activity to start.
      * @param activityName the name of the activity to start.
+     * @param intentFlags a list of flags to add to the intent before launching it.
+     * @return whether an accessibility a new window was detected before the given timeout.
      */
-    public fun startActivity(packageName: String, activityName: String): Unit =
-        appManager.startActivity(packageName = packageName, activityName = activityName)
+    @JvmOverloads
+    public fun startActivity(
+        packageName: String,
+        activityName: String,
+        intentFlags: List<Int> = listOf(),
+    ) {
+        val intent =
+            Intent().apply {
+                setComponent(ComponentName(packageName, activityName))
+                intentFlags.forEach { addFlags(it) }
+            }
+        return startActivityIntent(intent = intent)
+    }
 
     /**
-     * Starts an activity with the given class.
+     * Starts an activity with the given class. This method is blocking and awaits for a new window
+     * to be displayed.
      *
      * @param clazz the class of the activity to start.
+     * @param intentFlags a list of flags to add to the intent before launching it.
+     * @return whether an accessibility a new window was detected before the given timeout.
      */
-    public fun startActivity(clazz: Class<*>): Unit = appManager.startActivity(clazz = clazz)
+    @JvmOverloads
+    public fun startActivity(clazz: Class<*>, intentFlags: List<Int> = listOf()) {
+        val intent =
+            Intent().apply {
+                setClass(instrumentation.targetContext.applicationContext, clazz)
+                intentFlags.forEach { addFlags(it) }
+            }
+        return startActivityIntent(intent = intent)
+    }
 
     /**
-     * Starts the given [intent].
+     * Starts the given [intent] for an activity. This method is blocking and awaits for a new
+     * window to be displayed.
      *
      * @param intent an intent to start
+     * @return whether an accessibility a new window was detected before the given timeout.
      */
-    public fun startIntent(intent: Intent): Unit = appManager.startIntent(intent = intent)
+    public fun startActivityIntent(intent: Intent) {
+        intent.resolveActivity(instrumentation.targetContext.packageManager)
+            ?: throw IllegalArgumentException(
+                "The intent launched `${intent.toUri(Intent.URI_INTENT_SCHEME)}` " +
+                    "does not resolve to an activity. Please check the when calling " +
+                    "UiAutomatorTestScope#startActivityIntent, the intent is for an existing " +
+                    "Activity."
+            )
+        startIntentAndWait(intent)
+    }
 
     /** Clears the instrumentation test target app data. */
-    public fun clearAppData(): Unit = appManager.clearAppData()
+    public fun clearAppData() {
+        val activityManager =
+            instrumentation.targetContext.getSystemService(Context.ACTIVITY_SERVICE)
+                as ActivityManager
+        activityManager.clearApplicationUserData()
+    }
 }

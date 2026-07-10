@@ -57,7 +57,38 @@ interface HealthConnectFeatures {
         /** Feature constant for Activity Intensity APIs. */
         const val FEATURE_ACTIVITY_INTENSITY = 7
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class)
+        /**
+         * Feature constant for extended device types.
+         *
+         * When this feature is available, the following device types are supported:
+         * - `Device.TYPE_CONSUMER_MEDICAL_DEVICE`
+         * - `Device.TYPE_GLASSES`
+         * - `Device.TYPE_HEARABLE`
+         * - `Device.TYPE_FITNESS_MACHINE`
+         * - `Device.TYPE_FITNESS_EQUIPMENT`
+         * - `Device.TYPE_PORTABLE_COMPUTER`
+         * - `Device.TYPE_METER`
+         *
+         * If this feature is not available, these device types will be treated as
+         * `Device.TYPE_UNKNOWN`.
+         */
+        const val FEATURE_EXTENDED_DEVICE_TYPES = 8
+
+        /**
+         * Feature constant for exercise session improvements.
+         *
+         * When this feature is available, the following fields are supported:
+         * - `ExerciseSessionRecord.rateOfPerceivedExertion`
+         * - `ExerciseSegment.weight`
+         * - `ExerciseSegment.setIndex`
+         * - `ExerciseSegment.rateOfPerceivedExertion`
+         */
+        const val FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9
+
+        /** Feature constant for Matchmaking APIs. */
+        @ExperimentalMatchmakingApi const val FEATURE_MATCHMAKING = 10
+
+        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             value =
@@ -69,6 +100,9 @@ interface HealthConnectFeatures {
                     FEATURE_PERSONAL_HEALTH_RECORD,
                     FEATURE_MINDFULNESS_SESSION,
                     FEATURE_ACTIVITY_INTENSITY,
+                    FEATURE_EXTENDED_DEVICE_TYPES,
+                    FEATURE_EXERCISE_SESSION_IMPROVEMENTS,
+                    FEATURE_MATCHMAKING,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -96,8 +130,14 @@ interface HealthConnectFeatures {
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 15)
         private val SDK_EXT_16_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 16)
+        private val SDK_EXT_19_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 19)
+        private val SDK_EXT_21_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 21)
+        private val SDK_EXT_22_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 22)
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class)
+        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
         internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
             mapOf(
                 FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
@@ -125,7 +165,16 @@ interface HealthConnectFeatures {
                 FEATURE_PERSONAL_HEALTH_RECORD to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_16_PLATFORM_VERSION),
                 FEATURE_ACTIVITY_INTENSITY to
-                    HealthConnectVersionInfo(platformVersion = SDK_EXT_16_PLATFORM_VERSION),
+                    HealthConnectVersionInfo(
+                        apkVersionCode = 220725,
+                        platformVersion = SDK_EXT_16_PLATFORM_VERSION,
+                    ),
+                FEATURE_EXTENDED_DEVICE_TYPES to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_19_PLATFORM_VERSION),
+                FEATURE_EXERCISE_SESSION_IMPROVEMENTS to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_21_PLATFORM_VERSION),
+                FEATURE_MATCHMAKING to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_22_PLATFORM_VERSION),
             )
     }
 }

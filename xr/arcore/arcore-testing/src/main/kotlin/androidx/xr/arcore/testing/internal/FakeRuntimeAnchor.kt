@@ -1,0 +1,78 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore.testing.internal
+
+import android.os.Binder
+import android.os.IBinder
+import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
+import androidx.xr.arcore.runtime.AnchorNotTrackingException
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.ExportableAnchor
+import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
+import java.util.UUID
+
+internal open class FakeRuntimeAnchor(
+    override var pose: Pose,
+    var anchorHolder: AnchorHolder? = null,
+    isTrackingAvailable: Boolean = true,
+    override val nativePointer: Long = 1234567890L,
+    override val anchorToken: IBinder = Binder(),
+) : RuntimeAnchor, ExportableAnchor {
+    init {
+        if (!isTrackingAvailable) {
+            throw AnchorNotTrackingException()
+        }
+        ++anchorsCreatedCount
+        if (anchorsCreatedCount > anchorResourceLimit) {
+            throw AnchorResourcesExhaustedException()
+        }
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
+    }
+
+    override var trackingState: TrackingState = TrackingState.TRACKING
+
+    override var persistenceState: RuntimeAnchor.PersistenceState =
+        RuntimeAnchor.PersistenceState.NOT_PERSISTED
+
+    override var uuid: UUID? = null
+
+    val isAttached: Boolean
+        get() = anchorHolder != null
+
+    override fun persist() {
+        uuid = UUID.randomUUID()
+        persistenceState = RuntimeAnchor.PersistenceState.PERSISTED
+        anchorHolder?.onAnchorPersisted(this)
+    }
+
+    override fun detach() {
+        if (anchorHolder != null) {
+            anchorHolder!!.detachAnchor(this)
+            anchorHolder = null
+            --anchorsCreatedCount
+        }
+    }
+
+    companion object {
+        /** Limit for the number of anchors that can be created. */
+        @JvmStatic var anchorResourceLimit: Int = 6
+
+        /** The current number of anchors created. */
+        @JvmStatic var anchorsCreatedCount: Int = 0
+    }
+}

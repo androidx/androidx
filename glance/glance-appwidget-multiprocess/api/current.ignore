@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.glance.appwidget.multiprocess.MultiProcessGlanceAppWidget#MultiProcessGlanceAppWidget(int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.glance.appwidget.multiprocess.MultiProcessGlanceAppWidget(int,int,kotlin.jvm.internal.DefaultConstructorMarker)

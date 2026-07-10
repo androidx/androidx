@@ -18,7 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.platform.ActualStringDelegate
 
 /** Interface for providing platform dependent string related operations. */
@@ -30,7 +29,7 @@ internal interface PlatformStringDelegate {
      * @param locale a locale object
      * @return a transformed string
      */
-    fun toUpperCase(string: String, locale: PlatformLocale): String
+    fun toUpperCase(string: String, locale: Locale): String
 
     /**
      * Implementation must return lowercase transformed String.
@@ -39,7 +38,7 @@ internal interface PlatformStringDelegate {
      * @param locale a locale object
      * @return a transformed string
      */
-    fun toLowerCase(string: String, locale: PlatformLocale): String
+    fun toLowerCase(string: String, locale: Locale): String
 
     /**
      * Implementation must return capitalized String.
@@ -48,7 +47,7 @@ internal interface PlatformStringDelegate {
      * @param locale a locale object
      * @return a transformed string
      */
-    fun capitalize(string: String, locale: PlatformLocale): String
+    fun capitalize(string: String, locale: Locale): String
 
     /**
      * Implementation must return decapitalized String.
@@ -57,7 +56,7 @@ internal interface PlatformStringDelegate {
      * @param locale a locale object
      * @return a transformed string
      */
-    fun decapitalize(string: String, locale: PlatformLocale): String
+    fun decapitalize(string: String, locale: Locale): String
 }
 
 /**
@@ -66,8 +65,7 @@ internal interface PlatformStringDelegate {
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.toUpperCase(locale: Locale): String =
-    stringDelegate.toUpperCase(this, locale.platformLocale)
+fun String.toUpperCase(locale: Locale): String = stringDelegate.toUpperCase(this, locale)
 
 /**
  * Returns lowercase transformed String.
@@ -75,8 +73,7 @@ fun String.toUpperCase(locale: Locale): String =
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.toLowerCase(locale: Locale): String =
-    stringDelegate.toLowerCase(this, locale.platformLocale)
+fun String.toLowerCase(locale: Locale): String = stringDelegate.toLowerCase(this, locale)
 
 /**
  * Returns capitalized String.
@@ -84,8 +81,7 @@ fun String.toLowerCase(locale: Locale): String =
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.capitalize(locale: Locale): String =
-    stringDelegate.capitalize(this, locale.platformLocale)
+fun String.capitalize(locale: Locale): String = stringDelegate.capitalize(this, locale)
 
 /**
  * Returns decapitalized String.
@@ -93,8 +89,7 @@ fun String.capitalize(locale: Locale): String =
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.decapitalize(locale: Locale): String =
-    stringDelegate.decapitalize(this, locale.platformLocale)
+fun String.decapitalize(locale: Locale): String = stringDelegate.decapitalize(this, locale)
 
 /**
  * Returns uppercase transformed String.

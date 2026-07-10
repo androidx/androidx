@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,45 +22,55 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
-import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.os.RemoteException
 import android.util.Size
 import androidx.annotation.RequiresExtension
-import androidx.pdf.annotation.EditablePdfDocument
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdit
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.parcelSizeInBytes
 import androidx.pdf.content.PdfPageTextContent
-import androidx.pdf.models.FormEditRecord
+import androidx.pdf.content.SelectionBoundary
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
-import androidx.pdf.utils.AnnotationUtilsTest.Companion.isRequiredSdkExtensionAvailable
+import androidx.pdf.models.PdfModelMapper.toParcelable
+import androidx.pdf.service.connect.FakePdfServiceConnection
+import androidx.pdf.service.connect.PdfServiceConnection
 import androidx.pdf.utils.TestUtils
-import androidx.pdf.utils.assertStampAnnotationEquals
-import androidx.pdf.utils.createPdfAnnotationDataList
-import androidx.pdf.utils.createPfd
-import androidx.pdf.utils.createStampAnnotationWithPath
-import androidx.pdf.utils.getSampleStampAnnotation
-import androidx.pdf.utils.writeAnnotationsToFile
+import androidx.pdf.utils.areCorePdfApisAvailableInSdk
+import androidx.pdf.utils.createContentStampAnnotationWithPath
+import androidx.pdf.utils.getSampleContentStampAnnotation
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.isFormFillingAvailable
+import androidx.pdf.utils.isGetTopObjectAvailable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.fail
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertThrows
+import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-@SmallTest
+@LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName = "VanillaIceCream")
 @RunWith(AndroidJUnit4::class)
 class SandboxedPdfDocumentTest {
@@ -191,6 +201,40 @@ class SandboxedPdfDocumentTest {
     }
 
     @Test
+    fun searchDocument_whenCancelled_throwsCancellationExceptionAndStops() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val query = "lorem"
+            val pageRange = 0..2
+
+            // Mechanism to signal that the coroutine has actually started
+            val searchStarted = MutableStateFlow(false)
+
+            val job = launch {
+                try {
+                    searchStarted.value = true
+
+                    document.searchDocument(query, pageRange)
+
+                    // Fail the test if we reach this line!
+                    fail("Expected CancellationException was not thrown")
+                } catch (e: Exception) {
+                    // Verify it is specifically a CancellationException
+                    assertThat(e).isInstanceOf(kotlinx.coroutines.CancellationException::class.java)
+                }
+            }
+
+            // Wait for the coroutine to actually start running
+            searchStarted.first { it }
+
+            // Yield to allow the searchDocument to progress slightly (hit a suspension point)
+            yield()
+
+            // Now cancel
+            job.cancelAndJoin()
+        }
+    }
+
+    @Test
     fun searchDocument_fullDocumentSearch_withSinglePageResults() = runTest {
         withDocument(PDF_DOCUMENT) { document ->
             val query = "pages are all the same size"
@@ -221,6 +265,44 @@ class SandboxedPdfDocumentTest {
             assertThat(selection.selectedContents.size == 1).isTrue()
             val selectedText = selection.selectedContents[0] as? PdfPageTextContent
             assertThat(selectedText).isNotNull()
+            assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    @Test
+    fun getSelectionBounds_withSelectionBoundary_returnsPageSelection() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val start = SelectionBoundary(point = Point(100, 100))
+            val stop = SelectionBoundary(point = Point(120, 100))
+
+            val selection = document.getSelectionBounds(pageNumber, start, stop)
+
+            val expectedSelectedText = "F i"
+            assertThat(selection != null).isTrue()
+            assertThat(selection!!.page == pageNumber).isTrue()
+            assertThat(selection.selectedContents.size == 1).isTrue()
+            val selectedText = selection.selectedContents[0] as? PdfPageTextContent
+            assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    @Test
+    fun getSelectionBounds_withIndexBoundary_returnsPageSelection() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val start = SelectionBoundary(index = 3)
+            val stop = SelectionBoundary(index = 13)
+
+            val selection = document.getSelectionBounds(pageNumber, start, stop)
+
+            val expectedSelectedText = "Sample PDF"
+            assertThat(selection != null).isTrue()
+            assertThat(selection!!.page == pageNumber).isTrue()
+            assertThat(selection.selectedContents.size == 1).isTrue()
+            val selectedText = selection.selectedContents[0] as? PdfPageTextContent
             assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
         }
     }
@@ -287,6 +369,92 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    @Test
+    fun getPageTopObject_validImageObject_fetchLargeImage() = runTest {
+        if (!isGetTopObjectAvailable()) return@runTest
+
+        withDocument(PDF_DOCUMENT_WITH_TEXT_AND_IMAGE) { document ->
+            val pageNumber = 0
+            val point = PointF(500f, 500f)
+
+            val topObject = document.getTopPageObjectAtPosition(pageNumber, point)
+
+            assertNotNull(topObject)
+            assertThat(topObject is ImagePdfObject).isTrue()
+
+            (topObject as ImagePdfObject).let { topObject ->
+                assertNotNull(topObject.bitmap)
+                assertThat(topObject.bitmap.byteCount).isEqualTo(14960000)
+                assertThat(topObject.bounds.top).isNotEqualTo(topObject.bounds.bottom)
+                assertThat(topObject.bounds.left).isNotEqualTo(topObject.bounds.right)
+            }
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    @Test
+    fun getPageTopObject_validImageObject_fetchMediumImage() = runTest {
+        if (!isGetTopObjectAvailable()) return@runTest
+
+        withDocument(PDF_DOCUMENT_WITH_IMAGE) { document ->
+            val pageNumber = 0
+            val point = PointF(150f, 300f)
+
+            val topObject = document.getTopPageObjectAtPosition(pageNumber, point)
+            assertNotNull(topObject)
+            assertThat(topObject is ImagePdfObject).isTrue()
+
+            (topObject as ImagePdfObject).let { topObject ->
+                assertNotNull(topObject.bitmap)
+                assertThat(topObject.bitmap.byteCount).isEqualTo(1839280)
+                assertThat(topObject.bounds.top).isNotEqualTo(topObject.bounds.bottom)
+                assertThat(topObject.bounds.left).isNotEqualTo(topObject.bounds.right)
+            }
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    @Test
+    fun getPageTopObject_validImageObject_fetchSmallImage() = runTest {
+        if (!isGetTopObjectAvailable()) return@runTest
+
+        withDocument(PDF_DOCUMENT_WITH_LINKS) { document ->
+            val pageNumber = 0
+            val point = PointF(60f, 50f)
+
+            val topObject = document.getTopPageObjectAtPosition(pageNumber, point)
+            assertNotNull(topObject)
+            assertThat(topObject is ImagePdfObject).isTrue()
+
+            (topObject as ImagePdfObject).let { topObject ->
+                assertNotNull(topObject.bitmap)
+                assertThat(topObject.bitmap.byteCount).isEqualTo(23800)
+                assertThat(topObject.bounds.top).isNotEqualTo(topObject.bounds.bottom)
+                assertThat(topObject.bounds.left).isNotEqualTo(topObject.bounds.right)
+            }
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    @Test
+    fun getPageTopObject_validImageObject_notPresent() = runTest {
+        if (!isGetTopObjectAvailable()) return@runTest
+
+        withDocument(PDF_DOCUMENT_WITH_LINKS) { document ->
+            val pageNumber = 0
+            val point1 = PointF(500f, 500f)
+
+            val topObject1 = document.getTopPageObjectAtPosition(pageNumber, point1)
+            assertNull(topObject1)
+
+            val point2 = PointF(300f, 300f)
+
+            val topObject2 = document.getTopPageObjectAtPosition(pageNumber, point2)
+            assertNull(topObject2)
+        }
+    }
+
     @Test
     fun getPageContent_pageWithOnlyText_returnsPageContentWithText() = runTest {
         withDocument(PDF_DOCUMENT) { document ->
@@ -314,43 +482,46 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun getBitmap_fullPage_returnsValidBitmap() = runTest {
-        val document = openDocument(PDF_DOCUMENT)
-        val pageNumber = 0
-        val scaledPageSizePx = Size(500, 600)
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val scaledPageSizePx = Size(500, 600)
 
-        val bitmapSource = document.getPageBitmapSource(pageNumber)
-        val bitmap = bitmapSource.getBitmap(scaledPageSizePx, tileRegion = null)
+            val bitmapSource = document.getPageBitmapSource(pageNumber)
+            val bitmap = bitmapSource.getBitmap(scaledPageSizePx, tileRegion = null)
 
-        assertThat(bitmap.width == scaledPageSizePx.width).isTrue()
-        assertThat(bitmap.height == scaledPageSizePx.height).isTrue()
-        assertFalse(bitmap.checkIsAllWhite())
-        // TODO(b/377922353): Update this test for a more accurate bitmap comparison
+            assertThat(bitmap.width == scaledPageSizePx.width).isTrue()
+            assertThat(bitmap.height == scaledPageSizePx.height).isTrue()
+            assertFalse(bitmap.checkIsAllWhite())
+            // TODO(b/377922353): Update this test for a more accurate bitmap comparison
+        }
     }
 
     @Test
     fun getBitmap_tileRegion_returnsValidBitmap() = runTest {
-        val document = openDocument(PDF_DOCUMENT)
-        val pageNumber = 0
-        val scaledPageSizePx = Size(500, 600)
-        val tileRegion = Rect(100, 100, 300, 400) // Example tile region
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val scaledPageSizePx = Size(500, 600)
+            val tileRegion = Rect(100, 100, 300, 400) // Example tile region
 
-        val bitmapSource = document.getPageBitmapSource(pageNumber)
-        bitmapSource.getBitmap(scaledPageSizePx, tileRegion = null)
-        val bitmap = bitmapSource.getBitmap(scaledPageSizePx, tileRegion)
+            val bitmapSource = document.getPageBitmapSource(pageNumber)
+            bitmapSource.getBitmap(scaledPageSizePx, tileRegion = null)
+            val bitmap = bitmapSource.getBitmap(scaledPageSizePx, tileRegion)
 
-        assertThat(bitmap.width == tileRegion.width()).isTrue()
-        assertThat(bitmap.height == tileRegion.height()).isTrue()
-        assertFalse(bitmap.checkIsAllWhite())
-        // TODO(b/377922353): Update this test for a more accurate bitmap comparison
+            assertThat(bitmap.width == tileRegion.width()).isTrue()
+            assertThat(bitmap.height == tileRegion.height()).isTrue()
+            assertFalse(bitmap.checkIsAllWhite())
+            // TODO(b/377922353): Update this test for a more accurate bitmap comparison
+        }
     }
 
     @Test
     fun write_modifiedFormFields_returnsModifiedDocument() = runTest {
+        if (!isFormFillingAvailable()) return@runTest
         val document = openDocument("click_form.pdf")
         val pageNum = 0
         val editableFormWidget =
             document.getFormWidgetInfos(pageNum).find {
-                !it.readOnly && it.widgetType == FormWidgetInfo.WIDGET_TYPE_CHECKBOX
+                !it.isReadOnly && it.widgetType == FormWidgetInfo.WIDGET_TYPE_CHECKBOX
             }
         requireNotNull(editableFormWidget)
 
@@ -358,18 +529,18 @@ class SandboxedPdfDocumentTest {
         assertThat(editableFormWidget.textValue).isEqualTo("false")
 
         val editRecord =
-            FormEditRecord(
-                pageNumber = pageNum,
+            FormEditInfo.createClick(
                 widgetIndex = editableFormWidget.widgetIndex,
                 clickPoint =
-                    Point(
-                        editableFormWidget.widgetRect.centerX(),
-                        editableFormWidget.widgetRect.centerY(),
+                    PdfPoint(
+                        pageNum,
+                        editableFormWidget.widgetRect.centerX().toFloat(),
+                        editableFormWidget.widgetRect.centerY().toFloat(),
                     ),
             )
 
         // Apply edit to select the check-box
-        document.applyEdit(pageNum, editRecord)
+        document.applyEdit(editRecord)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val editedPdfFile = File(context.cacheDir, "edited_test_pdf.pdf")
@@ -380,7 +551,10 @@ class SandboxedPdfDocumentTest {
             }
             pfd = ParcelFileDescriptor.open(editedPdfFile, ParcelFileDescriptor.MODE_READ_WRITE)
 
-            document.write(pfd!!)
+            val pdfWriteHandle = document.createWriteHandle()
+            pdfWriteHandle.writeTo(pfd)
+            pdfWriteHandle.close()
+
             document.close()
 
             val editedDocumentUri = Uri.fromFile(editedPdfFile)
@@ -401,337 +575,295 @@ class SandboxedPdfDocumentTest {
     }
 
     @Test
-    fun getEditsForPage_addAndGetAnnotationFromService() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val pageNum = 1
-        val expectedAnnotation1 = getSampleStampAnnotation(pageNum)
-        val expectedAnnotation2 =
-            getSampleStampAnnotation(pageNum = pageNum, bounds = RectF(100f, 100f, 200f, 200f))
-        val document = openDocument(PDF_DOCUMENT)
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        // Create a ParcelFileDescriptor for the testing annotations document in read-write
-        // mode.
-        val pfd = createPfd(context, PDF_ANNOTATION_DOCUMENT, "rwt")
-
-        val pdfAnnotationsData =
-            listOf(
-                PdfAnnotationData(EditId(pageNum = 0, value = "1"), expectedAnnotation1),
-                PdfAnnotationData(EditId(pageNum = 0, value = "2"), expectedAnnotation2),
-            )
-        writeAnnotationsToFile(pfd, pdfAnnotationsData)
-        document.applyEdits(pfd)
-
-        val actualAnnotations = document.getEditsForPage<PdfAnnotationData>(pageNum)
-        assertThat(actualAnnotations.size).isEqualTo(2)
-        assert(actualAnnotations[0].annotation is StampAnnotation)
-        assertStampAnnotationEquals(
-            expectedAnnotation1,
-            actualAnnotations[0].annotation as StampAnnotation,
-        )
-        assertStampAnnotationEquals(
-            expectedAnnotation2,
-            actualAnnotations[1].annotation as StampAnnotation,
-        )
-    }
-
-    @Test
-    fun getEditsForPage_addAndGetEmptyAnnotationFromService() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val pageNum = 1
-        val document = openDocument(PDF_DOCUMENT)
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        // Create a ParcelFileDescriptor for the testing annotations document in read-write
-        // mode.
-        val pfd = createPfd(context, PDF_ANNOTATION_DOCUMENT, "rwt")
-
-        val pdfAnnotationsData = listOf<PdfAnnotationData>()
-        writeAnnotationsToFile(pfd, pdfAnnotationsData)
-        document.applyEdits(pfd)
-
-        val actualAnnotations = document.getEditsForPage<PdfAnnotationData>(pageNum)
-        assertThat(actualAnnotations.size).isEqualTo(0)
-    }
-
-    @Test
-    fun applyEdits_writingAnnotationToStorage() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val pageNum = 1
-        val sampleAnnotation = getSampleStampAnnotation(pageNum)
-        val document = openDocument(PDF_DOCUMENT)
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        // Create a ParcelFileDescriptor for the testing annotations document in read-write
-        // mode.
-        val pfd = createPfd(context, PDF_ANNOTATION_DOCUMENT, "rwt")
-
-        writeAnnotationsToFile(
-            pfd,
-            listOf(PdfAnnotationData(EditId(pageNum = 0, value = "0"), sampleAnnotation)),
-        )
-
-        val annotationResult = document.applyEdits(pfd)
-
-        val actualAnnotations = annotationResult.success
-
-        assertNotNull(actualAnnotations)
-        assertThat(actualAnnotations.size).isEqualTo(1)
-        assert(actualAnnotations[0].annotation is StampAnnotation)
-        assertStampAnnotationEquals(
-            sampleAnnotation,
-            actualAnnotations[0].annotation as StampAnnotation,
-        )
-    }
-
-    @Test
     fun applyEdits_emptyAnnotations_returnsEmptyResult() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val actualDocument = openDocument(PDF_DOCUMENT)
-        val actualAnnotations = listOf<PdfAnnotationData>()
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            val emptyDraft = MutableEditsDraft().toEditsDraft()
 
-        val annotationResult = actualDocument.applyEdits(annotations = actualAnnotations)
+            val result = editablePdfDocument.applyEdits(emptyDraft)
 
-        assertThat(annotationResult.success).isEmpty()
-        assertThat(annotationResult.failures).isEmpty()
+            assertThat(result).isEmpty()
+        }
     }
 
     @Test
     fun applyEdits_addAnnotations_singleBatch_returnsSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val pageNum = 1
-        val numAnnots = 10
-        val actualAnnotations =
-            IntArray(numAnnots)
-                .map {
-                    PdfAnnotationData(
-                        editId = EditId(pageNum = pageNum, value = it.toString()),
-                        annotation = getSampleStampAnnotation(pageNum),
-                    )
-                }
-                .toList()
-        val actualDocument = openDocument(PDF_DOCUMENT)
-        val totalPayloadSize = actualAnnotations.sumOf { it.parcelSizeInBytes() }
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            val pageNum = 1
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
 
-        val result = actualDocument.applyEdits(annotations = actualAnnotations)
+            repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum)) }
 
-        assertThat(totalPayloadSize < BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES).isTrue()
-        assertThat(result.success.size).isEqualTo(numAnnots)
-        assertThat(result.failures).isEmpty()
+            val totalPayloadSize = draft.operations.sumOf { it.toParcelable().parcelSizeInBytes() }
+            val result = editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(totalPayloadSize < BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)
+                .isTrue()
+            assertThat(result.size).isEqualTo(numAnnots)
+        }
     }
 
     // This is a long running test the payload is approx 1MB and it takes time to propagate all the
     // the annotations over IPC.
     @Test
     fun applyEdits_addAnnotations_multipleBatches_returnsSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val pathLength = 1000
-        val numAnnots = 12
-        val actualAnnotations = createPdfAnnotationDataList(numAnnots, pathLength)
-        val actualDocument = openDocument(PDF_DOCUMENT)
-        val totalPayloadSize = actualAnnotations.sumOf { it.parcelSizeInBytes() }
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            val numAnnots = 20
+            val draft = createDraftWithLargeAnnotations(numAnnots)
 
-        val result = actualDocument.applyEdits(annotations = actualAnnotations)
+            val totalPayloadSize = draft.operations.sumOf { it.toParcelable().parcelSizeInBytes() }
 
-        assertThat(totalPayloadSize > BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES).isTrue()
-        assertThat(result.success.size).isEqualTo(numAnnots)
-        assertThat(result.failures).isEmpty()
+            val result = editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(totalPayloadSize > BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)
+                .isTrue()
+            assertThat(result.size).isEqualTo(numAnnots)
+        }
     }
 
     @Test
-    fun applyEdits_addAnnotations_singleInvalidAnnotation_returnsSuccessAndFailure() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun applyEdits_addAnnotations_singleInvalidAnnotation_throwsException() = runTest {
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val pathLength = 10
-        val numAnnots = 1
-        val actualAnnotations =
-            createPdfAnnotationDataList(numAnnots, pathLength, invalidRatio = 1f)
-        val actualDocument = openDocument(PDF_DOCUMENT)
-        val totalPayloadSize = actualAnnotations.sumOf { it.parcelSizeInBytes() }
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            val pageNum = 1
+            val draft = MutableEditsDraft()
 
-        val result = actualDocument.applyEdits(annotations = actualAnnotations)
+            draft.insert(getSampleContentStampAnnotation(pageNum))
+            // Insert invalid annotation
+            draft.insert(getSampleContentStampAnnotation(pageNum = -1))
 
-        assertThat(totalPayloadSize < BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES).isTrue()
-        assertThat(result.success).isEmpty()
-        assertThat(result.failures.size).isEqualTo(numAnnots)
+            val totalPayloadSize = draft.operations.sumOf { it.toParcelable().parcelSizeInBytes() }
+            assertThat(totalPayloadSize < BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)
+                .isTrue()
+
+            val thrownException =
+                assertFailsWith<PdfEditApplyException> {
+                    editablePdfDocument.applyEdits(draft.toEditsDraft())
+                }
+
+            // The failure should occur at the index of the invalid annotation.
+            assertThat(thrownException.failureIndex).isEqualTo(1)
+            assertThat(thrownException.appliedEditIds.size).isEqualTo(1)
+            assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
+        }
     }
 
     // This is a long running test the payload is approx 1MB and it takes time to propagate all the
     // the annotations over IPC.
     @Test
-    fun applyEdits_addAnnotations_multipleBatchesWithInvalid_returnsSuccessAndFailure() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun applyEdits_addAnnotations_multipleBatches_singleInvalidAnnotation_throwsException() =
+        runTest {
+            if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val pathLength = 1000
-        val numAnnots = 10
-        val firstBatch = createPdfAnnotationDataList(numAnnots, pathLength)
+            withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+                val numAnnots = 19
+                val draft = createDraftWithLargeAnnotations(numAnnots)
+                // Insert invalid annotation
+                draft.insert(getSampleContentStampAnnotation(pageNum = -1))
 
-        val invalidNumAnnots = 2
-        val secondBatch =
-            createPdfAnnotationDataList(invalidNumAnnots, pathLength, invalidRatio = 1f)
-        val actualAnnotations = firstBatch + secondBatch
+                val totalPayloadSize =
+                    draft.operations.sumOf { it.toParcelable().parcelSizeInBytes() }
+                assertThat(totalPayloadSize > BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)
+                    .isTrue()
 
-        val actualDocument = openDocument(PDF_DOCUMENT)
-        val totalPayloadSize = actualAnnotations.sumOf { it.parcelSizeInBytes() }
+                val thrownException =
+                    assertFailsWith<PdfEditApplyException> {
+                        editablePdfDocument.applyEdits(draft.toEditsDraft())
+                    }
 
-        val result = actualDocument.applyEdits(annotations = actualAnnotations)
-
-        assertThat(totalPayloadSize > BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES).isTrue()
-        assertThat(result.success.size).isEqualTo(numAnnots)
-        assertThat(result.failures.size).isEqualTo(invalidNumAnnots)
-    }
-
-    @Test
-    fun addEdit_addAnnotations_returnSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val expectedAnnotation = createStampAnnotationWithPath(0, 10)
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
-
-        document.addEdit(expectedAnnotation)
-        val actualAnnotationsData = document.getAnnotationsFromDraftState(0)
-
-        assertThat(actualAnnotationsData.size).isEqualTo(1)
-        assert(actualAnnotationsData[0].annotation is StampAnnotation)
-        assertStampAnnotationEquals(
-            expectedAnnotation,
-            actualAnnotationsData[0].annotation as StampAnnotation,
-        )
-    }
+                // The failure should occur at the index of the invalid annotation.
+                assertThat(thrownException.failureIndex).isEqualTo(numAnnots)
+                assertThat(thrownException.appliedEditIds.size).isEqualTo(numAnnots)
+                assertThat(thrownException.cause?.message).isEqualTo("Invalid page index")
+            }
+        }
 
     @Test
-    fun addEdit_updateAnnotations_throwsNoSuchElementException() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun addOnEditAppliedListener_singleListener_isNotified() = runTest {
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val unsupportedPdfEdit = object : PdfEdit() {}
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
+        val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val listener =
+            object : PdfDocument.OnEditAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
 
-        assertThrows(UnsupportedOperationException::class.java) {
-            document.addEdit(unsupportedPdfEdit)
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
+
+            repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits.size).isEqualTo(numAnnots)
+            assertThat(appliedEdits[0].pageNum).isEqualTo(0)
+            assertThat(appliedEdits[1].pageNum).isEqualTo(1)
+
+            // Clean up
+            editablePdfDocument.removeOnEditAppliedListener(listener)
         }
     }
 
     @Test
-    fun updateEdit_updateAnnotations_returnSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun addOnEditAppliedListener_multipleListeners_sameNotification() = runTest {
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val annotation1 = createStampAnnotationWithPath(0, 10)
-        val annotation2 = createStampAnnotationWithPath(0, 20)
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
+        val appliedEdits1 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val appliedEdits2 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
 
-        val editId = document.addEdit(annotation1)
-        document.updateEdit(editId, annotation2)
-        val actualAnnotationsData = document.getAnnotationsFromDraftState(0)
+        val listener1 =
+            object : PdfDocument.OnEditAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits1.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
+        val listener2 =
+            object : PdfDocument.OnEditAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits2.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
 
-        assertThat(actualAnnotationsData.size).isEqualTo(1)
-        assert(actualAnnotationsData[0].annotation is StampAnnotation)
-        assertStampAnnotationEquals(
-            annotation2,
-            actualAnnotationsData[0].annotation as StampAnnotation,
-        )
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
+
+            repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener1)
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener2)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits1.size).isEqualTo(appliedEdits2.size)
+            assertThat(appliedEdits1[0]).isEqualTo(appliedEdits2[0])
+            assertThat(appliedEdits1[1]).isEqualTo(appliedEdits2[1])
+
+            // Clean up
+            editablePdfDocument.removeOnEditAppliedListener(listener1)
+            editablePdfDocument.removeOnEditAppliedListener(listener2)
+        }
     }
 
     @Test
-    fun updateEdit_updateAnnotations_throwsNoSuchElementException() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun removeOnEditAppliedListener_singleListener_isEmpty() = runTest {
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
-        val annotation = createStampAnnotationWithPath(0, 10)
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
+        val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val listener =
+            object : PdfDocument.OnEditAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
 
-        val editId = EditId(0, "non-existent-edit-id")
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
 
-        assertThrows(NoSuchElementException::class.java) { document.updateEdit(editId, annotation) }
+            repeat(numAnnots) { draft.insert(getSampleContentStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.removeOnEditAppliedListener(listener)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits).isEmpty()
+        }
     }
 
     @Test
-    fun removeEdit_removeAnnotations_throwsNoSuchElementException() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun documentClosesConnection_whenAllHandlesAreClosed() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        var isServiceConnected = false
 
-        val annotation = createStampAnnotationWithPath(0, 10)
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
+        val fakeConnection =
+            FakePdfServiceConnection(
+                context,
+                isConnected = false,
+                onServiceConnected = { isServiceConnected = true },
+                onServiceDisconnected = { isServiceConnected = false },
+            )
+        val document =
+            openDocument(PDF_DOCUMENT, fakeServiceConnection = fakeConnection)
+                as SandboxedPdfDocument
 
-        val editId = EditId(0, "non-existent-edit-id")
+        val handle1 = document.createWriteHandle()
+        val handle2 = document.createWriteHandle()
 
-        assertThrows(NoSuchElementException::class.java) { document.removeEdit(editId) }
+        // Close one handle, connection should remain open.
+        handle1.close()
+        assertThat(isServiceConnected).isTrue()
+
+        // Close the document itself, connection should still remain open as one handle is alive.
+        document.close()
+        assertThat(isServiceConnected).isTrue()
+
+        // Close the final handle, now the connection should be disconnected.
+        handle2.close()
+        assertThat(isServiceConnected).isFalse()
     }
 
     @Test
-    fun removeEdit_removeAnnotations_returnSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+    fun pageBitmapSourceClose_handlesRemoteException() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockRemote = mock<PdfDocumentRemote>()
 
-        val expectedAnnotation = createStampAnnotationWithPath(0, 10)
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
+        // Mock methods needed for opening the document
+        whenever(mockRemote.openPdfDocument(any(), any()))
+            .thenReturn(PdfLoadingStatus.SUCCESS.ordinal)
+        whenever(mockRemote.numPages()).thenReturn(1)
+        whenever(mockRemote.linearizationStatus).thenReturn(0)
+        whenever(mockRemote.getFormType()).thenReturn(0)
 
-        val editId = document.addEdit(expectedAnnotation)
-        document.removeEdit(editId)
-        val actualAnnotationsData = document.getAnnotationsFromDraftState(0)
+        // Mock releasePage to throw a RemoteException
+        whenever(mockRemote.releasePage(any())).thenThrow(RemoteException())
 
-        assertThat(actualAnnotationsData.size).isEqualTo(0)
+        val fakeConnection =
+            FakePdfServiceConnection(context, isConnected = true, documentBinder = mockRemote)
+
+        val document =
+            openDocument(PDF_DOCUMENT, fakeServiceConnection = fakeConnection)
+                as SandboxedPdfDocument
+        val bitmapSource = document.getPageBitmapSource(0)
+
+        // This call initiates an async releasePage which is mocked to throw a RemoteException.
+        // It should be caught and handled internally by the try-catch block in
+        // PageBitmapSource.close().
+        bitmapSource.close()
+
+        // Wait for all coroutines to complete in the fakeConnection's pendingJobs.
+        while (fakeConnection.pendingJobs.isNotEmpty()) {
+            yield()
+        }
+
+        // Verify that releasePage was actually called and the exception was handled
+        verify(mockRemote).releasePage(0)
     }
 
-    @Test
-    fun getAllEditsSnapshot_returnsCorrect() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
-        val annotation1 = createStampAnnotationWithPath(0, 10)
-        val annotation2 = createStampAnnotationWithPath(1, 20)
-        val annotation3 = createStampAnnotationWithPath(1, 30)
-
-        val editId1 = document.addEdit(annotation1)
-        val editId2 = document.addEdit(annotation2)
-        val editId3 = document.addEdit(annotation3)
-
-        val pdfEdits = document.getAllEdits()
-
-        assertThat(pdfEdits.editsByPage.size).isEqualTo(2)
-        assertThat(pdfEdits.editsByPage.containsKey(0)).isTrue()
-        assertThat(pdfEdits.editsByPage.containsKey(1)).isTrue()
-
-        val page0Edits = pdfEdits.editsByPage[0]!!
-        assertThat(page0Edits.size).isEqualTo(1)
-        assertThat(page0Edits[0].id).isEqualTo(editId1)
-        assertStampAnnotationEquals(annotation1, page0Edits[0].edit as StampAnnotation)
-
-        val page1Edits = pdfEdits.editsByPage[1]!!
-        assertThat(page1Edits.size).isEqualTo(2)
-        val page1EditIds = page1Edits.map { it.id }
-        assertThat(page1EditIds).containsExactly(editId2, editId3)
-    }
-
-    @Test
-    fun clearUncommittedEdits_removesDraftAnnotations() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
-
-        val document = openDocument(PDF_DOCUMENT) as SandboxedPdfDocument
-        val annotation = createStampAnnotationWithPath(0, 10)
-        val editId = document.addEdit(annotation)
-
-        val draftAnnotations = document.getAnnotationsFromDraftState(0)
-        assertThat(draftAnnotations.size).isEqualTo(1)
-        assertThat(draftAnnotations[0].editId).isEqualTo(editId)
-
-        document.clearUncommittedEdits()
-
-        val annotationsAfterClear = document.getAnnotationsFromDraftState(0)
-        assertThat(annotationsAfterClear.size).isEqualTo(0)
-    }
+    data class AppliedEdit(public val pageNum: Int, public val editId: String)
 
     companion object {
         private const val PDF_DOCUMENT = "sample.pdf"
-        private const val PDF_ANNOTATION_DOCUMENT = "annotation_sample.json"
         private const val PDF_DOCUMENT_WITH_LINKS = "sample_links.pdf"
         private const val PDF_DOCUMENT_PARTIALLY_CORRUPTED_FILE = "partially_corrupted.pdf"
         private const val PDF_DOCUMENT_WITH_TEXT_AND_IMAGE = "alt_text.pdf"
+
+        private const val PDF_DOCUMENT_WITH_IMAGE = "acro_js.pdf"
 
         internal suspend fun withDocument(filename: String, block: suspend (PdfDocument) -> Unit) {
             val document = openDocument(filename)
@@ -744,9 +876,28 @@ class SandboxedPdfDocumentTest {
             }
         }
 
-        private suspend fun openDocument(filename: String): EditablePdfDocument {
+        internal suspend fun withEditableDocument(
+            filename: String,
+            block: suspend (EditablePdfDocument) -> Unit,
+        ) {
+            val document = openDocument(filename)
+            try {
+                block(document)
+            } catch (exception: Exception) {
+                throw exception
+            } finally {
+                runTest { document.close() }
+            }
+        }
+
+        private suspend fun openDocument(
+            filename: String,
+            fakeServiceConnection: PdfServiceConnection? = null,
+        ): EditablePdfDocument {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val loader = SandboxedPdfLoader(context, Dispatchers.Main)
+
+            fakeServiceConnection?.let { loader.testingConnection = it }
             val uri = TestUtils.openFile(context, filename)
 
             val document = loader.openDocument(uri)
@@ -764,6 +915,12 @@ class SandboxedPdfDocumentTest {
                 }
             }
             return true
+        }
+
+        private fun createDraftWithLargeAnnotations(count: Int): MutableEditsDraft {
+            val draft = MutableEditsDraft()
+            repeat(count) { draft.insert(createContentStampAnnotationWithPath(0, it * 100)) }
+            return draft
         }
     }
 }

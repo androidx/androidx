@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -33,10 +32,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.util"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -44,60 +39,26 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation("androidx.collection:collection:1.4.3")
-                implementation(project(":compose:runtime:runtime"))
-            }
+        commonMain.dependencies {
+            implementation("androidx.collection:collection:1.4.3")
+            implementation(project(":compose:runtime:runtime"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        jvmTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRunner)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
         }
     }
 }

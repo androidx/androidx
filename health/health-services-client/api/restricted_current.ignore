@@ -1,3 +1,263 @@
 // Baseline format: 1.0
+RemovedFromKotlin: androidx.health.services.client.HealthServicesClient#getExerciseClient():
+    Source breaking change: method androidx.health.services.client.HealthServicesClient.getExerciseClient() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.HealthServicesClient#getMeasureClient():
+    Source breaking change: method androidx.health.services.client.HealthServicesClient.getMeasureClient() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.HealthServicesClient#getPassiveMonitoringClient():
+    Source breaking change: method androidx.health.services.client.HealthServicesClient.getPassiveMonitoringClient() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.Availability#getId():
+    Source breaking change: method androidx.health.services.client.data.Availability.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ComparisonType#getId():
+    Source breaking change: method androidx.health.services.client.data.ComparisonType.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ComparisonType#getName():
+    Source breaking change: method androidx.health.services.client.data.ComparisonType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.CumulativeDataPoint#getEnd():
+    Source breaking change: method androidx.health.services.client.data.CumulativeDataPoint.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.CumulativeDataPoint#getStart():
+    Source breaking change: method androidx.health.services.client.data.CumulativeDataPoint.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.CumulativeDataPoint#getTotal():
+    Source breaking change: method androidx.health.services.client.data.CumulativeDataPoint.getTotal() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPoint#getDataType():
+    Source breaking change: method androidx.health.services.client.data.DataPoint.getDataType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPointContainer#getCumulativeDataPoints():
+    Source breaking change: method androidx.health.services.client.data.DataPointContainer.getCumulativeDataPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPointContainer#getDataTypes():
+    Source breaking change: method androidx.health.services.client.data.DataPointContainer.getDataTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPointContainer#getIntervalDataPoints():
+    Source breaking change: method androidx.health.services.client.data.DataPointContainer.getIntervalDataPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPointContainer#getSampleDataPoints():
+    Source breaking change: method androidx.health.services.client.data.DataPointContainer.getSampleDataPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataPointContainer#getStatisticalDataPoints():
+    Source breaking change: method androidx.health.services.client.data.DataPointContainer.getStatisticalDataPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataType#getName():
+    Source breaking change: method androidx.health.services.client.data.DataType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataType#getValueClass():
+    Source breaking change: method androidx.health.services.client.data.DataType.getValueClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataType.TimeType#getId():
+    Source breaking change: method androidx.health.services.client.data.DataType.TimeType.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataType.TimeType#getName():
+    Source breaking change: method androidx.health.services.client.data.DataType.TimeType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataTypeAvailability#getId():
+    Source breaking change: method androidx.health.services.client.data.DataTypeAvailability.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataTypeAvailability#getName():
+    Source breaking change: method androidx.health.services.client.data.DataTypeAvailability.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataTypeCondition#getComparisonType():
+    Source breaking change: method androidx.health.services.client.data.DataTypeCondition.getComparisonType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataTypeCondition#getDataType():
+    Source breaking change: method androidx.health.services.client.data.DataTypeCondition.getDataType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.DataTypeCondition#getThreshold():
+    Source breaking change: method androidx.health.services.client.data.DataTypeCondition.getThreshold() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseCapabilities#getAutoPauseAndResumeEnabledExercises():
+    Source breaking change: method androidx.health.services.client.data.ExerciseCapabilities.getAutoPauseAndResumeEnabledExercises() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseCapabilities#getSupportedBatchingModeOverrides():
+    Source breaking change: method androidx.health.services.client.data.ExerciseCapabilities.getSupportedBatchingModeOverrides() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseCapabilities#getSupportedExerciseTypes():
+    Source breaking change: method androidx.health.services.client.data.ExerciseCapabilities.getSupportedExerciseTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseCapabilities#getTypeToCapabilities():
+    Source breaking change: method androidx.health.services.client.data.ExerciseCapabilities.getTypeToCapabilities() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getBatchingModeOverrides():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getBatchingModeOverrides() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getDataTypes():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getDataTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getExerciseGoals():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getExerciseGoals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getExerciseParams():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getExerciseParams() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getExerciseType():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getExerciseType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getExerciseTypeConfig():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getExerciseTypeConfig() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#getSwimmingPoolLengthMeters():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.getSwimmingPoolLengthMeters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#isAutoPauseAndResumeEnabled():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.isAutoPauseAndResumeEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseConfig#isGpsEnabled():
+    Source breaking change: method androidx.health.services.client.data.ExerciseConfig.isGpsEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseGoal#getDataTypeCondition():
+    Source breaking change: method androidx.health.services.client.data.ExerciseGoal.getDataTypeCondition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseGoal#getExerciseGoalType():
+    Source breaking change: method androidx.health.services.client.data.ExerciseGoal.getExerciseGoalType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseGoal#getPeriod():
+    Source breaking change: method androidx.health.services.client.data.ExerciseGoal.getPeriod() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseGoalType#getId():
+    Source breaking change: method androidx.health.services.client.data.ExerciseGoalType.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseGoalType#getName():
+    Source breaking change: method androidx.health.services.client.data.ExerciseGoalType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseInfo#getExerciseTrackedStatus():
+    Source breaking change: method androidx.health.services.client.data.ExerciseInfo.getExerciseTrackedStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseInfo#getExerciseType():
+    Source breaking change: method androidx.health.services.client.data.ExerciseInfo.getExerciseType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseLapSummary#getActiveDuration():
+    Source breaking change: method androidx.health.services.client.data.ExerciseLapSummary.getActiveDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseLapSummary#getEndTime():
+    Source breaking change: method androidx.health.services.client.data.ExerciseLapSummary.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseLapSummary#getLapCount():
+    Source breaking change: method androidx.health.services.client.data.ExerciseLapSummary.getLapCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseLapSummary#getLapMetrics():
+    Source breaking change: method androidx.health.services.client.data.ExerciseLapSummary.getLapMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseLapSummary#getStartTime():
+    Source breaking change: method androidx.health.services.client.data.ExerciseLapSummary.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#getId():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#getName():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#isEnded():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.isEnded() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#isEnding():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.isEnding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#isPaused():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.isPaused() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseState#isResuming():
+    Source breaking change: method androidx.health.services.client.data.ExerciseState.isResuming() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseStateInfo#getEndReason():
+    Source breaking change: method androidx.health.services.client.data.ExerciseStateInfo.getEndReason() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseStateInfo#getState():
+    Source breaking change: method androidx.health.services.client.data.ExerciseStateInfo.getState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseType#getId():
+    Source breaking change: method androidx.health.services.client.data.ExerciseType.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseType#getName():
+    Source breaking change: method androidx.health.services.client.data.ExerciseType.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseTypeCapabilities#getSupportedDataTypes():
+    Source breaking change: method androidx.health.services.client.data.ExerciseTypeCapabilities.getSupportedDataTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseTypeCapabilities#getSupportedGoals():
+    Source breaking change: method androidx.health.services.client.data.ExerciseTypeCapabilities.getSupportedGoals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseTypeCapabilities#getSupportedMilestones():
+    Source breaking change: method androidx.health.services.client.data.ExerciseTypeCapabilities.getSupportedMilestones() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseTypeCapabilities#getSupportsAutoPauseAndResume():
+    Source breaking change: method androidx.health.services.client.data.ExerciseTypeCapabilities.getSupportsAutoPauseAndResume() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getActiveDurationCheckpoint():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getActiveDurationCheckpoint() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getExerciseConfig():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getExerciseConfig() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getExerciseStateInfo():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getExerciseStateInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getLatestAchievedGoals():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getLatestAchievedGoals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getLatestMetrics():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getLatestMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getLatestMilestoneMarkerSummaries():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getLatestMilestoneMarkerSummaries() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate#getStartTime():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint#getActiveDuration():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint.getActiveDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint#getTime():
+    Source breaking change: method androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.GolfExerciseTypeConfig#getGolfShotTrackingPlaceInfo():
+    Source breaking change: method androidx.health.services.client.data.GolfExerciseTypeConfig.getGolfShotTrackingPlaceInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo#getPlaceInfoId():
+    Source breaking change: method androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.getPlaceInfoId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HealthEvent#getEventTime():
+    Source breaking change: method androidx.health.services.client.data.HealthEvent.getEventTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HealthEvent#getMetrics():
+    Source breaking change: method androidx.health.services.client.data.HealthEvent.getMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HealthEvent#getType():
+    Source breaking change: method androidx.health.services.client.data.HealthEvent.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HealthEvent.Type#getId():
+    Source breaking change: method androidx.health.services.client.data.HealthEvent.Type.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HealthEvent.Type#getName():
+    Source breaking change: method androidx.health.services.client.data.HealthEvent.Type.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HeartRateAccuracy#getSensorStatus():
+    Source breaking change: method androidx.health.services.client.data.HeartRateAccuracy.getSensorStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HeartRateAccuracy.SensorStatus#getId():
+    Source breaking change: method androidx.health.services.client.data.HeartRateAccuracy.SensorStatus.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.HeartRateAccuracy.SensorStatus#getName():
+    Source breaking change: method androidx.health.services.client.data.HeartRateAccuracy.SensorStatus.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getAccuracy():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getAccuracy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getDataType():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getDataType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getEndDurationFromBoot():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getEndDurationFromBoot() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getMetadata():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getStartDurationFromBoot():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getStartDurationFromBoot() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.IntervalDataPoint#getValue():
+    Source breaking change: method androidx.health.services.client.data.IntervalDataPoint.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationAccuracy#getHorizontalPositionErrorMeters():
+    Source breaking change: method androidx.health.services.client.data.LocationAccuracy.getHorizontalPositionErrorMeters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationAccuracy#getVerticalPositionErrorMeters():
+    Source breaking change: method androidx.health.services.client.data.LocationAccuracy.getVerticalPositionErrorMeters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationAvailability#getId():
+    Source breaking change: method androidx.health.services.client.data.LocationAvailability.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationAvailability#getName():
+    Source breaking change: method androidx.health.services.client.data.LocationAvailability.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationData#getAltitude():
+    Source breaking change: method androidx.health.services.client.data.LocationData.getAltitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationData#getBearing():
+    Source breaking change: method androidx.health.services.client.data.LocationData.getBearing() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationData#getLatitude():
+    Source breaking change: method androidx.health.services.client.data.LocationData.getLatitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.LocationData#getLongitude():
+    Source breaking change: method androidx.health.services.client.data.LocationData.getLongitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MeasureCapabilities#getSupportedDataTypesMeasure():
+    Source breaking change: method androidx.health.services.client.data.MeasureCapabilities.getSupportedDataTypesMeasure() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MilestoneMarkerSummary#getAchievedGoal():
+    Source breaking change: method androidx.health.services.client.data.MilestoneMarkerSummary.getAchievedGoal() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MilestoneMarkerSummary#getActiveDuration():
+    Source breaking change: method androidx.health.services.client.data.MilestoneMarkerSummary.getActiveDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MilestoneMarkerSummary#getEndTime():
+    Source breaking change: method androidx.health.services.client.data.MilestoneMarkerSummary.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MilestoneMarkerSummary#getStartTime():
+    Source breaking change: method androidx.health.services.client.data.MilestoneMarkerSummary.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.MilestoneMarkerSummary#getSummaryMetrics():
+    Source breaking change: method androidx.health.services.client.data.MilestoneMarkerSummary.getSummaryMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveGoal#getDataTypeCondition():
+    Source breaking change: method androidx.health.services.client.data.PassiveGoal.getDataTypeCondition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveListenerConfig#getDailyGoals():
+    Source breaking change: method androidx.health.services.client.data.PassiveListenerConfig.getDailyGoals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveListenerConfig#getDataTypes():
+    Source breaking change: method androidx.health.services.client.data.PassiveListenerConfig.getDataTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveListenerConfig#getHealthEventTypes():
+    Source breaking change: method androidx.health.services.client.data.PassiveListenerConfig.getHealthEventTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringCapabilities#getSupportedDataTypesPassiveGoals():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringCapabilities.getSupportedDataTypesPassiveGoals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringCapabilities#getSupportedDataTypesPassiveMonitoring():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringCapabilities.getSupportedDataTypesPassiveMonitoring() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringCapabilities#getSupportedHealthEventTypes():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringCapabilities.getSupportedHealthEventTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringCapabilities#getSupportedUserActivityStates():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringCapabilities.getSupportedUserActivityStates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringUpdate#getDataPoints():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringUpdate.getDataPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.PassiveMonitoringUpdate#getUserActivityInfoUpdates():
+    Source breaking change: method androidx.health.services.client.data.PassiveMonitoringUpdate.getUserActivityInfoUpdates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.SampleDataPoint#getAccuracy():
+    Source breaking change: method androidx.health.services.client.data.SampleDataPoint.getAccuracy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.SampleDataPoint#getDataType():
+    Source breaking change: method androidx.health.services.client.data.SampleDataPoint.getDataType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.SampleDataPoint#getMetadata():
+    Source breaking change: method androidx.health.services.client.data.SampleDataPoint.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.SampleDataPoint#getTimeDurationFromBoot():
+    Source breaking change: method androidx.health.services.client.data.SampleDataPoint.getTimeDurationFromBoot() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.SampleDataPoint#getValue():
+    Source breaking change: method androidx.health.services.client.data.SampleDataPoint.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.StatisticalDataPoint#getAverage():
+    Source breaking change: method androidx.health.services.client.data.StatisticalDataPoint.getAverage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.StatisticalDataPoint#getEnd():
+    Source breaking change: method androidx.health.services.client.data.StatisticalDataPoint.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.StatisticalDataPoint#getMax():
+    Source breaking change: method androidx.health.services.client.data.StatisticalDataPoint.getMax() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.StatisticalDataPoint#getMin():
+    Source breaking change: method androidx.health.services.client.data.StatisticalDataPoint.getMin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.StatisticalDataPoint#getStart():
+    Source breaking change: method androidx.health.services.client.data.StatisticalDataPoint.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.UserActivityInfo#getExerciseInfo():
+    Source breaking change: method androidx.health.services.client.data.UserActivityInfo.getExerciseInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.UserActivityInfo#getStateChangeTime():
+    Source breaking change: method androidx.health.services.client.data.UserActivityInfo.getStateChangeTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.UserActivityInfo#getUserActivityState():
+    Source breaking change: method androidx.health.services.client.data.UserActivityInfo.getUserActivityState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.UserActivityState#getId():
+    Source breaking change: method androidx.health.services.client.data.UserActivityState.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.UserActivityState#getName():
+    Source breaking change: method androidx.health.services.client.data.UserActivityState.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.WarmUpConfig#getDataTypes():
+    Source breaking change: method androidx.health.services.client.data.WarmUpConfig.getDataTypes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.services.client.data.WarmUpConfig#getExerciseType():
+    Source breaking change: method androidx.health.services.client.data.WarmUpConfig.getExerciseType() can no longer be resolved from Kotlin source
+
+
 RemovedMethod: androidx.health.services.client.data.PassiveListenerConfig#getShouldUserActivityInfoBeRequested():
     Binary breaking change: Removed method androidx.health.services.client.data.PassiveListenerConfig.getShouldUserActivityInfoBeRequested()

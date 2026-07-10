@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<complication type="SHORT_TEXT">
+    <text>
+        <formatted format="@string/invalid_fmt_simple">
+            <param/>
+        </formatted>
+    </text>
+</complication>

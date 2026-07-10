@@ -44,7 +44,6 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
-import androidx.wear.compose.material3.PagerScaffoldDefaults.snapWithSpringFlingBehavior
 import androidx.wear.compose.materialcore.screenHeightDp
 import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.absoluteValue
@@ -62,6 +61,11 @@ import kotlin.math.absoluteValue
  * Example of using [AppScaffold] and [HorizontalPagerScaffold]:
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_HorizontalPagerScaffoldSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param pagerState The state of the pager controlling the page content.
  * @param modifier The modifier to be applied to the scaffold.
  * @param pageIndicator A composable function that defines the page indicator to be displayed. By
@@ -71,7 +75,8 @@ import kotlin.math.absoluteValue
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimationSpec] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
- * @param content A composable function where a [HorizontalPager] can be added.
+ * @param content A composable function where a [androidx.compose.foundation.pager.HorizontalPager]
+ *   can be added.
  */
 @Composable
 public fun HorizontalPagerScaffold(
@@ -102,13 +107,24 @@ public fun HorizontalPagerScaffold(
  * default and coordinates showing/hiding [TimeText] and [VerticalPageIndicator] according to
  * whether the Pager is being paged, this is determined by the [PagerState].
  *
- * [VerticalPagerScaffold] supports rotary input by default. Rotary input allows users to scroll
- * through the pager's content - by using a crown or a rotating bezel on their Wear OS device. It
- * can be modified or turned off using the [rotaryScrollableBehavior] parameter.
- *
- * Example of using [AppScaffold] and [VerticalPagerScaffold]:
+ * Example of using [AppScaffold] and [VerticalPagerScaffold] with default snap sensitivity, for
+ * screens with many pages:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of using [AppScaffold] and [VerticalPagerScaffold] with low snap sensitivity, for screens
+ * where gross motor control is limited:
+ *
+ * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldWithLowSensitivitySample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param pagerState The state of the pager controlling the page content.
  * @param modifier The modifier to be applied to the scaffold.
  * @param pageIndicator A composable function that defines the page indicator to be displayed. By
@@ -118,7 +134,8 @@ public fun HorizontalPagerScaffold(
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimationSpec] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
- * @param content A composable function where a [VerticalPager] can be added.
+ * @param content A composable function where a [androidx.compose.foundation.pager.VerticalPager]
+ *   can be added.
  */
 @Composable
 public fun VerticalPagerScaffold(
@@ -140,14 +157,16 @@ public fun VerticalPagerScaffold(
     )
 
 /**
- * Animates a page within a [Pager] with a scaling and scrim effect based on its position.
+ * Animates a page within a [androidx.compose.foundation.pager.Pager] with a scaling and scrim
+ * effect based on its position.
  *
  * This composable applies a scaling animation and a scrim overlay to the page content, creating a
  * visual cue for page transitions. The animation is responsive to the page's position within the
- * [Pager] and adapts to the device's reduce motion settings and layout direction.
+ * [androidx.compose.foundation.pager.Pager] and adapts to the device's reduce motion settings and
+ * layout direction.
  *
  * @param pageIndex The index of the page being animated.
- * @param pagerState The [PagerState] of the [Pager].
+ * @param pagerState The [PagerState] of the [androidx.compose.foundation.pager.Pager].
  * @param contentScrimColor The color of the scrim overlay applied during page transitions. Defaults
  *   to the background color of the [MaterialTheme]. Set this to transparent to have no scrim
  *   applied during page transitions.
@@ -228,19 +247,67 @@ public fun AnimatedPage(
 /** Contains default values used for [HorizontalPagerScaffold] and [VerticalPagerScaffold]. */
 public object PagerScaffoldDefaults {
     /**
+     * High `SnapPositionalThreshold` value, recommended for contexts where even a light or minimal
+     * gesture should trigger movement, such as navigating a long list (e.g. at least 10 items)
+     * where quick scrolling is desired.
+     *
+     * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     */
+    public val HighSnapPositionalThreshold: Float = 0.35f
+
+    /**
+     * Recommended `SnapPositionalThreshold` value for screens used when the user is moving or there
+     * are a low number of screens (i.e., fewer than 10).
+     *
+     * Example of a [androidx.compose.foundation.pager.VerticalPager] with a small number of pages
+     * and low sensitivity:
+     *
+     * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldWithLowSensitivitySample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
+     * Example of a [androidx.compose.foundation.pager.HorizontalPager] with a small number of pages
+     * and low sensitivity:
+     *
+     * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_HorizontalPagerScaffoldWithLowSensitivitySample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     */
+    public val LowSnapPositionalThreshold: Float = 0.1f
+
+    /**
      * Recommended fling behavior for pagers on Wear when using Material3, snaps at most one page at
      * a time. This behavior is tailored for a smooth, spring-like snapping effect, enhancing the
      * user experience with a more fluid transition between pages.
      *
-     * Example of using [HorizontalPager] and [snapWithSpringFlingBehavior]:
+     * Example of using [androidx.compose.foundation.pager.HorizontalPager] and
+     * [snapWithSpringFlingBehavior]:
      *
      * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
      *
-     * Example of using [VerticalPager] and [snapWithSpringFlingBehavior]:
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_HorizontalPagerScaffoldSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
+     * Example of using [androidx.compose.foundation.pager.VerticalPager] and
+     * [snapWithSpringFlingBehavior]:
      *
      * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
-     * @param state The [PagerState] that controls the [Pager] to which this FlingBehavior will be
-     *   applied to.
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
+     * @param state The [PagerState] that controls the [androidx.compose.foundation.pager.Pager] to
+     *   which this FlingBehavior will be applied to.
      */
     @Composable
     public fun snapWithSpringFlingBehavior(state: PagerState): TargetedFlingBehavior {
@@ -248,7 +315,7 @@ public object PagerScaffoldDefaults {
             state = state,
             maxFlingPages = 1,
             snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
-            snapPositionalThreshold = 0.35f,
+            snapPositionalThreshold = HighSnapPositionalThreshold,
         )
     }
 
@@ -282,7 +349,7 @@ private fun PagerScaffoldImpl(
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
-    LaunchedEffect(screenIsActive) {
+    LaunchedEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(key, timeText = null, scrollInfoProvider)
         } else {
@@ -290,7 +357,7 @@ private fun PagerScaffoldImpl(
         }
     }
 
-    Box {
+    Box(modifier) {
         pager()
 
         AnimatedIndicator(
@@ -299,7 +366,7 @@ private fun PagerScaffoldImpl(
                     pagerState.isScrollInProgress
             },
             animationSpec = pageIndicatorAnimationSpec,
-            modifier = modifier.align(pageIndicatorAlignment),
+            modifier = Modifier.align(pageIndicatorAlignment),
             content = pageIndicator,
         )
     }

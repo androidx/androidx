@@ -63,7 +63,7 @@ public abstract class AbstractCameraPresenceSource
     public AbstractCameraPresenceSource(@NonNull List<String> cameraIds) {
         ArrayList<CameraIdentifier> identifiers = new ArrayList<>();
         for (String id: cameraIds) {
-            identifiers.add(CameraIdentifier.create(id));
+            identifiers.add(CameraIdentifier.Factory.create(id));
         }
         mCurrentData = identifiers;
     }

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -32,8 +31,14 @@ plugins {
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.core:core:1.16.0")
-    api("androidx.annotation:annotation-experimental:1.4.1")
+    api("androidx.core:core:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.3.0")
+
+    // Technically, there's no tests in WebKit but we need it as we run as sanity check to
+    // make sure that if anyone added any tests we would still run them while running :webkit:webkit:connectedAndroidTest.
+    androidTestImplementation(libs.testRunner)
+    lintPublish(project(":webkit:webkit-lint"))
+    lintChecks(project(":webkit:webkit-lint"))
 }
 
 ext {
@@ -42,24 +47,29 @@ ext {
 }
 
 android {
-    compileSdk = 35
-    sourceSets {
-        // Allow compiling the WebView support library boundary interfaces from this project.
-        main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getCanonicalPath()
-    }
-    buildTypes.configureEach {
+    defaultConfig {
+        minSdk { version = release(24) }
         consumerProguardFiles(
-                new File(webviewBoundaryInterfacesDir, "proguard.flags"),
-                "proguard-rules.pro"
+                new File(webviewBoundaryInterfacesDir, "proguard.flags"), "proguard-rules.pro"
         )
     }
+    // Don't change this value without contacting the WebKit owners.
+    compileSdk  { version = release(33) }
     namespace = "androidx.webkit"
 }
 
+androidComponents {
+    def boundaryInterfacesPath = new File(webviewBoundaryInterfacesDir, "src").getCanonicalPath()
+    onVariants(selector().all()) { variant ->
+        // Allow compiling the WebView support library boundary interfaces from this project.
+        variant.sources.java.addStaticSourceDirectory(boundaryInterfacesPath)
+    }
+}
+
 androidx {
-    name = "WebKit"
+    name = "Webkit"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
-    description = "The WebKit Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
+    description = "The Jetpack Webkit Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
     additionalDeviceTestApkKeys.add("chrome")
 }

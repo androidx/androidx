@@ -16,13 +16,10 @@
 
 package androidx.credentials.providerevents.exception
 
-import androidx.annotation.RestrictTo
-
 /**
  * During the register export flow, this is thrown if the provider dependency is missing in the
  * manifest
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RegisterExportProviderConfigurationException(errorMessage: String? = null) :
     RegisterExportException(TYPE_REGISTER_EXPORT_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
     internal companion object {

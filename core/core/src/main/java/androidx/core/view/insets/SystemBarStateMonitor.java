@@ -183,7 +183,49 @@ class SystemBarStateMonitor {
                         return (anim.getTypeMask() & WindowInsetsCompat.Type.systemBars()) != 0;
                     }
                 });
-        rootView.addView(mDetector, 0);
+        addViewWhenReady(rootView, mDetector, 0 /* index */);
+    }
+
+    /**
+     * Adds a child {@link View} to a {@link ViewGroup} when it is not dispatching
+     * {@link View#onAttachedToWindow()} or {@link View#onDetachedFromWindow()}, to prevent the
+     * existing child views from receiving duplicated attach-state-change callbacks or missing ones.
+     *
+     * @param group the {@link ViewGroup} to be added to.
+     * @param child the child {@link View} to be added.
+     * @param index the position at which to add the child.
+     */
+    private static void addViewWhenReady(ViewGroup group, View child, int index) {
+        View lastDispatching = null;
+        for (int i = group.getChildCount() - 1; i >= 0; i--) {
+            final View existingChild = group.getChildAt(i);
+            if (existingChild.isAttachedToWindow() != group.isAttachedToWindow()) {
+                lastDispatching = existingChild;
+                break;
+            }
+        }
+        if (lastDispatching == null) {
+            // All the child views have the same attach state as the group.
+            group.addView(child, index);
+        } else {
+            // The group is dispatching attached-to-window or detached-from-window. The child cannot
+            // be added now, or the indexes of the child views of the group will be affected, and
+            // cause unexpected callbacks. Here adds the child when the last child child is attached
+            // or detached.
+            lastDispatching.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(@NonNull View v) {
+                    group.addView(child, index);
+                    v.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(@NonNull View v) {
+                    group.addView(child, index);
+                    v.removeOnAttachStateChangeListener(this);
+                }
+            });
+        }
     }
 
     private Insets getInsets(WindowInsetsCompat w) {

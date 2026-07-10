@@ -39,5 +39,4 @@ kotlin.wasm
 kotlin.wasm.unsafe
 kotlinx.cinterop
 kotlinx.cinterop.internal
-kotlinx.wasm.jsinterop
 org.w3c.dom

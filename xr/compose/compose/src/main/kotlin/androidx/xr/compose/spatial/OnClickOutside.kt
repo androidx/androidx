@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.compose.spatial
 
 import android.annotation.SuppressLint
@@ -33,6 +32,8 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,12 +59,9 @@ private class OutsideClickNodeElement(var enabled: Boolean, var onClickOutside: 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as OutsideClickNodeElement
-
         if (enabled != other.enabled) return false
         if (onClickOutside !== other.onClickOutside) return false
-
         return true
     }
 
@@ -74,12 +72,11 @@ private class OutsideClickNodeElement(var enabled: Boolean, var onClickOutside: 
     }
 }
 
-private class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> Unit) :
+internal class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> Unit) :
     Modifier.Node(),
     PointerInputModifierNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode {
-
     private var inputCaptureView: InputCaptureView? = null
     private var job: Job? = null
 
@@ -102,7 +99,13 @@ private class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> U
         }
     }
 
-    private fun onGlobalInput() {
+    internal fun onGlobalInput() {
+        if (!isAttached) return
+        val view = currentValueOf(LocalView)
+        val lifecycleState = view.findViewTreeLifecycleOwner()?.lifecycle?.currentState
+        if (!view.isShown || lifecycleState != Lifecycle.State.RESUMED) {
+            return
+        }
         if (enabled && (job == null || job?.isCompleted == true)) {
             job =
                 coroutineScope.launch {
@@ -118,6 +121,7 @@ private class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> U
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
+        if (!isAttached) return
         job?.cancel()
         // Prevent onClickOutside from being called for a short time.
         job = coroutineScope.launch { delay(CLICK_OUTSIDE_DEBOUNCE_MILLISECONDS) }
@@ -135,7 +139,8 @@ private class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> U
  * This default View constructor is used by tooling (as per a warning in Android Studio). In
  * practice, use the constructor that takes a targetView and onOutsideInput.
  */
-private class InputCaptureView private constructor(context: Context) : View(context) {
+private class InputCaptureView private constructor(context: Context) :
+    View(context), View.OnAttachStateChangeListener {
     constructor(targetView: View, onInput: () -> Unit) : this(targetView.context) {
         this.targetView = targetView
         this.onInput = onInput
@@ -153,20 +158,44 @@ private class InputCaptureView private constructor(context: Context) : View(cont
 
     private val windowManager: WindowManager =
         context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private var isAddedToWindowManager = false
+
+    override fun onViewAttachedToWindow(v: View) {
+        updateToken(v)
+    }
+
+    override fun onViewDetachedFromWindow(v: View) {
+        hide()
+    }
 
     var targetView: View? = null
         set(value) {
-            if (field != value && value != null) {
-                updateLayoutParams<WindowManager.LayoutParams> {
-                    // Get the Window token from the parent view
-                    token = value.applicationWindowToken
-                }
-                if (isAttachedToWindow) {
-                    windowManager.updateViewLayout(this, layoutParams)
+            if (field != value) {
+                field?.removeOnAttachStateChangeListener(this)
+                if (value != null) {
+                    value.addOnAttachStateChangeListener(this)
+                    updateToken(value)
                 }
             }
             field = value
         }
+
+    private fun updateToken(view: View) {
+        val currentToken = view.applicationWindowToken
+        if (currentToken != null) {
+            updateLayoutParams<WindowManager.LayoutParams> {
+                // Get the Window token from the parent view
+                token = currentToken
+                // This view should have zero size as its only purpose is to capture global
+                // touch events.
+                width = 0
+                height = 0
+            }
+            if (isAttachedToWindow && isAddedToWindowManager) {
+                windowManager.updateViewLayout(this, layoutParams)
+            }
+        }
+    }
 
     private var onInput: () -> Unit = {}
 
@@ -180,10 +209,24 @@ private class InputCaptureView private constructor(context: Context) : View(cont
     }
 
     fun hide() {
-        windowManager.removeView(this)
+        if (isAddedToWindowManager) {
+            windowManager.removeView(this)
+            isAddedToWindowManager = false
+        }
     }
 
     fun show() {
-        windowManager.addView(this, layoutParams)
+        if (!isAddedToWindowManager) {
+            updateLayoutParams<WindowManager.LayoutParams> {
+                if (token == null) {
+                    token = targetView?.applicationWindowToken
+                }
+            }
+            val params = layoutParams as? WindowManager.LayoutParams
+            if (params?.token != null) {
+                windowManager.addView(this, layoutParams)
+                isAddedToWindowManager = true
+            }
+        }
     }
 }

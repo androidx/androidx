@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Dito lalabas ang mensahe.\nHigit pang text sa ikalawang linya."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo ng Template ng Maikling Mensahe"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo ng Template ng Nakaseksyong Item"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo ng Naka-condense na Item"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo ng na-enable na AlphaJump ng Nakaseksyong Item"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Seksyon ng Radio Button"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"I-toggle ang Seksyon"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Seksyon ng Maraming Row"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Seksyon ng Grid Item"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo ng Nakaseksyong Listahan ng Item"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Listahan 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Listahan 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext sa ilalim ng bawat listahan"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demo ng Larawan sa Dulo at Mga Pagkilos"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Demo ng Chip"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo ng Progress Bar"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demo ng Header ng Seksyon"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo ng Seksyon ng Spotlight"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo ng Template ng Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo ng Template ng Listahan ng Lugar"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Mag-browse ng Mga Lugar"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Demo ng Template ng Tab"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Tab ng Mensahe"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Tab ng Pane"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Tab ng Nakaseksyong Item"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Tab ng Listahan"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid na Tab na may Mahabang Pamagat ng Tab"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab ng Paghahanap"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Puwede ring piliin ang row"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Napili ang Pangalawahang Pagkilos"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Napili ang pangunahing pagkilos ng row"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo ng Nakaseksyong Listahan ng Item"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Listahan 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Listahan 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext sa ilalim ng bawat listahan"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo ng Larawan sa Dulo at Mga Pagkilos sa Row"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo ng Walang Lamang Listahan"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Walang laman ang listahan"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Iba Pang Demo ng Mga Template"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa na May Mga Demo ng Content"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa na May Demo ng Template ng Mensahe"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa na May Demo ng Template ng Grid"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

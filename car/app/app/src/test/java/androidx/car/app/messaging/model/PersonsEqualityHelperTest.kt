@@ -25,6 +25,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Tests for [PersonsEqualityHelper]. */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument
 class PersonsEqualityHelperTest {
     @Test

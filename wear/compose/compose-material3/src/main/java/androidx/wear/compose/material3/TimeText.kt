@@ -26,17 +26,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -58,9 +56,10 @@ import androidx.wear.compose.material3.TimeTextDefaults.timeTextStyle
 import androidx.wear.compose.materialcore.currentTimeMillis
 import androidx.wear.compose.materialcore.is24HourFormat
 import java.util.Calendar
-import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * Layout to show the current time and a label, they will be drawn in a curve, following the top
@@ -78,13 +77,23 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextClockOnly
  *
+ * ![TimeTextClockOnly Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextClockOnly_CompositeImage.png)
+ *
  * A [TimeText] with a short app status message shown:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatus
  *
+ * ![TimeTextWithStatus Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextWithStatus_CompositeImage.png)
+ *
  * A [TimeText] with a long status message, that needs ellipsizing:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
+ *
+ * ![TimeTextWithStatusEllipsized Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimeTextWithStatusEllipsized_CompositeImage.png)
+ *
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.
@@ -93,8 +102,8 @@ import kotlinx.coroutines.flow.callbackFlow
  * @param contentPadding The spacing values between the container and the content.
  * @param content The content of the [TimeText] - displays the current time by default. This lambda
  *   receives the current time as a String and should display it using curvedText. Note that if long
- *   curved text is included here, it should specify [CurvedModifier.weight] on it so that the space
- *   available is suitably allocated.
+ *   curved text is included here, it should specify [androidx.wear.compose.foundation.weight] on it
+ *   so that the space available is suitably allocated.
  */
 @Composable
 public fun TimeText(
@@ -151,7 +160,7 @@ public object TimeTextDefaults {
     @Composable
     public fun timeFormat(): String {
         val format = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
-        return DateFormat.getBestDateTimePattern(Locale.getDefault(), format)
+        return DateFormat.getBestDateTimePattern(Locale.current.platformLocale, format)
             .replace("a", "")
             .trim()
     }
@@ -238,35 +247,34 @@ public interface TimeSource {
     @Composable public fun currentTime(): String
 }
 
-internal class DefaultTimeSource(timeFormat: String) : TimeSource {
-    private val _timeFormat = timeFormat
-
+internal class DefaultTimeSource(val timeFormat: String) : TimeSource {
     @Composable
-    override fun currentTime(): String = currentTime({ currentTimeMillis() }, _timeFormat).value
+    override fun currentTime(): String = currentTime({ currentTimeMillis() }, timeFormat).value
 }
 
 @Composable
 @VisibleForTesting
 internal fun currentTime(time: () -> Long, timeFormat: String): State<String> {
-
-    var calendar by remember { mutableStateOf(Calendar.getInstance()) }
-    var currentTime by remember { mutableLongStateOf(time()) }
-
-    val timeText = remember { derivedStateOf { formatTime(calendar, currentTime, timeFormat) } }
+    val timeText = remember {
+        mutableStateOf(formatTime(Calendar.getInstance(), time(), timeFormat))
+    }
 
     val context = LocalContext.current
-    val updatedTimeLambda by rememberUpdatedState(time)
-
-    remember(context, updatedTimeLambda) {
+    remember(context) {
             callbackFlow<Unit> {
-                val receiver =
-                    TimeBroadcastReceiver(
-                        onTimeChanged = { currentTime = updatedTimeLambda() },
-                        onTimeZoneChanged = { calendar = Calendar.getInstance() },
-                    )
-                receiver.register(context)
-                awaitClose { receiver.unregister(context) }
-            }
+                    val receiver =
+                        TimeBroadcastReceiver(
+                            // Either time or timezone changed, or we got the tick sent every
+                            // minute.
+                            onChange = {
+                                timeText.value =
+                                    formatTime(Calendar.getInstance(), time(), timeFormat)
+                            }
+                        )
+                    receiver.register(context)
+                    awaitClose { receiver.unregister(context) }
+                }
+                .flowOn(Dispatchers.Main)
         }
         .collectAsState(Unit)
     return timeText
@@ -293,18 +301,11 @@ private fun PaddingValues.toArcPadding() =
     }
 
 /** A [BroadcastReceiver] to receive time tick, time change, and time zone change events. */
-private class TimeBroadcastReceiver(
-    val onTimeChanged: () -> Unit,
-    val onTimeZoneChanged: () -> Unit,
-) : BroadcastReceiver() {
+private class TimeBroadcastReceiver(val onChange: () -> Unit) : BroadcastReceiver() {
     private var registered = false
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
-            onTimeZoneChanged()
-        } else {
-            onTimeChanged()
-        }
+        onChange()
     }
 
     fun register(context: Context) {

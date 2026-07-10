@@ -335,8 +335,10 @@ public class Processor implements ForegroundProcessor {
     }
 
     private void onExecuted(@NonNull WorkerWrapper wrapper, boolean needsReschedule) {
+        List<ExecutionListener> listeners;
+        WorkGenerationalId id;
         synchronized (mLock) {
-            WorkGenerationalId id = wrapper.getWorkGenerationalId();
+            id = wrapper.getWorkGenerationalId();
             String workSpecId = id.getWorkSpecId();
             WorkerWrapper workerWrapper = getWorkerWrapperUnsafe(workSpecId);
             // can be called for another generation, so we shouldn't remove it
@@ -346,9 +348,10 @@ public class Processor implements ForegroundProcessor {
             Logger.get().debug(TAG,
                     getClass().getSimpleName() + " " + workSpecId
                             + " executed; reschedule = " + needsReschedule);
-            for (ExecutionListener executionListener : mOuterListeners) {
-                executionListener.onExecuted(id, needsReschedule);
-            }
+            listeners = new ArrayList<>(mOuterListeners);
+        }
+        for (ExecutionListener executionListener : listeners) {
+            executionListener.onExecuted(id, needsReschedule);
         }
     }
 
@@ -379,10 +382,12 @@ public class Processor implements ForegroundProcessor {
     private void runOnExecuted(final @NonNull WorkGenerationalId id, boolean needsReschedule) {
         mWorkTaskExecutor.getMainThreadExecutor().execute(
                 () -> {
+                    List<ExecutionListener> listeners;
                     synchronized (mLock) {
-                        for (ExecutionListener executionListener : mOuterListeners) {
-                            executionListener.onExecuted(id, needsReschedule);
-                        }
+                        listeners = new ArrayList<>(mOuterListeners);
+                    }
+                    for (ExecutionListener executionListener : listeners) {
+                        executionListener.onExecuted(id, needsReschedule);
                     }
                 }
         );
@@ -434,7 +439,9 @@ public class Processor implements ForegroundProcessor {
             @Nullable WorkerWrapper wrapper, int stopReason) {
         if (wrapper != null) {
             wrapper.interrupt(stopReason);
-            Logger.get().debug(TAG, "WorkerWrapper interrupted for " + id);
+            Logger.get().debug(TAG, "WorkerWrapper interrupted for " + id + " ("
+                    + wrapper.getWorkSpec().workerClassName + ")"
+                    + ", reason: " + stopReason);
             return true;
         } else {
             Logger.get().debug(TAG, "WorkerWrapper could not be found for " + id);

@@ -18,14 +18,13 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 
 import androidx.annotation.OptIn;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakePlaneProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -34,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,10 +44,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 public final class ForwardingImageProxyTest {
 
-    private final ImageProxy mBaseImageProxy = mock(ImageProxy.class);
-    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
+    private final FakeImageProxy mBaseImageProxy = new FakeImageProxy(new FakeImageInfo());
+    private final ImageProxy.PlaneProxy mYPlane = new FakePlaneProxy(ByteBuffer.allocate(0), 0, 0);
+    private final ImageProxy.PlaneProxy mUPlane = new FakePlaneProxy(ByteBuffer.allocate(0), 0, 0);
+    private final ImageProxy.PlaneProxy mVPlane = new FakePlaneProxy(ByteBuffer.allocate(0), 0, 0);
     private ForwardingImageProxy mImageProxy;
 
     @Before
@@ -59,7 +59,7 @@ public final class ForwardingImageProxyTest {
     public void close_closesWrappedImage() {
         mImageProxy.close();
 
-        verify(mBaseImageProxy).close();
+        assertThat(mBaseImageProxy.isClosed()).isTrue();
     }
 
     @Test
@@ -84,7 +84,7 @@ public final class ForwardingImageProxyTest {
 
     @Test
     public void getCropRect_returnsCropRectForWrappedImage() {
-        when(mBaseImageProxy.getCropRect()).thenReturn(new Rect(0, 0, 20, 20));
+        mBaseImageProxy.setCropRect(new Rect(0, 0, 20, 20));
 
         assertThat(mImageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 20, 20));
     }
@@ -93,34 +93,33 @@ public final class ForwardingImageProxyTest {
     public void setCropRect_setsCropRectForWrappedImage() {
         mImageProxy.setCropRect(new Rect(0, 0, 40, 40));
 
-        verify(mBaseImageProxy).setCropRect(new Rect(0, 0, 40, 40));
+        assertThat(mBaseImageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 40, 40));
     }
 
     @Test
     public void getFormat_returnsFormatForWrappedImage() {
-        when(mBaseImageProxy.getFormat()).thenReturn(ImageFormat.YUV_420_888);
+        mBaseImageProxy.setFormat(ImageFormat.YUV_420_888);
 
         assertThat(mImageProxy.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
     }
 
     @Test
     public void getHeight_returnsHeightForWrappedImage() {
-        when(mBaseImageProxy.getHeight()).thenReturn(480);
+        mBaseImageProxy.setHeight(480);
 
         assertThat(mImageProxy.getHeight()).isEqualTo(480);
     }
 
     @Test
     public void getWidth_returnsWidthForWrappedImage() {
-        when(mBaseImageProxy.getWidth()).thenReturn(640);
+        mBaseImageProxy.setWidth(640);
 
         assertThat(mImageProxy.getWidth()).isEqualTo(640);
     }
 
     @Test
     public void getPlanes_returnsPlanesForWrappedImage() {
-        when(mBaseImageProxy.getPlanes())
-                .thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
+        mBaseImageProxy.setPlanes(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
 
         ImageProxy.PlaneProxy[] planes = mImageProxy.getPlanes();
         assertThat(planes.length).isEqualTo(3);

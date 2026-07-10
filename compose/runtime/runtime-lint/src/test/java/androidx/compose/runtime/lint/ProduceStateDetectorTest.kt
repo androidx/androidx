@@ -117,6 +117,10 @@ src/androidx/compose/runtime/foo/test.kt:21: Error: produceState calls should as
                     produceState("Hi", "Any?") {
                         value += ", world"
                     }
+                    produceState(1, true) { --value }
+                    produceState(1, true) { ++value }
+                    produceState(1, true) { value-- }
+                    produceState(1, true) { value++ }
                     produceState(true, true) {
                         doSomethingWithScope()
                     }

@@ -17,10 +17,12 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.emoji2.integration.macrobenchmark.enabled"
     targetProjectPath = ":emoji2:integration-tests:init-enabled-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

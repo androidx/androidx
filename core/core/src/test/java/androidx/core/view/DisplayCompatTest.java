@@ -115,6 +115,20 @@ public final class DisplayCompatTest {
     }
 
     @Test
+    public void defaultDisplay_getShape() {
+        DisplayShapeCompat dsc = DisplayCompat.getShape(mContext, mDefaultDisplay);
+        DisplayShapeCompat expected;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            expected = DisplayShapeCompat.create(DISPLAY_WIDTH_VENDOR, DISPLAY_HEIGHT_VENDOR,
+                    false, 0, 0, 0, 0);
+        } else {
+            expected = DisplayShapeCompat.create(DISPLAY_WIDTH_VENDOR_P, DISPLAY_HEIGHT_VENDOR_P,
+                    false, 0, 0, 0, 0);
+        }
+        assertThat(dsc).isEqualTo(expected);
+    }
+
+    @Test
     public void secondDisplay_sizeFromAccessorFunction() {
         int displayWidth = 100;
         int displayHeight = 200;

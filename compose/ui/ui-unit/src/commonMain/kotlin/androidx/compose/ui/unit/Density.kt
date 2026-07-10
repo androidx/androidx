@@ -33,8 +33,7 @@ import androidx.compose.ui.util.fastRoundToInt
 @Stable
 fun Density(density: Float, fontScale: Float = 1f): Density = DensityImpl(density, fontScale)
 
-private data class DensityImpl(override val density: Float, override val fontScale: Float) :
-    Density
+private data class DensityImpl(override val density: Float, override val fontScale: Float) : Density
 
 /**
  * A density of the screen. Used for the conversions between pixels, [Dp], [Int] and [TextUnit].

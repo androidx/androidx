@@ -248,7 +248,7 @@ fun camera1CloseCamera(activity: MainActivity, params: CameraParams?, testConfig
             }
         }
         else -> {
-            Unit // no-op
+            // no-op
         }
     }
 }

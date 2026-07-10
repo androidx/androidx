@@ -35,13 +35,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.xr.projected.R
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
 /**
  * An activity to be displayed on the Projected device that requests the user to act on the
  * permission request on the host device. See [ProjectedPermissionsResultContract] for details.
  */
-@Suppress("ForbiddenSuperClass")
+@Suppress("ForbiddenSuperClass", "DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalProjectedApi::class)
 public class GoToHostProjectedActivity :
     ComponentActivity(), PermissionResultReceiver.PermissionResultCallback {
 

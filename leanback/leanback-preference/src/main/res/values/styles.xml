@@ -15,7 +15,7 @@
   ~ limitations under the License
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="LeanbackPreference">
         <item name="android:layout">@layout/leanback_preference</item>
@@ -65,14 +65,14 @@
 
     <style name="LeanbackPreference.SwitchPreferenceCompat">
         <item name="android:widgetLayout">@layout/leanback_preference_widget_switch_compat</item>
-        <item name="android:switchTextOn">@string/v7_preference_on</item>
-        <item name="android:switchTextOff">@string/v7_preference_off</item>
+        <item name="android:switchTextOn" tools:ignore="PrivateResource">@string/v7_preference_on</item>
+        <item name="android:switchTextOff" tools:ignore="PrivateResource">@string/v7_preference_off</item>
     </style>
 
     <style name="LeanbackPreference.SwitchPreference">
         <item name="android:widgetLayout">@layout/leanback_preference_widget_switch</item>
-        <item name="android:switchTextOn">@string/v7_preference_on</item>
-        <item name="android:switchTextOff">@string/v7_preference_off</item>
+        <item name="android:switchTextOn" tools:ignore="PrivateResource">@string/v7_preference_on</item>
+        <item name="android:switchTextOff" tools:ignore="PrivateResource">@string/v7_preference_off</item>
     </style>
 
     <style name="LeanbackPreference.SeekBarPreference">
@@ -90,7 +90,7 @@
     </style>
 
     <style name="LeanbackPreference.DialogPreference.EditTextPreference">
-        <item name="android:dialogLayout">@layout/preference_dialog_edittext</item>
+        <item name="android:dialogLayout" tools:ignore="PrivateResource">@layout/preference_dialog_edittext</item>
     </style>
 
     <style name="PreferenceFragment.Leanback">

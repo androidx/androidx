@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Label component that will append a [label] to [content]. The positioning logic uses
- * [TooltipDefaults.rememberAboveTooltipPositionProvider].
+ * [TooltipDefaults.rememberTooltipPositionProvider].
  *
  * Label appended to thumbs of Slider:
  *

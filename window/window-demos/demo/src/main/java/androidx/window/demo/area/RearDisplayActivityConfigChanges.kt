@@ -18,17 +18,10 @@ package androidx.window.demo.area
 
 import android.os.Bundle
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
-import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
-import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
-import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
+import androidx.core.util.Consumer
+import androidx.window.area.WindowArea
+import androidx.window.area.WindowAreaCapability
 import androidx.window.area.WindowAreaController
-import androidx.window.area.WindowAreaInfo
-import androidx.window.area.WindowAreaSession
-import androidx.window.area.WindowAreaSessionCallback
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.infolog.InfoLogAdapter
@@ -37,24 +30,36 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Demo Activity that showcases listening for RearDisplay Status as well as enabling/disabling
- * RearDisplay mode. This Activity implements [WindowAreaSessionCallback] for simplicity.
- *
- * This Activity overrides configuration changes for simplicity.
+ * RearDisplay mode.
  */
 @OptIn(ExperimentalWindowApi::class)
-class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSessionCallback {
+class RearDisplayActivityConfigChanges : EdgeToEdgeActivity() {
 
     private lateinit var windowAreaController: WindowAreaController
-    private var rearDisplaySession: WindowAreaSession? = null
+    private var rearDisplayWindowArea: WindowArea? = null
+    private var rearDisplayStatus: WindowAreaCapability.Status =
+        WindowAreaCapability.Status.WINDOW_AREA_STATUS_UNSUPPORTED
     private val infoLogAdapter = InfoLogAdapter()
     private lateinit var binding: ActivityRearDisplayBinding
     private lateinit var executor: Executor
-    private var currentWindowAreaInfo: WindowAreaInfo? = null
+
+    private val windowAreaListener =
+        Consumer<List<WindowArea>> { windowAreas ->
+            for (windowArea in windowAreas) {
+                if (windowArea.type == WindowArea.Type.TYPE_REAR_FACING) {
+                    rearDisplayWindowArea = windowArea
+                    break
+                }
+            }
+            val status = getRearDisplayStatus(rearDisplayWindowArea)
+            infoLogAdapter.append(getCurrentTimeString(), status.toString())
+            infoLogAdapter.notifyDataSetChanged()
+            rearDisplayStatus = status
+            updateRearDisplayButton()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,104 +71,49 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
 
         binding.rearStatusRecyclerView.adapter = infoLogAdapter
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            // The block passed to repeatOnLifecycle is executed when the lifecycle
-            // is at least STARTED and is cancelled when the lifecycle is STOPPED.
-            // It automatically restarts the block when the lifecycle is STARTED again.
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Safely collect from windowInfoRepo when the lifecycle is STARTED
-                // and stops collection when the lifecycle is STOPPED
-                windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
-                    infoLogAdapter.appendAndNotify(
-                        getCurrentTimeString(),
-                        "number of areas: " + windowAreaInfos.size,
-                    )
-                    windowAreaInfos.forEach { windowAreaInfo ->
-                        if (windowAreaInfo.type == WindowAreaInfo.Type.TYPE_REAR_FACING) {
-                            currentWindowAreaInfo = windowAreaInfo
-                            val transferCapability =
-                                windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)
-                            infoLogAdapter.append(
-                                getCurrentTimeString(),
-                                transferCapability.status.toString() +
-                                    " : " +
-                                    windowAreaInfo.metrics.toString(),
-                            )
-                            updateRearDisplayButton()
-                        }
-                    }
-                    infoLogAdapter.notifyDataSetChanged()
-                }
-            }
-        }
-
         binding.rearDisplayButton.setOnClickListener {
-            if (rearDisplaySession != null) {
-                rearDisplaySession?.close()
-            } else {
-                currentWindowAreaInfo?.let {
-                    windowAreaController.transferActivityToWindowArea(
-                        it.token,
-                        this,
-                        executor,
-                        this,
+            if (rearDisplayStatus == WindowAreaCapability.Status.WINDOW_AREA_STATUS_ACTIVE) {
+                WindowAreaController.getOrCreate()
+                    .transferToWindowArea(
+                        windowAreaToken = null,
+                        activity = this@RearDisplayActivityConfigChanges,
                     )
-                }
-            }
-        }
-
-        binding.rearDisplaySessionButton.setOnClickListener {
-            if (rearDisplaySession == null) {
-                try {
-                    rearDisplaySession =
-                        currentWindowAreaInfo?.getActiveSession(OPERATION_TRANSFER_ACTIVITY_TO_AREA)
-                    updateRearDisplayButton()
-                } catch (e: IllegalStateException) {
-                    infoLogAdapter.appendAndNotify(getCurrentTimeString(), e.toString())
+            } else {
+                rearDisplayWindowArea?.let { windowArea ->
+                    WindowAreaController.getOrCreate()
+                        .transferToWindowArea(windowAreaToken = windowArea.token, activity = this)
                 }
             }
         }
     }
 
-    override fun onSessionStarted(session: WindowAreaSession) {
-        rearDisplaySession = session
-        infoLogAdapter.appendAndNotify(
-            getCurrentTimeString(),
-            "RearDisplay Session has been started",
-        )
-        updateRearDisplayButton()
+    override fun onStart() {
+        super.onStart()
+        windowAreaController.addWindowAreasListener(executor, windowAreaListener)
     }
 
-    override fun onSessionEnded(t: Throwable?) {
-        rearDisplaySession = null
-        infoLogAdapter.appendAndNotify(getCurrentTimeString(), "RearDisplay Session has ended")
-        updateRearDisplayButton()
+    override fun onStop() {
+        super.onStop()
+        windowAreaController.removeWindowAreasListener(windowAreaListener)
     }
 
     private fun updateRearDisplayButton() {
-        if (rearDisplaySession != null) {
-            binding.rearDisplayButton.isEnabled = true
-            binding.rearDisplayButton.text = "Disable RearDisplay Mode"
-            return
-        }
-        currentWindowAreaInfo?.let { windowAreaInfo ->
-            when (windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status) {
-                WINDOW_AREA_STATUS_UNSUPPORTED -> {
-                    binding.rearDisplayButton.isEnabled = false
-                    binding.rearDisplayButton.text = "RearDisplay is not supported on this device"
-                }
-                WINDOW_AREA_STATUS_UNAVAILABLE -> {
-                    binding.rearDisplayButton.isEnabled = false
-                    binding.rearDisplayButton.text = "RearDisplay is not currently available"
-                }
-                WINDOW_AREA_STATUS_AVAILABLE -> {
-                    binding.rearDisplayButton.isEnabled = true
-                    binding.rearDisplayButton.text = "Enable RearDisplay Mode"
-                }
-                else -> {
-                    binding.rearDisplayButton.isEnabled = false
-                    binding.rearDisplayButton.text = "RearDisplay is not supported on this device"
-                }
+        when (rearDisplayStatus) {
+            WindowAreaCapability.Status.WINDOW_AREA_STATUS_UNSUPPORTED -> {
+                binding.rearDisplayButton.isEnabled = false
+                binding.rearDisplayButton.text = "RearDisplay is not supported on this device"
+            }
+            WindowAreaCapability.Status.WINDOW_AREA_STATUS_UNAVAILABLE -> {
+                binding.rearDisplayButton.isEnabled = false
+                binding.rearDisplayButton.text = "RearDisplay is not currently available"
+            }
+            WindowAreaCapability.Status.WINDOW_AREA_STATUS_AVAILABLE -> {
+                binding.rearDisplayButton.isEnabled = true
+                binding.rearDisplayButton.text = "Enable RearDisplay Mode"
+            }
+            WindowAreaCapability.Status.WINDOW_AREA_STATUS_ACTIVE -> {
+                binding.rearDisplayButton.isEnabled = true
+                binding.rearDisplayButton.text = "Disable RearDisplay Mode"
             }
         }
     }
@@ -172,6 +122,14 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
         val sdf = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault())
         val currentDate = sdf.format(Date())
         return currentDate.toString()
+    }
+
+    private fun getRearDisplayStatus(windowArea: WindowArea?): WindowAreaCapability.Status {
+        val status =
+            windowArea
+                ?.getCapability(WindowAreaCapability.Operation.OPERATION_TRANSFER_TO_AREA)
+                ?.status
+        return status ?: WindowAreaCapability.Status.WINDOW_AREA_STATUS_UNSUPPORTED
     }
 
     private companion object {

@@ -30,6 +30,7 @@ public class CLElement implements Cloneable {
     protected long mEnd = Long.MAX_VALUE;
     protected CLContainer mContainer;
     private int mLine;
+    int mDepth = 0;
 
     protected static int sMaxLine = 80; // Max number of characters before the formatter indents
     protected static int sBaseIndent = 2; // default indentation value
@@ -99,9 +100,11 @@ public class CLElement implements Cloneable {
         if (mStart > mEnd || mEnd == Long.MAX_VALUE) {
             return this.getClass() + " (INVALID, " + mStart + "-" + mEnd + ")";
         }
-        String content = new String(mContent);
-        content = content.substring((int) mStart, (int) mEnd + 1);
-
+        int length = (int) (mEnd - mStart + 1);
+        if (length > 1000) {
+            length = 1000;
+        }
+        String content = new String(mContent, (int) mStart, length);
         return getStrClass() + " (" + mStart + " : " + mEnd + ") <<" + content + ">>";
     }
 
@@ -119,15 +122,18 @@ public class CLElement implements Cloneable {
 
     // @TODO: add description
     public String content() {
-        String content = new String(mContent);
-        // Handle empty string
-        if (content.length() < 1) {
+        if (mContent == null || mContent.length == 0 || mStart == -1) {
             return "";
         }
         if (mEnd == Long.MAX_VALUE || mEnd < mStart) {
-            return content.substring((int) mStart, (int) mStart + 1);
+            return new String(mContent, (int) mStart, 1);
         }
-        return content.substring((int) mStart, (int) mEnd + 1);
+        int length = (int) (mEnd - mStart + 1);
+        // Limit string length to avoid out of memory issues with very large literals
+        if (length > 1000) {
+            length = 1000;
+        }
+        return new String(mContent, (int) mStart, length);
     }
 
     /**
@@ -145,6 +151,9 @@ public class CLElement implements Cloneable {
 
     public void setContainer(CLContainer element) {
         mContainer = element;
+        if (element != null) {
+            mDepth = element.mDepth + 1;
+        }
     }
 
     public CLElement getContainer() {

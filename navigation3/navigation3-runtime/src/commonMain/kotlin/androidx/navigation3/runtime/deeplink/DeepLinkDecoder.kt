@@ -1,0 +1,216 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.navigation3.runtime.deeplink
+
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.AbstractDecoder
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
+
+/**
+ * An [AbstractDecoder] that decodes arguments from a flat map of strings (extracted from a deep
+ * link) into a navigation key.
+ *
+ * @throws DeepLinkDecoderException if required values are missing from [arguments] or if the
+ *   provided value is the wrong type
+ */
+@OptIn(ExperimentalSerializationApi::class)
+internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>) :
+    AbstractDecoder() {
+
+    private var currentName: String = ""
+    private var currentIndex = 0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule()
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        // Iterate through properties of a class
+        while (currentIndex < descriptor.elementsCount) {
+            val name = descriptor.getElementName(currentIndex)
+            val elementDescriptor = descriptor.getElementDescriptor(currentIndex)
+            val kind = elementDescriptor.kind
+
+            // Check for unsupported collections
+            if (kind == StructureKind.MAP) {
+                throw IllegalArgumentException(
+                    "Cannot decode field [$name] for type with serial name${descriptor.serialName}. Map decoding is not supported."
+                )
+            }
+
+            // primitive, enums, and lists expects argument to be provided in the args map
+            if (
+                (kind is PrimitiveKind || kind == SerialKind.ENUM || kind == StructureKind.LIST) &&
+                    !arguments.containsKey(name)
+            ) {
+                if (descriptor.isElementOptional(currentIndex)) {
+                    // otherwise, skip deserializing this element and fall back to default value
+                    currentIndex++
+                    continue
+                } else {
+                    throw DeepLinkDecoderException("Missing argument for required field [$name]")
+                }
+            }
+
+            // For nested structures (classes), we always return the index.
+            // This recurses into the child decoder, which will then look for its own fields in the
+            // map.
+            currentName = name
+            return currentIndex++
+        }
+        return CompositeDecoder.DECODE_DONE
+    }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        return when (descriptor.kind) {
+            StructureKind.CLASS,
+            StructureKind.OBJECT -> {
+                DeepLinkDecoder(arguments).apply { currentName = this@DeepLinkDecoder.currentName }
+            }
+            StructureKind.LIST -> {
+                // getElementDescriptor(0) returns the type param of the collection
+                val elementDescriptor = descriptor.getElementDescriptor(0)
+                if (elementDescriptor.kind !is PrimitiveKind) {
+                    throw SerializationException(
+                        "Cannot decode collection of type with serial name ${elementDescriptor.serialName}. Only collections of primitives are supported."
+                    )
+                }
+                val values =
+                    arguments[currentName]
+                        ?: throw DeepLinkDecoderException(
+                            "Argument value not found for argument name [$currentName]"
+                        )
+                ListDecoder(values)
+            }
+            StructureKind.MAP ->
+                throw IllegalArgumentException(
+                    "Cannot decode type with serial name ${descriptor.serialName}. Map decoding is not supported."
+                )
+            else ->
+                throw SerializationException(
+                    "Cannot decode field [$currentName] for type with serial name ${descriptor.serialName}. Unsupported structure kind: ${descriptor.kind}"
+                )
+        }
+    }
+
+    override fun decodeString(): String {
+        val value =
+            arguments[currentName]?.firstOrNull()
+                ?: throw DeepLinkDecoderException(
+                    "Argument value not found for argument name [$currentName]"
+                )
+        return value
+    }
+
+    override fun decodeInt(): Int = decodePrimitive { it.toInt() }
+
+    override fun decodeBoolean(): Boolean = decodePrimitive { it.toBooleanStrict() }
+
+    override fun decodeLong(): Long = decodePrimitive { it.toLong() }
+
+    override fun decodeFloat(): Float = decodePrimitive { it.toFloat() }
+
+    override fun decodeDouble(): Double = decodePrimitive { it.toDouble() }
+
+    override fun decodeChar(): Char = decodePrimitive { it.first() }
+
+    override fun decodeByte(): Byte = decodePrimitive { it.toByte() }
+
+    override fun decodeShort(): Short = decodePrimitive { it.toShort() }
+
+    override fun decodeNull(): Nothing? = null
+
+    override fun decodeNotNullMark(): Boolean = arguments.containsKey(currentName)
+
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
+        val value = decodeString()
+        val index = enumDescriptor.getElementIndex(value)
+        if (index == CompositeDecoder.UNKNOWN_NAME) {
+            throw DeepLinkDecoderException("Unknown ENUM value: $value")
+        }
+        return index
+    }
+
+    private inline fun <K> decodePrimitive(block: (String) -> K): K {
+        val value = decodeString()
+        return try {
+            block(value)
+        } catch (e: Exception) {
+            throw DeepLinkDecoderException(e.message)
+        }
+    }
+}
+
+/**
+ * A decoder for handling collections of primitives (Lists, Sets, Arrays). The descriptor's
+ * [SerialDescriptor.kind] is [StructureKind.LIST]. The elementCount is expected to be the size of
+ * the list of elements passed in. The decoder iterates through every index and sequentially
+ * retrieves the element from [values].
+ */
+@OptIn(ExperimentalSerializationApi::class)
+internal class ListDecoder(private val values: List<String>) : AbstractDecoder() {
+    private var currentIndex = -1
+
+    override val serializersModule: SerializersModule = EmptySerializersModule()
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        currentIndex++
+        if (currentIndex >= values.size) return CompositeDecoder.DECODE_DONE
+        return currentIndex
+    }
+
+    override fun decodeNotNullMark(): Boolean {
+        if (currentIndex < 0 || currentIndex >= values.size) return false
+        return values[currentIndex] != "null"
+    }
+
+    override fun decodeString(): String {
+        return values[currentIndex]
+    }
+
+    override fun decodeInt(): Int = decodePrimitive { it.toInt() }
+
+    override fun decodeBoolean(): Boolean = decodePrimitive { it.toBooleanStrict() }
+
+    override fun decodeLong(): Long = decodePrimitive { it.toLong() }
+
+    override fun decodeFloat(): Float = decodePrimitive { it.toFloat() }
+
+    override fun decodeDouble(): Double = decodePrimitive { it.toDouble() }
+
+    override fun decodeChar(): Char = decodePrimitive { it.first() }
+
+    override fun decodeByte(): Byte = decodePrimitive { it.toByte() }
+
+    override fun decodeShort(): Short = decodePrimitive { it.toShort() }
+
+    private inline fun <K> decodePrimitive(block: (String) -> K): K {
+        val value = decodeString()
+        return try {
+            block(value)
+        } catch (e: Exception) {
+            throw DeepLinkDecoderException(e.message)
+        }
+    }
+}
+
+internal class DeepLinkDecoderException(msg: String? = null) : SerializationException(msg, null)

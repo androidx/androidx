@@ -25,11 +25,13 @@ import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Config(sdk = {Config.ALL_SDKS})
 public class ArgumentCaptorTest {
     private static final Object DUMMY_ARGUMENT_1 = new Object();
     private static final Object DUMMY_ARGUMENT_2 = new Object();

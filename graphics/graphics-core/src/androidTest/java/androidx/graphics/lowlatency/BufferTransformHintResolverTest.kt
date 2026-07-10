@@ -21,6 +21,10 @@ import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.MINUI_ROTATION_DOWN
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.MINUI_ROTATION_LEFT
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.MINUI_ROTATION_NONE
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.MINUI_ROTATION_RIGHT
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENTATION_0
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENTATION_180
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENTATION_270
@@ -49,7 +53,10 @@ internal class BufferTransformHintResolverTest() {
         val transform = BufferTransformHintResolver()
         assertEquals(
             UNKNOWN_TRANSFORM,
-            transform.getBufferTransformHintFromInstallOrientation("ORIENTATION_45", ROTATION_0),
+            transform.getBufferTransformHintFromSurfaceFlingerOrientation(
+                "ORIENTATION_45",
+                ROTATION_0,
+            ),
         )
     }
 
@@ -58,23 +65,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_0),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_90, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_90),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_90, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_180),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_90, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_270),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_90, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, -123),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_90, -123),
             )
         }
     }
@@ -84,23 +91,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_0),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_180, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_90),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_180, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_180),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_180, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_270),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_180, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, -123),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_180, -123),
             )
         }
     }
@@ -110,23 +117,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_0),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_270, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_90),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_270, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_180),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_270, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_270),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_270, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, -123),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_270, -123),
             )
         }
     }
@@ -136,33 +143,157 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_0),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_0, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_90),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_0, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_180),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_0, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_270),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_0, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, -123),
+                getBufferTransformHintFromSurfaceFlingerOrientation(ORIENTATION_0, -123),
             )
         }
     }
 
     @Test
-    fun testGetDisplayOrientationMethodLinked() {
+    fun testGetSurfaceFlingerOrientationMethodLinked() {
         try {
-            JniBindings.nGetDisplayOrientation()
+            JniBindings.nGetSurfaceFlingerOrientation()
         } catch (linkError: UnsatisfiedLinkError) {
-            fail("Unable to resolve getDisplayOrientation")
+            fail("Unable to resolve getSurfaceFlingerOrientation")
+        } catch (exception: Exception) {
+            // Ignore other errors
+        }
+    }
+
+    @Test
+    fun testTransformHintFromUnknownMinUiRotation() {
+        val transform = BufferTransformHintResolver()
+        assertEquals(
+            UNKNOWN_TRANSFORM,
+            transform.getBufferTransformHintFromMinUiRotation("ROTATION_HALF", ROTATION_0),
+        )
+    }
+
+    @Test
+    fun testTransformHintRotationRight() {
+        with(BufferTransformHintResolver()) {
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_90,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_RIGHT, ROTATION_0),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_180,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_RIGHT, ROTATION_90),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_270,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_RIGHT, ROTATION_180),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_IDENTITY,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_RIGHT, ROTATION_270),
+            )
+            assertEquals(
+                UNKNOWN_TRANSFORM,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_RIGHT, -123),
+            )
+        }
+    }
+
+    @Test
+    fun testTransformHintRotationDown() {
+        with(BufferTransformHintResolver()) {
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_180,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_DOWN, ROTATION_0),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_270,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_DOWN, ROTATION_90),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_IDENTITY,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_DOWN, ROTATION_180),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_90,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_DOWN, ROTATION_270),
+            )
+            assertEquals(
+                UNKNOWN_TRANSFORM,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_DOWN, -123),
+            )
+        }
+    }
+
+    @Test
+    fun testTransformHintRotationLeft() {
+        with(BufferTransformHintResolver()) {
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_270,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_LEFT, ROTATION_0),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_IDENTITY,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_LEFT, ROTATION_90),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_90,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_LEFT, ROTATION_180),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_180,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_LEFT, ROTATION_270),
+            )
+            assertEquals(
+                UNKNOWN_TRANSFORM,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_LEFT, -123),
+            )
+        }
+    }
+
+    @Test
+    fun testTransformHintRotationNone() {
+        with(BufferTransformHintResolver()) {
+            assertEquals(
+                BUFFER_TRANSFORM_IDENTITY,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_NONE, ROTATION_0),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_90,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_NONE, ROTATION_90),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_180,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_NONE, ROTATION_180),
+            )
+            assertEquals(
+                BUFFER_TRANSFORM_ROTATE_270,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_NONE, ROTATION_270),
+            )
+            assertEquals(
+                UNKNOWN_TRANSFORM,
+                getBufferTransformHintFromMinUiRotation(MINUI_ROTATION_NONE, -123),
+            )
+        }
+    }
+
+    @Test
+    fun testGetMinUiRotationMethodLinked() {
+        try {
+            JniBindings.nGetMinUiRotation()
+        } catch (linkError: UnsatisfiedLinkError) {
+            fail("Unable to resolve getMinUiRotation")
         } catch (exception: Exception) {
             // Ignore other errors
         }

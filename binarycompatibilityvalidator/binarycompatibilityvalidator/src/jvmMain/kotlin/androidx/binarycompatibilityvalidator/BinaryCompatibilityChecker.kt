@@ -18,6 +18,7 @@
 package androidx.binarycompatibilityvalidator
 
 import java.io.File
+import kotlin.text.removeSuffix
 import org.jetbrains.kotlin.library.abi.AbiClass
 import org.jetbrains.kotlin.library.abi.AbiClassifierReference.ClassReference
 import org.jetbrains.kotlin.library.abi.AbiClassifierReference.TypeParameterReference
@@ -59,8 +60,13 @@ class BinaryCompatibilityChecker(
                         LibraryAbiReader.readAbiInfo(it)
                             .allDeclarations()
                             .filterIsInstance<AbiClass>()
-                    } catch (e: IllegalArgumentException) {
-                        // Malformed library, probably missing IR and can't be used
+                    } catch (_: IllegalStateException) {
+                        // Malformed library, probably missing IR and can't be used.
+                        // Happens for cinterop dependencies (e.g.
+                        // atomicfu-linuxX64Cinterop-interopMain-0.28.0.klib)
+                        // which we don't need for BCV. If a necessary library fails to load, we'll
+                        // catch it later
+                        // by failing symbol lookup with an exception.
                         listOf()
                     }
                 }
@@ -158,7 +164,12 @@ class BinaryCompatibilityChecker(
             return
         }
         when (this) {
-            is AbiClass -> isBinaryCompatibleWith(oldDeclaration as AbiClass, errors)
+            is AbiClass ->
+                DecoratedAbiClass(this, newLibraryDeclarations)
+                    .isBinaryCompatibleWith(
+                        DecoratedAbiClass(oldDeclaration as AbiClass, oldLibraryDeclarations),
+                        errors,
+                    )
             is DecoratedAbiFunction ->
                 isBinaryCompatibleWith(oldDeclaration as DecoratedAbiFunction, errors)
             is DecoratedAbiProperty ->
@@ -171,7 +182,10 @@ class BinaryCompatibilityChecker(
         }
     }
 
-    private fun AbiClass.isBinaryCompatibleWith(oldClass: AbiClass, errors: CompatibilityErrors) {
+    private fun DecoratedAbiClass.isBinaryCompatibleWith(
+        oldClass: DecoratedAbiClass,
+        errors: CompatibilityErrors,
+    ) {
         if (modality != oldClass.modality) {
             when {
                 modality == AbiModality.OPEN && oldClass.modality == AbiModality.FINAL -> Unit
@@ -205,9 +219,9 @@ class BinaryCompatibilityChecker(
         }
 
         // Check that previous supertypes are still currently supertypes
-        allSuperTypes(newLibraryDeclarations)
+        allSuperTypes()
             .isBinaryCompatibleWith(
-                oldClass.allSuperTypes(oldLibraryDeclarations),
+                oldClass.allSuperTypes(),
                 entityName = "superType",
                 uniqueId = AbiType::asString,
                 isBinaryCompatibleWith = AbiType::isBinaryCompatibleWith,
@@ -223,8 +237,8 @@ class BinaryCompatibilityChecker(
             errors = errors,
             isAllowedAddition = { false },
         )
-        val newDecs = allDeclarationsIncludingInherited(newLibraryDeclarations)
-        val oldDecs = oldClass.allDeclarationsIncludingInherited(oldLibraryDeclarations)
+        val newDecs = allDeclarationsIncludingInherited()
+        val oldDecs = oldClass.allDeclarationsIncludingInherited()
         newDecs.isBinaryCompatibleWith(
             oldDecs,
             entityName = "declaration",
@@ -233,78 +247,20 @@ class BinaryCompatibilityChecker(
                 isBinaryCompatibleWith(other, parentName, errs)
             },
             isAllowedAddition = {
-                when {
-                    this is AbiFunction -> modality != AbiModality.ABSTRACT
+                when (this) {
+                    is DecoratedAbiFunction,
+                    is DecoratedAbiProperty -> (this as HasEffectiveModality).isSafeAddition()
+                    is AbiFunction,
+                    is AbiProperty ->
+                        throw IllegalStateException(
+                            "All functions / properties should be decorated"
+                        )
                     else -> true
                 }
             },
             parentQualifiedName = qualifiedName.toString(),
             errors = errors,
         )
-    }
-
-    private fun AbiClass.allSuperTypes(declarations: Map<String, AbiDeclaration>): List<AbiType> {
-        return superTypes + superTypes.flatMap { it.allSuperTypes(declarations) }
-    }
-
-    private fun AbiType.allSuperTypes(declarations: Map<String, AbiDeclaration>): List<AbiType> {
-        val abiClass = declarations[asString()] as? AbiClass ?: return emptyList()
-        val superTypes = abiClass.superTypes
-        return superTypes + superTypes.flatMap { it.allSuperTypes(declarations) }
-    }
-
-    private fun AbiClass.allDeclarationsIncludingInherited(
-        oldLibraryDeclarations: Map<String, AbiDeclaration>
-    ): List<AbiDeclaration> {
-        // Collect all the declarations directly on the class (without functions) +
-        // + all functions, (including inherited). The filterNot is to avoid listing
-        // functions directly on the class twice.
-        return declarations.filterNot { it is AbiFunction }.filterNot { it is AbiProperty } +
-            allMethodsIncludingInherited(oldLibraryDeclarations) +
-            allPropertiesIncludingInherited(oldLibraryDeclarations)
-    }
-
-    private fun AbiClass.allPropertiesIncludingInherited(
-        oldLibraryDeclarations: Map<String, AbiDeclaration>,
-        baseClass: AbiClass = this,
-    ): List<DecoratedAbiProperty> {
-        val propertyMap =
-            declarations
-                .filterIsInstance<AbiProperty>()
-                .associate { it.asUnqualifiedTypeString() to DecoratedAbiProperty(it, baseClass) }
-                .toMutableMap()
-        superTypes
-            .map {
-                // we should throw here if we can't find the class in the package/dependencies
-                oldLibraryDeclarations[it.asString()]
-            }
-            .filterIsInstance<AbiClass>()
-            .flatMap { it.allPropertiesIncludingInherited(oldLibraryDeclarations, baseClass) }
-            .associateBy { it.asUnqualifiedTypeString() }
-            .forEach { (key, prop) -> propertyMap.putIfAbsent(key, prop) }
-        return propertyMap.values.toList()
-    }
-
-    private fun AbiClass.allMethodsIncludingInherited(
-        oldLibraryDeclarations: Map<String, AbiDeclaration>,
-        baseClass: AbiClass = this,
-    ): List<DecoratedAbiFunction> {
-        val functionMap =
-            declarations
-                .filterIsInstance<AbiFunction>()
-                .associate { it.asUnqualifiedTypeString() to DecoratedAbiFunction(it, baseClass) }
-                .toMutableMap()
-        superTypes
-            .map {
-                oldLibraryDeclarations.getOrElse(it.className.toString()) {
-                    throw IllegalStateException("Missing declaration ${it.asString()}")
-                }
-            }
-            .filterIsInstance<AbiClass>()
-            .flatMap { it.allMethodsIncludingInherited(oldLibraryDeclarations, baseClass) }
-            .associateBy { it.asUnqualifiedTypeString() }
-            .forEach { (key, func) -> functionMap.putIfAbsent(key, func) }
-        return functionMap.values.toList()
     }
 
     private fun DecoratedAbiFunction.isBinaryCompatibleWith(
@@ -449,43 +405,50 @@ class BinaryCompatibilityChecker(
             shouldFreeze: Boolean = false,
             dependencies: Map<String, Collection<File>> = mapOf(),
         ): List<CompatibilityError> {
-            val errors = CompatibilityErrors(baselines, "meta")
+            val targetErrors = CompatibilityErrors(baselines, "meta")
             val removedTargets = oldLibraries.keys - newLibraries.keys
             val addedTargets = newLibraries.keys - oldLibraries.keys
             if (removedTargets.isNotEmpty()) {
-                errors.addAll(
+                targetErrors.addAll(
                     removedTargets.flatMap {
                         CompatibilityErrors(baselines, it).apply { add("Target was removed") }
                     }
                 )
             }
             if (shouldFreeze && addedTargets.isNotEmpty()) {
-                errors.addAll(
+                targetErrors.addAll(
                     addedTargets.flatMap {
                         CompatibilityErrors(baselines, it).apply { add("Target was added") }
                     }
                 )
             }
-            if (errors.isNotEmpty()) {
-                if (validate) {
-                    throw ValidationException(errors.toString())
+            val compatErrors =
+                oldLibraries.keys.flatMap { target ->
+                    val newLib =
+                        newLibraries[target]
+                            // We can't compare targets if they've been removed. We'll throw on
+                            // removed
+                            // targets but if that removal is baselined we can still make it here.
+                            ?: return@flatMap emptyList()
+                    val oldLib = oldLibraries[target]!!
+                    val errorsForTarget = CompatibilityErrors(baselines, target)
+                    val dependenciesForTarget =
+                        dependencies.getOrElse(target) {
+                            throw IllegalStateException("Dependencies missing for target $target")
+                        }
+                    BinaryCompatibilityChecker(newLib, oldLib, dependenciesForTarget)
+                        .checkBinariesAreCompatible(
+                            errors = errorsForTarget,
+                            // don't throw on the individual target, we'll throw all errors after
+                            // once we've collected them
+                            validate = false,
+                            shouldFreeze = shouldFreeze,
+                        )
                 }
-                return errors
-            }
-            return oldLibraries.keys.flatMap { target ->
-                val newLib =
-                    newLibraries[target]
-                        // We can't compare targets if they've been removed. We'll throw on removed
-                        // targets but if that removal is baselined we can still make it here.
-                        ?: return@flatMap emptyList()
-                val oldLib = oldLibraries[target]!!
-                val errorsForTarget = CompatibilityErrors(baselines, target)
-                val dependenciesForTarget =
-                    dependencies.getOrElse(target) {
-                        throw IllegalStateException("Dependencies missing for target $target")
-                    }
-                BinaryCompatibilityChecker(newLib, oldLib, dependenciesForTarget)
-                    .checkBinariesAreCompatible(errorsForTarget, validate, shouldFreeze)
+            return (targetErrors + compatErrors).also {
+                if (validate && it.isNotEmpty()) {
+                    throw ValidationException(it.toString())
+                }
             }
         }
 
@@ -560,9 +523,9 @@ private fun DecoratedAbiValueParameter.isBinaryCompatibleWith(
     errors: CompatibilityErrors,
 ) {
     type.isBinaryCompatibleWith(otherParam.type, parentQualifiedName, errors)
-    if (isVararg != otherParam.isVararg) {
+    if (effectiveIsVararg != otherParam.effectiveIsVararg) {
         errors.add(
-            "isVararg changed from ${otherParam.isVararg} to $isVararg for parameter " +
+            "isVararg changed from ${otherParam.effectiveIsVararg} to $effectiveIsVararg for parameter " +
                 "${asString()} of $parentQualifiedName"
         )
     }
@@ -707,7 +670,8 @@ fun AbiType.asString(): String =
             val builder = StringBuilder()
             when (val classifier = classifierReference) {
                 is ClassReference -> {
-                    builder.append(classifier.className)
+                    // b/493871877
+                    builder.append(classifier.className.toString().removeSuffix("..."))
                     if (arguments.isNotEmpty()) {
                         builder.append("<")
                         builder.append(
@@ -790,7 +754,7 @@ private fun <T> List<T>.isBinaryCompatibleWith(
 ) {
     val oldEntities = oldEntitiesList.associateBy { it.uniqueId() }
     val newEntities = associateBy { it.uniqueId() }
-    val removedEntities = oldEntities.keys - newEntities.keys
+    val removedEntities = oldEntities.keys.toSet() - newEntities.keys.toSet()
     removedEntities.forEach { errors.add("Removed $entityName $it from $parentQualifiedName") }
     val addedEntities = newEntities.keys - oldEntities.keys
     val disallowedAdditions = addedEntities.filterNot { newEntities[it]!!.isAllowedAddition() }
@@ -847,24 +811,120 @@ private fun File.asBaselineErrors(): Set<String> =
         }
     }
 
-private class DecoratedAbiFunction(abiFunction: AbiFunction, val parentClass: AbiClass?) :
-    AbiFunction by abiFunction {
-    val effectiveModality
-        get() =
-            when (parentClass?.modality) {
-                AbiModality.FINAL -> AbiModality.FINAL
-                else -> modality
-            }
+private interface HasEffectiveModality {
+    val effectiveModality: AbiModality
+
+    fun isSafeAddition(): Boolean
 }
 
-private class DecoratedAbiProperty(abiProperty: AbiProperty, val parentClass: AbiClass?) :
-    AbiProperty by abiProperty {
-    val effectiveModality
+private class ClassMember(
+    private val parentClass: DecoratedAbiClass?,
+    private val modality: AbiModality,
+) : HasEffectiveModality {
+    override val effectiveModality
         get() =
             when (parentClass?.modality) {
                 AbiModality.FINAL -> AbiModality.FINAL
                 else -> modality
             }
+
+    override fun isSafeAddition(): Boolean {
+        if (parentClass?.modality == AbiModality.SEALED && !parentClass.hasAbstractSubClasses()) {
+            return true
+        }
+        return modality != AbiModality.ABSTRACT
+    }
+}
+
+private class DecoratedAbiFunction(abiFunction: AbiFunction, val parentClass: DecoratedAbiClass?) :
+    AbiFunction by abiFunction,
+    HasEffectiveModality by ClassMember(parentClass, abiFunction.modality)
+
+private class DecoratedAbiProperty(abiProperty: AbiProperty, val parentClass: DecoratedAbiClass?) :
+    AbiProperty by abiProperty,
+    HasEffectiveModality by ClassMember(parentClass, abiProperty.modality)
+
+private class DecoratedAbiClass(
+    abiClass: AbiClass,
+    private val allDeclarations: Map<String, AbiDeclaration>,
+) : AbiClass by abiClass {
+
+    fun allSuperTypes(): List<AbiType> {
+        return superTypes + superTypes.flatMap { it.allSuperTypes(allDeclarations) }
+    }
+
+    fun subClasses(): List<AbiClass> {
+        return allDeclarations.values.filterIsInstance<AbiClass>().filter { abiClass ->
+            DecoratedAbiClass(abiClass, allDeclarations).allSuperTypes().any {
+                it.className == qualifiedName
+            }
+        }
+    }
+
+    fun hasAbstractSubClasses(): Boolean = subClasses().any { it.modality == AbiModality.ABSTRACT }
+
+    fun allDeclarationsIncludingInherited(): List<AbiDeclaration> {
+        // Collect all the declarations directly on the class (without functions / properties) +
+        // + all functions / properties (including inherited). The filterNot is to avoid listing
+        // functions / properties directly on the class twice.
+        return declarations.filterNot { it is AbiFunction || it is AbiProperty } +
+            allMethodsIncludingInherited() +
+            allPropertiesIncludingInherited()
+    }
+
+    fun allPropertiesIncludingInherited(baseClass: AbiClass = this): List<DecoratedAbiProperty> {
+        val propertyMap =
+            declarations
+                .filterIsInstance<AbiProperty>()
+                .associate {
+                    it.asUnqualifiedTypeString() to
+                        DecoratedAbiProperty(it, DecoratedAbiClass(baseClass, allDeclarations))
+                }
+                .toMutableMap()
+        superTypes
+            .asSequence()
+            .map {
+                allDeclarations.getOrElse(it.className.toString()) {
+                    throw IllegalStateException("Missing declaration ${it.asString()}")
+                }
+            }
+            .filterIsInstance<AbiClass>()
+            .map { DecoratedAbiClass(it, allDeclarations) }
+            .flatMap { it.allPropertiesIncludingInherited(baseClass) }
+            .associateBy { it.asUnqualifiedTypeString() }
+            .forEach { (key, prop) -> propertyMap.putIfAbsent(key, prop) }
+        return propertyMap.values.toList()
+    }
+
+    fun allMethodsIncludingInherited(baseClass: AbiClass = this): List<DecoratedAbiFunction> {
+        val functionMap =
+            declarations
+                .filterIsInstance<AbiFunction>()
+                .associate {
+                    it.asUnqualifiedTypeString() to
+                        DecoratedAbiFunction(it, DecoratedAbiClass(baseClass, allDeclarations))
+                }
+                .toMutableMap()
+        superTypes
+            .asSequence()
+            .map {
+                allDeclarations.getOrElse(it.className.toString()) {
+                    throw IllegalStateException("Missing declaration ${it.asString()}")
+                }
+            }
+            .filterIsInstance<AbiClass>()
+            .map { DecoratedAbiClass(it, allDeclarations) }
+            .flatMap { it.allMethodsIncludingInherited(baseClass) }
+            .associateBy { it.asUnqualifiedTypeString() }
+            .forEach { (key, func) -> functionMap.putIfAbsent(key, func) }
+        return functionMap.values.toList()
+    }
+
+    private fun AbiType.allSuperTypes(declarations: Map<String, AbiDeclaration>): List<AbiType> {
+        val abiClass = declarations[asString()] as? AbiClass ?: return emptyList()
+        val superTypes = abiClass.superTypes
+        return superTypes + superTypes.flatMap { it.allSuperTypes(declarations) }
+    }
 }
 
 private class DecoratedAbiValueParameter(val index: Int, param: AbiValueParameter) :
@@ -875,3 +935,7 @@ fun AbiFunction.contextReceiverParametersCount(): Int =
 
 private fun AbiFunction.hasExtensionReceiverParameter() =
     valueParameters.any { it.kind == AbiValueParameterKind.EXTENSION_RECEIVER }
+
+// b/493871877
+private val AbiValueParameter.effectiveIsVararg
+    get() = isVararg || type.className.toString().endsWith("...")

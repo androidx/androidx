@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentStart extends Operation implements Container {
 
     int mType = DEFAULT;
@@ -220,7 +222,7 @@ public class ComponentStart extends Operation implements Container {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readInt();
-        int componentId = buffer.readInt();
+        int componentId = buffer.readId();
         float width = buffer.readFloat();
         float height = buffer.readFloat();
         operations.add(new ComponentStart(type, componentId, width, height));
@@ -233,12 +235,11 @@ public class ComponentStart extends Operation implements Container {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", id(), name())
-                .description(
-                        "Basic component encapsulating draw commands." + "This is not resizable.")
-                .field(INT, "TYPE", "Type of components")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
-                .field(FLOAT, "WIDTH", "width of the component")
-                .field(FLOAT, "HEIGHT", "height of the component");
+                .description("Basic component encapsulating draw commands. This is not resizable.")
+                .field(INT, "type", "Type of component")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(FLOAT, "width", "Width of the component")
+                .field(FLOAT, "height", "Height of the component");
     }
 
     @NonNull

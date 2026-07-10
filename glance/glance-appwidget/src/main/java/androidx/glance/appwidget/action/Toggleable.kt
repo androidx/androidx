@@ -21,7 +21,8 @@ import androidx.glance.action.ActionParameters
 
 /**
  * This key is used to access the current checked value for actions that are triggered by compound
- * button interactions (e.g. [CheckBox], [Switch]). This key is used to retrieve the value from the
+ * button interactions (e.g. [androidx.glance.appwidget.CheckBox],
+ * [androidx.glance.appwidget.Switch]). This key is used to retrieve the value from the
  * [ActionParameters] passed to the action.
  */
 public val ToggleableStateKey: ActionParameters.Key<Boolean> =

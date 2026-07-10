@@ -102,6 +102,7 @@ import androidx.camera.integration.extensions.utils.TransformUtil.surfaceRotatio
 import androidx.camera.integration.extensions.utils.TransformUtil.transformTextureView
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity
 import androidx.camera.integration.extensions.validation.TestResults
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.core.util.Preconditions
@@ -197,7 +198,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     // ===============================================================
     // Fields that will be accessed under synchronization protection
     // ===============================================================
-    private val lock = Object()
+    private val lock = Any()
     @GuardedBy("lock")
     private var captureSessionClosedDeferred: CompletableDeferred<Unit> =
         CompletableDeferred<Unit>().apply { complete(Unit) }
@@ -421,6 +422,12 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate()")
         setContentView(R.layout.activity_camera_extensions)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            this,
+            R.id.root_layout,
+            listOf(R.id.PhotoToggle, R.id.ExtensionToggle, R.id.videoStabilizationToggle),
+        )
 
         // Retrieves the cameraThread that will be used to check whether the code is correctly
         // executed on the camera thread.

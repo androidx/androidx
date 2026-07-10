@@ -32,12 +32,14 @@ import android.widget.ToggleButton;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.core.content.ContextCompat;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,6 +82,10 @@ public class ServiceSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_service_setting);
+
+        EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.root_layout,
+                Arrays.asList(R.id.video_toggle, R.id.image_toggle, R.id.analysis_toggle));
+
         mButtonVideo = findViewById(R.id.video_toggle);
         mButtonImage = findViewById(R.id.image_toggle);
         mButtonAnalysis = findViewById(R.id.analysis_toggle);

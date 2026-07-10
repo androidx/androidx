@@ -60,6 +60,7 @@ import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
 
 /** Tests for [ComplicationDataSourceService]. */
 @RunWith(ComplicationsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument
 class ComplicationDataSourceServiceTest {
     @get:Rule val expect = Expect.create()

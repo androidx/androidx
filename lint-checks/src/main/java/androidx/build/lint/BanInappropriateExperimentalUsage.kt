@@ -41,6 +41,7 @@ import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UastCallKind
+import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 
@@ -211,7 +212,8 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 .message(
                     "Could not find associated group for annotation " +
                         "${annotation.getQualifiedName()}, which is used in " +
-                        "${context.project.mavenCoordinate.groupId}."
+                        "${context.project.mavenCoordinate.groupId}. " +
+                        "File a bug in the AndroidX lint component."
                 )
                 .report()
             return
@@ -266,9 +268,18 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val findJarPath = findJarPath(element)
         return if (findJarPath != null) {
             val file = File(findJarPath)
-            getLibrary(file) ?: getMavenCoordinatesFromPath(file.path)
+            getLibrary(file)
+                ?: getMavenCoordinatesFromPath(file.path)
+                ?: getMavenCoordinatesFromPrebuiltsPath(file.path)
         } else {
-            null
+            // Sometimes, dependencies are from class files not contained in jars. Handle this case
+            // as well.
+            val fileOrigin = element.getContainingUFile()?.sourcePsi?.virtualFile?.path
+            if (fileOrigin != null && fileOrigin.endsWith(".class")) {
+                getMavenCoordinatesFromPath(fileOrigin)
+            } else {
+                null
+            }
         }
     }
 
@@ -326,7 +337,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 briefDescription = "Maven group associated with an annotation could not be found",
                 explanation =
                     "An annotation's group could not be found using `getProject` or " +
-                        "`getLibrary`.",
+                        "`getLibrary`. File a bug in the AndroidX lint component.",
                 category = Category.CORRECTNESS,
                 priority = 5,
                 severity = Severity.ERROR,
@@ -350,7 +361,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         }
 
         /**
-         * Extracts the Maven coordinates from a given JAR path
+         * Extracts the Maven coordinates from a given JAR or class path
          *
          * For example: given `<checkout
          * root>/androidx/compose/ui/ui-test/build/libs/ui-test-jvmstubs-1.8.0-beta01.jar`, this
@@ -359,12 +370,18 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          * - `artifactId` of `ui-test`
          * - `version` of `jvmstubs-1.8.0-beta01`
          *
-         * @param jarFilePath the path to the JAR file
+         * For`<checkout root>/androidx/compose/runtime/runtime/build/classes/kotlin/desktop/<file
+         * path>`, this method will return a:
+         * - `groupId` of `androidx.compose.runtime`
+         * - `artifactId` of `compose`
+         * - `version` of `` (no version information)
+         *
+         * @param filePath the path to the JAR or class file
          * @return a [LintModelMavenName] with the groupId, artifactId, and version parsed from the
-         *   path, or `null` if [jarFilePath] doesn't contain the strings "androidx" and "build".
+         *   path, or `null` if [filePath] doesn't contain the strings "androidx" and "build".
          */
-        internal fun getMavenCoordinatesFromPath(jarFilePath: String): LintModelMavenName? {
-            val pathParts = jarFilePath.split("/")
+        internal fun getMavenCoordinatesFromPath(filePath: String): LintModelMavenName? {
+            val pathParts = filePath.split("/")
             val androidxIndex = pathParts.indexOf("androidx")
             val buildIndex = pathParts.indexOf("build")
             if (androidxIndex == -1 || buildIndex == -1) return null
@@ -373,9 +390,36 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             val artifactId = pathParts[buildIndex - 1]
 
             val filename = pathParts.last()
-            val version = filename.removePrefix("$artifactId-").removeSuffix(".jar")
+            // If this is a jar path, there should be version information in the name of the jar.
+            // For a class file, the version is unknown.
+            val version =
+                if (filename.endsWith(".jar")) {
+                    filename.removePrefix("$artifactId-").removeSuffix(".jar")
+                } else {
+                    // Unknown version
+                    ""
+                }
 
             return DefaultLintModelMavenName(groupId, artifactId, version)
+        }
+
+        /**
+         * Work around b/443957693: lint should have been able to find the coordinates for a
+         * prebuilt jar, but can't when the project isn't android.
+         *
+         * Find the maven coordinates of a jar from prebuilts/androidx/internal.
+         */
+        internal fun getMavenCoordinatesFromPrebuiltsPath(filePath: String): LintModelMavenName? {
+            return if (filePath.contains("prebuilts/androidx/internal")) {
+                val coordinateParts =
+                    filePath.substringAfter("prebuilts/androidx/internal/").split("/")
+                val groupId = coordinateParts.subList(0, coordinateParts.size - 3).joinToString(".")
+                val artifactId = coordinateParts[coordinateParts.size - 3]
+                val version = coordinateParts[coordinateParts.size - 2]
+                DefaultLintModelMavenName(groupId, artifactId, version)
+            } else {
+                null
+            }
         }
     }
 }

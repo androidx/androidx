@@ -1,0 +1,78 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - {type: TextData, textId: 42, text: RowSpacedBy_Mixed}
+    - {type: RootContentDescription, contentDescriptionId: 42}
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: ROW
+        id: 1
+        x: 0.0
+        y: 0.0
+        width: 110.0
+        height: 50.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers: []
+        - type: BOX
+          id: -4
+          x: 0.0
+          y: 0.0
+          width: 50.0
+          height: 50.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -5
+          x: 60.0
+          y: 0.0
+          width: 50.0
+          height: 50.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 10.0

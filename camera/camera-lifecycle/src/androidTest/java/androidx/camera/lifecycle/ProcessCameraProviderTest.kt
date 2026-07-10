@@ -26,12 +26,10 @@ import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -53,7 +51,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.camera.core.internal.utils.ImageUtil
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.GarbageCollectionUtil
@@ -91,15 +88,10 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-@kotlin.OptIn(ExperimentalSessionConfig::class)
 class ProcessCameraProviderTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
 
     @get:Rule
     val cameraRule =
@@ -110,11 +102,7 @@ class ProcessCameraProviderTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -284,16 +272,16 @@ class ProcessCameraProviderTest(
         }
         previewSurfaceProvider.assertFramesReceivedAfterSurfaceRequested()
 
-        val analyisLatch = CountDownLatch(1)
+        val analysisLatch = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             imageAnalysis.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch.countDown()
+                analysisLatch.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelector, sessionConfig2)
         }
         previewSurfaceProvider.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(provider.isBound(sessionConfig1)).isFalse()
         assertThat(provider.isBound(sessionConfig2)).isTrue()
@@ -316,29 +304,29 @@ class ProcessCameraProviderTest(
         val sessionConfig2 = SessionConfig(useCases = listOf(preview2, imageAnalysis2))
         lifecycleOwner0.startAndResume()
 
-        val analyisLatch1 = CountDownLatch(1)
+        val analysisLatch1 = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             preview1.surfaceProvider = previewSurfaceProvider1
             imageAnalysis1.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch1.countDown()
+                analysisLatch1.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelector, sessionConfig1)
         }
         previewSurfaceProvider1.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
 
-        val analyisLatch2 = CountDownLatch(1)
+        val analysisLatch2 = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             preview2.surfaceProvider = previewSurfaceProvider2
             imageAnalysis2.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch2.countDown()
+                analysisLatch2.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelector, sessionConfig2)
         }
         previewSurfaceProvider2.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch2.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch2.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(provider.isBound(sessionConfig1)).isFalse()
         assertThat(provider.isBound(sessionConfig2)).isTrue()
@@ -366,29 +354,29 @@ class ProcessCameraProviderTest(
         val sessionConfig2 = SessionConfig(useCases = listOf(preview2, imageAnalysis2))
         lifecycleOwner0.startAndResume()
 
-        val analyisLatch1 = CountDownLatch(1)
+        val analysisLatch1 = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             preview1.surfaceProvider = previewSurfaceProvider1
             imageAnalysis1.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch1.countDown()
+                analysisLatch1.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelectors[0], sessionConfig1)
         }
         previewSurfaceProvider1.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
 
-        val analyisLatch2 = CountDownLatch(1)
+        val analysisLatch2 = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             preview2.surfaceProvider = previewSurfaceProvider2
             imageAnalysis2.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch2.countDown()
+                analysisLatch2.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelectors[1], sessionConfig2)
         }
         previewSurfaceProvider2.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch2.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch2.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(provider.isBound(sessionConfig1)).isFalse()
         assertThat(provider.isBound(sessionConfig2)).isTrue()
@@ -412,24 +400,24 @@ class ProcessCameraProviderTest(
         val sessionConfig = SessionConfig(useCases = listOf(preview, imageAnalysis))
         lifecycleOwner0.startAndResume()
 
-        var analyisLatch1 = CountDownLatch(1)
+        var analysisLatch1 = CountDownLatch(1)
         withContext(Dispatchers.Main) {
             preview.surfaceProvider = previewSurfaceProvider
             imageAnalysis.setAnalyzer(CameraXExecutors.directExecutor()) {
-                analyisLatch1.countDown()
+                analysisLatch1.countDown()
                 it.close()
             }
             provider.bindToLifecycle(lifecycleOwner0, cameraSelectors[0], sessionConfig)
         }
         previewSurfaceProvider.assertFramesReceivedAfterSurfaceRequested()
-        assertThat(analyisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(analysisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
 
         withContext(Dispatchers.Main) {
             provider.bindToLifecycle(lifecycleOwner0, cameraSelectors[1], sessionConfig)
         }
         previewSurfaceProvider.assertFramesReceivedAfterSurfaceRequested()
-        analyisLatch1 = CountDownLatch(1)
-        assertThat(analyisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
+        analysisLatch1 = CountDownLatch(1)
+        assertThat(analysisLatch1.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(provider.isBound(sessionConfig)).isTrue()
         assertThat(provider.isBound(imageAnalysis)).isTrue()
@@ -1053,12 +1041,13 @@ class ProcessCameraProviderTest(
         runBlocking(Dispatchers.Main) {
             ProcessCameraProvider.configureInstance(cameraConfig)
             provider = ProcessCameraProvider.awaitInstance(context)
+            val targetRotation = Surface.ROTATION_90
             val preview = Preview.Builder().build()
             val imageCapture = ImageCapture.Builder().build()
             val imageAnalysis = ImageAnalysis.Builder().build()
             val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
             val aspectRatio = Rational(2, 1)
-            val viewPort = ViewPort.Builder(aspectRatio, Surface.ROTATION_0).build()
+            val viewPort = ViewPort.Builder(aspectRatio, targetRotation).build()
 
             // Act.
             provider.bindToLifecycle(
@@ -1078,16 +1067,16 @@ class ProcessCameraProviderTest(
             val aspectRatioThreshold = 0.01
             assertThat(preview.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(preview.getExpectedAspectRatio(aspectRatio))
+                .of(preview.getExpectedAspectRatio(viewPort))
             assertThat(imageCapture.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(imageCapture.getExpectedAspectRatio(aspectRatio))
+                .of(imageCapture.getExpectedAspectRatio(viewPort))
             assertThat(imageAnalysis.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(imageAnalysis.getExpectedAspectRatio(aspectRatio))
+                .of(imageAnalysis.getExpectedAspectRatio(viewPort))
             assertThat(videoCapture.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(videoCapture.getExpectedAspectRatio(aspectRatio))
+                .of(videoCapture.getExpectedAspectRatio(viewPort))
         }
 
     @Test
@@ -1096,12 +1085,13 @@ class ProcessCameraProviderTest(
             // Arrange.
             ProcessCameraProvider.configureInstance(cameraConfig)
             provider = ProcessCameraProvider.awaitInstance(context)
+            val targetRotation = Surface.ROTATION_90
             val preview = Preview.Builder().build()
             val imageCapture = ImageCapture.Builder().build()
             val imageAnalysis = ImageAnalysis.Builder().build()
             val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
             val aspectRatio = Rational(2, 1)
-            val viewPort = ViewPort.Builder(aspectRatio, Surface.ROTATION_0).build()
+            val viewPort = ViewPort.Builder(aspectRatio, targetRotation).build()
 
             // Act.
             provider.bindToLifecycle(
@@ -1118,16 +1108,16 @@ class ProcessCameraProviderTest(
             val aspectRatioThreshold = 0.01
             assertThat(preview.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(preview.getExpectedAspectRatio(aspectRatio))
+                .of(preview.getExpectedAspectRatio(viewPort))
             assertThat(imageCapture.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(imageCapture.getExpectedAspectRatio(aspectRatio))
+                .of(imageCapture.getExpectedAspectRatio(viewPort))
             assertThat(imageAnalysis.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(imageAnalysis.getExpectedAspectRatio(aspectRatio))
+                .of(imageAnalysis.getExpectedAspectRatio(viewPort))
             assertThat(videoCapture.viewPortCropRect!!.aspectRatio().toDouble())
                 .isWithin(aspectRatioThreshold)
-                .of(videoCapture.getExpectedAspectRatio(aspectRatio))
+                .of(videoCapture.getExpectedAspectRatio(viewPort))
         }
 
     @Test
@@ -1199,13 +1189,10 @@ class ProcessCameraProviderTest(
             assertThat(imageCapture.effect).isNull()
         }
 
-    private fun UseCase.getExpectedAspectRatio(aspectRatio: Rational): Double {
+    private fun UseCase.getExpectedAspectRatio(viewPort: ViewPort): Double {
         val camera = this.camera!!
-        val isStreamSharingOn = !camera.hasTransform
-        // If stream sharing is on, the expected aspect ratio doesn't have to be adjusted with
-        // sensor rotation.
-        val rotation = if (isStreamSharingOn) 0 else camera.cameraInfo.sensorRotationDegrees
-        return ImageUtil.getRotatedAspectRatio(rotation, aspectRatio).toDouble()
+        val rotation = camera.cameraInfo.getSensorRotationDegrees(viewPort.rotation)
+        return ImageUtil.getRotatedAspectRatio(rotation, viewPort.aspectRatio).toDouble()
     }
 
     @Test

@@ -28,21 +28,26 @@ import static android.media.CamcorderProfile.QUALITY_HIGH_SPEED_720P;
 import static android.media.CamcorderProfile.QUALITY_HIGH_SPEED_HIGH;
 import static android.media.CamcorderProfile.QUALITY_HIGH_SPEED_LOW;
 import static android.media.CamcorderProfile.QUALITY_LOW;
+import static android.media.CamcorderProfile.QUALITY_QHD;
+
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
 
 import android.util.Size;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.auto.value.AutoValue;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -115,6 +120,19 @@ public class Quality {
             ));
 
     /**
+     * Quad High Definition (QHD) 1440p video quality.
+     *
+     * <p>This video quality usually corresponds to a resolution of 2560 x 1440 (1440p) pixels.
+     */
+    @NonNull
+    public static final Quality QHD = ConstantQuality.of(
+            QUALITY_QHD,
+            -1,  // There is no QHD definition in high speed CamcorderProfile
+            "QHD",
+            singletonList(new Size(2560, 1440)
+            ));
+
+    /**
      * The lowest video quality supported by the video frame producer.
      */
     @NonNull
@@ -138,15 +156,22 @@ public class Quality {
 
     static final Quality NONE = ConstantQuality.of(-1, -1, "NONE", emptyList());
 
-    /** All quality constants. */
-    private static final Set<Quality> QUALITIES =
-            new HashSet<>(asList(LOWEST, HIGHEST, SD, HD, FHD, UHD));
-
     /** Quality constants with size from large to small. */
-    private static final List<Quality> QUALITIES_ORDER_BY_SIZE = asList(UHD, FHD, HD, SD);
+    private static final List<Quality> QUALITIES_ORDER_BY_SIZE = asList(UHD, QHD, FHD, HD, SD);
+
+    /** All quality constants. */
+    @VisibleForTesting
+    static final Set<Quality> ALL_QUALITIES;
+
+    static {
+        Set<Quality> allQualities = new HashSet<>(QUALITIES_ORDER_BY_SIZE);
+        allQualities.add(LOWEST);
+        allQualities.add(HIGHEST);
+        ALL_QUALITIES = unmodifiableSet(allQualities);
+    }
 
     static boolean containsQuality(@NonNull Quality quality) {
-        return QUALITIES.contains(quality);
+        return ALL_QUALITIES.contains(quality);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -169,6 +194,23 @@ public class Quality {
     @RestrictTo(Scope.LIBRARY)
     public static @NonNull List<Quality> getSortedQualities() {
         return new ArrayList<>(QUALITIES_ORDER_BY_SIZE);
+    }
+
+    /**
+     * Casts a quality value to the corresponding {@link Quality} object.
+     *
+     * <p>Returns {@code null} if the quality value is not a predefined constant.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public static @Nullable Quality castOrNull(int qualityValue) {
+        for (Quality quality : ALL_QUALITIES) {
+            ConstantQuality constantQuality = (ConstantQuality) quality;
+            if (constantQuality.getValue() == qualityValue
+                    || constantQuality.getHighSpeedValue() == qualityValue) {
+                return quality;
+            }
+        }
+        return null;
     }
 
     @RestrictTo(Scope.LIBRARY)

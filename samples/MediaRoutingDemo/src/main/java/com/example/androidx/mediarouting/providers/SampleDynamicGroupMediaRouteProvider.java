@@ -25,6 +25,7 @@ import android.media.MediaRouter;
 import android.util.Log;
 
 import androidx.collection.ArrayMap;
+import androidx.collection.MutableObjectIntMap;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
@@ -143,7 +144,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
 
     @Override
     protected void initializeRoutes() {
-        mVolumes = new ArrayMap<>();
+        mVolumes = new MutableObjectIntMap<>();
         mRouteDescriptors = new HashMap<>();
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
         settingsIntent
@@ -238,9 +239,11 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
                             new DynamicRouteDescriptor.Builder(descriptor)
                                     .setIsGroupable(true)
                                     .setIsTransferable(true)
-                                    .setIsUnselectable(true)
-                                    .setSelectionState(selected ? DynamicRouteDescriptor.SELECTED
-                                            : DynamicRouteDescriptor.UNSELECTED);
+                                    .setIsUnselectable(selected && memberIds.size() > 1)
+                                    .setSelectionState(
+                                            selected
+                                                    ? DynamicRouteDescriptor.SELECTED
+                                                    : DynamicRouteDescriptor.UNSELECTED);
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
             }
@@ -497,10 +500,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             for (DynamicRouteDescriptor dynamicDescriptor : mDynamicRouteDescriptors.values()) {
                 String routeId = dynamicDescriptor.getRouteDescriptor().getId();
                 MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
-                if (mMemberRouteIds.contains(routeId)) {
-                    // Skip selected routes.
-                    continue;
-                }
+                boolean isMemberRoute = mMemberRouteIds.contains(routeId);
                 boolean isGroupable = true;
                 boolean isTransferable = true;
 
@@ -517,20 +517,19 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
                         > MAX_GROUPABLE_TV_COUNT) {
                     isGroupable = false;
                 }
-                if (mMemberRouteIds.contains(routeId)) {
+                if (isMemberRoute) {
                     isGroupable = false;
                     isTransferable = false;
                 }
+                boolean isUnselectable = isMemberRoute && mMemberRouteIds.size() > 1;
 
-                if (isGroupable != dynamicDescriptor.isGroupable()
-                        || isTransferable != dynamicDescriptor.isTransferable()) {
-                    DynamicRouteDescriptor.Builder builder =
-                            new DynamicRouteDescriptor.Builder(dynamicDescriptor)
-                                    .setIsGroupable(isGroupable)
-                                    .setIsTransferable(isTransferable);
+                DynamicRouteDescriptor.Builder builder =
+                        new DynamicRouteDescriptor.Builder(dynamicDescriptor)
+                                .setIsGroupable(isGroupable)
+                                .setIsUnselectable(isUnselectable)
+                                .setIsTransferable(isTransferable);
 
-                    mDynamicRouteDescriptors.put(routeId, builder.build());
-                }
+                mDynamicRouteDescriptors.put(routeId, builder.build());
             }
             if (shouldNotify) {
                 notifyDynamicRoutesChanged(mGroupDescriptor, mDynamicRouteDescriptors.values());

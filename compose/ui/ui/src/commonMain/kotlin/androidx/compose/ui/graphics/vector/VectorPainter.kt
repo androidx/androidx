@@ -21,8 +21,8 @@ import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
@@ -211,9 +211,8 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
     internal val vector =
         VectorComponent(root).apply {
             invalidateCallback = {
-                if (drawCount == invalidateCount) {
-                    invalidateCount++
-                }
+                // Trigger redraw
+                drawInvalidation = Unit
             }
         }
 
@@ -222,16 +221,13 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
 
     internal var composition: Composition? = null
 
-    // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
-    private var invalidateCount by mutableIntStateOf(0)
+    private var drawInvalidation by mutableStateOf(Unit, neverEqualPolicy())
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
 
     override val intrinsicSize: Size
         get() = size
-
-    private var drawCount = -1
 
     override fun DrawScope.onDraw() {
         with(vector) {
@@ -242,9 +238,8 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
                 draw(currentAlpha, filter)
             }
         }
-        // This assignment is necessary to obtain invalidation callbacks as the state is
-        // being read here which adds this callback to the snapshot observation
-        drawCount = invalidateCount
+        // State read
+        drawInvalidation
     }
 
     override fun applyAlpha(alpha: Float): Boolean {

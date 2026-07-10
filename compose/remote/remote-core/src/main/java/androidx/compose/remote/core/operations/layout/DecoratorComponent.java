@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
 
 import org.jspecify.annotations.NonNull;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.NonNull;
  * Indicates a lightweight component (without children) that is only laid out and not able to be
  * measured. Eg borders, background, clips, etc.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DecoratorComponent {
     /**
      * Layout the decorator

@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import androidx.camera.common.ImageFormat
+import androidx.camera.common.ImageFormats
 
 /**
  * Platform-independent Android ImageFormats and their associated values.
@@ -27,7 +29,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class StreamFormat(public val value: Int) {
+public value class StreamFormat(@ImageFormat public val value: Int) {
     public companion object {
         public val UNKNOWN: StreamFormat = StreamFormat(0)
         public val PRIVATE: StreamFormat = StreamFormat(0x22)
@@ -45,6 +47,7 @@ public value class StreamFormat(public val value: Int) {
         public val RAW10: StreamFormat = StreamFormat(0x25)
         public val RAW12: StreamFormat = StreamFormat(0x26)
         public val RAW_DEPTH: StreamFormat = StreamFormat(0x1002)
+        public val RAW_DEPTH10: StreamFormat = StreamFormat(0x1003)
         public val RAW_PRIVATE: StreamFormat = StreamFormat(0x24)
         public val RAW_SENSOR: StreamFormat = StreamFormat(0x20)
         public val RGB_565: StreamFormat = StreamFormat(4)
@@ -57,6 +60,39 @@ public value class StreamFormat(public val value: Int) {
         public val YUV_444_888: StreamFormat = StreamFormat(0x28)
         public val YUY2: StreamFormat = StreamFormat(0x14)
         public val YV12: StreamFormat = StreamFormat(0x32315659)
+        /**
+         * BLOB is a specialized format defined in graphics.h for variable sized images, usually
+         * JPEG.
+         */
+        public val BLOB: StreamFormat = StreamFormat(0x21)
+
+        /** Checks to see if the format is likely a compressed rgb format. */
+        @JvmStatic
+        public fun isCompressedRgb(format: StreamFormat): Boolean {
+            return ImageFormats.isCompressedRgb(format.value)
+        }
+
+        /**
+         * Returns if image format is one of the raw type, RAW10, RAW12, RAW_PRIVATE, RAW_SENSOR,
+         * RAW_DEPTH, or RAW_DEPTH10.
+         */
+        @JvmStatic
+        public fun isRaw(format: StreamFormat): Boolean {
+            return ImageFormats.isRaw(format.value)
+        }
+
+        /**
+         * Estimate the number of bytes consumed per image based on the format and dimensions.
+         *
+         * @param format the StreamFormat.
+         * @param width the width of the image.
+         * @param height the height of the image.
+         * @return estimated number of bytes consumed per image.
+         */
+        @JvmStatic
+        public fun bytesPerImage(format: StreamFormat, width: Int, height: Int): Long {
+            return ImageFormats.bytesPerImage(format.value, width, height)
+        }
     }
 
     override fun toString(): String {
@@ -70,68 +106,13 @@ public value class StreamFormat(public val value: Int) {
      *   of bits per pixel.
      */
     public val bitsPerPixel: Int
-        get() {
-            when (this) {
-                DEPTH16 -> return 16
-                FLEX_RGB_888 -> return 24
-                FLEX_RGBA_8888 -> return 32
-                NV16 -> return 16
-                NV21 -> return 12
-                RAW10 -> return 10
-                RAW12 -> return 12
-                RAW_DEPTH -> return 16
-                RAW_SENSOR -> return 16
-                RGB_565 -> return 16
-                Y12 -> return 12
-                Y16 -> return 16
-                Y8 -> return 8
-                YCBCR_P010 -> return 16
-                YUV_420_888 -> return 12
-                YUV_422_888 -> return 16
-                YUV_444_888 -> return 24
-                YUY2 -> return 16
-                YV12 -> return 12
-            }
-
-            return -1
-        }
+        get() = ImageFormats.bitsPerPixel(value)
 
     /**
-     * This function returns a human readable string for the associated format.
+     * This function returns a human-readable string for the associated format.
      *
-     * @return a human readable string representation of the StreamFormat.
+     * @return a human-readable string representation of the StreamFormat.
      */
     public val name: String
-        get() {
-            when (this) {
-                UNKNOWN -> return "UNKNOWN"
-                PRIVATE -> return "PRIVATE"
-                DEPTH16 -> return "DEPTH16"
-                DEPTH_JPEG -> return "DEPTH_JPEG"
-                DEPTH_POINT_CLOUD -> return "DEPTH_POINT_CLOUD"
-                FLEX_RGB_888 -> return "FLEX_RGB_888"
-                FLEX_RGBA_8888 -> return "FLEX_RGBA_8888"
-                HEIC -> return "HEIC"
-                JPEG -> return "JPEG"
-                JPEG_R -> return "JPEG_R"
-                NV16 -> return "NV16"
-                NV21 -> return "NV21"
-                RAW10 -> return "RAW10"
-                RAW12 -> return "RAW12"
-                RAW_DEPTH -> return "RAW_DEPTH"
-                RAW_PRIVATE -> return "RAW_PRIVATE"
-                RAW_SENSOR -> return "RAW_SENSOR"
-                RGB_565 -> return "RGB_565"
-                Y12 -> return "Y12"
-                Y16 -> return "Y16"
-                Y8 -> return "Y8"
-                YCBCR_P010 -> return "YCBCR_P010"
-                YUV_420_888 -> return "YUV_420_888"
-                YUV_422_888 -> return "YUV_422_888"
-                YUV_444_888 -> return "YUV_444_888"
-                YUY2 -> return "YUY2"
-                YV12 -> return "YV12"
-            }
-            return "UNKNOWN(${this.value.toString(16)})"
-        }
+        get() = ImageFormats.name(value)
 }

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+AddedMethod: androidx.hilt.navigation.HiltViewModelFactory#HiltViewModelFactory(android.content.Context, androidx.lifecycle.ViewModelProvider.Factory):
+    Added method androidx.hilt.navigation.HiltViewModelFactory.HiltViewModelFactory(android.content.Context,androidx.lifecycle.ViewModelProvider.Factory)
+AddedMethod: androidx.hilt.navigation.HiltViewModelFactory#HiltViewModelFactory(android.content.Context, androidx.navigation.NavBackStackEntry):
+    Added method androidx.hilt.navigation.HiltViewModelFactory.HiltViewModelFactory(android.content.Context,androidx.navigation.NavBackStackEntry)
+
+
+RemovedFromKotlin: androidx.hilt.navigation.HiltViewModelFactory#create(android.content.Context, androidx.lifecycle.ViewModelProvider.Factory):
+    Source breaking change: method androidx.hilt.navigation.HiltViewModelFactory.create(android.content.Context,androidx.lifecycle.ViewModelProvider.Factory) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.hilt.navigation.HiltViewModelFactory#create(android.content.Context, androidx.navigation.NavBackStackEntry):
+    Source breaking change: method androidx.hilt.navigation.HiltViewModelFactory.create(android.content.Context,androidx.navigation.NavBackStackEntry) can no longer be resolved from Kotlin source

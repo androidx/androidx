@@ -697,6 +697,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mTitleView.setFocusable(false);
             vh.mTitleView.setClickable(false);
             vh.mTitleView.setLongClickable(false);
+            vh.mTitleView.setEnabled(action.isEditable());
             if (Build.VERSION.SDK_INT >= 28) {
                 if (action.isEditable()) {
                     Api26Impl.setAutofillHints(vh.mTitleView, action.getAutofillHints());
@@ -718,6 +719,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mDescriptionView.setFocusable(false);
             vh.mDescriptionView.setClickable(false);
             vh.mDescriptionView.setLongClickable(false);
+            vh.mDescriptionView.setEnabled(action.isDescriptionEditable());
             if (Build.VERSION.SDK_INT >= 28) {
                 if (action.isDescriptionEditable()) {
                     Api26Impl.setAutofillHints(vh.mDescriptionView, action.getAutofillHints());

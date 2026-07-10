@@ -152,7 +152,7 @@ class ActivityIntensityRecordTest {
             ActivityIntensityRecord(
                 startTime = Instant.ofEpochMilli(1234L),
                 startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(1233L),
                 endZoneOffset = null,
                 metadata = Metadata.manualEntry(),
                 activityIntensityType =

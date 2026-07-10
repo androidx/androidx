@@ -34,3 +34,14 @@ package androidx.paging.internal
     AnnotationTarget.FUNCTION,
 ) // Apply to test classes or individual test functions [2]
 internal expect annotation class IgnoreWebTarget()
+
+/**
+ * Ignores a test on the Kotlin/JS target only.
+ *
+ * This annotation is used to exclude tests in `commonTest` that cause event loop saturation and
+ * ping timeouts in Karma when running on JS, but pass successfully on WASM.
+ */
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+internal expect annotation class IgnoreJsTarget()

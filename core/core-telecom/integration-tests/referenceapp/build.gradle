@@ -17,24 +17,22 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.core.telecom.reference"
-
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
     defaultConfig {
         applicationId = "androidx.core.telecom.reference"
-        minSdk = 26
+        minSdk { version = release(26) }
     }
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
 }
@@ -43,7 +41,6 @@ dependencies {
     // This is the target test package
     implementation(project(":core:core-telecom"))
     // Kotlin essentials
-    implementation(libs.kotlinStdlib)
     // -- @Serialize
     implementation(libs.kotlinSerializationCore)
     // Compose

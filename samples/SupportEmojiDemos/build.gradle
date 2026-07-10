@@ -33,9 +33,13 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
-    sourceSets {
-        main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
-    }
+    compileSdk { version = release(35) }
     namespace = "com.example.android.support.text.emoji"
+}
+
+androidComponents {
+    def emojiAssetsPath = new File(fontDir, "supported-emojis").getAbsolutePath()
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(emojiAssetsPath)
+    }
 }

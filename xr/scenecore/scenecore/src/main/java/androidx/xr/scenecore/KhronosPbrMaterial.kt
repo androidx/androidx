@@ -16,331 +16,229 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.Vector4
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.MaterialResource as RtMaterial
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.xr.scenecore.runtime.MaterialResource as RtMaterial
+import androidx.xr.scenecore.runtime.RenderingRuntime
 
 /**
- * A Material which implements the Khronos Physically Based Rendering (PBR) spec. The Khronos spec
- * for PBR parameters can be found at https://www.khronos.org/gltf/pbr.
+ * Represents a lit PBR (Physically-Based Rendering) material, which defines the visual appearance
+ * of a surface by simulating its interaction with light.
  *
- * This API will be re-designed once it goes through local AXR API council review (b/420551533).
+ * This material implements the Khronos PBR (Physically-Based Rendering) metallic-roughness model.
+ * It is a direct implementation of the following glTF features:
+ * - [Core glTF 2.0
+ *   Material](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-material)
+ *   (pbrMetallicRoughness, normalTexture, occlusionTexture, emissiveTexture)
+ * - [KHR_materials_clearcoat
+ *   extension](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat)
+ * - [KHR_materials_sheen
+ *   extension](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen)
  */
-// TODO(b/396201066): Add unit tests for this class if we end up making it public.
-@Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class KhronosPbrMaterial
 internal constructor(
-    internal val materialResource: RtMaterial,
-    internal val spec: KhronosPbrMaterialSpec,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val material: RtMaterial,
+    internal val alphaMode: AlphaMode,
     internal val session: Session,
-) : Material(materialResource) {
+) : Material {
 
     /**
-     * Disposes the given Khronos PBR material resource.
+     * Closes the [KhronosPbrMaterial] and releases its underlying graphics resources.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * Destroys the native (and Java object) corresponding to that Khronos PBR material.
+     * After being closed, the [KhronosPbrMaterial] should not be used further.
      */
-    // TODO(b/376277201): Provide Session.GltfModel.dispose().
     @MainThread
-    public fun dispose() {
-        session.platformAdapter.destroyKhronosPbrMaterial(materialResource)
+    override public fun close() {
+        session.renderingRuntime.destroyKhronosPbrMaterial(material)
     }
 
     /**
-     * Sets the material's base color using a texture.
+     * Sets the material's base color texture (often called albedo).
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * This texture defines the main color of the surface. It is typically used to apply visual
+     * patterns like wood grain or fabric weaves. By default this is a white texture, where all
+     * pixels are [1, 1, 1, 1]. In other words, if this is left as default, the base color will
+     * always be the base color factor.
      *
-     * @param texture The [Texture] to be used as the base color texture. The texture parameter
-     *   defines the diffuse albedo for non-metallic surfaces and the specular color for metallic
-     *   surfaces, typically in sRGB color space.
+     * @param texture The [Texture] to be used as the base color texture, in sRGB color space.
      * @param sampler The [TextureSampler] to be used when sampling the base color texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setBaseColorTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setBaseColorTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setBaseColorTexture(texture: Texture, sampler: TextureSampler = TextureSampler()) {
+        session.renderingRuntime.setBaseColorTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
-        )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the base color texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the base color texture UV transformation. The
-     *   transform parameter is a 3x3 matrix for scaling, rotation, or translation.
-     */
-    @MainThread
-    public fun setBaseColorUvTransform(transform: Matrix3) {
-        session.platformAdapter.setBaseColorUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
         )
     }
 
     /**
      * Sets a linear multiplier for the base color.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is [1, 1, 1, 1].
      *
-     * @param factors The [Vector4] (RGBA) to be used as the base color factors. These factors are
-     *   applied to the base color texture or define a solid color if no texture is used.
+     * @param factor The [Vector4] (RGBA) factor multiplied component-wise with the base color
+     *   texture.
      */
     @MainThread
-    public fun setBaseColorFactors(factors: Vector4) {
-        session.platformAdapter.setBaseColorFactorsOnKhronosPbrMaterial(materialResource, factors)
+    public fun setBaseColorFactor(factor: Vector4) {
+        session.renderingRuntime.setBaseColorFactorsOnKhronosPbrMaterial(material, factor)
     }
 
     /**
      * Sets a texture defining metallic and roughness properties.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the metalic and roughness values will always come from the
+     * corresponding factors.
      *
-     * @param texture The [Texture] to be used as the metallic-roughness texture. The texture
-     *   typically uses its blue channel for metallic and green channel for roughness, in linear
-     *   space.
-     * @param sampler The [TextureSampler] to be used when sampling the metallic-roughness texture.
+     * @param texture The [Texture] to be used. The texture must use its blue channel for metallic
+     *   and green channel for roughness, in linear space.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setMetallicRoughnessTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setMetallicRoughnessTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setMetallicRoughnessTexture(
+        texture: Texture,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setMetallicRoughnessTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
-        )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the metallic-roughness texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the metallic-roughness texture UV
-     *   transformation. The transform parameter is a 3x3 matrix.
-     */
-    @MainThread
-    public fun setMetallicRoughnessUvTransform(transform: Matrix3) {
-        session.platformAdapter.setMetallicRoughnessUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
         )
     }
 
     /**
      * Sets a scalar multiplier for the material's metallic property.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The metallic factor. If no metallic-roughness texture is used, this factor
-     *   directly defines metallicity.
+     * @param factor The metallic factor. Default is 1.0. Valid values are between 0.0 and 1.0,
+     *   inclusive.
      */
     @MainThread
-    public fun setMetallicFactor(factor: Float) {
-        session.platformAdapter.setMetallicFactorOnKhronosPbrMaterial(materialResource, factor)
+    public fun setMetallicFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        session.renderingRuntime.setMetallicFactorOnKhronosPbrMaterial(material, factor)
     }
 
     /**
      * Sets a scalar multiplier for the material's roughness.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The roughness factor. If no metallic-roughness texture is used, this factor
-     *   directly defines roughness.
+     * @param factor The roughness factor. Default is 1.0. Valid values are between 0.0 and 1.0,
+     *   inclusive.
      */
     @MainThread
-    public fun setRoughnessFactor(factor: Float) {
-        session.platformAdapter.setRoughnessFactorOnKhronosPbrMaterial(materialResource, factor)
+    public fun setRoughnessFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        session.renderingRuntime.setRoughnessFactorOnKhronosPbrMaterial(material, factor)
     }
 
     /**
      * Sets the normal map texture for surface detail.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * A normal map is a texture that simulates fine surface details, such as bumps, grooves, or
+     * scratches, by modifying the way light reflects off the surface. This creates the illusion of
+     * depth and complexity. By default the texture is unset, in which case no normal mapping is
+     * done.
      *
-     * @param texture The [Texture] to be used as the normal map. The texture provides normal
-     *   information, typically in tangent space and linear color.
+     * @param texture The [Texture] to be used as the normal map, in tangent space and linear color.
+     * @param scale A scalar multiplier controlling the strength of the normal map. Default is 1.0.
      * @param sampler The [TextureSampler] to be used when sampling the normal texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setNormalTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setNormalTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setNormalTexture(
+        texture: Texture,
+        @FloatRange(from = 0.0) scale: Float = 1.0f,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setNormalTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the normal texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the normal map texture UV transformation. The
-     *   transform parameter is a 3x3 matrix.
-     */
-    @MainThread
-    public fun setNormalUvTransform(transform: Matrix3) {
-        session.platformAdapter.setNormalUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
-        )
-    }
-
-    /**
-     * Controls the intensity of the normal map effect.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The normal map factor. The factor scales the perceived depth of the normal
-     *   details.
-     */
-    @MainThread
-    public fun setNormalFactor(factor: Float) {
-        session.platformAdapter.setNormalFactorOnKhronosPbrMaterial(materialResource, factor)
+        // TODO(b/441548345): Combine these calls at the renderer level.
+        session.renderingRuntime.setNormalFactorOnKhronosPbrMaterial(material, scale)
     }
 
     /**
      * Sets the ambient occlusion texture.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is unset, in which case there is no ambient occlusion.
      *
-     * @param texture The [Texture] to be used as the ambient occlusion texture. The texture defines
-     *   how much ambient light reaches surface points, typically using the red channel in linear
-     *   space.
-     * @param sampler The [TextureSampler] to be used when sampling the ambient occlusion texture.
+     * @param texture The [Texture] to be used. It must use the red channel in linear space.
+     * @param strength A scalar multiplier controlling the strength of the occlusion. Default is
+     *   1.0. Valid values are between 0.0 and 1.0, inclusive.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
+     * @throws IllegalArgumentException if strength is outside of the range 0-1, inclusive.
      */
+    @JvmOverloads
     @MainThread
-    public fun setAmbientOcclusionTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setAmbientOcclusionTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setOcclusionTexture(
+        texture: Texture,
+        @FloatRange(from = 0.0, to = 1.0) strength: Float = 1.0f,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setAmbientOcclusionTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the ambient occlusion texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the ambient occlusion texture UV
-     *   transformation. The transform parameter is a 3x3 matrix.
-     */
-    @MainThread
-    public fun setAmbientOcclusionUvTransform(transform: Matrix3) {
-        session.platformAdapter.setAmbientOcclusionUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
-        )
-    }
-
-    /**
-     * Controls the strength of the ambient occlusion effect.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The ambient occlusion factor. The factor scales the intensity of the ambient
-     *   occlusion.
-     */
-    @MainThread
-    public fun setAmbientOcclusionFactor(factor: Float) {
-        session.platformAdapter.setAmbientOcclusionFactorOnKhronosPbrMaterial(
-            materialResource,
-            factor,
-        )
+        // TODO(b/441548345): Combine these calls at the renderer level.
+        session.renderingRuntime.setAmbientOcclusionFactorOnKhronosPbrMaterial(material, strength)
     }
 
     /**
      * Sets the emissive texture, defining light emitted by the material.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the emissive values will always come from the emissive factor.
      *
-     * @param texture The [Texture] to be used as the emissive texture. The texture is typically in
-     *   sRGB color space.
+     * @param texture The [Texture] to be used as the emissive texture, in sRGB color space.
      * @param sampler The [TextureSampler] to be used when sampling the emissive texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setEmissiveTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setEmissiveTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setEmissiveTexture(texture: Texture, sampler: TextureSampler = TextureSampler()) {
+        session.renderingRuntime.setEmissiveTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
-        )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the emissive texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the emissive texture UV transformation. The
-     *   transform parameter is a 3x3 matrix.
-     */
-    @MainThread
-    public fun setEmissiveUvTransform(transform: Matrix3) {
-        session.platformAdapter.setEmissiveUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
         )
     }
 
     /**
      * Sets a linear multiplier for the emissive color.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is [0, 0, 0].
      *
-     * @param factors The [Vector3] (RGB) to be used as the emissive factors. These factors are
-     *   applied to the emissive texture or define a solid emissive color if no texture is used.
+     * @param factor The [Vector3] (in red, green, blue format) factor multiplied component-wise
+     *   with the emissive texture.
      */
     @MainThread
-    public fun setEmissiveFactors(factors: Vector3) {
-        session.platformAdapter.setEmissiveFactorsOnKhronosPbrMaterial(materialResource, factors)
+    public fun setEmissiveFactor(factor: Vector3) {
+        session.renderingRuntime.setEmissiveFactorsOnKhronosPbrMaterial(material, factor)
     }
 
     /**
      * Sets the clearcoat intensity texture.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the clearcoat intensity values will always come from the clearcoat
+     * factor.
      *
-     * @param texture The [Texture] to be used as the clearcoat texture. The texture defines the
-     *   clearcoat layer's strength, typically using the red channel in linear space.
-     * @param sampler The [TextureSampler] to be used when sampling the clearcoat texture.
+     * @param texture The [Texture] to be used. The texture defines the clearcoat layer's strength,
+     *   using the red channel in linear space.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setClearcoatTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setClearcoatTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setClearcoatTexture(texture: Texture, sampler: TextureSampler = TextureSampler()) {
+        session.renderingRuntime.setClearcoatTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
@@ -349,75 +247,112 @@ internal constructor(
     /**
      * Sets the normal map texture for the clearcoat layer.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default the texture is unset, in which case no normal mapping is done for the clearcoat,
+     * even if the base color has normal mapping.
      *
-     * @param texture The [Texture] to be used as the clearcoat normal texture. The texture provides
-     *   surface normal details for the clearcoat, in tangent space and linear color.
-     * @param sampler The [TextureSampler] to be used when sampling the clearcoat normal texture.
+     * @param texture The [Texture] to be used as the clearcoat normal texture, in tangent space and
+     *   linear color.
+     * @param scale A scalar multiplier controlling the strength of the clearcoat normal. Default is
+     *   1.0.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setClearcoatNormalTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setClearcoatNormalTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setClearcoatNormalTexture(
+        texture: Texture,
+        @FloatRange(from = 0.0) scale: Float = 1.0f,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setClearcoatNormalTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
+        )
+        // TODO(b/441548345): Combine these calls at the renderer level.
+        session.renderingRuntime.setClearcoatFactorsOnKhronosPbrMaterial(
+            material,
+            0.0f,
+            0.0f,
+            scale,
         )
     }
 
     /**
      * Sets the clearcoat roughness texture.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the clearcoat roughness values will always come from the clearcoat
+     * roughness factor.
      *
-     * @param texture The [Texture] to be used as the clearcoat roughness texture. The texture
-     *   defines the clearcoat layer's roughness, typically using the green channel in linear space.
-     * @param sampler The [TextureSampler] to be used when sampling the clearcoat roughness texture.
+     * @param texture The [Texture] to be used. It defines the clearcoat layer's roughness, using
+     *   the green channel in linear space.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setClearcoatRoughnessTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setClearcoatRoughnessTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setClearcoatRoughnessTexture(
+        texture: Texture,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setClearcoatRoughnessTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
     }
 
     /**
-     * Sets factors for the clearcoat layer, that is, the intensity, roughness, and normal scale.
+     * Sets a scalar multiplier for the clearcoat layer's intensity.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * Other methods for controlling the clearcoat layer include:
+     * - [setClearcoatTexture]
+     * - [setClearcoatNormalTexture]
+     * - [setClearcoatRoughnessTexture]
+     * - [setClearcoatRoughnessFactor]
      *
-     * @param intensity The intensity factor for the clearcoat layer.
-     * @param roughness The roughness factor for the clearcoat layer.
-     * @param normal The normal scale factor for the clearcoat layer's normal map.
+     * @param factor The clearcoat intensity factor. Default is 0.0. Valid values are between 0.0
+     *   and 1.0, inclusive.
      */
     @MainThread
-    public fun setClearcoatFactors(intensity: Float, roughness: Float, normal: Float) {
-        session.platformAdapter.setClearcoatFactorsOnKhronosPbrMaterial(
-            materialResource,
-            intensity,
-            roughness,
-            normal,
+    public fun setClearcoatFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        session.renderingRuntime.setClearcoatFactorsOnKhronosPbrMaterial(
+            material,
+            factor,
+            0.0f,
+            0.0f,
+        )
+    }
+
+    /**
+     * Sets a scalar multiplier for the clearcoat layer's roughness.
+     *
+     * @param factor The clearcoat roughness factor. Default is 0.0. Valid values are between 0.0
+     *   and 1.0, inclusive.
+     */
+    @MainThread
+    public fun setClearcoatRoughnessFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        session.renderingRuntime.setClearcoatFactorsOnKhronosPbrMaterial(
+            material,
+            0.0f,
+            factor,
+            0.0f,
         )
     }
 
     /**
      * Sets the sheen color texture, for materials like fabric.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the sheen color values will always come from the sheen color factor.
      *
-     * @param texture The [Texture] to be used as the sheen color texture. The texture defines the
-     *   sheen layer's color, typically in sRGB.
-     * @param sampler The [TextureSampler] to be used when sampling the sheen color texture.
+     * @param texture The [Texture] to be used, in sRGB.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setSheenColorTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setSheenColorTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setSheenColorTexture(texture: Texture, sampler: TextureSampler = TextureSampler()) {
+        session.renderingRuntime.setSheenColorTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
@@ -426,31 +361,35 @@ internal constructor(
     /**
      * Sets a linear multiplier for the sheen color.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is [0, 0, 0].
      *
-     * @param factors The [Vector3] (RGB) to be used as the sheen color factors. These factors are
-     *   applied to the sheen color texture or define a solid sheen color.
+     * @param factor The [Vector3] (RGB) factor multiplied component-wise with the sheen color
+     *   texture.
      */
     @MainThread
-    public fun setSheenColorFactors(factors: Vector3) {
-        session.platformAdapter.setSheenColorFactorsOnKhronosPbrMaterial(materialResource, factors)
+    public fun setSheenColorFactor(factor: Vector3) {
+        session.renderingRuntime.setSheenColorFactorsOnKhronosPbrMaterial(material, factor)
     }
 
     /**
      * Sets the sheen roughness texture.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * By default this is a white texture, where all pixels are [1, 1, 1, 1]. In other words, if
+     * this is left as default, the sheen roughness values will always come from the sheen roughness
+     * factor.
      *
-     * @param texture The [Texture] to be used as the sheen roughness texture. The texture defines
-     *   the sheen layer's roughness, typically using the alpha channel in linear space.
-     * @param sampler The [TextureSampler] to be used when sampling the sheen roughness texture.
+     * @param texture The [Texture] to be used. It defines the sheen layer's roughness, using the
+     *   alpha channel in linear space.
+     * @param sampler The [TextureSampler] to be used when sampling the texture.
      */
+    @JvmOverloads
     @MainThread
-    public fun setSheenRoughnessTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setSheenRoughnessTextureOnKhronosPbrMaterial(
-            materialResource,
+    public fun setSheenRoughnessTexture(
+        texture: Texture,
+        sampler: TextureSampler = TextureSampler(),
+    ) {
+        session.renderingRuntime.setSheenRoughnessTextureOnKhronosPbrMaterial(
+            material,
             texture.texture,
             sampler.toRtTextureSampler(),
         )
@@ -459,152 +398,53 @@ internal constructor(
     /**
      * Sets a scalar multiplier for the sheen layer's roughness.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The sheen roughness factor. If no sheen roughness texture is used, this factor
-     *   directly defines sheen roughness.
+     * @param factor The sheen roughness factor. Default is 0.0. Valid values are between 0.0 and
+     *   1.0, inclusive.
      */
     @MainThread
-    public fun setSheenRoughnessFactor(factor: Float) {
-        session.platformAdapter.setSheenRoughnessFactorOnKhronosPbrMaterial(
-            materialResource,
-            factor,
-        )
+    public fun setSheenRoughnessFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        session.renderingRuntime.setSheenRoughnessFactorOnKhronosPbrMaterial(material, factor)
     }
 
     /**
-     * Sets the transmission texture, defining how much light passes through the material.
+     * Sets the alpha cutoff threshold.
      *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
+     * This value is only used when the material's [alphaMode] is [AlphaMode.MASK].
      *
-     * @param texture The [Texture] to be used as the transmission texture. The texture typically
-     *   uses the red channel for the transmission factor, in linear space.
-     * @param sampler The [TextureSampler] to be used when sampling the transmission texture.
+     * @param alphaCutoff The alpha cutoff. Fragments with alpha below this value are discarded.
+     *   Default is 0.5. Valid values are between 0.0 and 1.0, inclusive.
+     * @throws IllegalArgumentException if the material's alphaMode is not ALPHA_MODE_MASK.
      */
     @MainThread
-    public fun setTransmissionTexture(texture: Texture, sampler: TextureSampler) {
-        session.platformAdapter.setTransmissionTextureOnKhronosPbrMaterial(
-            materialResource,
-            texture.texture,
-            sampler.toRtTextureSampler(),
-        )
-    }
-
-    /**
-     * Applies a 2D transformation to the UV coordinates of the transmission texture.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param transform The [Matrix3] to be used for the transmission texture UV transformation. The
-     *   transform parameter is a 3x3 matrix.
-     */
-    @MainThread
-    public fun setTransmissionUvTransform(transform: Matrix3) {
-        session.platformAdapter.setTransmissionUvTransformOnKhronosPbrMaterial(
-            materialResource,
-            transform,
-        )
-    }
-
-    /**
-     * Sets a scalar multiplier for the material's transmission.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param factor The transmission factor. If no transmission texture is used, this factor
-     *   directly defines the transmission fraction.
-     */
-    @MainThread
-    public fun setTransmissionFactor(factor: Float) {
-        session.platformAdapter.setTransmissionFactorOnKhronosPbrMaterial(materialResource, factor)
-    }
-
-    /**
-     * Sets the material's index of refraction (IOR).
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param indexOfRefraction The index of refraction. The indexOfRefraction value affects how
-     *   light bends when passing through or reflecting off the material.
-     */
-    @MainThread
-    public fun setIndexOfRefraction(indexOfRefraction: Float) {
-        session.platformAdapter.setIndexOfRefractionOnKhronosPbrMaterial(
-            materialResource,
-            indexOfRefraction,
-        )
-    }
-
-    /**
-     * Sets the alpha cutoff threshold for materials in "MASK" alpha mode.
-     *
-     * This method must be called from the main thread.
-     * https://developer.android.com/guide/components/processes-and-threads
-     *
-     * @param alphaCutoff The alpha cutoff. Fragments with alpha below alphaCutoff are discarded.
-     */
-    @MainThread
-    public fun setAlphaCutoff(alphaCutoff: Float) {
-        session.platformAdapter.setAlphaCutoffOnKhronosPbrMaterial(materialResource, alphaCutoff)
+    public fun setAlphaCutoff(@FloatRange(from = 0.0, to = 1.0) alphaCutoff: Float) {
+        check(alphaMode == AlphaMode.MASK) {
+            "Alpha cutoff can only be set when the material's alpha mode is set to ALPHA_MODE_MASK."
+        }
+        session.renderingRuntime.setAlphaCutoffOnKhronosPbrMaterial(material, alphaCutoff)
     }
 
     public companion object {
-        // ResolvableFuture is marked as RestrictTo(LIBRARY_GROUP_PREFIX), which is intended for
-        // classes
-        // within AndroidX. We're in the process of migrating to AndroidX. Without suppressing this
-        // warning, however, we get a build error - go/bugpattern/RestrictTo.
-        @SuppressWarnings("RestrictTo")
-        internal fun createAsync(
-            platformAdapter: JxrPlatformAdapter,
-            spec: KhronosPbrMaterialSpec,
+        internal suspend fun createAsync(
+            renderingRuntime: RenderingRuntime,
+            alphaMode: AlphaMode,
             session: Session,
-        ): ListenableFuture<KhronosPbrMaterial> {
-            val materialResourceFuture =
-                platformAdapter.createKhronosPbrMaterial(spec.toRtKhronosPbrMaterialSpec())
-            val materialFuture = ResolvableFuture.create<KhronosPbrMaterial>()
-
-            materialResourceFuture.addListener(
-                {
-                    try {
-                        val material = materialResourceFuture.get()
-                        materialFuture.set(KhronosPbrMaterial(material, spec, session))
-                    } catch (e: Exception) {
-                        if (e is InterruptedException) {
-                            Thread.currentThread().interrupt()
-                        }
-                        materialFuture.setException(e)
-                    }
-                },
-                Runnable::run,
-            )
-            return materialFuture
+        ): KhronosPbrMaterial {
+            val material =
+                renderingRuntime.createKhronosPbrMaterial(alphaMode.toRtKhronosPbrMaterialSpec())
+            return KhronosPbrMaterial(material, alphaMode, session)
         }
 
         /**
-         * Asynchronously creates a Khronos PBR material based on the provided
-         * KhronosPbrMaterialSpec. This specification allows for initial setup of material
-         * parameters.
+         * Asynchronously creates a [KhronosPbrMaterial].
          *
-         * This method must be called from the main thread.
-         * https://developer.android.com/guide/components/processes-and-threads
-         *
-         * @param session The [Session] to use for loading the model.
-         * @param spec The [KhronosPbrMaterialSpec] to use for the material.
-         * @return a [KhronosPbrMaterial] upon completion.
+         * @param session The active [Session] in which to create the material.
+         * @param alphaMode The [AlphaMode] to use for the material.
+         * @return The newly created [KhronosPbrMaterial].
          */
         @MainThread
         @JvmStatic
-        public suspend fun create(
-            session: Session,
-            spec: KhronosPbrMaterialSpec,
-        ): KhronosPbrMaterial {
-            return KhronosPbrMaterial.createAsync(session.platformAdapter, spec, session)
-                .awaitSuspending()
+        public suspend fun create(session: Session, alphaMode: AlphaMode): KhronosPbrMaterial {
+            return createAsync(session.renderingRuntime, alphaMode, session)
         }
     }
 }

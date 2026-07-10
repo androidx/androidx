@@ -89,7 +89,7 @@ class MissingKeepAnnotationDetectorTest : LintDetectorTest() {
                 enum class TestEnum { ONE, TWO }
                            ~~~~~~~~
                 0 errors, 1 warnings
-            """
+                """
                     .trimIndent()
             )
     }
@@ -205,11 +205,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -271,7 +271,7 @@ enum class TestEnum { ONE, TWO }
                 enum class TestEnum { ONE, TWO }
                            ~~~~~~~~
                 0 errors, 1 warnings
-            """
+                """
                     .trimIndent()
             )
     }
@@ -333,11 +333,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/TestClass.kt:8: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class DeepLinkArg
-           ~~~~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestClass.kt:8: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class DeepLinkArg
+                           ~~~~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -396,11 +396,11 @@ enum class DeepLinkArg
             .run()
             .expect(
                 """
-src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -458,11 +458,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }

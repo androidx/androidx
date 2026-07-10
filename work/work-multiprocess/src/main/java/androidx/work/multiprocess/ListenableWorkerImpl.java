@@ -276,4 +276,9 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             }
         }
     }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
 }

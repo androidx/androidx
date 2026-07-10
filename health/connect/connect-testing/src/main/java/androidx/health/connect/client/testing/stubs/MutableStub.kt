@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("MutableStubs")
+
 package androidx.health.connect.client.testing.stubs
 
 /**

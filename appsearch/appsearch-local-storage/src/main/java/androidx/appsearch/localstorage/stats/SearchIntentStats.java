@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
@@ -41,9 +42,8 @@ import java.util.List;
  * click actions (see {@link ClickStats}) on fetched result documents. Related information of a
  * search intent will be extracted from
  * {@link androidx.appsearch.app.PutDocumentsRequest#getTakenActionGenericDocuments}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchIntentStats extends BaseStats {
     /** AppSearch query correction type compared with the previous query. */
@@ -145,6 +145,29 @@ public final class SearchIntentStats extends BaseStats {
     /** Returns the list of {@link ClickStats} in this search intent. */
     public @NonNull List<ClickStats> getClicksStats() {
         return mClicksStats;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("SearchIntentStats {\n")
+                .append(String.format("  packageName=%s,\n", mPackageName))
+                .append(String.format("  database=%s,\n", mDatabase))
+                .append(String.format("  prevQuery=%s,\n", mPrevQuery))
+                .append(String.format("  currQuery=%s,\n", mCurrQuery))
+                .append(String.format("  timestampMillis=%d,\n", mTimestampMillis))
+                .append(String.format("  numResultsFetched=%d,\n", mNumResultsFetched))
+                .append(String.format("  queryCorrectionType=%d,\n", mQueryCorrectionType))
+                .append("  clicksStats=[\n");
+        for (int i = 0; i < mClicksStats.size(); i++) {
+            sb.append("    ").append(
+                    String.valueOf(mClicksStats.get(i)).replace("\n", "\n    ")).append(",\n");
+        }
+        sb.append("  ],\n")
+                // Include BaseStats fields
+                .append(super.toString())
+                .append("}");
+        return sb.toString();
     }
 
     /** Builder for {@link SearchIntentStats} */

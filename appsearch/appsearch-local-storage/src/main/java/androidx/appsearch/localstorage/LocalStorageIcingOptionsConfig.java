@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.flags.Flags;
 
 import org.jspecify.annotations.NonNull;
 
@@ -91,18 +92,8 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean getLiteIndexSortAtIndexing() {
-        return DEFAULT_LITE_INDEX_SORT_AT_INDEXING;
-    }
-
-    @Override
     public int getLiteIndexSortSize() {
         return DEFAULT_LITE_INDEX_SORT_SIZE;
-    }
-
-    @Override
-    public boolean getUseNewQualifiedIdJoinIndex() {
-        return DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX;
     }
 
     @Override
@@ -123,5 +114,25 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     @Override
     public int getCompressionThresholdBytes() {
         return DEFAULT_COMPRESSION_THRESHOLD_BYTES;
+    }
+
+    @Override
+    public int getEmbeddingIndexNumShards() {
+        return DEFAULT_EMBEDDING_INDEX_NUM_SHARDS;
+    }
+
+    @Override
+    public boolean enableRepeatedFieldJoins() {
+        return Flags.enableRepeatedFieldJoins();
+    }
+
+    @Override
+    public boolean enableIcingBackgroundTaskScheduler() {
+        return true;
+    }
+
+    @Override
+    public long getExpiredDocumentPurgingThresholdMillis() {
+        return DEFAULT_EXPIRED_DOCUMENT_PURGING_THRESHOLD_MILLIS;
     }
 }

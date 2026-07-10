@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<complication type="SHORT_TEXT">
+    <text>
+        <time instant="@integer/test_instant" />
+    </text>
+    <title>
+        <date instant="@integer/test_instant" />
+    </title>
+</complication>

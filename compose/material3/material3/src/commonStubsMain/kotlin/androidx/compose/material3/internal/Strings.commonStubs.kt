@@ -30,79 +30,245 @@ internal actual fun getString(string: Strings): String = implementedInJetBrainsF
 @Immutable
 internal actual value class Strings constructor(val value: Int) {
     actual companion object {
-        actual val NavigationMenu: Strings = implementedInJetBrainsFork()
-        actual val CloseDrawer: Strings = implementedInJetBrainsFork()
-        actual val CloseRail: Strings = implementedInJetBrainsFork()
-        actual val CloseSheet: Strings = implementedInJetBrainsFork()
-        actual val DefaultErrorMessage: Strings = implementedInJetBrainsFork()
-        actual val SliderRangeStart: Strings = implementedInJetBrainsFork()
-        actual val SliderRangeEnd: Strings = implementedInJetBrainsFork()
-        actual val Dialog: Strings = implementedInJetBrainsFork()
-        actual val MenuExpanded: Strings = implementedInJetBrainsFork()
-        actual val MenuCollapsed: Strings = implementedInJetBrainsFork()
-        actual val SnackbarDismiss: Strings = implementedInJetBrainsFork()
-        actual val SnackbarPaneTitle: Strings = implementedInJetBrainsFork()
-        actual val SearchBarSearch: Strings = implementedInJetBrainsFork()
-        actual val SuggestionsAvailable: Strings = implementedInJetBrainsFork()
-        actual val DatePickerTitle: Strings = implementedInJetBrainsFork()
-        actual val DatePickerHeadline: Strings = implementedInJetBrainsFork()
-        actual val DatePickerYearPickerPaneTitle: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToYearSelection: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToDaySelection: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToNextMonth: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToPreviousMonth: Strings = implementedInJetBrainsFork()
-        actual val DatePickerNavigateToYearDescription: Strings = implementedInJetBrainsFork()
-        actual val DatePickerHeadlineDescription: Strings = implementedInJetBrainsFork()
-        actual val DatePickerNoSelectionDescription: Strings = implementedInJetBrainsFork()
-        actual val DatePickerTodayDescription: Strings = implementedInJetBrainsFork()
-        actual val DatePickerScrollToShowLaterYears: Strings = implementedInJetBrainsFork()
-        actual val DatePickerScrollToShowEarlierYears: Strings = implementedInJetBrainsFork()
-        actual val DateInputTitle: Strings = implementedInJetBrainsFork()
-        actual val DateInputHeadline: Strings = implementedInJetBrainsFork()
-        actual val DateInputLabel: Strings = implementedInJetBrainsFork()
-        actual val DateInputHeadlineDescription: Strings = implementedInJetBrainsFork()
-        actual val DateInputNoInputDescription: Strings = implementedInJetBrainsFork()
-        actual val DateInputInvalidNotAllowed: Strings = implementedInJetBrainsFork()
-        actual val DateInputInvalidForPattern: Strings = implementedInJetBrainsFork()
-        actual val DateInputInvalidYearRange: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToCalendarMode: Strings = implementedInJetBrainsFork()
-        actual val DatePickerSwitchToInputMode: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerTitle: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerStartHeadline: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerEndHeadline: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerScrollToShowNextMonth: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerScrollToShowPreviousMonth: Strings = implementedInJetBrainsFork()
-        actual val DateRangePickerDayInRange: Strings = implementedInJetBrainsFork()
-        actual val DateRangeInputTitle: Strings = implementedInJetBrainsFork()
-        actual val DateRangeInputInvalidRangeInput: Strings = implementedInJetBrainsFork()
-        actual val FloatingToolbarCollapse: Strings = implementedInJetBrainsFork()
-        actual val FloatingToolbarExpand: Strings = implementedInJetBrainsFork()
-        actual val BottomSheetPaneTitle: Strings = implementedInJetBrainsFork()
-        actual val BottomSheetDragHandleDescription: Strings = implementedInJetBrainsFork()
-        actual val BottomSheetPartialExpandDescription: Strings = implementedInJetBrainsFork()
-        actual val BottomSheetDismissDescription: Strings = implementedInJetBrainsFork()
-        actual val BottomSheetExpandDescription: Strings = implementedInJetBrainsFork()
-        actual val TooltipLongPressLabel: Strings = implementedInJetBrainsFork()
-        actual val TimePickerAM: Strings = implementedInJetBrainsFork()
-        actual val TimePickerPM: Strings = implementedInJetBrainsFork()
-        actual val TimePickerPeriodToggle: Strings = implementedInJetBrainsFork()
-        actual val TimePickerHourSelection: Strings = implementedInJetBrainsFork()
-        actual val TimePickerMinuteSelection: Strings = implementedInJetBrainsFork()
-        actual val TimePickerHourSuffix: Strings = implementedInJetBrainsFork()
-        actual val TimePicker24HourSuffix: Strings = implementedInJetBrainsFork()
-        actual val TimePickerMinuteSuffix: Strings = implementedInJetBrainsFork()
-        actual val TimePickerHour: Strings = implementedInJetBrainsFork()
-        actual val TimePickerMinute: Strings = implementedInJetBrainsFork()
-        actual val TimePickerHourTextField: Strings = implementedInJetBrainsFork()
-        actual val TimePickerMinuteTextField: Strings = implementedInJetBrainsFork()
-        actual val TooltipPaneDescription: Strings = implementedInJetBrainsFork()
-        actual val ExposedDropdownMenu: Strings = implementedInJetBrainsFork()
-        actual val TimePickerDialogTitle: Strings = implementedInJetBrainsFork()
-        actual val TimeInputDialogTitle: Strings = implementedInJetBrainsFork()
-        actual val TimePickerToggleKeyboard: Strings = implementedInJetBrainsFork()
-        actual val TimePickerToggleTouch: Strings = implementedInJetBrainsFork()
-        actual val ToggleDropdownMenu: Strings = implementedInJetBrainsFork()
-        actual val WideNavigationRailPaneTitle: Strings = implementedInJetBrainsFork()
+        actual val NavigationMenu: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val CloseDrawer: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val CloseRail: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val CloseSheet: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DefaultErrorMessage: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SliderRangeStart: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SliderRangeEnd: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val Dialog: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val MenuExpanded: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val MenuCollapsed: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SnackbarDismiss: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SnackbarPaneTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SearchBarSearch: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val SuggestionsAvailable: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerHeadline: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerYearPickerPaneTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToYearSelection: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToDaySelection: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToNextMonth: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToPreviousMonth: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerNavigateToYearDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerHeadlineDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerNoSelectionDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerTodayDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerScrollToShowLaterYears: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerScrollToShowEarlierYears: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputHeadline: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputLabel: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputHeadlineDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputNoInputDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputInvalidNotAllowed: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputInvalidForPattern: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateInputInvalidYearRange: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToCalendarMode: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DatePickerSwitchToInputMode: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerStartHeadline: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerEndHeadline: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerScrollToShowNextMonth: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerScrollToShowPreviousMonth: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangePickerDayInRange: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangeInputTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val DateRangeInputInvalidRangeInput: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val FloatingToolbarCollapse: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val FloatingToolbarExpand: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val FloatingToolbarMoreOptions: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val BottomSheetPaneTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val BottomSheetDragHandleDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val BottomSheetPartialExpandDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val BottomSheetDismissDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val BottomSheetExpandDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TooltipLongPressLabel: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerAM: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerPM: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerPeriodToggle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerHourSelection: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerMinuteSelection: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerHourSuffix: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePicker24HourSuffix: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerMinuteSuffix: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerHour: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerMinute: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerHourTextField: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerMinuteTextField: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TooltipPaneDescription: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val ExposedDropdownMenu: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerDialogTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimeScrollDialogTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimeInputDialogTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerToggleKeyboard: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerToggleScroll: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerToggleTouch: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerMinuteError: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePickerHourError: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val TimePicker24HourError: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val ToggleDropdownMenu: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val WideNavigationRailPaneTitle: Strings
+            get() = implementedInJetBrainsFork()
+
+        actual val ButtonGroupMoreOptions: Strings
+            get() = implementedInJetBrainsFork()
     }
 }
 

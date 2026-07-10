@@ -506,7 +506,7 @@ fun contentColorFor(backgroundColor: Color) =
     }
 
 /**
- * Returns the new background [Color] to use, representing the original background [color] with an
+ * Returns the new background [Color] to use, representing the original [backgroundColor] with an
  * overlay corresponding to [elevation] applied. The overlay will only be applied to
  * [ColorScheme.surface].
  */

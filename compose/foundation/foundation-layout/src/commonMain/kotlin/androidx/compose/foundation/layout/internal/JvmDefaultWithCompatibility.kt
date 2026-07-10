@@ -16,4 +16,6 @@
 
 package androidx.compose.foundation.layout.internal
 
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
 internal expect annotation class JvmDefaultWithCompatibility()

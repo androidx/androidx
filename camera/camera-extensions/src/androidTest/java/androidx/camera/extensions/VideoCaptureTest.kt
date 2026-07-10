@@ -23,17 +23,14 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
-import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -68,20 +65,14 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class VideoCaptureTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig,
-    private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraXConfig)
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -99,7 +90,6 @@ class VideoCaptureTest(
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionsCameraSelector: CameraSelector
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private lateinit var latchForVideoStarted: CountDownLatch
     private lateinit var latchForVideoSaved: CountDownLatch
@@ -138,18 +128,11 @@ class VideoCaptureTest(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
 
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
-
-        extensionsCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
 
         fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
     }
@@ -175,10 +158,13 @@ class VideoCaptureTest(
 
         // Act.
         instrumentation.runOnMainSync {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, videoCapture)
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                videoCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
         }
         videoCapture.recordTo(file)
@@ -204,12 +190,19 @@ class VideoCaptureTest(
 
         // Act.
         instrumentation.runOnMainSync {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(
+                    extensionMode,
+                    extensionsManager,
+                    preview,
+                    imageCapture,
+                    videoCapture,
+                )
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                preview,
-                imageCapture,
-                videoCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
             preview.setSurfaceProvider(createPreviewSurfaceProvider())
         }
@@ -289,11 +282,9 @@ class VideoCaptureTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
-        )
+        @Parameterized.Parameters(name = "mode = {0}, facing = {1}")
         fun data(): Collection<Array<Any>> {
-            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+            return ExtensionsTestUtil.getAllExtensionsLensFacingCombinations(context, true)
         }
     }
 }

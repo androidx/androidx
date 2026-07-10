@@ -16,10 +16,12 @@
 
 package androidx.core.uwb.impl
 
+import android.util.Log
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
+import androidx.core.uwb.RangingResult.Companion.fromId
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.backend.IRangingSessionCallback
@@ -31,6 +33,7 @@ import androidx.core.uwb.backend.UwbRangeDataNtfConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
@@ -157,11 +160,17 @@ internal open class UwbClientSessionScopeAospImpl(
 
                 override fun onRangingSuspended(device: UwbDevice, reason: Int) {
                     trySend(
-                        RangingResult.RangingResultPeerDisconnected(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address?.address!!))
+                            RangingResult.RangingResultFailure(
+                                androidx.core.uwb.UwbDevice(UwbAddress(device.address?.address!!)),
+                                fromId(reason),
+                            )
                         )
-                    )
+                        .onFailure { throwable ->
+                            Log.w(TAG, "Failed to send RangingResultFailure", throwable)
+                        }
                 }
+
+                override fun getInterfaceVersion(): Int = VERSION
             }
 
         try {

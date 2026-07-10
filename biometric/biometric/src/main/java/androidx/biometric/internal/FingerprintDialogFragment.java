@@ -291,24 +291,21 @@ public class FingerprintDialogFragment extends DialogFragment {
             return;
         }
 
-        // Devices older than this do not have FP support (and also do not support SVG), so it's
-        // fine for this to be a no-op. An error is returned immediately and the dialog is not
-        // shown.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            @State final int previousState = mViewModel.getFingerprintDialogPreviousState();
+        @State final int previousState = mViewModel.getFingerprintDialogPreviousState();
 
-            Drawable icon = getAssetForTransition(previousState, state);
-            if (icon == null) {
-                return;
-            }
-
-            mFingerprintIcon.setImageDrawable(icon);
-            if (shouldAnimateForTransition(previousState, state)) {
-                Api21Impl.startAnimation(icon);
-            }
-
-            mViewModel.setFingerprintDialogPreviousState(state);
+        Drawable icon = getAssetForTransition(previousState, state);
+        if (icon == null) {
+            return;
         }
+
+        mFingerprintIcon.setImageDrawable(icon);
+        if (shouldAnimateForTransition(previousState, state)) {
+            if (icon instanceof AnimatedVectorDrawable) {
+                ((AnimatedVectorDrawable) icon).start();
+            }
+        }
+
+        mViewModel.setFingerprintDialogPreviousState(state);
     }
 
     /**
@@ -441,25 +438,6 @@ public class FingerprintDialogFragment extends DialogFragment {
          */
         static int getColorErrorAttr() {
             return androidx.appcompat.R.attr.colorError;
-        }
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
-     */
-    private static class Api21Impl {
-        // Prevent instantiation.
-        private Api21Impl() {}
-
-        /**
-         * Starts animating the given icon if it is an {@link AnimatedVectorDrawable}.
-         *
-         * @param icon A {@link Drawable} icon asset.
-         */
-        static void startAnimation(@NonNull Drawable icon) {
-            if (icon instanceof AnimatedVectorDrawable) {
-                ((AnimatedVectorDrawable) icon).start();
-            }
         }
     }
 }

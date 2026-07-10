@@ -37,6 +37,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Range;
@@ -157,8 +158,6 @@ public class EncoderImpl implements Encoder {
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
     private static final long SIGNAL_EOS_TIMEOUT_MS = 1000L;
-    static final String PARAMETER_KEY_TIMELAPSE_ENABLED = "time-lapse-enable";
-    static final String PARAMETER_KEY_TIMELAPSE_FPS = "time-lapse-fps";
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final String mTag;
@@ -166,7 +165,6 @@ public class EncoderImpl implements Encoder {
     final Object mLock = new Object();
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final boolean mIsVideoEncoder;
-    private final EncoderConfig mEncoderConfig;
     @VisibleForTesting
     final MediaFormat mMediaFormat;
     @SuppressWarnings("WeakerAccess") // synthetic accessor
@@ -242,7 +240,6 @@ public class EncoderImpl implements Encoder {
             int sessionType)
             throws InvalidConfigException {
         Preconditions.checkNotNull(executor);
-        mEncoderConfig = Preconditions.checkNotNull(encoderConfig);
 
         mMediaCodec = createCodec(encoderConfig);
         MediaCodecInfo mediaCodecInfo = mMediaCodec.getCodecInfo();
@@ -256,7 +253,10 @@ public class EncoderImpl implements Encoder {
             mTag = "AudioEncoder";
             mIsVideoEncoder = false;
             mEncoderInput = new ByteBufferInput();
-            mEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo, encoderConfig.getMimeType());
+            AudioEncoderInfo audioEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo,
+                    encoderConfig.getMimeType());
+            clampBitrateIfNotSupported(audioEncoderInfo, mMediaFormat);
+            mEncoderInfo = audioEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(audioEncoderConfig.getCaptureSampleRate(),
                     audioEncoderConfig.getEncodeSampleRate());
         } else if (encoderConfig instanceof VideoEncoderConfig) {
@@ -266,7 +266,7 @@ public class EncoderImpl implements Encoder {
             mEncoderInput = new SurfaceInput();
             VideoEncoderInfo videoEncoderInfo = new VideoEncoderInfoImpl(mediaCodecInfo,
                     encoderConfig.getMimeType());
-            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
+            clampBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
             mEncoderInfo = videoEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(videoEncoderConfig.getCaptureFrameRate(),
                     videoEncoderConfig.getEncodeFrameRate());
@@ -298,18 +298,23 @@ public class EncoderImpl implements Encoder {
     }
 
     /**
-     * Clamps the video bitrate in MediaFormat if the video bitrate is not supported by the
-     * supplied VideoEncoderInfo.
+     * Clamps the bitrate in MediaFormat if the bitrate is not supported by the
+     * supplied EncoderInfo.
      *
-     * @param videoEncoderInfo VideoEncoderInfo object
-     * @param mediaFormat      MediaFormat object
+     * @param encoderInfo EncoderInfo object
+     * @param mediaFormat MediaFormat object
      */
-    private void clampVideoBitrateIfNotSupported(@NonNull VideoEncoderInfo videoEncoderInfo,
+    private void clampBitrateIfNotSupported(@NonNull EncoderInfo encoderInfo,
             @NonNull MediaFormat mediaFormat) {
-        checkState(mIsVideoEncoder);
         if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
             int origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
-            int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(origBitrate);
+            Range<Integer> supportedBitrateRange;
+            if (mIsVideoEncoder) {
+                supportedBitrateRange = ((VideoEncoderInfo) encoderInfo).getSupportedBitrateRange();
+            } else {
+                supportedBitrateRange = ((AudioEncoderInfo) encoderInfo).getBitrateRange();
+            }
+            int newBitrate = supportedBitrateRange.clamp(origBitrate);
             if (origBitrate != newBitrate) {
                 mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
                 Logger.d(mTag, "updated bitrate from " + origBitrate + " to " + newBitrate);
@@ -1240,7 +1245,13 @@ public class EncoderImpl implements Encoder {
                             executor = mEncoderCallbackExecutor;
                         }
 
-                        if (mIsVideoEncoder && isSlowMotion()) {
+                        if (Build.VERSION.SDK_INT < 30 && mIsVideoEncoder && isSlowMotion()) {
+                            // Timestamps for slow-motion recording are automatically adjusted by
+                            // the GraphicBufferSource from API 30 onward (specifically when
+                            // configuring codec with different KEY_CAPTURE_RATE and
+                            // KEY_FRAME_RATE). For devices on earlier API levels, we manually
+                            // adjust the timestamp.
+                            // See ACodec.cpp/CCodec.cpp/GraphicBufferSource.cpp for details.
                             bufferInfo.presentationTimeUs =
                                     toPresentationTimeUsByCaptureEncodeRatio(
                                             bufferInfo.presentationTimeUs);
@@ -1600,13 +1611,6 @@ public class EncoderImpl implements Encoder {
                     case PENDING_START:
                     case PENDING_START_PAUSED:
                     case PENDING_RELEASE:
-                        if (mIsVideoEncoder && isSlowMotion()) {
-                            // MediaMuxer will write these values to the video metadata so Photos
-                            // can recognize that this is a slow-motion video.
-                            mediaFormat.setInteger(PARAMETER_KEY_TIMELAPSE_ENABLED, 1);
-                            mediaFormat.setInteger(PARAMETER_KEY_TIMELAPSE_FPS,
-                                    ((VideoEncoderConfig) mEncoderConfig).getCaptureFrameRate());
-                        }
                         EncoderCallback encoderCallback;
                         Executor executor;
                         synchronized (mLock) {

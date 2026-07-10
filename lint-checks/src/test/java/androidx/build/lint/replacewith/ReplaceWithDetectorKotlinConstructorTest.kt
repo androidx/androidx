@@ -18,8 +18,6 @@
 
 package androidx.build.lint.replacewith
 
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,7 +27,6 @@ class ReplaceWithDetectorKotlinConstructorTest {
 
     @Test
     fun constructorStaticClass() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
@@ -38,23 +35,23 @@ class ReplaceWithDetectorKotlinConstructorTest {
 
         val expected =
             """
-src/replacewith/ConstructorKotlinStaticClass.java:25: Hint: Replacement available [ReplaceWith]
-        new ReplaceWithUsageKotlin("parameter");
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/ConstructorKotlinStaticClass.java:25: Hint: Replacement available [ReplaceWith]
+                    new ReplaceWithUsageKotlin("parameter");
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/ConstructorKotlinStaticClass.java line 25: Replace with `StringBuffer("parameter")`:
-@@ -19 +19
-+ import java.lang.StringBuffer;
-+
-@@ -25 +27
--         new ReplaceWithUsageKotlin("parameter");
-+         new StringBuffer("parameter");
-        """
+            Fix for src/replacewith/ConstructorKotlinStaticClass.java line 25: Replace with `StringBuffer("parameter")`:
+            @@ -19 +19
+            + import java.lang.StringBuffer;
+            +
+            @@ -25 +27
+            -         new ReplaceWithUsageKotlin("parameter");
+            +         new StringBuffer("parameter");
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -62,7 +59,6 @@ Fix for src/replacewith/ConstructorKotlinStaticClass.java line 25: Replace with 
 
     @Test
     fun constructorNonStaticClass() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
@@ -71,20 +67,20 @@ Fix for src/replacewith/ConstructorKotlinStaticClass.java line 25: Replace with 
 
         val expected =
             """
-src/replacewith/ConstructorKotlinNonStaticClass.java:25: Hint: Replacement available [ReplaceWith]
-        new ReplaceWithUsageKotlin().new InnerClass("param");
-                                         ~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/ConstructorKotlinNonStaticClass.java:25: Hint: Replacement available [ReplaceWith]
+                    new ReplaceWithUsageKotlin().new InnerClass("param");
+                                                     ~~~~~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/ConstructorKotlinNonStaticClass.java line 25: Replace with `InnerClass()`:
-@@ -25 +25
--         new ReplaceWithUsageKotlin().new InnerClass("param");
-+         new ReplaceWithUsageKotlin().new InnerClass();
-        """
+            Fix for src/replacewith/ConstructorKotlinNonStaticClass.java line 25: Replace with `InnerClass()`:
+            @@ -25 +25
+            -         new ReplaceWithUsageKotlin().new InnerClass("param");
+            +         new ReplaceWithUsageKotlin().new InnerClass();
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -92,7 +88,6 @@ Fix for src/replacewith/ConstructorKotlinNonStaticClass.java line 25: Replace wi
 
     @Test
     fun constructorToStaticMethod() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
@@ -101,20 +96,20 @@ Fix for src/replacewith/ConstructorKotlinNonStaticClass.java line 25: Replace wi
 
         val expected =
             """
-src/replacewith/ConstructorKotlinToStaticMethod.java:25: Hint: Replacement available [ReplaceWith]
-        new ReplaceWithUsageKotlin(10000);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/ConstructorKotlinToStaticMethod.java:25: Hint: Replacement available [ReplaceWith]
+                    new ReplaceWithUsageKotlin(10000);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/ConstructorKotlinToStaticMethod.java line 25: Replace with `ReplaceWithUsageKotlin.obtain(10000)`:
-@@ -25 +25
--         new ReplaceWithUsageKotlin(10000);
-+         ReplaceWithUsageKotlin.obtain(10000);
-        """
+            Fix for src/replacewith/ConstructorKotlinToStaticMethod.java line 25: Replace with `ReplaceWithUsageKotlin.obtain(10000)`:
+            @@ -25 +25
+            -         new ReplaceWithUsageKotlin(10000);
+            +         ReplaceWithUsageKotlin.obtain(10000);
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)

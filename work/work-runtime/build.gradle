@@ -15,22 +15,21 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
 import androidx.build.ProjectLayoutType
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("androidx.stableaidl")
 }
@@ -40,8 +39,6 @@ android {
         aidl = true
     }
     buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-
         stableAidl {
             version = 1
         }
@@ -57,11 +54,14 @@ android {
             }
         }
     }
-    compileSdk = 35
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
-    }
+    compileSdk { version = release(35) }
     namespace = "androidx.work"
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        (variant as HasAndroidTest).androidTest.sources.assets.addStaticSourceDirectory("src/schemas")
+    }
 }
 
 dependencies {
@@ -76,7 +76,6 @@ dependencies {
     api("androidx.startup:startup-runtime:1.1.1")
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
     implementation("androidx.tracing:tracing-ktx:1.2.0")
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.truth)
@@ -89,12 +88,14 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.mockitoCore)
     lintPublish(project(":work:work-runtime-lint"))
 }
 
@@ -111,10 +112,16 @@ ksp {
     arg("room.schemaLocation","$projectDir/src/schemas".toString())
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.work.ExperimentalConfigurationApi")
+        optIn.add("androidx.work.ExperimentalEventsApi")
+    }
+}
+
 androidx {
     name = "WorkManager Runtime"
     type = SoftwareType.PUBLISHED_LIBRARY
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

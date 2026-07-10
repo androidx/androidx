@@ -17,11 +17,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     buildTypes {
         getByName("release") {
             minifyEnabled = true
@@ -31,7 +30,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":startup:startup-runtime"))
     implementation(project(":startup:integration-tests:first-library"))
     implementation(project(":startup:integration-tests:second-library"))

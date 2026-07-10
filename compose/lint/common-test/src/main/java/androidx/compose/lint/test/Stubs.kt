@@ -563,11 +563,11 @@ object Stubs {
     val RetainObserver: TestFile =
         bytecodeStub(
             filename = "RetainObserver.kt",
-            filepath = "androidx/compose/runtime",
-            checksum = 0x3d97471d,
+            filepath = "androidx/compose/runtime/retain",
+            checksum = 0xc7b3210e,
             source =
                 """
-        package androidx.compose.runtime
+        package androidx.compose.runtime.retain
 
         interface RetainObserver {
             fun onRetained()
@@ -579,25 +579,27 @@ object Stubs {
             fun onRetired()
 
             fun onAbandoned()
+
+            fun onUnused()
         }
         """,
             """
                 META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgAmJGBijgUuGSSMxLKcrPTKnQS87PLcgvTtUr
-                Ks0rycxNFeIISi1JzMzzLuFS5ZLBpUovLT9fiNUtP9+7RIlBiwEA9+K1PWUA
-                AAA=
+                H4sIAAAAAAAA/2NgYGBmYGBggmIw4FLjkknMSynKz0yp0EvOzy3IL07VKyrN
+                K8nMTdVLy88XYgtJLS7xLuHS5pLHqa4otSQxM0+IIwhMe5coMWgxAACnVhm7
+                bQAAAA==
                 """,
             """
-                androidx/compose/runtime/RetainObserver.class:
-                H4sIAAAAAAAA/41QQU8aQRh93yywy9raRayivVe9dJF482SMTTEYE5p44bSw
-                02YEZszOQDjyuzwYzv4o4zcLIamnJpvvvXnZ9+bN9/r2/ALgAt8IJ5nOC6Py
-                RToy0ydjZVrMtFNTmfaly5S+H1pZzGURggjJYzbP0kmm/6b3w0c5ciECQmz0
-                +l+ZE4LTswfCvtE32slC5tdlqnLKaEKT5YVyH9R66VeFt+8YfTXkSqYMa/TG
-                xk2UTu84P89cdkkQ03nA5YUf5AcINGZ9ofypzSw/J/RXy71YtEQsktUy5k8k
-                zKNK9Ke1WnZEm26jRByLdvDrO7PKllW3rLZl4Zr55A7hrPefK+Oy3K3xr/hj
-                7Hhjv82sGMmfaiIJR/21+0FZNZzIK62Ny/xmbI1vRMU/EdUKoYoawBhuMNpg
-                fYOxR3YclbOFY8ZrbrDDzk8DBF187mK3iy9IGNHoYg/NAchiH18HiCwOLA4t
-                quUMrVfqFvE7bWEsxC8CAAA=
+                androidx/compose/runtime/retain/RetainObserver.class:
+                H4sIAAAAAAAA/5WQTUsjQRCG3+5JZiYTPyYmanT3LHpxsrI3TyKKEUVwWS+5
+                OMm00vnolulOyDG/aw9LwJs/SqyehIDehKbeh6Kr6q16e//3H8Bv/GQ4TlWW
+                a5lNk54evWgjknysrByRCptKldwXctc1Ip+IPABjiPvpJE2GqXpO7rp90bMB
+                PIZIq8VfkTF4h0cPDA2tLpQVucjOi+bSSq0Y6pSeSvslWynqZe7Kq1qddcmZ
+                LpqFWv1VY+OwdjPQdki2bmlUltr0lIGPJh6tw10AAxs4IJt8Kh21iLJfDI/z
+                2VbEmzzi8XwW0eMxcVgOn5rz2Qlvsesw5vu85V0dEJVWVF6Rv6JgReGCXme+
+                5+acMLRuvndS2oBc1z4njweWLvpHj/OeuJRDwbB3v2jyII3sDsWZUtqm7nLG
+                p8EoueXhlxjK8AHSYKnhUitLjZZadUqV+0Xcww/SS3KyRh3WO/Da2CjeJuI2
+                athqo45GB8xgGzsdVAx2DZoG5SIGBqFxycig+gHsDA8QYQIAAA==
                 """,
         )
 

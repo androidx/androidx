@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.config
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
@@ -24,13 +25,17 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Parameters
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
+import androidx.camera.camera2.pipe.core.SystemClockOffsets
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
+import androidx.camera.camera2.pipe.graph.Controller3A
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
@@ -38,9 +43,12 @@ import androidx.camera.camera2.pipe.graph.Listener3A
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.graph.SurfaceGraph
 import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
+import androidx.camera.camera2.pipe.internal.CameraGraphRequestListenersImpl
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
-import androidx.camera.camera2.pipe.internal.ImageSourceMap
+import androidx.camera.camera2.pipe.internal.GraphSessionLock
+import androidx.camera.camera2.pipe.media.ImageReaderImageSources
+import androidx.camera.camera2.pipe.media.ImageSources
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -50,6 +58,8 @@ import javax.inject.Qualifier
 import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 
 @Scope internal annotation class CameraGraphScope
 
@@ -69,7 +79,15 @@ import kotlinx.coroutines.CoroutineScope
 internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
+    fun graphProcessor(): GraphProcessor
+
+    fun frameCaptureQueue(): FrameCaptureQueue
+
+    fun sessionLock(): GraphSessionLock
+
     fun frameDistributor(): FrameDistributor
+
+    fun controller3A(): Controller3A
 
     @Subcomponent.Builder
     interface Builder {
@@ -80,8 +98,13 @@ internal interface CameraGraphComponent {
 }
 
 @Module
-internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
+internal class CameraGraphConfigModule(
+    private val config: CameraGraph.Config,
+    private val cameraGraphId: CameraGraphId,
+) {
     @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
+
+    @Provides fun provideCameraGraphId(): CameraGraphId = cameraGraphId
 }
 
 @Module
@@ -104,18 +127,23 @@ internal abstract class SharedCameraGraphModules {
 
     @Binds abstract fun bindCameraGraphParameters(parameters: CameraGraphParametersImpl): Parameters
 
+    @Binds
+    abstract fun bindCameraGraphListeners(
+        listeners: CameraGraphRequestListenersImpl
+    ): RequestListeners
+
     companion object {
         @CameraGraphScope
         @Provides
-        fun provideCameraGraphId(): CameraGraphId {
-            return CameraGraphId.nextId()
-        }
-
-        @CameraGraphScope
-        @Provides
         @ForCameraGraph
-        fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
+        fun provideCameraGraphCoroutineScope(
+            threads: Threads,
+            @CameraPipeJob cameraPipeJob: Job,
+        ): CoroutineScope {
+            return CoroutineScope(
+                SupervisorJob(cameraPipeJob) +
+                    threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph"))
+            )
         }
 
         @CameraGraphScope
@@ -147,23 +175,47 @@ internal abstract class SharedCameraGraphModules {
             streamGraphImpl: StreamGraphImpl,
             cameraController: Provider<CameraController>,
             cameraSurfaceManager: CameraSurfaceManager,
-            imageSourceMap: ImageSourceMap,
         ): SurfaceGraph {
             return SurfaceGraph(
                 streamGraphImpl,
                 cameraController,
                 cameraSurfaceManager,
-                imageSourceMap.imageSources,
+                streamGraphImpl.imageSourceMap,
             )
         }
 
         @CameraGraphScope
         @Provides
         fun provideFrameDistributor(
-            imageSourceMap: ImageSourceMap,
+            streamGraphImpl: StreamGraphImpl,
             frameCaptureQueue: FrameCaptureQueue,
+            cameraMetadata: CameraMetadata,
+            systemClockOffsets: SystemClockOffsets,
         ): FrameDistributor {
-            return FrameDistributor(imageSourceMap.imageSources, frameCaptureQueue)
+            val isCameraTimebaseRealtime =
+                (cameraMetadata[CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE] ==
+                    CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME)
+
+            return FrameDistributor(
+                streamGraphImpl,
+                frameCaptureQueue,
+                isCameraTimebaseRealtime,
+                systemClockOffsets.realtimeNsToMonotonicNs,
+            )
+        }
+
+        @CameraGraphScope @Provides fun provideSystemClockOffsets() = SystemClockOffsets.estimate()
+
+        @CameraGraphScope
+        @Provides
+        fun configureImageSources(
+            imageReaderImageSources: ImageReaderImageSources,
+            cameraPipeConfig: CameraPipe.Config,
+        ): ImageSources {
+            if (cameraPipeConfig.imageSources != null) {
+                return cameraPipeConfig.imageSources
+            }
+            return imageReaderImageSources
         }
     }
 }

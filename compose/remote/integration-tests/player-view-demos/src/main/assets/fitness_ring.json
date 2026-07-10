@@ -1,0 +1,146 @@
+{
+  "header": {
+    "width": 360,
+    "height": 360,
+    "profiles": 512,
+    "contentDescription": "Fitness Ring Tracker with AGSL Neon Glow Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#090D16"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 24
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = (fragCoord - 0.5 * iResolution) / min(iResolution.x, iResolution.y);\n    float r = length(uv);\n    float angle = atan(uv.y, uv.x);\n    float t = iTime * 2.8;\n    float ringGlow = abs(r - 0.34);\n    float pulse = 0.009 / (ringGlow + 0.004);\n    float spark = sin(angle * 10.0 + t) * 0.5 + 0.5;\n    float3 col = float3(0.0, 0.9, 0.75) * pulse * (0.7 + 0.3 * spark);\n    return half4(col, clamp(pulse * 0.75, 0.0, 0.85));\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 20
+          }
+        ],
+        "horizontalAlignment": "center",
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "DAILY ACTIVITY",
+                "fontSize": 14,
+                "fontWeight": 700,
+                "color": "#2DD4BF"
+              },
+              {
+                "type": "text",
+                "value": "AGSL Glowing Rings",
+                "fontSize": 12,
+                "color": "#94A3B8"
+              }
+            ]
+          },
+          {
+            "type": "column",
+            "horizontalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "8,420",
+                "fontSize": 42,
+                "fontWeight": 700,
+                "color": "#FFFFFF"
+              },
+              {
+                "type": "text",
+                "value": "STEPS / 10,000",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#2DD4BF"
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "children": [
+              {
+                "type": "text",
+                "value": "\ud83d\udd25 480 kcal",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#F43F5E"
+              },
+              {
+                "type": "text",
+                "value": "\u23f1 42 mins",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#10B981"
+              },
+              {
+                "type": "text",
+                "value": "\u26a1\ufe0f 12 hrs",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#06B6D4"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

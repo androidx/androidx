@@ -35,13 +35,13 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.CoreEntityNode
 import androidx.xr.compose.subspace.layout.CoreEntityScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.coreEntity
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.onPointSourceParamsAvailable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.TestSetup
+import androidx.xr.scenecore.Entity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -51,7 +51,13 @@ import org.junit.runner.RunWith
 /** Tests for [SubspaceModifierNodeChain]. */
 @RunWith(AndroidJUnit4::class)
 class SubspaceModifierNodeChainTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     // This is used to track the number of times CountNode is reused.
     var nodeCount = 0
@@ -66,25 +72,24 @@ class SubspaceModifierNodeChainTest {
         var executionCounter = 0
         val modifier =
             mutableStateOf(
-                SubspaceModifier.size(300.dp).offset(x = 1.dp).onPointSourceParamsAvailable {
+                SubspaceModifier.size(300.dp).offset(x = 1.dp).onModifierInit {
                     executionCounter += 1
                 }
             )
         composeTestRule.setContent {
-            TestSetup { Subspace { SpatialPanel(modifier = modifier.value) { Box {} } } }
+            Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
         composeTestRule.waitForIdle()
         assertThat(executionCounter).isEqualTo(1)
 
-        // Update modifier chain. Width, offset, and onPointSourceParams will be re-used and not
+        // Update modifier chain. Width, offset, and onModifierInit will be re-used and not
         // execute
         // again.
         modifier.value =
-            SubspaceModifier.width(300.dp)
-                .height(200.dp)
-                .offset(x = 1.dp)
-                .onPointSourceParamsAvailable { executionCounter += 1 }
+            SubspaceModifier.width(300.dp).height(200.dp).offset(x = 1.dp).onModifierInit {
+                executionCounter += 1
+            }
         composeTestRule.waitForIdle()
         assertThat(executionCounter).isEqualTo(1)
     }
@@ -94,23 +99,21 @@ class SubspaceModifierNodeChainTest {
         var executionCounter = 0
         val modifier =
             mutableStateOf(
-                SubspaceModifier.size(300.dp).offset(x = 1.dp).onPointSourceParamsAvailable {
+                SubspaceModifier.size(300.dp).offset(x = 1.dp).onModifierInit {
                     executionCounter += 1
                 }
             )
         composeTestRule.setContent {
-            TestSetup { Subspace { SpatialPanel(modifier = modifier.value) { Box {} } } }
+            Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
         composeTestRule.waitForIdle()
         assertThat(executionCounter).isEqualTo(1)
 
-        // Update modifier chain. width and onPointSourceParams should be re-used and not execute
+        // Update modifier chain. width and onModifierInit should be re-used and not execute
         // again.
         modifier.value =
-            SubspaceModifier.width(300.dp).height(200.dp).onPointSourceParamsAvailable {
-                executionCounter += 1
-            }
+            SubspaceModifier.width(300.dp).height(200.dp).onModifierInit { executionCounter += 1 }
         composeTestRule.waitForIdle()
         assertThat(executionCounter).isEqualTo(1)
     }
@@ -120,22 +123,22 @@ class SubspaceModifierNodeChainTest {
         var executionCounter = 0
         val modifier =
             mutableStateOf(
-                SubspaceModifier.size(300.dp).offset(x = 1.dp).onPointSourceParamsAvailable {
+                SubspaceModifier.size(300.dp).offset(x = 1.dp).onModifierInit {
                     executionCounter += 1
                 }
             )
         composeTestRule.setContent {
-            TestSetup { Subspace { SpatialPanel(modifier = modifier.value) { Box {} } } }
+            Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
         composeTestRule.waitForIdle()
         assertThat(executionCounter).isEqualTo(1)
 
-        // Update modifier chain. onPointSourceParams will be reconstructed because it is moved,
+        // Update modifier chain. onModifierInit will be reconstructed because it is moved,
         // causing
         // the callback to increase count to execute again.
         modifier.value =
-            SubspaceModifier.onPointSourceParamsAvailable { executionCounter += 1 }
+            SubspaceModifier.onModifierInit { executionCounter += 1 }
                 .width(300.dp)
                 .size(300.dp)
                 .offset(x = 1.dp)
@@ -146,21 +149,17 @@ class SubspaceModifierNodeChainTest {
     @Test
     fun nodeChain_statefulModifierNodesAreReused() {
         composeTestRule.setContent {
-            TestSetup {
-                Subspace {
-                    var count by remember { mutableStateOf(100) }
-                    SpatialPanel(SubspaceModifier.count(count = count)) {
-                        Button(modifier = Modifier.testTag("button"), onClick = { count += 1 }) {
-                            Text(text = "Click to recompose")
-                        }
+            Subspace {
+                var count by remember { mutableStateOf(100) }
+                SpatialPanel(SubspaceModifier.count(count = count)) {
+                    Button(modifier = Modifier.testTag("button"), onClick = { count += 1 }) {
+                        Text(text = "Click to recompose")
                     }
                 }
             }
         }
 
-        // There should be multiple initial compositions as the SpatialPanel is attempting to size
-        // itself and the state manager is initialized and settled.
-        var count = 2
+        var count = 1
         composeTestRule.waitForIdle()
         assertThat(nodeCount).isEqualTo(count)
 
@@ -211,6 +210,44 @@ class SubspaceModifierNodeChainTest {
 
         override fun CoreEntityScope.modifyCoreEntity() {
             nodeCount = ++internalCount
+        }
+    }
+
+    public fun SubspaceModifier.onModifierInit(onInit: () -> Unit): SubspaceModifier =
+        this.then(ModifierInitElement(onInit))
+
+    private inner class ModifierInitElement(private val onInit: () -> Unit) :
+        SubspaceModifierNodeElement<PointSourceNode>() {
+
+        override fun create(): PointSourceNode = PointSourceNode(onInit)
+
+        override fun update(node: PointSourceNode) {
+            node.onInit = onInit
+        }
+
+        override fun hashCode(): Int {
+            return onInit.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ModifierInitElement) return false
+
+            return onInit === other.onInit
+        }
+    }
+
+    private inner class PointSourceNode(var onInit: () -> Unit) :
+        SubspaceModifier.Node(), CoreEntityNode {
+        private var currentEntity: Entity? = null
+
+        override fun CoreEntityScope.modifyCoreEntity() {
+            coreEntity.onEntityAttached { entity ->
+                if (currentEntity != entity) {
+                    currentEntity = entity
+                    onInit()
+                }
+            }
         }
     }
 }

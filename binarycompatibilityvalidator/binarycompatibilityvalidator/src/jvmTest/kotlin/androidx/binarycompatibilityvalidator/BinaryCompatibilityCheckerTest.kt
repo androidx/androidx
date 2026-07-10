@@ -20,16 +20,15 @@ import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
-import kotlinx.validation.ExperimentalBCVApi
-import kotlinx.validation.api.klib.KlibDump
-import kotlinx.validation.api.klib.KlibDumpFilters
+import org.jetbrains.kotlin.abi.tools.AbiTools
+import org.jetbrains.kotlin.abi.tools.KlibTarget
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbiReader
 import org.junit.Test
 
 private const val KOTLIN_STDLIB_PROPERTY = "kotlin.stdlib.klib.dir"
 
-@OptIn(ExperimentalLibraryAbiReader::class, ExperimentalBCVApi::class)
+@OptIn(ExperimentalLibraryAbiReader::class)
 class BinaryCompatibilityCheckerTest {
     private val klibFile by lazy { getJavaResource("collection.klib") }
     private val validBaselineFile by lazy { getJavaResource("valid_baseline.txt") }
@@ -42,17 +41,18 @@ class BinaryCompatibilityCheckerTest {
         File(klibDir)
     }
 
+    val abiTools = AbiTools.getInstance()
+
     @Test
     fun klibDumpIsCompatibleWithItself() {
         val libraryAbi = LibraryAbiReader.readAbiInfo(klibFile, emptyList())
-        val dump = KlibDump.fromKlib(klibFile, "linuxX64", KlibDumpFilters {})
         val dumpText =
             StringBuilder().let {
-                dump.saveTo(it)
-                it.toString()
+                val dump = abiTools.extractKlibAbi(klibFile, KlibTarget("linuxX64"))
+                StringBuilder().let { dump.print(it) }.toString()
             }
 
-        val parsedLibraryAbis = KlibDumpParser(dumpText).parse()
+        val parsedLibraryAbis = MergedKlibDumpParser(dumpText).parse()
 
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
             mapOf("linuxX64" to libraryAbi),
@@ -68,9 +68,10 @@ class BinaryCompatibilityCheckerTest {
         val e =
             assertFailsWith<ValidationException> {
                 BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
-                    KlibDumpParser(currentDump).parse(),
-                    KlibDumpParser(previousDump).parse(),
+                    MergedKlibDumpParser(currentDump).parse(),
+                    MergedKlibDumpParser(previousDump).parse(),
                     shouldFreeze = false,
+                    dependencies = mapOf("linux" to emptySet(), "ios" to emptySet()),
                 )
             }
         assertThat(e.message).contains("[ios]: Target was removed")
@@ -80,11 +81,11 @@ class BinaryCompatibilityCheckerTest {
     fun allowsTargetAdditions() {
         val previousDump = createDumpText("", listOf("linux"))
         val currentDump = createDumpText("", listOf("linux", "ios"))
-        KlibDumpParser(previousDump).parse()
-        KlibDumpParser(currentDump).parse()
+        MergedKlibDumpParser(previousDump).parse()
+        MergedKlibDumpParser(currentDump).parse()
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
-            KlibDumpParser(currentDump).parse(),
-            KlibDumpParser(previousDump).parse(),
+            MergedKlibDumpParser(currentDump).parse(),
+            MergedKlibDumpParser(previousDump).parse(),
             shouldFreeze = false,
             dependencies = mapOf("linux" to emptySet(), "ios" to emptySet()),
         )
@@ -94,13 +95,13 @@ class BinaryCompatibilityCheckerTest {
     fun throwsOnAdditionalTargetsWhenAPIIsFrozen() {
         val previousDump = createDumpText("", listOf("linux"))
         val currentDump = createDumpText("", listOf("linux", "ios"))
-        KlibDumpParser(previousDump).parse()
-        KlibDumpParser(currentDump).parse()
+        MergedKlibDumpParser(previousDump).parse()
+        MergedKlibDumpParser(currentDump).parse()
         val e =
             assertFailsWith<ValidationException> {
                 BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
-                    KlibDumpParser(currentDump).parse(),
-                    KlibDumpParser(previousDump).parse(),
+                    MergedKlibDumpParser(currentDump).parse(),
+                    MergedKlibDumpParser(previousDump).parse(),
                     shouldFreeze = true,
                     dependencies = mapOf("linux" to emptySet(), "ios" to emptySet()),
                 )
@@ -158,13 +159,13 @@ class BinaryCompatibilityCheckerTest {
     fun removeValueParametersWithSameType() {
         val beforeText =
             """
-        final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun my.lib/foo(kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int){}[0]
+            """
                 .trimIndent()
         val expectedErrorMessages =
             listOf("Removed declaration my.lib/foo(kotlin/Int, kotlin/Int) from androidx:library")
@@ -175,13 +176,13 @@ class BinaryCompatibilityCheckerTest {
     fun removedDefaultFromTwoParametersWithSameType() {
         val beforeText =
             """
-        final fun my.lib/foo(kotlin/Int =..., kotlin/Int =...): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int =..., kotlin/Int =...): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val expectedErrorMessages =
             listOf(
@@ -942,7 +943,7 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
-    fun removeConcreteImplemantation() {
+    fun removeConcreteImplementation() {
         val beforeText =
             """
         abstract class my.lib/MyClass : my.lib/MyInterface { // my.lib/MyClass|null[0]
@@ -1370,6 +1371,29 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun addNewAbstractPropertyToClass() {
+        val beforeText =
+            """
+        abstract class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+        }
+        """
+        val afterText =
+            """
+        abstract class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            abstract val myProperty // my.lib/MyClass.myProperty|{}myProperty[0]
+                abstract fun <get-myProperty>(): kotlin/String // my.lib/MyClass.myProperty.<get-myProperty>|<get-myProperty>(){}[0]
+        }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Added declaration myProperty to my.lib/MyClass"),
+        )
+    }
+
+    @Test
     fun interfaceToFunctionalInterface() {
         val beforeText =
             """
@@ -1463,13 +1487,13 @@ class BinaryCompatibilityCheckerTest {
     fun typeParamTagChange() {
         val beforeText =
             """
-        final fun <#A: kotlin/Int, #B: kotlin/String> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.Int>;1§<kotlin.String>}[0]    
-        """
+            final fun <#A: kotlin/Int, #B: kotlin/String> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.Int>;1§<kotlin.String>}[0]    
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun <#A: kotlin/String, #B: kotlin/Int> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.String>;1§<kotlin.Int>}[0]    
-        """
+            final fun <#A: kotlin/String, #B: kotlin/Int> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.String>;1§<kotlin.Int>}[0]    
+            """
                 .trimIndent()
         val expectedErrors =
             listOf("Removed declaration <A : kotlin/Int, B : kotlin/String>my.lib/foo()")
@@ -1599,6 +1623,172 @@ class BinaryCompatibilityCheckerTest {
         testBeforeAndAfterIsCompatible(beforeText, afterText)
     }
 
+    @Test
+    fun newMethodToSealedClassExtendedByAbstractIsInvalid() {
+        val beforeText =
+            """
+            abstract class example/Abstract : example/Sealed { // example/Abstract|null[0]
+                constructor <init>() // example/Abstract.<init>|<init>(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            abstract class example/Abstract : example/Sealed { // example/Abstract|null[0]
+                constructor <init>() // example/Abstract.<init>|<init>(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Added declaration newFunFromSealed() to example/Sealed"),
+        )
+    }
+
+    @Test
+    @Ignore("Not implemented yet")
+    fun newMethodToSealedClassExtendedByAbstractIsValidIfAdditionIsConcreteInSubclass() {
+        val beforeText =
+            """
+            abstract class example/Concrete : example/Sealed { // example/Concrete|null[0]
+                constructor <init>() // example/Concrete.<init>|<init>(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            abstract class example/Concrete : example/Sealed { // example/Concrete|null[0]
+                constructor <init>() // example/Concrete.<init>|<init>(){}[0]
+                open fun newFunFromSealed() // example/Concrete.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsCompatible(beforeText, afterText)
+    }
+
+    @Test
+    fun newMethodToSealedClassWithAbstractSubclassThatIsAlsoSealedWithNoAbstractSubclass() {
+        val beforeText =
+            """
+            sealed class example/DoubleSealed : example/Sealed { // example/DoubleSealed|null[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            sealed class example/DoubleSealed : example/Sealed { // example/DoubleSealed|null[0]
+                open fun newFunFromSealed() // example/DoubleSealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsCompatible(beforeText, afterText)
+    }
+
+    @Test
+    fun newMethodToSealedClassWithAbstractSubclassThatIsAlsoSealedWithAbstractSubclassIsIncompatible() {
+        val beforeText =
+            """
+            abstract class example/DoubleSealedAbstract : example/DoubleSealed { // example/DoubleSealedAbstract|null[0]
+                constructor <init>() // example/DoubleSealedAbstract.<init>|<init>(){}[0]
+            }
+            sealed class example/DoubleSealed : example/Sealed { // example/DoubleSealed|null[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            abstract class example/DoubleSealedAbstract : example/DoubleSealed { // example/DoubleSealedAbstract|null[0]
+                constructor <init>() // example/DoubleSealedAbstract.<init>|<init>(){}[0]
+            }
+            sealed class example/DoubleSealed : example/Sealed { // example/DoubleSealed|null[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Added declaration newFunFromSealed() to example/Sealed"),
+        )
+    }
+
+    @Test
+    fun newMethodToSealedClassExtendedByAnotherSealedWithNoAbstractChildren() {
+        val beforeText =
+            """
+            abstract class example/DoubleSealedChild : example/DoubleSealed { // example/DoubleSealedChild|null[0]
+                constructor <init>() // example/DoubleSealedChild.<init>|<init>(){}[0]
+            }
+            sealed class example/DoubleSealed : example/Sealed // example/DoubleSealed|null[0]
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            abstract class example/DoubleSealedChild : example/DoubleSealed { // example/DoubleSealedChild|null[0]
+                constructor <init>() // example/DoubleSealedChild.<init>|<init>(){}[0]
+            }
+            sealed class example/DoubleSealed : example/Sealed // example/DoubleSealed|null[0]
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Added declaration newFunFromSealed() to example/Sealed"),
+        )
+    }
+
+    @Test
+    fun newMethodToSealedClassNotExtendedByAbstractIsValid() {
+        val beforeText =
+            """
+            final class example/Concrete : example/Sealed { // example/Concrete|null[0]
+                constructor <init>() // example/Concrete.<init>|<init>(){}[0]
+                final fun funFromSealed() // example/Concrete.funFromSealed|funFromSealed(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+            }
+        """
+        val afterText =
+            """
+            final class example/Concrete : example/Sealed { // example/Concrete|null[0]
+                constructor <init>() // example/Concrete.<init>|<init>(){}[0]
+                final fun funFromSealed() // example/Concrete.funFromSealed|funFromSealed(){}[0]
+                final fun newFunFromSealed() // example/Concrete.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+            sealed class example/Sealed { // example/Sealed|null[0]
+                abstract fun funFromSealed() // example/Sealed.funFromSealed|funFromSealed(){}[0]
+                abstract fun newFunFromSealed() // example/Sealed.newFunFromSealed|newFunFromSealed(){}[0]
+            }
+        """
+        testBeforeAndAfterIsCompatible(beforeText, afterText)
+    }
+
     @Ignore // b/409298472
     @Test
     fun changedOrdinalOfEnumEntries() {
@@ -1641,12 +1831,16 @@ class BinaryCompatibilityCheckerTest {
     fun removedTargets() {
         val beforeText = createDumpText("", listOf("iosX64", "linuxX64"))
         val afterText = createDumpText("", listOf("linuxX64"))
-        val beforeLibs = KlibDumpParser(beforeText).parse()
-        val afterLibs = KlibDumpParser(afterText).parse()
+        val beforeLibs = MergedKlibDumpParser(beforeText).parse()
+        val afterLibs = MergedKlibDumpParser(afterText).parse()
 
         val e =
             assertFailsWith<ValidationException> {
-                BinaryCompatibilityChecker.checkAllBinariesAreCompatible(afterLibs, beforeLibs)
+                BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
+                    afterLibs,
+                    beforeLibs,
+                    dependencies = mapOf("iosX64" to emptySet(), "linuxX64" to emptySet()),
+                )
             }
         assertThat(e.message).contains("[iosX64]: Target was removed")
     }
@@ -1655,8 +1849,8 @@ class BinaryCompatibilityCheckerTest {
     fun removedTargetsWhenBaselinedSucceeds() {
         val beforeText = createDumpText("", listOf("iosX64", "linuxX64"))
         val afterText = createDumpText("", listOf("linuxX64"))
-        val beforeLibs = KlibDumpParser(beforeText).parse()
-        val afterLibs = KlibDumpParser(afterText).parse()
+        val beforeLibs = MergedKlibDumpParser(beforeText).parse()
+        val afterLibs = MergedKlibDumpParser(afterText).parse()
 
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
             afterLibs,
@@ -1664,6 +1858,55 @@ class BinaryCompatibilityCheckerTest {
             setOf("[iosX64]: Target was removed"),
             dependencies = mapOf("iosX64" to emptySet(), "linuxX64" to emptySet()),
         )
+    }
+
+    @Test
+    fun removedDeclarationsAndTargetsAreBothReported() {
+        val beforeText =
+            """
+            // KLib ABI Dump
+            // Targets: [linuxX64, iosX64]
+            // Rendering settings:
+            // - Signature version: 2
+            // - Show manifest properties: true
+            // - Show declarations: true
+            // Library unique name: <androidx:library>
+            final class my.lib/MyClass { // my.lib/MyClass|null[0]
+                constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+                final fun myFun(): kotlin/String // my.lib/MyClass.myFun|myFun(){}[0]
+            }
+            """
+                .trimIndent()
+        val afterText =
+            """
+            // KLib ABI Dump
+            // Targets: [linuxX64]
+            // Rendering settings:
+            // - Signature version: 2
+            // - Show manifest properties: true
+            // - Show declarations: true
+            // Library unique name: <androidx:library>
+            final class my.lib/MyClass { // my.lib/MyClass|null[0]
+                constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            }
+            """
+                .trimIndent()
+        val beforeLibs = MergedKlibDumpParser(beforeText).parse()
+        val afterLibs = MergedKlibDumpParser(afterText).parse()
+        val errors =
+            BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
+                afterLibs,
+                beforeLibs,
+                baselines = emptySet(),
+                shouldFreeze = false,
+                validate = false,
+                dependencies = mapOf("iosX64" to setOf(stdlibKlib), "linuxX64" to setOf(stdlibKlib)),
+            )
+        assertThat(errors.map { it.toString() })
+            .containsExactly(
+                "[iosX64]: Target was removed",
+                "[linuxX64]: Removed declaration myFun() from my.lib/MyClass",
+            )
     }
 
     @Test
@@ -1681,8 +1924,8 @@ class BinaryCompatibilityCheckerTest {
 
         val errors =
             BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
-                KlibDumpParser(afterText).parse(),
-                KlibDumpParser(beforeText).parse(),
+                MergedKlibDumpParser(afterText).parse(),
+                MergedKlibDumpParser(beforeText).parse(),
                 baselines = emptySet(),
                 validate = false,
                 dependencies = mapOf("myTarget" to emptySet()),
@@ -1744,8 +1987,8 @@ class BinaryCompatibilityCheckerTest {
         """
             )
         val afterText = createDumpText("")
-        val beforeLibs = KlibDumpParser(beforeText).parse()
-        val afterLibs = KlibDumpParser(afterText).parse()
+        val beforeLibs = MergedKlibDumpParser(beforeText).parse()
+        val afterLibs = MergedKlibDumpParser(afterText).parse()
 
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
             afterLibs,
@@ -1815,8 +2058,8 @@ class BinaryCompatibilityCheckerTest {
     ) {
         val beforeText = createDumpText(before)
         val afterText = createDumpText(after)
-        val beforeLibs = KlibDumpParser(beforeText).parse()
-        val afterLibs = KlibDumpParser(afterText).parse()
+        val beforeLibs = MergedKlibDumpParser(beforeText).parse()
+        val afterLibs = MergedKlibDumpParser(afterText).parse()
 
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
             afterLibs,

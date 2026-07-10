@@ -19,12 +19,13 @@ package androidx.xr.glimmer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ColorsTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun themeUpdatesWithNewColors() {
@@ -66,6 +67,7 @@ class ColorsTest {
             val secondaryContentColor = calculateContentColor(secondary)
             val positiveContentColor = calculateContentColor(positive)
             val negativeContentColor = calculateContentColor(negative)
+            val backgroundContentColor = calculateContentColor(background)
             val surfaceContentColor = calculateContentColor(surface)
             assertThat(calculateContrastRatio(primaryContentColor, primary))
                 .isAtLeast(expectedContrastValue)
@@ -74,6 +76,8 @@ class ColorsTest {
             assertThat(calculateContrastRatio(positiveContentColor, positive))
                 .isAtLeast(expectedContrastValue)
             assertThat(calculateContrastRatio(negativeContentColor, negative))
+                .isAtLeast(expectedContrastValue)
+            assertThat(calculateContrastRatio(backgroundContentColor, background))
                 .isAtLeast(expectedContrastValue)
             assertThat(calculateContrastRatio(surfaceContentColor, surface))
                 .isAtLeast(expectedContrastValue)

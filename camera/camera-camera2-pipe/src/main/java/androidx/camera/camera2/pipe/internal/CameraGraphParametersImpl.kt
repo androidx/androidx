@@ -18,31 +18,46 @@ package androidx.camera.camera2.pipe.internal
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraTimestamp
+import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.camera2.pipe.ParameterUpdateListener
 import androidx.camera.camera2.pipe.Parameters
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.graph.GraphProcessor
-import androidx.camera.camera2.pipe.graph.SessionLock
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * Implementation of [Parameters]. It propagates the parameter changes to the camera device via
+ * [graphProcessor]. This is designed in such a way that helps us with reducing the actual number of
+ * invocations to [graphProcessor]. We try to batch the changes and apply them together if possible.
+ */
 @CameraGraphScope
 public class CameraGraphParametersImpl
 @Inject
 internal constructor(
-    private val sessionLock: SessionLock,
+    private val sessionLock: GraphSessionLock,
     private val graphProcessor: GraphProcessor,
     @ForCameraGraph private val graphScope: CoroutineScope,
 ) : Parameters {
     private val lock = Any()
 
     @GuardedBy("lock") private val parameters = mutableMapOf<Any, Any?>()
-
+    @GuardedBy("lock") private val listeners = mutableListOf<ParameterUpdateRequestListener>()
+    @GuardedBy("lock")
+    private val listenerMap = mutableMapOf<CaptureRequest.Key<*>, Request.Listener>()
     /**
-     * Set to true when [parameters] is modified. Set to false when the modified [parameters] is
-     * fetched.
+     * It tracks if the [parameters] map contains changes that have not been applied. It is set to
+     * true when we detect changes to [parameters] and is set to false when a snapshot is taken to
+     * be sent to the graphProcessor.
      */
     @GuardedBy("lock") private var dirty = false
 
@@ -55,7 +70,6 @@ internal constructor(
         synchronized(lock) { parameters[key] as T }
 
     public override operator fun <T : Any> set(key: CaptureRequest.Key<T>, value: T?) {
-
         setAll(mapOf(key to value))
     }
 
@@ -64,20 +78,23 @@ internal constructor(
     }
 
     public override fun setAll(newParameters: Map<Any, Any?>) {
-        var invokeUpdate = false
-        synchronized(lock) {
-            var modified = false
-            for ((key, value) in newParameters.entries) {
-                modified = modify(parameters, key, value) || modified
+        val invokeUpdate =
+            synchronized(lock) {
+                var modified = false
+                for ((key, value) in newParameters.entries) {
+                    val isModified = modify(parameters, key, value)
+                    if (isModified) {
+                        modified = true
+                    }
+                }
+                shouldApplyUpdate(modified)
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
     }
 
+    @GuardedBy("lock")
     private fun modify(map: MutableMap<Any, Any?>, key: Any, value: Any?): Boolean {
         if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
             warn {
@@ -85,31 +102,89 @@ internal constructor(
             }
             return false
         }
-        var modified = false
-        if (!map.containsKey(key)) {
-            modified = true
-        }
-        if (map[key] != value) {
-            modified = true
+        if (map.containsKey(key) && map[key] == value) {
+            return false
         }
         map[key] = value
-        return modified
+        return true
+    }
+
+    public override fun <T : Any> apply(
+        key: CaptureRequest.Key<T>,
+        value: T?,
+        listener: ParameterUpdateListener,
+    ) {
+        var skipListener = false
+        val invokeUpdate =
+            synchronized(lock) {
+                if (parameters.containsKey(key) && parameters[key] == value) {
+                    skipListener = true
+                    false
+                } else {
+                    val wrappedListener = ParameterUpdateRequestListener(key, listener, this)
+                    modify(parameters, key, value)
+                    listeners.add(wrappedListener)
+                    listenerMap[key] = wrappedListener
+                    shouldApplyUpdate(modified = true)
+                }
+            }
+        if (skipListener) {
+            listener.onUpdateSkipped(null)
+        } else if (invokeUpdate) {
+            applyUpdate()
+        }
+    }
+
+    // A listener is purged (meaning it receives an onUpdateSkipped callback and is removed) only
+    // when it is superseded by a newer apply() call for the same parameter key before it ever gets
+    // a chance to be sent to the camera framework.
+    //
+    // This avoids premature updates to the listener collection and prevents accidental listener
+    // removal when apply() and other lifecycle methods are called in rapid succession.
+    internal fun removeAndPurgePriors(
+        key: CaptureRequest.Key<*>,
+        listener: ParameterUpdateRequestListener,
+    ) {
+        val listenersToPurge = mutableSetOf<ParameterUpdateRequestListener>()
+        synchronized(lock) {
+            val iterator = listeners.listIterator()
+            while (iterator.hasNext()) {
+                val currentListener = iterator.next()
+                // Once found remove the given listener from listener list as well as the
+                // listenerMap.
+                if (currentListener == listener) {
+                    iterator.remove()
+                    if (listenerMap[key] == listener) {
+                        listenerMap.remove(key)
+                    }
+                    break
+                }
+                // Only remove the listener with matching Key.
+                if (currentListener.key == key) {
+                    listenersToPurge.add(currentListener)
+                    iterator.remove()
+                }
+            }
+        }
+        for (priorListener in listenersToPurge) {
+            priorListener.trySkip()
+        }
     }
 
     public override fun clear() {
-        var invokeUpdate = false
-        synchronized(lock) {
-            var modified = false
-            if (parameters.isNotEmpty()) {
-                parameters.clear()
-                modified = true
+        val invokeUpdate =
+            synchronized(lock) {
+                if (parameters.isNotEmpty()) {
+                    parameters.clear()
+                    shouldApplyUpdate(modified = true)
+                } else {
+                    false
+                }
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
     }
 
     public override fun <T> remove(key: CaptureRequest.Key<T>): Boolean {
@@ -121,48 +196,126 @@ internal constructor(
     }
 
     public override fun removeAll(keys: Set<*>): Boolean {
-        var invokeUpdate = false
         var modified = false
-        synchronized(lock) {
-            for (key in keys) {
-                if (parameters.containsKey(key)) {
-                    parameters.remove(key)
-                    modified = true
-                }
-                if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
-                    warn {
-                        "Skipping removing parameter with key $key. $key is not a valid parameter type."
+        val invokeUpdate =
+            synchronized(lock) {
+                for (key in keys) {
+                    checkNotNull(key) { "Parameter key should not be null!" }
+                    if (parameters.containsKey(key)) {
+                        parameters.remove(key)
+                        modified = true
+                    }
+                    if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
+                        warn {
+                            "Skipping removing parameter with key $key. $key is not a valid parameter type."
+                        }
                     }
                 }
+                shouldApplyUpdate(modified)
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
         return modified
     }
 
-    /**
-     * Return the latest parameters if the class stored parameters has changed since the last time
-     * this method is called. If there is no parameter changes, return null.
-     */
-    public fun fetchUpdatedParameters(): Map<Any, Any?>? {
-        synchronized(lock) {
-            if (!dirty) return null
+    // We should apply the update only if we the parameters are modified, and we are the one setting
+    // dirty to true. If the dirty was already true then someone else should "flush" the parameters
+    // as part of their update call.
+    @GuardedBy("lock")
+    private fun shouldApplyUpdate(modified: Boolean): Boolean {
+        if (!modified) {
+            return false
+        }
+        if (!dirty) {
+            dirty = true
+            return true
+        }
+        return false
+    }
 
-            dirty = false
-            return parameters
+    private fun applyUpdate() {
+        sessionLock.withTokenIn(graphScope) { flush() }
+    }
+
+    // Note: this must be called only when caller has an active sessionLock token.
+    public fun flush() {
+        var snapshotListeners: List<Request.Listener> = emptyList()
+        val snapshot =
+            synchronized(lock) {
+                if (!dirty) {
+                    return
+                }
+                dirty = false
+                snapshotListeners = listenerMap.values.toList()
+                HashMap(parameters)
+            }
+        graphProcessor.updateGraphParameters(snapshot, snapshotListeners)
+    }
+}
+
+internal class ParameterUpdateRequestListener(
+    val key: CaptureRequest.Key<*>,
+    val clientListener: ParameterUpdateListener,
+    private val cameraGraphParameters: CameraGraphParametersImpl,
+) : Request.Listener by NoOpRequestListener {
+    private val started = AtomicBoolean(false)
+    private val completed = AtomicBoolean(false)
+
+    internal fun trySkip() {
+        if (!started.get() && completed.compareAndSet(false, true)) {
+            clientListener.onUpdateSkipped(null)
         }
     }
 
-    private fun applyUpdate(update: Boolean) {
-        val unappliedParameters = fetchUpdatedParameters() ?: return
-        if (update) {
-            sessionLock.withTokenIn(graphScope) {
-                graphProcessor.updateGraphParameters(unappliedParameters)
-            }
+    override fun onStarted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        timestamp: CameraTimestamp,
+    ) {
+        if (started.compareAndSet(false, true)) {
+            clientListener.onUpdateStarted(requestMetadata, frameNumber, timestamp)
+        }
+    }
+
+    override fun onComplete(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        result: FrameInfo,
+    ) {
+        if (completed.compareAndSet(false, true)) {
+            clientListener.onUpdateCompleted(requestMetadata, frameNumber, result)
+            cameraGraphParameters.removeAndPurgePriors(key, this)
+        }
+    }
+
+    override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
+        if (!started.get()) {
+            clientListener.onUpdateRequestCreated(requestMetadata)
+        }
+    }
+
+    override fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
+        if (!started.get()) {
+            clientListener.onUpdateRequestSubmitted(requestMetadata)
+        }
+    }
+
+    override fun onAborted(request: Request) {
+        if (!started.get() && completed.compareAndSet(false, true)) {
+            clientListener.onUpdateSkipped(null)
+        }
+    }
+
+    override fun onFailed(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        requestFailure: RequestFailure,
+    ) {
+        if (!started.get() && completed.compareAndSet(false, true)) {
+            clientListener.onUpdateSkipped(requestFailure)
         }
     }
 }
+
+private object NoOpRequestListener : Request.Listener

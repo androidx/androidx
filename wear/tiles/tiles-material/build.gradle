@@ -15,19 +15,16 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
-    id("com.google.protobuf")
 }
 
 dependencies {
@@ -48,8 +45,10 @@ dependencies {
 }
 
 android {
+    compileSdk { version = release(35) }
+
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.tiles.material"
 }
@@ -59,6 +58,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }

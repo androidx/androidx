@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
 
     <issue
         id="CheckResult"
@@ -184,8 +184,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, REFRESH, pages[1])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, REFRESH, pages[1], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -193,8 +193,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, REFRESH, pages[1])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, REFRESH, pages[1], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -202,8 +202,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, PREPEND, pages[0])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, PREPEND, pages[0], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -211,8 +211,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, PREPEND, pages[0])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, PREPEND, pages[0], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -220,8 +220,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, APPEND, pages[2])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, APPEND, pages[2], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -229,8 +229,8 @@
     <issue
         id="CheckResult"
         message="The result of `insert` is not used"
-        errorLine1="            state.insert(0, APPEND, pages[2])"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            state.insert(0, APPEND, pages[2], null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonTest/kotlin/androidx/paging/PageFetcherSnapshotStateTest.kt"/>
     </issue>
@@ -241,7 +241,16 @@
         errorLine1="                Thread.sleep(1000)"
         errorLine2="                       ~~~~~">
         <location
-            file="src/commonJvmAndroidTest/kotlin/androidx/paging/PagedListTest.kt"/>
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PagedListTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(1000)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PagedListTest.kt"/>
     </issue>
 
     <issue
@@ -250,7 +259,106 @@
         errorLine1="                    @Suppress(&quot;BlockingMethodInNonBlockingContext&quot;) Thread.sleep(100)"
         errorLine2="                                                                           ~~~~~">
         <location
-            file="src/commonJvmAndroidTest/kotlin/androidx/paging/SingleRunnerTest.kt"/>
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/SingleRunnerTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    @Suppress(&quot;BlockingMethodInNonBlockingContext&quot;) Thread.sleep(100)"
+        errorLine2="                                                                           ~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/SingleRunnerTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        testScope.runTest {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidTest/kotlin/androidx/paging/PageFetcherTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        validatePositionOffset(true)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/desktopTest/kotlin/androidx/paging/PositionalDataSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        validatePositionOffset(false)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/desktopTest/kotlin/androidx/paging/PositionalDataSourceTest.kt"/>
     </issue>
 
 </issues>

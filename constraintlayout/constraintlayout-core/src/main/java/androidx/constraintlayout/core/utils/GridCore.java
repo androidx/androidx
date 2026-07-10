@@ -182,6 +182,7 @@ public class GridCore extends VirtualLayout {
      *
      * @return the parent ConstraintWidgetContainer
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable ConstraintWidgetContainer getContainer() {
         return mContainer;
     }
@@ -278,6 +279,7 @@ public class GridCore extends VirtualLayout {
      *
      * @return the string value of rowWeights
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getRowWeights() {
         return mRowWeights;
     }
@@ -300,6 +302,7 @@ public class GridCore extends VirtualLayout {
      *
      * @return the string value of columnWeights
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getColumnWeights() {
         return mColumnWeights;
     }

@@ -1,0 +1,59 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.window.testing.embedding.TestActivityStack#createTestActivityStack():
+    Source breaking change: method androidx.window.testing.embedding.TestActivityStack.createTestActivityStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestActivityStack#createTestActivityStack(java.util.List<? extends android.app.Activity>):
+    Source breaking change: method androidx.window.testing.embedding.TestActivityStack.createTestActivityStack(java.util.List<? extends android.app.Activity>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestActivityStack#createTestActivityStack(java.util.List<? extends android.app.Activity>, boolean):
+    Source breaking change: method androidx.window.testing.embedding.TestActivityStack.createTestActivityStack(java.util.List<? extends android.app.Activity>,boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics, android.content.res.Configuration):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics,android.content.res.Configuration) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics, android.content.res.Configuration, androidx.window.layout.WindowLayoutInfo):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics,android.content.res.Configuration,androidx.window.layout.WindowLayoutInfo) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics, android.content.res.Configuration, androidx.window.layout.WindowLayoutInfo, androidx.window.embedding.SplitAttributes):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics,android.content.res.Configuration,androidx.window.layout.WindowLayoutInfo,androidx.window.embedding.SplitAttributes) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics, android.content.res.Configuration, androidx.window.layout.WindowLayoutInfo, androidx.window.embedding.SplitAttributes, boolean):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics,android.content.res.Configuration,androidx.window.layout.WindowLayoutInfo,androidx.window.embedding.SplitAttributes,boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitAttributesCalculatorParams#createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics, android.content.res.Configuration, androidx.window.layout.WindowLayoutInfo, androidx.window.embedding.SplitAttributes, boolean, String):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitAttributesCalculatorParams.createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics,android.content.res.Configuration,androidx.window.layout.WindowLayoutInfo,androidx.window.embedding.SplitAttributes,boolean,String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitInfo#createTestSplitInfo():
+    Source breaking change: method androidx.window.testing.embedding.TestSplitInfo.createTestSplitInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitInfo#createTestSplitInfo(androidx.window.embedding.ActivityStack):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitInfo.createTestSplitInfo(androidx.window.embedding.ActivityStack) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitInfo#createTestSplitInfo(androidx.window.embedding.ActivityStack, androidx.window.embedding.ActivityStack):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitInfo.createTestSplitInfo(androidx.window.embedding.ActivityStack,androidx.window.embedding.ActivityStack) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.embedding.TestSplitInfo#createTestSplitInfo(androidx.window.embedding.ActivityStack, androidx.window.embedding.ActivityStack, androidx.window.embedding.SplitAttributes):
+    Source breaking change: method androidx.window.testing.embedding.TestSplitInfo.createTestSplitInfo(androidx.window.embedding.ActivityStack,androidx.window.embedding.ActivityStack,androidx.window.embedding.SplitAttributes) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.app.Activity):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.app.Activity) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.app.Activity, int):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.app.Activity,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.app.Activity, int, int):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.app.Activity,int,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.app.Activity, int, int, androidx.window.layout.FoldingFeature.State):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.app.Activity,int,int,androidx.window.layout.FoldingFeature.State) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.app.Activity, int, int, androidx.window.layout.FoldingFeature.State, androidx.window.layout.FoldingFeature.Orientation):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.app.Activity,int,int,androidx.window.layout.FoldingFeature.State,androidx.window.layout.FoldingFeature.Orientation) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.graphics.Rect):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.graphics.Rect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.graphics.Rect, int):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.graphics.Rect,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.graphics.Rect, int, int):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.graphics.Rect,int,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.graphics.Rect, int, int, androidx.window.layout.FoldingFeature.State):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.graphics.Rect,int,int,androidx.window.layout.FoldingFeature.State) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.DisplayFeatureTesting#createFoldingFeature(android.graphics.Rect, int, int, androidx.window.layout.FoldingFeature.State, androidx.window.layout.FoldingFeature.Orientation):
+    Source breaking change: method androidx.window.testing.layout.DisplayFeatureTesting.createFoldingFeature(android.graphics.Rect,int,int,androidx.window.layout.FoldingFeature.State,androidx.window.layout.FoldingFeature.Orientation) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowLayoutInfoTesting#createWindowLayoutInfo():
+    Source breaking change: method androidx.window.testing.layout.WindowLayoutInfoTesting.createWindowLayoutInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowLayoutInfoTesting#createWindowLayoutInfo(java.util.List<? extends androidx.window.layout.DisplayFeature>):
+    Source breaking change: method androidx.window.testing.layout.WindowLayoutInfoTesting.createWindowLayoutInfo(java.util.List<? extends androidx.window.layout.DisplayFeature>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowMetricsTesting#createWindowMetrics(android.graphics.Rect):
+    Source breaking change: method androidx.window.testing.layout.WindowMetricsTesting.createWindowMetrics(android.graphics.Rect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowMetricsTesting#createWindowMetrics(android.graphics.Rect, float):
+    Source breaking change: method androidx.window.testing.layout.WindowMetricsTesting.createWindowMetrics(android.graphics.Rect,float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowMetricsTesting#createWindowMetrics(int, int, int, int):
+    Source breaking change: method androidx.window.testing.layout.WindowMetricsTesting.createWindowMetrics(int,int,int,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.testing.layout.WindowMetricsTesting#createWindowMetrics(int, int, int, int, float):
+    Source breaking change: method androidx.window.testing.layout.WindowMetricsTesting.createWindowMetrics(int,int,int,int,float) can no longer be resolved from Kotlin source

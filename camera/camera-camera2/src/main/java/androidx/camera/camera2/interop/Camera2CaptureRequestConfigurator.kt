@@ -30,15 +30,15 @@ internal val OPTION_CAPTURE_REQUEST_CONFIGURATOR:
     )
 
 /** A configurator that handles configurations associated with a [CaptureRequest]. */
+// TODO(b/450151661): Add sample code for this class.
 @RestrictTo(Scope.LIBRARY_GROUP)
 public fun interface Camera2CaptureRequestConfigurator {
     /**
-     * Configure with a [CaptureRequest] that contains the parameters that are originally configured
-     * to Camera2.
+     * Configure with the parameters that are originally configured to Camera2.
      *
-     * @param captureRequest The [CaptureRequest] to configure with.
+     * @param parameters The Camera2 parameters to configure with.
      */
-    public fun configureWith(captureRequest: CaptureRequest)
+    public fun configureWith(parameters: Map<CaptureRequest.Key<*>, Any>)
 }
 
 /** Gets the configurator for configuring the camera in customized ways. */
@@ -60,4 +60,12 @@ public fun CameraXConfig.Builder.setCamera2CaptureRequestConfigurator(
 ): CameraXConfig.Builder {
     mutableConfig.insertOption(OPTION_CAPTURE_REQUEST_CONFIGURATOR, captureRequestConfigurator)
     return this
+}
+
+/** Configure with only the keys that are of type [CaptureRequest.Key]. */
+internal fun Camera2CaptureRequestConfigurator.configureWithUnchecked(parameters: Map<Any, Any>) {
+    @Suppress("UNCHECKED_CAST") // The filter makes the cast safe.
+    configureWith(
+        parameters.filterKeys { it is CaptureRequest.Key<*> } as Map<CaptureRequest.Key<*>, Any>
+    )
 }

@@ -1,10 +1,40 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.material3.SearchBarScrollBehavior#getContentOffset():
+    Binary breaking change: Added method androidx.compose.material3.SearchBarScrollBehavior.getContentOffset()
+AddedAbstractMethod: androidx.compose.material3.SearchBarScrollBehavior#setContentOffset(float):
+    Binary breaking change: Added method androidx.compose.material3.SearchBarScrollBehavior.setContentOffset(float)
+
+
+AddedAbstractProperty: androidx.compose.material3.SearchBarScrollBehavior#contentOffset:
+    Source breaking change: Added property androidx.compose.material3.SearchBarScrollBehavior#contentOffset
+
+
+BecameUnchecked: androidx.compose.material3.AlertDialogKt:
+    Removed class androidx.compose.material3.AlertDialogKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.BottomSheetScaffoldKt:
+    Removed class androidx.compose.material3.BottomSheetScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.ExposedDropdownMenuKt:
+    Removed class androidx.compose.material3.ExposedDropdownMenuKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.LabelKt:
+    Removed class androidx.compose.material3.LabelKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.ModalBottomSheetKt:
+    Removed class androidx.compose.material3.ModalBottomSheetKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TooltipKt:
+    Removed class androidx.compose.material3.TooltipKt from compatibility checked API surface
+
+
 ChangedType: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
-    Source breaking change: Method androidx.compose.material3.NavigationItemColors.iconColor has changed return type from long to androidx.compose.ui.graphics.Color
+    Binary breaking change: Method androidx.compose.material3.NavigationItemColors.iconColor has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):
-    Source breaking change: Method androidx.compose.material3.NavigationItemColors.textColor has changed return type from long to androidx.compose.ui.graphics.Color
+    Binary breaking change: Method androidx.compose.material3.NavigationItemColors.textColor has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.material3.WideNavigationRailItemDefaults#iconPositionFor(boolean):
-    Source breaking change: Method androidx.compose.material3.WideNavigationRailItemDefaults.iconPositionFor has changed return type from int to androidx.compose.material3.NavigationItemIconPosition
+    Binary breaking change: Method androidx.compose.material3.WideNavigationRailItemDefaults.iconPositionFor has changed return type from int to androidx.compose.material3.NavigationItemIconPosition
+
+
+RemovedClass: androidx.compose.material3.ModalBottomSheet_androidKt:
+    Binary breaking change: Removed class androidx.compose.material3.ModalBottomSheet_androidKt
+RemovedClass: androidx.compose.material3.Tooltip_androidKt:
+    Binary breaking change: Removed class androidx.compose.material3.Tooltip_androidKt
 
 
 RemovedDeprecatedMethod: androidx.compose.material3.AndroidMenu_androidKt#DropdownMenu(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, long, androidx.compose.foundation.ScrollState, androidx.compose.ui.window.PopupProperties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
@@ -13,6 +43,8 @@ RemovedDeprecatedMethod: androidx.compose.material3.AndroidMenu_androidKt#Dropdo
     Binary breaking change: Removed deprecated method androidx.compose.material3.AndroidMenu_androidKt.DropdownMenu(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,long,androidx.compose.ui.window.PopupProperties,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
 RemovedDeprecatedMethod: androidx.compose.material3.AssistChipDefaults#assistChipBorder(long, long, float):
     Binary breaking change: Removed deprecated method androidx.compose.material3.AssistChipDefaults.assistChipBorder(long,long,float)
+RemovedDeprecatedMethod: androidx.compose.material3.ButtonDefaults#getOutlinedButtonBorder():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.ButtonDefaults.getOutlinedButtonBorder()
 RemovedDeprecatedMethod: androidx.compose.material3.ChipKt#AssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.material3.ChipBorder, androidx.compose.foundation.interaction.MutableInteractionSource):
     Binary breaking change: Removed deprecated method androidx.compose.material3.ChipKt.AssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ChipColors,androidx.compose.material3.ChipElevation,androidx.compose.material3.ChipBorder,androidx.compose.foundation.interaction.MutableInteractionSource)
 RemovedDeprecatedMethod: androidx.compose.material3.ChipKt#ElevatedAssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.material3.ChipBorder, androidx.compose.foundation.interaction.MutableInteractionSource):
@@ -83,6 +115,10 @@ RemovedDeprecatedMethod: androidx.compose.material3.TabRowKt#SecondaryScrollable
     Binary breaking change: Removed deprecated method androidx.compose.material3.TabRowKt.SecondaryScrollableTabRow(int,androidx.compose.ui.Modifier,androidx.compose.foundation.ScrollState,long,long,float,kotlin.jvm.functions.Function1<? super androidx.compose.material3.TabIndicatorScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>)
 RemovedDeprecatedMethod: androidx.compose.material3.TabRowKt#TabRow(int, androidx.compose.ui.Modifier, long, long, kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: Removed deprecated method androidx.compose.material3.TabRowKt.TabRow(int,androidx.compose.ui.Modifier,long,long,kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#getFilledShape():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TextFieldDefaults.getFilledShape()
+RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#getOutlinedShape():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TextFieldDefaults.getOutlinedShape()
 RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#outlinedTextFieldPadding(float, float, float, float):
     Binary breaking change: Removed deprecated method androidx.compose.material3.TextFieldDefaults.outlinedTextFieldPadding(float,float,float,float)
 RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#textFieldWithLabelPadding(float, float, float, float):
@@ -107,18 +143,488 @@ RemovedDeprecatedMethod: androidx.compose.material3.TopAppBarDefaults#topAppBarC
     Binary breaking change: Removed deprecated method androidx.compose.material3.TopAppBarDefaults.topAppBarColors(long,long,long,long,long)
 
 
+RemovedFromBytecode: androidx.compose.material3.AndroidMenu_androidKt#DropdownMenuItem(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.MenuItemColors, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.AndroidMenu_androidKt.DropdownMenuItem(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.MenuItemColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.AppBarKt#rememberTopAppBarState(float, float, float):
+    Binary breaking change: method androidx.compose.material3.AppBarKt.rememberTopAppBarState(float,float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.AssistChipDefaults#assistChipColors():
+    Binary breaking change: method androidx.compose.material3.AssistChipDefaults.assistChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.AssistChipDefaults#elevatedAssistChipColors():
+    Binary breaking change: method androidx.compose.material3.AssistChipDefaults.elevatedAssistChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.BadgeKt#BadgedBox(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.BadgeKt.BadgedBox(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#buttonColors():
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.buttonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#elevatedButtonColors():
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.elevatedButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#filledTonalButtonColors():
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.filledTonalButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#outlinedButtonBorder(boolean):
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.outlinedButtonBorder(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#outlinedButtonColors():
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.outlinedButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonDefaults#textButtonColors():
+    Binary breaking change: method androidx.compose.material3.ButtonDefaults.textButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonKt#Button(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ButtonColors, androidx.compose.material3.ButtonElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.ButtonKt.Button(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ButtonColors,androidx.compose.material3.ButtonElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonKt#ElevatedButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ButtonColors, androidx.compose.material3.ButtonElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.ButtonKt.ElevatedButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ButtonColors,androidx.compose.material3.ButtonElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonKt#FilledTonalButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ButtonColors, androidx.compose.material3.ButtonElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.ButtonKt.FilledTonalButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ButtonColors,androidx.compose.material3.ButtonElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonKt#OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ButtonColors, androidx.compose.material3.ButtonElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.ButtonKt.OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ButtonColors,androidx.compose.material3.ButtonElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ButtonKt#TextButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ButtonColors, androidx.compose.material3.ButtonElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.ButtonKt.TextButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ButtonColors,androidx.compose.material3.ButtonElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardDefaults#cardColors():
+    Binary breaking change: method androidx.compose.material3.CardDefaults.cardColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardDefaults#elevatedCardColors():
+    Binary breaking change: method androidx.compose.material3.CardDefaults.elevatedCardColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardDefaults#outlinedCardBorder(boolean):
+    Binary breaking change: method androidx.compose.material3.CardDefaults.outlinedCardBorder(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardDefaults#outlinedCardColors():
+    Binary breaking change: method androidx.compose.material3.CardDefaults.outlinedCardColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#Card(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, androidx.compose.foundation.BorderStroke, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.Card(androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#Card(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.Card(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#ElevatedCard(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.ElevatedCard(androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#ElevatedCard(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.ElevatedCard(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#OutlinedCard(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, androidx.compose.foundation.BorderStroke, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.OutlinedCard(androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CardKt#OutlinedCard(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.CardColors, androidx.compose.material3.CardElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.CardKt.OutlinedCard(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CheckboxDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.CheckboxDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CheckboxKt#Checkbox(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.CheckboxKt.Checkbox(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CheckboxKt#Checkbox(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.CheckboxKt.Checkbox(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.graphics.drawscope.Stroke,androidx.compose.ui.graphics.drawscope.Stroke,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CheckboxKt#TriStateCheckbox(androidx.compose.ui.state.ToggleableState, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.CheckboxKt.TriStateCheckbox(androidx.compose.ui.state.ToggleableState,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.CheckboxKt#TriStateCheckbox(androidx.compose.ui.state.ToggleableState, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.CheckboxKt.TriStateCheckbox(androidx.compose.ui.state.ToggleableState,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.drawscope.Stroke,androidx.compose.ui.graphics.drawscope.Stroke,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.DatePickerDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.DatePickerDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.DatePickerKt#DatePicker(androidx.compose.material3.DatePickerState, androidx.compose.ui.Modifier, androidx.compose.material3.DatePickerFormatter, androidx.compose.material3.DatePickerColors, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.focus.FocusRequester):
+    Binary breaking change: method androidx.compose.material3.DatePickerKt.DatePicker(androidx.compose.material3.DatePickerState,androidx.compose.ui.Modifier,androidx.compose.material3.DatePickerFormatter,androidx.compose.material3.DatePickerColors,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.focus.FocusRequester) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.DateRangePickerKt#DateRangePicker(androidx.compose.material3.DateRangePickerState, androidx.compose.ui.Modifier, androidx.compose.material3.DatePickerFormatter, androidx.compose.material3.DatePickerColors, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.focus.FocusRequester):
+    Binary breaking change: method androidx.compose.material3.DateRangePickerKt.DateRangePicker(androidx.compose.material3.DateRangePickerState,androidx.compose.ui.Modifier,androidx.compose.material3.DatePickerFormatter,androidx.compose.material3.DatePickerColors,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.focus.FocusRequester) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.DragHandleKt#VerticalDragHandle(androidx.compose.ui.Modifier, androidx.compose.material3.DragHandleSizes, androidx.compose.material3.DragHandleColors, androidx.compose.material3.DragHandleShapes, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.DragHandleKt.VerticalDragHandle(androidx.compose.ui.Modifier,androidx.compose.material3.DragHandleSizes,androidx.compose.material3.DragHandleColors,androidx.compose.material3.DragHandleShapes,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.FilterChipDefaults#elevatedFilterChipColors():
+    Binary breaking change: method androidx.compose.material3.FilterChipDefaults.elevatedFilterChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.FilterChipDefaults#filterChipColors():
+    Binary breaking change: method androidx.compose.material3.FilterChipDefaults.filterChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#filledIconButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.filledIconButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#filledIconToggleButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.filledIconToggleButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#filledTonalIconButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#filledTonalIconToggleButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.filledTonalIconToggleButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#iconButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.iconButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#iconButtonVibrantColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.iconButtonVibrantColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#iconToggleButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.iconToggleButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#iconToggleButtonVibrantColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.iconToggleButtonVibrantColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconButtonBorder(boolean):
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconButtonBorder(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconButtonVibrantBorder(boolean):
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconButtonVibrantBorder(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconButtonVibrantColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconButtonVibrantColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconToggleButtonBorder(boolean, boolean):
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconToggleButtonBorder(boolean,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconToggleButtonColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconToggleButtonColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconToggleButtonVibrantBorder(boolean, boolean):
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconToggleButtonVibrantBorder(boolean,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonDefaults#outlinedIconToggleButtonVibrantColors():
+    Binary breaking change: method androidx.compose.material3.IconButtonDefaults.outlinedIconToggleButtonVibrantColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#FilledIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.FilledIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#FilledIconToggleButton(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconToggleButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.FilledIconToggleButton(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconToggleButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#FilledTonalIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.FilledTonalIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#FilledTonalIconToggleButton(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconToggleButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.FilledTonalIconToggleButton(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconToggleButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#IconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.IconButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.IconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.IconButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#IconToggleButton(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.IconToggleButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.IconToggleButton(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.IconToggleButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconButtonColors, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconButtonColors,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconButtonKt#OutlinedIconToggleButton(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.material3.IconToggleButtonColors, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.IconButtonKt.OutlinedIconToggleButton(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.IconToggleButtonColors,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.IconKt#Icon(androidx.compose.ui.graphics.painter.Painter, androidx.compose.ui.graphics.ColorProducer, String, androidx.compose.ui.Modifier):
+    Binary breaking change: method androidx.compose.material3.IconKt.Icon(androidx.compose.ui.graphics.painter.Painter,androidx.compose.ui.graphics.ColorProducer,String,androidx.compose.ui.Modifier) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.InputChipDefaults#inputChipColors():
+    Binary breaking change: method androidx.compose.material3.InputChipDefaults.inputChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ListItemDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.ListItemDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.MaterialThemeKt#MaterialTheme(androidx.compose.material3.ColorScheme, androidx.compose.material3.Shapes, androidx.compose.material3.Typography, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.MaterialThemeKt.MaterialTheme(androidx.compose.material3.ColorScheme,androidx.compose.material3.Shapes,androidx.compose.material3.Typography,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.MenuDefaults#itemColors():
+    Binary breaking change: method androidx.compose.material3.MenuDefaults.itemColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationBarItemDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.NavigationBarItemDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationBarKt#NavigationBarItem(androidx.compose.foundation.layout.RowScope, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.NavigationBarItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.NavigationBarKt.NavigationBarItem(androidx.compose.foundation.layout.RowScope,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.NavigationBarItemColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerItemColors#badgeColor(boolean):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerItemColors.badgeColor(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerItemColors#containerColor(boolean):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerItemColors.containerColor(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerItemColors#iconColor(boolean):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerItemColors.iconColor(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerItemColors#textColor(boolean):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerItemColors.textColor(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerKt#DismissibleNavigationDrawer(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, androidx.compose.material3.DrawerState, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerKt.DismissibleNavigationDrawer(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,androidx.compose.material3.DrawerState,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerKt#NavigationDrawerItem(kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.NavigationDrawerItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerKt.NavigationDrawerItem(kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.NavigationDrawerItemColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerKt#PermanentNavigationDrawer(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerKt.PermanentNavigationDrawer(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationDrawerKt#rememberDrawerState(androidx.compose.material3.DrawerValue, kotlin.jvm.functions.Function1<? super androidx.compose.material3.DrawerValue,java.lang.Boolean>):
+    Binary breaking change: method androidx.compose.material3.NavigationDrawerKt.rememberDrawerState(androidx.compose.material3.DrawerValue,kotlin.jvm.functions.Function1<? super androidx.compose.material3.DrawerValue,java.lang.Boolean>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
     Binary breaking change: method androidx.compose.material3.NavigationItemColors.iconColor(boolean,boolean) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):
     Binary breaking change: method androidx.compose.material3.NavigationItemColors.textColor(boolean,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationRailItemDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.NavigationRailItemDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.NavigationRailKt#NavigationRailItem(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.NavigationRailItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.NavigationRailKt.NavigationRailItem(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.NavigationRailItemColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldDefaults#DecorationBox(String, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.interaction.InteractionSource, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldDefaults.DecorationBox(String,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.interaction.InteractionSource,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldDefaults#decorator(androidx.compose.foundation.text.input.TextFieldState, boolean, androidx.compose.foundation.text.input.TextFieldLineLimits, androidx.compose.foundation.text.input.OutputTransformation, androidx.compose.foundation.interaction.InteractionSource, androidx.compose.material3.TextFieldLabelPosition, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldDefaults.decorator(androidx.compose.foundation.text.input.TextFieldState,boolean,androidx.compose.foundation.text.input.TextFieldLineLimits,androidx.compose.foundation.text.input.OutputTransformation,androidx.compose.foundation.interaction.InteractionSource,androidx.compose.material3.TextFieldLabelPosition,kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldKt#OutlinedTextField(String, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.KeyboardActions, boolean, int, int, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors):
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldKt.OutlinedTextField(String,kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.KeyboardActions,boolean,int,int,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldKt#OutlinedTextField(androidx.compose.foundation.text.input.TextFieldState, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, androidx.compose.material3.TextFieldLabelPosition, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.foundation.text.input.InputTransformation, androidx.compose.foundation.text.input.OutputTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.input.KeyboardActionHandler, androidx.compose.foundation.text.input.TextFieldLineLimits, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult>,kotlin.Unit>, androidx.compose.foundation.ScrollState, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldKt.OutlinedTextField(androidx.compose.foundation.text.input.TextFieldState,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,androidx.compose.material3.TextFieldLabelPosition,kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.foundation.text.input.InputTransformation,androidx.compose.foundation.text.input.OutputTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.input.KeyboardActionHandler,androidx.compose.foundation.text.input.TextFieldLineLimits,kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult>,kotlin.Unit>,androidx.compose.foundation.ScrollState,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.OutlinedTextFieldKt#OutlinedTextField(androidx.compose.ui.text.input.TextFieldValue, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.KeyboardActions, boolean, int, int, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors):
+    Binary breaking change: method androidx.compose.material3.OutlinedTextFieldKt.OutlinedTextField(androidx.compose.ui.text.input.TextFieldValue,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.KeyboardActions,boolean,int,int,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.RadioButtonDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.RadioButtonDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.RadioButtonKt#RadioButton(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.RadioButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.RadioButtonKt.RadioButton(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.RadioButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonDefaults#ActiveIcon():
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonDefaults.ActiveIcon() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonDefaults#Icon(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonDefaults.Icon(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonDefaults#itemShape(int, int, androidx.compose.foundation.shape.CornerBasedShape):
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonDefaults.itemShape(int,int,androidx.compose.foundation.shape.CornerBasedShape) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonKt#SegmentedButton(androidx.compose.material3.MultiChoiceSegmentedButtonRowScope, boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.SegmentedButtonColors, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonKt.SegmentedButton(androidx.compose.material3.MultiChoiceSegmentedButtonRowScope,boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.SegmentedButtonColors,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SegmentedButtonKt#SegmentedButton(androidx.compose.material3.SingleChoiceSegmentedButtonRowScope, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.ui.Modifier, boolean, androidx.compose.material3.SegmentedButtonColors, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.SegmentedButtonKt.SegmentedButton(androidx.compose.material3.SingleChoiceSegmentedButtonRowScope,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.ui.Modifier,boolean,androidx.compose.material3.SegmentedButtonColors,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.ShortNavigationBarItemDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.ShortNavigationBarItemDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SliderDefaults#Track(androidx.compose.material3.SliderPositions, androidx.compose.ui.Modifier, androidx.compose.material3.SliderColors, boolean):
+    Binary breaking change: method androidx.compose.material3.SliderDefaults.Track(androidx.compose.material3.SliderPositions,androidx.compose.ui.Modifier,androidx.compose.material3.SliderColors,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SliderDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.SliderDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SliderKt#RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>, kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>, int, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.material3.SliderColors):
+    Binary breaking change: method androidx.compose.material3.SliderKt.RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,int,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.material3.SliderColors) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SliderKt#Slider(float, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>, int, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.material3.SliderColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.SliderKt.Slider(float,kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,int,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.material3.SliderColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SnackbarHostKt#SnackbarHost(androidx.compose.material3.SnackbarHostState, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SnackbarData,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.SnackbarHostKt.SnackbarHost(androidx.compose.material3.SnackbarHostState,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function1<? super androidx.compose.material3.SnackbarData,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SuggestionChipDefaults#elevatedSuggestionChipColors():
+    Binary breaking change: method androidx.compose.material3.SuggestionChipDefaults.elevatedSuggestionChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColors():
+    Binary breaking change: method androidx.compose.material3.SuggestionChipDefaults.suggestionChipColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SwipeToDismissBoxKt#SwipeToDismissBox(androidx.compose.material3.SwipeToDismissBoxState, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, boolean, boolean, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SwipeToDismissBoxValue,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.SwipeToDismissBoxKt.SwipeToDismissBox(androidx.compose.material3.SwipeToDismissBoxState,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,boolean,boolean,kotlin.jvm.functions.Function1<? super androidx.compose.material3.SwipeToDismissBoxValue,kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SwipeToDismissBoxKt#rememberSwipeToDismissBoxState(androidx.compose.material3.SwipeToDismissBoxValue, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SwipeToDismissBoxValue,java.lang.Boolean>, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float>):
+    Binary breaking change: method androidx.compose.material3.SwipeToDismissBoxKt.rememberSwipeToDismissBoxState(androidx.compose.material3.SwipeToDismissBoxValue,kotlin.jvm.functions.Function1<? super androidx.compose.material3.SwipeToDismissBoxValue,java.lang.Boolean>,kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SwipeToDismissBoxKt#rememberSwipeToDismissBoxState(androidx.compose.material3.SwipeToDismissBoxValue, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float>):
+    Binary breaking change: method androidx.compose.material3.SwipeToDismissBoxKt.rememberSwipeToDismissBoxState(androidx.compose.material3.SwipeToDismissBoxValue,kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SwitchDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.SwitchDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.SwitchKt#Switch(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.SwitchColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.SwitchKt.Switch(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.SwitchColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldDefaults#DecorationBox(String, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.interaction.InteractionSource, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.TextFieldDefaults.DecorationBox(String,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.interaction.InteractionSource,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.TextFieldDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldDefaults#decorator(androidx.compose.foundation.text.input.TextFieldState, boolean, androidx.compose.foundation.text.input.TextFieldLineLimits, androidx.compose.foundation.text.input.OutputTransformation, androidx.compose.foundation.interaction.InteractionSource, androidx.compose.material3.TextFieldLabelPosition, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.TextFieldDefaults.decorator(androidx.compose.foundation.text.input.TextFieldState,boolean,androidx.compose.foundation.text.input.TextFieldLineLimits,androidx.compose.foundation.text.input.OutputTransformation,androidx.compose.foundation.interaction.InteractionSource,androidx.compose.material3.TextFieldLabelPosition,kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldKt#TextField(String, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.KeyboardActions, boolean, int, int, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors):
+    Binary breaking change: method androidx.compose.material3.TextFieldKt.TextField(String,kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.KeyboardActions,boolean,int,int,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldKt#TextField(androidx.compose.foundation.text.input.TextFieldState, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, androidx.compose.material3.TextFieldLabelPosition, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.foundation.text.input.InputTransformation, androidx.compose.foundation.text.input.OutputTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.input.KeyboardActionHandler, androidx.compose.foundation.text.input.TextFieldLineLimits, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult>,kotlin.Unit>, androidx.compose.foundation.ScrollState, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.compose.material3.TextFieldKt.TextField(androidx.compose.foundation.text.input.TextFieldState,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,androidx.compose.material3.TextFieldLabelPosition,kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.foundation.text.input.InputTransformation,androidx.compose.foundation.text.input.OutputTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.input.KeyboardActionHandler,androidx.compose.foundation.text.input.TextFieldLineLimits,kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult>,kotlin.Unit>,androidx.compose.foundation.ScrollState,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextFieldKt#TextField(androidx.compose.ui.text.input.TextFieldValue, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.text.input.VisualTransformation, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.KeyboardActions, boolean, int, int, androidx.compose.foundation.interaction.MutableInteractionSource, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors):
+    Binary breaking change: method androidx.compose.material3.TextFieldKt.TextField(androidx.compose.ui.text.input.TextFieldValue,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.KeyboardActions,boolean,int,int,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TextKt#ProvideTextStyle(androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.material3.TextKt.ProvideTextStyle(androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TopAppBarDefaults#centerAlignedTopAppBarColors():
+    Binary breaking change: method androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TopAppBarDefaults#largeTopAppBarColors():
+    Binary breaking change: method androidx.compose.material3.TopAppBarDefaults.largeTopAppBarColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TopAppBarDefaults#mediumTopAppBarColors():
+    Binary breaking change: method androidx.compose.material3.TopAppBarDefaults.mediumTopAppBarColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.TopAppBarDefaults#topAppBarColors():
+    Binary breaking change: method androidx.compose.material3.TopAppBarDefaults.topAppBarColors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.VerticalDragHandleDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.VerticalDragHandleDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.VerticalDragHandleDefaults#shapes():
+    Binary breaking change: method androidx.compose.material3.VerticalDragHandleDefaults.shapes() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.VerticalDragHandleDefaults#shapes(androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: method androidx.compose.material3.VerticalDragHandleDefaults.shapes(androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.WideNavigationRailDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.WideNavigationRailDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.WideNavigationRailItemDefaults#colors():
+    Binary breaking change: method androidx.compose.material3.WideNavigationRailItemDefaults.colors() has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.WideNavigationRailItemDefaults#iconPositionFor(boolean):
     Binary breaking change: method androidx.compose.material3.WideNavigationRailItemDefaults.iconPositionFor(boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.WideNavigationRailStateKt#rememberWideNavigationRailState(androidx.compose.material3.WideNavigationRailValue):
+    Binary breaking change: method androidx.compose.material3.WideNavigationRailStateKt.rememberWideNavigationRailState(androidx.compose.material3.WideNavigationRailValue) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.pulltorefresh.PullToRefreshKt#rememberPullToRefreshState():
+    Binary breaking change: method androidx.compose.material3.pulltorefresh.PullToRefreshKt.rememberPullToRefreshState() has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.material3.AppBarMenuState#isExpanded():
+    Source breaking change: method androidx.compose.material3.AppBarMenuState.isExpanded() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.BottomAppBarDefaults#getContentPadding():
+    Source breaking change: method androidx.compose.material3.BottomAppBarDefaults.getContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ButtonDefaults#getButtonWithIconContentPadding():
+    Source breaking change: method androidx.compose.material3.ButtonDefaults.getButtonWithIconContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ButtonDefaults#getContentPadding():
+    Source breaking change: method androidx.compose.material3.ButtonDefaults.getContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ButtonDefaults#getTextButtonContentPadding():
+    Source breaking change: method androidx.compose.material3.ButtonDefaults.getTextButtonContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ButtonDefaults#getTextButtonWithIconContentPadding():
+    Source breaking change: method androidx.compose.material3.ButtonDefaults.getTextButtonWithIconContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ColorSchemeKt#getLocalTonalElevationEnabled():
+    Source breaking change: method androidx.compose.material3.ColorSchemeKt.getLocalTonalElevationEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ContentColorKt#getLocalContentColor():
+    Source breaking change: method androidx.compose.material3.ContentColorKt.getLocalContentColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerColors#getDateTextFieldColors():
+    Source breaking change: method androidx.compose.material3.DatePickerColors.getDateTextFieldColors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerDefaults#getAllDates():
+    Source breaking change: method androidx.compose.material3.DatePickerDefaults.getAllDates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerDefaults#getYearRange():
+    Source breaking change: method androidx.compose.material3.DatePickerDefaults.getYearRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#getDisplayedMonthMillis():
+    Source breaking change: method androidx.compose.material3.DatePickerState.getDisplayedMonthMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#getLocale():
+    Source breaking change: method androidx.compose.material3.DatePickerState.getLocale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#getSelectableDates():
+    Source breaking change: method androidx.compose.material3.DatePickerState.getSelectableDates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#getSelectedDateMillis():
+    Source breaking change: method androidx.compose.material3.DatePickerState.getSelectedDateMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#getYearRange():
+    Source breaking change: method androidx.compose.material3.DatePickerState.getYearRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#setDisplayedMonthMillis(long):
+    Source breaking change: method androidx.compose.material3.DatePickerState.setDisplayedMonthMillis(long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DatePickerState#setSelectedDateMillis(Long):
+    Source breaking change: method androidx.compose.material3.DatePickerState.setSelectedDateMillis(Long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getDisplayedMonthMillis():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getDisplayedMonthMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getLocale():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getLocale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getSelectableDates():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getSelectableDates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getSelectedEndDateMillis():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getSelectedEndDateMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getSelectedStartDateMillis():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getSelectedStartDateMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#getYearRange():
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.getYearRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DateRangePickerState#setDisplayedMonthMillis(long):
+    Source breaking change: method androidx.compose.material3.DateRangePickerState.setDisplayedMonthMillis(long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DragHandleShapes#getDraggedShape():
+    Source breaking change: method androidx.compose.material3.DragHandleShapes.getDraggedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DragHandleShapes#getPressedShape():
+    Source breaking change: method androidx.compose.material3.DragHandleShapes.getPressedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DragHandleShapes#getShape():
+    Source breaking change: method androidx.compose.material3.DragHandleShapes.getShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#getCurrentOffset():
+    Source breaking change: method androidx.compose.material3.DrawerState.getCurrentOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#getCurrentValue():
+    Source breaking change: method androidx.compose.material3.DrawerState.getCurrentValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#getOffset():
+    Source breaking change: method androidx.compose.material3.DrawerState.getOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#getTargetValue():
+    Source breaking change: method androidx.compose.material3.DrawerState.getTargetValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#isAnimationRunning():
+    Source breaking change: method androidx.compose.material3.DrawerState.isAnimationRunning() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#isClosed():
+    Source breaking change: method androidx.compose.material3.DrawerState.isClosed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.DrawerState#isOpen():
+    Source breaking change: method androidx.compose.material3.DrawerState.isOpen() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.InteractiveComponentSizeKt#getLocalMinimumInteractiveComponentSize():
+    Source breaking change: method androidx.compose.material3.InteractiveComponentSizeKt.getLocalMinimumInteractiveComponentSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.MenuDefaults#getDropdownMenuItemContentPadding():
+    Source breaking change: method androidx.compose.material3.MenuDefaults.getDropdownMenuItemContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ModalWideNavigationRailProperties#getSecurePolicy():
+    Source breaking change: method androidx.compose.material3.ModalWideNavigationRailProperties.getSecurePolicy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ModalWideNavigationRailProperties#getShouldDismissOnBackPress():
+    Source breaking change: method androidx.compose.material3.ModalWideNavigationRailProperties.getShouldDismissOnBackPress() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.NavigationDrawerItemDefaults#getItemPadding():
+    Source breaking change: method androidx.compose.material3.NavigationDrawerItemDefaults.getItemPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ProgressIndicatorDefaults#getProgressAnimationSpec():
+    Source breaking change: method androidx.compose.material3.ProgressIndicatorDefaults.getProgressAnimationSpec() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.RippleConfiguration#getRippleAlpha():
+    Source breaking change: method androidx.compose.material3.RippleConfiguration.getRippleAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.RippleDefaults#getRippleAlpha():
+    Source breaking change: method androidx.compose.material3.RippleDefaults.getRippleAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.RippleKt#getLocalRippleConfiguration():
+    Source breaking change: method androidx.compose.material3.RippleKt.getLocalRippleConfiguration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SegmentedButtonDefaults#getContentPadding():
+    Source breaking change: method androidx.compose.material3.SegmentedButtonDefaults.getContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ShapeDefaults#getExtraLarge():
+    Source breaking change: method androidx.compose.material3.ShapeDefaults.getExtraLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ShapeDefaults#getExtraSmall():
+    Source breaking change: method androidx.compose.material3.ShapeDefaults.getExtraSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ShapeDefaults#getLarge():
+    Source breaking change: method androidx.compose.material3.ShapeDefaults.getLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ShapeDefaults#getMedium():
+    Source breaking change: method androidx.compose.material3.ShapeDefaults.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.ShapeDefaults#getSmall():
+    Source breaking change: method androidx.compose.material3.ShapeDefaults.getSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Shapes#getExtraLarge():
+    Source breaking change: method androidx.compose.material3.Shapes.getExtraLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Shapes#getExtraSmall():
+    Source breaking change: method androidx.compose.material3.Shapes.getExtraSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Shapes#getLarge():
+    Source breaking change: method androidx.compose.material3.Shapes.getLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Shapes#getMedium():
+    Source breaking change: method androidx.compose.material3.Shapes.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Shapes#getSmall():
+    Source breaking change: method androidx.compose.material3.Shapes.getSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SliderPositions#getActiveRange():
+    Source breaking change: method androidx.compose.material3.SliderPositions.getActiveRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SliderPositions#getTickFractions():
+    Source breaking change: method androidx.compose.material3.SliderPositions.getTickFractions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarData#getVisuals():
+    Source breaking change: method androidx.compose.material3.SnackbarData.getVisuals() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarHostState#getCurrentSnackbarData():
+    Source breaking change: method androidx.compose.material3.SnackbarHostState.getCurrentSnackbarData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarVisuals#getActionLabel():
+    Source breaking change: method androidx.compose.material3.SnackbarVisuals.getActionLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarVisuals#getDuration():
+    Source breaking change: method androidx.compose.material3.SnackbarVisuals.getDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarVisuals#getMessage():
+    Source breaking change: method androidx.compose.material3.SnackbarVisuals.getMessage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SnackbarVisuals#getWithDismissAction():
+    Source breaking change: method androidx.compose.material3.SnackbarVisuals.getWithDismissAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SurfaceKt#getLocalAbsoluteTonalElevation():
+    Source breaking change: method androidx.compose.material3.SurfaceKt.getLocalAbsoluteTonalElevation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SwipeToDismissBoxState#getCurrentValue():
+    Source breaking change: method androidx.compose.material3.SwipeToDismissBoxState.getCurrentValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SwipeToDismissBoxState#getDismissDirection():
+    Source breaking change: method androidx.compose.material3.SwipeToDismissBoxState.getDismissDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SwipeToDismissBoxState#getProgress():
+    Source breaking change: method androidx.compose.material3.SwipeToDismissBoxState.getProgress() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SwipeToDismissBoxState#getSettledValue():
+    Source breaking change: method androidx.compose.material3.SwipeToDismissBoxState.getSettledValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.SwipeToDismissBoxState#getTargetValue():
+    Source breaking change: method androidx.compose.material3.SwipeToDismissBoxState.getTargetValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldColors#getTextSelectionColors():
+    Source breaking change: method androidx.compose.material3.TextFieldColors.getTextSelectionColors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldLabelPosition.Above#getAlignment():
+    Source breaking change: method androidx.compose.material3.TextFieldLabelPosition.Above.getAlignment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldLabelPosition.Attached#getAlwaysMinimize():
+    Source breaking change: method androidx.compose.material3.TextFieldLabelPosition.Attached.getAlwaysMinimize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldLabelPosition.Attached#getExpandedAlignment():
+    Source breaking change: method androidx.compose.material3.TextFieldLabelPosition.Attached.getExpandedAlignment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldLabelPosition.Attached#getMinimizedAlignment():
+    Source breaking change: method androidx.compose.material3.TextFieldLabelPosition.Attached.getMinimizedAlignment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextFieldLabelScope#getLabelMinimizedProgress():
+    Source breaking change: method androidx.compose.material3.TextFieldLabelScope.getLabelMinimizedProgress() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TextKt#getLocalTextStyle():
+    Source breaking change: method androidx.compose.material3.TextKt.getLocalTextStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TimePickerKt#isPm(androidx.compose.material3.TimePickerState):
+    Source breaking change: method androidx.compose.material3.TimePickerKt.isPm(androidx.compose.material3.TimePickerState) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#getCollapsedFraction():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.getCollapsedFraction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#getContentOffset():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.getContentOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#getHeightOffset():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.getHeightOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#getHeightOffsetLimit():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.getHeightOffsetLimit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#getOverlappedFraction():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.getOverlappedFraction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#setContentOffset(float):
+    Source breaking change: method androidx.compose.material3.TopAppBarState.setContentOffset(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#setHeightOffset(float):
+    Source breaking change: method androidx.compose.material3.TopAppBarState.setHeightOffset(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState#setHeightOffsetLimit(float):
+    Source breaking change: method androidx.compose.material3.TopAppBarState.setHeightOffsetLimit(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.TopAppBarState.Companion#getSaver():
+    Source breaking change: method androidx.compose.material3.TopAppBarState.Companion.getSaver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getBodyLarge():
+    Source breaking change: method androidx.compose.material3.Typography.getBodyLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getBodyMedium():
+    Source breaking change: method androidx.compose.material3.Typography.getBodyMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getBodySmall():
+    Source breaking change: method androidx.compose.material3.Typography.getBodySmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getDisplayLarge():
+    Source breaking change: method androidx.compose.material3.Typography.getDisplayLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getDisplayMedium():
+    Source breaking change: method androidx.compose.material3.Typography.getDisplayMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getDisplaySmall():
+    Source breaking change: method androidx.compose.material3.Typography.getDisplaySmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getHeadlineLarge():
+    Source breaking change: method androidx.compose.material3.Typography.getHeadlineLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getHeadlineMedium():
+    Source breaking change: method androidx.compose.material3.Typography.getHeadlineMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getHeadlineSmall():
+    Source breaking change: method androidx.compose.material3.Typography.getHeadlineSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getLabelLarge():
+    Source breaking change: method androidx.compose.material3.Typography.getLabelLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getLabelMedium():
+    Source breaking change: method androidx.compose.material3.Typography.getLabelMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getLabelSmall():
+    Source breaking change: method androidx.compose.material3.Typography.getLabelSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getTitleLarge():
+    Source breaking change: method androidx.compose.material3.Typography.getTitleLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getTitleMedium():
+    Source breaking change: method androidx.compose.material3.Typography.getTitleMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.Typography#getTitleSmall():
+    Source breaking change: method androidx.compose.material3.Typography.getTitleSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.WideNavigationRailDefaults#getArrangement():
+    Source breaking change: method androidx.compose.material3.WideNavigationRailDefaults.getArrangement() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.WideNavigationRailDefaults#getModalExpandedProperties():
+    Source breaking change: method androidx.compose.material3.WideNavigationRailDefaults.getModalExpandedProperties() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.WideNavigationRailState#getCurrentValue():
+    Source breaking change: method androidx.compose.material3.WideNavigationRailState.getCurrentValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.WideNavigationRailState#getTargetValue():
+    Source breaking change: method androidx.compose.material3.WideNavigationRailState.getTargetValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.WideNavigationRailState#isAnimating():
+    Source breaking change: method androidx.compose.material3.WideNavigationRailState.isAnimating() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.pulltorefresh.PullToRefreshDefaults#getIndicatorShape():
+    Source breaking change: method androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.getIndicatorShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.pulltorefresh.PullToRefreshState#getDistanceFraction():
+    Source breaking change: method androidx.compose.material3.pulltorefresh.PullToRefreshState.getDistanceFraction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.pulltorefresh.PullToRefreshState#isAnimating():
+    Source breaking change: method androidx.compose.material3.pulltorefresh.PullToRefreshState.isAnimating() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getShape()
 RemovedMethod: androidx.compose.material3.AndroidAlertDialog_androidKt#AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, long, long, long, long, float, androidx.compose.ui.window.DialogProperties):
     Binary breaking change: Removed method androidx.compose.material3.AndroidAlertDialog_androidKt.AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,long,long,long,long,float,androidx.compose.ui.window.DialogProperties)
 RemovedMethod: androidx.compose.material3.AndroidMenu_androidKt#DropdownMenu(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, long, androidx.compose.foundation.ScrollState, androidx.compose.ui.window.PopupProperties, androidx.compose.ui.graphics.Shape, long, float, float, androidx.compose.foundation.BorderStroke, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.AndroidMenu_androidKt.DropdownMenu(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,long,androidx.compose.foundation.ScrollState,androidx.compose.ui.window.PopupProperties,androidx.compose.ui.graphics.Shape,long,float,float,androidx.compose.foundation.BorderStroke,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.material3.AppBarColumnKt#AppBarColumn(kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarMenuState,kotlin.Unit>, androidx.compose.ui.Modifier, int, kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarColumnScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.material3.AppBarColumnKt.AppBarColumn(kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarMenuState,kotlin.Unit>,androidx.compose.ui.Modifier,int,kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarColumnScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.AppBarKt#BottomAppBar(androidx.compose.ui.Modifier, long, long, float, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.layout.WindowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.AppBarKt.BottomAppBar(androidx.compose.ui.Modifier,long,long,float,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.layout.WindowInsets,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.AppBarKt#BottomAppBar(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, long, long, float, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.layout.WindowInsets):
@@ -131,6 +637,8 @@ RemovedMethod: androidx.compose.material3.AppBarKt#MediumTopAppBar(kotlin.jvm.fu
     Binary breaking change: Removed method androidx.compose.material3.AppBarKt.MediumTopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>,float,float,androidx.compose.foundation.layout.WindowInsets,androidx.compose.material3.TopAppBarColors,androidx.compose.material3.TopAppBarScrollBehavior)
 RemovedMethod: androidx.compose.material3.AppBarKt#TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>, float, androidx.compose.foundation.layout.WindowInsets, androidx.compose.material3.TopAppBarColors, androidx.compose.material3.TopAppBarScrollBehavior):
     Binary breaking change: Removed method androidx.compose.material3.AppBarKt.TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>,float,androidx.compose.foundation.layout.WindowInsets,androidx.compose.material3.TopAppBarColors,androidx.compose.material3.TopAppBarScrollBehavior)
+RemovedMethod: androidx.compose.material3.AppBarRowKt#AppBarRow(kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarMenuState,kotlin.Unit>, androidx.compose.ui.Modifier, int, kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarRowScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.material3.AppBarRowKt.AppBarRow(kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarMenuState,kotlin.Unit>,androidx.compose.ui.Modifier,int,kotlin.jvm.functions.Function1<? super androidx.compose.material3.AppBarRowScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.AssistChipDefaults#assistChipBorder(boolean, long, long, float):
     Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.assistChipBorder(boolean,long,long,float)
 RemovedMethod: androidx.compose.material3.AssistChipDefaults#assistChipColors(long, long, long, long, long, long, long, long):
@@ -141,8 +649,12 @@ RemovedMethod: androidx.compose.material3.AssistChipDefaults#elevatedAssistChipC
     Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.elevatedAssistChipColors(long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.AssistChipDefaults#elevatedAssistChipElevation(float, float, float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.elevatedAssistChipElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.AssistChipDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.getShape()
 RemovedMethod: androidx.compose.material3.BadgeKt#Badge(androidx.compose.ui.Modifier, long, long, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.BadgeKt.Badge(androidx.compose.ui.Modifier,long,long,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.material3.BottomAppBarDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.BottomAppBarDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.ButtonColors#copy(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ButtonColors.copy(long,long,long,long)
 RemovedMethod: androidx.compose.material3.ButtonDefaults#buttonColors(long, long, long, long):
@@ -157,6 +669,16 @@ RemovedMethod: androidx.compose.material3.ButtonDefaults#filledTonalButtonColors
     Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.ButtonDefaults#filledTonalButtonElevation(float, float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.filledTonalButtonElevation(float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getElevatedShape():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getElevatedShape()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getFilledTonalShape():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getFilledTonalShape()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getOutlinedShape():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getOutlinedShape()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getShape()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getTextShape():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getTextShape()
 RemovedMethod: androidx.compose.material3.ButtonDefaults#outlinedButtonColors(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.outlinedButtonColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.ButtonDefaults#textButtonColors(long, long, long, long):
@@ -171,6 +693,12 @@ RemovedMethod: androidx.compose.material3.CardDefaults#elevatedCardColors(long, 
     Binary breaking change: Removed method androidx.compose.material3.CardDefaults.elevatedCardColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.CardDefaults#elevatedCardElevation(float, float, float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.CardDefaults.elevatedCardElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.CardDefaults#getElevatedShape():
+    Binary breaking change: Removed method androidx.compose.material3.CardDefaults.getElevatedShape()
+RemovedMethod: androidx.compose.material3.CardDefaults#getOutlinedShape():
+    Binary breaking change: Removed method androidx.compose.material3.CardDefaults.getOutlinedShape()
+RemovedMethod: androidx.compose.material3.CardDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.CardDefaults.getShape()
 RemovedMethod: androidx.compose.material3.CardDefaults#outlinedCardColors(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.CardDefaults.outlinedCardColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.CardDefaults#outlinedCardElevation(float, float, float, float, float, float):
@@ -181,6 +709,20 @@ RemovedMethod: androidx.compose.material3.CheckboxDefaults#colors(long, long, lo
     Binary breaking change: Removed method androidx.compose.material3.CheckboxDefaults.colors(long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.ChipColors#copy(long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ChipColors.copy(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ChipKt#AssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.AssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ChipColors,androidx.compose.material3.ChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#ElevatedAssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.ElevatedAssistChip(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ChipColors,androidx.compose.material3.ChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#ElevatedFilterChip(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.SelectableChipColors, androidx.compose.material3.SelectableChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.ElevatedFilterChip(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.SelectableChipColors,androidx.compose.material3.SelectableChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#ElevatedSuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.ElevatedSuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ChipColors,androidx.compose.material3.ChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#FilterChip(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.SelectableChipColors, androidx.compose.material3.SelectableChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.FilterChip(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.SelectableChipColors,androidx.compose.material3.SelectableChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#InputChip(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.SelectableChipColors, androidx.compose.material3.SelectableChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.InputChip(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.SelectableChipColors,androidx.compose.material3.SelectableChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.compose.material3.ChipKt#SuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.ChipColors, androidx.compose.material3.ChipElevation, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.compose.material3.ChipKt.SuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,androidx.compose.material3.ChipColors,androidx.compose.material3.ChipElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource)
 RemovedMethod: androidx.compose.material3.ColorScheme#copy(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ColorScheme.copy(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.ColorSchemeKt#contentColorFor(androidx.compose.material3.ColorScheme, long):
@@ -201,6 +743,8 @@ RemovedMethod: androidx.compose.material3.DatePickerDefaults#DatePickerTitle(int
     Binary breaking change: Removed method androidx.compose.material3.DatePickerDefaults.DatePickerTitle(int,androidx.compose.ui.Modifier,long)
 RemovedMethod: androidx.compose.material3.DatePickerDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.material3.TextFieldColors):
     Binary breaking change: Removed method androidx.compose.material3.DatePickerDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,androidx.compose.material3.TextFieldColors)
+RemovedMethod: androidx.compose.material3.DatePickerDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.DatePickerDefaults.getShape()
 RemovedMethod: androidx.compose.material3.DatePickerDialog_androidKt#DatePickerDialog(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, float, androidx.compose.material3.DatePickerColors, androidx.compose.ui.window.DialogProperties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.DatePickerDialog_androidKt.DatePickerDialog(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,float,androidx.compose.material3.DatePickerColors,androidx.compose.ui.window.DialogProperties,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.DatePickerKt#DatePickerState(java.util.Locale, Long, Long, kotlin.ranges.IntRange, int, androidx.compose.material3.SelectableDates):
@@ -219,6 +763,10 @@ RemovedMethod: androidx.compose.material3.DividerKt#HorizontalDivider(androidx.c
     Binary breaking change: Removed method androidx.compose.material3.DividerKt.HorizontalDivider(androidx.compose.ui.Modifier,float,long)
 RemovedMethod: androidx.compose.material3.DividerKt#VerticalDivider(androidx.compose.ui.Modifier, float, long):
     Binary breaking change: Removed method androidx.compose.material3.DividerKt.VerticalDivider(androidx.compose.ui.Modifier,float,long)
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getShape()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.FilterChipDefaults#elevatedFilterChipColors(long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.elevatedFilterChipColors(long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.FilterChipDefaults#elevatedFilterChipElevation(float, float, float, float, float, float):
@@ -229,10 +777,20 @@ RemovedMethod: androidx.compose.material3.FilterChipDefaults#filterChipColors(lo
     Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.filterChipColors(long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.FilterChipDefaults#filterChipElevation(float, float, float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.filterChipElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.FilterChipDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.getShape()
 RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#bottomAppBarFabElevation(float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.bottomAppBarFabElevation(float,float,float,float)
 RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#elevation(float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.elevation(float,float,float,float)
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getExtendedFabShape():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getExtendedFabShape()
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getLargeShape():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getLargeShape()
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getShape()
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getSmallShape():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getSmallShape()
 RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#loweredElevation(float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.loweredElevation(float,float,float,float)
 RemovedMethod: androidx.compose.material3.FloatingActionButtonKt#ExtendedFloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape, long, long, androidx.compose.material3.FloatingActionButtonElevation, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
@@ -255,6 +813,12 @@ RemovedMethod: androidx.compose.material3.IconButtonDefaults#filledTonalIconButt
     Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.IconButtonDefaults#filledTonalIconToggleButtonColors(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.filledTonalIconToggleButtonColors(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.IconButtonDefaults#getFilledShape():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.getFilledShape()
+RemovedMethod: androidx.compose.material3.IconButtonDefaults#getOutlinedShape():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.getOutlinedShape()
+RemovedMethod: androidx.compose.material3.IconButtonDefaults#getStandardShape():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.getStandardShape()
 RemovedMethod: androidx.compose.material3.IconButtonDefaults#iconButtonColors(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.IconButtonDefaults.iconButtonColors(long,long,long,long)
 RemovedMethod: androidx.compose.material3.IconButtonDefaults#iconButtonVibrantColors(long, long, long, long):
@@ -279,6 +843,8 @@ RemovedMethod: androidx.compose.material3.IconKt#Icon(androidx.compose.ui.graphi
     Binary breaking change: Removed method androidx.compose.material3.IconKt.Icon(androidx.compose.ui.graphics.vector.ImageVector,String,androidx.compose.ui.Modifier,long)
 RemovedMethod: androidx.compose.material3.IconToggleButtonColors#copy(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.copy(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.InputChipDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.InputChipDefaults.getShape()
 RemovedMethod: androidx.compose.material3.InputChipDefaults#inputChipBorder(boolean, boolean, long, long, long, long, float, float):
     Binary breaking change: Removed method androidx.compose.material3.InputChipDefaults.inputChipBorder(boolean,boolean,long,long,long,long,float,float)
 RemovedMethod: androidx.compose.material3.InputChipDefaults#inputChipColors(long, long, long, long, long, long, long, long, long, long, long, long, long):
@@ -289,12 +855,24 @@ RemovedMethod: androidx.compose.material3.ListItemColors#copy(long, long, long, 
     Binary breaking change: Removed method androidx.compose.material3.ListItemColors.copy(long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.ListItemDefaults#colors(long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ListItemDefaults.colors(long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ListItemDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemDefaults.getShape()
 RemovedMethod: androidx.compose.material3.ListItemKt#ListItem(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.material3.ListItemColors, float, float):
     Binary breaking change: Removed method androidx.compose.material3.ListItemKt.ListItem(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.material3.ListItemColors,float,float)
+RemovedMethod: androidx.compose.material3.MaterialTheme#getColorScheme():
+    Binary breaking change: Removed method androidx.compose.material3.MaterialTheme.getColorScheme()
+RemovedMethod: androidx.compose.material3.MaterialTheme#getShapes():
+    Binary breaking change: Removed method androidx.compose.material3.MaterialTheme.getShapes()
+RemovedMethod: androidx.compose.material3.MaterialTheme#getTypography():
+    Binary breaking change: Removed method androidx.compose.material3.MaterialTheme.getTypography()
+RemovedMethod: androidx.compose.material3.MenuDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.MenuDefaults.getShape()
 RemovedMethod: androidx.compose.material3.MenuDefaults#itemColors(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.MenuDefaults.itemColors(long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.MenuItemColors#copy(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.copy(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.NavigationBarDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.NavigationBarItemColors#copy(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.copy(long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.NavigationBarItemDefaults#colors(long, long, long, long, long, long, long):
@@ -317,6 +895,8 @@ RemovedMethod: androidx.compose.material3.NavigationDrawerKt#PermanentDrawerShee
     Binary breaking change: Removed method androidx.compose.material3.NavigationDrawerKt.PermanentDrawerSheet(androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Shape,long,long,float,androidx.compose.foundation.layout.WindowInsets,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.NavigationItemColors#copy(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.NavigationItemColors.copy(long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.NavigationRailDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.NavigationRailItemColors#copy(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.copy(long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.NavigationRailItemDefaults#colors(long, long, long, long, long, long, long):
@@ -329,6 +909,8 @@ RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#colors(long,
     Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.colors(long,long,long,long,long,long,long,long,long,long,androidx.compose.foundation.text.selection.TextSelectionColors,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#contentPadding(float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding(float,float,float,float)
+RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.getShape()
 RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope, float, long, int):
     Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope,float,long,int)
 RemovedMethod: androidx.compose.material3.ProgressIndicatorKt#CircularProgressIndicator(androidx.compose.ui.Modifier, long, float, long, int, float):
@@ -343,10 +925,14 @@ RemovedMethod: androidx.compose.material3.RadioButtonColors#copy(long, long, lon
     Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.copy(long,long,long,long)
 RemovedMethod: androidx.compose.material3.RadioButtonDefaults#colors(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.RadioButtonDefaults.colors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.RippleConfiguration#RippleConfiguration():
+    Binary breaking change: Removed constructor androidx.compose.material3.RippleConfiguration()
 RemovedMethod: androidx.compose.material3.RippleKt#ripple(androidx.compose.ui.graphics.ColorProducer, boolean, float):
     Binary breaking change: Removed method androidx.compose.material3.RippleKt.ripple(androidx.compose.ui.graphics.ColorProducer,boolean,float)
 RemovedMethod: androidx.compose.material3.RippleKt#ripple(boolean, float, long):
     Binary breaking change: Removed method androidx.compose.material3.RippleKt.ripple(boolean,float,long)
+RemovedMethod: androidx.compose.material3.ScaffoldDefaults#getContentWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.ScaffoldDefaults.getContentWindowInsets()
 RemovedMethod: androidx.compose.material3.ScaffoldKt#Scaffold(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, int, long, long, androidx.compose.foundation.layout.WindowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.ScaffoldKt.Scaffold(androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,int,long,long,androidx.compose.foundation.layout.WindowInsets,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.SecureTextFieldKt#OutlinedSecureTextField(androidx.compose.foundation.text.input.TextFieldState, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.text.TextStyle, androidx.compose.material3.TextFieldLabelPosition, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TextFieldLabelScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.foundation.text.input.InputTransformation, int, char, androidx.compose.foundation.text.KeyboardOptions, androidx.compose.foundation.text.input.KeyboardActionHandler, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult>,kotlin.Unit>, androidx.compose.ui.graphics.Shape, androidx.compose.material3.TextFieldColors, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
@@ -359,12 +945,16 @@ RemovedMethod: androidx.compose.material3.SegmentedButtonDefaults#borderStroke(l
     Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonDefaults.borderStroke(long,float)
 RemovedMethod: androidx.compose.material3.SegmentedButtonDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.SegmentedButtonDefaults#getBaseShape():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonDefaults.getBaseShape()
 RemovedMethod: androidx.compose.material3.SegmentedButtonKt#MultiChoiceSegmentedButtonRow(androidx.compose.ui.Modifier, float, kotlin.jvm.functions.Function1<? super androidx.compose.material3.MultiChoiceSegmentedButtonRowScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonKt.MultiChoiceSegmentedButtonRow(androidx.compose.ui.Modifier,float,kotlin.jvm.functions.Function1<? super androidx.compose.material3.MultiChoiceSegmentedButtonRowScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.SegmentedButtonKt#SingleChoiceSegmentedButtonRow(androidx.compose.ui.Modifier, float, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SingleChoiceSegmentedButtonRowScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonKt.SingleChoiceSegmentedButtonRow(androidx.compose.ui.Modifier,float,kotlin.jvm.functions.Function1<? super androidx.compose.material3.SingleChoiceSegmentedButtonRowScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.SelectableChipColors#copy(long, long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.SelectableChipColors.copy(long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ShortNavigationBarDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.ShortNavigationBarDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.ShortNavigationBarItemDefaults#colors(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.ShortNavigationBarItemDefaults.colors(long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.ShortNavigationBarKt#ShortNavigationBar(androidx.compose.ui.Modifier, long, long, androidx.compose.foundation.layout.WindowInsets, int, kotlin.jvm.functions.Function0<kotlin.Unit>):
@@ -381,6 +971,8 @@ RemovedMethod: androidx.compose.material3.SliderDefaults#colors(long, long, long
     Binary breaking change: Removed method androidx.compose.material3.SliderDefaults.colors(long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.SliderDefaults#drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope, long, float, long):
     Binary breaking change: Removed method androidx.compose.material3.SliderDefaults.drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope,long,float,long)
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getShape()
 RemovedMethod: androidx.compose.material3.SnackbarKt#Snackbar(androidx.compose.material3.SnackbarData, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.SnackbarKt.Snackbar(androidx.compose.material3.SnackbarData,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.SnackbarKt#Snackbar(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.graphics.Shape, long, long, long, long, kotlin.jvm.functions.Function0<kotlin.Unit>):
@@ -389,6 +981,8 @@ RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#elevatedSuggest
     Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.elevatedSuggestionChipColors(long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#elevatedSuggestionChipElevation(float, float, float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.elevatedSuggestionChipElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.getShape()
 RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipBorder(boolean, long, long, float):
     Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.suggestionChipBorder(boolean,long,long,float)
 RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColors(long, long, long, long, long, long):
@@ -403,6 +997,8 @@ RemovedMethod: androidx.compose.material3.SurfaceKt#Surface(boolean, kotlin.jvm.
     Binary breaking change: Removed method androidx.compose.material3.SurfaceKt.Surface(boolean,kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,long,long,float,float,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.SurfaceKt#Surface(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape, long, long, float, float, androidx.compose.foundation.BorderStroke, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.SurfaceKt.Surface(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.compose.ui.graphics.Shape,long,long,float,float,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedMethod: androidx.compose.material3.SwipeToDismissBoxDefaults#getPositionalThreshold():
+    Binary breaking change: Removed method androidx.compose.material3.SwipeToDismissBoxDefaults.getPositionalThreshold()
 RemovedMethod: androidx.compose.material3.SwitchColors#copy(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.SwitchColors.copy(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.SwitchDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
@@ -435,6 +1031,8 @@ RemovedMethod: androidx.compose.material3.TextFieldDefaults#contentPaddingWithLa
     Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.contentPaddingWithLabel(float,float,float,float)
 RemovedMethod: androidx.compose.material3.TextFieldDefaults#contentPaddingWithoutLabel(float, float, float, float):
     Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.contentPaddingWithoutLabel(float,float,float,float)
+RemovedMethod: androidx.compose.material3.TextFieldDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.getShape()
 RemovedMethod: androidx.compose.material3.TextFieldDefaults#indicatorLine(androidx.compose.ui.Modifier, boolean, boolean, androidx.compose.foundation.interaction.InteractionSource, androidx.compose.material3.TextFieldColors, androidx.compose.ui.graphics.Shape, float, float):
     Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.indicatorLine(androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.foundation.interaction.InteractionSource,androidx.compose.material3.TextFieldColors,androidx.compose.ui.graphics.Shape,float,float)
 RemovedMethod: androidx.compose.material3.TextKt#Text(String, androidx.compose.ui.Modifier, long, androidx.compose.foundation.text.TextAutoSize, long, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontFamily, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.text.style.TextAlign, long, int, boolean, int, int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>, androidx.compose.ui.text.TextStyle):
@@ -443,12 +1041,18 @@ RemovedMethod: androidx.compose.material3.TextKt#Text(androidx.compose.ui.text.A
     Binary breaking change: Removed method androidx.compose.material3.TextKt.Text(androidx.compose.ui.text.AnnotatedString,androidx.compose.ui.Modifier,long,androidx.compose.foundation.text.TextAutoSize,long,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,long,int,boolean,int,int,java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>,androidx.compose.ui.text.TextStyle)
 RemovedMethod: androidx.compose.material3.TimePickerDialogDefaults#DisplayModeToggle(kotlin.jvm.functions.Function0<kotlin.Unit>, int, androidx.compose.ui.Modifier):
     Binary breaking change: Removed method androidx.compose.material3.TimePickerDialogDefaults.DisplayModeToggle(kotlin.jvm.functions.Function0<kotlin.Unit>,int,androidx.compose.ui.Modifier)
+RemovedMethod: androidx.compose.material3.TimePickerDialogDefaults#DisplayModeToggle-S7Bxtbk(kotlin.jvm.functions.Function0<kotlin.Unit>, int, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer, int, int):
+    Binary breaking change: Removed method androidx.compose.material3.TimePickerDialogDefaults.DisplayModeToggle-S7Bxtbk(kotlin.jvm.functions.Function0<kotlin.Unit>,int,androidx.compose.ui.Modifier,androidx.compose.runtime.Composer,int,int)
 RemovedMethod: androidx.compose.material3.TimePickerDialogDefaults#Title(int, androidx.compose.ui.Modifier):
     Binary breaking change: Removed method androidx.compose.material3.TimePickerDialogDefaults.Title(int,androidx.compose.ui.Modifier)
+RemovedMethod: androidx.compose.material3.TimePickerDialogDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.TimePickerDialogDefaults.getShape()
 RemovedMethod: androidx.compose.material3.TimePickerDialogKt#TimePickerDialog(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, androidx.compose.ui.window.DialogProperties, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.graphics.Shape, long, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.TimePickerDialogKt.TimePickerDialog(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,androidx.compose.ui.window.DialogProperties,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.graphics.Shape,long,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.TopAppBarColors#copy(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.TopAppBarColors.copy(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.TopAppBarDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.TopAppBarDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.TopAppBarDefaults#topAppBarColors(long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.TopAppBarDefaults.topAppBarColors(long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.VerticalDragHandleDefaults#colors(long, long, long):
@@ -459,15 +1063,31 @@ RemovedMethod: androidx.compose.material3.WideNavigationRailColors#copy(long, lo
     Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailColors.copy(long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.WideNavigationRailDefaults#colors(long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailDefaults.colors(long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.WideNavigationRailDefaults#getModalCollapsedShape():
+    Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailDefaults.getModalCollapsedShape()
+RemovedMethod: androidx.compose.material3.WideNavigationRailDefaults#getModalExpandedShape():
+    Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailDefaults.getModalExpandedShape()
+RemovedMethod: androidx.compose.material3.WideNavigationRailDefaults#getShape():
+    Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailDefaults.getShape()
+RemovedMethod: androidx.compose.material3.WideNavigationRailDefaults#getWindowInsets():
+    Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailDefaults.getWindowInsets()
 RemovedMethod: androidx.compose.material3.WideNavigationRailItemDefaults#colors(long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailItemDefaults.colors(long,long,long,long,long,long,long)
 RemovedMethod: androidx.compose.material3.WideNavigationRailKt#ModalWideNavigationRail(androidx.compose.ui.Modifier, androidx.compose.material3.WideNavigationRailState, boolean, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.material3.WideNavigationRailColors, kotlin.jvm.functions.Function0<kotlin.Unit>, float, androidx.compose.foundation.layout.WindowInsets, androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.material3.ModalWideNavigationRailProperties, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailKt.ModalWideNavigationRail(androidx.compose.ui.Modifier,androidx.compose.material3.WideNavigationRailState,boolean,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.material3.WideNavigationRailColors,kotlin.jvm.functions.Function0<kotlin.Unit>,float,androidx.compose.foundation.layout.WindowInsets,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.material3.ModalWideNavigationRailProperties,kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedMethod: androidx.compose.material3.WideNavigationRailKt#WideNavigationRail(androidx.compose.ui.Modifier, androidx.compose.material3.WideNavigationRailState, androidx.compose.ui.graphics.Shape, androidx.compose.material3.WideNavigationRailColors, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.foundation.layout.WindowInsets, androidx.compose.foundation.layout.Arrangement.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailKt.WideNavigationRail(androidx.compose.ui.Modifier,androidx.compose.material3.WideNavigationRailState,androidx.compose.ui.graphics.Shape,androidx.compose.material3.WideNavigationRailColors,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.foundation.layout.WindowInsets,androidx.compose.foundation.layout.Arrangement.Vertical,kotlin.jvm.functions.Function0<kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.WideNavigationRailKt#WideNavigationRailItem(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.ui.Modifier, boolean, int, androidx.compose.material3.NavigationItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
     Binary breaking change: Removed method androidx.compose.material3.WideNavigationRailKt.WideNavigationRailItem(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.ui.Modifier,boolean,int,androidx.compose.material3.NavigationItemColors,androidx.compose.foundation.interaction.MutableInteractionSource)
 RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshDefaults#Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier, long, long, float):
     Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState,boolean,androidx.compose.ui.Modifier,long,long,float)
 RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshDefaults#IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape, long, float, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState,boolean,androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape,long,float,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshKt#PullToRefreshBox(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, androidx.compose.material3.pulltorefresh.PullToRefreshState, androidx.compose.ui.Alignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshKt.PullToRefreshBox(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,androidx.compose.material3.pulltorefresh.PullToRefreshState,androidx.compose.ui.Alignment,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshKt#pullToRefresh(androidx.compose.ui.Modifier, boolean, androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, float, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshKt.pullToRefresh(androidx.compose.ui.Modifier,boolean,androidx.compose.material3.pulltorefresh.PullToRefreshState,boolean,float,kotlin.jvm.functions.Function0<kotlin.Unit>)
+
+
+RemovedProperty: androidx.compose.material3.AppBarMenuState#isExpanded:
+    Source breaking change: Removed property androidx.compose.material3.AppBarMenuState#isExpanded

@@ -235,7 +235,6 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
                 "androidx.compose.integration-tests.docs-snippets",
                 // These projects are excluded due to b/259578592
                 "androidx.camera.camera-camera2-pipe",
-                "androidx.camera.camera-camera2-pipe-integration",
                 "androidx.camera.camera-camera2-pipe-testing",
             )
     }

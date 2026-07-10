@@ -23,6 +23,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
+
 /**
  * The camera interface is used to control the flow of data to use cases, control the
  * camera via the {@link CameraControl}, and publish the state of the camera via {@link CameraInfo}.
@@ -62,6 +64,7 @@ public interface Camera {
     /**
      * Get the currently set extended config of the Camera.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull CameraConfig getExtendedConfig();
 
@@ -104,5 +107,22 @@ public interface Camera {
     default boolean isUseCasesCombinationSupported(boolean withStreamSharing,
             UseCase @NonNull ... useCases) {
         return true;
+    }
+
+    /**
+     * Sets the composition settings for concurrent camera.
+     *
+     * <p>The composition settings will be applied to the cameras in the order they were bound.
+     * The first composition setting is for the primary camera, and the second is for the
+     * secondary camera, etc.
+     *
+     * @param compositionSettings A list of {@link CompositionSettings} for the concurrent
+     *                                cameras.
+     * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
+     * @throws IllegalArgumentException if the size of the composition settings list does not
+     *                                  match the number of cameras bound.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void setCompositionSettings(@NonNull List<CompositionSettings> compositionSettings) {
     }
 }

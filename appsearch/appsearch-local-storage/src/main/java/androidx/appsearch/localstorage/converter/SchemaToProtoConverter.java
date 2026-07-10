@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.core.util.Preconditions;
@@ -35,13 +36,15 @@ import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Translates an {@link AppSearchSchema} into a {@link SchemaTypeConfigProto}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaToProtoConverter {
     private static final String TAG = "AppSearchSchemaToProtoC";
@@ -55,7 +58,8 @@ public final class SchemaToProtoConverter {
     // TODO(b/284356266): Consider handling addition of schema name prefixes in this function.
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull SchemaTypeConfigProto toSchemaTypeConfigProto(
-            @NonNull AppSearchSchema schema, int version) {
+            @NonNull AppSearchSchema schema, @Nullable Set<String> accountPropertyPaths,
+            int version) {
         Preconditions.checkNotNull(schema);
         SchemaTypeConfigProto.Builder protoBuilder = SchemaTypeConfigProto.newBuilder()
                 .setSchemaType(schema.getSchemaType())
@@ -67,6 +71,9 @@ public final class SchemaToProtoConverter {
             protoBuilder.addProperties(propertyProto);
         }
         protoBuilder.addAllParentTypes(schema.getParentTypes());
+        if (accountPropertyPaths != null) {
+            protoBuilder.addAllAccountProperties(accountPropertyPaths);
+        }
         return protoBuilder.build();
     }
 
@@ -454,6 +461,7 @@ public final class SchemaToProtoConverter {
         return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     }
 
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static EmbeddingIndexingConfig.EmbeddingIndexingType.@NonNull Code
             convertEmbeddingIndexingTypeToProto(
             @AppSearchSchema.EmbeddingPropertyConfig.IndexingType int indexingType) {
@@ -462,12 +470,16 @@ public final class SchemaToProtoConverter {
                 return EmbeddingIndexingConfig.EmbeddingIndexingType.Code.UNKNOWN;
             case AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY:
                 return EmbeddingIndexingConfig.EmbeddingIndexingType.Code.LINEAR_SEARCH;
+            case AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR:
+                return EmbeddingIndexingConfig.EmbeddingIndexingType.Code
+                        .APPROXIMATE_NEAREST_NEIGHBOR;
             default:
                 throw new IllegalArgumentException("Invalid indexingType: " + indexingType);
         }
     }
 
     @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static int convertEmbeddingIndexingTypeFromProto(
             EmbeddingIndexingConfig.EmbeddingIndexingType.@NonNull Code indexingType) {
         switch (indexingType) {
@@ -475,6 +487,9 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
             case LINEAR_SEARCH:
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY;
+            case APPROXIMATE_NEAREST_NEIGHBOR:
+                return AppSearchSchema.EmbeddingPropertyConfig
+                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR;
         }
         // Avoid crashing in the 'read' path; we should try to interpret the document to the
         // extent possible.

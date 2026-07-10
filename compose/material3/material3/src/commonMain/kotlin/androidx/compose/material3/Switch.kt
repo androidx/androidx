@@ -146,10 +146,30 @@ private fun SwitchImpl(
     val resolvedThumbColor = colors.thumbColor(enabled, checked)
     val trackShape = SwitchTokens.TrackShape.value
 
+    val focusRingModifier =
+        if (
+            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
+        ) {
+            Modifier.indication(
+                interactionSource = interactionSource,
+                indication =
+                    ripple(
+                        focusRingShape = trackShape,
+                        enablePressIndication = false,
+                        enableFocusIndication = true,
+                        enableDragIndication = false,
+                        enableHoverIndication = false,
+                    ),
+            )
+        } else {
+            Modifier
+        }
+
     Box(
         modifier
             .border(TrackOutlineWidth, colors.borderColor(enabled, checked), trackShape)
             .background(trackColor, trackShape)
+            .then(focusRingModifier)
     ) {
         Box(
             modifier =
@@ -165,7 +185,13 @@ private fun SwitchImpl(
                     .indication(
                         interactionSource = interactionSource,
                         indication =
-                            ripple(bounded = false, radius = SwitchTokens.StateLayerSize / 2),
+                            ripple(
+                                bounded = false,
+                                radius = SwitchTokens.StateLayerSize / 2,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                     )
                     .background(resolvedThumbColor, thumbShape),
             contentAlignment = Alignment.Center,
@@ -237,6 +263,14 @@ private class ThumbNode(
                 }
             }
         }
+    }
+
+    override fun onReset() {
+        super.onReset()
+        offsetAnim = null
+        sizeAnim = null
+        initialSize = Float.NaN
+        initialOffset = Float.NaN
     }
 
     override fun MeasureScope.measure(

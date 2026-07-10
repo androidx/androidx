@@ -49,6 +49,10 @@ package androidx.appfunctions
  *     * `List<String>`
  *     * Another class annotated with `@AppFunctionSerializable` (enabling nested structures) or a
  *       list of a class annotated with `@AppFunctionSerializable`
+ *     * Any implementation of [android.os.Parcelable] type. For `Parcelable` types not defined by
+ *       the Android platform (e.g., custom classes shared between agents and apps), forward and
+ *       backward compatibility is **not guaranteed** by AppFunctions library. Implementers are
+ *       responsible for managing any compatibility and versioning concerns.
  * * **Public Primary Constructor:** The primary constructor of the annotated class must have public
  *   visibility to allow instantiation.
  * * **
@@ -104,5 +108,5 @@ public annotation class AppFunctionSerializable(
      * properties' KDoc will also be set as their corresponding descriptions. The caller will use
      * the descriptions to interpret when and how to use the class and its properties.
      */
-    public val isDescribedByKdoc: Boolean = false
+    public val isDescribedByKDoc: Boolean = false
 )

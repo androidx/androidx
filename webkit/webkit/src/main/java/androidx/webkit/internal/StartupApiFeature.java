@@ -135,10 +135,7 @@ public abstract class StartupApiFeature {
                 return null;
             }
         } else {
-            int flags = PackageManager.GET_META_DATA;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                flags |= PackageManager.MATCH_DISABLED_COMPONENTS;
-            }
+            int flags = PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS;
             try {
 
                 return getServiceInfo(context, compName, flags)

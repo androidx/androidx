@@ -20,8 +20,8 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Bundle
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
@@ -30,9 +30,9 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 import androidx.camera.integration.view.CameraControllerFragmentTest.Companion.TIMEOUT_SECONDS
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
@@ -46,7 +46,6 @@ import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
@@ -62,8 +61,7 @@ class Media3EffectFragmentDeviceTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
+    val requireForegroundRule = RequireForegroundRule { CoreAppTestUtil.assumeCompatibleDevice() }
 
     @get:Rule
     val useCameraRule =
@@ -86,26 +84,23 @@ class Media3EffectFragmentDeviceTest(
 
     @Before
     fun setup() {
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
-    }
 
-    @After
-    fun tearDown() {
-        if (::fragmentScenario.isInitialized) {
-            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-        }
-
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+        requireForegroundRule.deferCleanup {
+            try {
+                if (::fragmentScenario.isInitialized) {
+                    fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+                }
+            } finally {
+                if (::cameraProvider.isInitialized) {
+                    cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+                }
+            }
         }
     }
 
@@ -135,10 +130,13 @@ class Media3EffectFragmentDeviceTest(
 
         // Assert: Take a picture and assert the color.
         val bitmap = takePictureAsBitmap()
-
-        assertThat(bitmap).isNotNull()
-        assertThat(getAverageDiff(bitmap!!, Rect(0, 0, bitmap.width, bitmap.height), color))
-            .isEqualTo(0)
+        try {
+            assertThat(bitmap).isNotNull()
+            assertThat(getAverageDiff(bitmap!!, Rect(0, 0, bitmap.width, bitmap.height), color))
+                .isEqualTo(0)
+        } finally {
+            bitmap?.recycle()
+        }
     }
 
     private fun takePictureAsBitmap(): Bitmap? {
@@ -149,10 +147,11 @@ class Media3EffectFragmentDeviceTest(
                 mainThreadExecutor(),
                 object : OnImageCapturedCallback() {
                     override fun onCaptureSuccess(image: ImageProxy) {
-                        bitmap = image.toBitmap()
-                        image.close()
-                        // Unblock the test
-                        imageCallbackSemaphore.release()
+                        image.use { image ->
+                            bitmap = image.toBitmap()
+                            // Unblock the test
+                            imageCallbackSemaphore.release()
+                        }
                     }
 
                     override fun onError(exception: ImageCaptureException) {
@@ -178,9 +177,13 @@ class Media3EffectFragmentDeviceTest(
     }
 
     private fun createFragmentScenario(): FragmentScenario<Media3EffectsFragment> {
+        val fragmentArgs =
+            Bundle().apply {
+                putString(Media3EffectsFragment.ARG_EFFECT, Media3EffectsFragment.EFFECT_BRIGHTNESS)
+            }
         return FragmentScenario.launchInContainer(
             Media3EffectsFragment::class.java,
-            null,
+            fragmentArgs,
             R.style.AppTheme,
             null,
         )
@@ -196,17 +199,13 @@ class Media3EffectFragmentDeviceTest(
         @JvmField val testCameraRule = CameraUtil.PreTestCamera()
 
         const val MAX_PROGRESS = 100
-        const val MIN_PROGRESS = 100
+        const val MIN_PROGRESS = -100
 
         // Timeout for waiting the effect to be effective.
         const val SET_EFFECT_DELAY_MILLIS = 200L
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 }

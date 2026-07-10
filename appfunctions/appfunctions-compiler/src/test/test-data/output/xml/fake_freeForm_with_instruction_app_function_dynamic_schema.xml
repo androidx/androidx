@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctionsWithInstruction#myInstructionFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Overridden function description</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg1</name>
+            <description>Overridden param description</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg2</name>
+            <description>The second argument which shouldn't be overridden.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.SerializableWithKDocAndInstruction</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg3</name>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.SerializableWithOnlyInstruction</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg4</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+            <description>Overridden return description</description>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctionsWithInstruction#myInstructionFunction</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctionsWithInstruction#myInstructionFunctionWithoutKdoc</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Overridden function description without kdoc</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg1</name>
+            <description>Overridden param description without kdoc</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.SerializableWithKDocAndInstruction</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg3</name>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.SerializableWithOnlyInstruction</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>arg4</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+            <description>Overridden return description without kdoc</description>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctionsWithInstruction#myInstructionFunctionWithoutKdoc</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.testdata.SerializableWithKDocAndInstruction</objectQualifiedName>
+                <description>SerializableWithKDocAndInstruction instruction</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>SerializableWithKDocAndInstruction#data instruction</description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>data</name>
+                </properties>
+                <required>data</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.testdata.SerializableWithKDocAndInstruction</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.testdata.SerializableWithOnlyInstruction</objectQualifiedName>
+                <description>SerializableWithOnlyInstruction instruction</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>SerializableWithOnlyInstruction#data instruction</description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>data</name>
+                </properties>
+                <required>data</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.testdata.SerializableWithOnlyInstruction</name>
+        </dataTypes>
+        <id>unused</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

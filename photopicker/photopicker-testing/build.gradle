@@ -20,11 +20,9 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     // Pin to latest stable release of annotation.
     implementation("androidx.annotation:annotation:1.9.1")
@@ -34,9 +32,9 @@ dependencies {
 
 android {
     namespace = "androidx.photopicker.testing"
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 34
+        minSdk { version = release(23) }
     }
 }
 

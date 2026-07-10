@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,15 +26,16 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(project(":xr:runtime:runtime"))
+    api(project(":xr:arcore:arcore-runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation(project(":xr:arcore:arcore-openxr"))
+    implementation(project(":xr:arcore:arcore-play-services"))
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
@@ -45,19 +45,13 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(project(":kruth:kruth"))
     testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation(project(":xr:arcore:arcore-testing"))
     testImplementation("androidx.appcompat:appcompat:1.2.0")
     testImplementation(libs.testRules)
 }
 
 android {
-    // TODO: b/409058039 - Drop back to 23 (default) once dependency on scenecore is removed.
-    defaultConfig {
-        minSdk = 24
-    }
     namespace = "androidx.xr.arcore"
-    defaultConfig {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
 }
 
 androidx {
@@ -65,5 +59,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Provides augmented reality (AR) functionality."
+    samples(project(":xr:arcore:arcore-samples"))
     enableRobolectric()
 }

@@ -1,0 +1,33 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.tracing.wire
+
+import androidx.tracing.AbstractTraceDriver
+
+/** The entry point to tracing APIs. */
+public expect class TraceDriver : AbstractTraceDriver {
+    public companion object {
+        /**
+         * @return a [TraceDriver] instance that is a stub (does nothing). This is useful as a
+         *   placeholder when you want to enable / disable tracing for the program.
+         *
+         * Effectively, this uses a [androidx.tracing.Tracer] that drops all trace packets. To get a
+         * stub tracer, you can also use the [androidx.tracing.Tracer.getStubTracer] API.
+         */
+        @JvmStatic public fun getStubTraceDriver(): TraceDriver
+    }
+}

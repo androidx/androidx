@@ -17,8 +17,6 @@
 package androidx.heifwriter;
 
 import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.util.Log;
@@ -29,6 +27,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * This class encodes images into HEIF-compatible samples using AV1 encoder.
@@ -37,8 +36,8 @@ import java.io.IOException;
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
  * The output format and samples are sent back in {@link
- * Callback#onOutputFormatChanged(HeifEncoder, MediaFormat)} and {@link
- * Callback#onDrainOutputBuffer(HeifEncoder, ByteBuffer)}. If the client
+ * Callback#onOutputFormatChanged(EncoderBase, MediaFormat)} and {@link
+ * Callback#onDrainOutputBuffer(EncoderBase, ByteBuffer)}. If the client
  * requests to use grid, each tile will be sent back individually.
  *
  * HeifEncoder is made a separate class from {@link HeifWriter}, as some more
@@ -57,9 +56,6 @@ public final class AvifEncoder extends EncoderBase {
     protected static final int ENCODING_BLOCK_SIZE = 64;
     protected static final double MAX_COMPRESS_RATIO = 0.25f;
 
-    private static final MediaCodecList sMCL =
-        new MediaCodecList(MediaCodecList.REGULAR_CODECS);
-
     /**
      * Configure the avif encoding session. Should only be called once.
      *
@@ -75,44 +71,15 @@ public final class AvifEncoder extends EncoderBase {
      * @param cb The callback to receive various messages from the avif encoder.
      */
     public AvifEncoder(int width, int height, boolean useGrid,
-            int quality, @InputMode int inputMode,
+            int quality, @InputMode int inputMode, @NonNull EncoderPreference preference,
             @Nullable Handler handler, @NonNull Callback cb,
             boolean useBitDepth10) throws IOException {
-        super("AVIF", width, height, useGrid, quality, inputMode, handler, cb, useBitDepth10);
+        super("AVIF", width, height, useGrid, quality, inputMode, preference, handler, cb,
+                useBitDepth10);
         mEncoder.setCallback(new Av1EncoderCallback(), mHandler);
         finishSettingUpEncoder(useBitDepth10);
     }
 
-    protected static String findAv1Fallback() {
-        String av1 = null; // first AV1 encoder
-        for (MediaCodecInfo info : sMCL.getCodecInfos()) {
-            if (!info.isEncoder()) {
-                continue;
-            }
-            MediaCodecInfo.CodecCapabilities caps = null;
-            try {
-                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1);
-            } catch (IllegalArgumentException e) { // mime is not supported
-                continue;
-            }
-            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
-                continue;
-            }
-            if (caps.getEncoderCapabilities().isBitrateModeSupported(
-                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
-                // Encoder that supports CQ mode is preferred over others,
-                // return the first encoder that supports CQ mode.
-                // (No need to check if it's hw based, it's already listed in
-                // order of preference.)
-                return info.getName();
-            }
-            if (av1 == null) {
-                av1 = info.getName();
-            }
-        }
-        // If no encoders support CQ, return the first AV1 encoder.
-        return av1;
-    }
 
     /**
      * MediaCodec callback for AV1 encoding.

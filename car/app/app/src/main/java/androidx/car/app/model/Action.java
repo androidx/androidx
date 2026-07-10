@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.model.MediaPlaybackTemplate;
@@ -74,7 +73,6 @@ public final class Action {
     /**
      * The type of action represented by the {@link Action} instance.
      */
-    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {
@@ -133,7 +131,6 @@ public final class Action {
     /**
      * An action to allow user compose a message.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(7)
     public static final int TYPE_COMPOSE_MESSAGE = 5 | TYPE_STANDARD;
 
@@ -152,7 +149,6 @@ public final class Action {
      * {@link OnClickListener} can be added.
      * </ol>
      */
-    @ExperimentalCarApi
     @RequiresCarApi(8)
     @RequiresPermission(MEDIA_TEMPLATES)
     public static final int TYPE_MEDIA_PLAYBACK = 6 | TYPE_STANDARD;
@@ -198,7 +194,6 @@ public final class Action {
      *
      * <p>This action is interactive.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(7)
     public static final @NonNull Action COMPOSE_MESSAGE = new Action(TYPE_COMPOSE_MESSAGE);
 
@@ -242,10 +237,8 @@ public final class Action {
      * {@link OnClickListener} can be added.
      * </ol>
      */
-    @ExperimentalCarApi
     @RequiresCarApi(8)
     @RequiresPermission(MEDIA_TEMPLATES)
-    // TODO: b/421995167 - Add FAB constraints to have an onClick vs Row actions not requiring it
     public static final @NonNull Action MEDIA_PLAYBACK = new Action(TYPE_MEDIA_PLAYBACK);
 
     private final boolean mIsEnabled;
@@ -329,7 +322,6 @@ public final class Action {
     /**
      * Converts the given {@code type} into a string representation.
      */
-    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     public static @NonNull String typeToString(@ActionType int type) {
         switch (type) {
             case TYPE_CUSTOM:
@@ -540,7 +532,6 @@ public final class Action {
          *                               {@link #APP_ICON} or {@link #BACK}, or if an icon or
          *                               title is set on either {@link #APP_ICON} or {@link #BACK}
          */
-        @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
         public @NonNull Action build() {
             boolean isStandard = isStandardActionType(mType);
             if (!isStandard && mIcon == null && (mTitle == null || TextUtils.isEmpty(

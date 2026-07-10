@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.semantics.AccessibilityModifier;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Semantics modifier, including */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SemanticsModifier implements RecordingModifier.Element {
 
     @NonNull
@@ -36,7 +38,6 @@ public class SemanticsModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().getBuffer().start(mSemantics.getOpCode());
         mSemantics.write(writer.getBuffer().getBuffer());
 //      TODO change to use writer
 //        writer.addSemanticsModifier(

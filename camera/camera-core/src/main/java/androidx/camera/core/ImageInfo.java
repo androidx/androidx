@@ -34,6 +34,7 @@ public interface ImageInfo {
      * Returns all tags stored in the metadata.
      *
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull TagBundle getTagBundle();
 
@@ -131,6 +132,7 @@ public interface ImageInfo {
      * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.
      *
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void populateExifData(ExifData.@NonNull Builder exifBuilder);
 }

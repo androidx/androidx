@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -34,8 +35,8 @@ import java.util.List;
  *
  * This class provides a convenient way to store and retrieve key statistics,
  * such as the result code and a bitmask of enabled features.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BaseStats {
 
@@ -88,6 +89,14 @@ public class BaseStats {
             INTERNAL_CALL_TYPE_HANDLE_PACKAGE_REMOVED,
             INTERNAL_CALL_TYPE_SCHEDULED_FLUSH,
             CALL_TYPE_MANUALLY_SCHEDULE_FLUSH,
+            INTERNAL_CALL_TYPE_APPS_INDEXER,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_HOST_TO_AISEAL,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST,
+            INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB,
+            CALL_TYPE_INITIALIZE_TRIVIAL,
+            CALL_TYPE_INITIALIZE_PENDING,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -150,6 +159,16 @@ public class BaseStats {
     //   manually requests and schedules a flushing job.
     public static final int INTERNAL_CALL_TYPE_SCHEDULED_FLUSH = 45;
     public static final int CALL_TYPE_MANUALLY_SCHEDULE_FLUSH = 46;
+    public static final int INTERNAL_CALL_TYPE_APPS_INDEXER = 47;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_HOST_TO_AISEAL = 48;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL = 49;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS = 50;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST = 51;
+    public static final int INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB = 52;
+    // Represents INITIALIZE tasks that retrieve an already-completed user instance.
+    public static final int CALL_TYPE_INITIALIZE_TRIVIAL = 53;
+    // Represents INITIALIZE tasks that retrieve a user instance whose creation was on-going.
+    public static final int CALL_TYPE_INITIALIZE_PENDING = 54;
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
@@ -201,11 +220,20 @@ public class BaseStats {
     public static final String INTERNAL_CALL_TYPE_STRING_SCHEDULED_FLUSH = "scheduledFlush";
     public static final String INTERNAL_CALL_TYPE_STRING_MANUALLY_SCHEDULE_FLUSH =
             "manuallyScheduleFlush";
+    public static final String INTERNAL_CALL_TYPE_STRING_APPS_INDEXER = "appsIndexer";
+    public static final String INTERNAL_CALL_TYPE_STRING_MAINTAIN_ANN_INDEX_JOB =
+            "maintainAnnIndexJob";
+    public static final String CALL_TYPE_STRING_INITIALIZE_TRIVIAL = "initializeTrivial";
+    public static final String CALL_TYPE_STRING_INITIALIZE_PENDING = "initializePending";
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;
-    // Bit representing whether icing is running in a VM or not within the enabled features bitmask.
+    // Bit representing whether icing is running in a VM or not within the enabled features'
+    // bitmask.
     public static final int LAUNCH_VM = 0;
+    // Bit representing whether the Ai seal is enabled or not within the enabled features'
+    // bitmask.
+    public static final int LAUNCH_AI_SEAL = 1;
     private final long mEnabledFeatures;
     /** Time passed while waiting to acquire the lock during Java function calls. */
     protected final int mJavaLockAcquisitionLatencyMillis;
@@ -275,6 +303,26 @@ public class BaseStats {
         return mNumIcingCalls;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "  enabledFeatures=%s,\n"
+                        + "  javaLockAcquisitionLatencyMillis=%d,\n"
+                        + "  lastBlockingOperation=%d,\n"
+                        + "  lastBlockingOperationLatencyMillis=%d,\n"
+                        + "  getVmLatencyMillis=%d,\n"
+                        + "  unblockedAppSearchLatencyMillis=%d,\n"
+                        + "  numIcingCalls=%d\n",
+                Long.toBinaryString(mEnabledFeatures),
+                mJavaLockAcquisitionLatencyMillis,
+                mLastBlockingOperation,
+                mLastBlockingOperationLatencyMillis,
+                mGetVmLatencyMillis,
+                mUnblockedAppSearchLatencyMillis,
+                mNumIcingCalls);
+    }
+
     /**
      * Builder for {@link BaseStats}.
      *
@@ -314,10 +362,17 @@ public class BaseStats {
             mBuilderTypeInstance = (BuilderType) this;
         }
 
-        /** Sets bitmask for all enabled features . */
+        /** Sets bitmask for enable the vm features . */
         @CanIgnoreReturnValue
-        public @NonNull BuilderType setLaunchVMEnabled(boolean enabled) {
+        public @NonNull BuilderType setLaunchVmEnabled(boolean enabled) {
             modifyEnabledFeature(LAUNCH_VM, enabled);
+            return mBuilderTypeInstance;
+        }
+
+        /** Sets bitmask for enable the Ai seal features . */
+        @CanIgnoreReturnValue
+        public @NonNull BuilderType setLaunchAiSealEnabled(boolean enabled) {
+            modifyEnabledFeature(LAUNCH_AI_SEAL, enabled);
             return mBuilderTypeInstance;
         }
 

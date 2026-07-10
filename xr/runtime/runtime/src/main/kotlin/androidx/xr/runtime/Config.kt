@@ -13,82 +13,93 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.runtime
 
 import androidx.annotation.RestrictTo
 
 /**
- * Defines a configuration state of all available features to be set at runtime.
+ * Configuration state of all available features to be set at runtime.
  *
  * An instance of this class should be passed to [Session.configure] to set the current
- * configuration. Use [Config.copy] on [Session.config] to modify a copy of the existing
- * configuration to pass to [Session.configure].
+ * configuration. Use [Builder] to specify individual configuration settings, and use
+ * [Builder.build] to create an instance of [Config] to pass to [Session.configure].
  *
- * @property planeTracking Feature that allows tracking of and provides information about scene
- *   planes. See [Config.PlaneTrackingMode].
- * @property handTracking Feature that allows tracking of the user's hands and hand joints. See
- *   [Config.HandTrackingMode].
- * @property depthEstimation Feature that allows more accurate information about scene depth and
- *   meshes. See [Config.DepthEstimationMode].
- * @property anchorPersistence Feature that allows anchors to be persisted through sessions. See
- *   [Config.AnchorPersistenceMode].
+ * @property planeTracking feature that allows tracking of and provides information about scene
+ *   planes. See [PlaneTrackingMode]
+ * @property handTracking feature that allows tracking of the user's hands and hand joints. See
+ *   [HandTrackingMode]
+ * @property deviceTracking feature that allows tracking of the AR device. See [DeviceTrackingMode]
+ * @property depthEstimation feature that allows more accurate information about scene depth and
+ *   meshes. See [DepthEstimationMode]
+ * @property anchorPersistence feature that allows anchors to be persisted through sessions. See
+ *   [AnchorPersistenceMode]
+ * @property faceTracking feature that allows the tracking of human faces. See [FaceTrackingMode]
+ * @property geospatial feature that allows geospatial localization and tracking. See
+ *   [GeospatialMode]
+ * @property augmentedObjectCategories feature that allows tracking of recognizable objects in the
+ *   environment. See [AugmentedObjectCategory]
+ * @property eyeTracking feature that allows tracking of the users gaze direction. See
+ *   [EyeTrackingMode]
+ * @property augmentedImageDatabase the current active [AugmentedImageDatabase]. If not empty, the
+ *   image tracking feature will be enabled
+ * @property qrCodeTracking feature that allows tracking of and provides information about QR codes
+ *   See [QrCodeTrackingMode]
+ * @property qrCodeSizeMeters the physical size in meters of the QR code. If zero, the physical size
+ *   will be estimated if the device supports it. If physical size estimation is not supported,
+ *   configuring the [Session] adding an entry with qrCodeSizeMeters being 0f or lower will throw an
+ *   [IllegalStateException]. It requires [qrCodeTracking] to be different from
+ *   [QrCodeTrackingMode.DISABLED]
  */
 public class Config
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-constructor(
-    public val planeTracking: PlaneTrackingMode = PlaneTrackingMode.DISABLED,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val augmentedObjectCategories: List<AugmentedObjectCategory> = listOf(),
-    public val handTracking: HandTrackingMode = HandTrackingMode.DISABLED,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val deviceTracking: DeviceTrackingMode = DeviceTrackingMode.DISABLED,
-    public val depthEstimation: DepthEstimationMode = DepthEstimationMode.DISABLED,
-    public val anchorPersistence: AnchorPersistenceMode = AnchorPersistenceMode.DISABLED,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val faceTracking: FaceTrackingMode = FaceTrackingMode.DISABLED,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val geospatial: GeospatialMode = GeospatialMode.DISABLED,
+private constructor(
+    public val planeTracking: PlaneTrackingMode,
+    public val handTracking: HandTrackingMode,
+    public val deviceTracking: DeviceTrackingMode,
+    public val depthEstimation: DepthEstimationMode,
+    public val anchorPersistence: AnchorPersistenceMode,
+    public val faceTracking: FaceTrackingMode,
+    public val geospatial: GeospatialMode,
+    public val augmentedObjectCategories: Set<AugmentedObjectCategory>,
+    public val eyeTracking: EyeTrackingMode,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val cameraFacingDirection: CameraFacingDirection,
+    public val augmentedImageDatabase: AugmentedImageDatabase?,
+    public val qrCodeTracking: QrCodeTrackingMode,
+    public val qrCodeSizeMeters: Float = 0f,
+    private val sceneSignalTypes: Set<SceneSignalType>,
 ) {
-
-    /**
-     * Defines a configuration state of all available features to be set at runtime.
-     *
-     * An instance of this class should be passed to [Session.configure] to set the current
-     * configuration. Use [Config.copy] on [Session.config] to modify a copy of the existing
-     * configuration to pass to [Session.configure].
-     *
-     * @param planeTracking Feature that allows tracking of and provides information about scene
-     *   planes. See [Config.PlaneTrackingMode].
-     * @param handTracking Feature that allows tracking of the user's hands and hand joints. See
-     *   [Config.HandTrackingMode].
-     * @param headTracking Feature that allows tracking of the user's head position. See
-     *   [Config.HeadTrackingMode].
-     * @param depthEstimation Feature that allows more accurate information about scene depth and
-     *   meshes. See [Config.DepthEstimationMode].
-     * @param anchorPersistence Feature that allows anchors to be persisted through sessions. See
-     *   [Config.AnchorPersistenceMode].
-     */
+    // TODO(b/513553206) - Remove this constructor when 1P apps are migrated to use Config.Builder.
     @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         planeTracking: PlaneTrackingMode = PlaneTrackingMode.DISABLED,
         handTracking: HandTrackingMode = HandTrackingMode.DISABLED,
-        headTracking: HeadTrackingMode = HeadTrackingMode.DISABLED,
+        deviceTracking: DeviceTrackingMode = DeviceTrackingMode.DISABLED,
         depthEstimation: DepthEstimationMode = DepthEstimationMode.DISABLED,
         anchorPersistence: AnchorPersistenceMode = AnchorPersistenceMode.DISABLED,
+        faceTracking: FaceTrackingMode = FaceTrackingMode.DISABLED,
+        geospatial: GeospatialMode = GeospatialMode.DISABLED,
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
+        augmentedImageDatabase: AugmentedImageDatabase? = null,
+        eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
+        qrCodeTracking: QrCodeTrackingMode = QrCodeTrackingMode.DISABLED,
+        qrCodeSizeMeters: Float = 0f,
     ) : this(
         planeTracking,
-        /* augmentedObjectCategories= */ listOf(),
         handTracking,
-        headTracking.toDeviceTrackingMode(),
+        deviceTracking,
         depthEstimation,
         anchorPersistence,
-        faceTracking = FaceTrackingMode.DISABLED,
-        geospatial = GeospatialMode.DISABLED,
+        faceTracking,
+        geospatial,
+        augmentedObjectCategories,
+        eyeTracking,
+        CameraFacingDirection.WORLD,
+        augmentedImageDatabase,
+        qrCodeTracking,
+        qrCodeSizeMeters,
+        sceneSignalTypes = setOf(),
     )
-
-    /** Feature that allows tracking of the user's head position. See [Config.HeadTrackingMode]. */
-    public val headTracking: HeadTrackingMode = deviceTracking.toHeadTrackingMode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -102,6 +113,12 @@ constructor(
         if (faceTracking != other.faceTracking) return false
         if (geospatial != other.geospatial) return false
         if (augmentedObjectCategories != other.augmentedObjectCategories) return false
+        if (eyeTracking != other.eyeTracking) return false
+        if (cameraFacingDirection != other.cameraFacingDirection) return false
+        if (augmentedImageDatabase != other.augmentedImageDatabase) return false
+        if (qrCodeTracking != other.qrCodeTracking) return false
+        if (qrCodeSizeMeters != other.qrCodeSizeMeters) return false
+        if (sceneSignalTypes != other.getSceneSignalTypes()) return false
 
         return true
     }
@@ -115,31 +132,33 @@ constructor(
         result = 31 * result + faceTracking.hashCode()
         result = 31 * result + geospatial.hashCode()
         result = 31 * result + augmentedObjectCategories.hashCode()
+        result = 31 * result + eyeTracking.hashCode()
+        result = 31 * result + cameraFacingDirection.hashCode()
+        result = 31 * result + augmentedImageDatabase.hashCode()
+        result = 31 * result + qrCodeTracking.hashCode()
+        result = 31 * result + qrCodeSizeMeters.hashCode()
+        result = 31 * result + sceneSignalTypes.hashCode()
         return result
     }
 
-    @JvmOverloads
-    public fun copy(
-        planeTracking: PlaneTrackingMode = this.planeTracking,
-        handTracking: HandTrackingMode = this.handTracking,
-        headTracking: HeadTrackingMode = this.headTracking,
-        depthEstimation: DepthEstimationMode = this.depthEstimation,
-        anchorPersistence: AnchorPersistenceMode = this.anchorPersistence,
-    ): Config {
-        return Config(
-            planeTracking = planeTracking,
-            augmentedObjectCategories = this.augmentedObjectCategories,
-            handTracking = handTracking,
-            deviceTracking = headTracking.toDeviceTrackingMode(),
-            depthEstimation = depthEstimation,
-            anchorPersistence = anchorPersistence,
-            faceTracking = this.faceTracking,
-            geospatial = this.geospatial,
-        )
-    }
+    /**
+     * Returns a string representation of [Config] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        "Config(planeTracking=$planeTracking, handTracking=$handTracking, deviceTracking=$deviceTracking, " +
+            "depthEstimation=$depthEstimation, anchorPersistence=$anchorPersistence, faceTracking=$faceTracking, " +
+            "geospatial=$geospatial, augmentedObjectCategories=$augmentedObjectCategories, eyeTracking=$eyeTracking, " +
+            "cameraFacingDirection=$cameraFacingDirection, augmentedImageDatabase=$augmentedImageDatabase, " +
+            "qrCodeTracking=$qrCodeTracking, qrCodeSizeMeters=$qrCodeSizeMeters)"
 
-    @Suppress("MissingJvmstatic")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun getSceneSignalTypes(): Set<SceneSignalType> = sceneSignalTypes
+
+    // TODO(b/513553206) - Remove this function when 1P apps are migrated to use Config.Builder.
+    @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,
         handTracking: HandTrackingMode = this.handTracking,
@@ -148,285 +167,299 @@ constructor(
         anchorPersistence: AnchorPersistenceMode = this.anchorPersistence,
         faceTracking: FaceTrackingMode = this.faceTracking,
         geospatial: GeospatialMode = this.geospatial,
-        augmentedObjectCategories: List<AugmentedObjectCategory> = this.augmentedObjectCategories,
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
+        eyeTracking: EyeTrackingMode = this.eyeTracking,
+        cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
+        augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
+        qrCodeTracking: QrCodeTrackingMode = this.qrCodeTracking,
+        qrCodeSizeMeters: Float = this.qrCodeSizeMeters,
+        sceneSignalTypes: Set<SceneSignalType> = this.sceneSignalTypes,
     ): Config {
-        return Config(
-            planeTracking = planeTracking,
-            augmentedObjectCategories = augmentedObjectCategories,
-            handTracking = handTracking,
-            deviceTracking = deviceTracking,
-            depthEstimation = depthEstimation,
-            anchorPersistence = anchorPersistence,
-            faceTracking = faceTracking,
-            geospatial = geospatial,
+        val newConfig =
+            Config(
+                planeTracking = planeTracking,
+                handTracking = handTracking,
+                deviceTracking = deviceTracking,
+                depthEstimation = depthEstimation,
+                anchorPersistence = anchorPersistence,
+                faceTracking = faceTracking,
+                geospatial = geospatial,
+                augmentedObjectCategories = augmentedObjectCategories,
+                eyeTracking = eyeTracking,
+                cameraFacingDirection = cameraFacingDirection,
+                augmentedImageDatabase = augmentedImageDatabase,
+                qrCodeTracking = qrCodeTracking,
+                qrCodeSizeMeters = qrCodeSizeMeters,
+                sceneSignalTypes = sceneSignalTypes,
+            )
+        return newConfig
+    }
+
+    /**
+     * This class can be used to create a [Config] instance.
+     *
+     * Apps can create a default [Builder] object and then call the appropriate setter methods on
+     * the builder to specify any non-default settings. Default settings for each configuration
+     * parameter are specified for each setter method. Setters return the builder object so that
+     * setter methods can be chained. [Builder.build] can be used to create a [Config] with the
+     * configuration specified in the builder.
+     */
+    public class Builder
+    internal constructor(
+        private var planeTracking: PlaneTrackingMode,
+        private var handTracking: HandTrackingMode,
+        private var deviceTracking: DeviceTrackingMode,
+        private var depthEstimation: DepthEstimationMode,
+        private var anchorPersistence: AnchorPersistenceMode,
+        private var faceTracking: FaceTrackingMode,
+        private var geospatial: GeospatialMode,
+        private var augmentedObjectCategories: Set<AugmentedObjectCategory>,
+        private var eyeTracking: EyeTrackingMode,
+        private var cameraFacingDirection: CameraFacingDirection,
+        private var augmentedImageDatabase: AugmentedImageDatabase?,
+        private var qrCodeTracking: QrCodeTrackingMode,
+        private var qrCodeSizeMeters: Float,
+        private var sceneSignalTypes: Set<SceneSignalType>,
+    ) {
+
+        /** Creates a [Builder] instance for a [Config] with default values. */
+        public constructor() :
+            this(
+                planeTracking = PlaneTrackingMode.DISABLED,
+                handTracking = HandTrackingMode.DISABLED,
+                deviceTracking = DeviceTrackingMode.DISABLED,
+                depthEstimation = DepthEstimationMode.DISABLED,
+                anchorPersistence = AnchorPersistenceMode.DISABLED,
+                faceTracking = FaceTrackingMode.DISABLED,
+                geospatial = GeospatialMode.DISABLED,
+                augmentedObjectCategories = setOf(),
+                eyeTracking = EyeTrackingMode.DISABLED,
+                cameraFacingDirection = CameraFacingDirection.WORLD,
+                augmentedImageDatabase = null,
+                qrCodeTracking = QrCodeTrackingMode.DISABLED,
+                qrCodeSizeMeters = 0f,
+                sceneSignalTypes = emptySet(),
+            )
+
+        /**
+         * Creates a [Builder] instance with the same configuration settings as the provided
+         * [Config].
+         *
+         * @param config the configuration for the [Builder] instance
+         */
+        public constructor(
+            config: Config
+        ) : this(
+            config.planeTracking,
+            config.handTracking,
+            config.deviceTracking,
+            config.depthEstimation,
+            config.anchorPersistence,
+            config.faceTracking,
+            config.geospatial,
+            config.augmentedObjectCategories,
+            config.eyeTracking,
+            config.cameraFacingDirection,
+            config.augmentedImageDatabase,
+            config.qrCodeTracking,
+            config.qrCodeSizeMeters,
+            config.sceneSignalTypes,
         )
-    }
 
-    /**
-     * Feature that allows tracking of and provides information about scene planes.
-     *
-     * Setting this feature to [PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] requires that the
-     * `SCENE_UNDERSTANDING_COARSE` Android permission is granted.
-     */
-    public class PlaneTrackingMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /** Planes will not be tracked. */
-            @JvmField public val DISABLED: PlaneTrackingMode = PlaneTrackingMode(0)
-            /**
-             * Horizontal and vertical planes will be tracked. Note that setting this mode will
-             * consume additional runtime resources.
-             */
-            @JvmField public val HORIZONTAL_AND_VERTICAL: PlaneTrackingMode = PlaneTrackingMode(1)
+        /**
+         * Sets the [PlaneTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [PlaneTrackingMode.DISABLED].
+         *
+         * @param planeTracking [PlaneTrackingMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied plane tracking mode
+         */
+        public fun setPlaneTracking(planeTracking: PlaneTrackingMode): Builder {
+            this.planeTracking = planeTracking
+            return this
         }
 
-        override fun toString(): String {
-            return "PlaneTracking_" + if (mode == 0) "DISABLED" else "HORIZONTAL_AND_VERTICAL"
-        }
-    }
-
-    /**
-     * Feature that allows tracking of the user's hands and hand joints.
-     *
-     * Setting this feature to [HandTrackingMode.BOTH] requires that the `HAND_TRACKING` Android
-     * permission is granted by the calling application.
-     */
-    public class HandTrackingMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /** Hands will not be tracked. */
-            @JvmField public val DISABLED: HandTrackingMode = HandTrackingMode(0)
-            /**
-             * Both the left and right hands will be tracked. Note that setting this mode will
-             * consume additional runtime resources.
-             */
-            @JvmField public val BOTH: HandTrackingMode = HandTrackingMode(1)
+        /**
+         * Sets the [HandTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [HandTrackingMode.DISABLED].
+         *
+         * @param handTracking [HandTrackingMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied hand tracking mode
+         */
+        public fun setHandTracking(handTracking: HandTrackingMode): Builder {
+            this.handTracking = handTracking
+            return this
         }
 
-        override fun toString(): String {
-            return "HandTracking_" + if (mode == 0) "DISABLED" else "BOTH"
-        }
-    }
-
-    /**
-     * Feature that allows tracking of the device.
-     *
-     * This feature does not require any additional application permissions.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public class DeviceTrackingMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /**
-             * The device pose will not be tracked. In this mode, [androidx.xr.arcore.ViewCamera]
-             * will not emit updates to [androidx.xr.arcore.ViewCamera.State.pose].
-             */
-            @JvmField public val DISABLED: DeviceTrackingMode = DeviceTrackingMode(0)
-            /**
-             * The device pose will be tracked and the last known pose from the system at the time
-             * of runtime update will be provided. Note that there is generally a delay between the
-             * actual device pose and the pose provided by the system by the time of the update.
-             */
-            @JvmField public val LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(1)
+        /**
+         * Sets the [DeviceTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [DeviceTrackingMode.DISABLED].
+         *
+         * @param deviceTracking [DeviceTrackingMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied device tracking mode
+         */
+        public fun setDeviceTracking(deviceTracking: DeviceTrackingMode): Builder {
+            this.deviceTracking = deviceTracking
+            return this
         }
 
-        public fun toHeadTrackingMode(): HeadTrackingMode {
-            return if (mode == 0) HeadTrackingMode.DISABLED else HeadTrackingMode.LAST_KNOWN
+        /**
+         * Sets the [DepthEstimationMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [DepthEstimationMode.DISABLED].
+         *
+         * @param depthEstimation [DepthEstimationMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied depth estimation mode
+         */
+        public fun setDepthEstimation(depthEstimation: DepthEstimationMode): Builder {
+            this.depthEstimation = depthEstimation
+            return this
         }
 
-        override fun toString(): String {
-            return "DeviceTracking_" + if (mode == 0) "DISABLED" else "LAST_KNOWN"
-        }
-    }
-
-    /**
-     * Feature that allows tracking of the user's head pose.
-     *
-     * Setting this feature to [HeadTrackingMode.LAST_KNOWN] requires that the `HEAD_TRACKING`
-     * Android permission is granted by the calling application.
-     */
-    public class HeadTrackingMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /** The head pose is not updated. It remains at the origin (an identity pose). */
-            @JvmField public val DISABLED: HeadTrackingMode = HeadTrackingMode(0)
-            /**
-             * Head pose will be tracked and the last known pose from the system at the time of
-             * runtime update will be provided. Note that there is generally a delay between the
-             * actual head pose and the pose provided by the system by the time of the update.
-             */
-            @JvmField public val LAST_KNOWN: HeadTrackingMode = HeadTrackingMode(1)
+        /**
+         * Sets the [AnchorPersistenceMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [AnchorPersistenceMode.DISABLED].
+         *
+         * @param anchorPersistence [AnchorPersistenceMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied anchor persistence mode
+         */
+        public fun setAnchorPersistence(anchorPersistence: AnchorPersistenceMode): Builder {
+            this.anchorPersistence = anchorPersistence
+            return this
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public fun toDeviceTrackingMode(): DeviceTrackingMode {
-            return if (mode == 0) DeviceTrackingMode.DISABLED else DeviceTrackingMode.LAST_KNOWN
+        /**
+         * Sets the [FaceTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [FaceTrackingMode.DISABLED].
+         *
+         * @param faceTracking [FaceTrackingMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied face tracking mode
+         */
+        public fun setFaceTracking(faceTracking: FaceTrackingMode): Builder {
+            this.faceTracking = faceTracking
+            return this
         }
 
-        override fun toString(): String {
-            return "HeadTracking_" + if (mode == 0) "DISABLED" else "LAST_KNOWN"
-        }
-    }
-
-    /**
-     * Feature that allows more accurate information about scene depth and meshes.
-     *
-     * Setting this feature to any of [DepthEstimationMode.RAW_ONLY],
-     * [DepthEstimationMode.SMOOTH_ONLY] or [DepthEstimationMode.SMOOTH_AND_RAW] requires that the
-     * `SCENE_UNDERSTANDING_FINE` Android permission is granted by the calling application.
-     */
-    public class DepthEstimationMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /** No information about scene depth will be provided. */
-            @JvmField public val DISABLED: DepthEstimationMode = DepthEstimationMode(0)
-
-            /** Depth estimation will be enabled with raw depth and confidence. */
-            @JvmField public val RAW_ONLY: DepthEstimationMode = DepthEstimationMode(1)
-
-            /** Depth estimation will be enabled with smooth depth and confidence. */
-            @JvmField public val SMOOTH_ONLY: DepthEstimationMode = DepthEstimationMode(2)
-
-            /**
-             * Depth estimation will be enabled with both raw and smooth depth and confidence. Note
-             * that setting this mode will consume additional runtime resources.
-             */
-            @JvmField public val SMOOTH_AND_RAW: DepthEstimationMode = DepthEstimationMode(3)
+        /**
+         * Sets the [GeospatialMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [GeospatialMode.DISABLED].
+         *
+         * @param geospatial [GeospatialMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied geospatial mode
+         */
+        public fun setGeospatial(geospatial: GeospatialMode): Builder {
+            this.geospatial = geospatial
+            return this
         }
 
-        override fun toString(): String {
-            return "DepthEstimation_" +
-                when (mode) {
-                    0 -> "DISABLED"
-                    1 -> "RAW_ONLY"
-                    2 -> "SMOOTH_ONLY"
-                    3 -> "SMOOTH_AND_RAW"
-                    else -> "UNKNOWN"
-                }
-        }
-    }
-
-    /**
-     * Feature that allows anchors to be persisted through sessions.
-     *
-     * This feature does not require any additional application permissions.
-     */
-    public class AnchorPersistenceMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /** Anchors cannot be persisted. */
-            @JvmField public val DISABLED: AnchorPersistenceMode = AnchorPersistenceMode(0)
-            /** Anchors may be persisted and will be saved in the application's local storage. */
-            @JvmField public val LOCAL: AnchorPersistenceMode = AnchorPersistenceMode(1)
+        /**
+         * Sets the augmented object categories this [Builder] instance will use to build a
+         * [Config].
+         *
+         * The default value is an empty set.
+         *
+         * @param augmentedObjectCategories [AugmentedObjectCategory] set to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied [AugmentedObjectCategory]
+         *   set
+         */
+        public fun setAugmentedObjectCategories(
+            augmentedObjectCategories: Set<AugmentedObjectCategory>
+        ): Builder {
+            this.augmentedObjectCategories = augmentedObjectCategories
+            return this
         }
 
-        override fun toString(): String {
-            return "AnchorPersistence_" + if (mode == 0) "DISABLED" else "LOCAL"
+        /**
+         * Sets the [EyeTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [EyeTrackingMode.DISABLED].
+         *
+         * @param eyeTracking [EyeTrackingMode] value to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied eye tracking mode
+         */
+        public fun setEyeTracking(eyeTracking: EyeTrackingMode): Builder {
+            this.eyeTracking = eyeTracking
+            return this
         }
-    }
 
-    /**
-     * Feature that allows tracking of human faces.
-     *
-     * Setting this feature to [FaceTrackingMode.USER] requires that the `FACE_TRACKING` Android
-     * permission is granted by the calling application.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public class FaceTrackingMode private constructor(public val mode: Int) {
-        public companion object {
-            /** Faces will not be tracked. */
-            @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
-            /** The user's face will be tracked. */
-            @JvmField public val USER: FaceTrackingMode = FaceTrackingMode(1)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setCameraFacingDirection(cameraFacingDirection: CameraFacingDirection): Builder {
+            this.cameraFacingDirection = cameraFacingDirection
+            return this
         }
-    }
 
-    /**
-     * Feature that allows Geospatial localization and tracking. The Geospatial API uses a
-     * combination of Google's Visual Positioning System (VPS) and GPS to determine the geospatial
-     * pose.
-     *
-     * The Geospatial API is able to provide the best user experience when it is able to generate
-     * high accuracy poses. However, the Geospatial API can be used anywhere, as long as the device
-     * is able to determine its location, even if the available location information has low
-     * accuracy.
-     * - In areas with VPS coverage, the Geospatial API is able to generate high accuracy poses.
-     *   This can work even where GPS accuracy is low, such as dense urban environments. Under
-     *   typical conditions, VPS can be expected to provide positional accuracy typically better
-     *   than 5 meters and often around 1 meter, and a rotational accuracy of better than 5 degrees.
-     *   Use [Earth.checkVpsAvailability] to determine if a given location has VPS coverage.
-     * - In outdoor environments with few or no overhead obstructions, GPS may be sufficient to
-     *   generate high accuracy poses. GPS accuracy may be low in dense urban environments and
-     *   indoors.
-     *
-     * Setting this feature to [GeospatialMode.EARTH] requires TODO: b/393500151 - permissions.
-     *
-     * Note that setting this mode will consume additional runtime resources.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public class GeospatialMode
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
-    ) {
-        public companion object {
-            /**
-             * The Geospatial API is disabled. When GeospatialMode is disabled, current [Anchor]
-             * objects created from [Earth] will stop updating, and have their [TrackingState] set
-             * to [TrackingState.STOPPED].
-             */
-            @JvmField public val DISABLED: GeospatialMode = GeospatialMode(0)
+        /**
+         * Sets the [AugmentedImageDatabase] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is null.
+         *
+         * @param augmentedImageDatabase nullable [AugmentedImageDatabase] value to configure the
+         *   [Session]
+         * @return a [Builder] that builds a [Config] with the supplied augmented image database
+         */
+        public fun setAugmentedImageDatabase(
+            augmentedImageDatabase: AugmentedImageDatabase?
+        ): Builder {
+            this.augmentedImageDatabase = augmentedImageDatabase
+            return this
+        }
 
-            /**
-             * The Geospatial API is enabled. [Earth] should enter the running state shortly after
-             * this mode is set.
-             *
-             * Using this mode requires your app do the following, depending on the Runtime:
-             *
-             * On Mobile:
-             * - Include the
-             *   [ACCESS_INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
-             *   permission to the app's AndroidManifest
-             * - Include the Google Play Services Location Library as a dependency for your app. See
-             *   [dependencies for Google Play services](https://developers.google.com/android/guides/setup#declare-dependencies)
-             *   for instructions on how to include this library in your app. If this library is not
-             *   linked, [Session.configure] returns
-             *   [SessionResultGooglePlayServicesLocationLibraryNotLinked]
-             * - Request and be granted the
-             *   [ACCESS_FINE_LOCATION permission](https://developer.android.com/training/location/permissions);
-             *   otherwise, [Session.configure] throws [SecurityException].
-             *
-             * Location is tracked only while the [Session] is resumed.
-             *
-             * For more information, see documentation on
-             * [the Geospatial API on Google Developers](https://developers.google.com/ar/develop/java/geospatial/developer-guide).
-             *
-             * On Mobile, when the Geospatial API and the Depth API are enabled, output images from
-             * the Depth API will include terrain and building geometry when in a location with VPS
-             * coverage. See the
-             * [Geospatial Depth Developer Guide](https://developers.google.com/ar/develop/java/depth/geospatial-depth)
-             * for more information.
-             *
-             * On mobile, this mode is not compatible with the front-facing (selfie) camera. If
-             * Config.GeospatialMode is Enabled on a session using the front-facing (selfie) camera,
-             * [Session.configure] will return [SessionConfigureConfigurationNotSupported].
-             *
-             * Not all devices support GeospatialMode.Enabled, use [Earth.isGeospatialModeSupported]
-             * to check if the current device and selected camera support enabling this mode. These
-             * checks are done in the call to [Session.configure].
-             */
-            @JvmField public val EARTH: GeospatialMode = GeospatialMode(1)
+        /**
+         * Sets the [QrCodeTrackingMode] this [Builder] instance will use to build a [Config].
+         *
+         * The default value is [QrCodeTrackingMode.DISABLED].
+         *
+         * @param qrCodeTracking [QrCodeTrackingMode] value configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied QR code tracking mode
+         */
+        public fun setQrCodeTracking(qrCodeTracking: QrCodeTrackingMode): Builder {
+            this.qrCodeTracking = qrCodeTracking
+            return this
+        }
+
+        /**
+         * Sets the QR code size this [Builder] instance will use to build a [Config].
+         *
+         * The default value is 0.0, indicating that the system should attempt to estimate the QR
+         * code size.
+         *
+         * @param qrCodeSizeMeters size of QR code to configure the [Session]
+         * @return a [Builder] that builds a [Config] with the supplied QR code size
+         */
+        public fun setQrCodeSizeMeters(qrCodeSizeMeters: Float): Builder {
+            this.qrCodeSizeMeters = qrCodeSizeMeters
+            return this
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setSceneSignalTypes(sceneSignalTypes: Set<SceneSignalType>): Builder {
+            this.sceneSignalTypes = sceneSignalTypes
+            return this
+        }
+
+        /** Creates a new instance of [Config] with the configuration specified in this instance. */
+        public fun build(): Config {
+            return Config(
+                planeTracking,
+                handTracking,
+                deviceTracking,
+                depthEstimation,
+                anchorPersistence,
+                faceTracking,
+                geospatial,
+                augmentedObjectCategories,
+                eyeTracking,
+                cameraFacingDirection,
+                augmentedImageDatabase,
+                qrCodeTracking,
+                qrCodeSizeMeters,
+                sceneSignalTypes,
+            )
         }
     }
 }

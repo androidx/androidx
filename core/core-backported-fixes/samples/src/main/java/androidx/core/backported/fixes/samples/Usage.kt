@@ -16,6 +16,10 @@
 
 package androidx.core.backported.fixes.samples
 
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import androidx.annotation.Sampled
 import androidx.core.backported.fixes.BackportedFixManager
 import androidx.core.backported.fixes.KnownIssues
@@ -62,4 +66,28 @@ fun ki398591036() {
         } else {
             "JPEG"
         }
+}
+
+@Sampled
+fun ki452390376() {
+    fun createPreviewRequest(
+        cameraDevice: CameraDevice,
+        enableLowLightBoost: Boolean,
+    ): CaptureRequest.Builder {
+        val bf = BackportedFixManager()
+        val aeMode =
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                    bf.isFixed(KnownIssues.KI_452390376) &&
+                    enableLowLightBoost
+            ) {
+                CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+            } else {
+                CameraMetadata.CONTROL_AE_MODE_ON
+            }
+        // Camera capture request setup:
+        val previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        previewRequestBuilder[CaptureRequest.CONTROL_AE_MODE] = aeMode
+        return previewRequestBuilder
+    }
 }

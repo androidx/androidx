@@ -25,6 +25,7 @@ import org.robolectric.shadows.ShadowSystemProperties
 
 /** Unit tests for [SystemPropertyResolver]. */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SystemPropertyResolverTest {
 
     @Test

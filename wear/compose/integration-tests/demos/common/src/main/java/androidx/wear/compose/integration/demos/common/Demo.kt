@@ -43,8 +43,7 @@ sealed class Demo(val title: String, val description: String? = null) {
  * @property activityClass the KClass (Foo::class) of the activity that will be launched when this
  *   demo is selected.
  */
-class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) :
-    Demo(title)
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
 
 /** A category of [Demo]s, that will display a list of [demos] when selected. */
 open class DemoCategory(title: String, val demos: List<Demo>) : Demo(title) {

@@ -32,8 +32,6 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
@@ -81,7 +79,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 
-    private val screenWithSpec: Int
+    private val screenWidthSpec: Int
     private val screenHeightSpec: Int
 
     @Suppress("NewApi") // NewApi doesn't understand Kotlin `when` (b/189459502)
@@ -125,7 +123,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         val height = displayMetrics.heightPixels
         val width = displayMetrics.widthPixels
 
-        screenWithSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
+        screenWidthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
         screenHeightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
     }
 
@@ -177,7 +175,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     }
 
     override fun measure() {
-        getView().measure(screenWithSpec, screenHeightSpec)
+        getView().measure(screenWidthSpec, screenHeightSpec)
         simulationState = SimulationState.MeasureDone
     }
 
@@ -237,6 +235,17 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         simulationState = SimulationState.LayoutDone
     }
 
+    private fun measureAndLayout() {
+        if (getView().measuredHeight == 0 && getView().measuredHeight == 0) {
+            // If view was not measured before, measure and layout here.
+            measure()
+            layout()
+        }
+
+        owner?.measureAndLayoutForTest()
+        simulationState = SimulationState.LayoutDone
+    }
+
     override fun recompose() {
         if (hasPendingChanges()) {
             didLastRecomposeHaveChanges = true
@@ -255,8 +264,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
         recompose()
 
-        measure()
-        layout()
+        measureAndLayout()
+
         drawToBitmap()
     }
 
@@ -274,6 +283,9 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         // by the default disposal policy. This happens **before** advanceUntilIdle.
         val rootView = activity.findViewById(android.R.id.content) as ViewGroup
         rootView.removeAllViews()
+
+        // Run and remove outOfFrameExecutor callbacks
+        owner?.runAndClearPendingCallbacks()
 
         // Dispatcher will clean up the cancelled coroutines when it advances to them
         testCoroutineDispatcher.scheduler.advanceUntilIdle()
@@ -322,6 +334,14 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     override fun getCoroutineLaunchedCount(): Int {
         return continuationCountInterceptor.continuationCount - InternallyLaunchedCoroutines
+    }
+
+    override fun setAccessibilityEnabled(enabled: Boolean) {
+        owner?.forceAccessibilityForTesting(enabled)
+    }
+
+    override fun updateSemantics() {
+        owner?.updateSemanticsForTest()
     }
 }
 
@@ -446,7 +466,4 @@ private class ContinuationCountInterceptor(private val parentInterceptor: Contin
     }
 }
 
-private val InternallyLaunchedCoroutines =
-    if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isContentCaptureOptimizationEnabled)
-        3
-    else 4
+private val InternallyLaunchedCoroutines = 4

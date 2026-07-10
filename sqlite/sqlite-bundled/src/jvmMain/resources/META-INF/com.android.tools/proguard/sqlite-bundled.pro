@@ -1,1 +1,1 @@
--keepclasseswithmembernames class androidx.sqlite.driver.bundled.** { native <methods>; }
+-keepclasseswithmembers class androidx.sqlite.driver.bundled.** { native <methods>; }

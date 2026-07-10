@@ -24,7 +24,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary{
         namespace = "androidx.ink.authoring"
-        compileSdk = 35
+        compileSdk { version = release(35) }
         androidResources.enable = true
     }
 
@@ -32,36 +32,35 @@ androidXMultiplatform {
 
     sourceSets {
 
-        androidMain {
-            dependencies {
-                implementation("androidx.collection:collection:1.4.3")
-                implementation("androidx.graphics:graphics-core:1.0.3")
-                implementation("androidx.fragment:fragment-ktx:1.5.7")
-                implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
-                implementation("androidx.core:core:1.16.0")
-                implementation("androidx.core:core-ktx:1.16.0")
-                implementation(project(":ink:ink-nativeloader"))
-                implementation(project(":ink:ink-geometry"))
-                implementation(project(":ink:ink-brush"))
-                implementation(project(":ink:ink-strokes"))
-                implementation(project(":ink:ink-rendering"))
-            }
+        androidMain.dependencies {
+            implementation(libs.kotlinCoroutinesAndroid)
+            implementation("androidx.collection:collection:1.4.3")
+            implementation("androidx.graphics:graphics-core:1.0.4")
+            implementation("androidx.fragment:fragment-ktx:1.5.7")
+            implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
+            implementation("androidx.input:input-motionprediction:1.0.0")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.core:core-ktx:1.16.0")
+            implementation(project(":ink:ink-nativeloader"))
+            implementation(project(":ink:ink-geometry"))
+            implementation(project(":ink:ink-brush"))
+            implementation(project(":ink:ink-strokes"))
+            implementation(project(":ink:ink-rendering"))
         }
 
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.truth)
-                implementation(project(":test:screenshot:screenshot"))
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.mockitoCore)
+            implementation(libs.mockitoKotlin)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.truth)
+            implementation(project(":test:screenshot:screenshot"))
         }
     }
 }

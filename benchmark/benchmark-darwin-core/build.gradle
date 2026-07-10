@@ -1,14 +1,12 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
 plugins {
     id("AndroidXPlugin")
@@ -32,22 +30,6 @@ androidXMultiplatform {
         }
         binaries.framework {
             baseName = "AndroidXBenchmarkXCTest"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
-        }
-    }
-    sourceSets {
-        // Need a source file to force a klib creation.
-        // see: https://youtrack.jetbrains.com/issue/KT-52344
-        darwinMain {
-            dependsOn(commonMain)
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(darwinMain)
-                }
-            }
         }
     }
 }

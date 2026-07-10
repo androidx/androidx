@@ -29,8 +29,12 @@ import java.time.ZoneId
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class `$ZoneIdFactory` : AppFunctionSerializableFactory<ZoneId> {
     override fun fromAppFunctionData(appFunctionData: AppFunctionData): ZoneId {
-
-        val zoneID = checkNotNull(appFunctionData.getStringOrNull("zoneID"))
+        val appFunctionDataWithSpec =
+            getAppFunctionDataWithSpec(
+                appFunctionData = appFunctionData,
+                qualifiedName = "java.time.ZoneId",
+            )
+        val zoneID = checkNotNull(appFunctionDataWithSpec.getStringOrNull("zoneID"))
 
         val resultAppFunctionZoneId = AppFunctionZoneId(zoneID)
         return resultAppFunctionZoneId.toZoneId()
@@ -40,10 +44,7 @@ public class `$ZoneIdFactory` : AppFunctionSerializableFactory<ZoneId> {
         val appFunctionZoneId_appFunctionSerializable =
             AppFunctionZoneId.fromZoneId(appFunctionSerializable)
 
-        val builder =
-            AppFunctionData.Builder(
-                "androidx.appfunctions.internal.serializableproxies.AppFunctionZoneId"
-            )
+        val builder = getAppFunctionDataBuilder("java.time.ZoneId")
         val zoneID = appFunctionZoneId_appFunctionSerializable.zoneID
         builder.setString("zoneID", zoneID)
 

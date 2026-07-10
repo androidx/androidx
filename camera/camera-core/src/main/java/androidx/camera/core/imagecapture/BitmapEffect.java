@@ -58,7 +58,7 @@ public class BitmapEffect implements Operation<Packet<Bitmap>, Packet<Bitmap>> {
         // Restored it back to a Bitmap packet.
         ImageProxy imageOut = response.getOutputImage();
         Bitmap bitmapOut = createBitmapFromPlane(
-                requireNonNull(imageOut).getPlanes(),
+                requireNonNull(imageOut).getImagePlanes(),
                 imageOut.getWidth(),
                 imageOut.getHeight());
         return Packet.of(

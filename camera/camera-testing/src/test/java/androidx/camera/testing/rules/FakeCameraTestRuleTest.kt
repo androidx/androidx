@@ -26,10 +26,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.model.Statement
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class FakeCameraTestRuleTest(@CameraSelector.LensFacing private val lensFacing: Int) {
     private val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
 

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -28,6 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 configurations {
@@ -39,8 +39,7 @@ configurations {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle:8.4.2")
-    implementation(libs.kotlinStdlib)
+    compileOnly("com.android.tools.build:gradle-api:8.5.2")
     implementation(project(":navigation:navigation-safe-args-generator"))
     implementation(gradleApi())
     implementation(libs.gson)
@@ -49,10 +48,10 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
-    testPlugin("com.android.tools.build:gradle:8.4.2")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:linux")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:osx")
+    testPlugin("com.android.tools.build:gradle:8.5.2")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:linux")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:osx")
     testPlugin(libs.kotlinGradlePlugin)
 }
 
@@ -60,23 +59,25 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
-tasks.withType(Test).configureEach { test ->
-    test.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
 gradlePlugin {
     plugins {
         safeargsJava {
             id = "androidx.navigation.safeargs"
             implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsJavaPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         safeargsKotlin {
             id = "androidx.navigation.safeargs.kotlin"
             implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsKotlinPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
@@ -84,6 +85,7 @@ gradlePlugin {
 androidx {
     name = "Navigation TypeSafe Arguments Gradle Plugin"
     type = SoftwareType.GRADLE_PLUGIN
+    minimumGradleVersion = "8.6"
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Gradle Plugin"
 }

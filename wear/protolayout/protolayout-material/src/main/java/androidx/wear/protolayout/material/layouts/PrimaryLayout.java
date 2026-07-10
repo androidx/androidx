@@ -188,6 +188,7 @@ public class PrimaryLayout implements LayoutElement {
     }
 
     /** Builder class for {@link PrimaryLayout}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull DeviceParameters mDeviceParameters;
         private @Nullable LayoutElement mPrimaryChip = null;

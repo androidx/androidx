@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -35,6 +36,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Capture a host action information. This can be triggered on eg. a click. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostNamedActionOperation extends Operation implements ActionOperation, Serializable {
     private static final int OP_CODE = Operations.HOST_NAMED_ACTION;
 
@@ -89,7 +91,9 @@ public class HostNamedActionOperation extends Operation implements ActionOperati
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTextId, mType, mValueId);
+    }
 
     @Override
     public void runAction(
@@ -135,9 +139,9 @@ public class HostNamedActionOperation extends Operation implements ActionOperati
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
+        int textId = buffer.readId();
         int type = buffer.readInt();
-        int valueId = buffer.readInt();
+        int valueId = buffer.readId();
         operations.add(new HostNamedActionOperation(textId, type, valueId));
     }
 

@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArraySet
  * Listeners added after the context has been made available via [dispatchOnContextAvailable] will
  * have the Context synchronously delivered to them up until [clearAvailableContext] is called.
  */
-class ContextAwareHelper {
+public class ContextAwareHelper {
     private val listeners: MutableSet<OnContextAvailableListener> = CopyOnWriteArraySet()
 
     @Volatile private var context: Context? = null
@@ -40,7 +40,7 @@ class ContextAwareHelper {
      *
      * @return the Context if it is currently available.
      */
-    fun peekAvailableContext(): Context? {
+    public fun peekAvailableContext(): Context? {
         return context
     }
 
@@ -51,7 +51,7 @@ class ContextAwareHelper {
      * @param listener The listener that should be added.
      * @see removeOnContextAvailableListener
      */
-    fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
+    public fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
         context?.let { listener.onContextAvailable(it) }
         listeners.add(listener)
     }
@@ -62,7 +62,7 @@ class ContextAwareHelper {
      * @param listener The listener that should be removed.
      * @see addOnContextAvailableListener
      */
-    fun removeOnContextAvailableListener(listener: OnContextAvailableListener) {
+    public fun removeOnContextAvailableListener(listener: OnContextAvailableListener) {
         listeners.remove(listener)
     }
 
@@ -72,7 +72,7 @@ class ContextAwareHelper {
      *
      * @param context The [Context] the [ContextAware] object is now associated with.
      */
-    fun dispatchOnContextAvailable(context: Context) {
+    public fun dispatchOnContextAvailable(context: Context) {
         this.context = context
         for (listener in listeners) {
             listener.onContextAvailable(context)
@@ -80,7 +80,7 @@ class ContextAwareHelper {
     }
 
     /** Clear any [Context] previously made available via [dispatchOnContextAvailable]. */
-    fun clearAvailableContext() {
+    public fun clearAvailableContext() {
         context = null
     }
 }

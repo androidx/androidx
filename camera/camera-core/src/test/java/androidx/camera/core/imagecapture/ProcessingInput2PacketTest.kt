@@ -51,6 +51,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [ProcessingInput2Packet] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class ProcessingInput2PacketTest {
 
     private val operation = ProcessingInput2Packet()

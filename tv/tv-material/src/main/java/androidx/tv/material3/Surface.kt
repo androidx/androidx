@@ -42,7 +42,7 @@ import androidx.tv.material3.tokens.Elevation
  * to Compose Material's Surface composable
  *
  * @param modifier Modifier to be applied to the layout corresponding to the surface
- * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
+ * @param tonalElevation When [colors] is [ColorScheme.surface], a higher the elevation will result
  *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors Defines the background & content color to be used in this Surface. See
@@ -103,7 +103,7 @@ fun Surface(
  *   clickable. A disabled surface will still be focusable (reason:
  *   https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
  *   using the Non-interactive variant of the Surface.
- * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
+ * @param tonalElevation When [colors] is [ColorScheme.surface], a higher the elevation will result
  *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors Defines the background & content colors to be used in this surface for different
@@ -182,7 +182,7 @@ fun Surface(
  *   clickable. A disabled surface will still be focusable (reason:
  *   https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
  *   using the Non-interactive variant of the Surface.
- * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
+ * @param tonalElevation When [colors] is [ColorScheme.surface], a higher the elevation will result
  *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors Defines the background & content colors to be used in this surface for different

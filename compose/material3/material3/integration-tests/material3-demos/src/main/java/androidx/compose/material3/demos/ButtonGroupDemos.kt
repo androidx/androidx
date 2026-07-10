@@ -46,7 +46,6 @@ import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -64,11 +63,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ButtonGroupDemos() {
     val checked = remember { mutableStateListOf(false, false, false, false, false, false, false) }
-    val interactionSources = List(7) { MutableInteractionSource() }
+    val interactionSources = remember { List(7) { MutableInteractionSource() } }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -80,7 +78,7 @@ fun ButtonGroupDemos() {
                     FilledIconToggleButton(
                         checked = false,
                         onCheckedChange = {
-                            if (menuState.isExpanded) {
+                            if (menuState.isShowing) {
                                 menuState.dismiss()
                             } else {
                                 menuState.show()
@@ -94,6 +92,7 @@ fun ButtonGroupDemos() {
                     }
                 },
                 modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.Top,
             ) {
                 customItem(
                     buttonGroupContent = {

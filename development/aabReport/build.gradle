@@ -23,6 +23,9 @@ dependencies {
     implementation 'com.squareup.wire:wire-runtime-jvm:5.3.5'
     implementation 'org.smali:dexlib2:2.5.2'
     implementation 'com.android.tools:r8:8.11.18'
+    implementation 'com.android.tools.build:apksig:8.13.2'
+    implementation 'com.android.tools.build:aapt2-proto:8.13.2-14304508'
+    implementation 'com.google.protobuf:protobuf-java:3.25.5'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 

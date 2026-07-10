@@ -119,7 +119,7 @@ fun ButtonStyles() {
                     colors = ButtonDefaults.secondaryButtonColors(),
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
                 Button(
                     onClick = {
@@ -128,7 +128,7 @@ fun ButtonStyles() {
                     colors = ButtonDefaults.primaryButtonColors(),
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -150,7 +150,7 @@ fun ButtonStyles() {
                     modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
                 Button(
                     onClick = {
@@ -165,7 +165,7 @@ fun ButtonStyles() {
                     modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -181,7 +181,7 @@ fun ButtonStyles() {
                     },
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
                 OutlinedCompactButton(
                     onClick = {
@@ -194,7 +194,7 @@ fun ButtonStyles() {
                     },
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -212,7 +212,7 @@ fun ButtonStyles() {
                     enabled = enabled,
                     shape = CutCornerShape(4.dp),
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
                 CompactButton(
                     onClick = {
@@ -228,7 +228,7 @@ fun ButtonStyles() {
                     enabled = enabled,
                     shape = CutCornerShape(4.dp),
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -250,7 +250,7 @@ fun ButtonStyles() {
                     enabled = enabled,
                     shape = CutCornerShape(4.dp),
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
                 Button(
                     onClick = {
@@ -267,7 +267,7 @@ fun ButtonStyles() {
                         ),
                     enabled = enabled,
                 ) {
-                    DemoIcon(R.drawable.ic_accessibility_24px)
+                    DemoIcon(R.drawable.icon_accessibility_24px)
                 }
             }
         }
@@ -286,7 +286,7 @@ fun ButtonStyles() {
                     onCheckedChange = { enabled = it },
                     modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
                 ) {
-                    DemoIcon(R.drawable.ic_check_24px)
+                    DemoIcon(R.drawable.icon_check_24px)
                 }
             }
         }
@@ -309,14 +309,14 @@ fun ButtonGallery() {
                     colors = ButtonDefaults.primaryButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_play, contentDescription = "Play")
+                    DemoIcon(resourceId = R.drawable.icon_play, contentDescription = "Play")
                 }
                 Button(
                     onClick = {},
                     colors = ButtonDefaults.secondaryButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_play, contentDescription = "Play")
+                    DemoIcon(resourceId = R.drawable.icon_play, contentDescription = "Play")
                 }
             }
         }
@@ -327,7 +327,7 @@ fun ButtonGallery() {
                     colors = ButtonDefaults.iconButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_skip_next, contentDescription = "Skip")
+                    DemoIcon(resourceId = R.drawable.icon_skip_next, contentDescription = "Skip")
                 }
                 Spacer(Modifier.width(ButtonDefaults.LargeButtonSize))
             }
@@ -337,17 +337,20 @@ fun ButtonGallery() {
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Button(onClick = {}, colors = ButtonDefaults.primaryButtonColors()) {
-                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                    DemoIcon(resourceId = R.drawable.icon_check_24px, contentDescription = "Tick")
                 }
                 Button(onClick = {}, colors = ButtonDefaults.secondaryButtonColors()) {
-                    DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "Cross")
+                    DemoIcon(resourceId = R.drawable.icon_clear_24px, contentDescription = "Cross")
                 }
             }
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Button(onClick = {}, colors = ButtonDefaults.iconButtonColors()) {
-                    DemoIcon(resourceId = R.drawable.ic_devices_24, contentDescription = "Devices")
+                    DemoIcon(
+                        resourceId = R.drawable.icon_devices_24,
+                        contentDescription = "Devices",
+                    )
                 }
                 Spacer(Modifier.width(ButtonDefaults.DefaultButtonSize))
             }
@@ -361,14 +364,14 @@ fun ButtonGallery() {
                     colors = ButtonDefaults.primaryButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_music_24, contentDescription = "Music")
+                    DemoIcon(resourceId = R.drawable.icon_music_24, contentDescription = "Music")
                 }
                 Button(
                     onClick = {},
                     colors = ButtonDefaults.secondaryButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_mic_24, contentDescription = "Mic")
+                    DemoIcon(resourceId = R.drawable.icon_mic_24, contentDescription = "Mic")
                 }
             }
         }
@@ -379,7 +382,10 @@ fun ButtonGallery() {
                     colors = ButtonDefaults.iconButtonColors(),
                     modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_volume_up_24px, contentDescription = "Vol")
+                    DemoIcon(
+                        resourceId = R.drawable.icon_volume_up_24px,
+                        contentDescription = "Vol",
+                    )
                 }
                 Spacer(Modifier.width(ButtonDefaults.SmallButtonSize))
             }
@@ -390,13 +396,13 @@ fun ButtonGallery() {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 CompactButton(onClick = {}, colors = ButtonDefaults.primaryButtonColors()) {
                     DemoIcon(
-                        resourceId = R.drawable.ic_arrow_left_modified,
+                        resourceId = R.drawable.icon_arrow_left_modified,
                         contentDescription = "Left",
                     )
                 }
                 CompactButton(onClick = {}, colors = ButtonDefaults.secondaryButtonColors()) {
                     DemoIcon(
-                        resourceId = R.drawable.ic_arrow_right_modified,
+                        resourceId = R.drawable.icon_arrow_right_modified,
                         contentDescription = "Right",
                     )
                 }
@@ -406,13 +412,13 @@ fun ButtonGallery() {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 CompactButton(onClick = {}, colors = ButtonDefaults.iconButtonColors()) {
                     DemoIcon(
-                        resourceId = R.drawable.ic_arrow_left_modified,
+                        resourceId = R.drawable.icon_arrow_left_modified,
                         contentDescription = "Left",
                     )
                 }
                 CompactButton(onClick = {}, colors = ButtonDefaults.iconButtonColors()) {
                     DemoIcon(
-                        resourceId = R.drawable.ic_arrow_right_modified,
+                        resourceId = R.drawable.icon_arrow_right_modified,
                         contentDescription = "Right",
                     )
                 }

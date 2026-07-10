@@ -22,6 +22,8 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
+import androidx.benchmark.macro.PowerMetric.Companion.Energy
+import androidx.benchmark.macro.PowerMetric.Companion.Power
 import androidx.benchmark.macro.PowerMetric.Companion.deviceSupportsHighPrecisionTracking
 import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
@@ -485,6 +487,8 @@ abstract class TraceMetric : Metric() {
     /**
      * Get the metric result for a given iteration given information about the target process and a
      * TraceProcessor session
+     *
+     * @sample androidx.benchmark.samples.getMeasurementsSample
      */
     public abstract override fun getMeasurements(
         captureInfo: CaptureInfo,
@@ -494,7 +498,7 @@ abstract class TraceMetric : Metric() {
 
 /**
  * Captures the time taken by named trace section - a named begin / end pair matching the provided
- * [sectionName].
+ * [sectionNames].
  *
  * Select how matching sections are resolved into a duration metric with [mode], and configure if
  * sections outside the target process are included with [targetPackageOnly].
@@ -516,27 +520,49 @@ abstract class TraceMetric : Metric() {
  * @see androidx.tracing.trace
  */
 @ExperimentalMetricApi
-class TraceSectionMetric
-@JvmOverloads
-constructor(
+class TraceSectionMetric(
     /**
-     * Section name or pattern to match.
+     * List of section names or patterns to match.
      *
      * "%" can be used as a wildcard, as this is supported by the underlying [TraceProcessor] query.
      * For example `"JIT %"` will match a section named `"JIT compiling int
      * com.package.MyClass.method(int)"` present in the trace.
+     *
+     * The resulting metric will be calculated based on all the names in this list.
      */
-    private val sectionName: String,
+    private val sectionNames: List<String>,
+    /** Metric label that is presented in the results */
+    private val label: String,
     /**
-     * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+     * Defines how slices matching [sectionNames] should be confirmed to metrics, by default uses
      * [Mode.Sum] to count and sum durations of all matching trace sections.
      */
     private val mode: Mode = Mode.Sum,
-    /** Metric label, defaults to [sectionName]. */
-    private val label: String = sectionName,
     /** Filter results to trace sections only from the target process, defaults to true. */
     private val targetPackageOnly: Boolean = true,
 ) : Metric() {
+
+    @JvmOverloads
+    constructor(
+        /**
+         * Section name or pattern to match.
+         *
+         * "%" can be used as a wildcard, as this is supported by the underlying [TraceProcessor]
+         * query. For example `"JIT %"` will match a section named `"JIT compiling int
+         * com.package.MyClass.method(int)"` present in the trace.
+         */
+        sectionName: String,
+        /**
+         * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+         * [Mode.Sum] to count and sum durations of all matching trace sections.
+         */
+        mode: Mode = Mode.Sum,
+        /** Metric label, defaults to [sectionName]. */
+        label: String = sectionName,
+        /** Filter results to trace sections only from the target process, defaults to true. */
+        targetPackageOnly: Boolean = true,
+    ) : this(listOf(sectionName), label, mode, targetPackageOnly)
+
     sealed class Mode(internal val name: String) {
         /**
          * Captures the duration of the first instance of `sectionName` in the trace.
@@ -602,7 +628,7 @@ constructor(
     ): List<Measurement> {
         val slices =
             traceSession.querySlices(
-                sectionName,
+                *sectionNames.toTypedArray(),
                 packageName = if (targetPackageOnly) captureInfo.targetPackageName else null,
             )
 
@@ -736,7 +762,6 @@ constructor(
  * Some classes will be verified at runtime rather than install time due to limitations in the
  * compiler and runtime or due to being malformed.
  */
-@RequiresApi(24)
 class ArtMetric : Metric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,
@@ -755,7 +780,7 @@ class ArtMetric : Metric() {
                 )
             ) {
                 traceSession
-                    .querySlices("L%/%;", packageName = captureInfo.targetPackageName)
+                    .querySlices("L%;", packageName = captureInfo.targetPackageName)
                     .asMeasurements("artClassLoad")
             } else emptyList()
     }
@@ -837,6 +862,7 @@ class PowerMetric(private val type: Type) : Metric() {
             return Type.Battery()
         }
 
+        @JvmOverloads
         @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -844,6 +870,7 @@ class PowerMetric(private val type: Type) : Metric() {
             return Type.Energy(categories)
         }
 
+        @JvmOverloads
         @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -1030,11 +1057,18 @@ class PowerMetric(private val type: Type) : Metric() {
  *   value during an iteration, and `Max`, which represents the largest sample observed per
  *   measurement.
  * @param subMetrics By default, reports:
- * * `memoryRssAnonKb` - Anonymous resident/allocated memory owned by the process, not including
- *   memory mapped files or shared memory.
- * * `memoryRssAnonFileKb` - Memory allocated by the process to map files.
- * * `memoryHeapSizeKb` - Heap memory allocations from the Android Runtime, sampled after each GC.
- * * `memoryGpuKb` - GPU Memory allocated for the process.
+ * * `memoryRssAnonKb` - Measures anonymous resident set size memory. This represents memory
+ *   allocated directly by the process—such as via malloc or `mmap`—that is not backed by any file
+ *   on disk. It is often the primary indicator of the app's dynamic memory consumption.
+ * * `memoryRssAnonFileKb` - Measures memory used to map files from disk into the process's address
+ *   space. This includes shared libraries, dex files, and other resource assets loaded by the
+ *   application.
+ * * `memoryHeapSizeKb` - Tracks the total size of the Android Runtime (ART) heap. These samples are
+ *   typically captured immediately after a Garbage Collection (GC) event, providing a look at the
+ *   "live" set of objects in the application's managed memory.
+ * * `memoryGpuKb` - Measures the amount of GPU-specific memory allocated for the process. This is
+ *   particularly useful for identifying high memory usage related to textures, shaders, or other
+ *   graphics-heavy components.
  *
  * By passing a custom `subMetrics` list, you can enable other [SubMetric]s.
  *
@@ -1079,10 +1113,38 @@ constructor(
          */
         internal val alreadyInKb: Boolean,
     ) {
+        /**
+         * Tracks the total size of the Android Runtime (ART) heap. These samples are typically
+         * captured immediately after a Garbage Collection (GC) event, providing a look at the
+         * "live" set of objects in the application's managed memory.
+         */
         HeapSize("Heap size (KB)", alreadyInKb = true),
+
+        /**
+         * Measures anonymous resident set size memory. This represents memory allocated directly by
+         * the process—such as via malloc or mmap—that is not backed by any file on disk. It is
+         * often the primary indicator of the app's dynamic memory consumption.
+         */
         RssAnon("mem.rss.anon", alreadyInKb = false),
+
+        /**
+         * Measures memory used to map files from disk into the process's address space. This
+         * includes shared libraries, dex files, and other resource assets loaded by the
+         * application.
+         */
         RssFile("mem.rss.file", alreadyInKb = false),
+
+        /**
+         * Tracks shared memory resident in the process. This includes memory shared between
+         * processes, such as shared buffers or specialized memory regions.
+         */
         RssShmem("mem.rss.shmem", alreadyInKb = false),
+
+        /**
+         * Measures the amount of GPU-specific memory allocated for the process. This is
+         * particularly useful for identifying high memory usage related to textures, shaders, or
+         * other graphics-heavy components.
+         */
         Gpu("GPU Memory", alreadyInKb = false),
     }
 

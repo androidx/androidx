@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.protolayout.testing.TestContext#getDynamicData():
+    Source breaking change: method androidx.wear.protolayout.testing.TestContext.getDynamicData() can no longer be resolved from Kotlin source

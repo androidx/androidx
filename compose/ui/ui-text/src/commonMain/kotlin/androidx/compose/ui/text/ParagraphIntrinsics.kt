@@ -18,8 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.platform.ActualParagraphIntrinsics
 import androidx.compose.ui.unit.Density
 
 /** Calculates and presents the intrinsic width and height of text. */
@@ -63,49 +61,34 @@ interface ParagraphIntrinsics {
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-            "fontFamilyResolver"
+        "ParagraphIntrinsics(text, style, spanStyles, density, " +
+            "createFontFamilyResolver(resourceLoader), placeholders, true)",
+        "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
-fun ParagraphIntrinsics(
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader,
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = spanStyles,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = createFontFamilyResolver(resourceLoader),
-    )
+): ParagraphIntrinsics
 
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
-fun ParagraphIntrinsics(
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = spanStyles,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-    )
+): ParagraphIntrinsics
 
 /**
  * Factory method to create a [ParagraphIntrinsics].
@@ -115,19 +98,40 @@ fun ParagraphIntrinsics(
  *
  * @see ParagraphIntrinsics
  */
-fun ParagraphIntrinsics(
+@Deprecated(
+    "Use an override with `softWrap`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
+    ),
+)
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = annotations,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-    )
+): ParagraphIntrinsics
+
+/**
+ * Factory method to create a [ParagraphIntrinsics].
+ *
+ * @param text The text to be measured.
+ * @param style The [TextStyle] to apply to the text.
+ * @param annotations The annotations to apply to the text.
+ * @param density The [Density] of the display environment.
+ * @param fontFamilyResolver The [FontFamily.Resolver] to resolve fonts.
+ * @param softWrap Whether the text should break at soft line breaks. When the intention is to lay
+ *   out text as a single line, setting [softWrap] to false enables optimizations that avoid certain
+ *   expensive calculations.
+ * @param placeholders The list of [Placeholder] to be used in the text.
+ */
+expect fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    softWrap: Boolean,
+): ParagraphIntrinsics

@@ -69,6 +69,7 @@ class TextureViewImplementationTest {
             _surfaceRequest!!.deferrableSurface.close()
             _surfaceRequest = null
         }
+        surfaceTexture?.release()
     }
 
     @LargeTest

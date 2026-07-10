@@ -1,0 +1,52 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore
+
+/** A semantic description of a [Plane]. */
+public class PlaneLabel private constructor(internal val value: Int) {
+    public companion object {
+        /** The plane represents an unknown type. */
+        @JvmField public val UNKNOWN: PlaneLabel = PlaneLabel(0)
+
+        /** The plane represents a wall. */
+        @JvmField public val WALL: PlaneLabel = PlaneLabel(1)
+
+        /** The plane represents a floor. */
+        @JvmField public val FLOOR: PlaneLabel = PlaneLabel(2)
+
+        /** The plane represents a ceiling. */
+        @JvmField public val CEILING: PlaneLabel = PlaneLabel(3)
+
+        /** The plane represents a table. */
+        @JvmField public val TABLE: PlaneLabel = PlaneLabel(4)
+    }
+
+    /**
+     * Returns a string representation of [PlaneLabel] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "UNKNOWN"
+            1 -> "WALL"
+            2 -> "FLOOR"
+            3 -> "CEILING"
+            4 -> "TABLE"
+            else -> "UNKNOWN"
+        }
+}

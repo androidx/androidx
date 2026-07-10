@@ -29,10 +29,11 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
-import androidx.annotation.Nullable;
 import androidx.car.app.connection.CarConnection;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * The main app activity.

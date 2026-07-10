@@ -5,10 +5,11 @@ package androidx.emoji2.emojipicker {
     ctor public EmojiPickerView(android.content.Context context);
     ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
-    method public int getEmojiGridColumns();
-    method public float getEmojiGridRows();
-    method public void setEmojiGridColumns(int);
-    method public void setEmojiGridRows(float);
+    ctor @BytecodeOnly public EmojiPickerView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getEmojiGridColumns();
+    method @InaccessibleFromKotlin public float getEmojiGridRows();
+    method @InaccessibleFromKotlin public void setEmojiGridColumns(int);
+    method @InaccessibleFromKotlin public void setEmojiGridRows(float);
     method public void setOnEmojiPickedListener(androidx.core.util.Consumer<androidx.emoji2.emojipicker.EmojiViewItem>? onEmojiPickedListener);
     method public void setRecentEmojiProvider(androidx.emoji2.emojipicker.RecentEmojiProvider recentEmojiProvider);
     property public int emojiGridColumns;
@@ -17,8 +18,8 @@ package androidx.emoji2.emojipicker {
 
   public final class EmojiViewItem {
     ctor public EmojiViewItem(String emoji, java.util.List<java.lang.String> variants);
-    method public String getEmoji();
-    method public java.util.List<java.lang.String> getVariants();
+    method @InaccessibleFromKotlin public String getEmoji();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getVariants();
     property public String emoji;
     property public java.util.List<java.lang.String> variants;
   }

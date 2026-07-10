@@ -67,3 +67,15 @@ RemovedFromJava: androidx.navigation.fragment.FragmentNavigatorDestinationBuilde
     Source breaking change: method androidx.navigation.fragment.FragmentNavigatorDestinationBuilderKt.fragment(androidx.navigation.NavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>) can no longer be resolved from Java source
 RemovedFromJava: androidx.navigation.fragment.FragmentNavigatorDestinationBuilderKt#fragment(androidx.navigation.NavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit>):
     Source breaking change: method androidx.navigation.fragment.FragmentNavigatorDestinationBuilderKt.fragment(androidx.navigation.NavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.navigation.fragment.AbstractListDetailFragment#getDetailPaneNavHostFragment():
+    Source breaking change: method androidx.navigation.fragment.AbstractListDetailFragment.getDetailPaneNavHostFragment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.fragment.AbstractListDetailFragment#getSlidingPaneLayout():
+    Source breaking change: method androidx.navigation.fragment.AbstractListDetailFragment.getSlidingPaneLayout() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.fragment.DialogFragmentNavigator.Destination#getClassName():
+    Source breaking change: method androidx.navigation.fragment.DialogFragmentNavigator.Destination.getClassName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.fragment.FragmentNavigator.Destination#getClassName():
+    Source breaking change: method androidx.navigation.fragment.FragmentNavigator.Destination.getClassName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.fragment.FragmentNavigator.Extras#getSharedElements():
+    Source breaking change: method androidx.navigation.fragment.FragmentNavigator.Extras.getSharedElements() can no longer be resolved from Kotlin source

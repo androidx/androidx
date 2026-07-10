@@ -15,7 +15,9 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.kilocalories
@@ -38,9 +40,13 @@ public class ActiveCaloriesBurnedRecord(
 ) : IntervalRecord {
 
     init {
-        energy.requireNotLess(other = energy.zero(), "energy")
-        energy.requireNotMore(other = MAX_ENERGY, "energy")
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+            energy.requireNotLess(other = energy.zero(), "energy")
+            energy.requireNotMore(other = MAX_ENERGY, "energy")
+        }
     }
 
     /*

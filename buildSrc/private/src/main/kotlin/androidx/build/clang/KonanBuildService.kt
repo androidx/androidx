@@ -17,15 +17,20 @@
 package androidx.build.clang
 
 import androidx.build.KonanPrebuiltsSetup
+import androidx.build.OperatingSystem
 import androidx.build.ProjectLayoutType
 import androidx.build.clang.KonanBuildService.Companion.obtain
 import androidx.build.getKonanPrebuiltsFolder
+import androidx.build.getOperatingSystem
+import androidx.build.getSdkPath
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
@@ -61,8 +66,8 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                 parameters.prebuilts.isPresent
         ) {
             """
-                Prebuilts directory for Konan must be provided when the project is not a playground
-                project.
+            Prebuilts directory for Konan must be provided when the project is not a playground
+            project.
             """
                 .trimIndent()
         }
@@ -133,7 +138,18 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         val linkerFlags =
             parameters.linkerArgs.get() +
                 if (parameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
-                    listOf("-fuse-ld=lld", "-z", "max-page-size=16384")
+                    val customLld = this@KonanBuildService.parameters.androidLldPath.orNull?.asFile
+                    if (customLld != null) {
+                        listOf(
+                            "-fuse-ld=${customLld.absolutePath}",
+                            "-z",
+                            "max-page-size=16384",
+                            "-z",
+                            "common-page-size=16384",
+                        )
+                    } else {
+                        listOf("-fuse-ld=lld", "-z", "max-page-size=16384")
+                    }
                 } else {
                     emptyList()
                 }
@@ -146,7 +162,8 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                         TempFiles(),
                         objectFiles = objectFiles,
                         executable = outputFile.canonicalPath,
-                        libraries = linkedObjectFiles,
+                        dynamicLibraries = linkedObjectFiles,
+                        staticLibraries = emptyList(),
                         linkerArgs = linkerFlags,
                         optimize = true,
                         debug = false,
@@ -228,12 +245,28 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         }
     }
 
+    fun stdlibKlibDir(): Provider<Directory> {
+        return parameters.konanHome.dir("klib/common/stdlib")
+    }
+
     interface Parameters : BuildServiceParameters {
         /** KONAN_HOME parameter for initializing konan */
         val konanHome: DirectoryProperty
 
         /** Location if konan prebuilts. Can be null if this is a playground project */
         @get:Optional val prebuilts: DirectoryProperty
+
+        /**
+         * Use NDK lld linker in platform prebuilts for Android targets for 16KB alignment
+         *
+         * The default NDK linker used by Kotlin Native (LLD 8.0.7) is too old to support the `-z
+         * common-page-size` flag, which is required for proper 16KB page alignment without
+         * disabling RELRO (See b/476745201).
+         *
+         * The Android NDK support in Kotlin Native is not well maintained:
+         * https://kotlinlang.org/docs/native-target-support.html#tier-3
+         */
+        @get:Optional val androidLldPath: RegularFileProperty
 
         /**
          * The type of the project (Playground vs AOSP main). This value is used to ensure we
@@ -263,6 +296,20 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                 it.parameters.projectLayoutType.set(ProjectLayoutType.from(project))
                 if (!ProjectLayoutType.isPlayground(project)) {
                     it.parameters.prebuilts.set(project.getKonanPrebuiltsFolder())
+
+                    val os = getOperatingSystem()
+                    if (os == OperatingSystem.MAC || os == OperatingSystem.LINUX) {
+                        val platform = if (os == OperatingSystem.MAC) "darwin" else "linux"
+                        val lldPath =
+                            project
+                                .getSdkPath()
+                                .resolve(
+                                    "ndk-bundle/toolchains/llvm/prebuilt/${platform}-x86_64/bin/ld.lld"
+                                )
+                        if (lldPath.exists()) {
+                            it.parameters.androidLldPath.set(lldPath)
+                        }
+                    }
                 }
             }
         }

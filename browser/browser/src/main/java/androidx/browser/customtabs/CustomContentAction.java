@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import androidx.annotation.IntRange;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a custom action that can be invoked on specific content types (image or link)
@@ -33,7 +32,6 @@ import org.jspecify.annotations.Nullable;
  * a {@link CustomTabsIntent} using
  * {@link CustomTabsIntent.Builder#addCustomContentAction(CustomContentAction)}.
  */
-@ExperimentalCustomContentAction
 public final class CustomContentAction {
 
     /**
@@ -170,15 +168,20 @@ public final class CustomContentAction {
 
     /**
      * Creates a {@link CustomContentAction} from a {@link Bundle}.
-     * Returns {@code null} if the bundle is malformed or missing required fields.
+     *
+     * @throws IllegalArgumentException if the bundle is malformed or missing required fields.
      */
     @SuppressWarnings("deprecation")
-    static @Nullable CustomContentAction fromBundle(@NonNull Bundle bundle) {
-        if (!bundle.containsKey(KEY_ID)) return null;
+    public static @NonNull CustomContentAction fromBundle(@NonNull Bundle bundle) {
+        if (!bundle.containsKey(KEY_ID)) {
+            throw new IllegalArgumentException("Bundle is missing required key: " + KEY_ID);
+        }
         int id = bundle.getInt(KEY_ID);
 
         String label = bundle.getString(KEY_LABEL);
-        if (TextUtils.isEmpty(label)) return null;
+        if (TextUtils.isEmpty(label)) {
+            throw new IllegalArgumentException("Bundle is missing required key: " + KEY_LABEL);
+        }
 
         PendingIntent pendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -186,12 +189,14 @@ public final class CustomContentAction {
         } else {
             pendingIntent = bundle.getParcelable(KEY_PENDING_INTENT);
         }
-        if (pendingIntent == null) return null;
+        if (pendingIntent == null) {
+            throw new IllegalArgumentException("Bundle is missing required key: " + KEY_PENDING_INTENT);
+        }
 
         int targetType = bundle.getInt(KEY_TARGET_TYPE, 0); // Default to 0 to catch invalid
         if (targetType != CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE
                 && targetType != CustomTabsIntent.CONTENT_TARGET_TYPE_LINK) {
-            return null;
+            throw new IllegalArgumentException("Invalid target type: " + targetType);
         }
 
         return new CustomContentAction(id, label, pendingIntent, targetType);

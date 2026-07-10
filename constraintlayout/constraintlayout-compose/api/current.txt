@@ -2,18 +2,18 @@
 package androidx.constraintlayout.compose {
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class Arc {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.Arc.Companion Companion;
   }
 
-  public static final class Arc.Companion {
-    method public androidx.constraintlayout.compose.Arc getAbove();
-    method public androidx.constraintlayout.compose.Arc getBelow();
-    method public androidx.constraintlayout.compose.Arc getFlip();
-    method public androidx.constraintlayout.compose.Arc getNone();
-    method public androidx.constraintlayout.compose.Arc getStartHorizontal();
-    method public androidx.constraintlayout.compose.Arc getStartVertical();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class Arc.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getAbove();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getBelow();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getFlip();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getNone();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getStartHorizontal();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getStartVertical();
     property public androidx.constraintlayout.compose.Arc Above;
     property public androidx.constraintlayout.compose.Arc Below;
     property public androidx.constraintlayout.compose.Arc Flip;
@@ -22,14 +22,16 @@ package androidx.constraintlayout.compose {
     property public androidx.constraintlayout.compose.Arc StartVertical;
   }
 
-  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed class BaseKeyFrameScope {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed nonexhaustive class BaseKeyFrameScope {
     method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E initialValue, optional String? nameOverride);
+    method @BytecodeOnly public static kotlin.properties.ObservableProperty! addNameOnPropertyChange$default(androidx.constraintlayout.compose.BaseKeyFrameScope!, androidx.constraintlayout.compose.NamedPropertyOrValue!, String!, int, Object!);
     method protected final <T> kotlin.properties.ObservableProperty<T> addOnPropertyChange(T initialValue, optional String? nameOverride);
+    method @BytecodeOnly public static kotlin.properties.ObservableProperty! addOnPropertyChange$default(androidx.constraintlayout.compose.BaseKeyFrameScope!, Object!, String!, int, Object!);
   }
 
-  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed class BaseKeyFramesScope {
-    method public final androidx.constraintlayout.compose.Easing getEasing();
-    method public final void setEasing(androidx.constraintlayout.compose.Easing);
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed nonexhaustive class BaseKeyFramesScope {
+    method @InaccessibleFromKotlin public final androidx.constraintlayout.compose.Easing getEasing();
+    method @InaccessibleFromKotlin public final void setEasing(androidx.constraintlayout.compose.Easing);
     property public final androidx.constraintlayout.compose.Easing easing;
   }
 
@@ -38,6 +40,8 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor, float, float);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.BaselineAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.BaselineAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class ChainStyle {
@@ -46,9 +50,9 @@ package androidx.constraintlayout.compose {
 
   public static final class ChainStyle.Companion {
     method @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ChainStyle Packed(float bias);
-    method public androidx.constraintlayout.compose.ChainStyle getPacked();
-    method public androidx.constraintlayout.compose.ChainStyle getSpread();
-    method public androidx.constraintlayout.compose.ChainStyle getSpreadInside();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ChainStyle getPacked();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ChainStyle getSpread();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ChainStyle getSpreadInside();
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ChainStyle Packed;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ChainStyle Spread;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ChainStyle SpreadInside;
@@ -60,65 +64,70 @@ package androidx.constraintlayout.compose {
     method public void centerAround(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor);
     method public void centerAround(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor anchor);
     method public void centerHorizontallyTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other, optional @FloatRange(from=0.0, to=1.0) float bias);
+    method @BytecodeOnly public static void centerHorizontallyTo$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, float, int, Object!);
     method public void centerTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other);
     method public void centerVerticallyTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other, optional @FloatRange(from=0.0, to=1.0) float bias);
+    method @BytecodeOnly public static void centerVerticallyTo$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, float, int, Object!);
     method @KotlinOnly public void circular(androidx.constraintlayout.compose.ConstrainedLayoutReference other, float angle, androidx.compose.ui.unit.Dp distance);
     method @BytecodeOnly public void circular-wH6b6FI(androidx.constraintlayout.compose.ConstrainedLayoutReference, float, float);
     method public void clearConstraints();
     method public void clearHorizontal();
     method public void clearVertical();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteLeft();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteRight();
-    method public float getAlpha();
-    method public androidx.constraintlayout.compose.BaselineAnchorable getBaseline();
-    method public androidx.constraintlayout.compose.HorizontalAnchorable getBottom();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getEnd();
-    method public androidx.constraintlayout.compose.Dimension getHeight();
-    method public float getHorizontalBias();
-    method public float getHorizontalChainWeight();
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
-    method public float getPivotX();
-    method public float getPivotY();
-    method public float getRotationX();
-    method public float getRotationY();
-    method public float getRotationZ();
-    method public float getScaleX();
-    method public float getScaleY();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getStart();
-    method public androidx.constraintlayout.compose.HorizontalAnchorable getTop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteRight();
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.BaselineAnchorable getBaseline();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAnchorable getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension getHeight();
+    method @InaccessibleFromKotlin public float getHorizontalBias();
+    method @InaccessibleFromKotlin public float getHorizontalChainWeight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
+    method @InaccessibleFromKotlin public float getPivotX();
+    method @InaccessibleFromKotlin public float getPivotY();
+    method @InaccessibleFromKotlin public float getRotationX();
+    method @InaccessibleFromKotlin public float getRotationY();
+    method @InaccessibleFromKotlin public float getRotationZ();
+    method @InaccessibleFromKotlin public float getScaleX();
+    method @InaccessibleFromKotlin public float getScaleY();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAnchorable getTop();
     method @BytecodeOnly public float getTranslationX-D9Ej5fM();
     method @BytecodeOnly public float getTranslationY-D9Ej5fM();
     method @BytecodeOnly public float getTranslationZ-D9Ej5fM();
-    method public float getVerticalBias();
-    method public float getVerticalChainWeight();
-    method public androidx.constraintlayout.compose.Visibility getVisibility();
-    method public androidx.constraintlayout.compose.Dimension getWidth();
+    method @InaccessibleFromKotlin public float getVerticalBias();
+    method @InaccessibleFromKotlin public float getVerticalChainWeight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Visibility getVisibility();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension getWidth();
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor bottom, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional @FloatRange(from=0.0, to=1.0) float bias);
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor end, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor bottom, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional @FloatRange(from=0.0, to=1.0) float horizontalBias, optional @FloatRange(from=0.0, to=1.0) float verticalBias);
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor end, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional @FloatRange(from=0.0, to=1.0) float bias);
     method @BytecodeOnly public void linkTo-8ZKsbrE(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float, float, float, @FloatRange(from=0.0, to=1.0) float);
     method @BytecodeOnly public void linkTo-8ZKsbrE(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float, float, float, @FloatRange(from=0.0, to=1.0) float);
+    method @BytecodeOnly public static void linkTo-8ZKsbrE$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, float, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-8ZKsbrE$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, float, float, float, float, float, int, Object!);
     method @BytecodeOnly public void linkTo-R7zmacU(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float, float, float, float, float, float, float, @FloatRange(from=0.0, to=1.0) float, @FloatRange(from=0.0, to=1.0) float);
+    method @BytecodeOnly public static void linkTo-R7zmacU$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, float, float, float, float, float, float, float, float, int, Object!);
     method public void resetDimensions();
     method public void resetTransforms();
-    method public void setAlpha(float);
-    method public void setHeight(androidx.constraintlayout.compose.Dimension);
-    method public void setHorizontalBias(float);
-    method public void setHorizontalChainWeight(float);
-    method public void setPivotX(float);
-    method public void setPivotY(float);
-    method public void setRotationX(float);
-    method public void setRotationY(float);
-    method public void setRotationZ(float);
-    method public void setScaleX(float);
-    method public void setScaleY(float);
+    method @InaccessibleFromKotlin public void setAlpha(float);
+    method @InaccessibleFromKotlin public void setHeight(androidx.constraintlayout.compose.Dimension);
+    method @InaccessibleFromKotlin public void setHorizontalBias(float);
+    method @InaccessibleFromKotlin public void setHorizontalChainWeight(float);
+    method @InaccessibleFromKotlin public void setPivotX(float);
+    method @InaccessibleFromKotlin public void setPivotY(float);
+    method @InaccessibleFromKotlin public void setRotationX(float);
+    method @InaccessibleFromKotlin public void setRotationY(float);
+    method @InaccessibleFromKotlin public void setRotationZ(float);
+    method @InaccessibleFromKotlin public void setScaleX(float);
+    method @InaccessibleFromKotlin public void setScaleY(float);
     method @BytecodeOnly public void setTranslationX-0680j_4(float);
     method @BytecodeOnly public void setTranslationY-0680j_4(float);
     method @BytecodeOnly public void setTranslationZ-0680j_4(float);
-    method public void setVerticalBias(float);
-    method public void setVerticalChainWeight(float);
-    method public void setVisibility(androidx.constraintlayout.compose.Visibility);
-    method public void setWidth(androidx.constraintlayout.compose.Dimension);
+    method @InaccessibleFromKotlin public void setVerticalBias(float);
+    method @InaccessibleFromKotlin public void setVerticalChainWeight(float);
+    method @InaccessibleFromKotlin public void setVisibility(androidx.constraintlayout.compose.Visibility);
+    method @InaccessibleFromKotlin public void setWidth(androidx.constraintlayout.compose.Dimension);
     property public androidx.constraintlayout.compose.VerticalAnchorable absoluteLeft;
     property public androidx.constraintlayout.compose.VerticalAnchorable absoluteRight;
     property public float alpha;
@@ -149,13 +158,13 @@ package androidx.constraintlayout.compose {
 
   @androidx.compose.runtime.Stable public final class ConstrainedLayoutReference extends androidx.constraintlayout.compose.LayoutReference {
     ctor public ConstrainedLayoutReference(Object id);
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteLeft();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteRight();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor getBaseline();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getBottom();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getEnd();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getStart();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getTop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteRight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor getBaseline();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getTop();
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor absoluteLeft;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor absoluteRight;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor baseline;
@@ -174,22 +183,31 @@ package androidx.constraintlayout.compose {
     method public final androidx.constraintlayout.compose.VerticalChainScope constrain(androidx.constraintlayout.compose.VerticalChainReference ref, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.VerticalChainScope,kotlin.Unit> constrainBlock);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createAbsoluteLeftBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createAbsoluteRightBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! createBottomBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createColumn(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp spacing, optional float[] weights);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createColumn-lG28NQ4(androidx.constraintlayout.compose.LayoutReference![], float, float[]);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createColumn-lG28NQ4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, float[]!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createEndBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp paddingLeft, optional androidx.compose.ui.unit.Dp paddingTop, optional androidx.compose.ui.unit.Dp paddingRight, optional androidx.compose.ui.unit.Dp paddingBottom, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp paddingHorizontal, optional androidx.compose.ui.unit.Dp paddingVertical, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp padding, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-6oEtc9w(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-6oEtc9w$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-Fgo90cY(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, float, float, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-Fgo90cY$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, float, float, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-IkjhEj4(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-IkjhEj4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createGrid(androidx.constraintlayout.compose.LayoutReference... elements, @IntRange(from=1L) int rows, @IntRange(from=1L) int columns, optional boolean isHorizontalArrangement, optional androidx.compose.ui.unit.Dp verticalSpacing, optional androidx.compose.ui.unit.Dp horizontalSpacing, optional float[] rowWeights, optional float[] columnWeights, optional androidx.constraintlayout.compose.Skip[] skips, optional androidx.constraintlayout.compose.Span[] spans, optional androidx.constraintlayout.compose.GridFlag flags);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createGrid-Hu23Yyw(androidx.constraintlayout.compose.LayoutReference![], @IntRange(from=1L) int, @IntRange(from=1L) int, boolean, float, float, float[], float[], androidx.constraintlayout.compose.Skip![], androidx.constraintlayout.compose.Span![], int);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createGrid-Hu23Yyw$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, int, int, boolean, float, float, float[]!, float[]!, androidx.constraintlayout.compose.Skip![]!, androidx.constraintlayout.compose.Span![]!, int, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft(androidx.compose.ui.unit.Dp offset);
     method public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft(float fraction);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft-0680j_4(float);
@@ -209,58 +227,69 @@ package androidx.constraintlayout.compose {
     method public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop(float fraction);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop-0680j_4(float);
     method public final androidx.constraintlayout.compose.HorizontalChainReference createHorizontalChain(androidx.constraintlayout.compose.LayoutReference[] elements, optional androidx.constraintlayout.compose.ChainStyle chainStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.HorizontalChainReference! createHorizontalChain$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, androidx.constraintlayout.compose.ChainStyle!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createRow(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp spacing, optional float[] weights);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createRow-lG28NQ4(androidx.constraintlayout.compose.LayoutReference![], float, float[]);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createRow-lG28NQ4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, float[]!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createStartBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! createTopBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method public final androidx.constraintlayout.compose.VerticalChainReference createVerticalChain(androidx.constraintlayout.compose.LayoutReference[] elements, optional androidx.constraintlayout.compose.ChainStyle chainStyle);
-    method @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> getTasks();
+    method @BytecodeOnly public static androidx.constraintlayout.compose.VerticalChainReference! createVerticalChain$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, androidx.constraintlayout.compose.ChainStyle!, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> getTasks();
     method public void reset();
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams-ouYQatA(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withChainParams-ouYQatA$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, float, float, float, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withHorizontalChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withHorizontalChainParams-YLPp7PM(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withHorizontalChainParams-YLPp7PM$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams-YLPp7PM(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withVerticalChainParams-YLPp7PM$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, int, Object!);
     property @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> tasks;
   }
 
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.BaselineAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component2();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor copy(optional Object id, optional androidx.constraintlayout.compose.LayoutReference reference);
-    method public androidx.constraintlayout.compose.LayoutReference getReference();
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, Object!, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
 
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.HorizontalAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component3();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor copy(optional Object id, optional int index, optional androidx.constraintlayout.compose.LayoutReference reference);
-    method public androidx.constraintlayout.compose.LayoutReference getReference();
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, Object!, int, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
 
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.VerticalAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component3();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor copy(optional Object id, optional int index, optional androidx.constraintlayout.compose.LayoutReference reference);
-    method public androidx.constraintlayout.compose.LayoutReference getReference();
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, Object!, int, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
 
   public final class ConstraintLayoutKt {
-    method @androidx.compose.runtime.Composable public static inline void ConstraintLayout(optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? animateChangesSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline void ConstraintLayout(optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? animateChangesSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ConstraintLayout(androidx.compose.ui.Modifier?, int, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.ConstraintLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static inline void ConstraintLayout(optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional boolean animateChanges, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit> content);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static inline void ConstraintLayout(optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional boolean animateChanges, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit> content);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void ConstraintLayout(androidx.compose.ui.Modifier?, int, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.ConstraintLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static inline void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? animateChangesSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? animateChangesSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier?, int, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static inline void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional boolean animateChanges, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static inline void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, optional boolean animateChanges, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier?, int, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(androidx.constraintlayout.compose.ConstraintSet extendConstraintSet, @org.intellij.lang.annotations.Language("json5") String jsonContent);
     method public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(androidx.constraintlayout.compose.ConstraintSet extendConstraintSet, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> description);
     method public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(@org.intellij.lang.annotations.Language("json5") String jsonContent);
-    method @androidx.compose.runtime.Composable public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(@org.intellij.lang.annotations.Language("json5") String content, optional @org.intellij.lang.annotations.Language("json5") String? overrideVariables);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(@org.intellij.lang.annotations.Language("json5") String content, optional @org.intellij.lang.annotations.Language("json5") String? overrideVariables);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(@org.intellij.lang.annotations.Language("json5") String, @org.intellij.lang.annotations.Language("json5") String?, androidx.compose.runtime.Composer?, int, int);
     method public static androidx.constraintlayout.compose.ConstraintSet ConstraintSet(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> description);
     method @KotlinOnly public static androidx.constraintlayout.compose.Dimension.MaxCoercible atLeast(androidx.constraintlayout.compose.Dimension.Coercible, androidx.compose.ui.unit.Dp dp);
@@ -273,10 +302,10 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public static androidx.constraintlayout.compose.Dimension atMost(androidx.constraintlayout.compose.Dimension.MaxCoercible, androidx.compose.ui.unit.Dp dp);
     method @BytecodeOnly public static androidx.constraintlayout.compose.Dimension.MinCoercible atMost-3ABfNKs(androidx.constraintlayout.compose.Dimension.Coercible, float);
     method @BytecodeOnly public static androidx.constraintlayout.compose.Dimension atMost-3ABfNKs(androidx.constraintlayout.compose.Dimension.MaxCoercible, float);
-    method public static androidx.constraintlayout.compose.Dimension.MaxCoercible getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.Coercible);
-    method public static androidx.constraintlayout.compose.Dimension getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.MinCoercible);
-    method public static androidx.constraintlayout.compose.Dimension.MinCoercible getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.Coercible);
-    method public static androidx.constraintlayout.compose.Dimension getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.MaxCoercible);
+    method @InaccessibleFromKotlin public static androidx.constraintlayout.compose.Dimension.MaxCoercible getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.Coercible);
+    method @InaccessibleFromKotlin public static androidx.constraintlayout.compose.Dimension getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.MinCoercible);
+    method @InaccessibleFromKotlin public static androidx.constraintlayout.compose.Dimension.MinCoercible getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.Coercible);
+    method @InaccessibleFromKotlin public static androidx.constraintlayout.compose.Dimension getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.MaxCoercible);
     property public static androidx.constraintlayout.compose.Dimension.MaxCoercible androidx.constraintlayout.compose.Dimension.Coercible.atLeastWrapContent;
     property public static androidx.constraintlayout.compose.Dimension androidx.constraintlayout.compose.Dimension.MinCoercible.atLeastWrapContent;
     property public static androidx.constraintlayout.compose.Dimension.MinCoercible androidx.constraintlayout.compose.Dimension.Coercible.atMostWrapContent;
@@ -309,16 +338,17 @@ package androidx.constraintlayout.compose {
   }
 
   public final class ConstraintLayoutTagKt {
-    method public static Object? getConstraintLayoutId(androidx.compose.ui.layout.Measurable);
-    method public static Object? getConstraintLayoutTag(androidx.compose.ui.layout.Measurable);
+    method @InaccessibleFromKotlin public static Object? getConstraintLayoutId(androidx.compose.ui.layout.Measurable);
+    method @InaccessibleFromKotlin public static Object? getConstraintLayoutTag(androidx.compose.ui.layout.Measurable);
     method public static androidx.compose.ui.Modifier layoutId(androidx.compose.ui.Modifier, String layoutId, optional String? tag);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! layoutId$default(androidx.compose.ui.Modifier!, String!, String!, int, Object!);
     property public static Object? androidx.compose.ui.layout.Measurable.constraintLayoutId;
     property public static Object? androidx.compose.ui.layout.Measurable.constraintLayoutTag;
   }
 
   public interface ConstraintLayoutTagParentData {
-    method public String getConstraintLayoutId();
-    method public String getConstraintLayoutTag();
+    method @InaccessibleFromKotlin public String getConstraintLayoutId();
+    method @InaccessibleFromKotlin public String getConstraintLayoutTag();
     property public abstract String constraintLayoutId;
     property public abstract String constraintLayoutTag;
   }
@@ -332,6 +362,7 @@ package androidx.constraintlayout.compose {
 
   public final class ConstraintSetRef {
     method public androidx.constraintlayout.compose.ConstraintSetRef copy(optional String name);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! copy$default(androidx.constraintlayout.compose.ConstraintSetRef!, String!, int, Object!);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class ConstraintSetScope extends androidx.constraintlayout.compose.ConstraintLayoutBaseScope {
@@ -359,14 +390,14 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class CurveFit {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.CurveFit.Companion Companion;
   }
 
-  public static final class CurveFit.Companion {
-    method public androidx.constraintlayout.compose.CurveFit getLinear();
-    method public androidx.constraintlayout.compose.CurveFit getSpline();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class CurveFit.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.CurveFit getLinear();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.CurveFit getSpline();
     property public androidx.constraintlayout.compose.CurveFit Linear;
     property public androidx.constraintlayout.compose.CurveFit Spline;
   }
@@ -375,6 +406,7 @@ package androidx.constraintlayout.compose {
     ctor @KotlinOnly public DebugFlags(optional boolean showBounds, optional boolean showPaths, optional boolean showKeyPositions);
     method @BytecodeOnly public static androidx.constraintlayout.compose.DebugFlags! box-impl(int);
     method @BytecodeOnly public static int constructor-impl(boolean, boolean, boolean);
+    method @BytecodeOnly public static int constructor-impl$default(boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public static boolean getShowBounds-impl(int);
     method @BytecodeOnly public static boolean getShowKeyPositions-impl(int);
     method @BytecodeOnly public static boolean getShowPaths-impl(int);
@@ -395,8 +427,8 @@ package androidx.constraintlayout.compose {
   public final class DesignElements {
     method public void define(String name, kotlin.jvm.functions.Function2<? super java.lang.String,? super java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit> function);
     method @BytecodeOnly public void define(String, kotlin.jvm.functions.Function4<? super java.lang.String!,? super java.util.HashMap<java.lang.String!,java.lang.String!>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method public java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>> getMap();
-    method public void setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>);
+    method @InaccessibleFromKotlin public java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>> getMap();
+    method @InaccessibleFromKotlin public void setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>);
     property public java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>> map;
     field public static final androidx.constraintlayout.compose.DesignElements INSTANCE;
   }
@@ -413,10 +445,10 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class Dimension.Companion {
-    method public androidx.constraintlayout.compose.Dimension.Coercible getFillToConstraints();
-    method public androidx.constraintlayout.compose.Dimension getMatchParent();
-    method public androidx.constraintlayout.compose.Dimension.Coercible getPreferredWrapContent();
-    method public androidx.constraintlayout.compose.Dimension getWrapContent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension.Coercible getFillToConstraints();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension getMatchParent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension.Coercible getPreferredWrapContent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Dimension getWrapContent();
     method public androidx.constraintlayout.compose.Dimension percent(float percent);
     method @KotlinOnly public androidx.constraintlayout.compose.Dimension.MinCoercible preferredValue(androidx.compose.ui.unit.Dp dp);
     method @BytecodeOnly public androidx.constraintlayout.compose.Dimension.MinCoercible preferredValue-0680j_4(float);
@@ -436,19 +468,19 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class Easing {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.Easing.Companion Companion;
   }
 
-  public static final class Easing.Companion {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class Easing.Companion {
     method public androidx.constraintlayout.compose.Easing cubic(float x1, float y1, float x2, float y2);
-    method public androidx.constraintlayout.compose.Easing getAccelerate();
-    method public androidx.constraintlayout.compose.Easing getAnticipate();
-    method public androidx.constraintlayout.compose.Easing getDecelerate();
-    method public androidx.constraintlayout.compose.Easing getLinear();
-    method public androidx.constraintlayout.compose.Easing getOvershoot();
-    method public androidx.constraintlayout.compose.Easing getStandard();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getAccelerate();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getAnticipate();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getDecelerate();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getLinear();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getOvershoot();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Easing getStandard();
     property public androidx.constraintlayout.compose.Easing Accelerate;
     property public androidx.constraintlayout.compose.Easing Anticipate;
     property public androidx.constraintlayout.compose.Easing Decelerate;
@@ -465,9 +497,9 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class FlowStyle.Companion {
-    method public androidx.constraintlayout.compose.FlowStyle getPacked();
-    method public androidx.constraintlayout.compose.FlowStyle getSpread();
-    method public androidx.constraintlayout.compose.FlowStyle getSpreadInside();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.FlowStyle getPacked();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.FlowStyle getSpread();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.FlowStyle getSpreadInside();
     property public androidx.constraintlayout.compose.FlowStyle Packed;
     property public androidx.constraintlayout.compose.FlowStyle Spread;
     property public androidx.constraintlayout.compose.FlowStyle SpreadInside;
@@ -495,9 +527,9 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class HorizontalAlign.Companion {
-    method public androidx.constraintlayout.compose.HorizontalAlign getCenter();
-    method public androidx.constraintlayout.compose.HorizontalAlign getEnd();
-    method public androidx.constraintlayout.compose.HorizontalAlign getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAlign getCenter();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAlign getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAlign getStart();
     property public androidx.constraintlayout.compose.HorizontalAlign Center;
     property public androidx.constraintlayout.compose.HorizontalAlign End;
     property public androidx.constraintlayout.compose.HorizontalAlign Start;
@@ -508,13 +540,15 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor, float, float);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.HorizontalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.HorizontalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class HorizontalChainReference extends androidx.constraintlayout.compose.LayoutReference {
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteLeft();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteRight();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getEnd();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteRight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor getStart();
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor absoluteLeft;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor absoluteRight;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor end;
@@ -522,11 +556,11 @@ package androidx.constraintlayout.compose {
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public final class HorizontalChainScope {
-    method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteLeft();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteRight();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getEnd();
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
-    method public androidx.constraintlayout.compose.VerticalAnchorable getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteRight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAnchorable getStart();
     property public androidx.constraintlayout.compose.VerticalAnchorable absoluteLeft;
     property public androidx.constraintlayout.compose.VerticalAnchorable absoluteRight;
     property public androidx.constraintlayout.compose.VerticalAnchorable end;
@@ -535,16 +569,17 @@ package androidx.constraintlayout.compose {
   }
 
   public final class InvalidationStrategy {
+    ctor @BytecodeOnly public InvalidationStrategy(kotlin.jvm.functions.Function3!, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public InvalidationStrategy(optional kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.InvalidationStrategySpecification,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.Constraints,java.lang.Boolean>? onIncomingConstraints, kotlin.jvm.functions.Function0<kotlin.Unit>? onObservedStateChange);
-    method public kotlin.jvm.functions.Function3<androidx.constraintlayout.compose.InvalidationStrategySpecification,androidx.compose.ui.unit.Constraints,androidx.compose.ui.unit.Constraints,java.lang.Boolean>? getOnIncomingConstraints();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnObservedStateChange();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function3<androidx.constraintlayout.compose.InvalidationStrategySpecification,androidx.compose.ui.unit.Constraints,androidx.compose.ui.unit.Constraints,java.lang.Boolean>? getOnIncomingConstraints();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnObservedStateChange();
     property public kotlin.jvm.functions.Function3<androidx.constraintlayout.compose.InvalidationStrategySpecification,androidx.compose.ui.unit.Constraints,androidx.compose.ui.unit.Constraints,java.lang.Boolean>? onIncomingConstraints;
     property public kotlin.jvm.functions.Function0<kotlin.Unit>? onObservedStateChange;
     field public static final androidx.constraintlayout.compose.InvalidationStrategy.Companion Companion;
   }
 
   public static final class InvalidationStrategy.Companion {
-    method public androidx.constraintlayout.compose.InvalidationStrategy getDefaultInvalidationStrategy();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.InvalidationStrategy getDefaultInvalidationStrategy();
     property public androidx.constraintlayout.compose.InvalidationStrategy DefaultInvalidationStrategy;
   }
 
@@ -556,21 +591,21 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class KeyAttributeScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
-    method public float getAlpha();
-    method public float getRotationX();
-    method public float getRotationY();
-    method public float getRotationZ();
-    method public float getScaleX();
-    method public float getScaleY();
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @InaccessibleFromKotlin public float getRotationX();
+    method @InaccessibleFromKotlin public float getRotationY();
+    method @InaccessibleFromKotlin public float getRotationZ();
+    method @InaccessibleFromKotlin public float getScaleX();
+    method @InaccessibleFromKotlin public float getScaleY();
     method @BytecodeOnly public float getTranslationX-D9Ej5fM();
     method @BytecodeOnly public float getTranslationY-D9Ej5fM();
     method @BytecodeOnly public float getTranslationZ-D9Ej5fM();
-    method public void setAlpha(float);
-    method public void setRotationX(float);
-    method public void setRotationY(float);
-    method public void setRotationZ(float);
-    method public void setScaleX(float);
-    method public void setScaleY(float);
+    method @InaccessibleFromKotlin public void setAlpha(float);
+    method @InaccessibleFromKotlin public void setRotationX(float);
+    method @InaccessibleFromKotlin public void setRotationY(float);
+    method @InaccessibleFromKotlin public void setRotationZ(float);
+    method @InaccessibleFromKotlin public void setScaleX(float);
+    method @InaccessibleFromKotlin public void setScaleY(float);
     method @BytecodeOnly public void setTranslationX-0680j_4(float);
     method @BytecodeOnly public void setTranslationY-0680j_4(float);
     method @BytecodeOnly public void setTranslationZ-0680j_4(float);
@@ -590,27 +625,27 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class KeyCycleScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
-    method public float getAlpha();
-    method public float getOffset();
-    method public float getPeriod();
-    method public float getPhase();
-    method public float getRotationX();
-    method public float getRotationY();
-    method public float getRotationZ();
-    method public float getScaleX();
-    method public float getScaleY();
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @InaccessibleFromKotlin public float getOffset();
+    method @InaccessibleFromKotlin public float getPeriod();
+    method @InaccessibleFromKotlin public float getPhase();
+    method @InaccessibleFromKotlin public float getRotationX();
+    method @InaccessibleFromKotlin public float getRotationY();
+    method @InaccessibleFromKotlin public float getRotationZ();
+    method @InaccessibleFromKotlin public float getScaleX();
+    method @InaccessibleFromKotlin public float getScaleY();
     method @BytecodeOnly public float getTranslationX-D9Ej5fM();
     method @BytecodeOnly public float getTranslationY-D9Ej5fM();
     method @BytecodeOnly public float getTranslationZ-D9Ej5fM();
-    method public void setAlpha(float);
-    method public void setOffset(float);
-    method public void setPeriod(float);
-    method public void setPhase(float);
-    method public void setRotationX(float);
-    method public void setRotationY(float);
-    method public void setRotationZ(float);
-    method public void setScaleX(float);
-    method public void setScaleY(float);
+    method @InaccessibleFromKotlin public void setAlpha(float);
+    method @InaccessibleFromKotlin public void setOffset(float);
+    method @InaccessibleFromKotlin public void setPeriod(float);
+    method @InaccessibleFromKotlin public void setPhase(float);
+    method @InaccessibleFromKotlin public void setRotationX(float);
+    method @InaccessibleFromKotlin public void setRotationY(float);
+    method @InaccessibleFromKotlin public void setRotationZ(float);
+    method @InaccessibleFromKotlin public void setScaleX(float);
+    method @InaccessibleFromKotlin public void setScaleY(float);
     method @BytecodeOnly public void setTranslationX-0680j_4(float);
     method @BytecodeOnly public void setTranslationY-0680j_4(float);
     method @BytecodeOnly public void setTranslationZ-0680j_4(float);
@@ -633,16 +668,16 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class KeyPositionScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
-    method public androidx.constraintlayout.compose.CurveFit? getCurveFit();
-    method public float getPercentHeight();
-    method public float getPercentWidth();
-    method public float getPercentX();
-    method public float getPercentY();
-    method public void setCurveFit(androidx.constraintlayout.compose.CurveFit?);
-    method public void setPercentHeight(float);
-    method public void setPercentWidth(float);
-    method public void setPercentX(float);
-    method public void setPercentY(float);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.CurveFit? getCurveFit();
+    method @InaccessibleFromKotlin public float getPercentHeight();
+    method @InaccessibleFromKotlin public float getPercentWidth();
+    method @InaccessibleFromKotlin public float getPercentX();
+    method @InaccessibleFromKotlin public float getPercentY();
+    method @InaccessibleFromKotlin public void setCurveFit(androidx.constraintlayout.compose.CurveFit?);
+    method @InaccessibleFromKotlin public void setPercentHeight(float);
+    method @InaccessibleFromKotlin public void setPercentWidth(float);
+    method @InaccessibleFromKotlin public void setPercentX(float);
+    method @InaccessibleFromKotlin public void setPercentY(float);
     property public androidx.constraintlayout.compose.CurveFit? curveFit;
     property public float percentHeight;
     property public float percentWidth;
@@ -652,8 +687,8 @@ package androidx.constraintlayout.compose {
 
   @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class KeyPositionsScope extends androidx.constraintlayout.compose.BaseKeyFramesScope {
     method public void frame(@IntRange(from=0L, to=100L) int frame, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyPositionScope,kotlin.Unit> keyFrameContent);
-    method public androidx.constraintlayout.compose.RelativePosition getType();
-    method public void setType(androidx.constraintlayout.compose.RelativePosition);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.RelativePosition getType();
+    method @InaccessibleFromKotlin public void setType(androidx.constraintlayout.compose.RelativePosition);
     property public androidx.constraintlayout.compose.RelativePosition type;
   }
 
@@ -678,14 +713,14 @@ package androidx.constraintlayout.compose {
   }
 
   public final class MotionCarouselKt {
-    method @androidx.compose.runtime.Composable public static void ItemHolder(int i, String slotPrefix, boolean showSlot, kotlin.jvm.functions.Function0<kotlin.Unit> function);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void ItemHolder(int i, String slotPrefix, boolean showSlot, kotlin.jvm.functions.Function0<kotlin.Unit> function);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ItemHolder(int, String, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static void MotionCarousel(androidx.constraintlayout.compose.MotionScene motionScene, int initialSlotIndex, int numSlots, optional String backwardTransition, optional String forwardTransition, optional String slotPrefix, optional boolean showSlots, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionCarouselScope,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void MotionCarousel(androidx.constraintlayout.compose.MotionScene, int, int, String?, String?, String?, boolean, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionCarouselScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void MotionCarousel(androidx.constraintlayout.compose.MotionScene, int, int, String?, String?, String?, boolean, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionCarouselScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void MotionCarousel(androidx.constraintlayout.compose.MotionScene motionScene, int initialSlotIndex, int numSlots, optional String backwardTransition, optional String forwardTransition, optional String slotPrefix, optional boolean showSlots, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionCarouselScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T> items, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void items(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function3<? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static <T> void items(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T>, kotlin.jvm.functions.Function3<? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method public static inline <T> void itemsWithProperties(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T> items, kotlin.jvm.functions.Function2<? super T,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties>,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void itemsWithProperties(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function4<? super T!,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties!>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static <T> void itemsWithProperties(androidx.constraintlayout.compose.MotionCarouselScope, java.util.List<? extends T>, kotlin.jvm.functions.Function4<? super T,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties!>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
   }
 
   public interface MotionCarouselScope {
@@ -713,7 +748,7 @@ package androidx.constraintlayout.compose {
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
   }
 
-  public final class MotionLayoutKt {
+  @SuppressCompatibility public final class MotionLayoutKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
@@ -740,13 +775,13 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly @Deprecated public androidx.compose.ui.unit.TextUnit motionFontSize(String id, String name);
     method @BytecodeOnly @Deprecated public long motionFontSize-5XXgJZs(String, String);
     method @Deprecated public int motionInt(String id, String name);
-    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> motionProperties(String id);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> motionProperties(String id);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties!> motionProperties(String, androidx.compose.runtime.Composer?, int);
     method @Deprecated public androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties motionProperties(String id, String tag);
     method public androidx.compose.ui.Modifier onStartEndBoundsChanged(androidx.compose.ui.Modifier, Object layoutId, kotlin.jvm.functions.Function2<? super androidx.compose.ui.geometry.Rect,? super androidx.compose.ui.geometry.Rect,kotlin.Unit> onBoundsChanged);
   }
 
-  public final class MotionLayoutScope.CustomProperties {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope.CustomProperties {
     method @KotlinOnly public androidx.compose.ui.graphics.Color color(String name);
     method @BytecodeOnly public long color-vNxB06k(String);
     method @KotlinOnly public androidx.compose.ui.unit.Dp distance(String name);
@@ -757,7 +792,7 @@ package androidx.constraintlayout.compose {
     method public int int(String name);
   }
 
-  public final class MotionLayoutScope.MotionProperties {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope.MotionProperties {
     method @KotlinOnly public androidx.compose.ui.graphics.Color color(String name);
     method @BytecodeOnly public long color-vNxB06k(String);
     method @KotlinOnly public androidx.compose.ui.unit.Dp distance(String name);
@@ -775,15 +810,18 @@ package androidx.constraintlayout.compose {
     method public androidx.constraintlayout.compose.Transition? getTransitionInstance(String name);
   }
 
-  public final class MotionSceneKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(@org.intellij.lang.annotations.Language("json5") String content);
+  @SuppressCompatibility public final class MotionSceneKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(@org.intellij.lang.annotations.Language("json5") String content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(@org.intellij.lang.annotations.Language("json5") String, androidx.compose.runtime.Composer?, int);
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionSceneScope {
     method public androidx.constraintlayout.compose.ConstraintSetRef addConstraintSet(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional String? name);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! addConstraintSet$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSet!, String!, int, Object!);
     method public void addTransition(androidx.constraintlayout.compose.Transition transition, optional String? name);
+    method @BytecodeOnly public static void addTransition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.Transition!, String!, int, Object!);
     method public androidx.constraintlayout.compose.ConstraintSetRef constraintSet(optional String? name, optional androidx.constraintlayout.compose.ConstraintSetRef? extendConstraintSet, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> constraintSetContent);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! constraintSet$default(androidx.constraintlayout.compose.MotionSceneScope!, String!, androidx.constraintlayout.compose.ConstraintSetRef!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
     method public androidx.constraintlayout.compose.MotionSceneScope.ConstrainedLayoutReferences createRefsFor(java.lang.Object... ids);
     method @KotlinOnly public void customColor(androidx.constraintlayout.compose.ConstrainScope, String name, androidx.compose.ui.graphics.Color value);
@@ -803,13 +841,15 @@ package androidx.constraintlayout.compose {
     method public void customInt(androidx.constraintlayout.compose.ConstrainScope, String name, int value);
     method public void customInt(androidx.constraintlayout.compose.KeyAttributeScope, String name, int value);
     method public void defaultTransition(androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, optional kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
-    method public float getStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope);
-    method public void setStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope, float);
+    method @BytecodeOnly public static void defaultTransition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSetRef!, androidx.constraintlayout.compose.ConstraintSetRef!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @InaccessibleFromKotlin public float getStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope);
+    method @InaccessibleFromKotlin public void setStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope, float);
     method public void transition(androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, optional String? name, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
+    method @BytecodeOnly public static void transition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSetRef!, androidx.constraintlayout.compose.ConstraintSetRef!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     property public float androidx.constraintlayout.compose.ConstrainScope.staggeredWeight;
   }
 
-  public final class MotionSceneScope.ConstrainedLayoutReferences {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionSceneScope.ConstrainedLayoutReferences {
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component1();
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component10();
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component11();
@@ -828,21 +868,22 @@ package androidx.constraintlayout.compose {
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component9();
   }
 
-  public final class MotionSceneScopeKt {
+  @SuppressCompatibility public final class MotionSceneScopeKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionSceneScope,kotlin.Unit> motionSceneContent);
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class OnSwipe {
     ctor public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference anchor, androidx.constraintlayout.compose.SwipeSide side, androidx.constraintlayout.compose.SwipeDirection direction, optional float dragScale, optional float dragThreshold, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? dragAround, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? limitBoundsTo, optional androidx.constraintlayout.compose.SwipeTouchUp onTouchUp, optional androidx.constraintlayout.compose.SwipeMode mode);
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference getAnchor();
-    method public androidx.constraintlayout.compose.SwipeDirection getDirection();
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference? getDragAround();
-    method public float getDragScale();
-    method public float getDragThreshold();
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference? getLimitBoundsTo();
-    method public androidx.constraintlayout.compose.SwipeMode getMode();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getOnTouchUp();
-    method public androidx.constraintlayout.compose.SwipeSide getSide();
+    ctor @BytecodeOnly public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeSide!, androidx.constraintlayout.compose.SwipeDirection!, float, float, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeTouchUp!, androidx.constraintlayout.compose.SwipeMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference getAnchor();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getDirection();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference? getDragAround();
+    method @InaccessibleFromKotlin public float getDragScale();
+    method @InaccessibleFromKotlin public float getDragThreshold();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference? getLimitBoundsTo();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeMode getMode();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getOnTouchUp();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getSide();
     property public androidx.constraintlayout.compose.ConstrainedLayoutReference anchor;
     property public androidx.constraintlayout.compose.SwipeDirection direction;
     property public androidx.constraintlayout.compose.ConstrainedLayoutReference? dragAround;
@@ -855,15 +896,15 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class RelativePosition {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.RelativePosition.Companion Companion;
   }
 
-  public static final class RelativePosition.Companion {
-    method public androidx.constraintlayout.compose.RelativePosition getDelta();
-    method public androidx.constraintlayout.compose.RelativePosition getParent();
-    method public androidx.constraintlayout.compose.RelativePosition getPath();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class RelativePosition.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.RelativePosition getDelta();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.RelativePosition getParent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.RelativePosition getPath();
     property public androidx.constraintlayout.compose.RelativePosition Delta;
     property public androidx.constraintlayout.compose.RelativePosition Parent;
     property public androidx.constraintlayout.compose.RelativePosition Path;
@@ -875,7 +916,7 @@ package androidx.constraintlayout.compose {
     method @BytecodeOnly public static androidx.constraintlayout.compose.Skip! box-impl(String!);
     method @BytecodeOnly public static String constructor-impl(@IntRange(from=0L) int, @IntRange(from=1L) int);
     method @BytecodeOnly public static String constructor-impl(@IntRange(from=0L) int, @IntRange(from=1L) int, @IntRange(from=1L) int);
-    method public String getDescription();
+    method @InaccessibleFromKotlin public String getDescription();
     method @BytecodeOnly public String! unbox-impl();
     property public String description;
   }
@@ -888,22 +929,22 @@ package androidx.constraintlayout.compose {
     method @BytecodeOnly public static String constructor-impl(@IntRange(from=0L) int, @IntRange(from=1L) int);
     method @BytecodeOnly public static String constructor-impl(@IntRange(from=0L) int, @IntRange(from=1L) int, @IntRange(from=1L) int);
     method @BytecodeOnly public static String constructor-impl(String);
-    method public String getDescription();
+    method @InaccessibleFromKotlin public String getDescription();
     method @BytecodeOnly public String! unbox-impl();
     property public String description;
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SpringBoundary {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.SpringBoundary.Companion Companion;
   }
 
-  public static final class SpringBoundary.Companion {
-    method public androidx.constraintlayout.compose.SpringBoundary getBounceBoth();
-    method public androidx.constraintlayout.compose.SpringBoundary getBounceEnd();
-    method public androidx.constraintlayout.compose.SpringBoundary getBounceStart();
-    method public androidx.constraintlayout.compose.SpringBoundary getOvershoot();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class SpringBoundary.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SpringBoundary getBounceBoth();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SpringBoundary getBounceEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SpringBoundary getBounceStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SpringBoundary getOvershoot();
     property public androidx.constraintlayout.compose.SpringBoundary BounceBoth;
     property public androidx.constraintlayout.compose.SpringBoundary BounceEnd;
     property public androidx.constraintlayout.compose.SpringBoundary BounceStart;
@@ -912,10 +953,10 @@ package androidx.constraintlayout.compose {
 
   public final class State extends androidx.constraintlayout.core.state.State {
     ctor public State(androidx.compose.ui.unit.Density density);
-    method public androidx.compose.ui.unit.Density getDensity();
-    method @Deprecated public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method @BytecodeOnly public long getRootIncomingConstraints-msEJaDk();
-    method @Deprecated public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
+    method @InaccessibleFromKotlin @Deprecated public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method @BytecodeOnly public void setRootIncomingConstraints-BRTryo0(long);
     property public androidx.compose.ui.unit.Density density;
     property @Deprecated public androidx.compose.ui.unit.LayoutDirection layoutDirection;
@@ -923,20 +964,20 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SwipeDirection {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.SwipeDirection.Companion Companion;
   }
 
-  public static final class SwipeDirection.Companion {
-    method public androidx.constraintlayout.compose.SwipeDirection getClockwise();
-    method public androidx.constraintlayout.compose.SwipeDirection getCounterclockwise();
-    method public androidx.constraintlayout.compose.SwipeDirection getDown();
-    method public androidx.constraintlayout.compose.SwipeDirection getEnd();
-    method public androidx.constraintlayout.compose.SwipeDirection getLeft();
-    method public androidx.constraintlayout.compose.SwipeDirection getRight();
-    method public androidx.constraintlayout.compose.SwipeDirection getStart();
-    method public androidx.constraintlayout.compose.SwipeDirection getUp();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class SwipeDirection.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getClockwise();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getCounterclockwise();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getDown();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getRight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getUp();
     property public androidx.constraintlayout.compose.SwipeDirection Clockwise;
     property public androidx.constraintlayout.compose.SwipeDirection Counterclockwise;
     property public androidx.constraintlayout.compose.SwipeDirection Down;
@@ -948,34 +989,36 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SwipeMode {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.SwipeMode.Companion Companion;
   }
 
-  public static final class SwipeMode.Companion {
-    method public androidx.constraintlayout.compose.SwipeMode getSpring();
-    method public androidx.constraintlayout.compose.SwipeMode getVelocity();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class SwipeMode.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeMode getSpring();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeMode getVelocity();
     method public androidx.constraintlayout.compose.SwipeMode spring(optional float mass, optional float stiffness, optional float damping, optional float threshold, optional androidx.constraintlayout.compose.SpringBoundary boundary);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.SwipeMode! spring$default(androidx.constraintlayout.compose.SwipeMode.Companion!, float, float, float, float, androidx.constraintlayout.compose.SpringBoundary!, int, Object!);
     method public androidx.constraintlayout.compose.SwipeMode velocity(optional float maxVelocity, optional float maxAcceleration);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.SwipeMode! velocity$default(androidx.constraintlayout.compose.SwipeMode.Companion!, float, float, int, Object!);
     property public androidx.constraintlayout.compose.SwipeMode Spring;
     property public androidx.constraintlayout.compose.SwipeMode Velocity;
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SwipeSide {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.SwipeSide.Companion Companion;
   }
 
-  public static final class SwipeSide.Companion {
-    method public androidx.constraintlayout.compose.SwipeSide getBottom();
-    method public androidx.constraintlayout.compose.SwipeSide getEnd();
-    method public androidx.constraintlayout.compose.SwipeSide getLeft();
-    method public androidx.constraintlayout.compose.SwipeSide getMiddle();
-    method public androidx.constraintlayout.compose.SwipeSide getRight();
-    method public androidx.constraintlayout.compose.SwipeSide getStart();
-    method public androidx.constraintlayout.compose.SwipeSide getTop();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class SwipeSide.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getLeft();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getMiddle();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getRight();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeSide getTop();
     property public androidx.constraintlayout.compose.SwipeSide Bottom;
     property public androidx.constraintlayout.compose.SwipeSide End;
     property public androidx.constraintlayout.compose.SwipeSide Left;
@@ -986,19 +1029,19 @@ package androidx.constraintlayout.compose {
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class SwipeTouchUp {
-    method public String getName();
+    method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.SwipeTouchUp.Companion Companion;
   }
 
-  public static final class SwipeTouchUp.Companion {
-    method public androidx.constraintlayout.compose.SwipeTouchUp getAutoComplete();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getDecelerate();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getNeverCompleteEnd();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getNeverCompleteStart();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getStop();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getToEnd();
-    method public androidx.constraintlayout.compose.SwipeTouchUp getToStart();
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static final class SwipeTouchUp.Companion {
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getAutoComplete();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getDecelerate();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getNeverCompleteEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getNeverCompleteStart();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getStop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getToEnd();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeTouchUp getToStart();
     property public androidx.constraintlayout.compose.SwipeTouchUp AutoComplete;
     property public androidx.constraintlayout.compose.SwipeTouchUp Decelerate;
     property public androidx.constraintlayout.compose.SwipeTouchUp NeverCompleteEnd;
@@ -1009,7 +1052,7 @@ package androidx.constraintlayout.compose {
   }
 
   public final class ToolingUtilsKt {
-    method public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> getDesignInfoDataKey();
+    method @InaccessibleFromKotlin public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> getDesignInfoDataKey();
     property public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> DesignInfoDataKey;
   }
 
@@ -1018,28 +1061,29 @@ package androidx.constraintlayout.compose {
     method public String getStartConstraintSetId();
   }
 
-  public final class TransitionKt {
+  @SuppressCompatibility public final class TransitionKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition Transition(@org.intellij.lang.annotations.Language("json5") String content);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class TransitionScope {
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
-    method public float getMaxStaggerDelay();
-    method public androidx.constraintlayout.compose.Arc getMotionArc();
-    method public androidx.constraintlayout.compose.OnSwipe? getOnSwipe();
+    method @InaccessibleFromKotlin public float getMaxStaggerDelay();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Arc getMotionArc();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.OnSwipe? getOnSwipe();
     method public void keyAttributes(androidx.constraintlayout.compose.ConstrainedLayoutReference[] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyAttributesScope,kotlin.Unit> keyAttributesContent);
     method public void keyCycles(androidx.constraintlayout.compose.ConstrainedLayoutReference[] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyCyclesScope,kotlin.Unit> keyCyclesContent);
     method public void keyPositions(androidx.constraintlayout.compose.ConstrainedLayoutReference[] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyPositionsScope,kotlin.Unit> keyPositionsContent);
-    method public void setMaxStaggerDelay(float);
-    method public void setMotionArc(androidx.constraintlayout.compose.Arc);
-    method public void setOnSwipe(androidx.constraintlayout.compose.OnSwipe?);
+    method @InaccessibleFromKotlin public void setMaxStaggerDelay(float);
+    method @InaccessibleFromKotlin public void setMotionArc(androidx.constraintlayout.compose.Arc);
+    method @InaccessibleFromKotlin public void setOnSwipe(androidx.constraintlayout.compose.OnSwipe?);
     property public float maxStaggerDelay;
     property public androidx.constraintlayout.compose.Arc motionArc;
     property public androidx.constraintlayout.compose.OnSwipe? onSwipe;
   }
 
-  public final class TransitionScopeKt {
+  @SuppressCompatibility public final class TransitionScopeKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition Transition(optional String from, optional String to, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> content);
+    method @BytecodeOnly @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition! Transition$default(String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class VerticalAlign {
@@ -1047,10 +1091,10 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class VerticalAlign.Companion {
-    method public androidx.constraintlayout.compose.VerticalAlign getBaseline();
-    method public androidx.constraintlayout.compose.VerticalAlign getBottom();
-    method public androidx.constraintlayout.compose.VerticalAlign getCenter();
-    method public androidx.constraintlayout.compose.VerticalAlign getTop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAlign getBaseline();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAlign getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAlign getCenter();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.VerticalAlign getTop();
     property public androidx.constraintlayout.compose.VerticalAlign Baseline;
     property public androidx.constraintlayout.compose.VerticalAlign Bottom;
     property public androidx.constraintlayout.compose.VerticalAlign Center;
@@ -1060,19 +1104,20 @@ package androidx.constraintlayout.compose {
   @kotlin.jvm.JvmDefaultWithCompatibility public interface VerticalAnchorable {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.VerticalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class VerticalChainReference extends androidx.constraintlayout.compose.LayoutReference {
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getBottom();
-    method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getTop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor getTop();
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor bottom;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor top;
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public final class VerticalChainScope {
-    method public androidx.constraintlayout.compose.HorizontalAnchorable getBottom();
-    method public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
-    method public androidx.constraintlayout.compose.HorizontalAnchorable getTop();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAnchorable getBottom();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference getParent();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.HorizontalAnchorable getTop();
     property public androidx.constraintlayout.compose.HorizontalAnchorable bottom;
     property public androidx.constraintlayout.compose.ConstrainedLayoutReference parent;
     property public androidx.constraintlayout.compose.HorizontalAnchorable top;
@@ -1083,9 +1128,9 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class Visibility.Companion {
-    method public androidx.constraintlayout.compose.Visibility getGone();
-    method public androidx.constraintlayout.compose.Visibility getInvisible();
-    method public androidx.constraintlayout.compose.Visibility getVisible();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Visibility getGone();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Visibility getInvisible();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Visibility getVisible();
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.Visibility Gone;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.Visibility Invisible;
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.Visibility Visible;
@@ -1096,9 +1141,9 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class Wrap.Companion {
-    method public androidx.constraintlayout.compose.Wrap getAligned();
-    method public androidx.constraintlayout.compose.Wrap getChain();
-    method public androidx.constraintlayout.compose.Wrap getNone();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Wrap getAligned();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Wrap getChain();
+    method @InaccessibleFromKotlin public androidx.constraintlayout.compose.Wrap getNone();
     property public androidx.constraintlayout.compose.Wrap Aligned;
     property public androidx.constraintlayout.compose.Wrap Chain;
     property public androidx.constraintlayout.compose.Wrap None;

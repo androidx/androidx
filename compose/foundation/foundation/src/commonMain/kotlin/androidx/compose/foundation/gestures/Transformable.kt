@@ -38,13 +38,13 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -178,10 +178,11 @@ private class TransformableNode(
                                 state.transform(MutatePriority.UserInput) {
                                     while (event !is TransformStopped) {
                                         (event as? TransformDelta)?.let {
-                                            transformBy(
-                                                it.zoomChange,
-                                                it.panChange,
-                                                it.rotationChange,
+                                            transformByWithCentroid(
+                                                centroid = it.centroid,
+                                                zoomChange = it.zoomChange,
+                                                panChange = it.panChange,
+                                                rotationChange = it.rotationChange,
                                             )
                                         }
                                         event = channel.receive()
@@ -242,7 +243,7 @@ private class TransformableNode(
             pointerInputModifierMouse =
                 delegate(
                     SuspendingPointerInputModifierNode {
-                        detectZoomByCtrlMouseScroll(channel, scrollConfig)
+                        detectNonTouchGestures(channel, scrollConfig)
                     }
                 )
         }
@@ -261,7 +262,15 @@ private class TransformableNode(
 // curve fitting the ChromeOS's zoom factors.
 internal const val SCROLL_FACTOR = 545f
 
-private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
+/**
+ * Convert non touch events into the appropriate transform events. There are 3 cases, where order of
+ * determination matters:
+ * - If Ctrl is pressed, and we get a scroll, either from a mouse wheel or a trackpad pan, we
+ *   convert that scroll into an equivalent zoom
+ * - If we get a trackpad pan, we convert that into a pan
+ * - If we get a trackpad scale, we convert that into a zoom
+ */
+private suspend fun PointerInputScope.detectNonTouchGestures(
     channel: Channel<TransformEvent>,
     scrollConfig: ScrollConfig,
 ) {
@@ -269,19 +278,75 @@ private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
     awaitPointerEventScope {
         while (currentContext.isActive) {
             try {
-                var scrollDelta = awaitFirstCtrlMouseScroll(scrollConfig)
-                channel.trySend(TransformStarted)
-                while (true) {
-                    // This formula is curve fitting form Chrome OS's ctrl + scroll implementation.
-                    val zoomChange = 2f.pow(scrollDelta.y / SCROLL_FACTOR)
-                    channel.trySend(
-                        TransformDelta(
-                            zoomChange = zoomChange,
-                            panChange = Offset.Zero,
-                            rotationChange = 0f,
+                var zoomOffset: Offset?
+                var panOffset: Offset?
+                var scale: Float?
+                var pointer: PointerEvent
+                do {
+                    pointer = awaitPointerEvent()
+
+                    // Convert non touch events into the appropriate transform events.
+                    // There are 3 cases, where order of determination matters:
+                    // - If Ctrl is pressed, and we get a scroll, either from a mouse wheel or a
+                    //   trackpad pan, we convert that scroll into an equivalent zoom
+                    // - If we get a trackpad pan, we convert that into a pan
+                    // - If we get a trackpad scale, we convert that into a zoom
+                    zoomOffset = consumePointerEventAsCtrlScrollOrNull(pointer, scrollConfig)
+                    panOffset = consumePointerEventAsPanOrNull(pointer)
+                    scale = consumePointerEventAsScaleOrNull(pointer)
+                } while (zoomOffset == null && panOffset == null && scale == null)
+                if (zoomOffset != null) {
+                    var scrollDelta: Offset = zoomOffset
+                    channel.trySend(TransformStarted)
+                    while (true) {
+                        // This formula is curve fitting form Chrome OS's ctrl + scroll
+                        // implementation.
+                        val zoomChange = 2f.pow(scrollDelta.y / SCROLL_FACTOR)
+                        channel.trySend(
+                            TransformDelta(
+                                centroid = pointer.calculateCentroid { true },
+                                zoomChange = zoomChange,
+                                panChange = Offset.Zero,
+                                rotationChange = 0f,
+                            )
                         )
-                    )
-                    scrollDelta = awaitCtrlMouseScrollOrNull(scrollConfig) ?: break
+                        pointer = awaitPointerEvent()
+                        scrollDelta =
+                            consumePointerEventAsCtrlScrollOrNull(pointer, scrollConfig) ?: break
+                    }
+                } else if (panOffset != null) {
+                    var panDelta: Offset = panOffset
+                    channel.trySend(TransformStarted)
+                    while (true) {
+                        channel.trySend(
+                            TransformDelta(
+                                centroid = pointer.calculateCentroid { true },
+                                zoomChange = 1f,
+                                panChange = panDelta,
+                                rotationChange = 0f,
+                            )
+                        )
+                        pointer = awaitPointerEvent()
+                        panDelta = consumePointerEventAsPanOrNull(pointer) ?: break
+                    }
+                } else {
+                    var scaleDelta: Float =
+                        checkNotNull(scale) {
+                            "One of zoomOffset, panOffset and scaleDelta must be non-null"
+                        }
+                    channel.trySend(TransformStarted)
+                    while (true) {
+                        channel.trySend(
+                            TransformDelta(
+                                centroid = pointer.calculateCentroid { true },
+                                zoomChange = scaleDelta,
+                                panChange = Offset.Zero,
+                                rotationChange = 0f,
+                            )
+                        )
+                        pointer = awaitPointerEvent()
+                        scaleDelta = consumePointerEventAsScaleOrNull(pointer) ?: break
+                    }
                 }
             } finally {
                 channel.trySend(TransformStopped)
@@ -290,30 +355,32 @@ private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
     }
 }
 
-/** Await for the first mouse scroll event while ctrl is pressed and return its scrollDelta. */
-private suspend fun AwaitPointerEventScope.awaitFirstCtrlMouseScroll(
-    scrollConfig: ScrollConfig
-): Offset {
-    var offset: Offset?
-    do {
-        offset = awaitCtrlMouseScrollOrNull(scrollConfig)
-    } while (offset == null)
-    return offset
-}
-
 /**
- * Await for the next pointer event. If the PointerEvent is a mouse scroll event that has non zero
- * scrollDelta and the ctrl key is pressed, its scrollDelta is returned. Otherwise, null is
- * returned. The event is consumed when it detects ctrl + mouse scroll.
+ * If the PointerEvent is a mouse scroll event that has non zero scrollDelta and the ctrl key is
+ * pressed, its scrollDelta is returned. Otherwise, null is returned. The event is consumed when it
+ * detects ctrl + mouse scroll.
  */
-private suspend fun AwaitPointerEventScope.awaitCtrlMouseScrollOrNull(
-    scrollConfig: ScrollConfig
+private fun AwaitPointerEventScope.consumePointerEventAsCtrlScrollOrNull(
+    pointer: PointerEvent,
+    scrollConfig: ScrollConfig,
 ): Offset? {
-    val pointer = awaitPointerEvent()
-    if (!pointer.keyboardModifiers.isCtrlPressed || pointer.type != PointerEventType.Scroll) {
+    if (
+        !pointer.keyboardModifiers.isCtrlPressed ||
+            (pointer.type != PointerEventType.Scroll &&
+                pointer.type != PointerEventType.PanStart &&
+                pointer.type != PointerEventType.PanMove &&
+                pointer.type != PointerEventType.PanEnd)
+    ) {
         return null
     }
-    val scrollDelta = with(scrollConfig) { calculateMouseWheelScroll(pointer, size) }
+    val scrollDelta =
+        with(scrollConfig) { calculateMouseWheelScroll(pointer, size) } +
+            (pointer.changes.firstOrNull()?.let {
+                -it.panOffset +
+                    it.historical.fastFold(Offset.Zero) { acc, historicalChange ->
+                        acc - historicalChange.panOffset
+                    }
+            } ?: Offset.Zero)
 
     if (scrollDelta == Offset.Zero) {
         return null
@@ -321,6 +388,52 @@ private suspend fun AwaitPointerEventScope.awaitCtrlMouseScrollOrNull(
 
     pointer.changes.fastForEach { it.consume() }
     return scrollDelta
+}
+
+private fun AwaitPointerEventScope.consumePointerEventAsPanOrNull(pointer: PointerEvent): Offset? {
+    if (
+        pointer.type != PointerEventType.PanStart &&
+            pointer.type != PointerEventType.PanMove &&
+            pointer.type != PointerEventType.PanEnd
+    ) {
+        return null
+    }
+    val scrollDelta =
+        pointer.changes.firstOrNull()?.let {
+            -it.panOffset +
+                it.historical.fastFold(Offset.Zero) { acc, historicalChange ->
+                    acc - historicalChange.panOffset
+                }
+        } ?: Offset.Zero
+
+    if (scrollDelta == Offset.Zero) {
+        return null
+    }
+
+    pointer.changes.fastForEach { it.consume() }
+    return scrollDelta
+}
+
+private fun AwaitPointerEventScope.consumePointerEventAsScaleOrNull(pointer: PointerEvent): Float? {
+    if (
+        pointer.type != PointerEventType.ScaleStart &&
+            pointer.type != PointerEventType.ScaleChange &&
+            pointer.type != PointerEventType.ScaleEnd
+    ) {
+        return null
+    }
+    var scaleDelta = 1f
+    pointer.changes.fastForEach {
+        scaleDelta *= it.scaleFactor
+        it.historical.fastForEach { scaleDelta *= it.scaleFactor }
+    }
+
+    if (scaleDelta == 1f) {
+        return null
+    }
+
+    pointer.changes.fastForEach { it.consume() }
+    return scaleDelta
 }
 
 private suspend fun AwaitPointerEventScope.detectZoom(
@@ -337,7 +450,14 @@ private suspend fun AwaitPointerEventScope.detectZoom(
     awaitFirstDown(requireUnconsumed = false)
     do {
         val event = awaitPointerEvent()
-        val canceled = event.changes.fastAny { it.isConsumed }
+        val canceled =
+            event.changes.fastAny { it.isConsumed } ||
+                event.type == PointerEventType.PanStart ||
+                event.type == PointerEventType.PanMove ||
+                event.type == PointerEventType.PanEnd ||
+                event.type == PointerEventType.ScaleStart ||
+                event.type == PointerEventType.ScaleChange ||
+                event.type == PointerEventType.ScaleEnd
         if (!canceled) {
             val zoomChange = event.calculateZoom()
             val rotationChange = event.calculateRotation()
@@ -365,13 +485,16 @@ private suspend fun AwaitPointerEventScope.detectZoom(
             }
 
             if (pastTouchSlop) {
+                val centroid = event.calculateCentroid(useCurrent = false)
                 val effectiveRotation = if (lockedToPanZoom) 0f else rotationChange
                 if (
                     effectiveRotation != 0f ||
                         zoomChange != 1f ||
                         (panChange != Offset.Zero && canPan.invoke(panChange))
                 ) {
-                    channel.trySend(TransformDelta(zoomChange, panChange, effectiveRotation))
+                    channel.trySend(
+                        TransformDelta(centroid, zoomChange, panChange, effectiveRotation)
+                    )
                 }
                 event.changes.fastForEach {
                     if (it.positionChanged()) {
@@ -393,6 +516,10 @@ private sealed class TransformEvent {
 
     object TransformStopped : TransformEvent()
 
-    class TransformDelta(val zoomChange: Float, val panChange: Offset, val rotationChange: Float) :
-        TransformEvent()
+    class TransformDelta(
+        val centroid: Offset,
+        val zoomChange: Float,
+        val panChange: Offset,
+        val rotationChange: Float,
+    ) : TransformEvent()
 }

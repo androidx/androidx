@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
@@ -33,7 +34,6 @@ import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.verticalScrollAxisRange
-import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,18 +78,15 @@ internal fun TransformingLazyColumnSemanticState(
         override val scrollOffset: Float
             get() =
                 with(state.layoutInfoState.value) {
-                        if (anchorItemIndex == 0) {
-                            return@with anchorItemScrollOffset
-                        }
                         if (!canScrollForward) {
                             return@with maxScrollOffset
                         }
                         if (!canScrollBackward) {
                             return@with 0f
                         }
-                        visibleItemsAverageHeight * anchorItemIndex +
-                            anchorItemScrollOffset +
-                            itemSpacing * (anchorItemIndex - 1)
+
+                        (visibleItemsAverageHeight + itemSpacing) * anchorItemIndex +
+                            anchorItemScrollOffset
                     }
                     .toFloat()
                     .coerceAtLeast(0f)

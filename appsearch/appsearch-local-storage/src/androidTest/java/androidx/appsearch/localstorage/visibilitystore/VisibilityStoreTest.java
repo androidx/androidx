@@ -32,6 +32,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
@@ -70,11 +71,7 @@ public class VisibilityStoreTest {
         mAppSearchImpl = AppSearchImpl.create(
                 appSearchDir,
                 config,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
         mVisibilityStore = VisibilityStore.createDocumentVisibilityStore(mAppSearchImpl,
                 /*callStatsBuilder=*/ null);
@@ -212,6 +209,7 @@ public class VisibilityStoreTest {
                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
                 Collections.singletonList(brokenSchema),
                 /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null,
@@ -419,6 +417,7 @@ public class VisibilityStoreTest {
                 VisibilityPermissionConfig.SCHEMA,
                 VisibilityToDocumentConverter.DEPRECATED_PUBLIC_ACL_OVERLAY_SCHEMA),
                 /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null,
@@ -492,6 +491,7 @@ public class VisibilityStoreTest {
                 ImmutableList.of(deprecatedOverlaySchema, deprecatedVisibleToConfigSchema,
                         VisibilityPermissionConfig.SCHEMA),
                 /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter
                         .OVERLAY_SCHEMA_VERSION_PUBLIC_ACL_VISIBLE_TO_CONFIG,

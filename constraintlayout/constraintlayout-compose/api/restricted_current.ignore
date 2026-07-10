@@ -25,6 +25,18 @@ AddedAbstractMethod: androidx.constraintlayout.compose.VerticalAnchorable#linkTo
     Binary breaking change: Added method androidx.constraintlayout.compose.VerticalAnchorable.linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor,float,float)
 
 
+BecameUnchecked: androidx.constraintlayout.compose.MotionLayoutKt:
+    Removed class androidx.constraintlayout.compose.MotionLayoutKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.MotionSceneKt:
+    Removed class androidx.constraintlayout.compose.MotionSceneKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.MotionSceneScopeKt:
+    Removed class androidx.constraintlayout.compose.MotionSceneScopeKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.TransitionKt:
+    Removed class androidx.constraintlayout.compose.TransitionKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.TransitionScopeKt:
+    Removed class androidx.constraintlayout.compose.TransitionScopeKt from compatibility checked API surface
+
+
 ParameterNameChange: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#createGuidelineFromAbsoluteLeft(float) parameter #0:
     Source breaking change: Attempted to change parameter name from offset to fraction in method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.createGuidelineFromAbsoluteLeft
 ParameterNameChange: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#createGuidelineFromAbsoluteRight(float) parameter #0:
@@ -43,8 +55,38 @@ RemovedDeprecatedMethod: androidx.constraintlayout.compose.ConstraintLayoutKt#at
     Binary breaking change: Removed deprecated method androidx.constraintlayout.compose.ConstraintLayoutKt.atLeastWrapContent(androidx.constraintlayout.compose.Dimension.MinCoercible,float)
 
 
+RemovedField: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#containerObject:
+    Binary breaking change: Removed field androidx.constraintlayout.compose.ConstraintLayoutBaseScope.containerObject
+RemovedField: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#helpersHashCode:
+    Binary breaking change: Removed field androidx.constraintlayout.compose.ConstraintLayoutBaseScope.helpersHashCode
+RemovedField: androidx.constraintlayout.compose.ConstraintLayoutScope#isAnimateChanges:
+    Binary breaking change: Removed field androidx.constraintlayout.compose.ConstraintLayoutScope.isAnimateChanges
+RemovedField: androidx.constraintlayout.compose.ToolingUtilsKt#designInfoProvider$delegate:
+    Binary breaking change: Removed field androidx.constraintlayout.compose.ToolingUtilsKt.designInfoProvider$delegate
+
+
+RemovedFromBytecode: androidx.constraintlayout.compose.ConstraintLayoutKt#ConstraintLayout(androidx.compose.ui.Modifier, int, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.ConstraintLayout(androidx.compose.ui.Modifier,int,androidx.compose.animation.core.AnimationSpec<java.lang.Float>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.ConstraintLayoutKt#ConstraintLayout(androidx.compose.ui.Modifier, int, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.ConstraintLayout(androidx.compose.ui.Modifier,int,boolean,androidx.compose.animation.core.AnimationSpec<java.lang.Float>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.ConstraintLayoutScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.ConstraintLayoutKt#ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier, int, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet,androidx.compose.ui.Modifier,int,androidx.compose.animation.core.AnimationSpec<java.lang.Float>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.ConstraintLayoutKt#ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier, int, boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.ConstraintLayout(androidx.constraintlayout.compose.ConstraintSet,androidx.compose.ui.Modifier,int,boolean,androidx.compose.animation.core.AnimationSpec<java.lang.Float>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.ConstraintLayoutKt#ConstraintSet(String, String):
+    Binary breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.ConstraintSet(String,String) has been removed from bytecode
 RemovedFromBytecode: androidx.constraintlayout.compose.DebugFlags#DebugFlags(boolean, boolean, boolean):
     Binary breaking change: constructor androidx.constraintlayout.compose.DebugFlags(boolean,boolean,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.LateMotionLayoutKt#LateMotionLayout(androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet>, androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet>, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlinx.coroutines.channels.Channel<androidx.constraintlayout.compose.ConstraintSet>, androidx.compose.runtime.State<kotlin.Unit>, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource>, int, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.LateMotionLayoutKt.LateMotionLayout(androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet>,androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet>,androidx.compose.animation.core.AnimationSpec<java.lang.Float>,kotlinx.coroutines.channels.Channel<androidx.constraintlayout.compose.ConstraintSet>,androidx.compose.runtime.State<kotlin.Unit>,androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource>,int,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.Measurer#createDesignElements():
+    Binary breaking change: method androidx.constraintlayout.compose.Measurer.createDesignElements() has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.Measurer#drawDebugBounds(androidx.compose.foundation.layout.BoxScope, float):
+    Binary breaking change: method androidx.constraintlayout.compose.Measurer.drawDebugBounds(androidx.compose.foundation.layout.BoxScope,float) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.MotionCarouselKt#ItemHolder(int, String, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.MotionCarouselKt.ItemHolder(int,String,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.constraintlayout.compose.MotionCarouselKt#MotionCarousel(androidx.constraintlayout.compose.MotionScene, int, int, String, String, String, boolean, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionCarouselScope,kotlin.Unit>):
+    Binary breaking change: method androidx.constraintlayout.compose.MotionCarouselKt.MotionCarousel(androidx.constraintlayout.compose.MotionScene,int,int,String,String,String,boolean,kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionCarouselScope,kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.constraintlayout.compose.Skip#Skip(int, int):
     Binary breaking change: constructor androidx.constraintlayout.compose.Skip(int,int) has been removed from bytecode
 RemovedFromBytecode: androidx.constraintlayout.compose.Skip#Skip(int, int, int):
@@ -55,6 +97,244 @@ RemovedFromBytecode: androidx.constraintlayout.compose.Span#Span(int, int):
     Binary breaking change: constructor androidx.constraintlayout.compose.Span(int,int) has been removed from bytecode
 RemovedFromBytecode: androidx.constraintlayout.compose.Span#Span(int, int, int):
     Binary breaking change: constructor androidx.constraintlayout.compose.Span(int,int,int) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.constraintlayout.compose.ChainStyle.Companion#getPacked():
+    Source breaking change: method androidx.constraintlayout.compose.ChainStyle.Companion.getPacked() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ChainStyle.Companion#getSpread():
+    Source breaking change: method androidx.constraintlayout.compose.ChainStyle.Companion.getSpread() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ChainStyle.Companion#getSpreadInside():
+    Source breaking change: method androidx.constraintlayout.compose.ChainStyle.Companion.getSpreadInside() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getAbsoluteLeft():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getAbsoluteLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getAbsoluteRight():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getAbsoluteRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getAlpha():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getBaseline():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getBottom():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getEnd():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getHeight():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getHorizontalBias():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getHorizontalBias() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getHorizontalChainWeight():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getHorizontalChainWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getParent():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getParent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getPivotX():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getPivotX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getPivotY():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getPivotY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getRotationX():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getRotationX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getRotationY():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getRotationY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getRotationZ():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getRotationZ() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getScaleX():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getScaleX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getScaleY():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getScaleY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getStart():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getTop():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getVerticalBias():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getVerticalBias() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getVerticalChainWeight():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getVerticalChainWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getVisibility():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getVisibility() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#getWidth():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setAlpha(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setAlpha(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setHeight(androidx.constraintlayout.compose.Dimension):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setHeight(androidx.constraintlayout.compose.Dimension) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setHorizontalBias(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setHorizontalBias(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setHorizontalChainWeight(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setHorizontalChainWeight(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setPivotX(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setPivotX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setPivotY(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setPivotY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setRotationX(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setRotationX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setRotationY(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setRotationY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setRotationZ(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setRotationZ(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setScaleX(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setScaleX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setScaleY(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setScaleY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setVerticalBias(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setVerticalBias(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setVerticalChainWeight(float):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setVerticalChainWeight(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setVisibility(androidx.constraintlayout.compose.Visibility):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setVisibility(androidx.constraintlayout.compose.Visibility) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainScope#setWidth(androidx.constraintlayout.compose.Dimension):
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainScope.setWidth(androidx.constraintlayout.compose.Dimension) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getAbsoluteLeft():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getAbsoluteLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getAbsoluteRight():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getAbsoluteRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getBaseline():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getBottom():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getEnd():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getStart():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstrainedLayoutReference#getTop():
+    Source breaking change: method androidx.constraintlayout.compose.ConstrainedLayoutReference.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#getTasks():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.getTasks() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor#getReference():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor.getReference() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor#getReference():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor.getReference() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor#getReference():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor.getReference() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutKt#getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.Coercible):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.Coercible) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutKt#getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.MinCoercible):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.getAtLeastWrapContent(androidx.constraintlayout.compose.Dimension.MinCoercible) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutKt#getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.Coercible):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.Coercible) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutKt#getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.MaxCoercible):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutKt.getAtMostWrapContent(androidx.constraintlayout.compose.Dimension.MaxCoercible) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutTagKt#getConstraintLayoutId(androidx.compose.ui.layout.Measurable):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutTagKt.getConstraintLayoutId(androidx.compose.ui.layout.Measurable) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutTagKt#getConstraintLayoutTag(androidx.compose.ui.layout.Measurable):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutTagKt.getConstraintLayoutTag(androidx.compose.ui.layout.Measurable) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutTagParentData#getConstraintLayoutId():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutTagParentData.getConstraintLayoutId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintLayoutTagParentData#getConstraintLayoutTag():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintLayoutTagParentData.getConstraintLayoutTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintSetForInlineDsl#getKnownDirty():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintSetForInlineDsl.getKnownDirty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintSetForInlineDsl#getScope():
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintSetForInlineDsl.getScope() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ConstraintSetForInlineDsl#setKnownDirty(boolean):
+    Source breaking change: method androidx.constraintlayout.compose.ConstraintSetForInlineDsl.setKnownDirty(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.DesignElements#getMap():
+    Source breaking change: method androidx.constraintlayout.compose.DesignElements.getMap() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.DesignElements#setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>):
+    Source breaking change: method androidx.constraintlayout.compose.DesignElements.setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Dimension.Companion#getFillToConstraints():
+    Source breaking change: method androidx.constraintlayout.compose.Dimension.Companion.getFillToConstraints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Dimension.Companion#getMatchParent():
+    Source breaking change: method androidx.constraintlayout.compose.Dimension.Companion.getMatchParent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Dimension.Companion#getPreferredWrapContent():
+    Source breaking change: method androidx.constraintlayout.compose.Dimension.Companion.getPreferredWrapContent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Dimension.Companion#getWrapContent():
+    Source breaking change: method androidx.constraintlayout.compose.Dimension.Companion.getWrapContent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.FlowStyle.Companion#getPacked():
+    Source breaking change: method androidx.constraintlayout.compose.FlowStyle.Companion.getPacked() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.FlowStyle.Companion#getSpread():
+    Source breaking change: method androidx.constraintlayout.compose.FlowStyle.Companion.getSpread() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.FlowStyle.Companion#getSpreadInside():
+    Source breaking change: method androidx.constraintlayout.compose.FlowStyle.Companion.getSpreadInside() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalAlign.Companion#getCenter():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalAlign.Companion.getCenter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalAlign.Companion#getEnd():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalAlign.Companion.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalAlign.Companion#getStart():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalAlign.Companion.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainReference#getAbsoluteLeft():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainReference.getAbsoluteLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainReference#getAbsoluteRight():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainReference.getAbsoluteRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainReference#getEnd():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainReference.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainReference#getStart():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainReference.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainScope#getAbsoluteLeft():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainScope.getAbsoluteLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainScope#getAbsoluteRight():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainScope.getAbsoluteRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainScope#getEnd():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainScope.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainScope#getParent():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainScope.getParent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.HorizontalChainScope#getStart():
+    Source breaking change: method androidx.constraintlayout.compose.HorizontalChainScope.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.InvalidationStrategy#getOnIncomingConstraints():
+    Source breaking change: method androidx.constraintlayout.compose.InvalidationStrategy.getOnIncomingConstraints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.InvalidationStrategy#getOnObservedStateChange():
+    Source breaking change: method androidx.constraintlayout.compose.InvalidationStrategy.getOnObservedStateChange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.InvalidationStrategy.Companion#getDefaultInvalidationStrategy():
+    Source breaking change: method androidx.constraintlayout.compose.InvalidationStrategy.Companion.getDefaultInvalidationStrategy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getForcedScaleFactor():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getForcedScaleFactor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getFrameCache():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getFrameCache() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getLayoutCurrentHeight():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getLayoutCurrentHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getLayoutCurrentWidth():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getLayoutCurrentWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getLayoutInformationReceiver():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getLayoutInformationReceiver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getPlaceables():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getPlaceables() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getRoot():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getRoot() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#getState():
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.getState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#setForcedScaleFactor(float):
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.setForcedScaleFactor(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Measurer#setLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver):
+    Source breaking change: method androidx.constraintlayout.compose.Measurer.setLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Skip#getDescription():
+    Source breaking change: method androidx.constraintlayout.compose.Skip.getDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Span#getDescription():
+    Source breaking change: method androidx.constraintlayout.compose.Span.getDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.State#getDensity():
+    Source breaking change: method androidx.constraintlayout.compose.State.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.State#getLayoutDirection():
+    Source breaking change: method androidx.constraintlayout.compose.State.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.State#setLayoutDirection(androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: method androidx.constraintlayout.compose.State.setLayoutDirection(androidx.compose.ui.unit.LayoutDirection) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.ToolingUtilsKt#getDesignInfoDataKey():
+    Source breaking change: method androidx.constraintlayout.compose.ToolingUtilsKt.getDesignInfoDataKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalAlign.Companion#getBaseline():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalAlign.Companion.getBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalAlign.Companion#getBottom():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalAlign.Companion.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalAlign.Companion#getCenter():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalAlign.Companion.getCenter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalAlign.Companion#getTop():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalAlign.Companion.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalChainReference#getBottom():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalChainReference.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalChainReference#getTop():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalChainReference.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalChainScope#getBottom():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalChainScope.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalChainScope#getParent():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalChainScope.getParent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.VerticalChainScope#getTop():
+    Source breaking change: method androidx.constraintlayout.compose.VerticalChainScope.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Visibility.Companion#getGone():
+    Source breaking change: method androidx.constraintlayout.compose.Visibility.Companion.getGone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Visibility.Companion#getInvisible():
+    Source breaking change: method androidx.constraintlayout.compose.Visibility.Companion.getInvisible() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Visibility.Companion#getVisible():
+    Source breaking change: method androidx.constraintlayout.compose.Visibility.Companion.getVisible() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Wrap.Companion#getAligned():
+    Source breaking change: method androidx.constraintlayout.compose.Wrap.Companion.getAligned() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Wrap.Companion#getChain():
+    Source breaking change: method androidx.constraintlayout.compose.Wrap.Companion.getChain() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.constraintlayout.compose.Wrap.Companion#getNone():
+    Source breaking change: method androidx.constraintlayout.compose.Wrap.Companion.getNone() can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.constraintlayout.compose.BaselineAnchorable#linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor, float, float):
@@ -155,3 +435,9 @@ RemovedMethod: androidx.constraintlayout.compose.State#setRootIncomingConstraint
     Binary breaking change: Removed method androidx.constraintlayout.compose.State.setRootIncomingConstraints(long)
 RemovedMethod: androidx.constraintlayout.compose.VerticalAnchorable#linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float):
     Binary breaking change: Removed method androidx.constraintlayout.compose.VerticalAnchorable.linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor,float,float)
+
+
+RemovedProperty: androidx.constraintlayout.compose.ConstrainedLayoutReference#id:
+    Source breaking change: Removed property androidx.constraintlayout.compose.ConstrainedLayoutReference#id
+RemovedProperty: androidx.constraintlayout.compose.ToolingUtilsKt#designInfoProvider:
+    Source breaking change: Removed property androidx.constraintlayout.compose.ToolingUtilsKt#designInfoProvider

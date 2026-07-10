@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#getCoveredFadeColor():
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.getCoveredFadeColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#getLockMode():
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.getLockMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#getParallaxDistance():
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.getParallaxDistance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#getSliderFadeColor():
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.getSliderFadeColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#isSlideable():
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.isSlideable() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#setCoveredFadeColor(int):
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.setCoveredFadeColor(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#setLockMode(int):
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.setLockMode(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#setParallaxDistance(int):
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.setParallaxDistance(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.slidingpanelayout.widget.SlidingPaneLayout#setSliderFadeColor(int):
+    Source breaking change: method androidx.slidingpanelayout.widget.SlidingPaneLayout.setSliderFadeColor(int) can no longer be resolved from Kotlin source

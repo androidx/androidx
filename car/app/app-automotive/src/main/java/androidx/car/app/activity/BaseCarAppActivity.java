@@ -55,7 +55,6 @@ import androidx.car.app.activity.renderer.surface.SurfaceWrapperProvider;
 import androidx.car.app.activity.renderer.surface.TemplateSurfaceView;
 import androidx.car.app.activity.ui.ErrorMessageView;
 import androidx.car.app.activity.ui.LoadingView;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -109,7 +108,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
      * A listener to conditionally send insets to the host, or handle them locally if the host
      * is not capable.
      */
-    private final View.OnApplyWindowInsetsListener mWindowInsetsListener =
+    @VisibleForTesting
+    final View.OnApplyWindowInsetsListener mWindowInsetsListener =
             new View.OnApplyWindowInsetsListener() {
                 @Override
                 public @Nullable WindowInsets onApplyWindowInsets(@NonNull View view,
@@ -128,28 +128,39 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                     // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
                     // cause a mismatch between the insets applied to the content on the hosts side
                     // vs. the actual visible window available on the client side.
-                    Insets insets;
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        insets = Api30Impl.getInsets(windowInsets);
-                    } else {
-                        insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                                .getInsets(WindowInsetsCompat.Type.systemBars()
-                                        | WindowInsetsCompat.Type.ime())
-                                .toPlatformInsets();
-                    }
-                    DisplayCutoutCompat displayCutout =
-                            WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                                    .getDisplayCutout();
-                    requireNonNull(mViewModel).updateWindowInsets(insets, displayCutout);
+                    WindowInsetsCompat windowInsetsCompat =
+                            WindowInsetsCompat.toWindowInsetsCompat(windowInsets);
 
-                    // Insets are handled by the host. Only local content need padding.
-                    mActivityContainerView.setPadding(0, 0, 0, 0);
-                    mLocalContentContainerView.setPadding(insets.left, insets.top,
-                            insets.right, insets.bottom);
+                    updateHostWindowInsets(windowInsetsCompat);
+                    updateHostImeInsets(windowInsetsCompat);
+                    updateLocalInsets(windowInsetsCompat);
 
                     return WindowInsetsCompat.CONSUMED.toWindowInsets();
                 }
             };
+
+    private void updateHostWindowInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        Insets systemBarsInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.systemBars()).toPlatformInsets();
+        DisplayCutoutCompat displayCutout = windowInsetsCompat.getDisplayCutout();
+        requireNonNull(mViewModel).updateWindowInsets(systemBarsInsets, displayCutout);
+    }
+
+    private void updateHostImeInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        Insets imeInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.ime()).toPlatformInsets();
+        requireNonNull(mViewModel).updateImeInsets(imeInsets);
+    }
+
+    private void updateLocalInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        // Insets are handled by the host. Only local content need padding.
+        mActivityContainerView.setPadding(0, 0, 0, 0);
+        Insets combinedInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                        | WindowInsetsCompat.Type.ime()).toPlatformInsets();
+        mLocalContentContainerView.setPadding(combinedInsets.left,
+                combinedInsets.top, combinedInsets.right, combinedInsets.bottom);
+    }
 
     /**
      * {@link ICarAppActivity} implementation that allows the {@link IRendererService} to
@@ -241,15 +252,16 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                 public void showAssist(Bundle args) {
                     BaseCarAppActivity.this.showAssist(args);
                 }
+
+                @Override
+                public int getInterfaceVersion() {
+                    return super.VERSION;
+                }
             };
 
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
-        }
-
-        static Insets getInsets(WindowInsets windowInsets) {
-            return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime());
         }
 
         static WindowInsets getDecorViewInsets(WindowInsets insets) {
@@ -449,10 +461,17 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
 
-        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
-        requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+        CarAppViewModel viewModel = requireNonNull(mViewModel);
 
-        requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
+        if (viewModel.getState().getValue() == CarAppViewModel.State.CONNECTED) {
+            Log.i(LogTags.TAG, "onNewIntent: ViewModel already connected.");
+            viewModel.updateActivityIntent(intent);
+        } else {
+            Log.i(LogTags.TAG, "onNewIntent: ViewModel not connected, rebinding service.");
+            requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
+            requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+            viewModel.bind(intent, mCarActivity, getDisplayId());
+        }
     }
 
     // TODO(b/189864400): Address WindowManager#getDefaultDisplay() deprecation
@@ -484,7 +503,7 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     /**
      * @see #getServiceComponentName()
      */
-    @ExperimentalCarApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @Nullable ComponentName retrieveServiceComponentName() {
         return getServiceComponentName();
     }

@@ -16,18 +16,19 @@
 
 package androidx.xr.compose.subspace.node
 
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver
 
 /**
- * A [SubspaceModifier.Node] that adds semantics key/values for use in testing, accessibility, and
- * similar use cases.
+ * A [androidx.xr.compose.subspace.layout.SubspaceModifier.Node] that adds semantics key/values for
+ * use in testing, accessibility, and similar use cases.
  */
 public interface SubspaceSemanticsModifierNode {
     /**
      * Adds semantics key/value pairs to the layout node, for use in testing, accessibility, etc.
      *
-     * The [SemanticsPropertyReceiver] provides "key = value"-style setters for any
-     * [SemanticsPropertyKey]. Also, chaining multiple semantics modifiers is supported.
+     * The [SubspaceSemanticsPropertyReceiver] provides "key = value"-style setters for any
+     * [androidx.compose.ui.semantics.SemanticsPropertyKey]. Also, chaining multiple semantics
+     * modifiers is supported.
      */
-    public fun SemanticsPropertyReceiver.applySemantics()
+    public fun SubspaceSemanticsPropertyReceiver.applySemantics()
 }

@@ -29,7 +29,7 @@ import androidx.compose.ui.inspection.util.ThreadUtils
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterGroup
 
 /** Convert parameters and semantics from [InspectorNode] into a [ParameterGroup]. */
-fun InspectorNode.convertToParameterGroup(
+internal fun InspectorNode.convertToParameterGroup(
     semanticsNode: InspectorNode,
     layoutInspectorTree: LayoutInspectorTree,
     rootId: Long,
@@ -81,7 +81,7 @@ fun InspectorNode.convertToParameterGroup(
  * This method can take a long time, especially the first time, and should be called off the main
  * thread.
  */
-fun InspectorNode.convertParameters(
+internal fun InspectorNode.convertParameters(
     layoutInspectorTree: LayoutInspectorTree,
     kind: ParameterKind,
     rootId: Long,

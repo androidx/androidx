@@ -90,7 +90,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlin.jvm.JvmInline
 import kotlin.math.max
@@ -189,6 +188,7 @@ fun ExposedDropdownMenuBox(
                                     collapsedDescription = collapsedDescription,
                                     toggleDescription = toggleDescription,
                                     keyboardController = keyboardController,
+                                    focusRequester = focusRequester,
                                 )
                         )
 
@@ -335,17 +335,13 @@ sealed class ExposedDropdownMenuBoxScope {
         expandedState.targetState = expanded
 
         if (expandedState.currentState || expandedState.targetState) {
-            val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
             val popupPositionProvider =
                 remember(density, topWindowInsets) {
                     ExposedDropdownMenuPositionProvider(
                         density = density,
                         topWindowInsets = topWindowInsets,
                         keyboardSignalState = keyboardSignalState,
-                    ) { anchorBounds, menuBounds ->
-                        transformOriginState.value =
-                            calculateTransformOrigin(anchorBounds, menuBounds)
-                    }
+                    )
                 }
 
             Popup(
@@ -355,7 +351,7 @@ sealed class ExposedDropdownMenuBoxScope {
             ) {
                 DropdownMenuContent(
                     expandedState = expandedState,
-                    transformOriginState = transformOriginState,
+                    transformOrigin = { popupPositionProvider.transformOrigin },
                     scrollState = scrollState,
                     shape = shape,
                     containerColor = containerColor,
@@ -456,7 +452,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          *
          * An anchor of this type will open the menu with focus.
          */
-        val PrimaryNotEditable = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
+        val PrimaryNotEditable
+            get() = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
 
         /**
          * An editable primary anchor of the dropdown menu, such as a text field that allows user
@@ -465,7 +462,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * An anchor of this type will open the menu without focus in order to preserve focus on the
          * soft keyboard (IME).
          */
-        val PrimaryEditable = ExposedDropdownMenuAnchorType("PrimaryEditable")
+        val PrimaryEditable
+            get() = ExposedDropdownMenuAnchorType("PrimaryEditable")
 
         /**
          * A secondary anchor of the dropdown menu that lives alongside an editable primary anchor,
@@ -475,7 +473,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * focus. Otherwise, the menu is opened without focus in order to preserve focus on the soft
          * keyboard (IME).
          */
-        val SecondaryEditable = ExposedDropdownMenuAnchorType("SecondaryEditable")
+        val SecondaryEditable
+            get() = ExposedDropdownMenuAnchorType("SecondaryEditable")
     }
 
     override fun toString(): String = name
@@ -843,11 +842,6 @@ object ExposedDropdownMenuDefaults {
      */
     val ItemContentPadding: PaddingValues =
         PaddingValues(horizontal = ExposedDropdownMenuItemHorizontalPadding, vertical = 0.dp)
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @ExperimentalMaterial3Api
-    @Composable
-    fun TrailingIcon(expanded: Boolean) = TrailingIcon(expanded, Modifier)
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
@@ -1282,18 +1276,21 @@ internal class ExposedDropdownMenuPositionProvider(
     val keyboardSignalState: State<Unit>? = null,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
-) : PopupPositionProvider {
+) : DropdownMenuPopupPositionProvider {
+    override var transformOrigin by mutableStateOf(TransformOrigin.Center)
+        private set
+
     // Horizontal position
-    private val startToAnchorStart = MenuPosition.startToAnchorStart()
-    private val endToAnchorEnd = MenuPosition.endToAnchorEnd()
-    private val leftToWindowLeft = MenuPosition.leftToWindowLeft()
-    private val rightToWindowRight = MenuPosition.rightToWindowRight()
+    private val startToAnchorStart = MenuPosition.startToAnchorStart
+    private val endToAnchorEnd = MenuPosition.endToAnchorEnd
+    private val leftToWindowLeft = MenuPosition.leftToWindowLeft
+    private val rightToWindowRight = MenuPosition.rightToWindowRight
 
     // Vertical position
-    private val topToAnchorBottom = MenuPosition.topToAnchorBottom()
-    private val bottomToAnchorTop = MenuPosition.bottomToAnchorTop()
-    private val topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
-    private val bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
+    private val topToAnchorBottom = MenuPosition.topToAnchorBottom
+    private val bottomToAnchorTop = MenuPosition.bottomToAnchorTop
+    private val topToWindowTop = MenuPosition.topToWindowTop
+    private val bottomToWindowBottom = MenuPosition.bottomToWindowBottom
 
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -1352,12 +1349,19 @@ internal class ExposedDropdownMenuPositionProvider(
             )
         var y = 0
         for (index in yCandidates.indices) {
-            val yCandidate =
+            var yCandidate =
                 yCandidates[index].position(
                     anchorBounds = anchorBounds,
                     windowSize = windowSize,
                     menuHeight = popupContentSize.height,
                 )
+            if (index == yCandidates.lastIndex) {
+                yCandidate =
+                    yCandidate.coerceIn(
+                        verticalMargin,
+                        windowSize.height - verticalMargin - popupContentSize.height,
+                    )
+            }
             if (
                 index == yCandidates.lastIndex ||
                     (yCandidate >= 0 && yCandidate + popupContentSize.height <= windowSize.height)
@@ -1368,6 +1372,8 @@ internal class ExposedDropdownMenuPositionProvider(
         }
 
         val menuOffset = IntOffset(x, y)
+        transformOrigin =
+            calculateTransformOrigin(anchorBounds, IntRect(offset = menuOffset, popupContentSize))
         onPositionCalculated(
             /* anchorBounds = */ anchorBounds,
             /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize),
@@ -1416,6 +1422,7 @@ private fun Modifier.expandable(
     collapsedDescription: String,
     toggleDescription: String,
     keyboardController: SoftwareKeyboardController?,
+    focusRequester: FocusRequester,
 ) =
     pointerInput(onExpandedChange) {
             awaitEachGesture {
@@ -1450,7 +1457,13 @@ private fun Modifier.expandable(
                 // Since we make the popup menu not focusable for PrimaryEditable to not interrupt
                 // typing, we need to make sure the menu becomes focusable when the user try to
                 // reach the menu via keyboard navigation.
-                if (it.key == Key.Tab || it.key == Key.DirectionDown || it.key == Key.DirectionUp) {
+                if (
+                    it.key == Key.Tab ||
+                        it.key == Key.DirectionDown ||
+                        it.key == Key.NumPadDirectionDown ||
+                        it.key == Key.DirectionUp ||
+                        it.key == Key.NumPadDirectionUp
+                ) {
                     alwaysFocusable.value = true
                     return@onPreviewKeyEvent true
                 }
@@ -1468,6 +1481,9 @@ private fun Modifier.expandable(
                 role = Role.DropdownList
             }
             onClick {
+                if (anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable) {
+                    focusRequester.requestFocus()
+                }
                 onExpandedChange()
                 if (anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable) {
                     keyboardController?.show()

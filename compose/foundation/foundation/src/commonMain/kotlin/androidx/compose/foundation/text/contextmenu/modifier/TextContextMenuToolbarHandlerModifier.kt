@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.contextmenu.modifier
 
-import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuData
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
@@ -46,15 +46,26 @@ private const val ToolbarRequesterNotInitialized = "ToolbarRequester is not init
  */
 internal abstract class ToolbarRequester {
     internal var toolbarHandlerNode: TextContextMenuToolbarHandlerNode? = null
+    internal var toolbarHandlerState: ToolbarHandlerState = ToolbarHandlerState.Uninitialized
 
-    internal fun requireNode(): TextContextMenuToolbarHandlerNode =
-        checkPreconditionNotNull(toolbarHandlerNode) { ToolbarRequesterNotInitialized }
+    internal fun requireInitialized(): TextContextMenuToolbarHandlerNode? {
+        checkPrecondition(toolbarHandlerState != ToolbarHandlerState.Uninitialized) {
+            ToolbarRequesterNotInitialized
+        }
+        return toolbarHandlerNode
+    }
 
     /** Shows the toolbar. */
     abstract fun show()
 
     /** Hides the toolbar. */
     abstract fun hide()
+}
+
+internal enum class ToolbarHandlerState {
+    Uninitialized,
+    Detached,
+    Attached,
 }
 
 /**
@@ -65,7 +76,7 @@ internal abstract class ToolbarRequester {
 internal class ToolbarRequesterImpl : ToolbarRequester() {
 
     override fun show() {
-        requireNode().show()
+        requireInitialized()?.show()
     }
 
     override fun hide() {
@@ -164,14 +175,22 @@ internal class TextContextMenuToolbarHandlerNode(
         requester.toolbarHandlerNode = null
         requester = toolbarRequester
         requester.toolbarHandlerNode = this
+        requester.toolbarHandlerState =
+            if (isAttached) {
+                ToolbarHandlerState.Attached
+            } else {
+                ToolbarHandlerState.Detached
+            }
     }
 
     override fun onAttach() {
         super.onAttach()
+        requester.toolbarHandlerState = ToolbarHandlerState.Attached
         requester.toolbarHandlerNode = this
     }
 
     override fun onDetach() {
+        requester.toolbarHandlerState = ToolbarHandlerState.Detached
         requester.toolbarHandlerNode = null
         super.onDetach()
     }
@@ -200,13 +219,16 @@ internal class TextContextMenuToolbarHandlerNode(
     override fun position(destinationCoordinates: LayoutCoordinates): Offset =
         contentBounds(destinationCoordinates).topLeft
 
-    // This can update as the modifier is getting disposed,
-    // so return zero if we aren't attached to avoid crashing.
+    /**
+     * This can update as the modifier is getting disposed, so return zero if we aren't attached to
+     * avoid crashing. However the caller is responsible for providing a valid and attached
+     * [destinationCoordinates].
+     */
     override fun contentBounds(destinationCoordinates: LayoutCoordinates): Rect {
         if (!isAttached) return previousContentBounds
 
-        val computedContentBounds = computeContentBounds(destinationCoordinates)
-        if (computedContentBounds == null) return previousContentBounds
+        val computedContentBounds =
+            computeContentBounds(destinationCoordinates) ?: return previousContentBounds
 
         previousContentBounds = computedContentBounds
         return computedContentBounds
@@ -227,10 +249,12 @@ internal fun translateRootToDestination(
     if (!localCoordinates.isAttached || !destinationCoordinates.isAttached) return Rect.Zero
     val rootContentPosition = rootContentBounds.topLeft
     val rootCoordinates = localCoordinates.findRootCoordinates()
-    val destinationContentPosition =
-        destinationCoordinates.localPositionOf(
-            sourceCoordinates = rootCoordinates,
-            relativeToSource = rootContentPosition,
-        )
+    // The destinationCoordinates is not necessarily at the same LayoutNode tree with the
+    // localCoordinates of this node. e.g. The TextField is in a Dialog.
+    // We assume that the context menu's destinationCoordinates shares the same screen
+    // as the localCoordinates.
+    // Check b/441759435 for details.
+    val screenCoordinates = rootCoordinates.localToScreen(rootContentPosition)
+    val destinationContentPosition = destinationCoordinates.screenToLocal(screenCoordinates)
     return Rect(destinationContentPosition, rootContentBounds.size)
 }

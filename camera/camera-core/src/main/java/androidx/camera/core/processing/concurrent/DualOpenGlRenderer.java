@@ -23,6 +23,7 @@ import static androidx.camera.core.processing.util.GLUtils.checkInitializedOrThr
 import static androidx.camera.core.processing.util.GLUtils.create4x4IdentityMatrix;
 import static androidx.camera.core.processing.util.GLUtils.createTexture;
 
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLExt;
@@ -61,8 +62,9 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
     private int mPrimaryExternalTextureId = -1;
     private int mSecondaryExternalTextureId = -1;
 
-    private final @NonNull CompositionSettings mPrimaryCompositionSettings;
-    private final @NonNull CompositionSettings mSecondaryCompositionSettings;
+    private @NonNull CompositionSettings mPrimaryCompositionSettings;
+    private @NonNull CompositionSettings mSecondaryCompositionSettings;
+    private final float[] mBorderColorArray = new float[4];
 
     public DualOpenGlRenderer(
             @NonNull CompositionSettings primaryCompositionSettings,
@@ -71,10 +73,24 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
         mSecondaryCompositionSettings = secondaryCompositionSettings;
     }
 
+
+    /**
+     *
+     * Update the {@link CompositionSettings}.
+     */
+    public void updateCompositionSettings(
+            @NonNull CompositionSettings primaryCompositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings) {
+        checkGlThreadOrThrow(mGlThread);
+        mPrimaryCompositionSettings = primaryCompositionSettings;
+        mSecondaryCompositionSettings = secondaryCompositionSettings;
+    }
+
     @Override
     public @NonNull GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
-        GraphicDeviceInfo graphicDeviceInfo = super.init(dynamicRange, shaderProviderOverrides);
+        GraphicDeviceInfo graphicDeviceInfo =
+                super.init(dynamicRange, shaderProviderOverrides, /* hasAdvancedStyling */ true);
         mPrimaryExternalTextureId = createTexture();
         mSecondaryExternalTextureId = createTexture();
         return graphicDeviceInfo;
@@ -134,13 +150,22 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
 
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT);
-        // Primary Camera
-        renderInternal(outputSurface, surfaceOutput, primarySurfaceTexture,
-                mPrimaryCompositionSettings, mPrimaryExternalTextureId, true);
-        // Secondary Camera
-        // Only use primary camera info for output surface
-        renderInternal(outputSurface, surfaceOutput, secondarySurfaceTexture,
-                mSecondaryCompositionSettings, mSecondaryExternalTextureId, true);
+
+        if (mPrimaryCompositionSettings.getZOrder() <= mSecondaryCompositionSettings.getZOrder()) {
+            // Primary Camera rendered first
+            renderInternal(outputSurface, surfaceOutput, primarySurfaceTexture,
+                    mPrimaryCompositionSettings, mPrimaryExternalTextureId, true);
+            // Secondary Camera rendered second
+            renderInternal(outputSurface, surfaceOutput, secondarySurfaceTexture,
+                    mSecondaryCompositionSettings, mSecondaryExternalTextureId, false);
+        } else {
+            // Secondary Camera rendered first
+            renderInternal(outputSurface, surfaceOutput, secondarySurfaceTexture,
+                    mSecondaryCompositionSettings, mSecondaryExternalTextureId, false);
+            // Primary Camera rendered second
+            renderInternal(outputSurface, surfaceOutput, primarySurfaceTexture,
+                    mPrimaryCompositionSettings, mPrimaryExternalTextureId, true);
+        }
 
         EGLExt.eglPresentationTimeANDROID(mEglDisplay, outputSurface.getEglSurface(), timestampNs);
 
@@ -182,8 +207,26 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
                 new Size(outputSurface.getWidth(), outputSurface.getHeight()),
                 compositionSettings);
         currentProgram.updateTransformMatrix(transTransform);
-
         currentProgram.updateAlpha(compositionSettings.getAlpha());
+
+        float cornerRadiusRatio = compositionSettings.getRoundedCornerRatio();
+        float borderWidthRatio = compositionSettings.getBorderWidthRatio();
+        float aspectRatio = 1.0f;
+        if (cornerRadiusRatio > 0 || borderWidthRatio > 0) {
+            float quadWidth =
+                    outputSurface.getWidth() * Math.abs(compositionSettings.getScale().first);
+            float quadHeight =
+                    outputSurface.getHeight() * Math.abs(compositionSettings.getScale().second);
+            aspectRatio = (quadWidth > 0 && quadHeight > 0) ? quadWidth / quadHeight : 1.0f;
+        }
+        currentProgram.updateCornerRadiusRatio(cornerRadiusRatio, aspectRatio);
+
+        int borderColor = compositionSettings.getBorderColor();
+        mBorderColorArray[0] = Color.red(borderColor) / 255.0f;
+        mBorderColorArray[1] = Color.green(borderColor) / 255.0f;
+        mBorderColorArray[2] = Color.blue(borderColor) / 255.0f;
+        mBorderColorArray[3] = Color.alpha(borderColor) / 255.0f;
+        currentProgram.updateBorderWidth(borderWidthRatio, mBorderColorArray);
 
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFuncSeparate(

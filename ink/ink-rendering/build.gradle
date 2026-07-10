@@ -24,37 +24,34 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.ink.rendering"
-        compileSdk = 35
+        compileSdk { version = release(35) }
         androidResources.enable = true
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        androidMain {
-            dependencies {
-                implementation("androidx.collection:collection:1.4.3")
-                implementation("androidx.core:core:1.16.0")
-                implementation("androidx.core:core-ktx:1.16.0")
-                implementation(project(":ink:ink-nativeloader"))
-                implementation(project(":ink:ink-geometry"))
-                implementation(project(":ink:ink-brush"))
-                implementation(project(":ink:ink-strokes"))
-            }
+        androidMain.dependencies {
+            implementation("androidx.collection:collection:1.4.3")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.core:core-ktx:1.16.0")
+            implementation(project(":ink:ink-nativeloader"))
+            implementation(project(":ink:ink-geometry"))
+            implementation(project(":ink:ink-brush"))
+            implementation(project(":ink:ink-strokes"))
         }
 
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
-                implementation("androidx.core:core-ktx:1.15.0")
-                implementation(project(":test:screenshot:screenshot"))
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.testParameterInjector)
+            implementation("androidx.core:core-ktx:1.15.0")
+            implementation(project(":test:screenshot:screenshot"))
+            implementation(project(":ink:ink-storage"))
         }
     }
 }

@@ -156,7 +156,8 @@ fun LoadingIndicator(
  *
  * @sample androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSample
  *
- * It can also be used as an indicator for a [PullToRefreshBox] like this:
+ * It can also be used as an indicator for a
+ * [androidx.compose.material3.pulltorefresh.PullToRefreshBox] like this:
  *
  * @sample androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
  * @param progress the progress of this loading indicator, where 0.0 represents no progress and 1.0
@@ -354,7 +355,7 @@ private fun LoadingIndicatorImpl(
  *   indicator will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [indicatorPolygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LoadingIndicatorImpl(
     modifier: Modifier,

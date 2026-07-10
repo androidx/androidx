@@ -1,10 +1,10 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import com.android.build.api.variant.HasAndroidTest
 import com.google.common.io.Files
 import org.apache.commons.compress.utils.IOUtils
 
@@ -29,7 +29,6 @@ import java.util.zip.ZipFile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 // This task copies the apks provided by the `apkAssets` configuration and places them in the
@@ -78,7 +77,7 @@ abstract class PrepareAssetsTask extends DefaultTask {
 
 def prepareAssetsTaskProvider = tasks.register("prepareAssets", PrepareAssetsTask) {
     description = "Copies the apks and profiles provided by profile-verification-sample projects into the assets."
-    apkAssetsFolders.from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
+    apkAssetsFolders.from(configurations.getByName("apkAssets").incoming.files)
     outputDir.set(layout.buildDirectory.dir("intermediates/profile-verification-assets"))
 }
 
@@ -89,9 +88,18 @@ androidx {
 }
 
 android {
-    compileSdk = 35
-    sourceSets.androidTest.assets.srcDir(prepareAssetsTaskProvider.map { it.outputDir })
+    compileSdk { version = release(35) }
     namespace = "androidx.profileinstaller.integration.profileverification"
+}
+
+androidComponents { 
+    onVariants(selector().all(), { variant ->
+      if (variant instanceof HasAndroidTest) {
+        ((HasAndroidTest) variant).androidTest.sources.assets.addGeneratedSourceDirectory(
+           prepareAssetsTaskProvider, PrepareAssetsTask::getOutputDir
+        )
+      }
+    })
 }
 
 // Define a configuration that can be resolved. This project is the consumer of test apks, i.e. it
@@ -123,7 +131,3 @@ dependencies {
     apkAssets(project(":benchmark:integration-tests:baselineprofile-consumer"))
 }
 
-// It makes sure that the apks are generated before the assets are packed.
-afterEvaluate {
-    tasks.named("generateReleaseAndroidTestAssets").configure { it.dependsOn(prepareAssetsTaskProvider) }
-}

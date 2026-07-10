@@ -30,40 +30,40 @@ internal fun createRefresh(range: IntRange, combinedLoadStates: CombinedLoadStat
 
 internal fun createRefresh(
     range: IntRange,
-    startState: LoadState = NotLoading.Incomplete,
-    endState: LoadState = NotLoading.Incomplete,
+    prependState: LoadState = NotLoading.Incomplete,
+    appendState: LoadState = NotLoading.Incomplete,
 ) =
     PageEvent.Insert.Refresh(
         pages = pages(0, range),
         placeholdersBefore = range.first.coerceAtLeast(0),
         placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        sourceLoadStates = loadStates(prepend = prependState, append = appendState),
         mediatorLoadStates = null,
     )
 
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading.Incomplete,
-    endState: LoadState = NotLoading.Incomplete,
+    prependState: LoadState = NotLoading.Incomplete,
+    appendState: LoadState = NotLoading.Incomplete,
 ) =
     PageEvent.Insert.Prepend(
         pages = pages(pageOffset, range),
         placeholdersBefore = range.first.coerceAtLeast(0),
-        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        sourceLoadStates = loadStates(prepend = prependState, append = appendState),
         mediatorLoadStates = null,
     )
 
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading.Incomplete,
-    endState: LoadState = NotLoading.Incomplete,
+    prependState: LoadState = NotLoading.Incomplete,
+    appendState: LoadState = NotLoading.Incomplete,
 ) =
     PageEvent.Insert.Append(
         pages = pages(pageOffset, range),
         placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        sourceLoadStates = loadStates(prepend = prependState, append = appendState),
         mediatorLoadStates = null,
     )
 

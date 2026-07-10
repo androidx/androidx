@@ -138,7 +138,13 @@ public class ActivityCompat extends ContextCompat {
          *
          * @return Whether the delegate has handled the activity result.
          * @see ActivityCompat#requestPermissions(Activity, String[], int)
+         * @deprecated This method is no longer called from {@code FragmentActivity}. Clients should
+         * migrate to
+         * <a href="https://developer.android.com/training/basics/intents/result#register">{@code ActivityResult}
+         * APIs</a>, specifically
+         * {@link androidx.activity.result.contract.ActivityResultContracts.RequestPermission}.
          */
+        @Deprecated
         boolean onActivityResult(@NonNull Activity activity,
                 @IntRange(from = 0) int requestCode, int resultCode, @Nullable Intent data);
     }
@@ -459,7 +465,7 @@ public class ActivityCompat extends ContextCompat {
      * removed from {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult}.
      * For devices that don't support {@link Manifest.permission#POST_NOTIFICATIONS}, apps can
      * send users to its notification settings to enable notifications. See
-     * {@link android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS} for more information
+     * {@link android.provider.Settings#ACTION_APP_NOTIFICATION_SETTINGS} for more information
      * on launching notification settings.
      * </p>
      *
@@ -551,6 +557,11 @@ public class ActivityCompat extends ContextCompat {
      * normal activity and the bubbled activity. For example, if you normally cancel the
      * notification associated with the activity when you open the activity, you might not want to
      * do that when you're bubbled as that would remove the bubble.
+     *
+     * <aside class="note"><b>Note:</b> This method will return {@code false} for app
+     * Bubbles. See https://developer.android.com/develop/ui/compose/layouts/adaptive/support-bubbles
+     * and only applicable to chat bubbles.
+     * </aside>
      *
      * @return {@code true} if the activity is launched from a bubble.
      *

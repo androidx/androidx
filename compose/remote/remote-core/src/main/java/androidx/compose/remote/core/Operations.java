@@ -15,6 +15,13 @@
  */
 package androidx.compose.remote.core;
 
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROID_NATIVE;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_DEPRECATED;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_EXPERIMENTAL;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
+
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -24,8 +31,10 @@ import androidx.compose.remote.core.operations.ClipRect;
 import androidx.compose.remote.core.operations.ColorAttribute;
 import androidx.compose.remote.core.operations.ColorConstant;
 import androidx.compose.remote.core.operations.ColorExpression;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.ConditionalOperations;
+import androidx.compose.remote.core.operations.DataDynamicListFloat;
 import androidx.compose.remote.core.operations.DataListFloat;
 import androidx.compose.remote.core.operations.DataListIds;
 import androidx.compose.remote.core.operations.DataMapIds;
@@ -60,6 +69,7 @@ import androidx.compose.remote.core.operations.HapticFeedback;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
+import androidx.compose.remote.core.operations.IncludeReferencedOperations;
 import androidx.compose.remote.core.operations.IntegerExpression;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
@@ -70,6 +80,7 @@ import androidx.compose.remote.core.operations.MatrixSkew;
 import androidx.compose.remote.core.operations.MatrixTranslate;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.PaintData;
+import androidx.compose.remote.core.operations.ParticlesCompare;
 import androidx.compose.remote.core.operations.ParticlesCreate;
 import androidx.compose.remote.core.operations.ParticlesLoop;
 import androidx.compose.remote.core.operations.PathAppend;
@@ -78,10 +89,15 @@ import androidx.compose.remote.core.operations.PathCreate;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.PathExpression;
 import androidx.compose.remote.core.operations.PathTween;
+import androidx.compose.remote.core.operations.PlaySound;
+import androidx.compose.remote.core.operations.ReferencedOperations;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
 import androidx.compose.remote.core.operations.ShaderData;
+import androidx.compose.remote.core.operations.Skip;
+import androidx.compose.remote.core.operations.SoundData;
+import androidx.compose.remote.core.operations.SoundExpression;
 import androidx.compose.remote.core.operations.TextAttribute;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.TextFromFloat;
@@ -91,9 +107,11 @@ import androidx.compose.remote.core.operations.TextLookupInt;
 import androidx.compose.remote.core.operations.TextMeasure;
 import androidx.compose.remote.core.operations.TextMerge;
 import androidx.compose.remote.core.operations.TextSubtext;
+import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
+import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
 import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
@@ -104,6 +122,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation;
 import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -114,16 +133,22 @@ import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
+import androidx.compose.remote.core.operations.layout.managers.CoreText;
+import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextStyle;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
@@ -131,6 +156,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
@@ -146,6 +172,11 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
+import androidx.compose.remote.core.operations.loom.PatternArgument;
+import androidx.compose.remote.core.operations.loom.PatternBlock;
+import androidx.compose.remote.core.operations.loom.PatternDefine;
+import androidx.compose.remote.core.operations.loom.PatternForEach;
+import androidx.compose.remote.core.operations.loom.PatternInflation;
 import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
@@ -162,13 +193,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /** List of operations supported in a RemoteCompose document */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Operations {
 
     private Operations() {}
 
     ////////////////////////////////////////
     // Protocol
-    ////////////////////////////////////////
+    /// /////////////////////////////////////
     public static final int HEADER = 0;
     public static final int LOAD_BITMAP = 4;
     public static final int THEME = 63;
@@ -187,7 +219,7 @@ public class Operations {
 
     ////////////////////////////////////////
     // Draw commands
-    ////////////////////////////////////////
+    /// /////////////////////////////////////
     public static final int DRAW_BITMAP = 44;
     public static final int DRAW_BITMAP_INT = 66;
     public static final int DATA_BITMAP = 101;
@@ -195,7 +227,7 @@ public class Operations {
     public static final int DATA_TEXT = 102;
     public static final int DATA_BITMAP_FONT = 167;
 
-    ///////////////////////////// =====================
+    /// ////////////////////////// =====================
     public static final int CLIP_PATH = 38;
     public static final int CLIP_RECT = 39;
     public static final int PAINT_VALUES = 40;
@@ -208,6 +240,7 @@ public class Operations {
     public static final int DRAW_ROUND_RECT = 51;
     public static final int DRAW_SECTOR = 52;
     public static final int DRAW_TEXT_ON_PATH = 53;
+    public static final int DRAW_TEXT_ON_CIRCLE = 57;
     public static final int DRAW_OVAL = 56;
     public static final int DATA_PATH = 123;
     public static final int DRAW_PATH = 124;
@@ -229,12 +262,15 @@ public class Operations {
     public static final int NAMED_VARIABLE = 137;
     public static final int COLOR_CONSTANT = 138;
     public static final int DATA_INT = 140;
+    public static final int REFERENCED_OPERATIONS = 142;
     public static final int DATA_BOOLEAN = 143;
     public static final int INTEGER_EXPRESSION = 144;
     public static final int ID_MAP = 145;
     public static final int ID_LIST = 146;
     public static final int FLOAT_LIST = 147;
     public static final int DATA_LONG = 148;
+    public static final int DYNAMIC_FLOAT_LIST = 197;
+    public static final int UPDATE_DYNAMIC_FLOAT_LIST = 198;
     public static final int DRAW_BITMAP_SCALED = 149;
     public static final int TEXT_LOOKUP = 151;
     public static final int DRAW_ARC = 152;
@@ -273,15 +309,27 @@ public class Operations {
     public static final int MATRIX_VECTOR_MATH = 188;
     public static final int DATA_FONT = 189;
     public static final int DRAW_TO_BITMAP = 190;
+    public static final int DATA_SOUND = 169;
+    public static final int SOUND_EXPRESSION = 206;
+    public static final int PLAY_SOUND = 141;
     public static final int WAKE_IN = 191;
     public static final int ID_LOOKUP = 192;
     public static final int PATH_EXPRESSION = 193;
-
+    public static final int PARTICLE_COMPARE = 194;
+    public static final int UPDATE = 195; // TODO
+    public static final int COLOR_THEME = 196;
+    public static final int TEXT_TRANSFORM = 199;
+    public static final int INCLUDE_REFERENCED_OPERATIONS = 245;
+    public static final int MACRO_DEFINE = 246;
+    public static final int MACRO_CALL = 247;
+    public static final int MACRO_ARGUMENT = 248;
+    public static final int MACRO_BLOCK = 249;
+    public static final int MACRO_FOR_EACH = 244;
     ///////////////////////////////////////// ======================
 
     ////////////////////////////////////////
     // Layout commands
-    ////////////////////////////////////////
+    /// /////////////////////////////////////
 
     public static final int LAYOUT_ROOT = 200;
     public static final int LAYOUT_CONTENT = 201;
@@ -289,12 +337,18 @@ public class Operations {
     public static final int LAYOUT_FIT_BOX = 176;
     public static final int LAYOUT_ROW = 203;
     public static final int LAYOUT_COLLAPSIBLE_ROW = 230;
+    public static final int LAYOUT_FLOW = 240;
     public static final int LAYOUT_COLUMN = 204;
     public static final int LAYOUT_COLLAPSIBLE_COLUMN = 233;
     public static final int LAYOUT_CANVAS = 205;
     public static final int LAYOUT_CANVAS_CONTENT = 207;
     public static final int LAYOUT_TEXT = 208;
+    public static final int CORE_TEXT = 239;
+    public static final int TEXT_STYLE = 242;
+    public static final int MODIFIER_DIMENSION_CONSTRAINTS = 243;
     public static final int LAYOUT_STATE = 217;
+    public static final int LAYOUT_CUSTOM = 93;
+
     public static final int LAYOUT_IMAGE = 234;
 
     public static final int COMPONENT_START = 2;
@@ -311,6 +365,7 @@ public class Operations {
     public static final int MODIFIER_ROUNDED_CLIP_RECT = 54;
 
     public static final int MODIFIER_CLICK = 59;
+    public static final int MODIFIER_MULTI_CLICK = 83;
     public static final int MODIFIER_TOUCH_DOWN = 219;
     public static final int MODIFIER_TOUCH_UP = 220;
     public static final int MODIFIER_TOUCH_CANCEL = 225;
@@ -323,6 +378,7 @@ public class Operations {
     public static final int MODIFIER_SCROLL = 226;
     public static final int MODIFIER_MARQUEE = 228;
     public static final int MODIFIER_RIPPLE = 229;
+    public static final int MODIFIER_ALIGN_BY = 237;
 
     public static final int LOOP_START = 215;
 
@@ -331,6 +387,7 @@ public class Operations {
     public static final int HOST_METADATA_ACTION = 216;
     public static final int HOST_NAMED_ACTION = 210;
     public static final int RUN_ACTION = 236;
+    public static final int LAYOUT_COMPUTE = 238;
 
     public static final int VALUE_INTEGER_CHANGE_ACTION = 212;
     public static final int VALUE_STRING_CHANGE_ACTION = 213;
@@ -341,10 +398,11 @@ public class Operations {
     public static final int ANIMATION_SPEC = 14;
 
     public static final int COMPONENT_VALUE = 150;
+    public static final int SKIP = 241;
 
     ////////////////////////////////////////
     // Profiles management
-    ////////////////////////////////////////
+    /// /////////////////////////////////////
 
     static UniqueIntMap<CompanionOperation> sMapV6;
     static HashMap<Integer, UniqueIntMap<CompanionOperation>> sMapV7;
@@ -357,75 +415,51 @@ public class Operations {
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsExperimental;
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsDeprecated;
 
-    ////////////////////////////////////////
-    // Available profiles
-    ////////////////////////////////////////
+    private static final Object sLock = new Object();
 
-    public static final int PROFILE_BASELINE = 0x0;
-
-    // Additive profiles
-    public static final int PROFILE_EXPERIMENTAL = 0x1;
-    public static final int PROFILE_DEPRECATED = 0x2;
-    public static final int PROFILE_OEM = 0x4;
-    public static final int PROFILE_LOW_POWER = 0x8;
-
-    // Intersected profiles
-    public static final int PROFILE_WIDGETS = 0x100;
-    public static final int PROFILE_ANDROIDX = 0x200;
-    public static final int PROFILE_ANDROID_NATIVE = 0x400;
-    public static final int PROFILE_WEAR_WIDGETS = 0x800;
-
-    /**
-     * Returns true if the operation exists for the given api level
-     *
-     * @param opId
-     * @param apiLevel
-     * @param profiles
-     * @return
-     */
+    /** Returns true if the operation exists for the given api level */
     public static boolean valid(int opId, int apiLevel, int profiles) {
-        switch (apiLevel) {
-            case 7:
-                if (sMapV7 == null) {
-                    sMapV7 = createMapV7(sMapV7, profiles);
-                }
-                UniqueIntMap<CompanionOperation> map = sMapV7.get(profiles);
-                if (map == null) {
-                    sMapV7 = createMapV7(sMapV7, profiles);
-                    map = sMapV7.get(profiles);
-                }
-                return map.get(opId) != null;
-            case 6:
-                if (sMapV6 == null) {
-                    sMapV6 = createMapV6();
-                }
-                return sMapV6.get(opId) != null;
+        synchronized (sLock) {
+            switch (apiLevel) {
+                case 6:
+                    if (sMapV6 == null) {
+                        sMapV6 = createMapV6();
+                    }
+                    return sMapV6.get(opId) != null;
+                default: // 7 and above
+                    if (sMapV7 == null) {
+                        sMapV7 = createMapV7(sMapV7, profiles);
+                    }
+                    UniqueIntMap<CompanionOperation> map = sMapV7.get(profiles);
+                    if (map == null) {
+                        sMapV7 = createMapV7(sMapV7, profiles);
+                        map = sMapV7.get(profiles);
+                    }
+                    return map.get(opId) != null;
+            }
         }
-        return false;
     }
 
-    /**
-     * Returns a map of operations for the given api level
-     *
-     * @param apiLevel
-     * @param profiles
-     * @return
-     */
+    /** Returns a map of operations for the given api level */
     public static @Nullable UniqueIntMap<CompanionOperation> getOperations(
             int apiLevel, int profiles) {
-        switch (apiLevel) {
-            case 7:
-                if (sMapV7 == null || !sMapV7.containsKey(profiles)) {
-                    sMapV7 = createMapV7(sMapV7, profiles);
-                }
-                return sMapV7.get(profiles);
-            case 6:
-                if (sMapV6 == null) {
-                    sMapV6 = createMapV6();
-                }
-                return sMapV6;
+        if (apiLevel < 6) {
+            return createMapV6();
         }
-        return null;
+        synchronized (sLock) {
+            switch (apiLevel) {
+                case 6:
+                    if (sMapV6 == null) {
+                        sMapV6 = createMapV6();
+                    }
+                    return sMapV6;
+                default: // 7 and above
+                    if (sMapV7 == null || !sMapV7.containsKey(profiles)) {
+                        sMapV7 = createMapV7(sMapV7, profiles);
+                    }
+                    return sMapV7.get(profiles);
+            }
+        }
     }
 
     private static UniqueIntMap<CompanionOperation> createMapV6() {
@@ -450,6 +484,14 @@ public class Operations {
             sMapV7AndroidX.put(WAKE_IN, WakeIn::read);
             sMapV7AndroidX.put(ID_LOOKUP, IdLookup::read);
             sMapV7AndroidX.put(PATH_EXPRESSION, PathExpression::read);
+            sMapV7AndroidX.put(PARTICLE_COMPARE, ParticlesCompare::read);
+            sMapV7AndroidX.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
+            sMapV7AndroidX.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
+            sMapV7AndroidX.put(SKIP, Skip::read);
+            sMapV7AndroidX.put(CORE_TEXT, CoreText::read);
+            sMapV7AndroidX.put(TEXT_STYLE, TextStyle::read);
+            sMapV7AndroidX.put(TEXT_TRANSFORM, TextTransform::read);
+            sMapV7AndroidX.put(COLOR_THEME, ColorTheme::read);
         }
         return sMapV7AndroidX;
     }
@@ -458,6 +500,26 @@ public class Operations {
         if (sMapV7AndroidXExperimental == null) {
             sMapV7AndroidXExperimental = new UniqueIntMap<>();
             // add experimental operations for this profile here
+            sMapV7AndroidXExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
+            sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
+            sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
+            sMapV7AndroidXExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+            sMapV7AndroidXExperimental.put(
+                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
+
+            sMapV7AndroidXExperimental.put(REFERENCED_OPERATIONS, ReferencedOperations::read);
+            sMapV7AndroidXExperimental.put(
+                    INCLUDE_REFERENCED_OPERATIONS, IncludeReferencedOperations::read);
+
+            sMapV7AndroidXExperimental.put(MACRO_DEFINE, PatternDefine::read);
+            sMapV7AndroidXExperimental.put(MACRO_CALL, PatternInflation::read);
+            sMapV7AndroidXExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
+            sMapV7AndroidXExperimental.put(MACRO_BLOCK, PatternBlock::read);
+            sMapV7AndroidXExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
+            sMapV7AndroidXExperimental.put(LAYOUT_CUSTOM, Custom::read);
+            sMapV7AndroidXExperimental.put(DATA_SOUND, SoundData::read);
+            sMapV7AndroidXExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
+            sMapV7AndroidXExperimental.put(PLAY_SOUND, PlaySound::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -482,6 +544,14 @@ public class Operations {
             sMapV7Widgets.put(WAKE_IN, WakeIn::read);
             sMapV7Widgets.put(ID_LOOKUP, IdLookup::read);
             sMapV7Widgets.put(PATH_EXPRESSION, PathExpression::read);
+            sMapV7Widgets.put(PARTICLE_COMPARE, ParticlesCompare::read);
+            sMapV7Widgets.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
+            sMapV7Widgets.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
+            sMapV7Widgets.put(SKIP, Skip::read);
+            sMapV7Widgets.put(CORE_TEXT, CoreText::read);
+            sMapV7Widgets.put(TEXT_STYLE, TextStyle::read);
+            sMapV7Widgets.put(TEXT_TRANSFORM, TextTransform::read);
+            sMapV7Widgets.put(COLOR_THEME, ColorTheme::read);
         }
         return sMapV7Widgets;
     }
@@ -490,6 +560,25 @@ public class Operations {
         if (sMapV7WidgetsExperimental == null) {
             sMapV7WidgetsExperimental = new UniqueIntMap<>();
             // add experimental operations for this profile here
+            sMapV7WidgetsExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
+            sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
+            sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
+            sMapV7WidgetsExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+            sMapV7WidgetsExperimental.put(
+                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
+
+            sMapV7WidgetsExperimental.put(REFERENCED_OPERATIONS, ReferencedOperations::read);
+            sMapV7WidgetsExperimental.put(
+                    INCLUDE_REFERENCED_OPERATIONS, IncludeReferencedOperations::read);
+
+            sMapV7WidgetsExperimental.put(MACRO_DEFINE, PatternDefine::read);
+            sMapV7WidgetsExperimental.put(MACRO_CALL, PatternInflation::read);
+            sMapV7WidgetsExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
+            sMapV7WidgetsExperimental.put(MACRO_BLOCK, PatternBlock::read);
+            sMapV7WidgetsExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
+            sMapV7WidgetsExperimental.put(DATA_SOUND, SoundData::read);
+            sMapV7WidgetsExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
+            sMapV7WidgetsExperimental.put(PLAY_SOUND, PlaySound::read);
         }
         return sMapV7WidgetsExperimental;
     }
@@ -502,13 +591,7 @@ public class Operations {
         return sMapV7WidgetsDeprecated;
     }
 
-    /**
-     * Returns a list of operation for the v7 using the given profiles
-     *
-     * @param currentMapV7
-     * @param profiles
-     * @return
-     */
+    /** Returns a list of operation for the v7 using the given profiles */
     private static HashMap<Integer, UniqueIntMap<CompanionOperation>> createMapV7(
             HashMap<Integer, UniqueIntMap<CompanionOperation>> currentMapV7, int profiles) {
         UniqueIntMap<CompanionOperation> mapV7 = new UniqueIntMap<>();
@@ -528,7 +611,7 @@ public class Operations {
                 if ((profiles & PROFILE_EXPERIMENTAL) != 0) {
                     androidx.putAll(createMapV7_Androidx_Experimental());
                 }
-                if ((profiles & Operations.PROFILE_DEPRECATED) != 0) {
+                if ((profiles & PROFILE_DEPRECATED) != 0) {
                     androidx.putAll(createMapV7_Androidx_Deprecated());
                 }
                 listProfiles.add(androidx);
@@ -540,7 +623,7 @@ public class Operations {
                 if ((profiles & PROFILE_EXPERIMENTAL) != 0) {
                     widgets.putAll(createMapV7_Widgets_Experimental());
                 }
-                if ((profiles & Operations.PROFILE_DEPRECATED) != 0) {
+                if ((profiles & PROFILE_DEPRECATED) != 0) {
                     widgets.putAll(createMapV7_Widgets_Deprecated());
                 }
                 listProfiles.add(widgets);
@@ -629,6 +712,7 @@ public class Operations {
         map.put(DRAW_RECT, DrawRect::read);
         map.put(DRAW_ROUND_RECT, DrawRoundRect::read);
         map.put(DRAW_TEXT_ON_PATH, DrawTextOnPath::read);
+        // map.put(DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::read);
         map.put(DRAW_TEXT_RUN, DrawText::read);
         map.put(DRAW_BITMAP_FONT_TEXT_RUN, DrawBitmapFontText::read);
         map.put(DRAW_TWEEN_PATH, DrawTweenPath::read);
@@ -748,7 +832,5 @@ public class Operations {
         map.put(CONDITIONAL_OPERATIONS, ConditionalOperations::read);
         map.put(DEBUG_MESSAGE, DebugMessage::read);
         map.put(ATTRIBUTE_COLOR, ColorAttribute::read);
-        // TODO ?? map.put(ACCESSIBILITY_CUSTOM_ACTION, CoreSemantics::read);
-
     }
 }

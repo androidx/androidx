@@ -27,8 +27,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -38,57 +40,38 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.PurpleGrey80
 import java.util.Calendar
-import kotlin.text.padStart
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 
-class DigitalClock {
-    private var hours = MutableStateFlow<Int>(0)
-    private var seconds = MutableStateFlow<Int>(0)
-    private var minutes = MutableStateFlow<Int>(0)
+@Composable
+fun DigitalClock() {
+    var currentTime by remember { mutableStateOf(Calendar.getInstance()) }
 
-    private fun timeNow() {
-        val currentTime = Calendar.getInstance()
-        minutes.value = currentTime.get(Calendar.MINUTE)
-        hours.value = currentTime.get(Calendar.HOUR_OF_DAY)
-        seconds.value = currentTime.get(Calendar.SECOND)
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(500)
+            currentTime = Calendar.getInstance()
+        }
     }
 
-    @Composable
-    fun CreateDigitalClock() {
-        // Clock
-        val ss: Int by seconds.collectAsState()
-        val mm: Int by minutes.collectAsState()
-        val hh: Int by hours.collectAsState()
+    val hh = currentTime.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+    val mm = currentTime.get(Calendar.MINUTE).toString().padStart(2, '0')
+    val ss = currentTime.get(Calendar.SECOND).toString().padStart(2, '0')
 
-        timeNow()
-
-        LaunchedEffect(Unit) {
-            while (true) {
-                delay(500)
-                timeNow()
-            }
-        }
-
-        Card(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.fillMaxSize().background(color = Purple40),
+    Card(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+        Box(
+            contentAlignment = Alignment.CenterStart,
+            modifier = Modifier.fillMaxSize().background(color = Purple40),
+        ) {
+            Row(
+                modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text =
-                            "${hh.toString().padStart(2, '0')}:${
-                            mm.toString().padStart(2, '0')
-                        }:${ss.toString().padStart(2, '0')}",
-                        style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Bold),
-                        color = PurpleGrey80,
-                    )
-                }
+                Text(
+                    text = "$hh:$mm:$ss",
+                    style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Bold),
+                    color = PurpleGrey80,
+                )
             }
         }
     }

@@ -19,24 +19,23 @@ package androidx.ink.authoring.latency
 import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.RestrictTo
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 
 /**
  * Timestamps for signpost moments in the processing of a single input event. This structure is for
- * measuring and reporting the latency in [InProgressStrokesView] and its various helper classes.
- * Timestamps are in the [System.nanoTime] timebase, which is nanoseconds since system boot, except
- * for deep sleep time.
+ * measuring and reporting the latency in [androidx.ink.authoring.InProgressStrokesView] and its
+ * various helper classes. Timestamps are in the [System.nanoTime] timebase, which is nanoseconds
+ * since system boot, except for deep sleep time.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-@ExperimentalLatencyDataApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkLatencyDataApi
 public class LatencyData {
 
     /**
      * The type of input event being tracked. See [strokeAction] for a potentially more relevant
      * alternative.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var eventAction: EventAction = EventAction.UNKNOWN
 
     /**
@@ -45,7 +44,6 @@ public class LatencyData {
      * [strokeAction] is often much more relevant to track as a dimension affecting performance
      * compared to [eventAction].
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokeAction: StrokeAction = StrokeAction.UNKNOWN
 
     /**
@@ -58,7 +56,6 @@ public class LatencyData {
      * logged directly. It can be used as part of client-side aggregation logic to associate
      * [LatencyData] events with one another.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokeId: InProgressStrokeId = UNKNOWN_STROKE_ID
 
     /**
@@ -71,7 +68,7 @@ public class LatencyData {
      * MOVE and PREDICTED_MOVE [EventAction]s are batched separately by Android, so the [batchSize]
      * for real and predicted inputs received at the same time are independent.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var batchSize: Int = Int.MIN_VALUE
+    public var batchSize: Int = Int.MIN_VALUE
 
     /**
      * The index of this input event in the batch: 0 <= [batchIndex] < [batchSize]. Index 0
@@ -84,7 +81,7 @@ public class LatencyData {
      * MOVE and PREDICTED_MOVE [EventAction]s are batched separately by Android, so the [batchIndex]
      * for real and predicted inputs received at the same time are independent.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var batchIndex: Int = Int.MIN_VALUE
+    public var batchIndex: Int = Int.MIN_VALUE
 
     /**
      * Nanosecond timestamp of when the low-level input driver recorded the user input. For
@@ -93,27 +90,27 @@ public class LatencyData {
      * Android versions, only millisecond precision is available, and therefore any calculations
      * based on this value should be considered to have only millisecond accuracy.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var osDetectsEvent: Long = Long.MIN_VALUE
+    public var osDetectsEvent: Long = Long.MIN_VALUE
 
     public val isOsDetectsEventSet: Boolean
         get() = osDetectsEvent != Long.MIN_VALUE
 
     /**
-     * Nanosecond timestamp of the start of the call to [InProgressStrokesView.startStroke],
-     * [InProgressStrokesView.addToStroke], [InProgressStrokesView.finishStroke], or
-     * [InProgressStrokesView.cancelStroke].
+     * Nanosecond timestamp of the start of the call to
+     * [androidx.ink.authoring.InProgressStrokesView.startStroke],
+     * [androidx.ink.authoring.InProgressStrokesView.addToStroke],
+     * [androidx.ink.authoring.InProgressStrokesView.finishStroke], or
+     * [androidx.ink.authoring.InProgressStrokesView.cancelStroke].
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewGetsAction: Long = Long.MIN_VALUE
 
     public val isStrokesViewGetsActionSet: Boolean
         get() = strokesViewGetsAction != Long.MIN_VALUE
 
     /**
-     * Nanosecond timestamp of when [InProgressStrokesView] finishes all geometry generation and
-     * renderer draw calls.
+     * Nanosecond timestamp of when [androidx.ink.authoring.InProgressStrokesView] finishes all
+     * geometry generation and renderer draw calls.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewFinishesDrawCalls: Long = Long.MIN_VALUE
 
     /**
@@ -121,13 +118,14 @@ public class LatencyData {
      * user. The nature of this estimate depends on the graphics backend, but this field is meant to
      * be comparable across graphics backends.
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var estimatedPixelPresentationTime: Long = Long.MIN_VALUE
 
     public val canvasFrontBufferStrokesRenderHelperData: CanvasFrontBufferStrokesRenderHelperData =
         CanvasFrontBufferStrokesRenderHelperData()
 
-    /** Fields specific to [CanvasInProgressStrokesRenderHelperV29]. */
+    /**
+     * Fields specific to [androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV29].
+     */
     public class CanvasFrontBufferStrokesRenderHelperData {
         /**
          * Nanosecond timestamp of when the render helper finishes draw calls to the front-buffered
@@ -135,7 +133,6 @@ public class LatencyData {
          * to the Hardware Composer, all layers are composited together, and the display scan
          * finishes.
          */
-        @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public var finishesDrawCalls: Long = Long.MIN_VALUE
 
         public val isFinishesDrawCallsSet: Boolean
@@ -149,13 +146,14 @@ public class LatencyData {
     public val hwuiInProgressStrokesRenderHelperData: HwuiInProgressStrokesRenderHelperData =
         HwuiInProgressStrokesRenderHelperData()
 
-    /** Fields specific to [CanvasInProgressStrokesRenderHelperV21]. */
+    /**
+     * Fields specific to [androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV21].
+     */
     public class HwuiInProgressStrokesRenderHelperData {
         /**
          * Nanosecond timestamp of when the render helper finishes draw calls to the
          * [android.view.View]. The updated appearance will be visible in the next animation frame.
          */
-        @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public var finishesDrawCalls: Long = Long.MIN_VALUE
 
         public override fun toString(): String {
@@ -168,8 +166,7 @@ public class LatencyData {
     }
 
     /** Resets all fields to their default values. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun reset() {
+    internal fun reset() {
         strokeAction = StrokeAction.UNKNOWN
         eventAction = EventAction.UNKNOWN
         strokeId = UNKNOWN_STROKE_ID
@@ -212,12 +209,12 @@ public class LatencyData {
             }
 
         public companion object {
-            public val UNKNOWN: StrokeAction = StrokeAction()
-            public val START: StrokeAction = StrokeAction()
-            public val ADD: StrokeAction = StrokeAction()
-            public val PREDICTED_ADD: StrokeAction = StrokeAction()
-            public val FINISH: StrokeAction = StrokeAction()
-            public val CANCEL: StrokeAction = StrokeAction()
+            @JvmField public val UNKNOWN: StrokeAction = StrokeAction()
+            @JvmField public val START: StrokeAction = StrokeAction()
+            @JvmField public val ADD: StrokeAction = StrokeAction()
+            @JvmField public val PREDICTED_ADD: StrokeAction = StrokeAction()
+            @JvmField public val FINISH: StrokeAction = StrokeAction()
+            @JvmField public val CANCEL: StrokeAction = StrokeAction()
         }
     }
 
@@ -236,13 +233,16 @@ public class LatencyData {
 
         public companion object {
             // Identity of these singleton constants comes from their addresses alone.
-            public val UNKNOWN: EventAction = EventAction()
-            public val DOWN: EventAction = EventAction()
-            public val MOVE: EventAction = EventAction()
-            public val PREDICTED_MOVE: EventAction = EventAction()
-            public val UP: EventAction = EventAction()
-            public val CANCEL: EventAction = EventAction()
+            @JvmField public val UNKNOWN: EventAction = EventAction()
+            @JvmField public val DOWN: EventAction = EventAction()
+            @JvmField public val MOVE: EventAction = EventAction()
+            @JvmField public val PREDICTED_MOVE: EventAction = EventAction()
+            @JvmField public val UP: EventAction = EventAction()
+            @JvmField public val CANCEL: EventAction = EventAction()
 
+            /** Returns the [EventAction] corresponding to the given [MotionEvent]. */
+            @JvmOverloads
+            @JvmStatic
             public fun fromMotionEvent(
                 event: MotionEvent,
                 predicted: Boolean = false,
@@ -265,7 +265,8 @@ public class LatencyData {
         }
     }
 
+    @ExperimentalInkLatencyDataApi
     public companion object {
-        public val UNKNOWN_STROKE_ID: InProgressStrokeId = InProgressStrokeId.create()
+        @JvmField public val UNKNOWN_STROKE_ID: InProgressStrokeId = InProgressStrokeId.create()
     }
 }

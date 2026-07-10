@@ -41,6 +41,7 @@ import androidx.core.content.IntentCompat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Arrays;
@@ -50,6 +51,7 @@ import java.util.List;
  * Tests for {@link TrustedWebActivityIntentBuilder}.
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TrustedWebActivityIntentBuilderTest {
 

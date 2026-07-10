@@ -17,14 +17,13 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.tv.integration.macrobenchmark"
 
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
 
     buildTypes {

@@ -50,8 +50,8 @@ internal class TextFieldCharSequence(
     highlight: Pair<TextHighlightType, TextRange>? = null,
     val composingAnnotations: List<PlacedAnnotation>? = null,
     val outputAnnotations: List<PlacedAnnotation>? = null,
+    val textFieldTextStyles: TextFieldTextStylesImpl? = null,
 ) : CharSequence {
-
     override val length: Int
         get() = text.length
 
@@ -126,6 +126,7 @@ internal class TextFieldCharSequence(
         if (highlight != other.highlight) return false
         if (composingAnnotations != other.composingAnnotations) return false
         if (!contentEquals(other.text)) return false
+        if (textFieldTextStyles != other.textFieldTextStyles) return false
 
         return true
     }
@@ -136,6 +137,7 @@ internal class TextFieldCharSequence(
         result = 31 * result + (composition?.hashCode() ?: 0)
         result = 31 * result + highlight.hashCode()
         result = 31 * result + composingAnnotations.hashCode()
+        result = 31 * result + textFieldTextStyles.hashCode()
         return result
     }
 }
@@ -148,13 +150,15 @@ internal value class TextHighlightType private constructor(private val value: In
          * A highlight which previews the text range which would be selected by an ongoing stylus
          * handwriting select gesture.
          */
-        val HandwritingSelectPreview = TextHighlightType(0)
+        val HandwritingSelectPreview
+            get() = TextHighlightType(0)
 
         /**
          * A highlight which previews the text range which would be deleted by an ongoing stylus
          * handwriting delete gesture.
          */
-        val HandwritingDeletePreview = TextHighlightType(1)
+        val HandwritingDeletePreview
+            get() = TextHighlightType(1)
     }
 }
 

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -34,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.navigationevent.compose"
     }
     desktop()
@@ -50,136 +49,57 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":navigationevent:navigationevent"))
-                api("androidx.compose.runtime:runtime:1.9.0")
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinCoroutinesCore)
+        commonMain.dependencies {
+            api(project(":navigationevent:navigationevent"))
+            api("androidx.compose.runtime:runtime:1.11.2")
+            implementation(libs.kotlinCoroutinesCore)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":navigationevent:navigationevent-testing"))
+            implementation(project(":kruth:kruth"))
+        }
+
+        androidMain.dependencies {
+             implementation("androidx.compose.ui:ui:1.11.2") {
+                because("Ensure we are using the Compose-UI 1.11 or above")
             }
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":navigationevent:navigationevent-testing"))
-                implementation(project(":kruth:kruth"))
-            }
+        androidDeviceTest.dependencies {
+            implementation("androidx.compose.material:material:1.11.2")
+            implementation("androidx.compose.ui:ui-test:1.11.2")
+            implementation("androidx.compose.ui:ui-test-junit4:1.11.2")
+            implementation("androidx.compose.ui:ui-test-manifest:1.11.2")
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
+            implementation(libs.espressoCore)
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("androidx.compose.ui:ui:1.9.0-rc01") {
-                    because("LocalView")
-                }
-            }
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
 
-        androidUnitTest {
-            dependsOn(commonTest)
-        }
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation("androidx.compose.material:material:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test-junit4:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test-manifest:1.9.0-rc01")
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
-            }
-        }
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
 
-        nonAndroidMain {
-            dependsOn(commonMain)
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
         }
+    }
+}
 
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        darwinMain {
-            dependsOn(nativeMain)
-        }
-
-        darwinTest {
-            dependsOn(nativeTest)
-        }
-
-        linuxMain {
-            dependsOn(nativeMain)
-        }
-
-        linuxTest {
-            dependsOn(nativeTest)
-        }
-
-        mingwMain {
-            dependsOn(nativeMain)
-        }
-
-        mingwTest {
-            dependsOn(nativeTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinXw3c)
-            }
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                } else if (target.konanTarget.family == Family.MINGW) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
-                } else {
-                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
-        }
+dependencies.constraints {
+    // Prevents symbols duplication with old versions of JetBrains' fork.
+    // Starting with Compose Multiplatform 1.11.0, this module is published as empty
+    // artifact with dependency to this androidx module.
+    commonMainImplementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0-rc01") {
+        because "prevents symbols duplication"
     }
 }
 

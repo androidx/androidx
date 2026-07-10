@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
 
@@ -32,9 +33,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Provides utility functions for working with package + database prefixes.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PrefixUtil {
     private static final String TAG = "AppSearchPrefixUtil";

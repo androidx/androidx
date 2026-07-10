@@ -17,64 +17,152 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 @Preview
-@Sampled
 @Composable
-fun OneLineListItem() {
+fun LegacyOneLineListItem() {
+    val legacyContentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    val legacyExtraPaddingForLeadingTrailing = 4.dp
     Column {
         HorizontalDivider()
         ListItem(
-            headlineContent = { Text("One line list item with 24x24 icon") },
+            content = { Text("One line list item with 24x24 icon") },
             leadingContent = {
-                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.padding(end = legacyExtraPaddingForLeadingTrailing),
+                )
             },
+            contentPadding = legacyContentPadding,
         )
         HorizontalDivider()
     }
 }
 
 @Preview
-@Sampled
 @Composable
-fun TwoLineListItem() {
+fun LegacyTwoLineListItem() {
+    val legacyPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    val legacyExtraPaddingForLeadingTrailing = 4.dp
     Column {
         HorizontalDivider()
         ListItem(
-            headlineContent = { Text("Two line list item with trailing") },
+            content = { Text("Two line list item with trailing") },
             supportingContent = { Text("Secondary text") },
-            trailingContent = { Text("meta") },
-            leadingContent = {
-                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+            trailingContent = {
+                Text(
+                    "meta",
+                    modifier = Modifier.padding(start = legacyExtraPaddingForLeadingTrailing),
+                )
             },
+            leadingContent = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.padding(end = legacyExtraPaddingForLeadingTrailing),
+                )
+            },
+            contentPadding = legacyPadding,
         )
         HorizontalDivider()
     }
 }
 
 @Preview
-@Sampled
 @Composable
-fun ThreeLineListItemWithOverlineAndSupporting() {
+fun LegacyThreeLineListItemWithOverlineAndSupporting() {
+    val legacyPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    val legacyExtraPaddingForLeadingTrailing = 4.dp
     Column {
         HorizontalDivider()
         ListItem(
-            headlineContent = { Text("Three line list item") },
+            content = { Text("Three line list item") },
             overlineContent = { Text("OVERLINE") },
             supportingContent = { Text("Secondary text") },
             leadingContent = {
-                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.padding(end = legacyExtraPaddingForLeadingTrailing),
+                )
             },
-            trailingContent = { Text("meta") },
+            trailingContent = {
+                Text(
+                    "meta",
+                    modifier = Modifier.padding(start = legacyExtraPaddingForLeadingTrailing),
+                )
+            },
+            contentPadding = legacyPadding,
+        )
+        HorizontalDivider()
+    }
+}
+
+@Preview
+@Composable
+fun LegacyThreeLineListItemWithExtendedSupporting() {
+    val legacyPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    val legacyExtraPaddingForLeadingTrailing = 4.dp
+    Column {
+        HorizontalDivider()
+        ListItem(
+            content = { Text("Three line list item") },
+            supportingContent = { Text("Secondary text that\nspans multiple lines") },
+            leadingContent = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.padding(end = legacyExtraPaddingForLeadingTrailing),
+                )
+            },
+            trailingContent = {
+                Text(
+                    "meta",
+                    modifier = Modifier.padding(start = legacyExtraPaddingForLeadingTrailing),
+                )
+            },
+            contentPadding = legacyPadding,
         )
         HorizontalDivider()
     }
@@ -83,17 +171,338 @@ fun ThreeLineListItemWithOverlineAndSupporting() {
 @Preview
 @Sampled
 @Composable
-fun ThreeLineListItemWithExtendedSupporting() {
-    Column {
+fun StandardListItems() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         HorizontalDivider()
+
         ListItem(
-            headlineContent = { Text("Three line list item") },
-            supportingContent = { Text("Secondary text that\nspans multiple lines") },
-            leadingContent = {
-                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-            },
-            trailingContent = { Text("meta") },
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            content = { Text("One line list item") },
         )
+
         HorizontalDivider()
+
+        ListItem(
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            supportingContent = { Text("Supporting text") },
+            content = { Text("Two line list item") },
+        )
+
+        HorizontalDivider()
+
+        ListItem(
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            overlineContent = { Text("Overline text") },
+            supportingContent = { Text("Supporting text") },
+            content = { Text("Three line list item") },
+        )
+
+        HorizontalDivider()
+
+        ListItem(
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            supportingContent = { Text("Supporting text\nthat is multiple lines") },
+            content = { Text("Another three line list item") },
+        )
+
+        HorizontalDivider()
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun SegmentedListItems() {
+    val count = 4
+    val colors =
+        ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        SegmentedListItem(
+            shapes = ListItemDefaults.segmentedShapes(index = 0, count = count),
+            colors = colors,
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            content = { Text("One line list item") },
+        )
+
+        SegmentedListItem(
+            shapes = ListItemDefaults.segmentedShapes(index = 1, count = count),
+            colors = colors,
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            supportingContent = { Text("Supporting text") },
+            content = { Text("Two line list item") },
+        )
+
+        SegmentedListItem(
+            shapes = ListItemDefaults.segmentedShapes(index = 2, count = count),
+            colors = colors,
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            overlineContent = { Text("Overline text") },
+            supportingContent = { Text("Supporting text") },
+            content = { Text("Three line list item") },
+        )
+
+        SegmentedListItem(
+            shapes = ListItemDefaults.segmentedShapes(index = 3, count = count),
+            colors = colors,
+            leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            supportingContent = { Text("Supporting text\nthat is multiple lines") },
+            content = { Text("Another three line list item") },
+        )
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun ClickableListItemSample() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        HorizontalDivider()
+
+        repeat(3) { idx ->
+            var count by rememberSaveable { mutableIntStateOf(0) }
+            ListItem(
+                onClick = { count++ },
+                leadingContent = { Icon(Icons.Default.Home, contentDescription = null) },
+                trailingContent = { Text("$count") },
+                supportingContent = { Text("Additional info") },
+                content = { Text("Item ${idx + 1}") },
+            )
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun ClickableListItemWithClickableChildSample() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        HorizontalDivider()
+
+        repeat(3) { idx ->
+            ListItem(
+                onClick = { /* ListItem onClick callback */ },
+                leadingContent = { Icon(Icons.Default.Home, contentDescription = null) },
+                trailingContent = {
+                    IconButton(onClick = { /* Child onClick callback */ }) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Localized description")
+                    }
+                },
+                supportingContent = { Text("The trailing icon has a separate click action") },
+                content = { Text("Item ${idx + 1}") },
+            )
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun SingleSelectionListItemSample() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
+        HorizontalDivider()
+
+        var selectedIndex: Int? by rememberSaveable { mutableStateOf(null) }
+        repeat(3) { idx ->
+            val selected = selectedIndex == idx
+            ListItem(
+                selected = selected,
+                onClick = { selectedIndex = if (selected) null else idx },
+                leadingContent = { RadioButton(selected = selected, onClick = null) },
+                trailingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                supportingContent = { Text("Additional info") },
+                content = { Text("Item ${idx + 1}") },
+            )
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun MultiSelectionListItemSample() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        HorizontalDivider()
+
+        repeat(3) { idx ->
+            var checked by rememberSaveable { mutableStateOf(false) }
+            ListItem(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                leadingContent = { Checkbox(checked = checked, onCheckedChange = null) },
+                trailingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                supportingContent = { Text("Additional info") },
+                content = { Text("Item ${idx + 1}") },
+            )
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun ListItemWithModeChangeOnLongClickSample() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        HorizontalDivider()
+
+        var inClickMode by rememberSaveable { mutableStateOf(true) }
+        val counts = rememberSaveable { mutableStateListOf(0, 0, 0) }
+        val checked = rememberSaveable { mutableStateListOf(false, false, false) }
+
+        repeat(3) { idx ->
+            if (inClickMode) {
+                ListItem(
+                    onClick = { counts[idx]++ },
+                    onLongClick = {
+                        checked[idx] = true
+                        inClickMode = false
+                    },
+                    leadingContent = { Icon(Icons.Default.Home, contentDescription = null) },
+                    trailingContent = { Text("${counts[idx]}") },
+                    supportingContent = { Text("Long-click to change interaction mode.") },
+                    content = { Text("Item ${idx + 1}") },
+                )
+            } else {
+                ListItem(
+                    checked = checked[idx],
+                    onCheckedChange = { checked[idx] = it },
+                    onLongClick = {
+                        inClickMode = true
+                        checked.clear()
+                        checked.addAll(listOf(false, false, false))
+                    },
+                    leadingContent = { Checkbox(checked = checked[idx], onCheckedChange = null) },
+                    trailingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                    supportingContent = { Text("Long-click to change interaction mode.") },
+                    content = { Text("Item ${idx + 1}") },
+                )
+            }
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun SingleSelectionSegmentedListItemSample() {
+    val count = 4
+    val colors =
+        ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()).selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        var selectedIndex: Int? by rememberSaveable { mutableStateOf(null) }
+        repeat(count) { idx ->
+            val selected = selectedIndex == idx
+            SegmentedListItem(
+                selected = selected,
+                onClick = { selectedIndex = if (selected) null else idx },
+                colors = colors,
+                shapes = ListItemDefaults.segmentedShapes(index = idx, count = count),
+                leadingContent = { RadioButton(selected = selected, onClick = null) },
+                trailingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                supportingContent = { Text("Additional info") },
+                content = { Text("Item ${idx + 1}") },
+            )
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun MultiSelectionSegmentedListItemSample() {
+    val count = 4
+    val colors =
+        ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        repeat(count) { idx ->
+            var checked by rememberSaveable { mutableStateOf(false) }
+            SegmentedListItem(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                colors = colors,
+                shapes = ListItemDefaults.segmentedShapes(index = idx, count = count),
+                leadingContent = { Checkbox(checked = checked, onCheckedChange = null) },
+                trailingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+                supportingContent = { Text("Additional info") },
+                content = { Text("Item ${idx + 1}") },
+            )
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun SegmentedListItemWithExpansionSample() {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val numChildren = 3
+    val itemCount = 1 + if (expanded) numChildren else 0
+    val childrenChecked = rememberSaveable { mutableStateListOf(*Array(numChildren) { false }) }
+
+    val colors =
+        ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        Spacer(Modifier.height(50.dp))
+        SegmentedListItem(
+            onClick = { expanded = !expanded },
+            modifier =
+                Modifier.semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" },
+            colors = colors,
+            shapes = ListItemDefaults.segmentedShapes(index = 0, count = itemCount),
+            leadingContent = { Icon(Icons.Default.Favorite, contentDescription = null) },
+            trailingContent = {
+                Icon(
+                    if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                )
+            },
+            content = { Text("Click to expand/collapse") },
+        )
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(MaterialTheme.motionScheme.fastSpatialSpec()),
+            exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                repeat(numChildren) { idx ->
+                    SegmentedListItem(
+                        checked = childrenChecked[idx],
+                        onCheckedChange = { childrenChecked[idx] = it },
+                        colors = colors,
+                        shapes =
+                            ListItemDefaults.segmentedShapes(index = idx + 1, count = itemCount),
+                        leadingContent = {
+                            Icon(Icons.Default.Favorite, contentDescription = null)
+                        },
+                        trailingContent = {
+                            Checkbox(checked = childrenChecked[idx], onCheckedChange = null)
+                        },
+                        content = { Text("Child ${idx + 1}") },
+                    )
+                }
+            }
+        }
     }
 }

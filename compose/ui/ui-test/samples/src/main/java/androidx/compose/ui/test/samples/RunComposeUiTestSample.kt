@@ -18,22 +18,26 @@ package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.test.StandardTestDispatcher
 
-@Sampled
 @OptIn(ExperimentalTestApi::class)
+@Sampled
 fun RunComposeUiTestSample() = runComposeUiTest {
     var counter by mutableIntStateOf(1)
     setContent {
@@ -48,3 +52,29 @@ fun RunComposeUiTestSample() = runComposeUiTest {
     onNodeWithTag("button_tag").performClick()
     onNodeWithTag("text_tag").assert(hasText("Count: 2"))
 }
+
+@OptIn(ExperimentalTestApi::class)
+@Sampled
+fun RunComposeUiTestConfigSample() =
+    runComposeUiTest(
+        config =
+            ComposeUiTestConfig(
+                effectContext = StandardTestDispatcher(),
+                runTestContext = StandardTestDispatcher(),
+                testTimeout = 30.seconds,
+                inputMode = InputMode.Touch,
+            )
+    ) {
+        var counter by mutableIntStateOf(1)
+        setContent {
+            Column {
+                Text(text = "Count: $counter", modifier = Modifier.testTag("text_tag"))
+                Button(onClick = { counter++ }, modifier = Modifier.testTag("button_tag")) {
+                    Text("Click Me!")
+                }
+            }
+        }
+
+        onNodeWithTag("button_tag").performClick()
+        onNodeWithTag("text_tag").assert(hasText("Count: 2"))
+    }

@@ -124,6 +124,8 @@ internal constructor(
         }
     }
 
+    override fun getInterfaceVersion(): Int = VERSION
+
     private companion object {
         val TAG = "ExerciseUpdateListener"
     }

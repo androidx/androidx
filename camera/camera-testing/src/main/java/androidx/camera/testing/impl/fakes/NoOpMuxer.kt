@@ -47,6 +47,10 @@ public open class NoOpMuxer : Muxer {
         // No-op
     }
 
+    override fun setCaptureFps(captureFps: Int) {
+        // No-op
+    }
+
     override fun addTrack(format: MediaFormat): Int {
         // Return a dummy index
         return 0

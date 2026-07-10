@@ -16,8 +16,9 @@
 package androidx.appsearch.compiler.annotationwrapper
 
 import androidx.appsearch.compiler.IntrospectionHelper
-import com.squareup.javapoet.ClassName
-import javax.lang.model.type.TypeMirror
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.XType
 
 /** An instance of the `@Document.DocumentProperty` annotation. */
 data class DocumentPropertyAnnotation(
@@ -47,11 +48,11 @@ data class DocumentPropertyAnnotation(
         genericDocSetterName = "setPropertyDocument",
     ) {
     companion object {
-        val CLASS_NAME: ClassName =
+        val CLASS_NAME: XClassName =
             IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.nestedClass("DocumentProperty")
 
         @JvmField
-        val CONFIG_CLASS: ClassName =
+        val CONFIG_CLASS: XClassName =
             IntrospectionHelper.APPSEARCH_SCHEMA_CLASS.nestedClass("DocumentPropertyConfig")
 
         /**
@@ -59,24 +60,22 @@ data class DocumentPropertyAnnotation(
          *   params do not mention an explicit name.
          */
         fun parse(
-            annotationParams: Map<String, Any?>,
+            annotationParams: Map<String, XAnnotationValue>,
             defaultName: String,
         ): DocumentPropertyAnnotation {
-            val name = annotationParams["name"] as? String
-            val indexableNestedPropertiesList = mutableListOf<String>()
-            val indexableList = annotationParams["indexableNestedPropertiesList"]
-            if (indexableList is List<*>) {
-                for (property in indexableList) {
-                    indexableNestedPropertiesList.add(property.toString())
-                }
-            }
+            val name = annotationParams["name"]?.value as? String
+            val indexableNestedPropertiesList =
+                annotationParams.getValue("indexableNestedPropertiesList").asStringList()
             return DocumentPropertyAnnotation(
                 name = if (name.isNullOrEmpty()) defaultName else name,
-                isRequired = annotationParams["required"] as Boolean,
-                shouldIndexNestedProperties = annotationParams["indexNestedProperties"] as Boolean,
+                isRequired = annotationParams.getValue("required").asBoolean(),
+                shouldIndexNestedProperties =
+                    annotationParams.getValue("indexNestedProperties").asBoolean(),
                 indexableNestedPropertiesList = indexableNestedPropertiesList,
                 shouldInheritIndexableNestedPropertiesFromSuperClass =
-                    annotationParams["inheritIndexableNestedPropertiesFromSuperclass"] as Boolean,
+                    annotationParams
+                        .getValue("inheritIndexableNestedPropertiesFromSuperclass")
+                        .asBoolean(),
             )
         }
     }
@@ -84,6 +83,6 @@ data class DocumentPropertyAnnotation(
     override val dataPropertyKind
         get() = Kind.DOCUMENT_PROPERTY
 
-    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): TypeMirror =
+    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): XType =
         helper.genericDocumentType
 }

@@ -32,7 +32,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
-import androidx.collection.ArrayMap;
+import androidx.collection.MutableObjectIntMap;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
@@ -161,7 +161,7 @@ public class SampleMediaRouteProvider extends MediaRouteProvider {
         }
     }
 
-    protected @NonNull Map<String, Integer> mVolumes = new ArrayMap<>();
+    protected @NonNull MutableObjectIntMap<String> mVolumes = new MutableObjectIntMap<>();
     protected @NonNull Map<String, MediaRouteDescriptor> mRouteDescriptors = new HashMap<>();
 
     public SampleMediaRouteProvider(@NonNull Context context) {

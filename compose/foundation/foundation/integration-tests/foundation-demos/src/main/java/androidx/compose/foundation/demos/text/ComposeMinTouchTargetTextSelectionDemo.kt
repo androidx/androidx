@@ -95,7 +95,8 @@ fun MinTouchTargetTextSelection() {
                     """
                     |. We expect that touch selection gestures in the touch target space,
                     | but not directly on the
-                    | """
+                    | 
+                    """
                         .trimMargin()
                         .replace("\n", "")
                 )

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -34,52 +33,18 @@ androidXMultiplatform {
         namespace = "androidx.compose.ui.tooling.preview"
     }
     jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:runtime:runtime"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api(project(":compose:runtime:runtime"))
         }
 
-        commonTest {
-            dependencies {
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-            }
-        }
-
-        jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.junit)
         }
     }
 }
@@ -91,5 +56,6 @@ androidx {
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-tooling-preview:ui-tooling-preview-samples"))
 }
 

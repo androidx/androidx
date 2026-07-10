@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
-import androidx.xr.scenecore.internal.Dimensions
-import androidx.xr.scenecore.internal.ResizeEvent
-import androidx.xr.scenecore.internal.ResizeEventListener
+import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.ResizeEvent
+import androidx.xr.scenecore.runtime.ResizeEventListener
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.iterator
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ class FakeResizableComponentTest {
     private val initialSize = Dimensions(1.0f, 1.0f, 1.0f)
     private val initialMinSize = Dimensions(0.5f, 0.5f, 0.5f)
     private val initialMaxSize = Dimensions(2.0f, 2.0f, 2.0f)
-    private val initialFixedAspectRatio = 1.0f
+    private val initialFixedAspectRatio = true
     private val initialAutoHideContent = false
     private val initialAutoUpdateSize = false
     private val initialForceShowResizeOverlay = false
@@ -46,7 +47,7 @@ class FakeResizableComponentTest {
                 size = initialSize,
                 minimumSize = initialMinSize,
                 maximumSize = initialMaxSize,
-                fixedAspectRatio = initialFixedAspectRatio,
+                isFixedAspectRatioEnabled = initialFixedAspectRatio,
                 autoHideContent = initialAutoHideContent,
                 autoUpdateSize = initialAutoUpdateSize,
                 forceShowResizeOverlay = initialForceShowResizeOverlay,
@@ -58,7 +59,7 @@ class FakeResizableComponentTest {
         check(underTest.size == initialSize)
         check(underTest.minimumSize == initialMinSize)
         check(underTest.maximumSize == initialMaxSize)
-        check(underTest.fixedAspectRatio == initialFixedAspectRatio)
+        check(underTest.isFixedAspectRatioEnabled == initialFixedAspectRatio)
         check(underTest.autoHideContent == initialAutoHideContent)
         check(underTest.autoUpdateSize == initialAutoUpdateSize)
         check(underTest.forceShowResizeOverlay == initialForceShowResizeOverlay)
@@ -66,25 +67,21 @@ class FakeResizableComponentTest {
 
     @Test
     fun addListener_notifiesListener() {
+        val expectedResizeState = ResizeEvent.RESIZE_STATE_START
+        val expectedNewSize = Dimensions(2.0f, 2.0f, 2.0f)
         val listenerCalled = AtomicBoolean(false)
-        val mockListener =
-            object : ResizeEventListener {
-                override fun onResizeEvent(event: ResizeEvent) {
-                    listenerCalled.set(true)
-                    assertThat(event.resizeState).isEqualTo(ResizeEvent.RESIZE_STATE_START)
-                    assertThat(event.newSize).isEqualTo(Dimensions(2.0f, 2.0f, 2.0f))
-                }
-            }
+        val listener = ResizeEventListener { event ->
+            listenerCalled.set(true)
+            assertThat(event.resizeState).isEqualTo(expectedResizeState)
+            assertThat(event.newSize).isEqualTo(expectedNewSize)
+        }
 
-        underTest.addResizeEventListener({ command -> command.run() }, mockListener)
+        underTest.addResizeEventListener({ command -> command.run() }, listener)
 
         // For simplicity in the fake, we'll use some default values for fields
         // not directly provided by this simplified move signature.
-        val event =
-            ResizeEvent(ResizeEvent.ResizeState.RESIZE_STATE_START, Dimensions(2.0f, 2.0f, 2.0f))
-        for ((listener, executor) in underTest.resizeEventListenersMap) {
-            executor.execute { listener.onResizeEvent(event) }
-        }
+        val event = ResizeEvent(expectedResizeState, expectedNewSize)
+        underTest.onResizeEvent(event)
 
         assertThat(listenerCalled.get()).isTrue()
     }
@@ -92,24 +89,17 @@ class FakeResizableComponentTest {
     @Test
     fun removeListener_doesNotNotifyRemovedListener() {
         val listenerCalled = AtomicBoolean(false)
-        val mockListener =
-            object : ResizeEventListener {
-                override fun onResizeEvent(event: ResizeEvent) {
-                    listenerCalled.set(true)
-                }
-            }
+        val listener = ResizeEventListener { listenerCalled.set(true) }
 
-        underTest.addResizeEventListener({ command -> command.run() }, mockListener)
-        underTest.removeResizeEventListener(mockListener)
+        underTest.addResizeEventListener({ command -> command.run() }, listener)
+        underTest.removeResizeEventListener(listener)
 
         // For simplicity in the fake, we'll use some default values for fields
         // not directly provided by this simplified move signature.
         val event =
             ResizeEvent(ResizeEvent.ResizeState.RESIZE_STATE_START, Dimensions(2.0f, 2.0f, 2.0f))
 
-        for ((listener, executor) in underTest.resizeEventListenersMap) {
-            executor.execute { listener.onResizeEvent(event) }
-        }
+        underTest.onResizeEvent(event)
 
         assertThat(listenerCalled.get()).isFalse()
     }

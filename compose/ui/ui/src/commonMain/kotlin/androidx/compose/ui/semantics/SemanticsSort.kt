@@ -262,7 +262,7 @@ private object TopBottomBoundsComparator : Comparator<Pair<Rect, MutableList<Sem
 
 // Kotlin `sortWith` should just pull out the highest traversal indices, but keep everything
 // else in place. If the element does not have a `traversalIndex` then `0f` will be used.
-private val UnmergedConfigComparator: (SemanticsNode, SemanticsNode) -> Int = { a, b ->
+internal val UnmergedConfigComparator: (SemanticsNode, SemanticsNode) -> Int = { a, b ->
     a.unmergedConfig
         .getOrElse(SemanticsProperties.TraversalIndex) { 0f }
         .compareTo(b.unmergedConfig.getOrElse(SemanticsProperties.TraversalIndex) { 0f })

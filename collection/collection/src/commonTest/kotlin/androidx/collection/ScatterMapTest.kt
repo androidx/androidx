@@ -83,6 +83,58 @@ class ScatterMapTest {
     }
 
     @Test
+    fun mutableScatterMapFromMap() {
+        val from = mapOf("Hello" to "World", "Bonjour" to "Monde")
+        val map = from.toMutableScatterMap()
+        assertEquals(2, map.size)
+        assertEquals("World", map["Hello"])
+        assertEquals("Monde", map["Bonjour"])
+    }
+
+    @Test
+    fun mutableScatterMapFromScatterMap() {
+        val from = mutableScatterMapOf("Hello" to "World", "Bonjour" to "Monde")
+        val map = from.toMutableScatterMap()
+        assertEquals(2, map.size)
+        assertEquals("World", map["Hello"])
+        assertEquals("Monde", map["Bonjour"])
+    }
+
+    @Test
+    fun scatterMapFromMap() {
+        val from = mapOf("Hello" to "World", "Bonjour" to "Monde")
+        val map = from.toScatterMap()
+        assertEquals(2, map.size)
+        assertEquals("World", map["Hello"])
+        assertEquals("Monde", map["Bonjour"])
+    }
+
+    @Test
+    fun scatterMapFromScatterMap() {
+        val from = mutableScatterMapOf("Hello" to "World", "Bonjour" to "Monde")
+        val map = from.toScatterMap()
+        assertEquals(2, map.size)
+        assertEquals("World", map["Hello"])
+        assertEquals("Monde", map["Bonjour"])
+    }
+
+    @Test
+    fun scatterMapFromEmptyMap() {
+        val from = mapOf<String, String>()
+        val map = from.toScatterMap()
+        assertEquals(0, map.size)
+        assertSame(emptyScatterMap<String, String>(), map)
+    }
+
+    @Test
+    fun scatterMapFromEmptyScatterMap() {
+        val from = mutableScatterMapOf<String, String>()
+        val map = from.toScatterMap()
+        assertEquals(0, map.size)
+        assertSame(emptyScatterMap<String, String>(), map)
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableScatterMap<String, String>()
         map["Hello"] = "World"
@@ -1502,6 +1554,24 @@ class ScatterMapTest {
             "{Hello=World, Bonjour=Monde}" == map2.asMutableMap().toString() ||
                 "{Bonjour=Monde, Hello=World}" == map2.asMutableMap().toString()
         )
+    }
+
+    @Test
+    fun asMapViewsToString() {
+        val map = mutableScatterMapOf("one" to 1, "two" to 2)
+        val asMap = map.asMap()
+
+        val keysString = asMap.keys.toString()
+        assertEquals(keysString, "[one, two]", "Keys toString was: $keysString")
+
+        val valuesString = asMap.values.toString()
+        assertEquals(valuesString, "[1, 2]", "Values toString was: $valuesString")
+
+        val entriesString = asMap.entries.toString()
+        assertEquals(entriesString, "[one=1, two=2]", "Entries toString was: $entriesString")
+
+        val entryString = asMap.entries.first().toString()
+        assertEquals(entryString, "one=1", "MapEntry toString was: $entryString")
     }
 
     @Test

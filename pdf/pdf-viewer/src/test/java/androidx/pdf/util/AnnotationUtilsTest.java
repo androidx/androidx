@@ -38,10 +38,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class AnnotationUtilsTest {
     @Test
     public void getAnnotationIntent_nonNullUri_returnsAnnotateActionIntent() {

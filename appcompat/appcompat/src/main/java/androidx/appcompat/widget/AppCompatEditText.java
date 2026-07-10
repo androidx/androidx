@@ -111,7 +111,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
 
     public AppCompatEditText(
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         ThemeUtils.checkAppCompatTheme(this, getContext());
 
@@ -354,6 +354,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Override
     @RequiresApi(api = 26)
+    @SuppressWarnings("GetterSetterNullability")
     public @NonNull TextClassifier getTextClassifier() {
         // The null check is necessary because getTextClassifier is called when we are invoking
         // the super class's constructor.

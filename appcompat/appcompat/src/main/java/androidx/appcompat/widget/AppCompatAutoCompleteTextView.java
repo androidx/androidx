@@ -79,7 +79,7 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
 
     public AppCompatAutoCompleteTextView(
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         ThemeUtils.checkAppCompatTheme(this, getContext());
 

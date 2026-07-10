@@ -20,6 +20,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuItemCompat
 import androidx.pdf.view.PdfView
 import kotlin.math.roundToInt
 
@@ -60,7 +61,9 @@ internal class SelectionActionModeCallback(
                             /* order = */ Menu.NONE,
                             /* title = */ component.label,
                         )
-                    component.contentDescription?.let { menuItem?.contentDescription = it }
+                    if (component.contentDescription != null && menuItem != null) {
+                        MenuItemCompat.setContentDescription(menuItem, component.contentDescription)
+                    }
                     menuItem?.setOnMenuItemClickListener {
                         component.onClick(this, pdfView)
                         true
@@ -74,7 +77,9 @@ internal class SelectionActionModeCallback(
                             /* order = */ Menu.NONE,
                             /* title = */ component.label,
                         )
-                    component.contentDescription?.let { menuItem?.contentDescription = it }
+                    if (component.contentDescription != null && menuItem != null) {
+                        MenuItemCompat.setContentDescription(menuItem, component.contentDescription)
+                    }
                     menuItem?.setOnMenuItemClickListener {
                         component.onClick(this)
                         true
@@ -91,7 +96,9 @@ internal class SelectionActionModeCallback(
                             /* order = */ Menu.NONE,
                             /* title = */ component.label,
                         )
-                    component.contentDescription?.let { menuItem?.contentDescription = it }
+                    if (component.contentDescription != null && menuItem != null) {
+                        MenuItemCompat.setContentDescription(menuItem, component.contentDescription)
+                    }
                     component.leadingIcon?.let { menuItem?.icon = it }
                     menuItem?.setOnMenuItemClickListener {
                         component.onClick(this, pdfView)
@@ -110,31 +117,21 @@ internal class SelectionActionModeCallback(
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
         // If we don't know about page layout, defer to the default implementation
         val localPageLayoutManager =
-            pdfView.pageMetadataLoader ?: return super.onGetContentRect(mode, view, outRect)
+            pdfView.pageLayoutManager ?: return super.onGetContentRect(mode, view, outRect)
         val viewport = pdfView.getVisibleAreaInContentCoords()
-        val firstSelection = pdfView.currentSelection?.bounds?.firstOrNull()
-        val lastSelection = pdfView.currentSelection?.bounds?.lastOrNull()
-        // Try to position the context menu near the first selection if it's visible
-        if (firstSelection != null) {
+
+        // Iterate through all selection bounds to find the first one that is visible.
+        pdfView.currentSelection?.bounds?.forEach { selectionBound ->
             // Copy bounds to avoid mutating the real data
-            val boundsInView = localPageLayoutManager.getViewRect(firstSelection, viewport)
+            val boundsInContentView =
+                localPageLayoutManager.getContentViewRect(selectionBound, viewport)
             if (
-                boundsInView?.let { viewport.intersects(it.left, it.top, it.right, it.bottom) } ==
-                    true
+                boundsInContentView?.let {
+                    viewport.intersects(it.left, it.top, it.right, it.bottom)
+                } == true
             ) {
-                outRect?.set(pdfView.toViewRect(boundsInView))
-                return
-            }
-        }
-        // Else, try to position the context menu near the last selection if it's visible
-        if (lastSelection != null) {
-            // Copy bounds to avoid mutating the real data
-            val boundsInView = localPageLayoutManager.getViewRect(lastSelection, viewport)
-            if (
-                boundsInView?.let { viewport.intersects(it.left, it.top, it.right, it.bottom) } ==
-                    true
-            ) {
-                outRect?.set(pdfView.toViewRect(boundsInView))
+                // Found the first visible selection, position the context menu near it.
+                outRect?.set(pdfView.toViewRect(boundsInContentView))
                 return
             }
         }

@@ -95,12 +95,12 @@ internal class TextActionModeCallback(
     }
 }
 
-internal enum class MenuItemOption(val id: Int) {
-    Copy(0),
-    Paste(1),
-    Cut(2),
-    SelectAll(3),
-    Autofill(4);
+internal enum class MenuItemOption(val id: Int, val order: Int) {
+    Copy(android.R.id.copy, 0),
+    Paste(android.R.id.paste, 1),
+    Cut(android.R.id.cut, 2),
+    SelectAll(android.R.id.selectAll, 3),
+    Autofill(android.R.id.autofill, 4);
 
     val titleResource: Int
         get() =
@@ -111,12 +111,9 @@ internal enum class MenuItemOption(val id: Int) {
                 SelectAll -> android.R.string.selectAll
                 Autofill ->
                     if (Build.VERSION.SDK_INT <= 26) {
-                        R.string.autofill
+                        R.string.androidx_compose_ui_autofill
                     } else {
                         android.R.string.autofill
                     }
             }
-
-    /** This item will be shown before all items that have order greater than this value. */
-    val order = id
 }

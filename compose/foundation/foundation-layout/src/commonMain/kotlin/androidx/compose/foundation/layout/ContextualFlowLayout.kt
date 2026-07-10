@@ -368,8 +368,7 @@ internal class ContextualFlowRowOverflowScopeImpl(private val state: FlowLayoutO
 
 @ExperimentalLayoutApi
 internal class ContextualFlowColumnOverflowScopeImpl(private val state: FlowLayoutOverflowState) :
-    FlowColumnOverflowScope by FlowColumnOverflowScopeImpl(state),
-    ContextualFlowColumnOverflowScope
+    FlowColumnOverflowScope by FlowColumnOverflowScopeImpl(state), ContextualFlowColumnOverflowScope
 
 @Composable
 internal fun contextualRowMeasurementHelper(

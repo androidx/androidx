@@ -16,6 +16,8 @@
 
 package androidx.core.backported.fixes
 
+import android.os.Build
+
 /**
  * Reports if a [Known Issue] is fixed on a device.
  *
@@ -61,7 +63,11 @@ public class BackportedFixManager(private val resolver: StatusResolver) {
      */
     public fun getStatus(ki: KnownIssue): Status {
         return if (ki.precondition.invoke()) {
-            resolver.getStatus(ki)
+            if (ki.manuallyTestedFingerprints.contains(Build.FINGERPRINT)) {
+                Status.Fixed
+            } else {
+                resolver.getStatus(ki)
+            }
         } else {
             Status.NotApplicable
         }

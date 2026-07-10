@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.node
 
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.xr.compose.subspace.layout.LayoutSubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.ParentLayoutParamsAdjustable
 import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
@@ -47,6 +48,9 @@ internal class SubspaceLayoutModifierNodeCoordinator(
     internal val layoutNode: SubspaceLayoutNode?
         get() = baseNode.layoutNode
 
+    private val logger: Logger?
+        get() = layoutNode?.owner?.logger
+
     internal val parent: SubspaceLayoutModifierNodeCoordinator?
         get() =
             generateSequence(baseNode.parent) { it.parent }.firstNotNullOfOrNull { it.coordinator }
@@ -60,36 +64,43 @@ internal class SubspaceLayoutModifierNodeCoordinator(
         get() = layoutPose ?: Pose.Identity
 
     /**
+     * The pose of this layout modifier node relative to its parent entity in the Compose hierarchy.
+     */
+    override val poseInParent: Pose
+        get() = coordinatesInParentEntity?.poseInParent?.compose(pose) ?: pose
+
+    /**
      * The pose of this layout modifier node relative to the root entity of the Compose hierarchy.
      */
     override val poseInRoot: Pose
-        get() =
-            coordinatesInRoot?.poseInRoot?.let {
-                pose.translate(it.translation).rotate(it.rotation)
-            } ?: pose
+        get() = parentCoordinates?.poseInRoot?.compose(pose) ?: pose
 
     /**
-     * The pose of this layout modifier node relative to its parent entity in the Compose hierarchy.
-     */
-    override val poseInParentEntity: Pose
-        get() =
-            coordinatesInParentEntity?.poseInParentEntity?.let {
-                pose.translate(it.translation).rotate(it.rotation)
-            } ?: pose
-
-    /**
-     * The layout coordinates of the parent [SubspaceLayoutNode] up to the root of the hierarchy
-     * including application from any [SubspaceLayoutModifierNode] instances applied to this node.
+     * The coordinates of the immediate parent in the layout hierarchy.
      *
-     * This applies the layout changes of all [SubspaceLayoutModifierNode] instances in the modifier
-     * chain and then [layoutNode]'s parent or just [layoutNode]'s parent and this modifier if no
-     * other [SubspaceLayoutModifierNode] is present.
+     * For a modifier, this returns the coordinates of the modifier that preceded it in the chain.
+     * If it is the first modifier, it falls back to returning the coordinates of the parent layout
+     * of the node it is attached to.
+     *
+     * Returns `null` only for a modifier on the root of the hierarchy.
      */
-    private val coordinatesInRoot: SubspaceLayoutCoordinates?
-        get() = parent ?: layoutNode?.measurableLayout?.parentCoordinatesInRoot
+    override val parentCoordinates: SubspaceLayoutCoordinates?
+        get() = parent ?: parentLayoutCoordinates
 
     /**
-     * The layout coordinates up to the nearest parent [CoreEntity] including mutations from any
+     * The coordinates of the nearest parent layout, skipping any intermediate modifiers.
+     *
+     * This bypasses any other modifiers on the same layout node and returns the coordinates of the
+     * parent of the layout node itself.
+     *
+     * Returns `null` only for a modifier on the root of the hierarchy.
+     */
+    override val parentLayoutCoordinates: SubspaceLayoutCoordinates?
+        get() = layoutNode?.measurableLayout?.parentLayoutCoordinates
+
+    /**
+     * The layout coordinates up to the nearest parent
+     * [androidx.xr.compose.subspace.layout.CoreEntity] including mutations from any
      * [SubspaceLayoutModifierNode] instances applied to this node.
      *
      * This applies the layout changes of all [SubspaceLayoutModifierNode] instances in the modifier
@@ -108,11 +119,20 @@ internal class SubspaceLayoutModifierNodeCoordinator(
 
     public override fun placeAt(pose: Pose) {
         layoutPose = pose
+        logger?.nodePlaced(layoutModifierNode, pose)
         subspaceMeasureResult?.placeChildren(
             object : SubspacePlacementScope() {
+                override val parentLayoutDirection =
+                    this@SubspaceLayoutModifierNodeCoordinator.layoutNode?.layoutDirection
+                        ?: LayoutDirection.Ltr
                 public override val coordinates = this@SubspaceLayoutModifierNodeCoordinator
             }
         )
+    }
+
+    /** Places this layout node using the most recently provided pose. */
+    internal fun replace() {
+        layoutPose?.let { placeAt(it) }
     }
 
     /**
@@ -123,6 +143,8 @@ internal class SubspaceLayoutModifierNodeCoordinator(
      *   by its parent layout.
      */
     override fun measure(constraints: VolumeConstraints): SubspacePlaceable {
+        measurementConstraints = constraints
+
         with(layoutModifierNode) {
             val measurable: SubspaceMeasurable = child ?: layoutNode!!.measurableLayout
             val subspaceMeasureResult: SubspaceMeasureResult =
@@ -134,6 +156,8 @@ internal class SubspaceLayoutModifierNodeCoordinator(
             measuredHeight = subspaceMeasureResult.height
             measuredDepth = subspaceMeasureResult.depth
         }
+
+        logger?.nodeMeasured(layoutModifierNode, constraints, size)
 
         return this
     }

@@ -17,6 +17,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
@@ -101,13 +102,36 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
 
     /**
      * Asserts that this {@link AppSearchBatchResult} has no failures.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void checkSuccess() {
         if (!isSuccess()) {
             throw new IllegalStateException("AppSearchBatchResult has failures: " + this);
         }
+    }
+
+    /**
+     * Returns an {@link AppSearchBatchResult} with the same keys and {@link Void} value type.
+     *
+     * <p>It is used to convert {@link ValueType} to {@link Void} for safe parcelable if the {@link
+     * ValueType} is an internal only type and won't be returned to the client.
+     */
+    @HideInPlatform
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull AppSearchBatchResult<KeyType, Void> toVoidBatchResult() {
+        Builder<KeyType, Void> builder = new Builder<>();
+        for (Map.Entry<KeyType, @Nullable ValueType> entry : mSuccesses.entrySet()) {
+            builder.setSuccess(entry.getKey(), /* value= */ null);
+        }
+        for (Map.Entry<KeyType, AppSearchResult<ValueType>> entry : mFailures.entrySet()) {
+            builder.setFailure(
+                    entry.getKey(),
+                    entry.getValue().getResultCode(),
+                    entry.getValue().getErrorMessage());
+        }
+        // No need to convert mAll since setSuccess and setFailure have already added entries to it.
+        return builder.build();
     }
 
     @Override

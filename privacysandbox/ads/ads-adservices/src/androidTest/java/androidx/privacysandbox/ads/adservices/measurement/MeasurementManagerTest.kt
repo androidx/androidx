@@ -113,7 +113,7 @@ class MeasurementManagerTest {
         // Set up the request.
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -167,7 +167,7 @@ class MeasurementManagerTest {
 
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -210,7 +210,7 @@ class MeasurementManagerTest {
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -245,7 +245,7 @@ class MeasurementManagerTest {
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)
@@ -300,7 +300,7 @@ class MeasurementManagerTest {
 
         val successCallback = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(successCallback)
@@ -342,7 +342,7 @@ class MeasurementManagerTest {
 
         val successCallback = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(3)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
 
@@ -424,7 +424,7 @@ class MeasurementManagerTest {
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-            receiver.onResult(Object())
+            receiver.onResult(Any())
             null
         }
         doAnswer(answer)

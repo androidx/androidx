@@ -65,6 +65,24 @@ constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
     ) : this(config, initialKey, null, pagingSourceFactory)
 
+    @OptIn(ExperimentalPagingApi::class)
+    private val pageFetcher =
+        PageFetcher(
+            pagingSourceFactory =
+                if ((pagingSourceFactory as Any) is SuspendingPagingSourceFactory<*, *>) {
+                    @Suppress("CAST_NEVER_SUCCEEDS")
+                    (pagingSourceFactory as SuspendingPagingSourceFactory<Key, Value>)::create
+                } else {
+                    // cannot pass it as is since it is not a suspend function. Hence, we wrap
+                    // it in {}
+                    // which means we are calling the original factory inside a suspend function
+                    { pagingSourceFactory() }
+                },
+            initialKey = initialKey,
+            config = config,
+            remoteMediator = remoteMediator,
+        )
+
     /**
      * A cold [Flow] of [PagingData], which emits new instances of [PagingData] once they become
      * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
@@ -81,21 +99,88 @@ constructor(
      * new instance of [PagingData] with cached data pre-loaded.
      */
     @OptIn(androidx.paging.ExperimentalPagingApi::class)
-    public val flow: Flow<PagingData<Value>> =
-        PageFetcher(
-                pagingSourceFactory =
-                    @Suppress("USELESS_IS_CHECK")
-                    if (pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>) {
-                        pagingSourceFactory::create
-                    } else {
-                        // cannot pass it as is since it is not a suspend function. Hence, we wrap
-                        // it in {}
-                        // which means we are calling the original factory inside a suspend function
-                        { pagingSourceFactory() }
-                    },
-                initialKey = initialKey,
-                config = config,
-                remoteMediator = remoteMediator,
-            )
-            .flow
+    public val flow: Flow<PagingData<Value>> = pageFetcher.flow
+
+    /**
+     * Loads a page at the end of current loaded data. Provides a way to manually trigger appends
+     * without scrolling.
+     *
+     * This function is no-op if there are no more data to be loaded from the datasource (i.e.
+     * append is [LoadState.NotLoading.Complete])
+     *
+     * Appends that are triggered by scrolling (i.e. if user scrolls to end of the list and triggers
+     * [PagingConfig.prefetchDistance]) takes precedence over this append. This ensures that items
+     * that are currently accessed gets loaded in first.
+     *
+     * No-op if preceding [append] returned [LoadState.Error]. To recover from error, use [retry]
+     *
+     * @sample androidx.paging.samples.PagerLoadMoreDataSample
+     */
+    public fun append() {
+        pageFetcher.load(LoadType.APPEND)
+    }
+
+    /**
+     * Loads a page at the start of current loaded data. Provides a way to manually trigger prepends
+     * without scrolling.
+     *
+     * This function is no-op if there are no more data to be loaded from the datasource (i.e.
+     * prepend is [LoadState.NotLoading.Complete])
+     *
+     * Prepends that are triggered by scrolling (i.e. if user scrolls to start of the list and
+     * triggers [PagingConfig.prefetchDistance]) takes precedence over this prepend. This ensures
+     * that items that are currently accessed gets loaded in first.
+     *
+     * No-op if preceding [prepend] returned [LoadState.Error]. To recover from error, use [retry]
+     *
+     * @sample androidx.paging.samples.PagerLoadMoreDataSample
+     */
+    public fun prepend() {
+        pageFetcher.load(LoadType.PREPEND)
+    }
+
+    /**
+     * Refresh all currently loaded data.
+     *
+     * The refresh key is the key that was used to load the current first loaded page, and the
+     * loadSize is the size of current loaded data.
+     *
+     * Note that this is a best-effort attempt to reload all current data. Actual loaded data may
+     * differ based on how [PagingSource.load] handles the same key for different [LoadType]. For
+     * example the current first page might have been a prepended page, and [PagingSource.load]
+     * could handle the same key in different ways for [LoadType.PREPEND] versus [LoadType.REFRESH]
+     */
+    public fun refresh() {
+        pageFetcher.refreshAll()
+    }
+
+    /**
+     * Refresh based on a given loaded item.
+     *
+     * The refresh key is the key that was originally used to the load the page that contains
+     * [item], and the loadSize is [PagingConfig.initialLoadSize].
+     *
+     * Note that this is a best-effort attempt to reload around the given loaded item. The requested
+     * [item] is expected to be in the first page of reloaded items but will likely not be the very
+     * first reloaded item. For example if two pages are currently loaded with loadKeys `MyKey1` and
+     * `MyKey2` respectively:
+     * - pg1: MyKey1 = items [0, 1, 2, 3]
+     * - pg2: MyKey2 = items [4, 5, 6, 7] If this method were called with item 5 - refresh(5) - then
+     *   the refreshKey will be `MyKey2`, which will theoretically refresh starting at (item 4)
+     *   until (item4 + initialLoadSize).
+     */
+    public fun refresh(item: Value) {
+        pageFetcher.refresh(item)
+    }
+
+    /**
+     * Retry most recent load that returned [PagingSource.LoadResult.Error]. No-op if there were no
+     * errors.
+     *
+     * Applicable to all [LoadType]s. The retry is not guaranteed to succeed as the cause of the
+     * initial may persist on retries.
+     */
+    public fun retry() {
+        pageFetcher.retry()
+    }
 }

@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.graphics.path.PathIterator#getConicEvaluation():
+    Source breaking change: method androidx.graphics.path.PathIterator.getConicEvaluation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathIterator#getPath():
+    Source breaking change: method androidx.graphics.path.PathIterator.getPath() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathIterator#getTolerance():
+    Source breaking change: method androidx.graphics.path.PathIterator.getTolerance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathSegment#getPoints():
+    Source breaking change: method androidx.graphics.path.PathSegment.getPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathSegment#getType():
+    Source breaking change: method androidx.graphics.path.PathSegment.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathSegment#getWeight():
+    Source breaking change: method androidx.graphics.path.PathSegment.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathSegmentUtilities#getCloseSegment():
+    Source breaking change: method androidx.graphics.path.PathSegmentUtilities.getCloseSegment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.path.PathSegmentUtilities#getDoneSegment():
+    Source breaking change: method androidx.graphics.path.PathSegmentUtilities.getDoneSegment() can no longer be resolved from Kotlin source

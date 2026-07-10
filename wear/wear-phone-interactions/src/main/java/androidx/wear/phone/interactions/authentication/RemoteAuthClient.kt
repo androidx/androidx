@@ -137,13 +137,13 @@ internal constructor(
          * states. To preserve compatibility with existing devices behavior, try
          * [sendAuthorizationRequest] and handle error codes accordingly.
          */
-        public const val STATUS_UNKNOWN = 0
+        public const val STATUS_UNKNOWN: Int = 0
 
         /**
          * Indicates that remote auth is unavailable because there is no paired device capable of
          * handling the remote interaction.
          */
-        public const val STATUS_UNAVAILABLE = 1
+        public const val STATUS_UNAVAILABLE: Int = 1
 
         /**
          * Indicates that remote auth is temporarily unavailable.
@@ -151,13 +151,13 @@ internal constructor(
          * There is a known paired device, but it is not currently connected or reachable to handle
          * the remote interaction.
          */
-        public const val STATUS_TEMPORARILY_UNAVAILABLE = 2
+        public const val STATUS_TEMPORARILY_UNAVAILABLE: Int = 2
 
         /**
          * Indicates that remote auth is available with a connected device capable to handle the
          * remote interaction.
          */
-        public const val STATUS_AVAILABLE = 3
+        public const val STATUS_AVAILABLE: Int = 3
 
         /** Indicates 3p authentication is finished without error */
         public const val NO_ERROR: Int = -1
@@ -431,6 +431,8 @@ internal constructor(
                 }
             )
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     /** Manages the connection with Wearable Auth service. */

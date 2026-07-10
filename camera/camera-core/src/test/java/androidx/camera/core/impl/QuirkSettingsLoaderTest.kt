@@ -36,6 +36,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.ALL_SDKS])
 class QuirkSettingsLoaderTest {
 
     companion object {

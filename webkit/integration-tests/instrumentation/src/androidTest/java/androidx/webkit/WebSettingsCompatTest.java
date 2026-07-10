@@ -24,7 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Bitmap;
 import android.webkit.CookieManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -44,23 +46,17 @@ import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatTest {
-    public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";
     WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -79,6 +75,23 @@ public class WebSettingsCompatTest {
         }
         WebkitUtils.onMainThreadSync(() -> CookieManager.getInstance().removeAllCookies(value -> {
         }));
+    }
+
+    private class FaviconChromeClient extends WebChromeClient {
+        private final BlockingQueue<Bitmap> mReceivedIcons = new LinkedBlockingQueue<>();
+        private static final long FAVICON_TIMEOUT = 500;
+
+        @Nullable
+        public Bitmap waitForNextIcon() throws InterruptedException {
+            return mReceivedIcons.poll(FAVICON_TIMEOUT, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onReceivedIcon(WebView view, Bitmap icon) {
+            Assert.assertNotNull(icon);
+            mReceivedIcons.add(icon);
+            super.onReceivedIcon(view, icon);
+        }
     }
 
     /**
@@ -152,33 +165,6 @@ public class WebSettingsCompatTest {
                 mWebViewOnUiThread.getSettings(), true);
         assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
                 mWebViewOnUiThread.getSettings()));
-    }
-
-    @Test
-    public void testSetAppPackageNameXRequestedWithHeaderAllowList() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST);
-
-        WebSettings settings = mWebViewOnUiThread.getSettings();
-        Assert.assertTrue("The default should be an empty allow-list.",
-                WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings).isEmpty());
-        Set<String> allowList = new HashSet<>(
-                Arrays.asList("https://*.google.com", "https://*.example" + ".com:8443"));
-        WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, allowList);
-        assertEquals("After setting an allow-list, it should be returned", allowList,
-                WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings));
-
-        // Check that the allow-list is respected, and the URL will get the expected header set.
-        try (MockWebServer mockWebServer = new MockWebServer()) {
-            HttpUrl url = mockWebServer.url("/");
-            String requestUrl = url.toString();
-            String requestOrigin = url.scheme() + "://" + url.host() + ":" + url.port();
-            WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings,
-                    Collections.singleton(requestOrigin));
-            mWebViewOnUiThread.loadUrl(requestUrl);
-            RecordedRequest recordedRequest = mockWebServer.takeRequest();
-            String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertEquals(TEST_APK_NAME, headerValue);
-        }
     }
 
     @Test
@@ -345,6 +331,27 @@ public class WebSettingsCompatTest {
         Assert.assertTrue(WebSettingsCompat.getBackForwardCacheEnabled(settings));
     }
 
+    @SuppressWarnings({"deprecation", "removal"})
+    @Test
+    public void testBFCacheSettings() {
+        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        final int pageLimit = 5;
+        final int timeout = 96000;
+
+        BackForwardCacheSettings backForwardCacheSettings =
+                WebSettingsCompat.getBackForwardCacheSettings(settings);
+        backForwardCacheSettings.setMaxPagesInCache(pageLimit);
+        backForwardCacheSettings.setTimeoutSeconds(timeout);
+
+        BackForwardCacheSettings newBackForwardCacheSettings =
+                WebSettingsCompat.getBackForwardCacheSettings(settings);
+        Assert.assertEquals(backForwardCacheSettings.getMaxPagesInCache(),
+                newBackForwardCacheSettings.getMaxPagesInCache());
+        Assert.assertEquals(backForwardCacheSettings.getTimeoutSeconds(),
+                newBackForwardCacheSettings.getTimeoutSeconds());
+    }
+
     @Test
     public void testPaymentRequestSupport() {
         WebkitUtils.checkFeature(WebViewFeature.PAYMENT_REQUEST);
@@ -426,6 +433,19 @@ public class WebSettingsCompatTest {
         Set<String> cookies = new HashSet<>(
                 CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
         Assert.assertEquals(Set.of("foo=bar; domain=example.com; path=/"), cookies);
+    }
+
+    @Test
+    public void testSetDownloadFaviconsEnabledFalse() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.DOWNLOAD_FAVICONS_ENABLED);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        WebSettingsCompat.setDownloadFaviconsEnabled(settings, false);
+        Assert.assertFalse(WebSettingsCompat.getDownloadFaviconsEnabled(settings));
+
+        FaviconChromeClient iconClient = new FaviconChromeClient();
+        mWebViewOnUiThread.setWebChromeClient(iconClient);
+        mWebViewOnUiThread.loadUrl("https://www.google.com");
+        Assert.assertNull(iconClient.waitForNextIcon());
     }
 
     private void setCookieInterceptWebViewClient(String interceptUrl,

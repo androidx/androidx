@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Build
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertShape
@@ -80,6 +82,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.abs
+import kotlin.math.min
 import org.junit.Assert
 import org.junit.rules.TestName
 
@@ -105,16 +108,18 @@ enum class ScreenShape(val isRound: Boolean) {
  * configurations within your UI tests. This is useful for testing how your composables behave on
  * different screen sizes and form factors (e.g. round or square screens).
  *
- * @param screenSizeDp The desired screen size in dp. The composable will be placed into a square
- *   box with this side length.
+ * @param desiredScreenSizeDp The desired screen size in dp. The composable will be placed into a
+ *   square box with this side length. The final screen size is limited to the actual size of the
+ *   test device.
  * @param isRound An optional boolean value to specify if the simulated screen should be round. If
  *   `true`, the screen is considered round. If `false`, it is considered rectangular. If `null`,
  *   the original device's roundness setting is used.
  * @param content The composable content to be tested within the modified screen configuration.
  */
+@SuppressLint("LocalContextConfigurationRead")
 @Composable
 fun ScreenConfiguration(
-    screenSizeDp: Int,
+    desiredScreenSizeDp: Int,
     isRound: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
@@ -124,8 +129,8 @@ fun ScreenConfiguration(
     val fixedScreenSizeConfiguration =
         remember(originalConfiguration) {
             Configuration(originalConfiguration).apply {
-                screenWidthDp = screenSizeDp
-                screenHeightDp = screenSizeDp
+                screenWidthDp = min(desiredScreenSizeDp, originalConfiguration.screenWidthDp)
+                screenHeightDp = min(desiredScreenSizeDp, originalConfiguration.screenHeightDp)
                 if (isRound != null) {
                     screenLayout =
                         if (isRound) Configuration.SCREENLAYOUT_ROUND_YES
@@ -133,7 +138,11 @@ fun ScreenConfiguration(
                 }
             }
         }
+
     originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)
+    DisposableEffect(Unit) {
+        onDispose { originalContext.resources.configuration.updateFrom(originalConfiguration) }
+    }
 
     CompositionLocalProvider(
         LocalContext provides originalContext,
@@ -141,7 +150,8 @@ fun ScreenConfiguration(
     ) {
         Box(
             modifier =
-                Modifier.size(screenSizeDp.dp).background(MaterialTheme.colorScheme.background)
+                Modifier.size(desiredScreenSizeDp.dp)
+                    .background(MaterialTheme.colorScheme.background)
         ) {
             content()
         }

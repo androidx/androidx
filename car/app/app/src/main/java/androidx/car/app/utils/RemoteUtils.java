@@ -261,6 +261,11 @@ public final class RemoteUtils {
             public void onFailure(Bundleable failureResponse) {
                 callback.onFailure(failureResponse);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 
@@ -377,6 +382,11 @@ public final class RemoteUtils {
                 }
                 return null;
             });
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 

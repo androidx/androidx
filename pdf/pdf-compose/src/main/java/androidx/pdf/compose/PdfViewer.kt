@@ -21,11 +21,14 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
@@ -33,6 +36,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.pdf.PdfDocument
 import androidx.pdf.R
 import androidx.pdf.content.ExternalLink
+import androidx.pdf.models.FormEditInfo
+import androidx.pdf.ocr.OcrProvider
+import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.view.PdfView
 import kotlin.random.Random
 
@@ -42,21 +48,54 @@ import kotlin.random.Random
  * @param pdfDocument the PDF content to present
  * @param state the state object used to observe and control content position
  * @param modifier the [Modifier] to be applied to this PDF viewer
+ * @param isFormFillingEnabled boolean flag to enable / disable the form-filling feature surface.
+ * @param isImageSelectionEnabled boolean flag to enable / disable the image-selection feature
+ *   surface.
+ * @param ocrProvider an [OcrProvider] instance to be used for OCR (Optical Character Recognition)
+ *   in image PDF content. The caller retains ownership of the [OcrProvider] and is responsible for
+ *   calling [OcrProvider.close] when it is no longer needed.
  * @param minZoom the minimum zoom / scaling factor that can be applied to the PDF viewer
  * @param maxZoom the maximum zoom / scaling factor that can be applied to the PDF viewer
- * @param fastScrollConfig a [FastScrollConfiguration] instance to customize the fast scoller's
+ * @param verticalAlignment the alignment of the top page within the view
+ * @param pagesPerRow The number of pages to display in a single row.
+ * @param horizontalPageSpacing The spacing between horizontally adjacent pages.
+ * @param verticalPageSpacing The spacing between vertically adjacent pages.
+ * @param fastScrollConfig a [FastScrollConfiguration] instance to customize the fast scroller's
  *   appearance
+ * @param contentPadding a padding around the whole content. This will add padding for the content
+ *   after it has been clipped, which is not possible via [modifier] param. Note: The content bleeds
+ *   into the padded area when the view is scrolled.
  * @param onUrlLinkClicked a callback to be invoked when the user taps a URL link in this PDF viewer
+ * @param onFormWidgetInfoUpdated a callback to be invoked when a form widget is updated due to a
+ *   user interaction. @see [PdfView.OnFormWidgetInfoUpdatedListener]
+ * @param onFirstContentLoad a callback that is invoked when the document's content is first loaded
+ *   It resets and trigger again if a new document is loaded or if the underlying view is recreated.
+ * @param appendContextMenuComponents a callback that can be used to add context menu items.
+ * @param filterContextMenuComponents a callback that can be used to filter context menu items. This
+ *   will be executed on the complete list of menu items after [appendContextMenuComponents] is
+ *   completed.
  */
 @Composable
 public fun PdfViewer(
     pdfDocument: PdfDocument?,
     state: PdfViewerState,
     modifier: Modifier = Modifier,
-    minZoom: Float = PdfView.DEFAULT_MIN_ZOOM,
-    maxZoom: Float = PdfView.DEFAULT_MAX_ZOOM,
+    isFormFillingEnabled: Boolean = false,
+    isImageSelectionEnabled: Boolean = false,
+    ocrProvider: OcrProvider? = null,
+    minZoom: Float = PdfView.MIN_PERMISSIBLE_ZOOM,
+    maxZoom: Float = PdfView.MAX_PERMISSIBLE_ZOOM,
+    verticalAlignment: Int = PdfView.VERTICAL_ALIGNMENT_CENTER,
+    pagesPerRow: Int = PdfView.SINGLE_PAGE,
+    horizontalPageSpacing: Dp = 8.dp,
+    verticalPageSpacing: Dp = 8.dp,
     fastScrollConfig: FastScrollConfiguration =
         FastScrollConfiguration.withDrawableAndDimensionIds(),
+    contentPadding: PaddingValues = NoPadding,
+    appendContextMenuComponents: (PdfSelectionMenuBuilderScope.() -> Unit)? = null,
+    filterContextMenuComponents: ((ContextMenuComponent) -> Boolean)? = null,
+    onFormWidgetInfoUpdated: ((FormEditInfo) -> Unit)? = null,
+    onFirstContentLoad: (() -> Unit)? = null,
     onUrlLinkClicked: ((Uri) -> Boolean)? = null,
 ) {
     // Create and remember an ID for PdfView so that it retains state across compositions and
@@ -75,28 +114,70 @@ public fun PdfViewer(
         remember(fastScrollConfig, context) { fastScrollConfig.pageIndicatorMarginEnd(context) }
     val verticalThumbMarginEnd =
         remember(fastScrollConfig, context) { fastScrollConfig.verticalThumbMarginEnd(context) }
+
+    val onFormWidgetUpdatedListener = remember {
+        PdfViewerOnFormWidgetUpdatedListener(onFormWidgetInfoUpdated)
+    }
+    // Convert Dp to Px for the underlying PdfView.
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val horizontalPageSpacingPx = with(density) { horizontalPageSpacing.roundToPx() }
+    val verticalPageSpacingPx = with(density) { verticalPageSpacing.roundToPx() }
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
             PdfView(context).apply {
                 this.id = pdfViewId
                 state.pdfView = this
+                if (contentPadding != NoPadding) {
+                    with(density) {
+                        setPadding(
+                            contentPadding.calculateLeftPadding(layoutDirection).roundToPx(),
+                            contentPadding.calculateTopPadding().roundToPx(),
+                            contentPadding.calculateRightPadding(layoutDirection).roundToPx(),
+                            contentPadding.calculateBottomPadding().roundToPx(),
+                        )
+                    }
+                    // Allow the content to bleed into the padded area.
+                    clipToPadding = false
+                } else {
+                    clipToPadding = true
+                }
+                setLinkClickListener(PdfViewerLinkClickListener(onUrlLinkClicked))
+                addOnFirstContentLoadListener(
+                    PdfViewerOnFirstContentLoadListener(onFirstContentLoad)
+                )
+                addSelectionMenuItemPreparer(
+                    PdfViewerSelectionMenuPreparer(
+                        appendContextMenuComponents,
+                        filterContextMenuComponents,
+                    )
+                )
+                addOnFormWidgetInfoUpdatedListener(onFormWidgetUpdatedListener)
             }
         },
         onRelease = { view ->
             if (view == state.pdfView) state.pdfView = null
             view.setLinkClickListener(null)
+            view.removeOnFormWidgetInfoUpdatedListener(onFormWidgetUpdatedListener)
         },
         // Factory will execute exactly once; update is the correct place to supply mutable states
         update = { view ->
             view.pdfDocument = pdfDocument
             view.minZoom = minZoom
             view.maxZoom = maxZoom
+            view.isFormFillingEnabled = isFormFillingEnabled
+            view.verticalAlignment = verticalAlignment
             view.fastScrollVerticalThumbDrawable = verticalThumbDrawable
             view.fastScrollPageIndicatorBackgroundDrawable = pageIndicatorDrawable
             view.fastScrollPageIndicatorMarginEnd = pageIndicatorMarginEnd
             view.fastScrollVerticalThumbMarginEnd = verticalThumbMarginEnd
-            view.setLinkClickListener(PdfViewerLinkClickListener(onUrlLinkClicked))
+            view.pagesPerRow = pagesPerRow
+            view.horizontalPageSpacing = horizontalPageSpacingPx
+            view.verticalPageSpacing = verticalPageSpacingPx
+            view.isImageSelectionEnabled = isImageSelectionEnabled
+            view.setOcrProvider(ocrProvider)
         },
     )
 }
@@ -220,3 +301,56 @@ private class PdfViewerLinkClickListener(private val behavior: ((Uri) -> Boolean
         return behavior?.invoke(externalLink.uri) ?: false
     }
 }
+
+/**
+ * Bridge between the lambda-based [PdfViewer] API for custom "first content load" callback and the
+ * listener interface [PdfView] API for the same.
+ */
+private class PdfViewerOnFirstContentLoadListener(private val behavior: (() -> Unit)?) :
+    PdfView.OnFirstContentLoadListener {
+    override fun onFirstContentLoad() {
+        behavior?.invoke()
+    }
+}
+
+/**
+ * Bridge between the lambda-based [PdfViewer] API for supporting form-filling, and the listener
+ * interface [PdfView.OnFormWidgetInfoUpdatedListener] API for the same.
+ *
+ * The [FormEditInfo] received in the callback should be applied to the
+ * [androidx.pdf.EditablePdfDocument] via the [androidx.pdf.EditablePdfDocument.applyEdit] API in
+ * order for the changes to reflect on the PDF.
+ */
+private class PdfViewerOnFormWidgetUpdatedListener(
+    private val behavior: ((FormEditInfo) -> Unit)?
+) : PdfView.OnFormWidgetInfoUpdatedListener {
+    override fun onFormWidgetInfoUpdated(formEditInfo: FormEditInfo) {
+        behavior?.invoke(formEditInfo)
+    }
+}
+
+/**
+ * Bridge between the lambda-based [PdfViewer] API for custom selection menu, and the listener
+ * interface [PdfView] API for the same.
+ *
+ * If [appendSelectionMenuComponents] and [filterSelectionMenuComponents] lambdas are null, a
+ * default set of selection menu items will be shown, similar to the default behavior in [PdfView].
+ */
+private class PdfViewerSelectionMenuPreparer(
+    private val appendSelectionMenuComponents: (PdfSelectionMenuBuilderScope.() -> Unit)?,
+    private val filterSelectionMenuComponents: ((ContextMenuComponent) -> Boolean)?,
+) : PdfView.SelectionMenuItemPreparer {
+    override fun onPrepareSelectionMenuItems(components: MutableList<ContextMenuComponent>) {
+        PdfSelectionMenuBuilderScope().run {
+            appendSelectionMenuComponents?.invoke(this)
+            components.addAll(menuItems)
+            // The execution order of `append` and `filter` blocks is significant, as filtering
+            // applies to all components present at that time.
+            filterSelectionMenuComponents?.let {
+                components.removeAll { component -> !filterSelectionMenuComponents(component) }
+            }
+        }
+    }
+}
+
+private val NoPadding = PaddingValues(0.dp)

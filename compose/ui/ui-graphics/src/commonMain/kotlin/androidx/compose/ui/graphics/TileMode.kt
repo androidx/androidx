@@ -28,7 +28,8 @@ import androidx.compose.runtime.Immutable
  * area.
  *
  * See also: [LinearGradientShader], [RadialGradientShader] which works in relative coordinates and
- * can create a [Shader] representing the gradient for a particular [Rect] on demand.
+ * can create a [Shader] representing the gradient for a particular
+ * [androidx.compose.ui.geometry.Rect] on demand.
  */
 @Immutable
 @kotlin.jvm.JvmInline

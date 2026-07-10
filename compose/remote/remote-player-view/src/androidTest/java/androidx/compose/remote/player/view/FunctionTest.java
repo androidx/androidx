@@ -29,6 +29,7 @@ import android.graphics.Path;
 import android.util.Log;
 
 import androidx.compose.remote.core.operations.Theme;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -66,7 +67,7 @@ public class FunctionTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -96,7 +97,7 @@ public class FunctionTest {
                     rdoc.drawPath(v);
                 };
         TestUtils.Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, use);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -235,7 +236,7 @@ public class FunctionTest {
                     rdoc.drawOval(0, fid, tw, th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =

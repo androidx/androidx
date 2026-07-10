@@ -17,8 +17,6 @@
 package androidx.camera.core;
 
 
-import androidx.annotation.RestrictTo;
-
 import org.jspecify.annotations.NonNull;
 
 import java.util.Set;
@@ -46,7 +44,6 @@ import java.util.Set;
  * {@link androidx.camera.lifecycle.ProcessCameraProvider#addCameraPresenceListener} or
  * {@link androidx.camera.lifecycle.LifecycleCameraProvider#addCameraPresenceListener}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraPresenceListener {
     /**
      * Called when one or more new cameras have been added to the list of usable cameras.

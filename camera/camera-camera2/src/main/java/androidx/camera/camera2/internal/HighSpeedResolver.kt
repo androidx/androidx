@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.internal
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO
 import android.os.Build
 import android.util.Range
 import android.util.Size
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
@@ -30,12 +33,12 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.internal.utils.SizeUtil.getArea
 
 /** A class responsible for resolving parameters for high-speed session scenario. */
-public class HighSpeedResolver(private val characteristics: CameraCharacteristicsCompat) {
+public class HighSpeedResolver(private val cameraMetadata: CameraMetadata) {
 
     /** Indicates whether the camera supports high-speed session. */
     public val isHighSpeedSupported: Boolean by lazy {
         Build.VERSION.SDK_INT >= 23 &&
-            characteristics.get(REQUEST_AVAILABLE_CAPABILITIES)?.any {
+            cameraMetadata[REQUEST_AVAILABLE_CAPABILITIES]?.any {
                 it == REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO
             } == true
     }
@@ -45,9 +48,15 @@ public class HighSpeedResolver(private val characteristics: CameraCharacteristic
         supportedSizes.takeIf { it.isNotEmpty() }?.maxBy { getArea(it) }
     }
 
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat by lazy {
+        val map =
+            cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+                ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
+        StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata, map))
+    }
+
     private val supportedSizes: List<Size> by lazy {
-        characteristics.streamConfigurationMapCompat.highSpeedVideoSizes?.filterNotNull()
-            ?: emptyList()
+        streamConfigurationMapCompat.getHighSpeedVideoSizes()?.toList() ?: emptyList()
     }
 
     /**
@@ -175,9 +184,7 @@ public class HighSpeedResolver(private val characteristics: CameraCharacteristic
     }
 
     private fun getHighSpeedVideoFpsRangesFor(size: Size): List<Range<Int>> {
-        return runCatching {
-                characteristics.streamConfigurationMapCompat.getHighSpeedVideoFpsRangesFor(size)
-            }
+        return runCatching { streamConfigurationMapCompat.getHighSpeedVideoFpsRangesFor(size) }
             .getOrNull()
             ?.filterNotNull()
             ?.toList() ?: emptyList()
@@ -186,7 +193,7 @@ public class HighSpeedResolver(private val characteristics: CameraCharacteristic
     public companion object {
         private const val TAG = "HighSpeedResolver"
 
-        @JvmField public val DEFAULT_FPS: Range<Int> = Range(120, 120)
+        public val DEFAULT_FPS: Range<Int> = Range(120, 120)
 
         /**
          * Checks if a high-speed session is enabled based on the provided attached surfaces and new

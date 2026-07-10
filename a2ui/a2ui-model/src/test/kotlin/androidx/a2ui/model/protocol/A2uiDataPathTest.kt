@@ -1,0 +1,220 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.a2ui.model.protocol
+
+import com.google.common.testing.EqualsTester
+import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
+
+class A2uiDataPathTest {
+
+    @Test
+    fun constructor_rawPath_isPreservedUnmodified() {
+        val rawInput = "/foo/bar//"
+        val dataPath = A2uiDataPath(rawInput)
+        assertThat(dataPath.path).isEqualTo(rawInput)
+    }
+
+    @Test
+    fun constructor_emptyPath_segmentsAreEmpty() {
+        val dataPath = A2uiDataPath("")
+        assertThat(dataPath.normalizedPath).isEmpty()
+        assertThat(dataPath.segments).isEmpty()
+    }
+
+    @Test
+    fun constructor_rootPath_segmentsAreEmpty() {
+        val dataPath = A2uiDataPath("/")
+        assertThat(dataPath.normalizedPath).isEmpty()
+        assertThat(dataPath.segments).isEmpty()
+    }
+
+    @Test
+    fun constructor_pathWithDoubleSlashOnly_segmentsAreEmpty() {
+        val dataPath = A2uiDataPath("//")
+        assertThat(dataPath.normalizedPath).isEqualTo("/")
+        assertThat(dataPath.segments).isEmpty()
+    }
+
+    @Test
+    fun constructor_simplePath_segmentsAreCorrect() {
+        val dataPath = A2uiDataPath("/foo/bar")
+        assertThat(dataPath.normalizedPath).isEqualTo("/foo/bar")
+        assertThat(dataPath.segments).containsExactly("foo", "bar").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithoutLeadingSlash_segmentsAreCorrect() {
+        val dataPath = A2uiDataPath("foo/bar")
+        assertThat(dataPath.normalizedPath).isEqualTo("foo/bar")
+        assertThat(dataPath.segments).containsExactly("foo", "bar").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithSpacesAndSpecialCharacters_segmentsAreCorrect() {
+        val dataPath = A2uiDataPath("/foo bar/baz!@#")
+        assertThat(dataPath.normalizedPath).isEqualTo("/foo bar/baz!@#")
+        assertThat(dataPath.segments).containsExactly("foo bar", "baz!@#").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithMiddleConsecutiveSlashes_middleEmptySegmentsArePreserved() {
+        val dataPath = A2uiDataPath("/foo//bar")
+        assertThat(dataPath.normalizedPath).isEqualTo("/foo//bar")
+        assertThat(dataPath.segments).containsExactly("foo", "", "bar").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithTrailingSlash_segmentsAndNormalizedPathAreCorrect() {
+        val dataPath = A2uiDataPath("/foo/bar/")
+        assertThat(dataPath.normalizedPath).isEqualTo("/foo/bar")
+        assertThat(dataPath.segments).containsExactly("foo", "bar").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithDoubleTrailingSlash_segmentsAndNormalizedPathAreCorrect() {
+        val dataPath = A2uiDataPath("/foo/bar//")
+        assertThat(dataPath.normalizedPath).isEqualTo("/foo/bar/")
+        assertThat(dataPath.segments).containsExactly("foo", "bar", "").inOrder()
+    }
+
+    @Test
+    fun constructor_pathWithEscapedSlash_slashIsDecoded() {
+        val dataPath = A2uiDataPath("/a~1b")
+        assertThat(dataPath.normalizedPath).isEqualTo("/a~1b")
+        assertThat(dataPath.segments).containsExactly("a/b")
+    }
+
+    @Test
+    fun constructor_pathWithEscapedTilde_tildeIsDecoded() {
+        val dataPath = A2uiDataPath("/a~0b")
+        assertThat(dataPath.normalizedPath).isEqualTo("/a~0b")
+        assertThat(dataPath.segments).containsExactly("a~b")
+    }
+
+    @Test
+    fun constructor_pathWithMultipleEscapedSequences_allAreDecoded() {
+        val dataPath = A2uiDataPath("/~1~0")
+        assertThat(dataPath.normalizedPath).isEqualTo("/~1~0")
+        assertThat(dataPath.segments).containsExactly("/~")
+    }
+
+    @Test
+    fun constructor_pathWithInvalidEscapeSequence_isAcceptedGracefully() {
+        val dataPath = A2uiDataPath("/~2/foo~")
+        assertThat(dataPath.normalizedPath).isEqualTo("/~2/foo~")
+        assertThat(dataPath.segments).containsExactly("~2", "foo~").inOrder()
+    }
+
+    @Test
+    fun isAbsolute_emptyPath_returnsTrue() {
+        assertThat(A2uiDataPath("").isAbsolute).isTrue()
+    }
+
+    @Test
+    fun isAbsolute_rootPath_returnsTrue() {
+        assertThat(A2uiDataPath("/").isAbsolute).isTrue()
+    }
+
+    @Test
+    fun isAbsolute_absolutePath_returnsTrue() {
+        assertThat(A2uiDataPath("/foo/bar").isAbsolute).isTrue()
+    }
+
+    @Test
+    fun isAbsolute_relativePath_returnsFalse() {
+        assertThat(A2uiDataPath("foo/bar").isAbsolute).isFalse()
+    }
+
+    @Test
+    fun equalsAndHashCode_contracts() {
+        EqualsTester()
+            .addEqualityGroup(A2uiDataPath("/"), A2uiDataPath(""))
+            .addEqualityGroup(A2uiDataPath("/foo/bar"), A2uiDataPath("/foo/bar/"))
+            .addEqualityGroup(A2uiDataPath("foo/bar"), A2uiDataPath("foo/bar/"))
+            .addEqualityGroup(A2uiDataPath("/bar/foo"))
+            .addEqualityGroup(A2uiDataPath("/a~1b"))
+            .addEqualityGroup(A2uiDataPath("/a/b"))
+            .addEqualityGroup(A2uiDataPath("/foo"))
+            .testEquals()
+    }
+
+    @Test
+    fun toString_anyPath_returnsExpectedFormat() {
+        val path = A2uiDataPath("/foo/bar")
+        assertThat(path.toString())
+            .isEqualTo("A2uiDataPath(path='/foo/bar', normalizedPath='/foo/bar', isAbsolute=true)")
+    }
+
+    @Test
+    fun div_rootPathAndRelativePathString_appendsCorrectly() {
+        val root = A2uiDataPath("/")
+        assertThat((root / "foo").path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_absolutePathAndRelativePathString_appendsCorrectly() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "bar").path).isEqualTo("/foo/bar")
+    }
+
+    @Test
+    fun div_relativePathAndRelativePathString_appendsCorrectly() {
+        val relative = A2uiDataPath("foo")
+        assertThat((relative / "bar").path).isEqualTo("foo/bar")
+    }
+
+    @Test
+    fun div_absolutePathAndAbsolutePathString_overridesPath() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "/baz").path).isEqualTo("/baz")
+    }
+
+    @Test
+    fun div_absolutePathAndEmptyString_doesNotChangePath() {
+        val path = A2uiDataPath("/foo")
+        assertThat((path / "").path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_absolutePathAndRelativeDataPath_appendsCorrectly() {
+        val path1 = A2uiDataPath("/foo")
+        val path2 = A2uiDataPath("bar/baz")
+        assertThat((path1 / path2).path).isEqualTo("/foo/bar/baz")
+    }
+
+    @Test
+    fun div_absolutePathAndAbsoluteDataPath_overridesPath() {
+        val path1 = A2uiDataPath("/foo")
+        val absolutePath = A2uiDataPath("/baz")
+        assertThat((path1 / absolutePath).path).isEqualTo("/baz")
+    }
+
+    @Test
+    fun div_rootPathAndRelativeDataPath_appendsCorrectly() {
+        val root = A2uiDataPath("/")
+        val path2 = A2uiDataPath("foo")
+        assertThat((root / path2).path).isEqualTo("/foo")
+    }
+
+    @Test
+    fun div_relativePathAndRelativeDataPath_appendsCorrectly() {
+        val relative = A2uiDataPath("foo")
+        val path2 = A2uiDataPath("bar")
+        assertThat((relative / path2).path).isEqualTo("foo/bar")
+    }
+}

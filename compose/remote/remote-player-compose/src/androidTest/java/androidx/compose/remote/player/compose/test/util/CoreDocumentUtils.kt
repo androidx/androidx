@@ -17,16 +17,18 @@
 package androidx.compose.remote.player.compose.test.util
 
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
-import androidx.compose.remote.player.view.RemoteComposeDocument
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.RemoteDocument
 import java.io.ByteArrayInputStream
 import kotlin.apply
 
 fun getCoreDocument(
     extraTags: Array<RemoteComposeWriter.HTag> = emptyArray(),
+    clock: RemoteClock = RemoteClock.SYSTEM,
     content: RemoteComposeContextAndroid.() -> Unit,
 ): CoreDocument {
     val tags =
@@ -35,9 +37,10 @@ fun getCoreDocument(
             RemoteComposeWriter.HTag(Header.DOC_DESIRED_FPS, 120),
         ) + extraTags
     val rcContext =
-        RemoteComposeContextAndroid(AndroidxPlatformServices(), *tags) { apply(content) }
-    return RemoteComposeDocument(
-            ByteArrayInputStream(rcContext.mRemoteWriter.buffer(), 0, rcContext.bufferSize())
+        RemoteComposeContextAndroid(AndroidxRcPlatformServices(), *tags) { apply(content) }
+    return RemoteDocument(
+            ByteArrayInputStream(rcContext.mRemoteWriter.buffer(), 0, rcContext.bufferSize()),
+            clock,
         )
         .document
 }

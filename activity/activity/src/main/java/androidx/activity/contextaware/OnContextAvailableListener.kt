@@ -23,12 +23,12 @@ import android.content.Context
  *
  * @see ContextAware.addOnContextAvailableListener
  */
-fun interface OnContextAvailableListener {
+public fun interface OnContextAvailableListener {
     /**
      * Called when the [ContextAware] object this listener was added to is associated to a
      * [Context].
      *
      * @param context The [Context] the [ContextAware] object is now associated with.
      */
-    fun onContextAvailable(context: Context)
+    public fun onContextAvailable(context: Context)
 }

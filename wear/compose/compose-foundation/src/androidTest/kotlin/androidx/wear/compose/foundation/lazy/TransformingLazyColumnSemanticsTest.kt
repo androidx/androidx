@@ -30,7 +30,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
@@ -39,6 +39,7 @@ import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.TEST_TAG
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +47,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnSemanticsTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private val lazyListTag = "LazyList"
 
@@ -101,6 +102,51 @@ class TransformingLazyColumnSemanticsTest {
             scrollAxisRange.value() == 0f
         }
     }
+
+    @Test
+    fun testScrollOffset_increasesMonotonically_whenScrollingForward() {
+        // Start at a stable index (e.g., 5) to avoid initial "pin-to-top" edge cases
+        val state = TransformingLazyColumnState(5)
+        rule.setContent {
+            TransformingLazyColumn(
+                modifier = Modifier.height(200.dp).testTag(TEST_TAG),
+                state = state,
+            ) {
+                // Use fixed height items to make math predictable
+                items(100) { Box(Modifier.height(50.dp)) }
+            }
+        }
+        var previousValue = rule.onNodeWithTag(TEST_TAG).getVerticalScrollAxisRange().value()
+
+        // Scroll forward in steps.
+        // This crosses the boundary of item indices (5 -> 6) to ensure no jumps occur.
+        repeat(5) {
+            val scrollDelta = 25f
+            rule.runOnIdle { runBlocking { state.scrollBy(scrollDelta) } }
+            rule.waitForIdle()
+
+            val currentValue = rule.onNodeWithTag(TEST_TAG).getVerticalScrollAxisRange().value()
+            // Check 1: Monotonicity
+            // The previous bug subtracted the offset, so scrolling forward (+Delta)
+            // caused the reported value to DECREASE. This assertion catches that.
+            assert(currentValue > previousValue) {
+                "ScrollOffset should increase when scrolling forward. Prev: $previousValue, Curr: $currentValue"
+            }
+            // Check 2: Magnitude
+            // The reported semantics value should change by roughly the same amount we scrolled.
+            val diff = currentValue - previousValue
+            assert(abs(diff - scrollDelta) < 1f) {
+                "ScrollOffset change ($diff) should match scroll delta ($scrollDelta)"
+            }
+            previousValue = currentValue
+        }
+    }
+}
+
+private fun SemanticsNodeInteraction.getVerticalScrollAxisRange(): ScrollAxisRange {
+    val node = fetchSemanticsNode()
+    return node.config.find { it.key == SemanticsProperties.VerticalScrollAxisRange }?.value
+        as? ScrollAxisRange ?: throw AssertionError("VerticalScrollAxisRange not found")
 }
 
 private fun SemanticsNodeInteraction.assertVerticalScrollAxisRange(

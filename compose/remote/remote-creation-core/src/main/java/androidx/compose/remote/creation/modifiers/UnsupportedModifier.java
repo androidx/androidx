@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p>Indicates that a RemoteModifier was used without support in RemoteCompose.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class UnsupportedModifier implements RecordingModifier.Element {
     private final @NonNull String mName;
 

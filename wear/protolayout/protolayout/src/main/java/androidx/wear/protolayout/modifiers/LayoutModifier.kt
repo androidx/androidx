@@ -26,7 +26,7 @@ import java.util.Objects
  *
  * @sample androidx.wear.protolayout.material3.samples.edgeButtonSampleIcon
  */
-interface LayoutModifier {
+public interface LayoutModifier {
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
      * each element from left to right.
@@ -34,18 +34,18 @@ interface LayoutModifier {
      * [foldRight] may be used to accumulate a value starting from the head of the modifier chain to
      * the final modifier element.
      */
-    fun <R> foldRight(initial: R, operation: (R, Element) -> R): R
+    public fun <R> foldRight(initial: R, operation: (R, Element) -> R): R
 
     /**
      * Concatenates this modifier with another.
      *
      * Returns a [LayoutModifier] representing this modifier followed by [other] in sequence.
      */
-    infix fun then(other: LayoutModifier): LayoutModifier =
+    public infix fun then(other: LayoutModifier): LayoutModifier =
         if (other === LayoutModifier) this else CombinedLayoutModifier(this, other)
 
     /** A single element contained within a [LayoutModifier] chain. */
-    interface Element : LayoutModifier {
+    public interface Element : LayoutModifier {
         override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
     }
@@ -55,7 +55,7 @@ interface LayoutModifier {
      * contains no [elements][Element]. Use it to create a new [LayoutModifier] using modifier
      * extension factory functions.
      */
-    companion object : LayoutModifier {
+    public companion object : LayoutModifier {
         @Suppress("MissingJvmstatic")
         override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R = initial
 

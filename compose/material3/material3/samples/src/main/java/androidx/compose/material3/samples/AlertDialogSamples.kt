@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
@@ -87,7 +88,13 @@ fun AlertDialogWithIconSample() {
                 // onDismissRequest.
                 openDialog.value = false
             },
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            icon = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = null,
+                    modifier = Modifier.size(AlertDialogDefaults.IconSize),
+                )
+            },
             title = { Text(text = "Title") },
             text = {
                 Text(

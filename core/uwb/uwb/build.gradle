@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,27 +25,27 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.stableaidl")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core-ktx:1.2.0")
     api(libs.kotlinCoroutinesAndroid)
     implementation(libs.guavaAndroid)
-    implementation("com.google.android.gms:play-services-base:18.0.1")
+    implementation("com.google.android.gms:play-services-base:18.6.0")
     implementation(libs.kotlinCoroutinesPlayServices)
     implementation('com.google.android.gms:play-services-nearby:19.2.0')
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.dexmakerMockitoInline)
+    androidTestImplementation(libs.dexmakerMockitoInlineExtended)
 }
 
 androidx {
@@ -58,7 +57,7 @@ androidx {
 
 android {
     namespace = "androidx.core.uwb"
-    compileSdk = 36
+    compileSdk { version = release(36) }
     buildFeatures {
         aidl = true
     }

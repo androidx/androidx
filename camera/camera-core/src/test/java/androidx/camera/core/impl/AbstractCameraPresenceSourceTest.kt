@@ -34,10 +34,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class AbstractCameraPresenceSourceTest {
 
     // A fake implementation of the abstract class for testing.
@@ -128,8 +130,8 @@ class AbstractCameraPresenceSourceTest {
     private lateinit var source: FakeCameraPresenceSource
     private val mainExecutor = Executors.newSingleThreadExecutor()
 
-    private val id1 = CameraIdentifier.create("1")
-    private val id2 = CameraIdentifier.create("2")
+    private val id1 = CameraIdentifier.Factory.create("1")
+    private val id2 = CameraIdentifier.Factory.create("2")
     private val initialList = listOf(id1)
     private val updatedList = listOf(id1, id2)
 

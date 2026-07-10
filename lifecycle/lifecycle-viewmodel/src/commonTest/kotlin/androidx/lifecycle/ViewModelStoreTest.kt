@@ -38,11 +38,106 @@ class ViewModelStoreTest {
         assertThat(store["b"]).isNull()
     }
 
-    private open class TestViewModel : ViewModel() {
-        var cleared = false
+    @Test
+    fun testToString() {
+        class SubStore : ViewModelStore()
+        val store = SubStore()
+        store.put("key1", TestViewModel())
 
-        public override fun onCleared() {
+        // Verify identity included (discourage parsing) and keys listed.
+        val identity = store.hashCode().toString(16)
+        assertThat(store.toString()).isEqualTo("SubStore@$identity(keys=[key1])")
+    }
+
+    @Test
+    fun testClear_withReentrantAdditionOnLastItem_doesNotCrash() {
+        val store = ViewModelStore()
+
+        val viewModelReentrant = TestViewModel()
+        val viewModel1 = TestViewModel()
+        val viewModel2 = TestViewModel { store.put("reentrant", viewModelReentrant) }
+
+        store.put("a", viewModel1)
+        store.put("b", viewModel2)
+
+        store.clear()
+
+        // Validates that adding a 'ViewModel' to the store during another 'onCleared' does not
+        // crash the iterator or leave the store in an inconsistent state.
+        assertThat(viewModelReentrant.cleared).isFalse()
+
+        assertThat(viewModel1.cleared).isTrue()
+        assertThat(viewModel2.cleared).isTrue()
+        assertThat(store.keys()).containsExactly("reentrant")
+    }
+
+    @Test
+    fun testClear_withReentrantAdditionOnFirstItem_doesNotCrash() {
+        val store = ViewModelStore()
+
+        val viewModelReentrant = TestViewModel()
+        val viewModel1 = TestViewModel { store.put("reentrant", viewModelReentrant) }
+        val viewModel2 = TestViewModel()
+
+        store.put("a", viewModel1)
+        store.put("b", viewModel2)
+
+        store.clear()
+
+        // Validates that adding a 'ViewModel' to the store during another 'onCleared' does not
+        // crash the iterator or leave the store in an inconsistent state.
+        assertThat(viewModelReentrant.cleared).isFalse()
+
+        assertThat(viewModel1.cleared).isTrue()
+        assertThat(viewModel2.cleared).isTrue()
+        assertThat(store.keys()).containsExactly("reentrant")
+    }
+
+    @Test
+    fun testClear_withReentrantClearOnFirstItem_doesNotCrash() {
+        val store = ViewModelStore()
+
+        val viewModel1 = TestViewModel { store.clear() }
+        val viewModel2 = TestViewModel()
+
+        store.put("a", viewModel1)
+        store.put("b", viewModel2)
+
+        // Simulates a 'onCleared' causing the entire 'ViewModelStore' to be cleared again.
+        // The store must be able to handle nested 'clear()' calls safely without crashing.
+        store.clear()
+
+        assertThat(viewModel1.cleared).isTrue()
+        assertThat(viewModel2.cleared).isTrue()
+        assertThat(store.keys()).isEmpty()
+    }
+
+    @Test
+    fun testClear_withReentrantClearOnLastItem_doesNotCrash() {
+        val store = ViewModelStore()
+
+        val viewModel1 = TestViewModel()
+        val viewModel2 = TestViewModel { store.clear() }
+
+        store.put("a", viewModel1)
+        store.put("b", viewModel2)
+
+        // Simulates a 'onCleared' causing the entire 'ViewModelStore' to be cleared again.
+        // The store must be able to handle nested 'clear()' calls safely without crashing.
+        store.clear()
+
+        assertThat(viewModel1.cleared).isTrue()
+        assertThat(viewModel2.cleared).isTrue()
+        assertThat(store.keys()).isEmpty()
+    }
+
+    private class TestViewModel(private val onCleared: () -> Unit = {}) : ViewModel() {
+        var cleared = false
+            private set
+
+        override fun onCleared() {
             cleared = true
+            onCleared.invoke()
         }
     }
 }

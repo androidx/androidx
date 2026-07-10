@@ -47,9 +47,6 @@ internal class ViewModelProviderImpl(
         return synchronized(lock) {
             val viewModel = store[key]
             if (modelClass.isInstance(viewModel)) {
-                if (factory is ViewModelProvider.OnRequeryFactory) {
-                    factory.onRequery(viewModel!!)
-                }
                 return@synchronized viewModel as T
             }
 

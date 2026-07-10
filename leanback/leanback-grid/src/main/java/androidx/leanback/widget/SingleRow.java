@@ -80,7 +80,7 @@ class SingleRow extends Grid {
         boolean filledOne = false;
         int minIndex = mProvider.getMinIndex();
         for (int index = getStartIndexForPrepend(); index >= minIndex; index--) {
-            int size = mProvider.createItem(index, false, mTmpItem, false);
+            int size = mProvider.createItem(index, 1, false, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -99,6 +99,7 @@ class SingleRow extends Grid {
                 break;
             }
         }
+        mTmpItem[0] = null;
         return filledOne;
     }
 
@@ -113,7 +114,7 @@ class SingleRow extends Grid {
         }
         boolean filledOne = false;
         for (int index = getStartIndexForAppend(); index < mProvider.getCount(); index++) {
-            int size = mProvider.createItem(index, true, mTmpItem, false);
+            int size = mProvider.createItem(index, 1, true, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MAX_VALUE : Integer.MIN_VALUE;
@@ -132,6 +133,7 @@ class SingleRow extends Grid {
                 break;
             }
         }
+        mTmpItem[0] = null;
         return filledOne;
     }
 
@@ -175,7 +177,7 @@ class SingleRow extends Grid {
     }
 
     @Override
-    protected final int findRowMin(boolean findLarge, int indexLimit, int[] indices) {
+    protected final int findRowMin(int indexLimit, int[] indices) {
         if (indices != null) {
             indices[0] = 0;
             indices[1] = indexLimit;
@@ -185,12 +187,25 @@ class SingleRow extends Grid {
     }
 
     @Override
-    protected final int findRowMax(boolean findLarge, int indexLimit, int[] indices) {
+    protected final int findRowMax(int indexLimit, int[] indices) {
         if (indices != null) {
             indices[0] = 0;
             indices[1] = indexLimit;
         }
         return mReversedFlow ? mProvider.getEdge(indexLimit)
                 : mProvider.getEdge(indexLimit) + mProvider.getSize(indexLimit);
+    }
+
+    @Override
+    public int getNextPositionOfSameSpan(int focusPosition, int count, int spanGroupIndexDelta) {
+        // spanGroupIndexDelta is positive or negative
+        int position = mReversedFlow ? focusPosition - spanGroupIndexDelta
+                : focusPosition + spanGroupIndexDelta;
+        if (position < 0) {
+            position = 0;
+        } else if (position > count - 1) {
+            position = count - 1;
+        }
+        return position;
     }
 }

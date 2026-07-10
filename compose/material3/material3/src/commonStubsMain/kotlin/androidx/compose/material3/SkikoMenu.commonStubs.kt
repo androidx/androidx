@@ -58,4 +58,13 @@ actual fun DropdownMenuItem(
     interactionSource: MutableInteractionSource?,
 ): Unit = implementedInJetBrainsFork()
 
+@Composable
+internal actual fun DropdownMenuPopupImpl(
+    onDismissRequest: () -> Unit,
+    popupPositionProvider: DropdownMenuPopupPositionProvider,
+    properties: PopupProperties,
+    content: @Composable () -> Unit,
+): Unit = implementedInJetBrainsFork()
+
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 internal actual val DefaultMenuProperties: PopupProperties = implementedInJetBrainsFork()

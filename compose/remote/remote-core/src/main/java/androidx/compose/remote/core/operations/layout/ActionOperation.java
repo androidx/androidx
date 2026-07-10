@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
@@ -23,6 +24,7 @@ import androidx.compose.remote.core.serialize.Serializable;
 import org.jspecify.annotations.NonNull;
 
 /** Operations representing actions on the document */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ActionOperation extends Serializable {
     /**
      * Serialize the string

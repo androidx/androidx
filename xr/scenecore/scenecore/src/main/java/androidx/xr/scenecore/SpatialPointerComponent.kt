@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@
 package androidx.xr.scenecore
 
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
+import androidx.xr.scenecore.runtime.SceneRuntime
 
 /**
  * [Component] that modifies the pointer icon that is rendered on the component's [Entity]. If this
  * Component is not present on an Entity the default, system-determined icon is used. Removing this
  * Component will set the Entity's pointer back to the default icon.
  */
-public class SpatialPointerComponent
-private constructor(private val platformAdapter: JxrPlatformAdapter) : Component {
+public class SpatialPointerComponent private constructor(private val sceneRuntime: SceneRuntime) :
+    Component() {
 
-    private val rtComponent by lazy { platformAdapter.createSpatialPointerComponent() }
+    private val rtComponent by lazy { sceneRuntime.createSpatialPointerComponent() }
 
     private var entity: Entity? = null
 
@@ -37,14 +37,16 @@ private constructor(private val platformAdapter: JxrPlatformAdapter) : Component
      * icon should be used.
      */
     public var spatialPointerIcon: SpatialPointerIcon
-        get() = rtComponent.getSpatialPointerIcon().toSpatialPointerIcon()
-        set(value) = rtComponent.setSpatialPointerIcon(value.toRtSpatialPointerIcon())
+        get() = rtComponent.spatialPointerIcon.toSpatialPointerIcon()
+        set(value) {
+            rtComponent.spatialPointerIcon = value.toRtSpatialPointerIcon()
+        }
 
     override fun onAttach(entity: Entity): Boolean {
         if (this.entity != null) {
             return false
         }
-        if ((entity as BaseEntity<*>).rtEntity!!.addComponent(rtComponent)) {
+        if (entity.rtEntity.addComponent(rtComponent)) {
             this.entity = entity
             spatialPointerIcon = SpatialPointerIcon.DEFAULT
             return true
@@ -55,7 +57,7 @@ private constructor(private val platformAdapter: JxrPlatformAdapter) : Component
 
     override fun onDetach(entity: Entity) {
         spatialPointerIcon = SpatialPointerIcon.DEFAULT
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtComponent)
+        entity.rtEntity.removeComponent(rtComponent)
         this.entity = null
     }
 
@@ -69,7 +71,7 @@ private constructor(private val platformAdapter: JxrPlatformAdapter) : Component
          */
         @JvmStatic
         public fun create(session: Session): SpatialPointerComponent {
-            return SpatialPointerComponent(session.platformAdapter)
+            return SpatialPointerComponent(session.sceneRuntime)
         }
     }
 }

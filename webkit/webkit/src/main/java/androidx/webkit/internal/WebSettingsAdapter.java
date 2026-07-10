@@ -18,13 +18,13 @@ package androidx.webkit.internal;
 
 import android.webkit.WebSettings;
 
+import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.UserAgentMetadata;
+import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Set;
 
 /**
  * Adapter between WebSettingsCompat and
@@ -140,23 +140,6 @@ public class WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
-     */
-    public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        return mBoundaryInterface.getRequestedWithHeaderOriginAllowList();
-    }
-
-    /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
-     * WebSettings, Set)}.
-     */
-    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-        mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
-    }
-
-    /**
-     * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
      */
     public @NonNull UserAgentMetadata getUserAgentMetadata() {
@@ -167,7 +150,7 @@ public class WebSettingsAdapter {
     /**
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
-     * WebSettings, UserAgentMetadata)}.
+     *WebSettings, UserAgentMetadata)}.
      */
     public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
         mBoundaryInterface.setUserAgentMetadataFromMap(
@@ -305,5 +288,77 @@ public class WebSettingsAdapter {
      */
     public boolean getCookieAccessForShouldInterceptRequestEnabled() {
         return mBoundaryInterface.getIncludeCookiesOnIntercept();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)}
+     */
+    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {
+        mBoundaryInterface.setHyperlinkContextMenuItems(hyperlinkMenuItems);
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#getTimeoutSeconds()}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public long getBackForwardCacheTimeoutSeconds() {
+        return mBoundaryInterface.getBackForwardCacheSettingsTimeout();
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#getMaxPagesInCache()}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public int getBackForwardCacheMaxPagesInCache() {
+        return mBoundaryInterface.getBackForwardCacheSettingsMaxPagesInCache();
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#setTimeoutSeconds(long)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheTimeoutSeconds(long timeout) {
+        mBoundaryInterface.setBackForwardCacheSettingsTimeout(timeout);
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#setMaxPagesInCache(int)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheMaxPagesInCache(int maxPages) {
+        mBoundaryInterface.setBackForwardCacheSettingsMaxPagesInCache(maxPages);
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#getKeepForwardEntries()}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public boolean getBackForwardCacheKeepForwardEntries() {
+        return mBoundaryInterface.getBackForwardCacheSettingsKeepForwardEntries();
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#setKeepForwardEntries(boolean)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheKeepForwardEntries(boolean keepForwardEntries) {
+        mBoundaryInterface.setBackForwardCacheSettingsKeepForwardEntries(keepForwardEntries);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
+     */
+    public void setDownloadFaviconsEnabled(boolean enabled) {
+        mBoundaryInterface.setDownloadFaviconsEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
+     */
+    public boolean getDownloadFaviconsEnabled() {
+        return mBoundaryInterface.getDownloadFaviconsEnabled();
     }
 }

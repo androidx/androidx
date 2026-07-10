@@ -61,8 +61,8 @@ public class AppSearchSessionPlatformInternalTest extends AppSearchSessionIntern
     // TODO(b/384947619): move delete propagation tests back to AppSearchSessionCtsTestBase once the
     //   API is ready.
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
-    public void testGetSchema_deletePropagationTypePropagateFrom_notSupported() throws Exception {
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testSetSchema_deletePropagationTypePropagateFrom_notSupported() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
                 Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));

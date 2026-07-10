@@ -50,7 +50,7 @@ import androidx.core.uwb.backend.IUwbAvailabilityObserver
 import androidx.core.uwb.backend.IUwbClient
 import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import androidx.core.uwb.helper.checkSystemFeature
-import androidx.core.uwb.helper.handleApiException
+import androidx.core.uwb.helper.getFailureReasonFromApiException
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ApiException
@@ -68,6 +68,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal class UwbManagerImpl(private val context: Context) : UwbManager {
     companion object {
         const val TAG = "UwbManagerImpl"
+        private const val USE_RANGING_MODULE = false
         private const val INIT_TIMEOUT_MS = 5000L
         val PUBLIC_AVAILABLE_CONFIG_IDS =
             setOf(
@@ -93,21 +94,30 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
         private val mRangingCapabilities = AtomicReference<android.ranging.RangingCapabilities?>()
     }
 
-    init {
-        val connection =
-            object : ServiceConnection {
-                override fun onServiceConnected(className: ComponentName, service: IBinder) {
-                    iUwb = IUwb.Stub.asInterface(service)
-                    Log.i(TAG, "iUwb service created successfully.")
-                }
-
-                override fun onServiceDisconnected(p0: ComponentName?) {
-                    iUwb = null
-                }
+    private val connection =
+        object : ServiceConnection {
+            override fun onServiceConnected(className: ComponentName, service: IBinder) {
+                iUwb = IUwb.Stub.asInterface(service)
+                Log.i(TAG, "iUwb service created successfully.")
             }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                iUwb = null
+            }
+        }
+
+    init {
         val intent = Intent("androidx.core.uwb.backend.service")
         intent.setPackage("androidx.core.uwb.backend")
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        context.applicationContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun close() {
+        try {
+            context.applicationContext.unbindService(connection)
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "Service already unbound or connection not registered", e)
+        }
     }
 
     @Deprecated("Renamed to controleeSessionScope")
@@ -124,7 +134,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
     }
 
     override suspend fun isAvailable(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && USE_RANGING_MODULE) {
             initializeRangingManager()
             return mRangingCapabilities.get()?.uwbCapabilities != null
         }
@@ -150,7 +160,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
 
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && USE_RANGING_MODULE) {
             createRangingClientSessionScope(isController)
         } else if (isGmsDevice()) {
             createGmsClientSessionScope(isController)
@@ -311,7 +321,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 UwbControleeSessionScopeImpl(uwbClient, rangingCapabilities, localAddress)
             }
         } catch (e: ApiException) {
-            handleApiException(e)
+            Log.e(TAG, "RangingResultFailure Reason Code: ${getFailureReasonFromApiException(e)}")
             throw RuntimeException(
                 "Unexpected error. This indicates that the library is not " +
                     "up-to-date with the service backend."
@@ -387,6 +397,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                         override fun onUwbStateChanged(isAvailable: Boolean, reason: Int) {
                             executor.execute { observer.onUwbStateChanged(isAvailable, reason) }
                         }
+
+                        override fun getInterfaceVersion(): Int = VERSION
                     }
                 aospAvailabilityClient = iUwb?.controllerClient
                 aospAvailabilityClient?.subscribeToAvailability(availabilityObserver)

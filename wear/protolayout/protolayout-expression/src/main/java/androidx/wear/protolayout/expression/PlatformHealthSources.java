@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.expression;
 
 import android.Manifest;
+import android.health.connect.HealthPermissions;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresPermission;
@@ -37,14 +38,15 @@ public class PlatformHealthSources {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-        HEART_RATE_ACCURACY_UNKNOWN,
-        HEART_RATE_ACCURACY_NO_CONTACT,
-        HEART_RATE_ACCURACY_UNRELIABLE,
-        HEART_RATE_ACCURACY_LOW,
-        HEART_RATE_ACCURACY_MEDIUM,
-        HEART_RATE_ACCURACY_HIGH,
+            HEART_RATE_ACCURACY_UNKNOWN,
+            HEART_RATE_ACCURACY_NO_CONTACT,
+            HEART_RATE_ACCURACY_UNRELIABLE,
+            HEART_RATE_ACCURACY_LOW,
+            HEART_RATE_ACCURACY_MEDIUM,
+            HEART_RATE_ACCURACY_HIGH,
     })
-    public @interface HeartRateAccuracy {}
+    public @interface HeartRateAccuracy {
+    }
 
     /** Heart rate accuracy is unknown. */
     public static final int HEART_RATE_ACCURACY_UNKNOWN = 0;
@@ -66,18 +68,35 @@ public class PlatformHealthSources {
 
     /** Data sources keys for platform health sources. */
     public static class Keys {
-        private Keys() {}
+        private Keys() {
+        }
 
-        /** The data source key for heart rate bpm data from platform health sources. */
-        @RequiresPermission(Manifest.permission.BODY_SENSORS)
+        /**
+         * The data source key for heart rate bpm data from platform health sources.
+         * <p>
+         * Requirements:
+         * <ul>
+         * <li>API < 36: {@link Manifest.permission#BODY_SENSORS}</li>
+         * <li>API >= 36: {@link HealthPermissions#READ_HEART_RATE}</li>
+         * </ul>
+         */
+        @RequiresPermission(anyOf = {Manifest.permission.BODY_SENSORS,
+                HealthPermissions.READ_HEART_RATE})
         public static final @NonNull PlatformDataKey<DynamicFloat> HEART_RATE_BPM =
                 new PlatformDataKey<>("HeartRate");
 
         /**
          * The data source key for heart rate sensor accuracy data from platform health sources. The
          * accuracy value is one of {@code HEART_RATE_ACCURACY_*} constants.
+         * <p>
+         * Requirements:
+         * <ul>
+         * <li>API < 36: {@link Manifest.permission#BODY_SENSORS}</li>
+         * <li>API >= 36: {@link HealthPermissions#READ_HEART_RATE}</li>
+         * </ul>
          */
-        @RequiresPermission(Manifest.permission.BODY_SENSORS)
+        @RequiresPermission(anyOf = {Manifest.permission.BODY_SENSORS,
+                HealthPermissions.READ_HEART_RATE})
         public static final @NonNull PlatformDataKey<DynamicHeartRateAccuracy> HEART_RATE_ACCURACY =
                 new PlatformDataKey<>("HeartRate Accuracy");
 
@@ -123,15 +142,24 @@ public class PlatformHealthSources {
                 new PlatformDataKey<>("Daily Floors");
     }
 
-    private PlatformHealthSources() {}
+    private PlatformHealthSources() {
+    }
 
     /**
      * Creates a {@link DynamicFloat} which receives the current heat rate from platform sources.
      *
      * <p>This method provides backward compatibility and is preferred over using {@link
      * Keys#HEART_RATE_BPM} directly.
+     *
+     * <p>
+     * Requirements:
+     * <ul>
+     * <li>API < 36: {@link Manifest.permission#BODY_SENSORS}</li>
+     * <li>API >= 36: {@link HealthPermissions#READ_HEART_RATE}</li>
+     * </ul>
      */
-    @RequiresPermission(Manifest.permission.BODY_SENSORS)
+    @RequiresPermission(anyOf = {Manifest.permission.BODY_SENSORS,
+            HealthPermissions.READ_HEART_RATE})
     @RequiresSchemaVersion(major = 1, minor = 200)
     public static @NonNull DynamicFloat heartRateBpm() {
         return DynamicFloat.from(Keys.HEART_RATE_BPM);
@@ -142,8 +170,16 @@ public class PlatformHealthSources {
      * accuracy from platform sources.
      *
      * <p>The accuracy value is one of {@link DynamicHeartRateAccuracy} constants.
+     *
+     * <p>
+     * Requirements:
+     * <ul>
+     * <li>API < 36: {@link Manifest.permission#BODY_SENSORS}</li>
+     * <li>API >= 36: {@link HealthPermissions#READ_HEART_RATE}</li>
+     * </ul>
      */
-    @RequiresPermission(Manifest.permission.BODY_SENSORS)
+    @RequiresPermission(anyOf = {Manifest.permission.BODY_SENSORS,
+            HealthPermissions.READ_HEART_RATE})
     @RequiresSchemaVersion(major = 1, minor = 200)
     public static @NonNull DynamicHeartRateAccuracy heartRateAccuracy() {
         return new DynamicHeartRateAccuracy(

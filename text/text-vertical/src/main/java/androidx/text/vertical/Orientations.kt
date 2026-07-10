@@ -19,8 +19,9 @@ package androidx.text.vertical
 import android.icu.lang.UCharacter
 import android.icu.lang.UCharacter.VerticalOrientation
 import android.icu.lang.UProperty
+import android.os.Build
 import android.text.Spanned
-import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 
 /**
  * Represents the orientation of text within a vertical writing mode.
@@ -29,7 +30,7 @@ import androidx.annotation.IntDef
  * information, refer to:
  * [CSS text-orientation](https://www.w3.org/TR/css-writing-modes-3/#text-orientation)
  */
-public object TextOrientation {
+public enum class TextOrientation {
     /**
      * Characters from horizontal scripts are rotated 90 degrees clockwise, while characters from
      * vertical scripts remain in their original orientation.
@@ -39,20 +40,16 @@ public object TextOrientation {
      *
      * Corresponds to CSS `text-orientation: mixed;`.
      */
-    public const val MIXED: Int = 0
+    Mixed,
 
     /**
-     * A value for the text orientation that represents the text will be laid out with the original
-     * orientations.
-     */
-    /**
-     * All characters are laid out in upright orientation, regardless of script.
+     * Specifies that all characters are laid out in an upright orientation, regardless of script.
      *
      * This is useful when you want all characters to remain upright even for horizontal scripts.
      *
      * Corresponds to CSS `text-orientation: upright;`.
      */
-    public const val UPRIGHT: Int = 1
+    Upright,
 
     /**
      * All characters are rotated 90 degrees clockwise, regardless of script.
@@ -61,11 +58,14 @@ public object TextOrientation {
      *
      * Corresponds to CSS `text-orientation: sideways;`.
      */
-    public const val SIDEWAYS: Int = 2
-}
+    Sideways;
 
-@IntDef(value = [TextOrientation.MIXED, TextOrientation.UPRIGHT, TextOrientation.SIDEWAYS])
-internal annotation class OrientationMode
+    public companion object {
+        @JvmStatic
+        public fun fromInt(value: Int): TextOrientation =
+            TextOrientation.entries.getOrElse(value) { Mixed }
+    }
+}
 
 /**
  * A sealed interface representing text orientation spans for use within a vertical text layout.
@@ -79,23 +79,23 @@ internal annotation class OrientationMode
 public sealed interface TextOrientationSpan {
     /**
      * A span that forces the enclosed text to be displayed in an upright orientation
-     * ([TextOrientation.UPRIGHT]) within a vertical text layout.
+     * ([TextOrientation.Upright]) within a vertical text layout.
      *
      * This is useful for ensuring that text remains vertical, even if the surrounding text flow is
      * sideways.
      *
-     * @see TextOrientation.UPRIGHT
+     * @see TextOrientation.Upright
      * @see VerticalTextLayout
      */
     public class Upright : TextOrientationSpan
 
     /**
      * A span that forces the enclosed text to be displayed in a sideways orientation
-     * ([TextOrientation.SIDEWAYS]) within a vertical text layout.
+     * ([TextOrientation.Sideways]) within a vertical text layout.
      *
      * This is useful for orienting text horizontally when the surrounding text is vertical.
      *
-     * @see TextOrientation.SIDEWAYS
+     * @see TextOrientation.Sideways
      * @see VerticalTextLayout
      */
     public class Sideways : TextOrientationSpan
@@ -108,7 +108,7 @@ public sealed interface TextOrientationSpan {
      *
      * @see VerticalTextLayout
      */
-    public class TextCombineUpright() : TextOrientationSpan
+    public class CombineUpright : TextOrientationSpan
 }
 
 /** Represents the resolved orientation of a run of text. */
@@ -149,7 +149,10 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
         }
     }
 
-    /** Finalize the merge and callback the last run. Do not call this method multiple times. */
+    /**
+     * Finalizes the merge and invokes the callback for the last run. Do not call this method
+     * multiple times.
+     */
     fun finish() {
         if (prevStart != -1) {
             consumer(prevStart, end, prevOrientation)
@@ -158,12 +161,12 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
 }
 
 /**
- * Iterates over characters and resolves the each character's orientation property along with the
- * attached `OrientationSpan`.
+ * Iterates over characters and resolves each character's orientation property, taking into account
+ * attached [TextOrientationSpan]s.
  *
- * @param text The CharSequence
- * @param start The inclusive starting index
- * @param end The exclusive ending index
+ * @param text The text to process.
+ * @param start The inclusive starting index.
+ * @param end The exclusive ending index.
  * @param textOrientation The text orientation mode.
  * @param consumer A callback function that is called for each orientation transition. It receives
  *   three parameters:
@@ -171,11 +174,12 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
  *     - The exclusive end index of the orientation run.
  *     - The orientation of the range.
  */
+@RequiresApi(Build.VERSION_CODES.N)
 internal fun forEachOrientation(
     text: CharSequence,
     start: Int,
     end: Int,
-    @OrientationMode textOrientation: Int,
+    textOrientation: TextOrientation,
     consumer: (Int, Int, ResolvedOrientation) -> Unit,
 ) {
     if (start >= end) {
@@ -198,7 +202,7 @@ internal fun forEachOrientation(
             // If multiple TextOrientationSpans are attached, use the last one.
             val resolved =
                 when (spans.last()) {
-                    is TextOrientationSpan.TextCombineUpright -> ResolvedOrientation.TateChuYoko
+                    is TextOrientationSpan.CombineUpright -> ResolvedOrientation.TateChuYoko
                     is TextOrientationSpan.Upright -> ResolvedOrientation.Upright
                     is TextOrientationSpan.Sideways -> ResolvedOrientation.Rotate
                 }
@@ -208,17 +212,18 @@ internal fun forEachOrientation(
     merger.finish()
 }
 
-/** Iterates over characters and resolves the each character's orientation property. */
+/** Iterates over characters and resolves each character's orientation property. */
+@RequiresApi(Build.VERSION_CODES.N)
 private inline fun forOrientationNoSpans(
     text: CharSequence,
     start: Int,
     end: Int,
-    @OrientationMode textOrientation: Int,
+    textOrientation: TextOrientation,
     crossinline consumer: (Int, Int, ResolvedOrientation) -> Unit,
 ) {
     var prevProp = ResolvedOrientation.Upright // unused initial value
     var prevStart = start
-    fotEachCodePoints(text, start, end) { i, cp ->
+    forEachCodePoint(text, start, end) { i, cp ->
         val prop = resolveOrientation(textOrientation, cp)
         if (i == start) {
             prevProp = prop
@@ -239,15 +244,15 @@ private inline fun forOrientationNoSpans(
  * @param cp The code point of the character.
  * @return The resolved orientation of the character.
  */
-private fun resolveOrientation(@OrientationMode textOrientation: Int, cp: Int) =
+@RequiresApi(Build.VERSION_CODES.N)
+private fun resolveOrientation(textOrientation: TextOrientation, cp: Int) =
     when (textOrientation) {
-        TextOrientation.UPRIGHT -> ResolvedOrientation.Upright
-        TextOrientation.SIDEWAYS -> ResolvedOrientation.Rotate
-        TextOrientation.MIXED -> {
+        TextOrientation.Upright -> ResolvedOrientation.Upright
+        TextOrientation.Sideways -> ResolvedOrientation.Rotate
+        TextOrientation.Mixed -> {
             when (UCharacter.getIntPropertyValue(cp, UProperty.VERTICAL_ORIENTATION)) {
                 VerticalOrientation.ROTATED -> ResolvedOrientation.Rotate
                 else -> ResolvedOrientation.Upright
             }
         }
-        else -> throw RuntimeException("Unknown orientation: $textOrientation")
     }

@@ -2,9 +2,9 @@
 package androidx.inspection {
 
   public interface ArtTooling {
-    method public <T> java.util.List<T!> findInstances(Class<T!>);
+    method public <T> java.util.List<T> findInstances(Class<T>);
     method public void registerEntryHook(Class<? extends java.lang.Object!>, String, androidx.inspection.ArtTooling.EntryHook);
-    method public <T> void registerExitHook(Class<? extends java.lang.Object!>, String, androidx.inspection.ArtTooling.ExitHook<T!>);
+    method public <T> void registerExitHook(Class<? extends java.lang.Object!>, String, androidx.inspection.ArtTooling.ExitHook<T>);
   }
 
   public static interface ArtTooling.EntryHook {
@@ -12,7 +12,7 @@ package androidx.inspection {
   }
 
   public static interface ArtTooling.ExitHook<T> {
-    method public T! onExit(T!);
+    method public T onExit(T);
   }
 
   public abstract class Connection {

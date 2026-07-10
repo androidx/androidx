@@ -16,12 +16,26 @@
 
 package androidx.aab
 
+import androidx.aab.cli.outputContext
+import kotlin.collections.any
+import kotlin.collections.filter
+
 /**
  * Information captured from .so files.
  *
  * Currently, this is just used to measure native code size.
  */
-data class SoInfo(val bundlePath: String, val abi: Abi?, val size: Long) {
+data class SoInfo(
+    val bundlePath: String,
+    val abi: Abi?,
+    val size: Long,
+    val soPatternsMatched: Set<String> =
+        outputContext.soMatchPatterns
+            .filter { soPattern ->
+                Regex(soPattern).containsMatchIn(bundlePath.substringAfterLast("/"))
+            }
+            .toSet(),
+) {
     init {
         require(size >= 0)
         require(bundlePath.endsWith(".so"))
@@ -46,21 +60,33 @@ data class SoInfo(val bundlePath: String, val abi: Abi?, val size: Long) {
     constructor(bundlePath: String, size: Long) : this(bundlePath, Abi.from(bundlePath), size)
 
     companion object {
-        val CSV_TITLES = listOf("so_totalSizeMb")
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<List<SoInfo>>(
+                    columnLabel = "so_totalSizeMb",
+                    description = "Total size of .so files in MB",
+                    calculate = { soFiles ->
 
-        fun List<SoInfo>.csvEntries(): List<String> {
-            if (isEmpty()) {
-                return listOf("0")
-            }
+                        // create list of sizes per ABI
+                        val abiSizes =
+                            Abi.entries.map { targetAbi ->
+                                soFiles.filter { it.abi == targetAbi }.sumOf { it.size }
+                            }
 
-            // create lst of sizes per ABI
-            val abiSizes =
-                Abi.entries.map { targetAbi ->
-                    this.filter { it.abi == targetAbi }.sumOf { it.size }
+                        // return max of these sizes
+                        (abiSizes.max() / (1024.0 * 1024)).toString()
+                    },
+                )
+            ) +
+                outputContext.soMatchPatterns.map { soPattern ->
+                    CsvColumn<List<SoInfo>>(
+                        columnLabel = "so_hasMatchFor_$soPattern",
+                        description = "True if this app has a .so file matching $soPattern",
+                        calculate = {
+                            it.any { soInfo -> soInfo.soPatternsMatched.contains(soPattern) }
+                                .toString()
+                        },
+                    )
                 }
-
-            // return max of these sizes
-            return listOf((abiSizes.max() / (1024.0 * 1024)).toString())
-        }
     }
 }

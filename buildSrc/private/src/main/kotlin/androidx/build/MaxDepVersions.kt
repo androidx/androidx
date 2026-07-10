@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 
@@ -26,14 +27,26 @@ import org.gradle.api.artifacts.component.ModuleComponentSelector
 internal fun Project.configureMaxDepVersions(extension: AndroidXExtension) {
     if (!usingMaxDepVersions().get()) return
     val projectModules = extension.mavenCoordinatesToProjectPathMap
+
+    val extraProperties = project.gradle.extensions.extraProperties
+    if (!extraProperties.has("includedProjectPaths")) {
+        throw GradleException("Cannot read included project paths to set max dep versions")
+    }
+    // Use includedProjectPaths to avoid trying to avoid substituting project paths outside
+    // the currently configured set when using PROJECT_PREFIX or otherwise constraining the set
+    // of included projects
+    @Suppress("UNCHECKED_CAST")
+    val includedProjectPaths = extraProperties["includedProjectPaths"] as Set<String>
+
     configurations.configureEach { configuration ->
         configuration.resolutionStrategy.dependencySubstitution.apply {
             all { dep ->
                 val requested = dep.requested
                 if (requested is ModuleComponentSelector) {
                     val module = requested.group + ":" + requested.module
-                    if (projectModules.containsKey(module)) {
-                        dep.useTarget(project(projectModules[module]!!))
+                    val targetPath = projectModules[module]
+                    if (targetPath != null && includedProjectPaths.contains(targetPath)) {
+                        dep.useTarget(project(targetPath))
                     }
                 }
             }

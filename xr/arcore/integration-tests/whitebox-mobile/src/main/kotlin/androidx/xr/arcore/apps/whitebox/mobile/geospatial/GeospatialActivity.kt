@@ -55,10 +55,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
-import androidx.xr.arcore.CreateGeospatialPoseFromPoseIllegalState
+import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.CreateGeospatialPoseFromPoseInternalError
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseNotTracking
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
-import androidx.xr.arcore.Earth
+import androidx.xr.arcore.Geospatial
 import androidx.xr.arcore.HitResult
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.apps.whitebox.mobile.common.SessionLifecycleHelper
@@ -67,9 +68,13 @@ import androidx.xr.arcore.hitTest
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
@@ -85,8 +90,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     private lateinit var sampleRender: SampleRender
     private lateinit var renderer: SampleRender.Companion.Renderer
 
-    // TODO: b/414825430 - Add synchronization for accessing anchors list.
-    private val anchors = mutableListOf<Anchor>()
+    private val anchors = CopyOnWriteArrayList<Anchor>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
@@ -95,10 +99,11 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
             SessionLifecycleHelper(
                 this,
                 config =
-                    Config(
-                        planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                        geospatial = Config.GeospatialMode.EARTH,
-                    ),
+                    Config.Builder()
+                        .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                        .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                        .setGeospatial(GeospatialMode.SPATIAL)
+                        .build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     surfaceView = GLSurfaceView(this)
@@ -119,6 +124,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     }
 
     @OptIn(UnsupportedArCoreCompatApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     private fun getHits() {
         if (lifecycle.currentStateFlow.value == Lifecycle.State.RESUMED) {
             val pose: Pose? = session.state.value.cameraState?.displayOrientedPose
@@ -140,21 +146,24 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     }
 
     private fun shouldCreateAnchor(hit: HitResult, cameraPose: Pose): Boolean {
-        return hit.trackable is Plane
+        return anchors.size < MAX_ANCHOR_COUNT && hit.trackable is Plane
     }
 
     private fun createAnchorAtPose(pose: Pose) {
-        val earth = Earth.getInstance(session)
-        if (earth.state.value != Earth.State.RUNNING) {
-            Log.e(ACTIVITY_NAME, "Failed to create anchor: Earth is not running.")
+        val geospatial = Geospatial.getInstance(session)
+        if (
+            geospatial.state.value.geospatialTrackingState !=
+                Geospatial.GeospatialTrackingState.RUNNING
+        ) {
+            Log.e("JetpackXR", "Failed to create anchor: Geospatial is not running.")
             return
         }
 
-        val geospatialPoseResult = earth.createGeospatialPoseFromPose(pose)
+        val geospatialPoseResult = geospatial.createGeospatialPoseFromPose(pose)
         when (geospatialPoseResult) {
             is CreateGeospatialPoseFromPoseSuccess -> {
                 val geospatialPose = geospatialPoseResult.pose
-                earth
+                geospatial
                     .createAnchor(
                         geospatialPose.latitude,
                         geospatialPose.longitude,
@@ -168,11 +177,12 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
                     }
             }
             is CreateGeospatialPoseFromPoseNotTracking -> {
-                Log.e(ACTIVITY_NAME, "Failed to create anchor: Earth is not tracking.")
+                Log.e("JetpackXR", "Failed to create anchor: Geospatial is not tracking.")
             }
-            is CreateGeospatialPoseFromPoseIllegalState -> {
-                Log.e(ACTIVITY_NAME, "Failed to create anchor: Geospatial mode is not enabled.")
-            }
+
+            is CreateGeospatialPoseFromPoseInternalError ->
+                Log.e("JetpackXR", geospatialPoseResult.error)
+            else -> Log.e("JetpackXR", "Failed to create anchor: Unknown error.")
         }
     }
 
@@ -247,7 +257,8 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
 
         LaunchedEffect(Unit) {
             while (true) {
-                localizationStatusText = localizationTextForEarth(Earth.getInstance(session))
+                localizationStatusText =
+                    localizationTextForGeospatial(Geospatial.getInstance(session))
                 delay(1.seconds)
             }
         }
@@ -258,31 +269,40 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
         anchors.clear()
     }
 
-    private fun localizationTextForEarth(earth: Earth): String {
-        return when (earth.state.value) {
-            Earth.State.STOPPED -> "Enable Config.GeospatialMode to use the Geospatial API"
-            Earth.State.ERROR_INTERNAL -> "Error: Internal"
-            Earth.State.ERROR_APK_VERSION_TOO_OLD -> "Error: ARCore Apk version is too old"
-            Earth.State.ERROR_NOT_AUTHORIZED ->
+    private fun localizationTextForGeospatial(geospatial: Geospatial): String {
+        return when (geospatial.state.value.geospatialTrackingState) {
+            Geospatial.GeospatialTrackingState.NOT_RUNNING ->
+                "Enable Config.GeospatialMode to use the Geospatial API"
+            Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> "Error: Internal"
+            Geospatial.GeospatialTrackingState.PAUSED -> "Paused"
+            Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED ->
                 "Error: Not authorized. Check your API key or keyless authorization configuration"
-            Earth.State.ERROR_RESOURCES_EXHAUSTED -> "Error: ARCore API limit reached."
-            Earth.State.RUNNING ->
-                when (val result = earth.createGeospatialPoseFromDevicePose()) {
+            Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED ->
+                "Error: ARCore API limit reached."
+            Geospatial.GeospatialTrackingState.RUNNING ->
+                when (
+                    val result =
+                        geospatial.createGeospatialPoseFromPose(
+                            ArDevice.getInstance(session).state.value.devicePose
+                        )
+                ) {
                     is CreateGeospatialPoseFromPoseSuccess ->
                         """
-            Localization Status:
-              Lat: ${"%.6f".format(result.pose.latitude)}
-              Lng: ${"%.6f".format(result.pose.longitude)}
-              Alt: ${"%.3f".format(result.pose.altitude)}
-              Horizontal Accuracy: ${"%.3f".format(result.horizontalAccuracy)}
-              Vertical Accuracy: ${"%.3f".format(result.verticalAccuracy)}
-              Yaw Accuracy: ${"%.3f".format(result.orientationYawAccuracy)}
-            """
+                        Localization Status:
+                          Lat: ${"%.6f".format(result.pose.latitude)}
+                          Lng: ${"%.6f".format(result.pose.longitude)}
+                          Alt: ${"%.3f".format(result.pose.altitude)}
+                          Horizontal Accuracy: ${"%.3f".format(result.horizontalAccuracy)}
+                          Vertical Accuracy: ${"%.3f".format(result.verticalAccuracy)}
+                          Yaw Accuracy: ${"%.3f".format(result.orientationYawAccuracy)}
+                        """
                             .trimIndent()
                     is CreateGeospatialPoseFromPoseNotTracking ->
                         "Localization Status: Not tracking"
-                    is CreateGeospatialPoseFromPoseIllegalState ->
-                        "Error getting localization. Is Geospatial mode enabled?."
+
+                    is CreateGeospatialPoseFromPoseInternalError ->
+                        "Localization Status: ${result.error}"
+                    else -> "Localization Status: Unknown"
                 }
             else -> "Localization Status: Unknown"
         }

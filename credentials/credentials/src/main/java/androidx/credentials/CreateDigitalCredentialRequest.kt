@@ -47,6 +47,9 @@ private constructor(
     ) {
 
     /**
+     * Constructs a request to save a digital credential to a holder application of the user's
+     * choice.
+     *
      * @param requestJson The
      *   [JSON](https://w3c-fedid.github.io/digital-credentials/#extensions-to-credentialcreationoptions-dictionary)
      *   string representing the request
@@ -75,7 +78,7 @@ private constructor(
         // DisplayInfo not used in this request, user name is required to create a DisplayInfo
         internal const val UNUSED_USER_ID = "unused"
 
-        @JvmStatic fun populateUnusedDisplayInfo() = DisplayInfo(userId = UNUSED_USER_ID)
+        @JvmStatic internal fun populateUnusedDisplayInfo() = DisplayInfo(userId = UNUSED_USER_ID)
 
         @JvmStatic
         internal fun toBundle(requestJson: String): Bundle {
@@ -85,7 +88,7 @@ private constructor(
         }
 
         @JvmStatic
-        fun createFrom(
+        internal fun createFrom(
             data: Bundle,
             origin: String?,
             candidateQueryData: Bundle,

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.security.crypto.EncryptedFileKt#EncryptedFile$default(android.content.Context, java.io.File, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedFile.FileEncryptionScheme, String, String, int, Object):
+    Added method androidx.security.crypto.EncryptedFileKt.EncryptedFile$default(android.content.Context,java.io.File,androidx.security.crypto.MasterKey,androidx.security.crypto.EncryptedFile.FileEncryptionScheme,String,String,int,Object)
+AddedMethod: androidx.security.crypto.EncryptedSharedPreferencesKt#EncryptedSharedPreferences$default(android.content.Context, String, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme, int, Object):
+    Added method androidx.security.crypto.EncryptedSharedPreferencesKt.EncryptedSharedPreferences$default(android.content.Context,String,androidx.security.crypto.MasterKey,androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme,androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme,int,Object)
+AddedMethod: androidx.security.crypto.MasterKeyKt#MasterKey$default(android.content.Context, String, androidx.security.crypto.MasterKey.KeyScheme, boolean, int, boolean, int, Object):
+    Added method androidx.security.crypto.MasterKeyKt.MasterKey$default(android.content.Context,String,androidx.security.crypto.MasterKey.KeyScheme,boolean,int,boolean,int,Object)

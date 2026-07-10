@@ -15,17 +15,17 @@
  */
 package androidx.compose.remote.core.operations;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
-
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -34,7 +34,9 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to perform Color related calculation TODO support color update */
-public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ColorAttribute extends PaintOperation
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";
     public int mId;
@@ -61,6 +63,16 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
 
     /** The alpha value of the color */
     public static final short COLOR_ALPHA = 6;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * creates a new operation
@@ -125,10 +137,10 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.readId();
+        int colorId = buffer.readId();
         short type = (short) buffer.readShort();
-        operations.add(new ColorAttribute(id, textId, type));
+        operations.add(new ColorAttribute(id, colorId, type));
     }
 
     /**
@@ -137,11 +149,18 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Color Operations", OP_CODE, CLASS_NAME)
-                .description("Calculate Information about a Color")
-                .field(INT, "id", "id to output")
-                .field(INT, "longId", "id of color")
-                .field(SHORT, "type", "the type information to extract");
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .description("Extract components (Hue, RGB, Alpha) from a color")
+                .field(DocumentedOperation.INT, "id", "The ID to output the result to")
+                .field(DocumentedOperation.INT, "colorId", "The ID of the source color")
+                .field(DocumentedOperation.SHORT, "type", "The component to extract")
+                .possibleValues("COLOR_HUE", COLOR_HUE)
+                .possibleValues("COLOR_SATURATION", COLOR_SATURATION)
+                .possibleValues("COLOR_BRIGHTNESS", COLOR_BRIGHTNESS)
+                .possibleValues("COLOR_RED", COLOR_RED)
+                .possibleValues("COLOR_GREEN", COLOR_GREEN)
+                .possibleValues("COLOR_BLUE", COLOR_BLUE)
+                .possibleValues("COLOR_ALPHA", COLOR_ALPHA);
     }
 
     @NonNull
@@ -186,7 +205,7 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
         serializer
                 .addType(CLASS_NAME)
                 .add("id", mId)
-                .add("timeId", mColorId)
+                .add("colorId", mColorId)
                 .addType(getTypeString());
     }
 
@@ -208,26 +227,20 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
             case COLOR_ALPHA:
                 return "COLOR_ALPHA";
             default:
-                return "INVALID_TIME_TYPE";
+                return "INVALID_COLOR_TYPE";
         }
     }
 
     /**
      * Call to allow an operator to register interest in variables. Typically they call
      * context.listensTo(id, this)
-     *
-     * @param context
      */
     @Override
     public void registerListening(@NonNull RemoteContext context) {
-        context.listensTo(Utils.idFromNan(mColorId), this);
+        context.listensTo(mColorId, this);
     }
 
-    /**
-     * Called to be notified that the variables you are interested have changed.
-     *
-     * @param context
-     */
+    /** Called to be notified that the variables you are interested have changed. */
     @Override
     public void updateVariables(@NonNull RemoteContext context) {}
 }

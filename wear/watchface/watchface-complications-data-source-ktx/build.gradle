@@ -18,13 +18,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation("androidx.core:core:1.1.0")
     api(project(":wear:watchface:watchface-complications-data-source"))
-    api(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
@@ -34,7 +32,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.watchface.complications.datasource.ktx"
 }
@@ -44,7 +42,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Kotlin suspend wrapper for Android Wear Complications Data Source"
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 

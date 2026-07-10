@@ -3,8 +3,8 @@
     <string name="title_activity_mode_change">Compose Mode Change Test Case</string>
     <string name="title_activity_media_player">Video in Spatial Panel Test Case</string>
     <string name="title_activity_rotation">Panel/Layout rotation Test Case</string>
-
     <string name="mode_change_test">Compose Mode Change Test Case</string>
+    <string name="anchor_subspace_app_test">Anchor FollowingSubspace Test Case</string>
     <string name="panel_rotation_test">Panel/Layout rotation Test Case</string>
     <string name="media_player_panel_test">CUJ: Media Player Panel Test</string>
     <string name="enable_permission_dialog_test">Dialog Permissions Test Case</string>
@@ -24,11 +24,15 @@
     <string name="video_spatial_180_360_test">Stereo Video in 180/360SpatialExternalSurface Test Case</string>
     <string name="cuj_gltf_entity_input_test_case">GLTF entity input Test Case</string>
     <string name="cuj_gltf_animation_test_case">GLTF Animation Test Case</string>
+    <string name="fragment_compatibility_test">Fragment Compatibility Test Case</string>
     <string name="depthstacking_modifier_order_test_case">DepthStacking and ModifierOrder Layout Test Case</string>
     <string name="panel_embedded_subspace_test_case">Panel Embedded Subspace Layout Test Case</string>
+    <string name="ardevice_subspace_test_case">AR Device FollowingSubspace Layout Test Case</string>
     <string name="panel_volume_test_case">Panel Volume Layout Test Case</string>
     <string name="resizable_panel_test_case">Resizable Panel Test Case</string>
     <string name="spatial_alignment_usage_test_case">Spatial Alignment Usage Test Case</string>
+    <string name="spatial_arrangement_usage_test_case">Spatial Arrangement Usage Test Case</string>
+    <string name="subspace_modifiers_rtl_awareness_test_case">Subspace Modifiers RTL Awareness Test Case</string>
     <string name="hsm_focus_change_test">HSM Focus Change Test Case</string>
     <string name="fsm_focus_change_test">FSM Focus Change Test Case</string>
     <string name="space_mode_change_test">Space Mode Change Test Case</string>
@@ -36,10 +40,15 @@
     <string name="lifecycle_open_close_test">Open Close Panel Test Case</string>
     <string name="lifecycle_resize_test">Resizing Panel Test Case</string>
     <string name="lifecycle_runtime_session_test">Runtime Session Test Case</string>
-
-
+    <string name="pose_test">Pose Test Case</string>
+    <string name="gravity_aligned_test_case">Gravity Aligned Test Case</string>
+    <string name="rotatetolookatuser_test_case">RotateToLookAtUser Test Case</string>
     <string name="hello_android_xr">Hello Android XR.</string>
     <string name="switch_to_home_space_mode">Switch to Home Space Mode</string>
     <string name="switch_to_full_space_mode">Switch to Full Space Mode</string>
     <string name="accessibility_test">Accessibility test case</string>
+    <string name="layout_performance">Layout Performance Test Case</string>
+    <string name="spatial_gltf_model_test">Spatial GLTF Model Test Case</string>
+    <string name="spatial_audio_test">Spatial Audio Test Case</string>
 </resources>
+

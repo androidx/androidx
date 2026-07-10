@@ -25,6 +25,10 @@ import androidx.annotation.RestrictTo
  * Device needs to be populated by users of the API. Metadata fields not provided by clients will
  * remain absent.
  *
+ * Some device types are only available on newer versions of Health Connect. See
+ * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES` for more
+ * details.
+ *
  * @property type a client supplied type of the device
  * @property manufacturer an optional client supplied manufacturer of the device
  * @property model an optional client supplied model of the device
@@ -68,6 +72,49 @@ public class Device(
         const val TYPE_FITNESS_BAND = 6
         const val TYPE_CHEST_STRAP = 7
         const val TYPE_SMART_DISPLAY = 8
+
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_CONSUMER_MEDICAL_DEVICE = 9
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_GLASSES = 10
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_HEARABLE = 11
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_FITNESS_MACHINE = 12
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_FITNESS_EQUIPMENT = 13
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_PORTABLE_COMPUTER = 14
+        /**
+         * Requires
+         * `androidx.health.connect.client.HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES`. If
+         * the feature is not available, this device type will be treated as [TYPE_UNKNOWN].
+         */
+        const val TYPE_METER = 15
     }
 
     /** List of supported device types on Health Platform. */
@@ -84,6 +131,13 @@ public class Device(
                 TYPE_FITNESS_BAND,
                 TYPE_CHEST_STRAP,
                 TYPE_SMART_DISPLAY,
+                TYPE_CONSUMER_MEDICAL_DEVICE,
+                TYPE_GLASSES,
+                TYPE_HEARABLE,
+                TYPE_FITNESS_MACHINE,
+                TYPE_FITNESS_EQUIPMENT,
+                TYPE_PORTABLE_COMPUTER,
+                TYPE_METER,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)

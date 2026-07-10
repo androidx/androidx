@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -31,6 +31,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.util.Locale
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -40,7 +41,7 @@ import org.junit.runner.RunWith
 @RunWith(TestParameterInjector::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class OpenOnPhoneDialogScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -99,7 +100,7 @@ class OpenOnPhoneDialogScreenshotTest {
         setContentWithTheme {
             ScreenConfiguration(screenSize.size) {
                 val configuration = LocalConfiguration.current
-                language?.let { configuration.setLocale(Locale(language)) }
+                language?.let { configuration.setLocale(Locale.forLanguageTag(language)) }
                 val localizedContext =
                     LocalContext.current.createConfigurationContext(configuration)
                 CompositionLocalProvider(

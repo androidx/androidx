@@ -16,13 +16,17 @@
 
 package androidx.camera.testing.impl.fakes;
 
+import static androidx.camera.core.impl.ImageOutputConfig.INVALID_ROTATION;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.RotationProvider;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -53,6 +57,9 @@ public class FakeUseCase extends UseCase {
     private Supplier<SessionConfig> mSessionConfigSupplier;
     private Set<Integer> mEffectTargets = Collections.emptySet();
     private RuntimeException mMergedConfigException = null;
+    private boolean mIsAutoRotationSupported = false;
+    private RotationProvider mRotationProvider;
+    private int mLastRotation = INVALID_ROTATION;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -244,5 +251,44 @@ public class FakeUseCase extends UseCase {
 
     public void setMergedConfigException(@Nullable RuntimeException exception) {
         mMergedConfigException = exception;
+    }
+
+    public void setAutoRotationSupported(boolean supported) {
+        mIsAutoRotationSupported = supported;
+    }
+
+    @Override
+    public boolean isAutoRotationSupported() {
+        return mIsAutoRotationSupported;
+    }
+
+    @Override
+    public void setRotationProvider(@Nullable RotationProvider rotationProvider) {
+        mRotationProvider = rotationProvider;
+        super.setRotationProvider(rotationProvider);
+    }
+
+    public @Nullable RotationProvider getRotationProvider() {
+        return mRotationProvider;
+    }
+
+    @Override
+    protected void onProviderRotationChanged(@ImageOutputConfig.RotationValue int rotation) {
+        mLastRotation = rotation;
+        super.onProviderRotationChanged(rotation);
+    }
+
+    /**
+     * Returns the last rotation value set by {@link #onProviderRotationChanged(int)}.
+     */
+    public int getLastRotation() {
+        return mLastRotation;
+    }
+
+    /**
+     * Clears the last rotation value set by {@link #onProviderRotationChanged(int)}.
+     */
+    public void clearLastRotation() {
+        mLastRotation = INVALID_ROTATION;
     }
 }

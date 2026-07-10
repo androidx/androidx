@@ -22,12 +22,12 @@ import androidx.annotation.RequiresExtension
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.util.Preconditions
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.FragmentUtils.scenarioLoadDocument
 import androidx.pdf.viewer.TestPdfViewerFragment
 import androidx.pdf.viewer.fragment.R as PdfR
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.EspressoKey
@@ -40,6 +40,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +67,6 @@ class PdfViewerFragmentExternalInputTest {
             IdlingRegistry.getInstance()
                 .register(fragment.pdfSearchViewVisibleIdlingResource.countingIdlingResource)
         }
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = true
     }
 
     @After
@@ -77,7 +78,52 @@ class PdfViewerFragmentExternalInputTest {
                 .unregister(fragment.pdfSearchViewVisibleIdlingResource.countingIdlingResource)
         }
         scenario.close()
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = false
+    }
+
+    @Test
+    fun testEsc_closeSearchView() {
+        assumeFalse(
+            "Test fails on Medium Phone Emulator API 35 b/485139704",
+            Build.MODEL.contains("gphone", ignoreCase = true) &&
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.VANILLA_ICE_CREAM,
+        )
+
+        // Load a document into the fragment.
+        scenarioLoadDocument(
+            scenario = scenario,
+            filename = TEST_DOCUMENT_FILE,
+            nextState = Lifecycle.State.STARTED,
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
+        )
+        // Wait for the document to finish loading and verify the initial state.
+        Espresso.onIdle()
+        scenario.onFragment {
+            Preconditions.checkArgument(
+                it.documentLoaded,
+                "Unable to load document due to ${it.documentError?.message}",
+            )
+        }
+
+        // Assert that the search view is not visible initially.
+        onView(withId(PdfR.id.pdfSearchView))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+
+        // Enable find in file and verify PdfSearchView is visible
+        scenario.onFragment { it.isTextSearchActive = true }
+        onView(withId(PdfR.id.pdfSearchView)).check { view, _ -> matches(isDisplayed()) }
+
+        // Perform a Esc key press on any view in the PdfSearchView.
+        onView(withId(androidx.pdf.R.id.searchQueryBox))
+            .perform(
+                ViewActions.pressKey(
+                    EspressoKey.Builder().withKeyCode(KeyEvent.KEYCODE_ESCAPE).build()
+                )
+            )
+
+        // Assert that find in file is disabled and PdfSearchView is not visible
+        onView(withId(PdfR.id.pdfSearchView))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        scenario.onFragment { assertFalse(it.isTextSearchActive) }
     }
 
     @Test

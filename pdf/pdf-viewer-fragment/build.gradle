@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,19 +25,16 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(project(":pdf:pdf-viewer"))
     api(project(":pdf:pdf-document-service"))
     api("androidx.core:core:1.13.1")
 
     implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.window:window:1.3.0")
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation-experimental:1.5.1")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -58,11 +54,9 @@ dependencies {
 
 android {
     namespace = "androidx.pdf.viewer.fragment"
-
+    compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
-        minSdk = 31
-        compileSdk = 36
-        compileSdkExtension = 18
+        minSdk { version = release(28) }
     }
 }
 

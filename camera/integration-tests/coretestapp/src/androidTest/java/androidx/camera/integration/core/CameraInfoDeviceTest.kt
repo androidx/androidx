@@ -17,35 +17,34 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
 import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
-import androidx.camera.video.ExperimentalHighSpeedVideo
 import androidx.camera.video.HighSpeedVideoSessionConfig
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.concurrent.futures.await
+import androidx.core.backported.fixes.BackportedFixManager
+import androidx.core.backported.fixes.KnownIssues
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -71,18 +70,8 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(
-                if (implName == Camera2Config::class.simpleName) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            )
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -94,11 +83,7 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     @Before
@@ -194,7 +179,6 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
             .isEqualTo(CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun getSupportedFrameRateRanges_withPreviewAndImageCapture_returnsValidSubset() {
         // Arrange.
@@ -213,7 +197,6 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
         assertThat(allSupportedFps).containsAtLeastElementsIn(supportedFpsForSessionConfig)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun getSupportedFrameRateRanges_withTargetFrameRateSet_returnsValidSubset() {
         // Arrange.
@@ -232,7 +215,6 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
         assertThat(allSupportedFps).containsAtLeastElementsIn(supportedFpsForSessionConfig)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun getSupportedFrameRateRanges_withPreviewAndVideoCaptureUhd_returnsValidSubset() {
         // Arrange.
@@ -254,7 +236,6 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
         assertThat(allSupportedFps).containsAtLeastElementsIn(supportedFpsForSessionConfig)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun getSupportedFrameRateRanges_withStreamSharing_returnsValidSubset() {
         // Arrange.
@@ -275,7 +256,6 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
         assertThat(allSupportedFps).containsAtLeastElementsIn(supportedFpsForSessionConfig)
     }
 
-    @OptIn(ExperimentalSessionConfig::class, ExperimentalHighSpeedVideo::class)
     @Test
     fun getSupportedFrameRateRanges_withHighSpeedVideoSessionConfig() {
         // Arrange.
@@ -297,13 +277,61 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
     }
 
     @Test
+    fun isSessionConfigSupported_returnsTrue_forSupportedConfiguration() {
+        // Arrange.
+        val videoCapabilities = Recorder.getHighSpeedVideoCapabilities(cameraInfo)
+        assumeTrue(videoCapabilities != null)
+
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val sessionConfig = HighSpeedVideoSessionConfig(videoCapture = videoCapture)
+
+        // Act & Assert: Query supported frame rates and verify that isSessionConfigSupported
+        // returns true for each of them.
+        cameraInfo.getSupportedFrameRateRanges(sessionConfig).forEach { frameRateRange ->
+            val highSpeedVideoConfig =
+                HighSpeedVideoSessionConfig(
+                    frameRateRange = frameRateRange,
+                    videoCapture = videoCapture,
+                )
+
+            assertThat(cameraInfo.isSessionConfigSupported(highSpeedVideoConfig)).isTrue()
+        }
+    }
+
+    @Test
+    fun isSessionConfigSupported_returnsFalse_forUnsupportedFrameRate() {
+        // Arrange.
+        // High-speed frame rates are not guaranteed to support arbitrary values. [200, 200] is
+        // an unlikely value and is used to test the unsupported case.
+        val unsupportedFrameRate = Range(200, 200)
+
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val unsupportedConfig =
+            HighSpeedVideoSessionConfig(
+                frameRateRange = unsupportedFrameRate,
+                videoCapture = videoCapture,
+            )
+
+        // Act & Assert.
+        assertThat(cameraInfo.isSessionConfigSupported(unsupportedConfig)).isFalse()
+    }
+
+    @Test
     fun canReturnSupportedOutputFormats() {
         val formats = cameraInfo.supportedOutputFormats
         val cameraCharacteristics =
             CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!
         val streamConfigurationMap = cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)!!
+        var expectedFormats = streamConfigurationMap.outputFormats.toList()
 
-        assertThat(formats).containsExactlyElementsIn(streamConfigurationMap.outputFormats.toSet())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val isColorToneIssueFixed = BackportedFixManager().isFixed(KnownIssues.KI_398591036)
+            if (!isColorToneIssueFixed) {
+                expectedFormats = expectedFormats.filter { it != ImageFormat.JPEG_R }
+            }
+        }
+
+        assertThat(formats).containsExactlyElementsIn(expectedFormats.toSet())
     }
 
     @Test

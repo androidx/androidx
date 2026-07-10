@@ -17,10 +17,15 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastJoinToString
 
-/** Defines a horizontal line to be drawn on the text. */
+/**
+ * Defines text decorations such as underline or line-through.
+ *
+ * @property mask bitmask representing the combined decorations.
+ */
 @Immutable
 class TextDecoration internal constructor(val mask: Int) {
 
@@ -42,10 +47,10 @@ class TextDecoration internal constructor(val mask: Int) {
         @Stable val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**
-         * Creates a decoration that includes all the given decorations.
+         * Combines multiple [TextDecoration]s into a single decoration.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
-         * @param decorations The decorations to be added
+         * @param decorations decorations to combine.
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
             val mask = decorations.fastFold(0) { acc, decoration -> acc or decoration.mask }
@@ -53,11 +58,19 @@ class TextDecoration internal constructor(val mask: Int) {
         }
 
         /**
-         * Construct a TextDecoration instance from the underlying [TextDecoration.mask]. This
-         * method will attempt to avoid allocations in cases of well known decorations, but is not
-         * guaranteed to not allocate.
+         * Creates a [TextDecoration] from a [mask].
+         *
+         * Attempts to avoid allocations for well-known decorations.
+         *
+         * @param mask bitmask of the decoration.
+         * @throws IllegalArgumentException if [mask] is invalid.
+         * @see androidx.compose.ui.text.style.TextDecoration.mask
          */
         fun valueOf(mask: Int): TextDecoration {
+            // Prevent creating an invalid TextDecoration combination.
+            requirePrecondition((mask or 0b11) == 0b11) {
+                "The given mask=$mask is not recognized by TextDecoration."
+            }
             return when (mask) {
                 0 -> None
                 1 -> Underline
@@ -68,7 +81,7 @@ class TextDecoration internal constructor(val mask: Int) {
     }
 
     /**
-     * Creates a decoration that includes both of the TextDecorations.
+     * Combines this decoration with [decoration].
      *
      * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
      */
@@ -77,9 +90,9 @@ class TextDecoration internal constructor(val mask: Int) {
     }
 
     /**
-     * Check whether this [TextDecoration] contains the given decoration.
+     * Checks if this decoration contains [other].
      *
-     * @param other The [TextDecoration] to be checked.
+     * @param other decoration to check.
      */
     operator fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask

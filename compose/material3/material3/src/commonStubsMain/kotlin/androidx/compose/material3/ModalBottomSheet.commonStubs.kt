@@ -16,8 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -40,12 +38,6 @@ actual constructor(
         isAppearanceLightStatusBars: Boolean,
         isAppearanceLightNavigationBars: Boolean,
     ) : this(shouldDismissOnBackPress)
-
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Replaced with additional shouldDismissOnClickOutside param constructor.",
-    )
-    actual constructor(shouldDismissOnBackPress: Boolean) : this(shouldDismissOnBackPress, true)
 }
 
 @Immutable
@@ -60,6 +52,5 @@ internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color,
     properties: ModalBottomSheetProperties,
-    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()

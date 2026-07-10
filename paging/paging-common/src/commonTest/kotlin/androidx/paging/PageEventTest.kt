@@ -167,7 +167,7 @@ class PageEventTest {
                             ),
                         placeholdersAfter = 4,
                     )
-                    .map { it.toString() },
+                    .map { it },
             )
         }
 

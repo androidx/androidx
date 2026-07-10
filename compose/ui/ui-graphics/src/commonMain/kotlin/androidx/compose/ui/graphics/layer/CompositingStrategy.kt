@@ -31,13 +31,13 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
         /**
          * Rendering to an offscreen buffer will be determined automatically by the rest of the
          * graphicsLayer parameters. This is the default behavior. For example, whenever an alpha
-         * value less than 1.0f is provided on [Modifier.graphicsLayer], a compositing layer is
-         * created automatically to first render the contents fully opaque, then draw this offscreen
-         * buffer to the destination with the corresponding alpha. This is necessary for correctness
-         * otherwise alpha applied to individual drawing instructions that overlap will have a
-         * different result than expected. Additionally usage of [RenderEffect] on the graphicsLayer
-         * will also render into an intermediate offscreen buffer before being drawn into the
-         * destination.
+         * value less than 1.0f is provided on [androidx.compose.ui.graphics.graphicsLayer], a
+         * compositing layer is created automatically to first render the contents fully opaque,
+         * then draw this offscreen buffer to the destination with the corresponding alpha. This is
+         * necessary for correctness otherwise alpha applied to individual drawing instructions that
+         * overlap will have a different result than expected. Additionally usage of
+         * [androidx.compose.ui.graphics.RenderEffect] on the graphicsLayer will also render into an
+         * intermediate offscreen buffer before being drawn into the destination.
          */
         val Auto = CompositingStrategy(0)
 
@@ -46,7 +46,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * the destination regardless of the other parameters configured on the graphics layer. This
          * is useful for leveraging different blending algorithms for masking content. For example,
          * the contents can be drawn into this graphics layer and masked out by drawing additional
-         * shapes with [BlendMode.Clear]
+         * shapes with [androidx.compose.ui.graphics.BlendMode.Clear]
          */
         val Offscreen = CompositingStrategy(1)
 

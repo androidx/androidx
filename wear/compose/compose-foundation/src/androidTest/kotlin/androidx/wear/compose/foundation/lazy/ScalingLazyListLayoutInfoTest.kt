@@ -24,16 +24,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -45,6 +47,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -54,7 +57,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class ScalingLazyListLayoutInfoTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -761,7 +764,9 @@ public class ScalingLazyListLayoutInfoTest {
         state: ScalingLazyListState,
         currentInfo: StableRef<ScalingLazyListLayoutInfo?>,
     ) {
-        currentInfo.value = state.layoutInfo
+        LaunchedEffect(Unit) {
+            snapshotFlow { state.layoutInfo }.collect { currentInfo.value = it }
+        }
     }
 
     @Test
@@ -905,30 +910,27 @@ public class ScalingLazyListLayoutInfoTest {
     fun visibleItemsAreObservableWhenResize() {
         lateinit var state: ScalingLazyListState
         var size by mutableStateOf(itemSizeDp * 2)
-        var currentInfo: ScalingLazyListLayoutInfo? = null
-        @Composable
-        fun observingFun() {
-            currentInfo = state.layoutInfo
-        }
+        val currentInfo = StableRef<ScalingLazyListLayoutInfo?>(null)
+
         rule.setContent {
             ScalingLazyColumn(state = rememberScalingLazyListState().also { state = it }) {
                 item { Box(Modifier.requiredSize(size)) }
             }
-            observingFun()
+            ObservingFun(state, currentInfo)
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
-            assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, unscaledSize = itemSizePx * 2)
-            currentInfo = null
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value?.assertVisibleItems(count = 1, unscaledSize = itemSizePx * 2)
+            currentInfo.value = null
             size = itemSizeDp
         }
 
         rule.runOnIdle {
-            assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, unscaledSize = itemSizePx)
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value?.assertVisibleItems(count = 1, unscaledSize = itemSizePx)
         }
     }
 

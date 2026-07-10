@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
@@ -44,9 +45,8 @@ import java.util.concurrent.Callable;
  * {@link #mPerPackageDocumentCountLimit} documents.
  *
  *  <p>This class is not thread safe.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DocumentLimiter {
     private final int mDocumentLimitStartThreshold;

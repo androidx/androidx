@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
@@ -46,15 +47,13 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 internal class CameraGraphSessionImplTest {
     private val testScope = TestScope()
     private val metadata =
-        FakeCameraMetadata(
-            characteristics =
-                mapOf(
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-                    CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 1.0f,
-                )
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
         )
 
     private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
@@ -110,8 +109,8 @@ internal class CameraGraphSessionImplTest {
     @Test
     fun lock3AShouldFailWhenInvokedBeforeStartRepeating() = runTest {
         simulator.start()
-        simulator.simulateCameraStarted()
         simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
         advanceUntilIdle()
 
         val session = simulator.acquireSession()
@@ -129,8 +128,8 @@ internal class CameraGraphSessionImplTest {
             val request = Request(streams = listOf(stream.id))
             simulator.acquireSession().use { it.startRepeating(request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
             simulator.simulateNextFrame()
 
@@ -154,8 +153,8 @@ internal class CameraGraphSessionImplTest {
             val request = Request(streams = listOf(stream.id))
             simulator.acquireSession().use { it.startRepeating(request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
             simulator.simulateNextFrame()
 

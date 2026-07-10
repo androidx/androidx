@@ -54,9 +54,8 @@ import androidx.compose.ui.unit.dp
  * containing the two label slots in the middle and a slot for the selection control at the end.
  *
  * The [SelectableChip] is Stadium shaped and has a max height designed to take no more than two
- * lines of text of [Typography.button] style. With localisation and/or large font sizes, the
- * [SelectableChip] height adjusts to accommodate the contents. The label and secondary label should
- * be consistently aligned.
+ * lines of text. With localisation and/or large font sizes, the [SelectableChip] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [SelectableChipColors] can be obtained from [SelectableChipDefaults], e.g.
  * [SelectableChipDefaults.selectableChipColors].
@@ -183,9 +182,9 @@ public fun SelectableChip(
  * control will have a visual effect applied to provide a "divider" between the two tappable areas.
  *
  * The [SplitSelectableChip] is Stadium shaped and has a max height designed to take no more than
- * two lines of text of [Typography.button] style. With localisation and/or large font sizes, the
- * [SplitSelectableChip] height adjusts to accommodate the contents. The label and secondary label
- * should be consistently aligned.
+ * two lines of text. With localisation and/or large font sizes, the [SplitSelectableChip] height
+ * adjusts to accommodate the contents. The label and secondary label should be consistently
+ * aligned.
  *
  * The recommended set of [SplitSelectableChipColors] can be obtained from [SelectableChipDefaults],
  * e.g. [SelectableChipDefaults.splitSelectableChipColors].

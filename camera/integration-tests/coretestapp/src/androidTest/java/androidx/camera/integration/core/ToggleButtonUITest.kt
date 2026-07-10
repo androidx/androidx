@@ -19,17 +19,16 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onIdle
@@ -41,16 +40,11 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import junit.framework.AssertionFailedError
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -61,19 +55,17 @@ import org.junit.runners.Parameterized
 /** Test toggle buttons in CoreTestApp. */
 @LargeTest
 @RunWith(Parameterized::class)
-class ToggleButtonUITest(private val implName: String, private val cameraConfig: String) {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+class ToggleButtonUITest(private val implName: String) {
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
 
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(
-                if (implName == Camera2Config::class.simpleName) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            )
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -83,51 +75,24 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
             Manifest.permission.RECORD_AUDIO,
         )
 
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     private val launchIntent =
-        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
-            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
-            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
-        }
+        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
 
     @Before
     fun setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-    }
-
-    @After
-    fun tearDown(): Unit =
-        runBlocking(Dispatchers.Main) {
-            // Returns to Home to restart next test.
-            device.pressHome()
-            device.waitForIdle(IDLE_TIMEOUT_MS)
-            // Unfreeze rotation so the device can choose the orientation via its own policy. Be
-            // nice
-            // to other tests :)
-            device.unfreezeRotation()
-
+        requireForegroundRule.deferCleanup {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
+    }
 
     @Test
     fun testFlashToggleButton() {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
             WaitForViewToShow(R.id.constraintLayout).wait()
+            scenario.waitForViewfinderIdle()
             assumeTrue(isButtonEnabled(R.id.flash_toggle))
             val useCase = scenario.withActivity { imageCapture }
             // There are 3 different states of flash mode: ON, OFF and AUTO.
@@ -152,6 +117,7 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
     fun testTorchToggleButton() {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             WaitForViewToShow(R.id.constraintLayout).wait()
+            scenario.waitForViewfinderIdle()
             assumeTrue(isButtonEnabled(R.id.torch_toggle))
             val cameraInfo = scenario.withActivity { cameraInfo!! }
             val isTorchOn = cameraInfo.isTorchOn()
@@ -174,9 +140,8 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
             WaitForViewToShow(R.id.direction_toggle).wait()
             assertThat(scenario.withActivity { preview }).isNotNull()
             for (i in 0..4) {
-                scenario.waitForViewfinderIdle()
                 // Click switch camera button.
-                onView(withId(R.id.direction_toggle)).perform(click())
+                scenario.switchCameraAndWaitForViewfinderIdle()
             }
         }
     }
@@ -208,16 +173,6 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(
-                    Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
-                ),
-                arrayOf(
-                    CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-                ),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName))
     }
 }

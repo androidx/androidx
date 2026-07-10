@@ -43,6 +43,7 @@ import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -143,6 +144,12 @@ private class FocusableElement(private val interactionSource: MutableInteraction
     }
 }
 
+/**
+ * The node that adds functionality on top of the underlying focus system.
+ *
+ * When making changes here, consider adding similar functionality to the FocusTargetInteropNode for
+ * View-Compose interop cases.
+ */
 internal class FocusableNode(
     private var interactionSource: MutableInteractionSource?,
     focusability: Focusability = Focusability.Always,
@@ -216,7 +223,7 @@ internal class FocusableNode(
         if (isFocused == wasFocused) return
         onFocusChange?.invoke(isFocused)
         if (isFocused) {
-            coroutineScope.launch { bringIntoView() }
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { bringIntoView() }
             val pinnableContainer = retrievePinnableContainer()
             pinnedHandle = pinnableContainer?.pin()
             notifyObserverWhenAttached()

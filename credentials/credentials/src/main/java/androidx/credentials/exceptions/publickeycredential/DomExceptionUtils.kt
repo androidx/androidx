@@ -16,7 +16,6 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataCloneError
@@ -50,13 +49,11 @@ import androidx.credentials.exceptions.domerrors.WrongDocumentError
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /** An internal class that parses dom exceptions originating from providers. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class DomExceptionUtils {
     companion object {
 
         const val SEPARATOR = "/"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal inline fun <reified T> generateDomException(
             type: String,
             prefix: String,

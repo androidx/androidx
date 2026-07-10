@@ -20,11 +20,9 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.media.ImageReaderWrapper
 
 /**
  * Utility class for creating, tracking, and simulating [FakeImageReader]s. ImageReaders can be
@@ -51,6 +49,7 @@ public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
             cameraStream.id,
             cameraStream.outputs.associate { it.id to it.size },
             capacity,
+            usageFlags = null,
         )
 
     /** Create a [FakeImageReader] from its properties. */
@@ -59,28 +58,24 @@ public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
         streamId: StreamId,
         outputIdMap: Map<OutputId, Size>,
         capacity: Int,
+        usageFlags: Long?,
     ): FakeImageReader {
         check(this[streamId] == null) {
             "Cannot create multiple ImageReader(s) from the same $streamId!"
         }
 
         val fakeImageReader =
-            FakeImageReader.create(format, streamId, outputIdMap, capacity, fakeSurfaces)
+            FakeImageReader.create(
+                format,
+                streamId,
+                outputIdMap,
+                capacity,
+                usageFlags,
+                fakeSurfaces,
+            )
         synchronized(lock) { fakeImageReaders.add(fakeImageReader) }
         return fakeImageReader
     }
-
-    /** Create a [FakeImageReader] based on a [CameraStream] and an [ImageSourceConfig]. */
-    public fun create(
-        cameraStream: CameraStream,
-        imageSourceConfig: ImageSourceConfig,
-    ): ImageReaderWrapper =
-        create(
-            cameraStream.outputs.first().format,
-            cameraStream.id,
-            cameraStream.outputs.associate { it.id to it.size },
-            imageSourceConfig.capacity,
-        )
 
     /** [check] that all [FakeImageReader]s are closed. */
     public fun checkImageReadersClosed() {

@@ -19,14 +19,13 @@ import android.Manifest
 import android.content.Context
 import android.view.View
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.testing.FragmentScenario
@@ -57,8 +56,10 @@ class PreviewViewFragmentTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
+    val requireForegroundRule = RequireForegroundRule {
+        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
 
     @get:Rule
     var useCamera =
@@ -74,15 +75,14 @@ class PreviewViewFragmentTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Before
-    @Throws(CoreAppTestUtil.ForegroundOccupiedError::class)
     fun setup() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         scenario = createScenario()
+
+        requireForegroundRule.deferCleanup {
+            val provider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            provider.shutdownAsync()[10, TimeUnit.SECONDS]
+        }
     }
 
     @After
@@ -90,7 +90,6 @@ class PreviewViewFragmentTest(
         if (scenario != null) {
             scenario!!.moveToState(Lifecycle.State.DESTROYED)
         }
-        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS].shutdownAsync()
     }
 
     @Test
@@ -278,10 +277,6 @@ class PreviewViewFragmentTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 }

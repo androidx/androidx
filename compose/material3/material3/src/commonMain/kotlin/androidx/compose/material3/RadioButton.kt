@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.runtime.Composable
@@ -94,7 +95,13 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = ripple(bounded = false, radius = RadioButtonTokens.StateLayerSize / 2),
+                indication =
+                    @OptIn(ExperimentalMaterial3Api::class)
+                    ripple(
+                        bounded = false,
+                        radius = RadioButtonTokens.StateLayerSize / 2,
+                        focusRingShape = CircleShape,
+                    ),
             )
         } else {
             Modifier

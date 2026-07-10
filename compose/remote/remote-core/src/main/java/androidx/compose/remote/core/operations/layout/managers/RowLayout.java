@@ -18,6 +18,8 @@ package androidx.compose.remote.core.operations.layout.managers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,17 +31,20 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Simple Row layout implementation - also supports weight and horizontal/vertical positioning */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RowLayout extends LayoutManager {
     public static final int START = 1;
     public static final int CENTER = 2;
@@ -125,27 +130,111 @@ public class RowLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
+            float minWidth,
             float maxWidth,
+            float minHeight,
             float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
+        computeWrapSize(
+                context,
+                minWidth,
+                maxWidth,
+                minHeight,
+                maxHeight,
+                horizontalWrap,
+                verticalWrap,
+                measure,
+                size,
+                mChildrenComponents);
+    }
+
+    /** Compute the size of the component in wrap */
+    public void computeWrapSize(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            boolean horizontalWrap,
+            boolean verticalWrap,
+            @NonNull MeasurePass measure,
+            @NonNull Size size,
+            @NonNull ArrayList<Component> components) {
         DebugLog.s(() -> "COMPUTE WRAP SIZE in " + this + " (" + mComponentId + ")");
+        size.clear();
         int visibleChildrens = 0;
         float currentMaxWidth = maxWidth;
-        for (Component c : mChildrenComponents) {
-            c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
-            ComponentMeasure m = measure.get(c);
-            if (!m.isGone()) {
-                size.setWidth(size.getWidth() + m.getW());
-                size.setHeight(Math.max(size.getHeight(), m.getH()));
-                visibleChildrens++;
-                currentMaxWidth -= m.getW();
+
+        float totalWeights = 0f;
+        boolean hasWeights = false;
+        for (Component child : components) {
+            ComponentMeasure childMeasure = measure.get(child);
+            if (childMeasure.isGone()) {
+                continue;
+            }
+            if (child instanceof LayoutComponent
+                    && ((LayoutComponent) child).getWidthModifier().hasWeight()) {
+                hasWeights = true;
+                totalWeights += ((LayoutComponent) child).getWidthModifier().getValue();
             }
         }
-        if (!mChildrenComponents.isEmpty()) {
-            size.setWidth(size.getWidth() + (mSpacedBy * (visibleChildrens - 1)));
+
+        if (hasWeights) {
+            // we have to measure all children first that do not have weight
+            for (Component c : components) {
+                if (c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getWidthModifier().hasWeight()) {
+                    continue;
+                }
+                c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                    currentMaxWidth -= m.getW();
+                }
+            }
+            // Then we can measure the children with weight
+            for (Component c : components) {
+                if (!(c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getWidthModifier().hasWeight())) {
+                    continue;
+                }
+                float childWeight = ((LayoutComponent) c).getWidthModifier().getValue();
+                float childMinWidth = (childWeight * currentMaxWidth) / totalWeights;
+                float childMaxWidth = childMinWidth;
+
+                c.measure(context, childMinWidth, childMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                }
+            }
+        } else {
+            for (Component c : components) {
+                c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                    currentMaxWidth -= m.getW();
+                }
+            }
+        }
+
+        if (!components.isEmpty()) {
+            float spacedBy = mSpacedBy;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                spacedBy *= context.getDensity();
+            }
+            size.setWidth(size.getWidth() + (spacedBy * (visibleChildrens - 1)));
         }
         DebugLog.e();
     }
@@ -158,10 +247,23 @@ public class RowLayout extends LayoutManager {
             float minHeight,
             float maxHeight,
             @NonNull MeasurePass measure) {
+        computeSize(
+                context, minWidth, maxWidth, minHeight, maxHeight, measure, mChildrenComponents);
+    }
+
+    protected void computeSize(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            @NonNull MeasurePass measure,
+            @NonNull ArrayList<Component> components) {
         DebugLog.s(() -> "COMPUTE SIZE in " + this + " (" + mComponentId + ")");
         float mw = maxWidth;
-        for (Component child : mChildrenComponents) {
+        for (Component child : components) {
             child.measure(context, minWidth, mw, minHeight, maxHeight, measure);
+            // TODO: Check if correct with FlowLayout
             ComponentMeasure m = measure.get(child);
             if (!m.isGone()) {
                 mw -= m.getW();
@@ -171,23 +273,47 @@ public class RowLayout extends LayoutManager {
     }
 
     @Override
-    public float minIntrinsicWidth(@Nullable RemoteContext context) {
-        float width = computeModifierDefinedWidth(context);
+    public float minIntrinsicWidth(@NonNull RemoteContext context) {
+        return minIntrinsicWidth(context, mChildrenComponents, true);
+    }
+
+    protected float minIntrinsicWidth(
+            @NonNull RemoteContext context,
+            @NonNull ArrayList<Component> components,
+            boolean isMin) {
+        float width = computeModifierDefinedWidth(context, isMin);
         float componentWidths = 0f;
-        for (Component c : mChildrenComponents) {
+        for (Component c : components) {
             componentWidths += c.minIntrinsicWidth(context);
         }
         return Math.max(width, componentWidths);
     }
 
     @Override
-    public float minIntrinsicHeight(@Nullable RemoteContext context) {
-        float height = computeModifierDefinedHeight(context);
+    public float minIntrinsicHeight(@NonNull RemoteContext context) {
+        return minIntrinsicHeight(context, mChildrenComponents, true);
+    }
+
+    protected float minIntrinsicHeight(
+            @Nullable RemoteContext context,
+            @NonNull ArrayList<Component> components,
+            boolean isMin) {
+        float height = computeModifierDefinedHeight(context, isMin);
         float componentHeights = 0f;
-        for (Component c : mChildrenComponents) {
+        for (Component c : components) {
             componentHeights = Math.max(componentHeights, c.minIntrinsicHeight(context));
         }
         return Math.max(height, componentHeights);
+    }
+
+    @Override
+    public float maxIntrinsicWidth(@NonNull RemoteContext context) {
+        float width = computeModifierDefinedWidth(context);
+        float childrenWidth = 0f;
+        for (Component c : mChildrenComponents) {
+            childrenWidth += c.maxIntrinsicWidth(context);
+        }
+        return Math.max(width, childrenWidth);
     }
 
     @Override
@@ -206,15 +332,9 @@ public class RowLayout extends LayoutManager {
                                 + " x "
                                 + selfMeasure.getH()
                                 + ")");
-        if (mChildrenComponents.isEmpty()) {
-            DebugLog.e();
-            return;
-        }
+
         float selfWidth = selfMeasure.getW() - mPaddingLeft - mPaddingRight;
         float selfHeight = selfMeasure.getH() - mPaddingTop - mPaddingBottom;
-        float childrenWidth = 0f;
-        float childrenHeight = 0f;
-
         if (mComponentModifiers.hasHorizontalScroll()) {
             selfWidth =
                     mComponentModifiers.getHorizontalScrollDimension()
@@ -226,6 +346,26 @@ public class RowLayout extends LayoutManager {
                     mComponentModifiers.getVerticalScrollDimension() - mPaddingTop - mPaddingBottom;
         }
 
+        internalLayoutMeasure(
+                context, measure, mChildrenComponents, selfWidth, selfHeight, 0f, 0f, null);
+    }
+
+    protected void internalLayoutMeasure(
+            @NonNull PaintContext context,
+            @NonNull MeasurePass measure,
+            @NonNull ArrayList<Component> components,
+            float selfWidth,
+            float selfHeight,
+            float positionX,
+            float positionY,
+            @Nullable Size size) {
+        if (components.isEmpty()) {
+            DebugLog.e();
+            return;
+        }
+        float childrenWidth = 0f;
+        float childrenHeight = 0f;
+
         boolean checkWeights = true;
 
         while (checkWeights) {
@@ -234,7 +374,7 @@ public class RowLayout extends LayoutManager {
             childrenHeight = 0f;
             boolean hasWeights = false;
             float totalWeights = 0f;
-            for (Component child : mChildrenComponents) {
+            for (Component child : components) {
                 ComponentMeasure childMeasure = measure.get(child);
                 if (childMeasure.isGone()) {
                     continue;
@@ -252,7 +392,7 @@ public class RowLayout extends LayoutManager {
             // currently we'll measure unnecessarily
             if (hasWeights) {
                 float availableSpace = selfWidth - childrenWidth;
-                for (Component child : mChildrenComponents) {
+                for (Component child : components) {
                     if (child instanceof LayoutComponent
                             && ((LayoutComponent) child).getWidthModifier().hasWeight()) {
                         ComponentMeasure childMeasure = measure.get(child);
@@ -261,7 +401,7 @@ public class RowLayout extends LayoutManager {
                         }
                         float weight = ((LayoutComponent) child).getWidthModifier().getValue();
                         float childWidth = (weight * availableSpace) / totalWeights;
-                        WidthInModifierOperation widthInConstraints =
+                        DimensionInModifierOperation widthInConstraints =
                                 ((LayoutComponent) child).getWidthModifier().getWidthIn();
                         if (widthInConstraints != null) {
                             float min = widthInConstraints.getMin();
@@ -292,7 +432,9 @@ public class RowLayout extends LayoutManager {
 
         childrenWidth = 0f;
         int visibleChildrens = 0;
-        for (Component child : mChildrenComponents) {
+        boolean hasAlignBy = false;
+        float alignByValue = 0f;
+        for (Component child : components) {
             ComponentMeasure childMeasure = measure.get(child);
             if (childMeasure.isGone()) {
                 continue;
@@ -300,8 +442,19 @@ public class RowLayout extends LayoutManager {
             childrenWidth += childMeasure.getW();
             childrenHeight = Math.max(childrenHeight, childMeasure.getH());
             visibleChildrens++;
+            AlignByModifierOperation alignByModifier =
+                    child.selfOrModifier(AlignByModifierOperation.class);
+            if (alignByModifier != null) {
+                hasAlignBy = true;
+                alignByValue = Math.max(alignByValue, alignByModifier.getValue(context));
+            }
         }
-        childrenWidth += mSpacedBy * (visibleChildrens - 1);
+
+        float spacedBy = mSpacedBy;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            spacedBy *= context.getDensity();
+        }
+        childrenWidth += spacedBy * (visibleChildrens - 1);
 
         float tx = 0f;
         float ty = 0f;
@@ -320,7 +473,7 @@ public class RowLayout extends LayoutManager {
                 tx = (selfWidth - childrenWidth) / 2f;
                 break;
             case SPACE_BETWEEN:
-                for (Component child : mChildrenComponents) {
+                for (Component child : components) {
                     ComponentMeasure childMeasure = measure.get(child);
                     if (childMeasure.isGone()) {
                         continue;
@@ -335,7 +488,7 @@ public class RowLayout extends LayoutManager {
                 }
                 break;
             case SPACE_EVENLY:
-                for (Component child : mChildrenComponents) {
+                for (Component child : components) {
                     ComponentMeasure childMeasure = measure.get(child);
                     if (childMeasure.isGone()) {
                         continue;
@@ -346,7 +499,7 @@ public class RowLayout extends LayoutManager {
                 tx = horizontalGap;
                 break;
             case SPACE_AROUND:
-                for (Component child : mChildrenComponents) {
+                for (Component child : components) {
                     ComponentMeasure childMeasure = measure.get(child);
                     if (childMeasure.isGone()) {
                         continue;
@@ -358,21 +511,40 @@ public class RowLayout extends LayoutManager {
                 break;
         }
 
-        for (Component child : mChildrenComponents) {
+        for (Component child : components) {
             ComponentMeasure childMeasure = measure.get(child);
+            float alignByOffset = 0f;
+            if (hasAlignBy) {
+                AlignByModifierOperation alignByModifier =
+                        child.selfOrModifier(AlignByModifierOperation.class);
+                if (alignByModifier != null) {
+                    alignByOffset = alignByModifier.getValue(context);
+                }
+            }
             switch (mVerticalPositioning) {
                 case TOP:
                     ty = 0f;
+                    if (hasAlignBy) {
+                        ty += alignByValue - alignByOffset;
+                    }
                     break;
                 case CENTER:
                     ty = (selfHeight - childMeasure.getH()) / 2f;
+                    if (hasAlignBy) {
+                        ty = (selfHeight - childrenHeight) / 2f;
+                        ty += alignByValue - alignByOffset;
+                    }
                     break;
                 case BOTTOM:
                     ty = selfHeight - childMeasure.getH();
+                    if (hasAlignBy) {
+                        ty = (selfHeight - childrenHeight);
+                        ty += alignByValue - alignByOffset;
+                    }
                     break;
             }
-            childMeasure.setX(tx);
-            childMeasure.setY(ty);
+            childMeasure.setX(tx + positionX);
+            childMeasure.setY(ty + positionY);
             if (childMeasure.isGone()) {
                 continue;
             }
@@ -382,19 +554,25 @@ public class RowLayout extends LayoutManager {
                     || mHorizontalPositioning == SPACE_EVENLY) {
                 tx += horizontalGap;
             }
-            tx += mSpacedBy;
+            tx += spacedBy;
+        }
+        if (size != null) {
+            size.setWidth(childrenWidth);
+            size.setHeight(childrenHeight);
         }
         DebugLog.e();
     }
 
     @Override
-    public void getLocationInWindow(float @NonNull [] value, boolean forSelf) {
-        super.getLocationInWindow(value, forSelf);
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
+        super.getLocationInWindow(context, value, forSelf);
+        if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
+            if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
+                ScrollModifierOperation smo = (ScrollModifierOperation) mHorizontalScrollDelegate;
 
-        if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
-            ScrollModifierOperation smo = (ScrollModifierOperation) mHorizontalScrollDelegate;
-
-            value[0] += smo.getScrollX();
+                value[0] += smo.getScrollX();
+            }
         }
     }
 
@@ -449,8 +627,8 @@ public class RowLayout extends LayoutManager {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
         int verticalPositioning = buffer.readInt();
         float spacedBy = buffer.readFloat();
@@ -470,7 +648,8 @@ public class RowLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("row")
                 .description(
                         "Row layout implementation, positioning components one"
                                 + " after the other horizontally.\n\n"
@@ -482,23 +661,20 @@ public class RowLayout extends LayoutManager {
                 .exampleImage("SpaceEvenly", "layout-RowLayout-space-evenly-top.png")
                 .exampleImage("SpaceAround", "layout-RowLayout-space-around-top.png")
                 .exampleImage("SpaceBetween", "layout-RowLayout-space-between-top.png")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
-                .field(
-                        INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "HORIZONTAL_POSITIONING", "horizontal positioning value")
-                .possibleValues("START", RowLayout.START)
-                .possibleValues("CENTER", RowLayout.CENTER)
-                .possibleValues("END", RowLayout.END)
-                .possibleValues("SPACE_BETWEEN", RowLayout.SPACE_BETWEEN)
-                .possibleValues("SPACE_EVENLY", RowLayout.SPACE_EVENLY)
-                .possibleValues("SPACE_AROUND", RowLayout.SPACE_AROUND)
-                .field(INT, "VERTICAL_POSITIONING", "vertical positioning value")
-                .possibleValues("TOP", RowLayout.TOP)
-                .possibleValues("CENTER", RowLayout.CENTER)
-                .possibleValues("BOTTOM", RowLayout.BOTTOM)
-                .field(FLOAT, "SPACED_BY", "Horizontal spacing between components");
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .possibleValues("START", START)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("END", END)
+                .possibleValues("SPACE_BETWEEN", SPACE_BETWEEN)
+                .possibleValues("SPACE_EVENLY", SPACE_EVENLY)
+                .possibleValues("SPACE_AROUND", SPACE_AROUND)
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .possibleValues("TOP", TOP)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("BOTTOM", BOTTOM)
+                .field(FLOAT, "spacedBy", "Horizontal spacing between components");
     }
 
     @Override

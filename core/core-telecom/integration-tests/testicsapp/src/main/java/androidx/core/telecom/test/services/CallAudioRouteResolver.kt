@@ -264,7 +264,7 @@ class CallAudioRouteResolver(
                     callAudioState.supportedBluetoothDevices.map { device ->
                         EndpointEntry(
                             CallAudioEndpoint(
-                                id = device.address?.toString() ?: UUID.randomUUID().toString(),
+                                id = device.address ?: UUID.randomUUID().toString(),
                                 audioRoute = AudioRoute.BLUETOOTH,
                                 frameworkName = getName(device),
                             ),

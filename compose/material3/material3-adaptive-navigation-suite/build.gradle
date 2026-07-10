@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -34,7 +33,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.adaptive.navigationsuite"
-        compileSdk = 35
+        compileSdk { version = release(37) }
     }
     jvmStubs()
 
@@ -43,59 +42,39 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.compose.material3:material3:1.4.0-beta01")
-                api("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha11")
+                api("androidx.compose.material3:material3:1.4.0")
+                api("androidx.compose.material3.adaptive:adaptive:1.2.0")
                 implementation("androidx.window:window-core:1.4.0")
             }
         }
 
         commonTest {
             dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation(project(":window:window-testing"))
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
         }
 
-        jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation(project(":window:window-testing"))
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":window:window-core"))
-            }
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
+            implementation(project(":compose:ui:ui"))
+            implementation(project(":window:window-core"))
         }
     }
 }

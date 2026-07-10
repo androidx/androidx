@@ -63,14 +63,13 @@ internal fun Project.configureSamplesProject() {
 
     val samplesConfiguration =
         project.configurations.register("samples") {
-            it.isVisible = false
             it.isCanBeConsumed = false
             it.isCanBeResolved = true
             it.setResolveSources()
         }
 
     project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) { task ->
-        task.inputJars.from(samplesConfiguration.map { it.incoming.artifactView {}.files })
+        task.inputJars.from(samplesConfiguration.map { it.incoming.files })
         val srcJarFilename = "${project.name}-${project.version}-samples-sources.jar"
         task.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
     }

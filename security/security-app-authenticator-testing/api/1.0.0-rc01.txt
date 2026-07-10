@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.security.app.authenticator {
+
+  public final class TestAppAuthenticatorBuilder {
+    method public androidx.security.app.authenticator.AppAuthenticator build() throws androidx.security.app.authenticator.AppAuthenticatorXmlException, java.io.IOException;
+    method public static androidx.security.app.authenticator.TestAppAuthenticatorBuilder createFromInputStream(android.content.Context, java.io.InputStream) throws androidx.security.app.authenticator.AppAuthenticatorXmlException;
+    method public static androidx.security.app.authenticator.TestAppAuthenticatorBuilder createFromResource(android.content.Context, @XmlRes int);
+    method public androidx.security.app.authenticator.TestAppAuthenticatorBuilder setPackageNotInstalled(String);
+    method public androidx.security.app.authenticator.TestAppAuthenticatorBuilder setSignatureAcceptedForPackage(String);
+    method public androidx.security.app.authenticator.TestAppAuthenticatorBuilder setSigningIdentityForPackage(String, String);
+    method public androidx.security.app.authenticator.TestAppAuthenticatorBuilder setTestPolicy(int);
+    method public androidx.security.app.authenticator.TestAppAuthenticatorBuilder setUidForPackage(String, int);
+    field public static final int POLICY_CUSTOM = 3; // 0x3
+    field public static final int POLICY_DENY_ALL = 2; // 0x2
+    field public static final int POLICY_SIGNATURE_ACCEPTED_FOR_DECLARED_PACKAGES = 1; // 0x1
+  }
+
+}
+

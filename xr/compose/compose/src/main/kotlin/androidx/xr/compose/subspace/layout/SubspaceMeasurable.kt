@@ -27,6 +27,8 @@ public interface SubspaceMeasurable {
     /**
      * Measures the layout with [VolumeConstraints], returning a [SubspacePlaceable] layout that has
      * its new size.
+     *
+     * @param constraints constraints to be applied during the measurement of this layout.
      */
     public fun measure(constraints: VolumeConstraints): SubspacePlaceable
 
@@ -41,6 +43,8 @@ public interface SubspaceMeasurable {
      * // Child composable modifiers can modify MyParams which can be read by the parent.
      * var myParams = MyParams().also { measurable.adjustParams(it) }
      * ```
+     *
+     * @param params layout parameters to be adjusted by this measurable.
      */
     public fun adjustParams(params: ParentLayoutParamsAdjustable)
 }

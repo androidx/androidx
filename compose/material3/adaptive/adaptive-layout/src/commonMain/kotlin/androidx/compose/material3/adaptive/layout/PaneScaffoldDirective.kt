@@ -20,7 +20,6 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.allVerticalHingeBounds
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.occludingVerticalHingeBounds
 import androidx.compose.material3.adaptive.separatingVerticalHingeBounds
 import androidx.compose.runtime.Immutable
@@ -29,11 +28,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmName
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfo] to acquire Material-recommended adaptive layout settings
- * of the current activity window.
+ * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended adaptive layout
+ * settings of the current activity window.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
@@ -107,7 +107,7 @@ fun calculatePaneScaffoldDirective(
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfo] to acquire Material-recommended dense-mode adaptive
+ * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended dense-mode adaptive
  * layout settings of the current activity window. Note that this function results in a dual-pane
  * layout when the window width falls in the Medium size bucket, while
  * [calculatePaneScaffoldDirective] results in a single-pane layout instead. We recommend to use
@@ -178,6 +178,9 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  *   used.
  * @property excludedBounds the bounds of all areas in the window that the layout needs to avoid
  *   displaying anything upon it. Usually these bounds represent where physical hinges are.
+ * @property shouldAutoFocusCurrentDestination set to `true` to make the scaffold automatically move
+ *   focus onto the current destination pane indicated by
+ *   [ThreePaneScaffoldValue.currentDestination] when it changes, otherwise set it to `false`.
  */
 @Immutable
 class PaneScaffoldDirective(
@@ -188,6 +191,7 @@ class PaneScaffoldDirective(
     val defaultPanePreferredWidth: Dp,
     val defaultPanePreferredHeight: Dp,
     val excludedBounds: List<Rect>,
+    @get:JvmName("shouldAutoFocusCurrentDestination") val shouldAutoFocusCurrentDestination: Boolean,
 ) {
     constructor(
         maxHorizontalPartitions: Int,
@@ -204,6 +208,25 @@ class PaneScaffoldDirective(
         defaultPanePreferredWidth = defaultPanePreferredWidth,
         defaultPanePreferredHeight = DefaultPreferredHeight,
         excludedBounds = excludedBounds,
+    )
+
+    constructor(
+        maxHorizontalPartitions: Int,
+        horizontalPartitionSpacerSize: Dp,
+        maxVerticalPartitions: Int,
+        verticalPartitionSpacerSize: Dp,
+        defaultPanePreferredWidth: Dp,
+        defaultPanePreferredHeight: Dp,
+        excludedBounds: List<Rect>,
+    ) : this(
+        maxHorizontalPartitions = maxHorizontalPartitions,
+        horizontalPartitionSpacerSize = horizontalPartitionSpacerSize,
+        maxVerticalPartitions = maxVerticalPartitions,
+        verticalPartitionSpacerSize = verticalPartitionSpacerSize,
+        defaultPanePreferredWidth = defaultPanePreferredWidth,
+        defaultPanePreferredHeight = defaultPanePreferredHeight,
+        excludedBounds = excludedBounds,
+        shouldAutoFocusCurrentDestination = true,
     )
 
     /**

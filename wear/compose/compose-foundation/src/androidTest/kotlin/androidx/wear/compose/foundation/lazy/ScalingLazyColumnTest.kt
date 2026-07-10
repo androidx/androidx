@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -31,12 +32,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -48,8 +51,10 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.test.performTouchInput
@@ -61,11 +66,13 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.TEST_TAG
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,7 +86,7 @@ public class ScalingLazyColumnTest {
     private val scalingLazyColumnTag = "scalingLazyColumnTag"
     private val firstItemTag = "firstItemTag"
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -446,8 +453,6 @@ public class ScalingLazyColumnTest {
                 }
             }
         }
-        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
-        rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
 
@@ -464,6 +469,50 @@ public class ScalingLazyColumnTest {
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
         assertThat(state.centerItemIndex).isEqualTo(1)
+        assertThat(state.centerItemScrollOffset).isEqualTo(snapOffsetPx)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_respectsSnapOffset() {
+        lateinit var state: ScalingLazyListState
+        val containerHeight = 200.dp
+        val itemHeight = 50.dp
+        val itemHeightPx = with(rule.density) { itemHeight.toPx() }
+        val snapOffset = 20.dp
+        val snapOffsetPx = with(rule.density) { snapOffset.roundToPx() }
+        val initialIndex = 10
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemIndex = initialIndex)
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.size(containerHeight).testTag(TEST_TAG),
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.snapBehavior(
+                        scrollableState = state,
+                        snapOffset = snapOffset,
+                    ),
+                // We set the fling behavior to match, ensuring consistent physics
+                flingBehavior =
+                    ScalingLazyColumnDefaults.snapFlingBehavior(
+                        state = state,
+                        snapOffset = snapOffset,
+                    ),
+            ) {
+                items(100) { Box(Modifier.fillMaxWidth().height(itemHeight)) }
+            }
+        }
+
+        // Rotate enough to trigger a snap to the next item
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(itemHeightPx * 1.5f)
+        }
+        rule.waitForIdle()
+
+        // Verify we snapped to the next item
+        assertThat(state.centerItemIndex).isEqualTo(initialIndex + 1)
+        // Verify the final offset matches the requested snapOffset
         assertThat(state.centerItemScrollOffset).isEqualTo(snapOffsetPx)
     }
 
@@ -572,7 +621,9 @@ public class ScalingLazyColumnTest {
         state: ScalingLazyListState,
         currentInfo: StableRef<ScalingLazyListLayoutInfo?>,
     ) {
-        currentInfo.value = state.layoutInfo
+        LaunchedEffect(Unit) {
+            snapshotFlow { state.layoutInfo }.collect { currentInfo.value = it }
+        }
     }
 
     @Test
@@ -996,7 +1047,8 @@ public class ScalingLazyColumnTest {
             }
         }
 
-        rule.onNodeWithTag("scalingLazyColumn").assertIsFocused()
+        // Child is the one which has items and it needs to hold the focus to perform scrolling.
+        rule.onNodeWithTag("scalingLazyColumn").onChild().assertIsFocused()
     }
 
     @Test
@@ -1009,7 +1061,6 @@ public class ScalingLazyColumnTest {
         testScalingLazyColumnRotary(false, 1)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     private fun testScalingLazyColumnRotary(
         userScrollEnabled: Boolean,
         scrollTarget: Int,

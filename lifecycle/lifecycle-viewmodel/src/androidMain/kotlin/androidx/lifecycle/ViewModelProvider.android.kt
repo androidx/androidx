@@ -20,6 +20,7 @@ package androidx.lifecycle
 import android.app.Application
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.InitializerViewModelFactory
@@ -30,6 +31,7 @@ import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 
+@Suppress("KmpModifierMismatch") // expect is not open
 public actual open class ViewModelProvider
 private constructor(private val impl: ViewModelProviderImpl) {
 
@@ -63,8 +65,8 @@ private constructor(private val impl: ViewModelProviderImpl) {
         owner: ViewModelStoreOwner
     ) : this(
         store = owner.viewModelStore,
-        factory = ViewModelProviders.getDefaultFactory(owner),
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+        factory = owner.defaultViewModelProviderFactory,
+        defaultCreationExtras = owner.defaultViewModelCreationExtras,
     )
 
     /**
@@ -82,7 +84,7 @@ private constructor(private val impl: ViewModelProviderImpl) {
     ) : this(
         store = owner.viewModelStore,
         factory = factory,
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+        defaultCreationExtras = owner.defaultViewModelCreationExtras,
     )
 
     @MainThread
@@ -162,12 +164,8 @@ private constructor(private val impl: ViewModelProviderImpl) {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual open class OnRequeryFactory {
-        public actual open fun onRequery(viewModel: ViewModel) {}
-    }
-
     /** Simple factory, which calls empty constructor on the give class. */
+    @Suppress("KmpSignatureClash") // also defined in desktop
     public open class NewInstanceFactory
     /**
      * Construct a new [NewInstanceFactory] instance.
@@ -190,6 +188,7 @@ private constructor(private val impl: ViewModelProviderImpl) {
             extras: CreationExtras,
         ): T = create(modelClass.java, extras)
 
+        @Suppress("KmpSignatureClash") // also defined in desktop
         public companion object {
             private var _instance: NewInstanceFactory? = null
 

@@ -28,6 +28,7 @@ import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class TagBundleTest {
 
     private static final String TAG_0 = "Tag_00";

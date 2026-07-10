@@ -51,26 +51,15 @@ androidXMultiplatform {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
+        androidMain.dependencies {
+            implementation(libs.testCore)
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.testCore)
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testCore)
-                implementation(libs.testExtJunit)
-                implementation(libs.testRunner)
-                implementation(project(":kruth:kruth"))
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testCore)
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(project(":kruth:kruth"))
         }
     }
 
@@ -79,7 +68,6 @@ androidXMultiplatform {
 
 androidx {
     name = "Shell"
-    mavenVersion = LibraryVersions.TEST_UIAUTOMATOR_SHELL
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Allows executing shell command as shell user for testing purposes."

@@ -100,7 +100,6 @@ import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.appcompat.widget.DecorContentParent;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.appcompat.widget.ViewStubCompat;
 import androidx.appcompat.widget.ViewUtils;
 import androidx.collection.SimpleArrayMap;
@@ -1575,7 +1574,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
                 false, /* Only read android:theme pre-L (L+ handles this anyway) */
                 true, /* Read read app:theme as a fallback at all times for legacy reasons */
-                VectorEnabledTintResources.shouldBeUsed() /* Only tint wrap the context if enabled */
+                false /* Only tint wrap the context if enabled */
         );
     }
 
@@ -2437,8 +2436,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 localesToBeApplied = LocaleListCompat.getEmptyLocaleList();
             } else {
                 localesToBeApplied =
-                        LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(
-                                requestedLocales.get(0)));
+                        LocaleListCompat.forLanguageTags(requestedLocales.get(0).toLanguageTag());
             }
         }
 
@@ -2481,14 +2479,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // $FALLTHROUGH since these are all valid modes to return
                 return mode;
             case MODE_NIGHT_AUTO_TIME:
-                if (Build.VERSION.SDK_INT >= 23) {
-                    UiModeManager uiModeManager = (UiModeManager) context.getApplicationContext()
-                            .getSystemService(Context.UI_MODE_SERVICE);
-                    if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
-                        // If we're set to AUTO and the system's auto night mode is already enabled,
-                        // we'll just let the system handle it by returning FOLLOW_SYSTEM
-                        return MODE_NIGHT_FOLLOW_SYSTEM;
-                    }
+                UiModeManager uiModeManager = (UiModeManager) context.getApplicationContext()
+                        .getSystemService(Context.UI_MODE_SERVICE);
+                if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
+                    // If we're set to AUTO and the system's auto night mode is already enabled,
+                    // we'll just let the system handle it by returning FOLLOW_SYSTEM
+                    return MODE_NIGHT_FOLLOW_SYSTEM;
                 }
                 return getAutoTimeNightModeManager(context).getApplyableNightMode();
             case MODE_NIGHT_AUTO_BATTERY:
@@ -2520,7 +2516,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.getLocales(conf);
         } else {
-            return LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(conf.locale));
+            return LocaleListCompat.forLanguageTags(conf.locale.toLanguageTag());
         }
     }
 
@@ -2729,14 +2725,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // configuration
             mContext.setTheme(mThemeResId);
 
-            if (Build.VERSION.SDK_INT >= 23) {
-                // On M+ setTheme only applies if the themeResId actually changes,
-                // since we have no way to publicly check what the Theme's current
-                // themeResId is, we just manually apply it anyway. Most of the time
-                // this is what we need anyway (since the themeResId does not
-                // often change)
-                mContext.getTheme().applyStyle(mThemeResId, true);
-            }
+            // setTheme only applies if the themeResId actually changes,
+            // since we have no way to publicly check what the Theme's current
+            // themeResId is, we just manually apply it anyway. Most of the time
+            // this is what we need anyway (since the themeResId does not
+            // often change)
+            mContext.getTheme().applyStyle(mThemeResId, true);
         }
 
         if (callOnConfigChange && mHost instanceof Activity) {
@@ -3335,16 +3329,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         @Override
         public android.view.ActionMode onWindowStartingActionMode(
                 android.view.ActionMode.Callback callback) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                // No-op on API 23+
-                return null;
-            }
-            // We wrap in a support action mode on v14+ if enabled
-            if (isHandleNativeActionModesEnabled()) {
-                return startAsSupportActionMode(callback);
-            }
-            // Else, let the call fall through to the wrapped callback
-            return super.onWindowStartingActionMode(callback);
+            return null;
         }
 
         /**
@@ -3369,7 +3354,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        @RequiresApi(23)
         public android.view.ActionMode onWindowStartingActionMode(
             android.view.ActionMode.Callback callback, int type) {
             if (isHandleNativeActionModesEnabled()) {
@@ -3541,7 +3525,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         @ApplyableNightMode
         @Override
         public int getApplyableNightMode() {
-            return Api21Impl.isPowerSaveMode(mPowerManager) ? MODE_NIGHT_YES : MODE_NIGHT_NO;
+            return mPowerManager.isPowerSaveMode() ? MODE_NIGHT_YES : MODE_NIGHT_NO;
         }
 
         @Override
@@ -3724,18 +3708,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Assets sequence and window configuration are not supported.
 
         return delta;
-    }
-
-    static class Api21Impl {
-        private Api21Impl() { }
-
-        static boolean isPowerSaveMode(PowerManager powerManager) {
-            return powerManager.isPowerSaveMode();
-        }
-
-        static String toLanguageTag(Locale locale) {
-            return locale.toLanguageTag();
-        }
     }
 
     @RequiresApi(24)

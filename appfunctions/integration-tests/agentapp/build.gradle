@@ -1,0 +1,119 @@
+import com.google.devtools.ksp.gradle.KspAATask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.android.build.api.variant.HasAndroidTest
+import com.google.common.io.Files
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("com.google.devtools.ksp")
+}
+
+def targetAppApkName = "TargetApp.apk"
+
+// This task copies the apks provided by the `apkAssets` configuration and places them in the
+// resources folder. This allows a build time generation of the sample apps.
+abstract class PrepareTargetApkTask extends DefaultTask {
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    abstract ConfigurableFileCollection getApkAssetsFolders()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @Input
+    abstract Property<String> getApkFileName()
+
+    @TaskAction
+    void exec() {
+        for (File folder : apkAssetsFolders.files) {
+            for (File file : folder.listFiles()) {
+
+                // Consider only apk files (skip json metadata)
+                if (!file.name.endsWith(".apk")) {
+                    continue
+                }
+
+                // Copies the apk in the output dir
+                Files.copy(file, outputDir.file(apkFileName.get()).get().asFile)
+            }
+        }
+    }
+}
+
+def prepareTargetApkTaskProvider = tasks.register("prepareTargetApk", PrepareTargetApkTask) {
+    description = "Copies the apks provided by appfunctions-integrationTest-multi-module-app projects into the Java resources."
+    apkAssetsFolders.from(configurations.named("apkAssets").get().incoming.files)
+    outputDir.set(layout.buildDirectory.dir("intermediates/appfunction-integrationTest-resources"))
+    apkFileName.set(targetAppApkName)
+}
+
+android {
+    namespace = "androidx.appfunctions.integration.test.agent"
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(33) }
+
+        testInstrumentationRunnerArgument("TARGET_APP_APK", targetAppApkName)
+    }
+}
+
+// Define a configuration that can be resolved. This project is the consumer of test apks, i.e. it
+// contains the integration tests.
+configurations {
+    apkAssets {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+            )
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        if (variant instanceof HasAndroidTest) {
+            def testVariant = ((HasAndroidTest) variant).androidTest
+            if (testVariant != null) {
+                testVariant.sources.resources.addGeneratedSourceDirectory(
+                        prepareTargetApkTaskProvider, PrepareTargetApkTask::getOutputDir
+                )
+            }
+        }
+    })
+}
+
+dependencies {
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":appfunctions:appfunctions"))
+    implementation(project(":appfunctions:integration-tests:shared-schema"))
+    implementation("androidx.appsearch:appsearch:1.1.0")
+    implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
+    implementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    ksp(project(":appfunctions:appfunctions-compiler"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(libs.kotlinTest)
+    apkAssets(project(":appfunctions:integration-tests:multi-modules-testapp:app"))
+}
+
+ksp {
+    arg("appfunctions:generateMetadataFromSchema", "true")
+}
+
+
+// TODO(b/456071824): Remove this workaround
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
+}
+tasks.withType(KspAATask).configureEach {
+    it.kspConfig.incremental.set(false)
+}

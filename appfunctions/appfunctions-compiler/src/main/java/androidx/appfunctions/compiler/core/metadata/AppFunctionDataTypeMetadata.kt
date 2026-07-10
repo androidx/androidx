@@ -41,7 +41,8 @@ abstract class AppFunctionDataTypeMetadata() {
         internal const val TYPE_ARRAY: Int = 10
         internal const val TYPE_REFERENCE: Int = 11
         internal const val TYPE_ALL_OF: Int = 12
-        internal const val TYPE_PENDING_INTENT: Int = 13
+        internal const val TYPE_PARCELABLE: Int = 13
+        internal const val TYPE_ONE_OF = 14
     }
 }
 
@@ -64,6 +65,24 @@ data class AppFunctionArrayTypeMetadata(
     }
 }
 
+data class AppFunctionParcelableTypeMetadata(
+    val qualifiedName: String?,
+    override val isNullable: Boolean,
+    override val description: String,
+) : AppFunctionDataTypeMetadata() {
+    override fun toAppFunctionDataTypeMetadataDocument() =
+        AppFunctionDataTypeMetadataDocument(
+            type = TYPE,
+            isNullable = isNullable,
+            description = description,
+            objectQualifiedName = qualifiedName,
+        )
+
+    companion object {
+        const val TYPE: Int = TYPE_PARCELABLE
+    }
+}
+
 data class AppFunctionAllOfTypeMetadata(
     val matchAll: List<AppFunctionDataTypeMetadata>,
     val qualifiedName: String?,
@@ -83,6 +102,28 @@ data class AppFunctionAllOfTypeMetadata(
 
     companion object {
         const val TYPE: Int = TYPE_ALL_OF
+    }
+}
+
+data class AppFunctionOneOfTypeMetadata(
+    val matchOneOf: List<AppFunctionDataTypeMetadata>,
+    val qualifiedName: String?,
+    override val isNullable: Boolean,
+    override val description: String,
+) : AppFunctionDataTypeMetadata() {
+    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
+        val oneOfDocuments = matchOneOf.map { it.toAppFunctionDataTypeMetadataDocument() }
+        return AppFunctionDataTypeMetadataDocument(
+            type = TYPE,
+            oneOf = oneOfDocuments,
+            isNullable = isNullable,
+            objectQualifiedName = qualifiedName,
+            description = description,
+        )
+    }
+
+    companion object {
+        const val TYPE: Int = TYPE_ONE_OF
     }
 }
 
@@ -295,19 +336,6 @@ data class AppFunctionUnitTypeMetadata(
     }
 }
 
-data class AppFunctionPendingIntentTypeMetadata(
-    override val isNullable: Boolean,
-    override val description: String,
-) : AppFunctionDataTypeMetadata() {
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT,
-            isNullable = isNullable,
-            description = description,
-        )
-    }
-}
-
 data class AppFunctionNamedDataTypeMetadataDocument(
     val namespace: String = APP_FUNCTION_NAMESPACE,
     val id: String = APP_FUNCTION_ID_EMPTY,
@@ -322,6 +350,7 @@ data class AppFunctionDataTypeMetadataDocument(
     val itemType: AppFunctionDataTypeMetadataDocument? = null,
     val properties: List<AppFunctionNamedDataTypeMetadataDocument> = emptyList(),
     val allOf: List<AppFunctionDataTypeMetadataDocument> = emptyList(),
+    val oneOf: List<AppFunctionDataTypeMetadataDocument> = emptyList(),
     val required: List<String> = emptyList(),
     val dataTypeReference: String? = null,
     val isNullable: Boolean = false,
@@ -403,8 +432,16 @@ data class AppFunctionDataTypeMetadataDocument(
             AppFunctionDataTypeMetadata.TYPE_UNIT ->
                 AppFunctionUnitTypeMetadata(isNullable = isNullable, description = description)
 
-            AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT ->
-                AppFunctionPendingIntentTypeMetadata(
+            AppFunctionDataTypeMetadata.TYPE_PARCELABLE ->
+                AppFunctionParcelableTypeMetadata(
+                    isNullable = isNullable,
+                    description = description,
+                    qualifiedName = objectQualifiedName,
+                )
+            AppFunctionDataTypeMetadata.TYPE_ONE_OF ->
+                AppFunctionOneOfTypeMetadata(
+                    matchOneOf = oneOf.map { it.toAppFunctionDataTypeMetadata() },
+                    qualifiedName = objectQualifiedName,
                     isNullable = isNullable,
                     description = description,
                 )

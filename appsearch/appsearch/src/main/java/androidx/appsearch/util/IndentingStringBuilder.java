@@ -18,6 +18,7 @@ package androidx.appsearch.util;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import org.jspecify.annotations.NonNull;
 
@@ -29,9 +30,8 @@ import org.jspecify.annotations.NonNull;
  * by calling {@link #decreaseIndentLevel()}.
  *
  * <p>Indentation is applied after each newline character for the given indent level.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IndentingStringBuilder {
     private final StringBuilder mStringBuilder = new StringBuilder();

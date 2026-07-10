@@ -1,0 +1,34 @@
+{
+  "header": {
+    "apiLevel": 7,
+    "width": 400,
+    "height": 400,
+    "contentDescription": "Simple Demo"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      { "fillMaxSize": 1.0 },
+      { "background": "#4CAF50" }
+    ],
+    "children": [
+      {
+        "type": "column",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "center",
+        "modifiers": [
+          { "fillMaxSize": 1.0 }
+        ],
+        "children": [
+          {
+            "type": "text",
+            "value": "Hello RemoteCompose JSON!",
+            "color": "#FFFFFF",
+            "fontSize": 24,
+            "textAlign": "center"
+          }
+        ]
+      }
+    ]
+  }
+}

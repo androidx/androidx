@@ -34,6 +34,7 @@ import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
@@ -46,16 +47,23 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
-/** Sets up a source jar task for an Android library project. */
+/**
+ * Sets up a source jar task for an Android library project.
+ *
+ * @param generated R.java file to enable documenting Android resources
+ */
 fun Project.configureSourceJarForAndroid(
     libraryVariant: LibraryVariant,
     samplesProjects: MutableCollection<Project>,
+    rJavaSource: FileCollection,
 ) {
     val allSources =
         project.files(libraryVariant.sources.java?.all) +
-            project.files(libraryVariant.sources.kotlin?.all)
+            project.files(libraryVariant.sources.kotlin?.all) +
+            rJavaSource
     val sourceJar =
         tasks.register("sourceJar${libraryVariant.name.capitalize()}", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
@@ -128,7 +136,12 @@ fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project
     disableUnusedSourceJarTasks(disableNames)
 }
 
-fun Project.configureSourceJarForMultiplatform() {
+/**
+ * Sets up the source jar for a multiplatform project.
+ *
+ * @param rJavaSource generated R.java file to enable documenting Android resources
+ */
+fun Project.configureSourceJarForMultiplatform(rJavaSource: FileCollection) {
     val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(
@@ -161,6 +174,8 @@ fun Project.configureSourceJarForMultiplatform() {
                     }
                 }
             task.metaInf.from(metadataFile)
+            // Set R.java (if it exists) as being part of the android source set.
+            task.from(rJavaSource) { copySpec -> copySpec.into("androidMain") }
         }
     registerMultiplatformSourcesVariant(sourceJar)
 
@@ -196,7 +211,6 @@ private fun Project.registerSourcesVariant(
     usage: Usage,
 ) =
     configurations.create(configurationName) { gradleVariant ->
-        gradleVariant.isVisible = false
         gradleVariant.isCanBeResolved = false
         gradleVariant.attributes.attribute(Usage.USAGE_ATTRIBUTE, usage)
         gradleVariant.attributes.attribute(
@@ -262,13 +276,18 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
                     "name" to it.name,
-                    "dependencies" to it.dependsOn.map { it.name }.sorted(),
+                    "dependencies" to it.transitiveDependsOn().map { it.name }.sorted(),
                     "analysisPlatform" to target.docsPlatform().jsonName,
                 )
             }
         }
     }
     return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
+}
+
+private fun KotlinSourceSet.transitiveDependsOn(): Set<KotlinSourceSet> {
+    val directDependencies = this.dependsOn
+    return directDependencies + directDependencies.flatMap { it.transitiveDependsOn() }
 }
 
 private fun Project.registerSamplesLibraries(

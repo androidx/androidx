@@ -799,19 +799,19 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     public static class LayoutParams extends LinearLayoutCompat.LayoutParams {
 
-        @ViewDebug.ExportedProperty()
+        @ViewDebug.ExportedProperty
         public boolean isOverflowButton;
 
-        @ViewDebug.ExportedProperty()
+        @ViewDebug.ExportedProperty
         public int cellsUsed;
 
-        @ViewDebug.ExportedProperty()
+        @ViewDebug.ExportedProperty
         public int extraPixels;
 
-        @ViewDebug.ExportedProperty()
+        @ViewDebug.ExportedProperty
         public boolean expandable;
 
-        @ViewDebug.ExportedProperty()
+        @ViewDebug.ExportedProperty
         public boolean preventEdgeOffset;
 
         boolean expanded;

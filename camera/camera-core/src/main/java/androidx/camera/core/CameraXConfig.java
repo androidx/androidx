@@ -20,7 +20,6 @@ import android.app.Application;
 import android.os.Handler;
 import android.util.Log;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -34,12 +33,11 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.QuirkSettings;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -65,32 +63,6 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("HiddenSuperclass")
 public final class CameraXConfig implements TargetConfig<CameraX> {
-
-    /**
-     * Unknown CameraX config impl type.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final int CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN = -1;
-    /**
-     * camera-camera2 CameraX config impl type.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final int CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2 = 0;
-    /**
-     * camera-camera2-pipe-integration CameraX config impl type.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final int CAMERAX_CONFIG_IMPL_TYPE_PIPE = 1;
-
-    /**
-     * The different implementation types the CameraXConfig can be configured for.
-     */
-    @IntDef({CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN, CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2,
-            CAMERAX_CONFIG_IMPL_TYPE_PIPE})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @interface ImplType {
-    }
 
     /**
      * An interface which can be implemented to provide the configuration for CameraX.
@@ -157,11 +129,14 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
                     "camerax.core.appConfig.quirksSettings",
                     QuirkSettings.class);
 
-    static final Option<Integer> OPTION_CONFIG_IMPL_TYPE =
-            Option.create("camerax.core.appConfig.configImplType", int.class);
-
     static final Option<Boolean> OPTION_REPEATING_STREAM_FORCED = Option.create(
             "camerax.core.appConfig.repeatingStreamForced", boolean.class);
+
+    static final Option<Boolean> OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED = Option.create(
+            "camerax.core.appConfig.previewResolutionBypassEnabled", boolean.class);
+
+    static final Option<String> OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS = Option.create(
+            "camerax.core.appConfig.extraSupportedSurfaceCombinations", String.class);
 
     // *********************************************************************************************
 
@@ -295,15 +270,19 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     }
 
     /**
-     * Returns the config impl type.
-     *
-     * @return the config impl type.
-     *
-     * @see Builder#setConfigImplType(int)
+     * Returns whether the preview resolution restriction should be bypassed.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public @ImplType int getConfigImplType() {
-        return mConfig.retrieveOption(OPTION_CONFIG_IMPL_TYPE, CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN);
+    public boolean isPreviewResolutionBypassEnabled() {
+        return mConfig.retrieveOption(OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED, false);
+    }
+
+    /**
+     * Returns the formatted string of extra supported surface combinations.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @Nullable String getExtraSupportedSurfaceCombinations() {
+        return mConfig.retrieveOption(OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS, null);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -555,6 +534,99 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             return this;
         }
 
+        /**
+         * Sets whether to bypass the default 1080p preview resolution restriction.
+         *
+         * <p>By default, CameraX caps the {@link androidx.camera.core.Preview} resolution to 1080p
+         * (1920x1080) or the device's screen resolution, whichever is smaller, to balance power
+         * and performance.
+         *
+         * <p>Setting this to {@code true} allows the Preview use case to select resolutions higher
+         * than 1080p, up to the maximum resolution supported by the camera and display. This is
+         * intended for partner use cases that require high-resolution preview streams (e.g., when
+         * the preview is also used for high-res image processing).
+         *
+         * @param bypassEnabled {@code true} to bypass the 1080p preview restriction, {@code false}
+         *                      to retain the default behavior.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setPreviewResolutionBypassEnabled(boolean bypassEnabled) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED,
+                    bypassEnabled);
+            return this;
+        }
+
+        /**
+         * Sets the formatted string of extra supported surface combinations.
+         *
+         * <p>This allows partners to inject custom surface combinations that they know are
+         * supported by specific camera hardware, even if the device's reported hardware level does
+         * not officially guarantee them. This extends the combinations available during UseCase
+         * resolution negotiation.
+         *
+         * <p><b>Format String Syntax:</b>
+         * <ul>
+         * <li>(Optional) A camera ID to apply the combination only to a specific camera. This
+         * camera ID maps to the Camera2 ID (e.g., "0" or "1"). If specified, prefix the
+         * combination with the camera ID followed by an equals sign {@code '='}. If not specified,
+         * the combination applies to all cameras.</li>
+         * <li>Each surface configuration consists of a format and a size separated by a colon
+         * {@code ':'}.</li>
+         * <li>Multiple surface configurations within a single combination are separated by a
+         * comma {@code ','}.</li>
+         * </ul>
+         *
+         * <p><b>Valid Formats:</b> {@code PRIV}, {@code YUV}, {@code JPEG}, {@code RAW}
+         * <br><b>Valid Sizes:</b> {@code VGA}, {@code PREVIEW}, {@code RECORD}, {@code MAXIMUM},
+         * etc.
+         * (See {@code SurfaceConfig.ConfigType} and {@code SurfaceConfig.ConfigSize} for all
+         * valid values).
+         *
+         * <p><b>Example:</b>
+         * <p>To add support for a combination of a {@code MAXIMUM} resolution PRIV stream
+         * (e.g., for high-res Preview) and a {@code MAXIMUM} resolution JPEG stream (for high-res
+         * ImageCapture) to all cameras:
+         * <pre>
+         * builder.setExtraSupportedSurfaceCombinations("PRIV:MAXIMUM, JPEG:MAXIMUM");
+         * </pre>
+         *
+         * <p>To add multiple combinations, optionally restricting one to a specific Camera2 ID
+         * (e.g., Camera "0"):
+         * <pre>
+         * builder.setExtraSupportedSurfaceCombinations(
+         *     "0=PRIV:PREVIEW, YUV:RECORD, JPEG:MAXIMUM", // Applies only to camera 0
+         *     "PRIV:PREVIEW, JPEG:MAXIMUM"                // Applies to all cameras
+         * );
+         * </pre>
+         *
+         * @param combinations the formatted string(s) of extra supported surface combinations.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setExtraSupportedSurfaceCombinations(
+                @NonNull String... combinations) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < combinations.length; i++) {
+                String combination = combinations[i];
+                Preconditions.checkArgument(combination != null, "combination cannot be null");
+                Preconditions.checkArgument(!combination.contains("|"),
+                        "combination cannot contain reserved character '|'");
+                if (combination.trim().isEmpty()) {
+                    continue;
+                }
+                if (sb.length() > 0) {
+                    sb.append(" | ");
+                }
+                sb.append(combination);
+            }
+            if (sb.length() > 0) {
+                getMutableConfig().insertOption(OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS,
+                        sb.toString());
+            }
+            return this;
+        }
+
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull MutableConfig getMutableConfig() {
             return mMutableConfig;
@@ -589,18 +661,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         @Override
         public @NonNull Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return this;
-        }
-
-        /**
-         * Sets the config impl type.
-         *
-         * <p>The available impl types are {@link #CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2},
-         * {@link #CAMERAX_CONFIG_IMPL_TYPE_PIPE} and {@link #CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN}.
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public @NonNull Builder setConfigImplType(@ImplType int configImplType) {
-            getMutableConfig().insertOption(OPTION_CONFIG_IMPL_TYPE, configImplType);
             return this;
         }
     }

@@ -333,6 +333,7 @@ public data class WorkSpec(
             projection = ["tag"],
         )
         val tags: List<String>,
+        @ColumnInfo(name = "worker_class_name") val workerClassName: String,
 
         // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
         // This will change in Room 2.2
@@ -370,6 +371,7 @@ public data class WorkSpec(
                 getPeriodicityOrNull(),
                 calculateNextRunTimeMillis(),
                 stopReason,
+                workerClassName,
             )
         }
 

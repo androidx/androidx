@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.actions;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Encapsulate document actions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Action {
     /**
      * Write the action to the buffer

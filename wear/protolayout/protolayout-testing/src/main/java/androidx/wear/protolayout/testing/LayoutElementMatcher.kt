@@ -25,7 +25,7 @@ import androidx.wear.protolayout.testing.TestContext.Companion.EMPTY_CONTEXT
  *
  * @param description a string explaining to the developer what conditions were being tested.
  * @param matcher a lambda performing the actual logic of matching on the layout element, with a
- *   [TextContext] accessible for retrieving context data such as the dynamic data map for
+ *   [TestContext] accessible for retrieving context data such as the dynamic data map for
  *   evaluating the dynamic values.
  */
 public class LayoutElementMatcher(

@@ -19,13 +19,15 @@ package androidx.appsearch.app;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.core.util.Preconditions;
 
 /**
  * This class represents a uniquely identifiable package.
  */
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings("JSpecifyNullness")
 public class PackageIdentifier {
     private final @NonNull PackageIdentifierParcel mPackageIdentifierParcel;
@@ -51,7 +53,7 @@ public class PackageIdentifier {
         mPackageIdentifierParcel = new PackageIdentifierParcel(packageName, sha256Certificate);
     }
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public PackageIdentifier(@NonNull PackageIdentifierParcel packageIdentifierParcel) {
         mPackageIdentifierParcel = Preconditions.checkNotNull(packageIdentifierParcel);
@@ -60,9 +62,8 @@ public class PackageIdentifier {
     /**
      * Returns the {@link PackageIdentifierParcel} holding the values for this
      * {@link PackageIdentifier}.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull PackageIdentifierParcel getPackageIdentifierParcel() {
         return mPackageIdentifierParcel;

@@ -24,6 +24,7 @@ import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.KeyEventType.Companion.Unknown
 
 /** The native Android [KeyEvent][NativeKeyEvent]. */
+@Suppress("TypealiasDefinition")
 actual typealias NativeKeyEvent = android.view.KeyEvent
 
 /**

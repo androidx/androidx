@@ -16,11 +16,7 @@
 
 package androidx.compose.ui.autofill
 
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.platform.makeSynchronizedObject
-import androidx.compose.ui.platform.synchronized
 import androidx.compose.ui.semantics.generateSemanticsId
 
 /**
@@ -86,18 +82,7 @@ class AutofillNode(
     var boundingBox: Rect? = null,
     val onFill: ((String) -> Unit)?,
 ) {
-    internal companion object {
-        /*@GuardedBy("this")*/
-        private var previousId = 0
-
-        private val lock = makeSynchronizedObject(this)
-
-        private fun generateId() = synchronized(lock) { ++previousId }
-    }
-
-    val id: Int =
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isSemanticAutofillEnabled) generateSemanticsId() else generateId()
+    val id: Int = generateSemanticsId()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

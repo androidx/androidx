@@ -42,6 +42,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
@@ -143,6 +144,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     @Test
     @LargeTest
     @Throws(InterruptedException::class)
@@ -203,6 +205,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
 
     @Test
     @MediumTest
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     fun testBackPressWithEmptyMenuHandledByActivity() {
         with(ActivityScenario.launch(activityClass)) {
             // Pressing the menu key with an empty menu does nothing.

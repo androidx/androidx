@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -221,13 +223,21 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
                         )
                         val wasHit = hitTestResult.hasHit()
                         val continueHitTest: Boolean
-                        if (!wasHit) {
-                            continueHitTest = true
-                        } else if (child.outerCoordinator.shouldSharePointerInputWithSiblings()) {
-                            hitTestResult.acceptHits()
-                            continueHitTest = true
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        if (ComposeUiFlags.isSkipNonImportantSemanticsNodesHitTestEnabled) {
+                            continueHitTest =
+                                !wasHit || hitTestSource.shareWithSiblings(hitTestResult, child)
                         } else {
-                            continueHitTest = false
+                            if (!wasHit) {
+                                continueHitTest = true
+                            } else if (
+                                child.outerCoordinator.shouldSharePointerInputWithSiblings()
+                            ) {
+                                hitTestResult.acceptHits()
+                                continueHitTest = true
+                            } else {
+                                continueHitTest = false
+                            }
                         }
                         !continueHitTest
                     } else {

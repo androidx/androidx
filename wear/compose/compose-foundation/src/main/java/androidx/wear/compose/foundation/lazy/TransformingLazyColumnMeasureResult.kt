@@ -34,7 +34,13 @@ internal class TransformingLazyColumnMeasureResult(
     val anchorItemKey: Any,
     /** The index of the item that should be considered as an anchor during scrolling. */
     val anchorItemIndex: Int,
-    /** The offset of the anchor item from the top of screen. */
+    /**
+     * The offset of the anchor item to the viewport center.
+     *
+     * A positive value indicates that the anchor item's center-line is above the viewport
+     * center-line, a negative value indicates that the anchor item's center-line is below the
+     * viewport center-line.
+     */
     val anchorItemScrollOffset: Int,
     /** Last known height for the anchor item or negative number if it hasn't been measured. */
     val lastMeasuredItemHeight: Int,
@@ -56,6 +62,10 @@ internal class TransformingLazyColumnMeasureResult(
     var canScrollForward: Boolean,
     /** True if there is some space available to continue scrolling in the backward direction. */
     var canScrollBackward: Boolean,
+    /** True if the direction of scrolling and layout is reversed. */
+    override val reverseLayout: Boolean,
+    /** The amount of scroll consumed during the measure pass. */
+    val consumedScroll: Float,
 ) : TransformingLazyColumnLayoutInfo, MeasureResult by measureResult {
     /** see [TransformingLazyColumnLayoutInfo.viewportSize] */
     override val viewportSize: IntSize

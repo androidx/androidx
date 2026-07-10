@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,11 +25,9 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":wear:protolayout:protolayout"))
     api(project(":wear:protolayout:protolayout-expression"))
     implementation("androidx.annotation:annotation:1.8.1")
@@ -40,11 +37,13 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.truth)
+    testImplementation(libs.jspecify)
+    testImplementation("org.robolectric:shadowapi:4.15")
 }
 
 android {
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.wear.protolayout.testing"
 }

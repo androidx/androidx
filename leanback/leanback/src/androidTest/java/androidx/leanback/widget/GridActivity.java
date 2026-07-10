@@ -16,6 +16,8 @@
 
 package androidx.leanback.widget;
 
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,8 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GridActivity extends Activity {
 
@@ -54,6 +59,9 @@ public class GridActivity extends Activity {
     public static final String EXTRA_CONCAT_ADAPTER = "concatAdapter";
     public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
+    public static final String EXTRA_NEW_LAYOUT_PARAMS_ONBIND = "newLayoutParamsOnBind";
+    public static final String EXTRA_COLUMN_WIDTH = "columnWidth";
+    public static final String EXTRA_SPAN_SIZES = "spanSizes";
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
     public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
@@ -63,6 +71,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
     public static final String EXTRA_NINEPATCH_SHADOW = "NINEPATCH_SHADOW";
     public static final String EXTRA_HAS_STABLE_IDS = "hasStableIds";
+    public static final String EXTRA_LEAK_TEST = "leakTest";
 
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
@@ -94,6 +103,8 @@ public class GridActivity extends Activity {
     int mNumItems;
     int mChildLayout;
     boolean mStaggered;
+    boolean mNewLayoutParamsOnBind;
+    Map<Integer, Integer> mSpanSizes;
     boolean mRequestLayoutOnFocus;
     boolean mRequestFocusOnLayout;
     boolean mSecondarySizeZero;
@@ -104,6 +115,7 @@ public class GridActivity extends Activity {
     boolean mUpdateSize = true;
     boolean mUpdateSizeSecondary = false;
     boolean mHasStableIds;
+    boolean mLeakTest;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -112,6 +124,7 @@ public class GridActivity extends Activity {
     boolean[] mItemFocusables;
     int[] mLayoutMargins;
     int mNinePatchShadow;
+    ArrayList<WeakReference<View>> mLeakTestViews = new ArrayList<>();
 
     private int mBoundCount;
     ImportantForAccessibilityListener mImportantForAccessibilityListener;
@@ -149,6 +162,12 @@ public class GridActivity extends Activity {
         mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
         mChildLayout = intent.getIntExtra(EXTRA_CHILD_LAYOUT_ID, -1);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
+        mNewLayoutParamsOnBind = intent.getBooleanExtra(EXTRA_NEW_LAYOUT_PARAMS_ONBIND, false);
+        int[] spanSizesArray = intent.getIntArrayExtra(EXTRA_SPAN_SIZES);
+        if (spanSizesArray != null) {
+            mSpanSizes = new HashMap<>();
+            setSpanSizes(spanSizesArray);
+        }
         mRequestLayoutOnFocus = intent.getBooleanExtra(EXTRA_REQUEST_LAYOUT_ONFOCUS,
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
         mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
@@ -161,6 +180,7 @@ public class GridActivity extends Activity {
         mHasStableIds = intent.getBooleanExtra(EXTRA_HAS_STABLE_IDS, false);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
         mLayoutMargins = intent.getIntArrayExtra(EXTRA_LAYOUT_MARGINS);
+        mLeakTest = intent.getBooleanExtra(EXTRA_LEAK_TEST, false);
         String alignmentClass = intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_CLASS);
         String alignmentViewTypeClass =
                 intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS);
@@ -219,6 +239,10 @@ public class GridActivity extends Activity {
         }
 
         View view = createView();
+        if (intent.hasExtra(EXTRA_COLUMN_WIDTH)) {
+            ((VerticalGridView) mGridView).setColumnWidth(
+                    intent.getIntExtra(EXTRA_COLUMN_WIDTH, 0));
+        }
         mGridView.setAdapter(adapter);
         setContentView(view);
 
@@ -318,6 +342,13 @@ public class GridActivity extends Activity {
         mGridView.getAdapter().notifyDataSetChanged();
     }
 
+    void setSpanSizes(int[] spanSizesArray) {
+        mSpanSizes.clear();
+        for (int i = 0; i <= spanSizesArray.length - 2; i += 2) {
+            mSpanSizes.put(spanSizesArray[i], spanSizesArray[i + 1]);
+        }
+    }
+
     int[] removeItems(int index, int length) {
         return removeItems(index, length, true);
     }
@@ -332,6 +363,30 @@ public class GridActivity extends Activity {
             mGridView.getAdapter().notifyItemRangeRemoved(index, length);
         }
         return removed;
+    }
+
+    private boolean hasViewReference() throws Exception {
+        for (int j = 0; j < mLeakTestViews.size(); j++) {
+            if (mLeakTestViews.get(j).get() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void assertNotLeak() throws Exception {
+        // Like LeakCanary: give it up to 10 seconds for gc to finish.
+        for (int i = 0; i < 10; i++) {
+            System.gc();
+            Runtime.getRuntime().runFinalization();
+            System.gc();
+            // Give it time for gc() to run.
+            Thread.sleep(1000);
+            if (!hasViewReference()) {
+                return;
+            }
+        }
+        assertTrue("view still has reference", false);
     }
 
     void attachToNewAdapter(int[] items) {
@@ -367,7 +422,33 @@ public class GridActivity extends Activity {
         }
     }
 
-    class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter {
+    class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter, FacetProvider {
+
+        LeanbackSpanSizeLookup mSpanSizeLookup;
+
+        MyAdapter() {
+            if (mSpanSizes != null) {
+                if (mSpanSizes.size() == 0) {
+                    mSpanSizeLookup = LeanbackSpanSizeLookup.DefaultSpanSizeLookup.INSTANCE;
+                } else {
+                    mSpanSizeLookup = new LeanbackSpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            if (position < 0 || position >= mGridView.getAdapter().getItemCount()) {
+                                throw new RuntimeException("invalid span position");
+                            }
+                            Integer spanSize = mSpanSizes.get(position);
+                            if (spanSize != null) {
+                                return spanSize;
+                            }
+                            return 1;
+                        }
+                    };
+                    mSpanSizeLookup.setSpanGroupIndexCacheEnabled(true);
+                    mSpanSizeLookup.setSpanIndexCacheEnabled(true);
+                }
+            }
+        }
 
         @Override
         public int getItemViewType(int position) {
@@ -375,6 +456,16 @@ public class GridActivity extends Activity {
                 return mViewTypeProvider.getViewType(position);
             }
             return 0;
+        }
+
+        @Override
+        public @Nullable Object getFacet(@NonNull Class<?> facetClass) {
+            if (mSpanSizeLookup != null) {
+                if (facetClass.equals(LeanbackSpanSizeLookup.class)) {
+                    return mSpanSizeLookup;
+                }
+            }
+            return null;
         }
 
         @Override
@@ -473,6 +564,9 @@ public class GridActivity extends Activity {
                 viewGroup.addView(shadow);
                 viewGroup.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
             }
+            if (mLeakTest) {
+                mLeakTestViews.add(new WeakReference<>(itemView));
+            }
             return new ViewHolder(itemView);
         }
 
@@ -521,22 +615,32 @@ public class GridActivity extends Activity {
     }
 
     void updateSize(View view, int position) {
-        if (!mUpdateSize && !mUpdateSizeSecondary) {
+        if (!mNewLayoutParamsOnBind && !mUpdateSize && !mUpdateSizeSecondary) {
             return;
         }
+        boolean multiSpan = false;
+        if (mGridView.getAdapter() instanceof MyAdapter) {
+            LeanbackSpanSizeLookup spanSizeLookup =
+                    ((MyAdapter) mGridView.getAdapter()).mSpanSizeLookup;
+            multiSpan = spanSizeLookup != null && (spanSizeLookup.getSpanSize(position) > 1
+                    || spanSizeLookup.getSpanSize(position) < 0);
+        }
         ViewGroup.LayoutParams p = view.getLayoutParams();
-        if (p == null) {
+        if (p == null || mNewLayoutParamsOnBind) {
             p = new ViewGroup.LayoutParams(0, 0);
         }
         if (mOrientation == BaseGridView.HORIZONTAL) {
             p.width = mItemLengths[position]
                     + (mUpdateSize && mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
-            p.height = mSecondarySizeZero ? 0
-                    : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus() ? 96 : 80);
+            p.height = multiSpan ? ViewGroup.LayoutParams.MATCH_PARENT :
+                    mSecondarySizeZero ? 0
+                            : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus()
+                                    ? 96 : 80);
         } else {
-            p.width = mSecondarySizeZero ? 0
-                    : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus()
-                            ? 260 : 240);
+            p.width = multiSpan ? ViewGroup.LayoutParams.MATCH_PARENT :
+                    mSecondarySizeZero ? 0
+                            : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus()
+                                    ? 260 : 240);
             p.height = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
         }
         view.setLayoutParams(p);

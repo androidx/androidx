@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package androidx.glance.wear.proto;
+
+// The spec for a widget container.
+message WidgetContainerSpecProto {
+  // The width of the content area in dp.
+  float width_dp = 1;
+
+  // The height of the content area in dp.
+  float height_dp = 2;
+
+  // The horizontal inner padding of the container in dp.
+  float horizontal_padding_dp = 3;
+
+  // The vertical inner padding of the container in dp.
+  float vertical_padding_dp = 4;
+
+  // The corner radius of the container in dp
+  float corner_radius_dp = 5;
+
+  // The set of operations supported by the Host.
+  repeated CachedPlayerOperation renderer_supported_operations = 6;
+
+  // The major version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_major = 7;
+
+  // The minor version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_minor = 8;
+
+  // The revision version of the Wear Tiles/Widgets renderer.
+  uint32 renderer_version_revision = 9;
+}
+
+// A cache of widget container specs, keyed by container type.
+message WearWidgetCacheProto {
+  // The cached specs for widget containers.
+  map<int32, WidgetContainerSpecProto> container_type_to_spec = 1;
+
+  // The cached association between instanceId (flattened) to containerType.
+  map<string, int32> instance_id_to_type = 2;
+
+  // The cached association between service class name and widget class name.
+  map<string, string> service_to_widget_name = 3;
+}
+
+// An operation supported by the Remote Compose player / renderer, cached as part of the container spec.
+message CachedPlayerOperation {
+  uint32 op_code = 1;
+}
+

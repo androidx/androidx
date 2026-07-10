@@ -89,6 +89,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
      * @return The axis-aligned max bounding box for this object, where the rectangles left, top,
      *   right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
+    @Suppress("MissingJvmstatic")
     fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
         start.calculateMaxBounds(bounds)
         val minX = bounds[0]

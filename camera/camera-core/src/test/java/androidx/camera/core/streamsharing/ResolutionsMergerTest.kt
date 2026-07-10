@@ -43,11 +43,13 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [ResolutionsMerger]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class ResolutionsMergerTest {
 
     @Test
@@ -789,6 +791,167 @@ class ResolutionsMergerTest {
         override fun getSortedSupportedOutputSizes(useCaseConfig: UseCaseConfig<*>): List<Size> {
             return supportedOutputSizes[useCaseConfig]!!
         }
+    }
+
+    @Test
+    fun getMergedResolutions_prioritize16x9WhenAllChildrenPrefer16x9_sensorSize4x3() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3264_2448,
+            // Arrange: All children prefer 16:9 resolutions.
+            candidateChildSizes1 =
+                listOf(SIZE_1920_1080, SIZE_1280_720, SIZE_1280_960, SIZE_640_480),
+            candidateChildSizes2 = listOf(SIZE_1280_720, SIZE_1280_960, SIZE_640_480),
+            expectedResult =
+                listOf(
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                    // 4:3 resolutions.
+                    SIZE_1920_1440,
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                ),
+        )
+    }
+
+    @Test
+    fun getMergedResolutions_prioritize4x3WhenAllChildrenPrefer16x9_sensorSize16x9() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3840_2160,
+            // Arrange: All children prefer 4:3 resolutions.
+            candidateChildSizes1 =
+                listOf(SIZE_1280_960, SIZE_640_480, SIZE_1920_1080, SIZE_1280_720),
+            candidateChildSizes2 = listOf(SIZE_1280_960, SIZE_640_480, SIZE_1280_720),
+            expectedResult =
+                listOf(
+                    // 4:3 resolutions.
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                    SIZE_960_540,
+                    // Other resolutions
+                    SIZE_720_480,
+                ),
+        )
+    }
+
+    @Test
+    fun getMergedResolutions_notPrioritize16x9WhenOneChildPrefers4x3_sensorSize4x3() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3264_2448,
+            candidateChildSizes1 =
+                listOf(SIZE_1920_1080, SIZE_1280_720, SIZE_1280_960, SIZE_640_480),
+            // Arrange: One child prefers a 4:3 resolution.
+            candidateChildSizes2 = listOf(SIZE_1280_960, SIZE_640_480, SIZE_1280_720),
+            expectedResult =
+                listOf(
+                    // 4:3 resolutions.
+                    SIZE_1920_1440,
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                ),
+        )
+    }
+
+    @Test
+    fun getMergedResolutions_notPrioritize4x3WhenOneChildPrefers16x9_sensorSize16x9() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3840_2160,
+            candidateChildSizes1 =
+                listOf(SIZE_1280_960, SIZE_640_480, SIZE_1920_1080, SIZE_1280_720),
+            // Arrange: One child prefers a 16:9 resolution.
+            candidateChildSizes2 = listOf(SIZE_1280_720, SIZE_1280_960, SIZE_640_480),
+            expectedResult =
+                listOf(
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                    SIZE_960_540,
+                    // 4:3 resolutions.
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                    // Other resolutions
+                    SIZE_720_480,
+                ),
+        )
+    }
+
+    @Test
+    fun getMergedResolutions_notPrioritize16x9WhenNotAll16x9SizesPutAheadOthers_sensorSize4x3() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3264_2448,
+            // Arrange: not all 16:9 sizes put ahead of other non-16:9 resolutions.
+            candidateChildSizes1 =
+                listOf(SIZE_1920_1080, SIZE_1280_960, SIZE_640_480, SIZE_1280_720),
+            candidateChildSizes2 = listOf(SIZE_1280_720, SIZE_1280_960, SIZE_640_480),
+            expectedResult =
+                listOf(
+                    // 4:3 resolutions.
+                    SIZE_1920_1440,
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                ),
+        )
+    }
+
+    @Test
+    fun getMergedResolutions_notPrioritize4x3WhenNotAll4x3SizesPutAheadOthers_sensorSize16x9() {
+        verifyMergedResolutions(
+            sensorSize = SIZE_3840_2160,
+            // Arrange: Not all 4:3 sizes put ahead of other non-4:3 resolutions.
+            candidateChildSizes1 =
+                listOf(SIZE_1280_960, SIZE_1920_1080, SIZE_1280_720, SIZE_640_480),
+            candidateChildSizes2 = listOf(SIZE_1280_960, SIZE_640_480, SIZE_1280_720),
+            expectedResult =
+                listOf(
+                    // 16:9 resolutions.
+                    SIZE_1920_1080,
+                    SIZE_1280_720,
+                    SIZE_960_540,
+                    // 4:3 resolutions.
+                    SIZE_1280_960,
+                    SIZE_960_720,
+                    SIZE_640_480,
+                    // Other resolutions
+                    SIZE_720_480,
+                ),
+        )
+    }
+
+    private fun verifyMergedResolutions(
+        sensorSize: Size,
+        candidateChildSizes1: List<Size>,
+        candidateChildSizes2: List<Size>,
+        expectedResult: List<Size>,
+    ) {
+        val config1 = createUseCaseConfig()
+        val config2 = createUseCaseConfig()
+        val childConfigs = setOf(config1, config2)
+        val sorter =
+            FakeSupportedOutputSizesSorter(
+                mapOf(config1 to candidateChildSizes1, config2 to candidateChildSizes2)
+            )
+        val merger = ResolutionsMerger(sensorSize, CAMERA_INFO, childConfigs, sorter)
+
+        // Act.
+        val parentConfig = MutableOptionsBundle.create()
+        val mergedResolutions = merger.getMergedResolutions(parentConfig)
+
+        // Assert: 16:9 resolutions are prioritized.
+        assertThat(mergedResolutions).containsExactlyElementsIn(expectedResult).inOrder()
     }
 
     companion object {

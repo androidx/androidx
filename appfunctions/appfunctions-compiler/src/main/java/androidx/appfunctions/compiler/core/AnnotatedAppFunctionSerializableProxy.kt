@@ -16,29 +16,40 @@
 
 package androidx.appfunctions.compiler.core
 
+import androidx.appfunctions.compiler.AppFunctionCompiler
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableFactoryClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.RESTRICT_API_TO_33_ANNOTATION
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper.Companion.buildFromAppFunctionDataFunction
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper.Companion.buildToAppFunctionDataFunction
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeSpec
 
 /**
  * A class that represents a class annotated with @AppFunctionSerializableProxy.
  *
- * @param appFunctionSerializableProxyClass The class annotated with @AppFunctionSerializableProxy.
+ * @param classDeclaration The class annotated with @AppFunctionSerializableProxy.
  */
 data class AnnotatedAppFunctionSerializableProxy(
-    val appFunctionSerializableProxyClass: KSClassDeclaration
-) : AnnotatedAppFunctionSerializable(appFunctionSerializableProxyClass) {
+    override val classDeclaration: KSClassDeclaration
+) : AppFunctionSerializableType {
+
+    override val isDescribedByKDoc = false
 
     /** The type of the class that the proxy class is proxying. */
     val targetClassDeclaration: KSClassDeclaration by lazy {
-        (appFunctionSerializableProxyClass.annotations.findAnnotation(
+        (classDeclaration.annotations.findAnnotation(
                 IntrospectionHelper.AppFunctionSerializableProxyAnnotation.CLASS_NAME
             )
                 ?: throw ProcessingException(
                     "Class Must have @AppFunctionSerializableProxy annotation",
-                    appFunctionSerializableProxyClass,
+                    classDeclaration,
                 ))
             .requirePropertyValueOfType(
                 IntrospectionHelper.AppFunctionSerializableProxyAnnotation.PROPERTY_TARGET_CLASS,
@@ -61,7 +72,7 @@ data class AnnotatedAppFunctionSerializableProxy(
     // TODO(b/403199251): Clean up hack.
     val serializableReferenceType: KSTypeReference by lazy {
         checkNotNull(
-            appFunctionSerializableProxyClass.declarations
+            classDeclaration.declarations
                 .filterIsInstance<KSClassDeclaration>()
                 .filter { it.isCompanionObject }
                 .single()
@@ -80,7 +91,9 @@ data class AnnotatedAppFunctionSerializableProxy(
     override fun validate(
         allowSerializableInterfaceTypes: Boolean
     ): AnnotatedAppFunctionSerializableProxy {
-        super.validate(allowSerializableInterfaceTypes)
+        val validateHelper = AppFunctionSerializableValidateHelper(this)
+        validateHelper.validatePrimaryConstructor()
+        validateHelper.validateParameters(allowSerializableInterfaceTypes)
         validateProxyHasToTargetClassMethod()
         validateProxyHasFromTargetClassMethod()
         return this
@@ -89,22 +102,22 @@ data class AnnotatedAppFunctionSerializableProxy(
     /** The generated factory ClassName. */
     override val factoryClassName: ClassName by lazy {
         ClassName(
-            originalClassName.packageName,
-            "\$${targetClassDeclaration.getJvmClassName()}Factory",
+            appFunctionSerializableTypeClassDeclaration.originalClassName.packageName,
+            "$${targetClassDeclaration.getJvmClassName()}Factory",
         )
     }
 
     /** Validates that the proxy class has a method that returns an instance of the target class. */
     private fun validateProxyHasToTargetClassMethod() {
         val toTargetClassNameFunctionList: List<KSFunctionDeclaration> =
-            appFunctionSerializableProxyClass
+            classDeclaration
                 .getAllFunctions()
                 .filter { it.simpleName.asString() == toTargetClassMethodName }
                 .toList()
         if (toTargetClassNameFunctionList.size != 1) {
             throw ProcessingException(
                 "Class must have exactly one member function: $toTargetClassMethodName",
-                appFunctionSerializableProxyClass,
+                classDeclaration,
             )
         }
         val toTargetClassNameFunction = toTargetClassNameFunctionList.first()
@@ -119,7 +132,7 @@ data class AnnotatedAppFunctionSerializableProxy(
         ) {
             throw ProcessingException(
                 "Function $toTargetClassMethodName should return an instance of target class",
-                appFunctionSerializableProxyClass,
+                classDeclaration,
             )
         }
     }
@@ -128,7 +141,7 @@ data class AnnotatedAppFunctionSerializableProxy(
     private fun validateProxyHasFromTargetClassMethod() {
         val targetClassName = checkNotNull(targetClassDeclaration.simpleName).asString()
         val targetCompanionClass =
-            appFunctionSerializableProxyClass.declarations
+            classDeclaration.declarations
                 .filterIsInstance<KSClassDeclaration>()
                 .filter { it.isCompanionObject }
                 .single()
@@ -142,7 +155,7 @@ data class AnnotatedAppFunctionSerializableProxy(
             throw ProcessingException(
                 "Companion Class must have exactly one member function: " +
                     fromTargetClassMethodName,
-                appFunctionSerializableProxyClass,
+                classDeclaration,
             )
         }
         val fromTargetClassNameFunction = fromTargetClassNameFunctionList.first()
@@ -154,7 +167,7 @@ data class AnnotatedAppFunctionSerializableProxy(
             throw ProcessingException(
                 "Function $fromTargetClassMethodName should have one parameter of type " +
                     targetClassName,
-                appFunctionSerializableProxyClass,
+                classDeclaration,
             )
         }
         val returnTypeClassDeclaration =
@@ -162,11 +175,11 @@ data class AnnotatedAppFunctionSerializableProxy(
                 as KSClassDeclaration
         if (
             checkNotNull(returnTypeClassDeclaration.qualifiedName).asString() !=
-                checkNotNull(appFunctionSerializableProxyClass.qualifiedName).asString()
+                checkNotNull(classDeclaration.qualifiedName).asString()
         ) {
             throw ProcessingException(
                 "Function $fromTargetClassMethodName should return an instance of " +
-                    "this serializable class (${checkNotNull(appFunctionSerializableProxyClass
+                    "this serializable class (${checkNotNull(classDeclaration
                         .qualifiedName).asString()}). Instead, it returns ${checkNotNull(
                             returnTypeClassDeclaration.qualifiedName).asString()}",
                 fromTargetClassNameFunction.returnType,
@@ -205,6 +218,60 @@ data class AnnotatedAppFunctionSerializableProxy(
                         as KSClassDeclaration)
                     .toClassName()
             return proxyTargetToSerializableProxy.getValue(targetClassName)
+        }
+    }
+
+    override fun getFactoryCodeBuilder(
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies
+    ): AppFunctionSerializableType.FactoryCodeBuilder {
+        return AppFunctionSerializableProxyFactoryCodeBuilder(
+            this,
+            resolvedAnnotatedSerializableProxies,
+        )
+    }
+
+    private class AppFunctionSerializableProxyFactoryCodeBuilder(
+        val annotatedProxyClass: AnnotatedAppFunctionSerializableProxy,
+        val resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+    ) : AppFunctionSerializableType.FactoryCodeBuilder {
+        override fun buildAppFunctionSerializableFactoryClass(): FileSpec {
+
+            val proxySuperInterfaceClass =
+                AppFunctionSerializableFactoryClass.CLASS_NAME.parameterizedBy(
+                    annotatedProxyClass.targetClassDeclaration.toClassName()
+                )
+
+            val serializableProxyClassBuilder =
+                TypeSpec.classBuilder(annotatedProxyClass.factoryClassName)
+            val factoryCodeBuilder =
+                AppFunctionSerializableFactoryCodeBuilderHelper(
+                    annotatedProxyClass,
+                    resolvedAnnotatedSerializableProxies,
+                )
+            serializableProxyClassBuilder.addAnnotation(RESTRICT_API_TO_33_ANNOTATION)
+            serializableProxyClassBuilder.addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
+            serializableProxyClassBuilder.addSuperinterface(proxySuperInterfaceClass)
+            annotatedProxyClass.targetClassDeclaration.toClassName()
+            serializableProxyClassBuilder.addFunction(
+                buildFromAppFunctionDataFunction(
+                    factoryCodeBuilder.buildFromAppFunctionDataMethodBodyForProxy(),
+                    returnType = annotatedProxyClass.targetClassDeclaration.toClassName(),
+                )
+            )
+            serializableProxyClassBuilder.addFunction(
+                buildToAppFunctionDataFunction(
+                    factoryCodeBuilder.buildToAppFunctionDataMethodBodyForProxy(),
+                    parameterType = annotatedProxyClass.targetClassDeclaration.toClassName(),
+                )
+            )
+            return FileSpec.builder(
+                    annotatedProxyClass.appFunctionSerializableTypeClassDeclaration
+                        .originalClassName
+                        .packageName,
+                    annotatedProxyClass.factoryClassName.simpleName,
+                )
+                .addType(serializableProxyClassBuilder.build())
+                .build()
         }
     }
 }

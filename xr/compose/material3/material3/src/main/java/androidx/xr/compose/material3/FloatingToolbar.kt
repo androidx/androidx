@@ -64,7 +64,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 
 /**
@@ -169,7 +169,7 @@ public fun HorizontalFloatingToolbar(
  *   [FloatingToolbarDefaults.StandardFloatingActionButton] that is styled to match the [colors].
  *   Note that the provided FAB's size is controlled by the floating toolbar and animates according
  *   to its state. In case a custom FAB is provided, make sure it's set with a
- *   [Modifier.fillMaxSize] to be sized correctly.
+ *   [androidx.compose.foundation.layout.fillMaxSize] to be sized correctly.
  * @param modifier the [Modifier] to be applied to this floating toolbar.
  * @param colors the colors used for this floating toolbar. There are two predefined
  *   [FloatingToolbarColors] at [FloatingToolbarDefaults.standardFloatingToolbarColors] and
@@ -357,7 +357,7 @@ public fun VerticalFloatingToolbar(
  *   [FloatingToolbarDefaults.StandardFloatingActionButton] that is styled to match the [colors].
  *   Note that the provided FAB's size is controlled by the floating toolbar and animates according
  *   to its state. In case a custom FAB is provided, make sure it's set with a
- *   [Modifier.fillMaxSize] to be sized correctly.
+ *   [androidx.compose.foundation.layout.fillMaxSize] to be sized correctly.
  * @param modifier the [Modifier] to be applied to this floating toolbar.
  * @param colors the colors used for this floating toolbar. There are two predefined
  *   [FloatingToolbarColors] at [FloatingToolbarDefaults.standardFloatingToolbarColors] and
@@ -566,7 +566,7 @@ public val DefaultHorizontalFloatingToolbarOrbiterProperties: HorizontalOrbiterP
     HorizontalOrbiterProperties(
         position = ContentEdge.Horizontal.Bottom,
         offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterHorizontally,
         shape = XrTokens.ContainerShape,
     )
@@ -588,7 +588,7 @@ public val DefaultVerticalFloatingToolbarOrbiterProperties: VerticalOrbiterPrope
     VerticalOrbiterProperties(
         position = ContentEdge.Vertical.End,
         offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterVertically,
         shape = XrTokens.ContainerShape,
     )

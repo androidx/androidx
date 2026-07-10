@@ -16,15 +16,15 @@
 
 package androidx.xr.compose.platform
 
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
+import androidx.xr.compose.subspace.node.Logger
 import androidx.xr.compose.subspace.node.SubspaceLayoutNode
+import androidx.xr.compose.subspace.node.SubspaceMeasureAndLayoutDelegate
 import androidx.xr.compose.subspace.node.SubspaceOwner
-import androidx.xr.compose.unit.VolumeConstraints
-import androidx.xr.runtime.math.Pose
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -43,11 +43,17 @@ import kotlinx.coroutines.launch
  *
  * This class draws inspiration from the [androidx/compose/ui/platform/AndroidComposeView].
  */
-internal class AndroidComposeSpatialElement :
-    SpatialElement(), SubspaceOwner, DefaultLifecycleObserver {
-    override val root: SubspaceLayoutNode = SubspaceLayoutNode()
+internal class AndroidComposeSpatialElement(
+    override val coroutineContext: CoroutineContext = AndroidUiDispatcher.Main
+) : SpatialElement(), SubspaceOwner, DefaultLifecycleObserver {
+    override val root: SubspaceLayoutNode =
+        SubspaceLayoutNode().apply { measurePolicy = SubspaceLayoutNode.RootMeasurePolicy }
 
-    private val snapshotStateObserver: SnapshotStateObserver = SnapshotStateObserver(::run)
+    // For debug output set this to androidx.xr.compose.subspace.node.DebugLogger().
+    override var logger: Logger? = null
+
+    // This coroutine scope will launch tasks to the Choreographer on the main thread.
+    private val coroutineScope = CoroutineScope(coroutineContext)
 
     internal var wrappedComposition: WrappedComposition? = null
 
@@ -59,26 +65,9 @@ internal class AndroidComposeSpatialElement :
 
     private var windowLeashLayoutNode: SubspaceLayoutNode? = null
 
-    /**
-     * Whether a layout request has been made. If a layout request is made while a layout is in
-     * progress, the new request will be handled after the current layout is complete.
-     */
-    private var isLayoutRequested = false
+    private val measureAndLayoutDelegate = SubspaceMeasureAndLayoutDelegate(root)
 
-    /**
-     * Tracks whether a layout is currently in progress to avoid recursively triggering a layout.
-     */
-    private var isLayoutInProgress = false
-
-    internal var rootVolumeConstraints: VolumeConstraints = VolumeConstraints()
-        set(value) {
-            if (field != value) {
-                field = value
-                if (isAttachedToSpatialComposeScene) {
-                    requestRelayout()
-                }
-            }
-        }
+    private var isMeasureAndLayoutScheduled: Boolean = false
 
     init {
         root.attach(this)
@@ -103,7 +92,7 @@ internal class AndroidComposeSpatialElement :
         super.onAttachedToSubspace(spatialComposeScene)
 
         spatialComposeScene.lifecycle.addObserver(this)
-        snapshotStateObserver.start()
+        measureAndLayoutDelegate.snapshotStateObserver.start()
         onSubspaceAvailable?.invoke(spatialComposeScene)
         onSubspaceAvailable = null
     }
@@ -112,16 +101,13 @@ internal class AndroidComposeSpatialElement :
         super.onDetachedFromSubspace(spatialComposeScene)
 
         spatialComposeScene.lifecycle.removeObserver(this)
-        snapshotStateObserver.stop()
-        snapshotStateObserver.clear()
+        measureAndLayoutDelegate.snapshotStateObserver.stop()
+        measureAndLayoutDelegate.snapshotStateObserver.clear()
     }
 
     override fun onAttach(node: SubspaceLayoutNode) {
         node.coreEntity?.let { entity ->
             if (entity is CoreMainPanelEntity) {
-                check(windowLeashLayoutNode == null) {
-                    "Cannot add $node as there is already another SubspaceLayoutNode for the Window Leash Node"
-                }
                 windowLeashLayoutNode = node
             }
         }
@@ -129,15 +115,22 @@ internal class AndroidComposeSpatialElement :
 
     override fun onDetach(node: SubspaceLayoutNode) {
         node.coreEntity?.let { entity ->
-            if (entity is CoreMainPanelEntity) {
+            if (entity is CoreMainPanelEntity && node == windowLeashLayoutNode) {
                 windowLeashLayoutNode = null
             }
         }
     }
 
+    override fun onRecompositionComplete() {
+        if (!root.isPlaced) {
+            measureAndLayoutDelegate.requestMeasure(root, true)
+        }
+        scheduleMeasureAndLayout()
+    }
+
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        // TODO: "Refresh the layout hierarchy." <- Can we just call refreshLayout() here?
+        scheduleMeasureAndLayout()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
@@ -145,42 +138,41 @@ internal class AndroidComposeSpatialElement :
         root.detach()
     }
 
+    override fun requestMeasure(node: SubspaceLayoutNode, forceRequest: Boolean) {
+        logger?.measureRequested(node)
+
+        if (!root.isPlaced) return
+
+        if (measureAndLayoutDelegate.requestMeasure(node, forceRequest)) {
+            scheduleMeasureAndLayout()
+        }
+    }
+
+    override fun requestLayout(node: SubspaceLayoutNode, forceRequest: Boolean) {
+        logger?.layoutRequested(node)
+
+        if (!root.isPlaced) return
+
+        if (measureAndLayoutDelegate.requestLayout(node, forceRequest)) {
+            scheduleMeasureAndLayout()
+        }
+    }
+
+    override fun requestEntityUpdate(node: SubspaceLayoutNode, forceRequest: Boolean) {
+        if (measureAndLayoutDelegate.requestEntityUpdate(node, forceRequest)) {
+            scheduleMeasureAndLayout()
+        }
+    }
+
     // TODO: Consider adding stricter control over how this is called here, or at call sites, if it
     // becomes too easy to generate superfluous layouts.
-    override fun requestRelayout() {
-        uiCoroutineScope.launch { refreshLayout() }
-    }
+    private fun scheduleMeasureAndLayout() {
+        if (isMeasureAndLayoutScheduled) return
 
-    // TODO: Add unit tests.
-    private fun refreshLayout() {
-        if (isLayoutInProgress) {
-            isLayoutRequested = true
-            return
-        }
-
-        isLayoutRequested = false
-        isLayoutInProgress = true
-
-        snapshotStateObserver.observeReads(this, onLayoutStateValueChanged) {
-            val measureResults = root.measurableLayout.measure(rootVolumeConstraints)
-            (measureResults as SubspaceLayoutNode.SubspaceMeasurableLayout).placeAt(Pose.Identity)
-        }
-
-        Logger.log("AndroidComposeSpatialElement") { root.debugTreeToString() }
-        Logger.log("AndroidComposeSpatialElement") { root.debugEntityTreeToString() }
-
-        isLayoutInProgress = false
-        if (isLayoutRequested) {
-            refreshLayout()
-        }
-    }
-
-    companion object {
-        // This coroutine scope will launch tasks to the Choreographer on the main thread.
-        private val uiCoroutineScope = CoroutineScope(AndroidUiDispatcher.Main)
-
-        private val onLayoutStateValueChanged: (AndroidComposeSpatialElement) -> Unit = {
-            it.requestRelayout()
+        isMeasureAndLayoutScheduled = true
+        coroutineScope.launch {
+            isMeasureAndLayoutScheduled = false
+            measureAndLayoutDelegate.measureAndLayout()
         }
     }
 }

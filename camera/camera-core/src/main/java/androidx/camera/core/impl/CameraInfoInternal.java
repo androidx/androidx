@@ -31,13 +31,14 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.OptIn;
+import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraIdentifier;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
-import androidx.camera.core.ExperimentalSessionConfig;
+import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -104,6 +105,28 @@ public interface CameraInfoInternal extends CameraInfo {
      * {@link #addSessionCaptureCallback(Executor, CameraCaptureCallback)}.
      */
     void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback);
+
+    /**
+     * Adds a {@link CameraSessionLifecycleCallback} which will be invoked when the camera
+     * capture session lifecycle changes.
+     *
+     * <p>The callback will be invoked on the specified {@link Executor}.
+     *
+     * @param executor The executor on which the callback will be invoked.
+     * @param callback The callback to add.
+     */
+    default void addSessionLifecycleCallback(@NonNull Executor executor,
+            @NonNull CameraSessionLifecycleCallback callback) {
+    }
+
+    /**
+     * Removes the {@link CameraSessionLifecycleCallback} which was added in
+     * {@link #addSessionLifecycleCallback(Executor, CameraSessionLifecycleCallback)}.
+     *
+     * @param callback The callback to remove.
+     */
+    default void removeSessionLifecycleCallback(@NonNull CameraSessionLifecycleCallback callback) {
+    }
 
     /** Returns a list of quirks related to the camera. */
     @NonNull Quirks getCameraQuirks();
@@ -183,7 +206,6 @@ public interface CameraInfoInternal extends CameraInfo {
     Rect getSensorRect();
 
     @SuppressWarnings("MixedMutabilityReturnType")
-    @ExperimentalSessionConfig
     @Override
     default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
             @NonNull SessionConfig sessionConfig) {
@@ -214,6 +236,17 @@ public interface CameraInfoInternal extends CameraInfo {
             }
         }
         return filteredFrameRates;
+    }
+
+    /**
+     * Checks whether ZSL can be supported with the given list of sizes.
+     *
+     * @param sizes a list of sizes
+     * @return true if ZSL can be supported, false otherwise
+     */
+    @OptIn(markerClass = ExperimentalZeroShutterLag.class)
+    default boolean canSupportZsl(@NonNull List<Size> sizes) {
+        return isZslSupported();
     }
 
     /**
@@ -314,16 +347,25 @@ public interface CameraInfoInternal extends CameraInfo {
     }
 
     /** {@inheritDoc} */
-    @ExperimentalSessionConfig
     @Override
-    default boolean isFeatureGroupSupported(@NonNull SessionConfig sessionConfig) {
+    default boolean isSessionConfigSupported(@NonNull SessionConfig sessionConfig) {
         try {
+            // The session config might contain a camera filter, like ExtensionSessionConfig. For
+            // such kind of session config, retrieving the camera filter to ensure whether the
+            // camera info instance can fulfill the camera filter's requirements.
+            CameraFilter cameraFilter = sessionConfig.getCameraFilter();
+            if (cameraFilter != null) {
+                if (cameraFilter.filter(Collections.singletonList(this)).isEmpty()) {
+                    return false;
+                }
+            }
+
             UseCaseAdditionSimulator.simulateAddUseCases(this,
                     sessionConfig, /*findMaxSupportedFrameRate=*/ false);
             return true;
         } catch (IllegalArgumentException | CameraUseCaseAdapter.CameraException e) {
             Logger.d("CameraInfoInternal",
-                    "CameraInfoInternal.isResolvedFeatureGroupSupported failed", e);
+                    "CameraInfoInternal.isSessionConfigSupported failed", e);
         }
 
         return false;
@@ -343,7 +385,6 @@ public interface CameraInfoInternal extends CameraInfo {
      * {@link CameraInfoInternal#setCameraUseCaseAdapterProvider(CameraUseCaseAdapterProvider)} has
      * not been called yet.
      */
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
     default boolean isResolvedFeatureGroupSupported(
             @NonNull ResolvedFeatureGroup resolvedFeatureGroup,
             @NonNull SessionConfig sessionConfig) {
@@ -377,7 +418,7 @@ public interface CameraInfoInternal extends CameraInfo {
 
     @Override
     default @NonNull CameraIdentifier getCameraIdentifier() {
-        return CameraIdentifier.create(getCameraId());
+        return CameraIdentifier.Factory.create(getCameraId());
     }
 
     /**
@@ -397,5 +438,23 @@ public interface CameraInfoInternal extends CameraInfo {
     @OptIn(markerClass = ExperimentalLensFacing.class)
     default boolean isExternalCamera() {
         return getLensFacing() == CameraSelector.LENS_FACING_EXTERNAL;
+    }
+
+    /**
+     * Returns the supported extension modes for this camera.
+     */
+    default @NonNull Set<Integer> getSupportedExtensions() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Returns the camera extension capabilities for the specified extension mode.
+     *
+     * @param extensionMode the extension mode
+     * @return the camera extension capabilities, or null if the extension mode is not supported
+     */
+    default @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
+            int extensionMode) {
+        return null;
     }
 }

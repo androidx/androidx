@@ -89,11 +89,52 @@ internal fun EditorInfo.update(
                 InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
             KeyboardType.Decimal ->
                 InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
+            KeyboardType.PasswordVisible ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            KeyboardType.PostalAddress ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+            KeyboardType.PersonName ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME
+            KeyboardType.EmailSubject ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_SUBJECT
+            KeyboardType.ShortMessage ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_SHORT_MESSAGE
+            KeyboardType.LongMessage ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_LONG_MESSAGE
+            KeyboardType.Filter ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_FILTER
+            KeyboardType.Phonetic ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PHONETIC
+            KeyboardType.DateTime ->
+                InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_NORMAL
+            KeyboardType.Date ->
+                InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_DATE
+            KeyboardType.Time ->
+                InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_TIME
+            KeyboardType.NumberSigned ->
+                InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
+            KeyboardType.DecimalSigned ->
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
+            KeyboardType.DecimalPassword ->
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL
+            KeyboardType.NumberPasswordSigned ->
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
+            KeyboardType.DecimalPasswordSigned ->
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
             else -> error("Invalid Keyboard Type")
         }
 
     if (!imeOptions.singleLine) {
-        if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+        if ((this.inputType and InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
             // TextView.java#setInputTypeSingleLine
             this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
 
@@ -103,7 +144,7 @@ internal fun EditorInfo.update(
         }
     }
 
-    if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+    if ((this.inputType and InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
         when (imeOptions.capitalization) {
             KeyboardCapitalization.Characters -> {
                 this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
@@ -122,6 +163,10 @@ internal fun EditorInfo.update(
         if (imeOptions.autoCorrect) {
             this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            EditorInfoApi37.setEnableTextSuggestionSelectedInputType(this)
+        }
     }
 
     this.initialSelStart = selection.start
@@ -133,13 +178,10 @@ internal fun EditorInfo.update(
         EditorInfoCompat.setContentMimeTypes(this, contentMimeTypes)
     }
 
+    // TODO(b/521833073): Remove this after Extracted Mode support.
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 
-    if (
-        isStylusHandwritingSupported &&
-            imeOptions.keyboardType != KeyboardType.Password &&
-            imeOptions.keyboardType != KeyboardType.NumberPassword
-    ) {
+    if (shouldEnableStylusHandwriting(imeOptions)) {
         EditorInfoCompat.setStylusHandwritingEnabled(this, true)
         EditorInfoApi34.setHandwritingGestures(this)
     } else {
@@ -147,7 +189,18 @@ internal fun EditorInfo.update(
     }
 }
 
-private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
+/**
+ * Enable stylus handwriting if it is supported by the platform and if the keyboard type is not a
+ * password.
+ */
+private fun EditorInfo.shouldEnableStylusHandwriting(imeOptions: ImeOptions) =
+    isStylusHandwritingSupported &&
+        imeOptions.keyboardType != KeyboardType.Password &&
+        imeOptions.keyboardType != KeyboardType.PasswordVisible &&
+        imeOptions.keyboardType != KeyboardType.NumberPassword &&
+        imeOptions.keyboardType != KeyboardType.DecimalPassword &&
+        imeOptions.keyboardType != KeyboardType.NumberPasswordSigned &&
+        imeOptions.keyboardType != KeyboardType.DecimalPasswordSigned
 
 /**
  * This class is here to ensure that the classes that use this API will get verified and can be AOT
@@ -190,5 +243,13 @@ private object EditorInfoApi34 {
                 SelectRangeGesture::class.java,
                 DeleteRangeGesture::class.java,
             )
+    }
+}
+
+@RequiresApi(37)
+private object EditorInfoApi37 {
+    fun setEnableTextSuggestionSelectedInputType(editorInfo: EditorInfo) {
+        editorInfo.inputType =
+            editorInfo.inputType or EditorInfo.TYPE_TEXT_FLAG_ENABLE_TEXT_SUGGESTION_SELECTED
     }
 }

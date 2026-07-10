@@ -19,6 +19,7 @@ package androidx.camera.testing.impl
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -29,7 +30,7 @@ public class Camera2CaptureCallbackImpl : CameraCaptureSession.CaptureCallback()
         val isVerified: CompletableDeferred<Unit>,
     )
 
-    private var pendingVerifications = mutableListOf<Verification>()
+    private var pendingVerifications = CopyOnWriteArrayList<Verification>()
 
     /** Returns a [Deferred] representing if verification has been completed */
     public fun verify(

@@ -24,12 +24,27 @@ val Material3Demos =
         "Material 3",
         listOf(
             ComposableDemo("Button Groups") { ButtonGroupDemos() },
+            DemoCategory(
+                "Carousel",
+                listOf(
+                    ComposableDemo("LazyColumn") { MultiAspectCarouselLazyColumnDemo() },
+                    ComposableDemo("Fading LazyRow") { FadingMultiAspectCarouselLazyRowDemo() },
+                    ComposableDemo("LazyHorizontalGrid") {
+                        MultiAspectCarouselLazyHorizontalGridDemo()
+                    },
+                    ComposableDemo("LazyVerticalGrid") { MultiAspectCarouselLazyVerticalGridDemo() },
+                ),
+            ),
             ComposableDemo("Color Scheme") { ColorSchemeDemo() },
             ComposableDemo("FAB Menu") { FloatingActionButtonMenuDemo() },
             ComposableDemo("Pull To Refresh") { PullToRefreshDemo() },
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
             ComposableDemo("Tooltip") { TooltipDemo() },
             ComposableDemo("Toggle Buttons") { ToggleButtonDemos() },
+            DemoCategory(
+                "Sliders",
+                listOf(ComposableDemo("Volume Slider") { SysUiVolumeSliderDemo() }),
+            ),
             ComposableDemo("Text fields") { MaterialTextFieldDemo() },
             DemoCategory(
                 "Icon Buttons",

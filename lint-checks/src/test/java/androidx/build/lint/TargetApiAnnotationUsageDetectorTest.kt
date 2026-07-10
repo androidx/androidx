@@ -36,22 +36,22 @@ class TargetApiAnnotationUsageDetectorTest : LintDetectorTest() {
 
     private val annotationSource =
         """
-package android.annotation;
+        package android.annotation;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
+        import static java.lang.annotation.ElementType.CONSTRUCTOR;
+        import static java.lang.annotation.ElementType.METHOD;
+        import static java.lang.annotation.ElementType.TYPE;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+        import java.lang.annotation.Retention;
+        import java.lang.annotation.RetentionPolicy;
+        import java.lang.annotation.Target;
 
-@Target({TYPE, METHOD, CONSTRUCTOR})
-@Retention(RetentionPolicy.CLASS)
-public @interface TargetApi {
-    int value();
-}
-    """
+        @Target({TYPE, METHOD, CONSTRUCTOR})
+        @Retention(RetentionPolicy.CLASS)
+        public @interface TargetApi {
+            int value();
+        }
+        """
             .trimIndent()
 
     @Test
@@ -59,44 +59,44 @@ public @interface TargetApi {
         val input =
             java(
                 """
-package androidx.sample;
+                package androidx.sample;
 
-import android.annotation.TargetApi;
+                import android.annotation.TargetApi;
 
-@TargetApi(24)
-public class SampleClass {
-    @TargetApi(15)
-    public void method() {
-        // Stub
-    }
-}
-            """
+                @TargetApi(24)
+                public class SampleClass {
+                    @TargetApi(15)
+                    public void method() {
+                        // Stub
+                    }
+                }
+                """
                     .trimIndent()
             )
 
         val expected =
             """
-src/androidx/sample/SampleClass.java:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
-@TargetApi(24)
-~~~~~~~~~~~~~~
-src/androidx/sample/SampleClass.java:7: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
-    @TargetApi(15)
-    ~~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/SampleClass.java:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+            @TargetApi(24)
+            ~~~~~~~~~~~~~~
+            src/androidx/sample/SampleClass.java:7: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+                @TargetApi(15)
+                ~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectFixDiffs =
             """
-Fix for src/androidx/sample/SampleClass.java line 5: Replace with `@RequiresApi`:
-@@ -5 +5
-- @TargetApi(24)
-+ @androidx.annotation.RequiresApi(24)
-Fix for src/androidx/sample/SampleClass.java line 7: Replace with `@RequiresApi`:
-@@ -7 +7
--     @TargetApi(15)
-+     @androidx.annotation.RequiresApi(15)
-        """
+            Fix for src/androidx/sample/SampleClass.java line 5: Replace with `@RequiresApi`:
+            @@ -5 +5
+            - @TargetApi(24)
+            + @androidx.annotation.RequiresApi(24)
+            Fix for src/androidx/sample/SampleClass.java line 7: Replace with `@RequiresApi`:
+            @@ -7 +7
+            -     @TargetApi(15)
+            +     @androidx.annotation.RequiresApi(15)
+            """
                 .trimIndent()
 
         checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)
@@ -107,44 +107,44 @@ Fix for src/androidx/sample/SampleClass.java line 7: Replace with `@RequiresApi`
         val input =
             kotlin(
                 """
-package androidx.sample
+                package androidx.sample
 
-import android.annotation.TargetApi
+                import android.annotation.TargetApi
 
-@TargetApi(24)
-class SampleClass {
-    @TargetApi(15)
-    fun method() {
-        // Stub
-    }
-}
-            """
+                @TargetApi(24)
+                class SampleClass {
+                    @TargetApi(15)
+                    fun method() {
+                        // Stub
+                    }
+                }
+                """
                     .trimIndent()
             )
 
         val expected =
             """
-src/androidx/sample/SampleClass.kt:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
-@TargetApi(24)
-~~~~~~~~~~~~~~
-src/androidx/sample/SampleClass.kt:7: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
-    @TargetApi(15)
-    ~~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/SampleClass.kt:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+            @TargetApi(24)
+            ~~~~~~~~~~~~~~
+            src/androidx/sample/SampleClass.kt:7: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+                @TargetApi(15)
+                ~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectFixDiffs =
             """
-Fix for src/androidx/sample/SampleClass.kt line 5: Replace with `@RequiresApi`:
-@@ -5 +5
-- @TargetApi(24)
-+ @androidx.annotation.RequiresApi(24)
-Fix for src/androidx/sample/SampleClass.kt line 7: Replace with `@RequiresApi`:
-@@ -7 +7
--     @TargetApi(15)
-+     @androidx.annotation.RequiresApi(15)
-        """
+            Fix for src/androidx/sample/SampleClass.kt line 5: Replace with `@RequiresApi`:
+            @@ -5 +5
+            - @TargetApi(24)
+            + @androidx.annotation.RequiresApi(24)
+            Fix for src/androidx/sample/SampleClass.kt line 7: Replace with `@RequiresApi`:
+            @@ -7 +7
+            -     @TargetApi(15)
+            +     @androidx.annotation.RequiresApi(15)
+            """
                 .trimIndent()
 
         checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)

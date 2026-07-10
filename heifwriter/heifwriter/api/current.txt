@@ -6,6 +6,7 @@ package androidx.heifwriter {
     method public void addExifData(int, byte[], int, int);
     method public void addYuvBuffer(int, byte[]);
     method public void close();
+    method public androidx.heifwriter.EncoderPreference getEncoderPreference();
     method public android.os.Handler? getHandler();
     method public android.view.Surface getInputSurface();
     method public int getMaxImages();
@@ -26,6 +27,7 @@ package androidx.heifwriter {
     ctor public AvifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public AvifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     method public androidx.heifwriter.AvifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.AvifWriter.Builder setEncoderPreference(androidx.heifwriter.EncoderPreference);
     method public androidx.heifwriter.AvifWriter.Builder setGridEnabled(boolean);
     method public androidx.heifwriter.AvifWriter.Builder setHandler(android.os.Handler?);
     method public androidx.heifwriter.AvifWriter.Builder setHighBitDepthEnabled(boolean);
@@ -35,11 +37,32 @@ package androidx.heifwriter {
     method public androidx.heifwriter.AvifWriter.Builder setRotation(@IntRange(from=0) int);
   }
 
+  public class EncoderPreference {
+    method public int getBitrateMode();
+    method public static androidx.heifwriter.EncoderPreference getDefaultEncoderPreference();
+    method public int getEncoderType();
+    field public static final int CONSTANT_QUALITY_MODE_ONLY = 1; // 0x1
+    field public static final int CONSTANT_QUALITY_MODE_PREFERRED = 0; // 0x0
+    field public static final int HARDWARE_ENCODER_ONLY = 1; // 0x1
+    field public static final int HARDWARE_ENCODER_PREFERRED = 2; // 0x2
+    field public static final int NO_ENCODER_PREFERENCE = 0; // 0x0
+    field public static final int SOFTWARE_ENCODER_ONLY = 3; // 0x3
+    field public static final int SOFTWARE_ENCODER_PREFERRED = 4; // 0x4
+  }
+
+  public static final class EncoderPreference.Builder {
+    ctor public EncoderPreference.Builder();
+    method public androidx.heifwriter.EncoderPreference build();
+    method public androidx.heifwriter.EncoderPreference.Builder setBitrateMode(int);
+    method public androidx.heifwriter.EncoderPreference.Builder setEncoderType(int);
+  }
+
   public final class HeifWriter implements java.lang.AutoCloseable {
     method public void addBitmap(android.graphics.Bitmap);
     method public void addExifData(int, byte[], int, int);
     method public void addYuvBuffer(int, byte[]);
     method public void close();
+    method public androidx.heifwriter.EncoderPreference getEncoderPreference();
     method public android.os.Handler? getHandler();
     method public android.view.Surface getInputSurface();
     method public int getMaxImages();
@@ -60,6 +83,7 @@ package androidx.heifwriter {
     ctor public HeifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public HeifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.HeifWriter.Builder setEncoderPreference(androidx.heifwriter.EncoderPreference);
     method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
     method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler?);
     method public androidx.heifwriter.HeifWriter.Builder setMaxImages(@IntRange(from=1) int);

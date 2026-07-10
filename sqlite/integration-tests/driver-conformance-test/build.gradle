@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -55,7 +54,6 @@ androidXMultiplatform {
             KonanTarget.ANDROID_X64,
             KonanTarget.ANDROID_X86,
             KonanTarget.MACOS_ARM64,
-            KonanTarget.MACOS_X64,
             KonanTarget.MINGW_X64,
             KonanTarget.LINUX_X64,
             KonanTarget.LINUX_ARM64,
@@ -86,6 +84,7 @@ androidXMultiplatform {
         packaging.jniLibs.useLegacyPackaging = true
     }
     ios()
+    js()
     jvm() {
         addNativeLibrariesToResources(it, extensionCompilation)
     }
@@ -93,24 +92,24 @@ androidXMultiplatform {
     mac()
     tvos()
     watchos()
+    wasmJs()
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
+        commonTest.dependencies {
+            implementation(project(":sqlite:sqlite"))
+            implementation(project(":sqlite:sqlite-async"))
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
         }
-        commonTest {
-            dependencies {
-                implementation(project(":sqlite:sqlite"))
-                implementation(project(":sqlite:sqlite-bundled"))
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":kruth:kruth"))
-            }
-        }
-        androidInstrumentedTest {
+        nonWebTest {
             dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
+            }
+        }
+        androidDeviceTest {
+            dependsOn(nonWebTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-framework"))
                 implementation(libs.kotlinTestJunit)
@@ -118,39 +117,29 @@ androidXMultiplatform {
                 implementation(libs.testCore)
             }
         }
+        webTest.dependencies {
+            implementation(project(":sqlite:sqlite-web"))
+            implementation(project(":sqlite:sqlite-web-worker-test"))
+        }
         jvmTest {
-            dependsOn(commonTest)
+            dependsOn(nonWebTest)
             dependencies {
                 implementation(libs.kotlinTestJunit)
             }
         }
         nativeTest {
-            dependsOn(commonTest)
+            dependsOn(nonWebTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-framework"))
             }
         }
-        iosTest {
-            dependsOn(nativeTest)
-        }
-        nonIosNativeTest {
-            dependsOn(nativeTest)
-        }
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["test"].defaultSourceSet {
-                    if (target.konanTarget.family == Family.IOS) {
-                            dependsOn(iosTest)
-                    } else {
-                            dependsOn(nonIosNativeTest)
-                    }
-                }
-
                 // Configure the native SQLite text extension,
                 // see GenerateLoadableExtensionSource.groovy impl
                 if (extensionCompilation.canCompileOnCurrentHost(target.konanTarget)) {
                     extensionCompilation.configureTarget(target.konanTarget)
-                    configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
+                    project.ext.configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
                 }
             }
         }

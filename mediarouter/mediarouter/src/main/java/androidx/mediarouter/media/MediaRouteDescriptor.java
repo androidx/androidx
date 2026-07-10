@@ -25,9 +25,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BundleCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,9 +77,20 @@ public final class MediaRouteDescriptor {
     static final String KEY_ALLOWED_PACKAGES = "allowedPackages";
 
     final Bundle mBundle;
+    @Nullable final String mRoutingControllerId;
+    @NonNull final List<Set<String>> mRequiredPermissions;
 
     MediaRouteDescriptor(Bundle bundle) {
+        this(bundle, null, List.of());
+    }
+
+    private MediaRouteDescriptor(
+            Bundle bundle,
+            @Nullable String routingControllerId,
+            @NonNull List<Set<String>> requiredPermissions) {
         mBundle = bundle;
+        mRoutingControllerId = routingControllerId;
+        mRequiredPermissions = List.copyOf(requiredPermissions);
     }
 
     /**
@@ -88,8 +101,7 @@ public final class MediaRouteDescriptor {
      * by the provider.
      * </p>
      */
-    @NonNull
-    public String getId() {
+    public @NonNull String getId() {
         return mBundle.getString(KEY_ID);
     }
 
@@ -101,12 +113,9 @@ public final class MediaRouteDescriptor {
      * </p>
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public List<String> getGroupMemberIds() {
-        if (!mBundle.containsKey(KEY_GROUP_MEMBER_IDS)) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS));
+    public @NonNull List<String> getGroupMemberIds() {
+        ArrayList<String> ids = mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
+        return ids != null ? new ArrayList<>(ids) : new ArrayList<>();
     }
 
     /**
@@ -116,8 +125,7 @@ public final class MediaRouteDescriptor {
      * It may be a user-supplied name, an alias, or device serial number.
      * </p>
      */
-    @NonNull
-    public String getName() {
+    public @NonNull String getName() {
         return mBundle.getString(KEY_NAME);
     }
 
@@ -128,8 +136,7 @@ public final class MediaRouteDescriptor {
      * It may be a user-supplied string, a model number or brand of device.
      * </p>
      */
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return mBundle.getString(KEY_DESCRIPTION);
     }
 
@@ -139,8 +146,7 @@ public final class MediaRouteDescriptor {
      * This icon will be used in picker UIs if available.
      * </p>
      */
-    @Nullable
-    public Uri getIconUri() {
+    public @Nullable Uri getIconUri() {
         String iconUri = mBundle.getString(KEY_ICON_URI);
         return iconUri == null ? null : Uri.parse(iconUri);
     }
@@ -232,20 +238,18 @@ public final class MediaRouteDescriptor {
      *
      * @return An {@link IntentSender} to start a settings activity.
      */
-    @Nullable
-    public IntentSender getSettingsActivity() {
-        return mBundle.getParcelable(KEY_SETTINGS_INTENT);
+    public @Nullable IntentSender getSettingsActivity() {
+        return BundleCompat.getParcelable(mBundle, KEY_SETTINGS_INTENT, IntentSender.class);
     }
 
     /**
      * Gets the route's {@link MediaControlIntent media control intent} filters.
      */
-    @NonNull
-    public List<IntentFilter> getControlFilters() {
-        if (!mBundle.containsKey(KEY_CONTROL_FILTERS)) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS));
+    public @NonNull List<IntentFilter> getControlFilters() {
+        ArrayList<IntentFilter> filters =
+                BundleCompat.getParcelableArrayList(
+                        mBundle, KEY_CONTROL_FILTERS, IntentFilter.class);
+        return filters != null ? new ArrayList<>(filters) : new ArrayList<>();
     }
 
     /**
@@ -308,8 +312,7 @@ public final class MediaRouteDescriptor {
      * <p>Two routes are considered to come from the same receiver device if any of their respective
      * deduplication ids match.
      */
-    @NonNull
-    public Set<String> getDeduplicationIds() {
+    public @NonNull Set<String> getDeduplicationIds() {
         ArrayList<String> deduplicationIds = mBundle.getStringArrayList(KEY_DEDUPLICATION_IDS);
         return deduplicationIds != null
                 ? Collections.unmodifiableSet(new HashSet<>(deduplicationIds))
@@ -329,8 +332,7 @@ public final class MediaRouteDescriptor {
      * The extras will be ignored by the media router but they may be used
      * by applications.
      */
-    @Nullable
-    public Bundle getExtras() {
+    public @Nullable Bundle getExtras() {
         return mBundle.getBundle(KEY_EXTRAS);
     }
 
@@ -363,12 +365,36 @@ public final class MediaRouteDescriptor {
      * the route provider's package is allowed to see this route. This applies only when
      * {@link #isVisibilityPublic} returns {@code false}.
      */
-    @NonNull
-    public Set<String> getAllowedPackages() {
-        if (!mBundle.containsKey(KEY_ALLOWED_PACKAGES)) {
-            return new HashSet<>();
-        }
-        return new HashSet<>(mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES));
+    public @NonNull Set<String> getAllowedPackages() {
+        ArrayList<String> pkgs = mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES);
+        return pkgs != null ? new HashSet<>(pkgs) : new HashSet<>();
+    }
+
+    /**
+     * Returns a list of permission sets - all the permissions in at least one of these sets must be
+     * be held by an app to see this route.
+     */
+    public @NonNull List<Set<String>> getRequiredPermissions() {
+        return mRequiredPermissions;
+    }
+
+    /**
+     * Gets the {@link android.media.MediaRouter2.RoutingController#getId() routing controller id}
+     * associated with this route descriptor.
+     *
+     * <p>The routing session id is useful for populating the {@link
+     * android.media.session.MediaSession#setPlaybackToRemote volume provider's} {@link
+     * android.media.VolumeProvider#getVolumeControlId()}.
+     *
+     * <p>This value may be null if this descriptor is not representing a routing session from the
+     * {@link android.media.MediaRouter2} framework. Typically, this value will be available in
+     * descriptors from the {@link MediaRouter#getSelectedRoute() selected route} when {@link
+     * MediaRouterParams#isMediaTransferReceiverEnabled() media transfer is enabled} (which controls
+     * Android Output Switcher integration).
+     */
+    @Nullable
+    public String getRoutingControllerId() {
+        return mRoutingControllerId;
     }
 
     /**
@@ -380,17 +406,17 @@ public final class MediaRouteDescriptor {
                 && !getControlFilters().contains(null);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "MediaRouteDescriptor{ "
                 + "id=" + getId()
                 + ", groupMemberIds=" + getGroupMemberIds()
                 + ", name=" + getName()
-                + ", description=" + getDescription()
+                + ", descr  iption=" + getDescription()
                 + ", iconUri=" + getIconUri()
                 + ", isEnabled=" + isEnabled()
                 + ", isSystemRoute=" + isSystemRoute()
+                + ", isDynamicGroupRoute=" + isDynamicGroupRoute()
                 + ", connectionState=" + getConnectionState()
                 + ", controlFilters=" + Arrays.toString(getControlFilters().toArray())
                 + ", playbackType=" + getPlaybackType()
@@ -406,6 +432,8 @@ public final class MediaRouteDescriptor {
                 + ", maxClientVersion=" + getMaxClientVersion()
                 + ", isVisibilityPublic=" + isVisibilityPublic()
                 + ", allowedPackages=" + Arrays.toString(getAllowedPackages().toArray())
+                + ", requiredPermissions=" + mRequiredPermissions
+                + ", routingControllerId=" + mRoutingControllerId
                 + " }";
     }
 
@@ -414,8 +442,7 @@ public final class MediaRouteDescriptor {
      *
      * @return The contents of the object represented as a bundle.
      */
-    @NonNull
-    public Bundle asBundle() {
+    public @NonNull Bundle asBundle() {
         return mBundle;
     }
 
@@ -425,8 +452,7 @@ public final class MediaRouteDescriptor {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    @Nullable
-    public static MediaRouteDescriptor fromBundle(@Nullable Bundle bundle) {
+    public static @Nullable MediaRouteDescriptor fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaRouteDescriptor(bundle) : null;
     }
 
@@ -439,6 +465,8 @@ public final class MediaRouteDescriptor {
         private List<String> mGroupMemberIds = new ArrayList<>();
         private List<IntentFilter> mControlFilters = new ArrayList<>();
         private Set<String> mAllowedPackages = new HashSet<>();
+        private List<Set<String>> mRequiredPermissions = new ArrayList<>();
+        private String mRoutingControllerId;
 
         /**
          * Creates a media route descriptor builder.
@@ -466,6 +494,8 @@ public final class MediaRouteDescriptor {
             mGroupMemberIds = descriptor.getGroupMemberIds();
             mControlFilters = descriptor.getControlFilters();
             mAllowedPackages = descriptor.getAllowedPackages();
+            mRequiredPermissions = descriptor.getRequiredPermissions();
+            mRoutingControllerId = descriptor.getRoutingControllerId();
         }
 
         /**
@@ -476,8 +506,7 @@ public final class MediaRouteDescriptor {
          * by the provider.
          * </p>
          */
-        @NonNull
-        public Builder setId(@NonNull String id) {
+        public @NonNull Builder setId(@NonNull String id) {
             if (id == null) {
                 throw new NullPointerException("id must not be null");
             }
@@ -489,8 +518,7 @@ public final class MediaRouteDescriptor {
          * Clears the group member IDs of the route.
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder clearGroupMemberIds() {
+        public @NonNull Builder clearGroupMemberIds() {
             mGroupMemberIds.clear();
             return this;
         }
@@ -503,8 +531,7 @@ public final class MediaRouteDescriptor {
          * </p>
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder addGroupMemberId(@NonNull String groupMemberId) {
+        public @NonNull Builder addGroupMemberId(@NonNull String groupMemberId) {
             if (TextUtils.isEmpty(groupMemberId)) {
                 throw new IllegalArgumentException("groupMemberId must not be empty");
             }
@@ -523,8 +550,7 @@ public final class MediaRouteDescriptor {
          * </p>
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder addGroupMemberIds(@NonNull Collection<String> groupMemberIds) {
+        public @NonNull Builder addGroupMemberIds(@NonNull Collection<String> groupMemberIds) {
             if (groupMemberIds == null) {
                 throw new IllegalArgumentException("groupMemberIds must not be null");
             }
@@ -545,8 +571,7 @@ public final class MediaRouteDescriptor {
          * </p>
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder removeGroupMemberId(@NonNull String memberRouteId) {
+        public @NonNull Builder removeGroupMemberId(@NonNull String memberRouteId) {
             if (TextUtils.isEmpty(memberRouteId)) {
                 throw new IllegalArgumentException("memberRouteId must not be empty");
             }
@@ -561,8 +586,7 @@ public final class MediaRouteDescriptor {
          * It may be a user-supplied name, an alias, or device serial number.
          * </p>
          */
-        @NonNull
-        public Builder setName(@NonNull String name) {
+        public @NonNull Builder setName(@NonNull String name) {
             if (name == null) {
                 throw new NullPointerException("name must not be null");
             }
@@ -577,8 +601,7 @@ public final class MediaRouteDescriptor {
          * It may be a user-supplied string, a model number or brand of device.
          * </p>
          */
-        @NonNull
-        public Builder setDescription(@Nullable String description) {
+        public @NonNull Builder setDescription(@Nullable String description) {
             mBundle.putString(KEY_DESCRIPTION, description);
             return this;
         }
@@ -597,8 +620,7 @@ public final class MediaRouteDescriptor {
          * </ul>
          * </p>
          */
-        @NonNull
-        public Builder setIconUri(@NonNull Uri iconUri) {
+        public @NonNull Builder setIconUri(@NonNull Uri iconUri) {
             if (iconUri == null) {
                 throw new IllegalArgumentException("iconUri must not be null");
             }
@@ -613,8 +635,7 @@ public final class MediaRouteDescriptor {
          * Wifi Display receivers, but that are not currently available for use.
          * </p>
          */
-        @NonNull
-        public Builder setEnabled(boolean enabled) {
+        public @NonNull Builder setEnabled(boolean enabled) {
             mBundle.putBoolean(KEY_ENABLED, enabled);
             return this;
         }
@@ -625,8 +646,7 @@ public final class MediaRouteDescriptor {
          * @see MediaRouteDescriptor#isSystemRoute()
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setIsSystemRoute(boolean isSystemRoute) {
+        public @NonNull Builder setIsSystemRoute(boolean isSystemRoute) {
             mBundle.putBoolean(KEY_IS_SYSTEM_ROUTE, isSystemRoute);
             return this;
         }
@@ -635,8 +655,7 @@ public final class MediaRouteDescriptor {
          * Sets whether the route is a dynamic group route.
          * @see #isDynamicGroupRoute()
          */
-        @NonNull
-        public Builder setIsDynamicGroupRoute(boolean isDynamicGroupRoute) {
+        public @NonNull Builder setIsDynamicGroupRoute(boolean isDynamicGroupRoute) {
             mBundle.putBoolean(IS_DYNAMIC_GROUP_ROUTE, isDynamicGroupRoute);
             return this;
         }
@@ -647,8 +666,7 @@ public final class MediaRouteDescriptor {
          * @deprecated Use {@link #setConnectionState} instead.
          */
         @Deprecated
-        @NonNull
-        public Builder setConnecting(boolean connecting) {
+        public @NonNull Builder setConnecting(boolean connecting) {
             mBundle.putBoolean(KEY_CONNECTING, connecting);
             return this;
         }
@@ -661,8 +679,7 @@ public final class MediaRouteDescriptor {
          * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTING}, or
          * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTED}.
          */
-        @NonNull
-        public Builder setConnectionState(int connectionState) {
+        public @NonNull Builder setConnectionState(int connectionState) {
             mBundle.putInt(KEY_CONNECTION_STATE, connectionState);
             return this;
         }
@@ -670,8 +687,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets whether the route can be disconnected without stopping playback.
          */
-        @NonNull
-        public Builder setCanDisconnect(boolean canDisconnect) {
+        public @NonNull Builder setCanDisconnect(boolean canDisconnect) {
             mBundle.putBoolean(KEY_CAN_DISCONNECT, canDisconnect);
             return this;
         }
@@ -680,8 +696,7 @@ public final class MediaRouteDescriptor {
          * Sets an intent sender for launching the settings activity for this
          * route.
          */
-        @NonNull
-        public Builder setSettingsActivity(@Nullable IntentSender is) {
+        public @NonNull Builder setSettingsActivity(@Nullable IntentSender is) {
             mBundle.putParcelable(KEY_SETTINGS_INTENT, is);
             return this;
         }
@@ -689,8 +704,7 @@ public final class MediaRouteDescriptor {
         /**
          * Clears {@link MediaControlIntent media control intent} filters for the route.
          */
-        @NonNull
-        public Builder clearControlFilters() {
+        public @NonNull Builder clearControlFilters() {
             mControlFilters.clear();
             return this;
         }
@@ -698,8 +712,7 @@ public final class MediaRouteDescriptor {
         /**
          * Adds a {@link MediaControlIntent media control intent} filter for the route.
          */
-        @NonNull
-        public Builder addControlFilter(@NonNull IntentFilter filter) {
+        public @NonNull Builder addControlFilter(@NonNull IntentFilter filter) {
             if (filter == null) {
                 throw new IllegalArgumentException("filter must not be null");
             }
@@ -713,16 +726,15 @@ public final class MediaRouteDescriptor {
         /**
          * Adds a list of {@link MediaControlIntent media control intent} filters for the route.
          */
-        @NonNull
-        public Builder addControlFilters(@NonNull Collection<IntentFilter> filters) {
+        public @NonNull Builder addControlFilters(@NonNull Collection<IntentFilter> filters) {
             if (filters == null) {
                 throw new IllegalArgumentException("filters must not be null");
             }
 
             if (!filters.isEmpty()) {
-                for (IntentFilter filter : filters) {
-                    if (filter != null) {
-                        addControlFilter(filter);
+                for (Object filter : (Collection<?>) filters) {
+                    if (filter instanceof IntentFilter) {
+                        addControlFilter((IntentFilter) filter);
                     }
                 }
             }
@@ -736,8 +748,7 @@ public final class MediaRouteDescriptor {
          * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_LOCAL} or
          * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE}.
          */
-        @NonNull
-        public Builder setPlaybackType(int playbackType) {
+        public @NonNull Builder setPlaybackType(int playbackType) {
             mBundle.putInt(KEY_PLAYBACK_TYPE, playbackType);
             return this;
         }
@@ -745,8 +756,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's playback stream.
          */
-        @NonNull
-        public Builder setPlaybackStream(int playbackStream) {
+        public @NonNull Builder setPlaybackStream(int playbackStream) {
             mBundle.putInt(KEY_PLAYBACK_STREAM, playbackStream);
             return this;
         }
@@ -756,8 +766,7 @@ public final class MediaRouteDescriptor {
          *
          * @param deviceType The type of the receiver device.
          */
-        @NonNull
-        public Builder setDeviceType(@MediaRouter.RouteInfo.DeviceType int deviceType) {
+        public @NonNull Builder setDeviceType(@MediaRouter.RouteInfo.DeviceType int deviceType) {
             mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
             return this;
         }
@@ -765,8 +774,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's current volume, or 0 if unknown.
          */
-        @NonNull
-        public Builder setVolume(int volume) {
+        public @NonNull Builder setVolume(int volume) {
             mBundle.putInt(KEY_VOLUME, volume);
             return this;
         }
@@ -774,8 +782,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's maximum volume, or 0 if unknown.
          */
-        @NonNull
-        public Builder setVolumeMax(int volumeMax) {
+        public @NonNull Builder setVolumeMax(int volumeMax) {
             mBundle.putInt(KEY_VOLUME_MAX, volumeMax);
             return this;
         }
@@ -787,8 +794,7 @@ public final class MediaRouteDescriptor {
          * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_FIXED} or
          * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE}.
          */
-        @NonNull
-        public Builder setVolumeHandling(int volumeHandling) {
+        public @NonNull Builder setVolumeHandling(int volumeHandling) {
             mBundle.putInt(KEY_VOLUME_HANDLING, volumeHandling);
             return this;
         }
@@ -802,8 +808,7 @@ public final class MediaRouteDescriptor {
          * @param deduplicationIds A set of strings that uniquely identify the receiver device that
          *     backs this route.
          */
-        @NonNull
-        public Builder setDeduplicationIds(@NonNull Set<String> deduplicationIds) {
+        public @NonNull Builder setDeduplicationIds(@NonNull Set<String> deduplicationIds) {
             mBundle.putStringArrayList(KEY_DEDUPLICATION_IDS, new ArrayList<>(deduplicationIds));
             return this;
         }
@@ -811,8 +816,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's presentation display id, or -1 if none.
          */
-        @NonNull
-        public Builder setPresentationDisplayId(int presentationDisplayId) {
+        public @NonNull Builder setPresentationDisplayId(int presentationDisplayId) {
             mBundle.putInt(KEY_PRESENTATION_DISPLAY_ID, presentationDisplayId);
             return this;
         }
@@ -822,8 +826,7 @@ public final class MediaRouteDescriptor {
          * The extras will be ignored by the media router but they may be used
          * by applications.
          */
-        @NonNull
-        public Builder setExtras(@Nullable Bundle extras) {
+        public @NonNull Builder setExtras(@Nullable Bundle extras) {
             if (extras == null) {
                 mBundle.putBundle(KEY_EXTRAS, null);
             } else {
@@ -837,8 +840,7 @@ public final class MediaRouteDescriptor {
          * A router whose version is lower than this will not be able to connect to this route.
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setMinClientVersion(int minVersion) {
+        public @NonNull Builder setMinClientVersion(int minVersion) {
             mBundle.putInt(KEY_MIN_CLIENT_VERSION, minVersion);
             return this;
         }
@@ -848,8 +850,7 @@ public final class MediaRouteDescriptor {
          * A router whose version is higher than this will not be able to connect to this route.
          */
         @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setMaxClientVersion(int maxVersion) {
+        public @NonNull Builder setMaxClientVersion(int maxVersion) {
             mBundle.putInt(KEY_MAX_CLIENT_VERSION, maxVersion);
             return this;
         }
@@ -866,11 +867,11 @@ public final class MediaRouteDescriptor {
          * <p>Calls to this method override previous calls to {@link #setVisibilityPublic} and
          * {@link #setVisibilityRestricted}.
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder"})
-        public Builder setVisibilityPublic() {
+        public @NonNull Builder setVisibilityPublic() {
             mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, true);
             mAllowedPackages.clear();
+            mRequiredPermissions.clear();
             return this;
         }
 
@@ -887,23 +888,51 @@ public final class MediaRouteDescriptor {
          * @see #setVisibilityPublic
          * @param allowedPackages set of package names which are allowed to see this route.
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder"})
-        public Builder setVisibilityRestricted(@NonNull Set<String> allowedPackages) {
+        public @NonNull Builder setVisibilityRestricted(@NonNull Set<String> allowedPackages) {
             mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, false);
             mAllowedPackages = new HashSet<>(allowedPackages);
             return this;
         }
 
         /**
-         * Builds the {@link MediaRouteDescriptor media route descriptor}.
+         *  Limits the visibility of this route to holders of one of a set of permissions.
+         *
+         * <p>Calls to this method override any previous calls of
+         * {@link #setRequiredPermissions(List)}.
+         *
+         *  @param requiresOneOf a list of Sets of permissions. Holding all permissions in at
+         *                       least one of the Sets is required for the route to be visible.
+         */
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        public @NonNull Builder setRequiredPermissions(@NonNull List<Set<String>> requiresOneOf) {
+            mRequiredPermissions = new ArrayList<>();
+            for (Set<String> permissionSet : requiresOneOf) {
+                mRequiredPermissions.add(Set.copyOf(permissionSet));
+            }
+            return this;
+        }
+
+        /**
+         * Sets the routing controller id.
+         *
+         * @param routingControllerId Sets the routing controller id. May be null if not applicable.
+         * @see #getRoutingControllerId()
          */
         @NonNull
-        public MediaRouteDescriptor build() {
+        public Builder setRoutingControllerId(@Nullable String routingControllerId) {
+            mRoutingControllerId = routingControllerId;
+            return this;
+        }
+
+        /**
+         * Builds the {@link MediaRouteDescriptor media route descriptor}.
+         */
+        public @NonNull MediaRouteDescriptor build() {
             mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, new ArrayList<>(mControlFilters));
             mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, new ArrayList<>(mGroupMemberIds));
             mBundle.putStringArrayList(KEY_ALLOWED_PACKAGES, new ArrayList<>(mAllowedPackages));
-            return new MediaRouteDescriptor(mBundle);
+            return new MediaRouteDescriptor(mBundle, mRoutingControllerId, mRequiredPermissions);
         }
     }
 }

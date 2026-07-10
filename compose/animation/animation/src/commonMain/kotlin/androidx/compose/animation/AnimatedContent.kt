@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(InternalAnimationApi::class)
+@file:OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
 
 package androidx.compose.animation
 
@@ -25,6 +25,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Start
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
 import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.DeferredTransition
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Spring
@@ -32,6 +35,7 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.createDeferredAnimation
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -50,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -60,6 +65,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -71,6 +77,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMaxOfOrNull
+
+internal const val AnimatedContentDebug = false
+
+private inline fun animatedContentDebug(message: () -> String) {
+    if (AnimatedContentDebug) {
+        println("AnimatedContent, ${message()}")
+    }
+}
 
 /**
  * [AnimatedContent] is a container that automatically animates its content when [targetState]
@@ -207,6 +221,13 @@ public class ContentTransform(
         internal set
 }
 
+internal fun ContentTransform.toDebugString(): String {
+    return "ContentTransform(targetContentEnter=$targetContentEnter, " +
+        "initialContentExit=$initialContentExit, " +
+        "targetContentZIndex=$targetContentZIndex, " +
+        "sizeTransform=$sizeTransform)"
+}
+
 /**
  * This creates a [SizeTransform] with the provided [clip] and [sizeAnimationSpec]. By default,
  * [clip] will be true. This means during the size animation, the content will be clipped to the
@@ -257,6 +278,10 @@ private class SizeTransformImpl(
         initialSize: IntSize,
         targetSize: IntSize,
     ): FiniteAnimationSpec<IntSize> = sizeAnimationSpec(initialSize, targetSize)
+
+    override fun toString(): String {
+        return "SizeTransform(clip=$clip)"
+    }
 }
 
 /**
@@ -296,12 +321,23 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
     @kotlin.jvm.JvmInline
     public value class SlideDirection internal constructor(private val value: Int) {
         public companion object {
-            public val Left: SlideDirection = SlideDirection(0)
-            public val Right: SlideDirection = SlideDirection(1)
-            public val Up: SlideDirection = SlideDirection(2)
-            public val Down: SlideDirection = SlideDirection(3)
-            public val Start: SlideDirection = SlideDirection(4)
-            public val End: SlideDirection = SlideDirection(5)
+            public val Left: SlideDirection
+                get() = SlideDirection(0)
+
+            public val Right: SlideDirection
+                get() = SlideDirection(1)
+
+            public val Up: SlideDirection
+                get() = SlideDirection(2)
+
+            public val Down: SlideDirection
+                get() = SlideDirection(3)
+
+            public val Start: SlideDirection
+                get() = SlideDirection(4)
+
+            public val End: SlideDirection
+                get() = SlideDirection(5)
         }
 
         override fun toString(): String {
@@ -391,6 +427,18 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
 
     /** This returns the [Alignment] specified on [AnimatedContent]. */
     public val contentAlignment: Alignment
+}
+
+internal class PendingAnimatedContentTransitionScope<S>(
+    delegate: AnimatedContentTransitionScope<S>,
+    val overrideInitialState: S,
+    val overrideTargetState: S,
+) : AnimatedContentTransitionScope<S> by delegate {
+    override val initialState: S
+        get() = overrideInitialState
+
+    override val targetState: S
+        get() = overrideTargetState
 }
 
 internal class AnimatedContentTransitionScopeImpl<S>
@@ -591,6 +639,7 @@ internal constructor(
         // isTarget is read during measure. It is necessary to make this a MutableState
         // such that when the target changes, measure is triggered
         var isTarget by mutableStateOf(isTarget)
+        var isPendingTarget by mutableStateOf(false)
 
         override fun Density.modifyParentData(parentData: Any?): Any {
             return this@ChildData
@@ -636,6 +685,41 @@ internal constructor(
         var sizeTransform: State<SizeTransform?>,
         var scope: AnimatedContentTransitionScopeImpl<S>,
     ) : LayoutModifierNodeWithPassThroughIntrinsics() {
+
+        /**
+         * Temporary state used to pass data from [measure] to the corresponding placement block in
+         * the same frame. These are separated for lookahead and approach passes to avoid state
+         * pollution between passes. References are NOT cleared after placement because placement
+         * can be invoked multiple times without a new measure pass. Should not be used elsewhere.
+         */
+        private var lookaheadPlaceable: Placeable? = null
+        private var approachPlaceable: Placeable? = null
+        private var lookaheadSize: IntSize = IntSize.Zero
+        private var approachSize: IntSize = IntSize.Zero
+
+        private val lookaheadPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+            val placeable = lookaheadPlaceable!!
+            val measuredSize = lookaheadSize
+            val offset =
+                scope.contentAlignment.align(
+                    IntSize(placeable.width, placeable.height),
+                    measuredSize,
+                    LayoutDirection.Ltr,
+                )
+            placeable.place(offset)
+        }
+
+        private val approachPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+            val placeable = approachPlaceable!!
+            val measuredSize = approachSize
+            val offset =
+                scope.contentAlignment.align(
+                    IntSize(placeable.width, placeable.height),
+                    measuredSize,
+                    LayoutDirection.Ltr,
+                )
+            placeable.place(offset)
+        }
         // This is used to track the on-going size change so that when the target state changes,
         // we always start from the last seen size to the new target size to ensure continuity.
         private var lastSize: IntSize = UnspecifiedSize
@@ -687,20 +771,110 @@ internal constructor(
                 measuredSize = size.value
                 lastSize = size.value
             }
-            return layout(measuredSize.width, measuredSize.height) {
-                val offset =
-                    scope.contentAlignment.align(
-                        IntSize(placeable.width, placeable.height),
-                        measuredSize,
-                        LayoutDirection.Ltr,
-                    )
-                placeable.place(offset)
+            if (isLookingAhead) {
+                lookaheadPlaceable = placeable
+                lookaheadSize = measuredSize
+                return layout(
+                    measuredSize.width,
+                    measuredSize.height,
+                    placementBlock = lookaheadPlacementBlock,
+                )
+            } else {
+                approachPlaceable = placeable
+                approachSize = measuredSize
+                return layout(
+                    measuredSize.width,
+                    measuredSize.height,
+                    placementBlock = approachPlacementBlock,
+                )
             }
         }
     }
 }
 
 private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+
+/**
+ * The maximum number of interrupted states to keep in the composition tree at once.
+ *
+ * This limit is only applied to [DeferredTransition] based [AnimatedContent]. It ensures that the
+ * most recent states in a transition chain (e.g. A -> B -> C) stay visible and finish their exit
+ * animations gracefully, while preventing an infinite "pile-up" of scenes in the composition tree
+ * during rapid interruptions.
+ */
+private const val MaxInterruptionRetention = 3
+
+/**
+ * An object that allows manual manipulation of both entering and exiting content during the
+ * deferred phase (initiated by [DeferredTransitionState.defer]) of an [AnimatedContent] transition.
+ *
+ * Use [initialContentTransform] to define transformations for the exiting (initial) content and
+ * [targetContentTransform] for the entering (target) content.
+ *
+ * @see MutableTransform
+ */
+@ExperimentalDeferredTransitionApi
+public class MutableContentTransform
+@PublishedApi
+internal constructor(
+    initialVeilMatchParentSize: Boolean,
+    targetVeilMatchParentSize: Boolean,
+    initialOffsetVelocityProvider: (() -> Offset)?,
+    targetOffsetVelocityProvider: (() -> Offset)?,
+) {
+    internal val targetTransform: MutableTransform =
+        MutableTransform(targetVeilMatchParentSize, targetOffsetVelocityProvider)
+    internal val initialTransform: MutableTransform =
+        MutableTransform(initialVeilMatchParentSize, initialOffsetVelocityProvider)
+
+    /**
+     * Define the manual transformation to apply to the exiting content during the deferred phase.
+     *
+     * @param block A lambda that applies transformations to the provided [TransformScope].
+     */
+    public fun initialContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
+        initialTransform.update(block)
+    }
+
+    /**
+     * Define the manual transformation to apply to the entering content during the deferred phase.
+     *
+     * @param block A lambda that applies transformations to the provided [TransformScope].
+     */
+    public fun targetContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
+        targetTransform.update(block)
+    }
+}
+
+/**
+ * Creates a [MutableContentTransform] and applies the provided configuration [block].
+ *
+ * @param initialVeilMatchParentSize Whether the initial content's veil should match the parent
+ *   size.
+ * @param targetVeilMatchParentSize Whether the target content's veil should match the parent size.
+ * @param initialOffsetVelocityProvider The velocity of the offset change for the exiting content in
+ *   pixels/sec. If `null`, the system will automatically calculate the velocity based on
+ *   [TransformScope.offset] changes during the deferred phase.
+ * @param targetOffsetVelocityProvider The velocity of the offset change for the entering content in
+ *   pixels/sec. If `null`, the system will automatically calculate the velocity based on
+ *   [TransformScope.offset] changes during the deferred phase.
+ * @param block A configuration block to set up the transformations for initial and target content.
+ */
+@ExperimentalDeferredTransitionApi
+public inline fun MutableContentTransform(
+    initialVeilMatchParentSize: Boolean = false,
+    targetVeilMatchParentSize: Boolean = false,
+    noinline initialOffsetVelocityProvider: (() -> Offset)? = null,
+    noinline targetOffsetVelocityProvider: (() -> Offset)? = null,
+    block: MutableContentTransform.() -> Unit = {},
+): MutableContentTransform =
+    MutableContentTransform(
+            initialVeilMatchParentSize = initialVeilMatchParentSize,
+            targetVeilMatchParentSize = targetVeilMatchParentSize,
+            initialOffsetVelocityProvider = initialOffsetVelocityProvider,
+            targetOffsetVelocityProvider = targetOffsetVelocityProvider,
+        )
+        .apply(block)
 
 /**
  * Receiver scope for content lambda for AnimatedContent. In this scope,
@@ -755,11 +929,20 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
  * [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These custom
  * enter/exit animations will be triggered as the content enters/leaves the container.
  *
+ * @param modifier is applied to the Layout created by [AnimatedContent], which houses all the
+ *   animating contents.
+ * @param transitionSpec specifies the enter/exit animations, as well as size animation (if
+ *   applicable). By default, a [fadeIn] and [scaleIn] will be used for the entering content, and
+ *   [fadeOut] for the exiting content. The [ContentTransform] returned by [transitionSpec] can be
+ *   created using [togetherWith] with [EnterTransition] and [ExitTransition].
+ * @param contentAlignment specifies the alignment of the animated content. By default, it'll be
+ *   aligned to the top start of the container.
+ * @param contentKey A key to identify the content.
+ * @param content The composable function to render the content for a given state.
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  * @see ContentTransform
  * @see AnimatedContentScope
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
@@ -772,6 +955,117 @@ public fun <S> Transition<S>.AnimatedContent(
     contentKey: (targetState: S) -> Any? = { it },
     content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
 ) {
+    AnimatedContentImpl(
+        modifier = modifier,
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        contentKey = contentKey,
+        mutableTransformSpec = { null },
+        content = content,
+    )
+}
+
+/**
+ * [AnimatedContent] is a container that automatically animates its content when
+ * [Transition.targetState] changes. Its [content] for different target states is defined in a
+ * mapping between a target state and a composable function.
+ *
+ * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be taken into
+ * account in deciding what composable function to return as the content for that state. This is
+ * critical to ensure a successful lookup of all the incoming and outgoing content during content
+ * transform.
+ *
+ * When [Transition.targetState] changes, content for both new and previous targetState will be
+ * looked up through the [content] lambda. They will go through a [ContentTransform] so that the new
+ * target content can be animated in while the initial content animates out. Meanwhile the container
+ * will animate its size as needed to accommodate the new content, unless [SizeTransform] is set to
+ * `null`. Once the [ContentTransform] is finished, the outgoing content will be disposed.
+ *
+ * If [Transition.targetState] is expected to mutate frequently and not all mutations should be
+ * treated as target state change, consider defining a mapping between [Transition.targetState] and
+ * a key in [contentKey]. As a result, transitions will be triggered when the resulting key changes.
+ * In other words, there will be no animation when switching between [Transition.targetState]s that
+ * share the same key. By default, the key will be the same as the targetState object.
+ *
+ * @param modifier is applied to the Layout created by [AnimatedContent], which houses all the
+ *   animating contents.
+ * @param transitionSpec specifies the enter/exit animations, as well as size animation (if
+ *   applicable). By default, a [fadeIn] and [scaleIn] will be used for the entering content, and
+ *   [fadeOut] for the exiting content. The [ContentTransform] returned by [transitionSpec] can be
+ *   created using [togetherWith] with [EnterTransition] and [ExitTransition].
+ * @param contentAlignment specifies the alignment of the animated content. By default, it'll be
+ *   aligned to the top start of the container.
+ * @param contentKey A key to identify the content.
+ * @param mutableTransformSpec A specification to control an optional manual transformation during
+ *   the deferred phase (e.g., for predictive back gestures) before the main transition begins. This
+ *   is only active if the [Transition] was created using [rememberTransition] with
+ *   [DeferredTransitionState]. By default, this returns `null`, meaning no manual transformations
+ *   are applied.
+ *
+ *   **Lifecycle:** The deferred phase starts when [DeferredTransitionState.defer] is called. It
+ *   ends and the automatic transition begins when [DeferredTransitionState.animateTo] is called.
+ *
+ *   **Transformations:** During this phase, you can manually manipulate the entering and exiting
+ *   content's transformations (via [MutableContentTransform]). Properties that are not manually set
+ *   default to the transition's initial values during the deferred phase.
+ *
+ * **Handoff:** Once the transition starts, the manually applied transformations are seamlessly
+ * handed off to the configured [transitionSpec]. For exiting content, a "sustain unless specified"
+ * policy is applied: if an exit transition (e.g. `fadeOut`) is specified, the hand-off will animate
+ * towards the target value of that transition. However, if no exit transition is specified for a
+ * given property (e.g. `slideOut` is missing), that property will sustain its last manual value
+ * until the entire transition completes.
+ *
+ * *Note:* While in the deferred phase, entering content remains in the [EnterExitState.PreEnter]
+ * state, and exiting content remains in the [EnterExitState.Visible] state.
+ *
+ * @param content The composable function to render the content for a given state.
+ * @sample androidx.compose.animation.samples.DeferredAnimatedContentSample
+ * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
+ * @see ContentTransform
+ * @see AnimatedContentScope
+ */
+@ExperimentalDeferredTransitionApi
+@Composable
+public fun <S> DeferredTransition<S>.DeferredAnimatedContent(
+    modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentKey: (targetState: S) -> Any? = { it },
+    mutableTransformSpec: AnimatedContentTransitionScope<S>.() -> MutableContentTransform? = {
+        null
+    },
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
+) {
+    AnimatedContentImpl(
+        modifier = modifier,
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        contentKey = contentKey,
+        mutableTransformSpec = mutableTransformSpec,
+        content = content,
+    )
+}
+
+@Composable
+internal fun <S> Transition<S>.AnimatedContentImpl(
+    modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentKey: (targetState: S) -> Any? = { it },
+    mutableTransformSpec: AnimatedContentTransitionScope<S>.() -> MutableContentTransform? = {
+        null
+    },
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
+) {
     val layoutDirection = LocalLayoutDirection.current
     val rootScope =
         remember(this) {
@@ -779,7 +1073,8 @@ public fun <S> Transition<S>.AnimatedContent(
         }
     // TODO: remove screen as soon as they are animated out
     val currentlyVisible = remember(this) { mutableStateListOf(currentState) }
-    val contentMap = remember(this) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
+    val contentMap =
+        remember(this, pendingTargetState) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
     // This is needed for tooling because it could change currentState directly,
     // as opposed to changing target only. When that happens we need to clear all the
     // visible content and only display the content for the new current state and target state.
@@ -787,7 +1082,10 @@ public fun <S> Transition<S>.AnimatedContent(
         currentlyVisible.clear()
         currentlyVisible.add(currentState)
     }
-    if (currentState == targetState) {
+    animatedContentDebug {
+        "Composing AnimatedContent. targetState: $targetState, currentState: ${currentState},"
+    }
+    if (currentState == targetState && pendingTargetState == null) {
         if (currentlyVisible.size != 1 || currentlyVisible[0] != currentState) {
             currentlyVisible.clear()
             currentlyVisible.add(currentState)
@@ -799,30 +1097,107 @@ public fun <S> Transition<S>.AnimatedContent(
         rootScope.contentAlignment = contentAlignment
         rootScope.layoutDirection = layoutDirection
     }
+
+    pendingTargetState?.let { pendingTargetState ->
+        if (pendingTargetState != currentState) {
+            // Replace the target with the same key if any
+            val id =
+                currentlyVisible.indexOfFirst { contentKey(it) == contentKey(pendingTargetState) }
+            if (id == -1) {
+                currentlyVisible.add(pendingTargetState)
+            } else if (currentlyVisible[id] != pendingTargetState) {
+                currentlyVisible[id] = pendingTargetState
+            }
+        }
+    }
+
     // Currently visible list always keeps the targetState at the end of the list, unless it's
     // already in the list in the case of interruption. This makes the composable associated with
     // the targetState get placed last, so the target composable will be displayed on top of
     // content associated with other states, unless zIndex is specified.
-    if (currentState != targetState && !currentlyVisible.contains(targetState)) {
-        // Replace the target with the same key if any
+    if (currentState != targetState) {
         val id = currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
         if (id == -1) {
+            animatedContentDebug {
+                "Added new targetState: $targetState, " + "contentKey: ${contentKey(targetState)}"
+            }
             currentlyVisible.add(targetState)
-        } else {
-            currentlyVisible[id] = targetState
+        } else if (currentlyVisible[id] != targetState || id != currentlyVisible.size - 1) {
+            if (targetState != currentlyVisible[id]) {
+                animatedContentDebug {
+                    "Replaced state: ${currentlyVisible[id]} with targetState: $targetState, " +
+                        "due to the same contentKey: ${contentKey(targetState)}"
+                }
+            }
+            currentlyVisible.removeAt(id)
+            currentlyVisible.add(targetState)
         }
     }
-    if (!contentMap.containsKey(targetState) || !contentMap.containsKey(currentState)) {
+
+    val localPendingTargetState = pendingTargetState
+    val pendingScope =
+        remember(localPendingTargetState) {
+            localPendingTargetState?.let {
+                PendingAnimatedContentTransitionScope(
+                    delegate = rootScope,
+                    overrideInitialState = this@AnimatedContentImpl.targetState,
+                    overrideTargetState = it,
+                )
+            }
+        }
+    val mutableContentTransformData =
+        remember(pendingScope, mutableTransformSpec) {
+            if (pendingScope != null) pendingScope.mutableTransformSpec() else null
+        }
+    if (
+        targetState !in contentMap ||
+            currentState !in contentMap ||
+            (localPendingTargetState != null && localPendingTargetState !in contentMap)
+    ) {
         contentMap.clear()
         currentlyVisible.fastForEach { stateForContent ->
             contentMap[stateForContent] = {
-                val specOnEnter = remember { transitionSpec(rootScope) }
+                val specOnEnter =
+                    remember(stateForContent == pendingTargetState) {
+                        if (stateForContent == pendingTargetState && pendingScope != null) {
+                            pendingScope.transitionSpec()
+                        } else if (
+                            stateForContent != segment.initialState &&
+                                stateForContent != segment.targetState
+                        ) {
+                            PendingAnimatedContentTransitionScope(
+                                    rootScope,
+                                    segment.initialState,
+                                    stateForContent,
+                                )
+                                .transitionSpec()
+                        } else {
+                            rootScope.transitionSpec()
+                        }
+                    }
                 // NOTE: enter and exit for this AnimatedVisibility will be using different spec,
                 // naturally.
                 val exit =
-                    remember(segment.targetState == stateForContent) {
-                        if (segment.targetState == stateForContent) {
+                    remember(
+                        segment.targetState == stateForContent,
+                        stateForContent == pendingTargetState,
+                    ) {
+                        if (
+                            segment.targetState == stateForContent ||
+                                (stateForContent == pendingTargetState && pendingScope != null)
+                        ) {
                             ExitTransition.None
+                        } else if (
+                            stateForContent != segment.initialState &&
+                                stateForContent != segment.targetState
+                        ) {
+                            PendingAnimatedContentTransitionScope(
+                                    rootScope,
+                                    stateForContent,
+                                    segment.initialState,
+                                )
+                                .transitionSpec()
+                                .initialContentExit
                         } else {
                             rootScope.transitionSpec().initialContentExit
                         }
@@ -833,26 +1208,43 @@ public fun <S> Transition<S>.AnimatedContent(
                 // TODO: Will need a custom impl of this to: 1) get the signal for when
                 // the animation is finished, 2) get the target size properly
                 AnimatedEnterExitImpl(
-                    this,
+                    this@AnimatedContentImpl,
                     { it == stateForContent },
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
                     modifier =
-                        Modifier.layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-                                layout(placeable.width, placeable.height) {
-                                    placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
+                        ZIndexModifierElement(specOnEnter.targetContentZIndex, stateForContent)
+                            .then(
+                                childData.apply {
+                                    isTarget = stateForContent == targetState
+                                    isPendingTarget =
+                                        stateForContent == pendingTargetState &&
+                                            stateForContent != targetState &&
+                                            stateForContent != currentState
                                 }
-                            }
-                            .then(childData.apply { isTarget = stateForContent == targetState }),
+                            ),
                     shouldDisposeBlock = { currentState, targetState ->
                         currentState == EnterExitState.PostExit &&
                             targetState == EnterExitState.PostExit &&
                             !exit.data.hold
                     },
+                    mutableTransformData =
+                        mutableContentTransformData?.let { transform ->
+                            when (stateForContent) {
+                                pendingTargetState -> transform.targetTransform
+                                targetState -> transform.initialTransform
+                                else -> null
+                            }
+                        },
+                    forceVisible =
+                        this@AnimatedContentImpl is DeferredTransition &&
+                            currentlyVisible.indexOf(stateForContent).let { index ->
+                                index >= 0 &&
+                                    index >= currentlyVisible.size - MaxInterruptionRetention
+                            },
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
-                    DisposableEffect(this) {
+                    DisposableEffect(this, stateForContent) {
                         onDispose {
                             currentlyVisible.remove(stateForContent)
                             rootScope.targetSizeMap.remove(stateForContent)
@@ -865,7 +1257,12 @@ public fun <S> Transition<S>.AnimatedContent(
             }
         }
     }
-    val contentTransform = remember(rootScope, segment) { transitionSpec(rootScope) }
+    val contentTransform =
+        remember(rootScope, segment, pendingTargetState) {
+            transitionSpec(rootScope).also {
+                animatedContentDebug { "transitionSpec changed to ${it.toDebugString()}" }
+            }
+        }
     val sizeModifier = rootScope.createSizeAnimationModifier(contentTransform)
     Layout(
         modifier = modifier.then(sizeModifier),
@@ -878,10 +1275,59 @@ public fun <S> Transition<S>.AnimatedContent(
 
 private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransitionScopeImpl<*>) :
     MeasurePolicy {
+
+    // Temporary state used to pass data from measure to the corresponding placement block in the
+    // same frame. These are separated for lookahead and approach passes to avoid state pollution
+    // between passes. References are not cleared after placement because placement can be invoked
+    // multiple times without a new measure pass.
+    private var lookaheadPlaceables: Array<Placeable?>? = null
+    private var approachPlaceables: Array<Placeable?>? = null
+    private var lookaheadMaxWidth: Int = 0
+    private var approachMaxWidth: Int = 0
+    private var lookaheadMaxHeight: Int = 0
+    private var approachMaxHeight: Int = 0
+
+    private val lookaheadPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+        val placeables = lookaheadPlaceables!!
+        val maxWidth = lookaheadMaxWidth
+        val maxHeight = lookaheadMaxHeight
+
+        for (placeable in placeables) {
+            placeable?.let {
+                val offset =
+                    rootScope.contentAlignment.align(
+                        IntSize(it.width, it.height),
+                        IntSize(maxWidth, maxHeight),
+                        LayoutDirection.Ltr,
+                    )
+                it.place(offset.x, offset.y)
+            }
+        }
+    }
+
+    private val approachPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+        val placeables = approachPlaceables!!
+        val maxWidth = approachMaxWidth
+        val maxHeight = approachMaxHeight
+
+        for (placeable in placeables) {
+            placeable?.let {
+                val offset =
+                    rootScope.contentAlignment.align(
+                        IntSize(it.width, it.height),
+                        IntSize(maxWidth, maxHeight),
+                        LayoutDirection.Ltr,
+                    )
+                it.place(offset.x, offset.y)
+            }
+        }
+    }
+
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureResult {
+        rootScope.contentAlignment // Trigger read in measure to force remeasure on alignment change
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         var targetSize = IntSize.Zero
         // Measure the target composable first (but place it on top unless zIndex is specified)
@@ -903,36 +1349,41 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
                 placeables[index] = measurable.measure(constraints)
             }
         }
-        val maxWidth: Int =
+        val (maxWidth, maxHeight) =
             if (isLookingAhead) {
-                targetSize.width
+                targetSize.width to targetSize.height
             } else {
-                placeables.maxByOrNull { it?.width ?: 0 }?.width ?: 0
-            }
-        val maxHeight =
-            if (isLookingAhead) {
-                targetSize.height
-            } else {
-                placeables.maxByOrNull { it?.height ?: 0 }?.height ?: 0
+                var maxW = 0
+                var maxH = 0
+
+                // Single loop for both width and height
+                for (i in placeables.indices) {
+                    val placeable = placeables[i] ?: continue // Skip nulls immediately
+
+                    val data =
+                        measurables[i].parentData as? AnimatedContentTransitionScopeImpl.ChildData
+                    if (data?.isPendingTarget != true) {
+                        if (placeable.width > maxW) maxW = placeable.width
+                        if (placeable.height > maxH) maxH = placeable.height
+                    }
+                }
+                maxW to maxH
             }
         if (!isLookingAhead) {
             // update currently measured size only during approach
             rootScope.measuredSize = IntSize(maxWidth, maxHeight)
-        }
 
-        // Position the children.
-        return layout(maxWidth, maxHeight) {
-            placeables.forEach { placeable ->
-                placeable?.let {
-                    val offset =
-                        rootScope.contentAlignment.align(
-                            IntSize(it.width, it.height),
-                            IntSize(maxWidth, maxHeight),
-                            LayoutDirection.Ltr,
-                        )
-                    it.place(offset.x, offset.y)
-                }
-            }
+            // Position the children.
+            approachPlaceables = placeables
+            approachMaxWidth = maxWidth
+            approachMaxHeight = maxHeight
+            return layout(maxWidth, maxHeight, placementBlock = approachPlacementBlock)
+        } else {
+            // Position the children.
+            lookaheadPlaceables = placeables
+            lookaheadMaxWidth = maxWidth
+            lookaheadMaxHeight = maxHeight
+            return layout(maxWidth, maxHeight, placementBlock = lookaheadPlacementBlock)
         }
     }
 
@@ -955,4 +1406,56 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ) = measurables.fastMaxOfOrNull { it.maxIntrinsicHeight(width) } ?: 0
+}
+
+/**
+ * A [ModifierNodeElement] that creates and updates a [ZIndexModifierNode] to apply z-index to the
+ * content in [AnimatedContent]. This is used to avoid multiple allocations of `Modifier.layout`
+ * lambdas.
+ */
+private class ZIndexModifierElement(val zIndex: Float, val stateForContent: Any?) :
+    ModifierNodeElement<ZIndexModifierNode>() {
+    override fun create(): ZIndexModifierNode = ZIndexModifierNode(zIndex, stateForContent)
+
+    override fun update(node: ZIndexModifierNode) {
+        node.zIndex = zIndex
+        node.stateForContent = stateForContent
+    }
+
+    override fun equals(other: Any?): Boolean =
+        other is ZIndexModifierElement &&
+            other.zIndex == zIndex &&
+            other.stateForContent == stateForContent
+
+    override fun hashCode(): Int {
+        var result = zIndex.hashCode()
+        result = 31 * result + (stateForContent?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "targetContentZIndex"
+        properties["zIndex"] = zIndex
+        properties["stateForContent"] = stateForContent
+    }
+}
+
+/**
+ * A [LayoutModifierNode] that applies the specified [zIndex] during placement. This avoids
+ * allocating a lambda on every placement pass.
+ */
+private class ZIndexModifierNode(var zIndex: Float, var stateForContent: Any?) :
+    LayoutModifierNode, Modifier.Node() {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            animatedContentDebug {
+                "Placing content for state: $stateForContent at zIndex = $zIndex"
+            }
+            placeable.place(0, 0, zIndex = zIndex)
+        }
+    }
 }

@@ -18,20 +18,19 @@ package androidx.credentials.providerevents
 
 import android.content.Context
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.providerevents.exception.ClearExportException
 import androidx.credentials.providerevents.exception.ImportCredentialsException
 import androidx.credentials.providerevents.exception.RegisterExportException
+import androidx.credentials.providerevents.transfer.ClearExportRequest
+import androidx.credentials.providerevents.transfer.ClearExportResponse
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
 import androidx.credentials.providerevents.transfer.ProviderImportCredentialsResponse
 import androidx.credentials.providerevents.transfer.RegisterExportRequest
+import androidx.credentials.providerevents.transfer.RegisterExportResponse
 import java.util.concurrent.Executor
 
-/**
- * Provider interface to be implemented by the credential providers that will support provider
- * events APIs.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Provider interface to be implemented by the OEMs that will support provider events APIs. */
 public interface ProviderEventsApiProvider {
     /** Returns true if the provider is available on this device, or otherwise false. */
     public fun isAvailable(): Boolean
@@ -58,14 +57,25 @@ public interface ProviderEventsApiProvider {
      * Invoked on a request to register accounts capable for exporting credentials.
      *
      * @param request the request for registering export entries
-     * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     public fun onRegisterExport(
         request: RegisterExportRequest,
-        cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Boolean, RegisterExportException>,
+        callback: CredentialManagerCallback<RegisterExportResponse, RegisterExportException>,
+    )
+
+    /**
+     * Invoked on a request to clear all accounts registered for exporting credentials.
+     *
+     * @param request the request for clearing all export entries
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    public fun onClearExport(
+        request: ClearExportRequest,
+        executor: Executor,
+        callback: CredentialManagerCallback<ClearExportResponse, ClearExportException>,
     )
 }

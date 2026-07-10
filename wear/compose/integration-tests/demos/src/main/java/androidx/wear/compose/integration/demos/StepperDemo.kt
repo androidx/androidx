@@ -86,8 +86,8 @@ fun StepperWithScrollBarDemo() {
                     painter =
                         painterResource(
                             id =
-                                if (valueState > 0) R.drawable.ic_volume_up_24px
-                                else R.drawable.ic_volume_off_24px
+                                if (valueState > 0) R.drawable.icon_volume_up_24px
+                                else R.drawable.icon_volume_off_24px
                         ),
                     contentDescription = null,
                 )

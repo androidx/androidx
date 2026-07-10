@@ -43,7 +43,19 @@ internal class PdfViewKeyboardActionHandler(pdfView: PdfView) :
     fun copySelection() {
         val text = (pdfView.currentSelection as? TextSelection)?.text ?: return
         ClipboardUtils.copyToClipboard(pdfView.context, text.toString())
-        pdfView.clearSelection()
+        pdfView.clearCurrentSelection()
+    }
+
+    fun clearSelection(): Boolean {
+        if (pdfView.currentSelection == null) {
+            return false
+        }
+        pdfView.clearCurrentSelection()
+        return true
+    }
+
+    fun selectAllText() {
+        pdfView.selectAllText()
     }
 
     fun scrollLeftOrScrollToPreviousPage(): Boolean {
@@ -89,13 +101,13 @@ internal class PdfViewKeyboardActionHandler(pdfView: PdfView) :
         zoomOut(pivotX, pivotY)
     }
 
-    fun zoomToDefault() {
-        applyZoom(pdfView.getDefaultZoom(), pivotX, pivotY)
+    fun zoomFitToWidth() {
+        applyZoom(pdfView.getFitToWidthZoom(), pivotX, pivotY)
     }
 
     private fun findPreviousPage(): Int? {
         val firstPageRect =
-            pdfView.pageMetadataLoader?.getPageLocation(
+            pdfView.pageLayoutManager?.getPageLocation(
                 pdfView.firstVisiblePage,
                 pdfView.getVisibleAreaInContentCoords(),
             ) ?: return null

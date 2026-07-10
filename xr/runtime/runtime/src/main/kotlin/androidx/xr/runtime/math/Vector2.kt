@@ -25,10 +25,10 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Represents a position in the 2D plane.
+ * Position in the 2D plane.
  *
- * @property x X component of the vector.
- * @property y Y component of the vector.
+ * @property x the x component of the vector
+ * @property y the y component of the vector
  */
 public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public val y: Float = 0F) {
     /** The squared length of the vector. */
@@ -52,16 +52,21 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     public inline operator fun minus(other: Vector2): Vector2 =
         Vector2(this.x - other.x, this.y - other.y)
 
-    /** Returns a new vector multiplied by a scalar amount */
+    /**
+     * Returns a new vector multiplied by a scalar amount.
+     *
+     * @param c the scalar to multiply by
+     */
     public inline operator fun times(c: Float): Vector2 = Vector2(x * c, y * c)
 
-    /**
-     * Returns a new vector with each component of this vector multiplied by each corresponding
-     * component of the [other] vector.
-     */
+    /** Returns a new vector by component-wise multiplying this vector by [other]. */
     public inline fun scale(other: Vector2): Vector2 = Vector2(this.x * other.x, this.y * other.y)
 
-    /** Returns a new vector with this vector divided by a scalar amount. */
+    /**
+     * Returns a new vector with this vector divided by a scalar amount.
+     *
+     * @param c the scalar to divide by
+     */
     public inline operator fun div(c: Float): Vector2 = Vector2(x / c, y / c)
 
     /** Returns the component-wise multiplicative inverse of this vector. */
@@ -74,9 +79,16 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         return Vector2(1 / this.x, 1 / this.y)
     }
 
-    /** Returns a normalized version of this vector. */
+    /**
+     * Returns a normalized version of this vector. A zero-length vector has no direction to
+     * normalize and returns [Zero] rather than a vector of NaN components.
+     */
     public fun toNormalized(): Vector2 {
-        val norm = rsqrt(lengthSquared)
+        val lenSq = lengthSquared
+        if (lenSq < EPSILON) {
+            return Zero
+        }
+        val norm = rsqrt(lenSq)
 
         return Vector2(x * norm, y * norm)
     }
@@ -87,7 +99,12 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     /** Returns the dot product of this vector and the [other] vector. */
     public inline infix fun dot(other: Vector2): Float = x * other.x + y * other.y
 
-    /** Returns a new vector with the values clamped between [min] and [max] vectors. */
+    /**
+     * Returns a new vector with the values clamped between [min] and [max] vectors.
+     *
+     * @param min the minimum clamp values
+     * @param max the maximum clamp values
+     */
     public fun clamp(min: Vector2, max: Vector2): Vector2 {
         var clampedX = max(x, min.x)
         var clampedY = max(y, min.y)
@@ -98,7 +115,12 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         return Vector2(clampedX, clampedY)
     }
 
-    /** Returns a copy of the vector. */
+    /**
+     * Returns a copy of the vector.
+     *
+     * @param x the new x value for the copied vector
+     * @param y the new y value for the copied vector
+     */
     @JvmOverloads
     public inline fun copy(x: Float = this.x, y: Float = this.y): Vector2 = Vector2(x, y)
 
@@ -115,6 +137,7 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     override fun toString(): String = "[x=$x, y=$y]"
 
     public companion object {
+        private const val EPSILON: Float = 1e-15f
         /** Vector with all components set to zero. */
         @JvmField public val Zero: Vector2 = Vector2(x = 0f, y = 0f)
 
@@ -133,11 +156,21 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         /** Vector with x set to one and all other components set to zero. */
         @JvmField public val Right: Vector2 = Vector2(x = 1f, y = 0f)
 
-        /** Returns the distance between this vector and the [other] vector. */
+        /**
+         * Returns the distance between [vector1] and [vector2].
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
+         */
         @JvmStatic
         public fun distance(vector1: Vector2, vector2: Vector2): Float = (vector1 - vector2).length
 
-        /** Returns the angle between this vector and the [other] vector. */
+        /**
+         * Returns the angle between this [vector1] and [vector2].
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
+         */
         @JvmStatic
         public fun angularDistance(vector1: Vector2, vector2: Vector2): Float {
             val dot = vector1 dot vector2
@@ -156,16 +189,23 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
         }
 
         /**
-         * Returns a new vector that is linearly interpolated between [start] and [end] using the
-         * interpolation amount [ratio].
+         * Returns a new vector linearly interpolated between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
+         *
+         * @param start the starting vector
+         * @param end the ending vector
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Vector2, end: Vector2, ratio: Float): Vector2 =
             Vector2(lerp(start.x, end.x, ratio), lerp(start.y, end.y, ratio))
 
-        /** Returns the absolute values of each component of the vector. */
+        /**
+         * Returns the absolute values of each component of the vector.
+         *
+         * @param vector the vector to get the absolute values of
+         */
         @JvmStatic public fun abs(vector: Vector2): Vector2 = Vector2(abs(vector.x), abs(vector.y))
     }
 }

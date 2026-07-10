@@ -18,7 +18,7 @@
 
 package androidx.compose.runtime
 
-internal class SynchronizedObject
+@PublishedApi internal class SynchronizedObject
 
 @PublishedApi
 @JvmName("synchronized")

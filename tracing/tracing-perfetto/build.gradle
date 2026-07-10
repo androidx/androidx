@@ -15,52 +15,50 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-android {
-    sourceSets {
-        test.resources {
-            // Allows for testing that tracing-perfetto-binary in the prebuilts folder matches
-            // checksums in `PerfettoNative.Metadata`.
-            // Note that due to `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` flag in
-            // `tracing:tracing-perfetto-binary`, `tracing:tracing-perfetto-binary` returns
-            // prebuilts AAR instead of being built from source code. See documentation for
-            // `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` for more information.
-            // TODO(239041710): create a test that verifies that `tracing:tracing-perfetto-binary`
-            // matches its source code.
-            srcDirs += AndroidXConfig
-                    .getPrebuiltsRoot(project).toPath()
-                    .resolve(
-                            "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
-                                    "${androidx.LibraryVersions.TRACING_PERFETTO}"
-                    ).toFile()
-        }
+androidComponents {
+    def perfettoPrebuiltsPath = AndroidXConfig.getPrebuiltsRoot(project).toPath()
+            .resolve(
+                    "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
+                            "${androidx.LibraryVersions.TRACING_PERFETTO}"
+            )
+            .toFile()
+            .absolutePath
+
+    onVariants(selector().all()) { variant ->
+        // Allows for testing that tracing-perfetto-binary in the prebuilts folder matches
+        // checksums in `PerfettoNative.Metadata`.
+        // Note that due to `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` flag in
+        // `tracing:tracing-perfetto-binary`, `tracing:tracing-perfetto-binary` returns
+        // prebuilts AAR instead of being built from source code. See documentation for
+        // `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` for more information.
+        // TODO(239041710): create a test that verifies that `tracing:tracing-perfetto-binary`
+        // matches its source code.
+        (variant as HasUnitTest).unitTest.sources.resources.addStaticSourceDirectory(perfettoPrebuiltsPath)
     }
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
-    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
 }
 
@@ -75,8 +73,5 @@ androidx {
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
     namespace = "androidx.tracing.perfetto"
 }

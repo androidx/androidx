@@ -30,8 +30,6 @@ import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -96,7 +94,7 @@ class LayoutCoordinatesBenchmark {
     @Test
     fun grandParentMoves_gettingPositionInRoot_onLayoutRectChanged() {
         benchmarkRule.toggleStateBenchmark(
-            MovingGrandParentTestCase(Modifier.onLayoutRectChanged { it.positionInRoot })
+            MovingGrandParentTestCase(Modifier.onLayoutRectChanged(0, 0) { it.positionInRoot })
         )
     }
 
@@ -120,12 +118,16 @@ class LayoutCoordinatesBenchmark {
         benchmarkRule.toggleStateBenchmark(MovingGrandParentTestCase(Modifier))
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun grandParentMoves_noCoordinatesUsage_noRectTracking() {
-        ComposeUiFlags.isRectTrackingEnabled = false
-        benchmarkRule.toggleStateBenchmark(MovingGrandParentTestCase(Modifier))
-        ComposeUiFlags.isRectTrackingEnabled = true
+    fun positionInRoot() {
+        benchmarkRule.runBenchmarkFor({ LayoutCoordinatesTestCase(false) }) {
+            benchmarkRule.runOnUiThread { doFramesUntilNoChangesPending() }
+
+            benchmarkRule.measureRepeatedOnUiThread {
+                val testCase = getTestCase()
+                testCase.coordinates1.positionInRoot()
+            }
+        }
     }
 
     private class LayoutCoordinatesTestCase(val useLayer: Boolean) : ComposeTestCase {

@@ -113,7 +113,6 @@ public class SearchResultCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
     public void testBuildSearchResult_textMatchInfoGetters() {
         SearchResult.MatchRange exactMatchRange = new SearchResult.MatchRange(3, 8);
         SearchResult.MatchRange submatchRange = new SearchResult.MatchRange(3, 5);
@@ -194,7 +193,6 @@ public class SearchResultCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
     public void testSubmatchRangeNotSet_textMatchInfoGetters() {
         AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
                 .setBody("Hello World.")

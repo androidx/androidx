@@ -161,17 +161,16 @@ public fun UiObject2.scrollToElementOrNull(
     timeoutMs: Long = 10000,
     pollIntervalMs: Long = 100,
     block: AccessibilityNodeInfo.() -> (Boolean),
-): UiObject2 {
+): UiObject2? {
     val clock = TimeoutClock(timeoutMs = timeoutMs, sleepIntervalMs = pollIntervalMs)
     return scrollUntil(direction) {
-            try {
-                return@scrollUntil onElement(timeoutMs = 0, pollIntervalMs = 0, block)
-            } catch (e: ElementNotFoundException) {
-                if (clock.isTimeoutOrSleep()) throw e
-                return@scrollUntil null
-            }
+        try {
+            return@scrollUntil onElement(timeoutMs = 0, pollIntervalMs = 0, block)
+        } catch (e: ElementNotFoundException) {
+            if (clock.isTimeoutOrSleep()) throw e
+            return@scrollUntil null
         }
-        .notNull(ElementNotFoundException())
+    }
 }
 
 /**

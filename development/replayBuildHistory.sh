@@ -43,11 +43,7 @@ function fetch_artifact() {
   cd -
 }
 function downloadBuildNumberLog() {
-  if [ "$target" == "androidx_incremental" ]; then
-    buildNumberLog=incremental/build_number.log
-  else
-    buildNumberLog=build_number.log
-  fi
+  buildNumberLog=build_number.log
   echo Downloading build number history for build $buildId
   fetch_artifact "$buildId" "$buildNumberLog" ../../out
 }

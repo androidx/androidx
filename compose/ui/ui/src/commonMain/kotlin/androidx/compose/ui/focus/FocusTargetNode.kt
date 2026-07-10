@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -35,13 +36,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.layout.registerOnLayoutRectChanged
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
+import androidx.compose.ui.node.findNearestBeyondBoundsLayoutAncestor
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireOwner
@@ -58,10 +61,10 @@ internal class FocusTargetNode(
     private val onDispatchEventsCompleted: ((FocusTargetNode) -> Unit)? = null,
 ) :
     CompositionLocalConsumerModifierNode,
-    LayoutAwareModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
     ModifierLocalModifierNode,
+    UnplacedAwareModifierNode,
     Modifier.Node() {
 
     private var isProcessingCustomExit = false
@@ -70,6 +73,8 @@ internal class FocusTargetNode(
     // During a transaction, changes to the state are stored as uncommitted focus state. At the
     // end of the transaction, this state is stored as committed focus state.
     private var committedFocusState: FocusStateImpl? = null
+
+    private var onLayoutRectChangedHandle: DelegatableNode.RegistrationHandle? = null
 
     override val shouldAutoInvalidate = false
 
@@ -101,13 +106,22 @@ internal class FocusTargetNode(
 
     override fun requestFocus(focusDirection: FocusDirection): Boolean {
         trace("FocusTransactions:requestFocus") {
-            if (!fetchFocusProperties().canFocus) return false
-            return when (performCustomRequestFocus(focusDirection)) {
-                None -> performRequestFocus()
-                Redirected -> true
-                Cancelled,
-                RedirectCancelled -> false
+            if (fetchFocusProperties().canFocus) {
+                return assignFocus(focusDirection)
+            } else {
+                return findChildCorrespondingToFocusEnter(focusDirection) {
+                    it.assignFocus(focusDirection)
+                }
             }
+        }
+    }
+
+    private fun assignFocus(focusDirection: FocusDirection): Boolean {
+        return when (performCustomRequestFocus(focusDirection)) {
+            None -> performRequestFocus()
+            Redirected -> true
+            Cancelled,
+            RedirectCancelled -> false
         }
     }
 
@@ -120,15 +134,24 @@ internal class FocusTargetNode(
                         this === requireOwner().focusOwner.activeFocusTargetNode &&
                         !field.canFocus(this)
                 ) {
-                    clearFocus(forced = true, refreshFocusEvents = true)
+                    if (prepareToClearFocus(forced = true, refreshFocusEvents = true)) {
+                        val previousActive = requireOwner().focusOwner.activeFocusTargetNode
+                        requireOwner().focusOwner.activeFocusTargetNode = null
+                        previousActive?.dispatchFocusCallbacks(
+                            previousState = Active,
+                            newState = Inactive,
+                        )
+                    }
                 }
             }
         }
 
-    var previouslyFocusedChildHash: Int = 0
+    var previouslyFocusedChildHash: Int? = null
+
+    var focusRestorationEntry: SaveableStateRegistry.Entry? = null
 
     val beyondBoundsLayoutParent: BeyondBoundsLayout?
-        get() = ModifierLocalBeyondBoundsLayout.current
+        get() = findNearestBeyondBoundsLayoutAncestor()
 
     override fun onObservedReadsChanged() {
         invalidateFocus()
@@ -148,6 +171,11 @@ internal class FocusTargetNode(
                     focusDirection = Exit,
                 )
         }
+    }
+
+    override fun onAttach() {
+        // Register a one-shot on layout rect changed callback for first placement.
+        registerOneShotOnLayoutRectChangedCallback()
     }
 
     /** Clears focus if this focus target has it. */
@@ -200,13 +228,16 @@ internal class FocusTargetNode(
         }
         // This node might be reused, so we reset its state.
         committedFocusState = null
+        previouslyFocusedChildHash = null
+        onLayoutRectChangedHandle?.unregister()
+        focusRestorationEntry?.unregister()
+        focusRestorationEntry = null
     }
 
-    override fun onPlaced(coordinates: LayoutCoordinates) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isInitialFocusOnFocusableAvailable) {
-            node.requireOwner().focusOwner.focusTargetAvailable()
-        }
+    override fun onUnplaced() {
+        // Register a one-shot on layout rect changed callback upon being unplaced, which will be
+        // called next when placed again
+        registerOneShotOnLayoutRectChangedCallback()
     }
 
     /**
@@ -348,6 +379,29 @@ internal class FocusTargetNode(
             it.onFocusEvent(newState)
         }
         onDispatchEventsCompleted?.invoke(this)
+    }
+
+    /**
+     * Registers a one-shot layout rect changed callback, to know when this node has layout
+     * coordinates for the first time. We don't care about the exact positioning or any future
+     * changes, but we do want to inform the owner that a focus target is now available.
+     */
+    private fun registerOneShotOnLayoutRectChangedCallback() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            ComposeUiFlags.isInitialFocusOnFocusableAvailable && onLayoutRectChangedHandle == null
+        ) {
+            onLayoutRectChangedHandle =
+                registerOnLayoutRectChanged(
+                    // Time here is effectively unused, since this is immediately unregistered
+                    // upon triggering
+                    throttleMillis = 0,
+                    debounceMillis = 0,
+                ) {
+                    node.requireOwner().focusOwner.focusTargetAvailable()
+                    onLayoutRectChangedHandle?.unregister()
+                }
+        }
     }
 
     internal object FocusTargetElement : ModifierNodeElement<FocusTargetNode>() {

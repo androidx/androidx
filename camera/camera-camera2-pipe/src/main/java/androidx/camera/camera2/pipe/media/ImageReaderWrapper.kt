@@ -21,7 +21,7 @@ import android.media.ImageReader
 import android.view.Surface
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.common.UnsafeWrapper
 
 /** Simplified wrapper for [ImageReader]-like classes. */
 public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
@@ -41,17 +41,37 @@ public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
     public val capacity: Int
 
     /**
-     * Set the [OnImageListener]. Setting additional listeners will override the previous listener.]
+     * Get the usage flags of the images that can be produced by the ImageReader.
+     *
+     * @see [ImageReader.getUsage]
      */
-    public fun setOnImageListener(onImageListener: OnImageListener)
+    public val usageFlags: Long?
 
     /**
-     * Discard free buffers from the internal memory pool.
+     * Set the [OnImageListener]. Setting additional listeners will override the previous listener.
+     */
+    public var onImageListener: OnImageListener?
+
+    /**
+     * Set the [OnExpectedOutputsListener]. Setting additional listeners will override the previous
+     * listener.
+     */
+    public var onExpectedOutputsListener: OnExpectedOutputsListener?
+
+    /**
+     * Iteratively acquire and close all pending images. It additionally discards any free cached
+     * buffers.
      *
-     * @see [ImageReader.discardFreeBuffers]
      * @see [MultiResolutionImageReader.flush]
      */
     public fun flush()
+
+    /**
+     * Discards any free cached buffers owned by this ImageReader.
+     *
+     * @see [ImageReader.discardFreeBuffers]
+     */
+    public fun discardFreeBuffers()
 
     /**
      * The OnNextImageListener adapts the standard [ImageReader.OnImageAvailableListener] to push
@@ -67,5 +87,19 @@ public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
          * camera system, but should *usually* be in order
          */
         public fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper)
+    }
+
+    /**
+     * A listener that notifies the expected outputs per-frame. Note that if this won't be fired if
+     * the output buffers are lost. The consumer is responsible for using framework APIs to handle
+     * cases where buffers fail to be produced.
+     */
+    public fun interface OnExpectedOutputsListener {
+        /**
+         * Handles the expected outputs for a frame with [timestamp].
+         *
+         * [timestamp] follows the timestamp base of [ImageReader]s, not of cameras.
+         */
+        public fun onExpectedOutputs(timestamp: Long, outputIds: Set<OutputId>)
     }
 }

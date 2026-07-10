@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation.drawer
 
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 
 /** Factory interface for creating [PdfAnnotationDrawer] instances. */
 internal interface PdfAnnotationDrawerFactory {

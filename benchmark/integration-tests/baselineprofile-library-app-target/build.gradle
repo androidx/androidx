@@ -17,16 +17,18 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.benchmark.integration.baselineprofile.library.apptarget"
@@ -34,6 +36,5 @@ android {
 
 dependencies {
     implementation(project(":benchmark:integration-tests:baselineprofile-library-consumer"))
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
 }

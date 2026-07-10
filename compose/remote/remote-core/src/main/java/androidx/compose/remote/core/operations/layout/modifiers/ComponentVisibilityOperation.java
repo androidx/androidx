@@ -17,6 +17,8 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.LayoutCompute;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -36,9 +38,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Allows setting visibility on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentVisibilityOperation extends Operation
-        implements ModifierOperation, VariableSupport, DecoratorComponent {
+        implements ModifierOperation, VariableSupport, LayoutCompute, DecoratorComponent {
     private static final int OP_CODE = Operations.MODIFIER_VISIBILITY;
+
+    private static final String CLASS_NAME = "ComponentVisibilityOperation";
 
     int mVisibilityId;
     int mVisibility = Component.Visibility.VISIBLE;
@@ -99,7 +104,7 @@ public class ComponentVisibilityOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
+        int valueId = buffer.readId();
         operations.add(new ComponentVisibilityOperation(valueId));
     }
 
@@ -109,11 +114,13 @@ public class ComponentVisibilityOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ComponentVisibility")
-                .description(
-                        "This operation allows setting a component"
-                                + "visibility from a provided value")
-                .field(INT, "VALUE_ID", "Value ID representing the visibility");
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_visibility")
+                .description("Set component visibility from a provided integer variable")
+                .field(
+                        INT,
+                        "visibilityId",
+                        "The ID of the integer variable representing visibility");
     }
 
     @Override
@@ -136,6 +143,7 @@ public class ComponentVisibilityOperation extends Operation
         if (mParent != null) {
             mParent.setVisibility(mVisibility);
         }
+        markNotDirty();
     }
 
     public void setParent(@Nullable LayoutComponent parent) {
@@ -156,5 +164,11 @@ public class ComponentVisibilityOperation extends Operation
                 .addType("ComponentVisibilityOperation")
                 .add("visibilityId", mVisibilityId)
                 .add("visibility", Component.Visibility.toString(mVisibility));
+    }
+
+    @Override
+    public boolean evaluateInLayout(@NonNull RemoteContext context) {
+        updateVariables(context);
+        return isDirty();
     }
 }

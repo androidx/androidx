@@ -20,6 +20,7 @@ package androidx.compose.runtime.lint
 
 import androidx.compose.lint.Names
 import androidx.compose.lint.isInPackageName
+import androidx.compose.lint.isReallyRememberingUnit
 import androidx.compose.lint.isVoidOrUnit
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -31,11 +32,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.UExpression
-import org.jetbrains.uast.toUElementOfType
 
 /** [Detector] that checks `remember` calls to make sure they are not returning [Unit]. */
 class RememberDetector : Detector(), SourceCodeScanner {
@@ -44,7 +41,7 @@ class RememberDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
         val callExpressionType = node.getExpressionType()
-        if (callExpressionType.isVoidOrUnit && isReallyUnit(node, method)) {
+        if (callExpressionType.isVoidOrUnit && isReallyRememberingUnit(node, method)) {
             context.report(
                 RememberReturnType,
                 node,
@@ -74,34 +71,5 @@ class RememberDetector : Detector(), SourceCodeScanner {
                     EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
                 ),
             )
-
-        internal fun isReallyUnit(node: UCallExpression, method: PsiMethod): Boolean =
-            when {
-                node.typeArguments.singleOrNull()?.isVoidOrUnit == true -> {
-                    // Call with an explicit type argument, e.g., retain<Unit> { 42 }
-                    true
-                }
-                node.sourcePsi is KtCallExpression -> {
-                    // Even though the return type is Unit, we should double check if the type of
-                    // the lambda expression matches
-                    val calculationParameterIndex = method.parameters.lastIndex
-                    val argument =
-                        node.getArgumentForParameter(calculationParameterIndex)?.sourcePsi
-                    // If the argument is a lambda, check the expression inside
-                    if (argument is KtLambdaExpression) {
-                        val lastExp = argument.bodyExpression?.statements?.lastOrNull()
-                        val lastExpType =
-                            lastExp?.toUElementOfType<UExpression>()?.getExpressionType()
-                        // If unresolved (i.e., type error), the expression type will be actually
-                        // `null`
-                        node.getExpressionType() == lastExpType
-                    } else {
-                        // Otherwise return true, since it is a reference to something else that is
-                        // unit (such as a variable)
-                        true
-                    }
-                }
-                else -> true
-            }
     }
 }

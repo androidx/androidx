@@ -274,6 +274,9 @@ class MetadataListReader {
 
         @Override
         public void skip(int numOfBytes) throws IOException {
+            if (numOfBytes < 0) {
+                throw new IOException("Cannot skip negative amount: " + numOfBytes);
+            }
             while (numOfBytes > 0) {
                 int skipped = (int) mInputStream.skip(numOfBytes);
                 if (skipped < 1) {
@@ -332,6 +335,9 @@ class MetadataListReader {
 
         @Override
         public void skip(final int numOfBytes) throws IOException {
+            if (numOfBytes < 0) {
+                throw new IOException("Cannot skip negative amount: " + numOfBytes);
+            }
             mByteBuffer.position(mByteBuffer.position() + numOfBytes);
         }
 

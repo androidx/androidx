@@ -79,7 +79,7 @@ public final class BitmapCompat {
      * @param hasMipMap indicates whether the renderer should attempt
      *                  to use mipmaps
      * @see Bitmap#setHasMipMap(boolean)
-     * @deprecated Call {@link Bitmap#setHasMipMap()} directly.
+     * @deprecated Call {@link Bitmap#setHasMipMap(boolean)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "bitmap.setHasMipMap(hasMipMap)")

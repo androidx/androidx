@@ -15,12 +15,13 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
@@ -43,63 +44,38 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-core-okio"))
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.okio)
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.okio)
+            implementation(project(":datastore:datastore-core"))
+            implementation(project(":datastore:datastore-core-okio"))
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
         }
-        commonJvmMain {
-            dependsOn(commonMain)
+        jvmAndAndroidTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
         }
-        commonJvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
-            }
+        androidMain.dependencies {
+            implementation(libs.okio)
         }
-        jvmMain {
-            dependsOn(commonJvmMain)
-        }
-        jvmTest {
-            dependsOn(commonJvmTest)
-        }
-        androidMain {
-            dependsOn(commonJvmMain)
-            dependencies {
-                implementation(libs.okio)
-            }
-        }
-        androidInstrumentedTest {
-            dependsOn(commonJvmTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
-
+        androidDeviceTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":internal-testutils-truth"))
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
     }
 }
@@ -111,4 +87,5 @@ androidx {
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

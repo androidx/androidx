@@ -16,9 +16,9 @@
 
 package androidx.credentials.providerevents.transfer
 
+import android.content.Context
 import android.graphics.Bitmap
-import androidx.annotation.RestrictTo
-import androidx.credentials.providerevents.internal.MatcherUtil
+import androidx.annotation.WorkerThread
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -33,15 +33,30 @@ import org.json.JSONObject
  * @param exportMatcher the optional matcher. By default, a matcher that filters on credential types
  *   will be used. The provider can provide a matcher to filter based on custom filters
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RegisterExportRequest(
     public val entries: List<ExportEntry>,
-    public val exportMatcher: ByteArray = MatcherUtil.CREDENTIAL_TRANSFER_DEFAULT_MATCHER,
+    public val exportMatcher: ByteArray,
 ) {
     public val credentialBytes: ByteArray = this.toCredentialBytes()
 
-    internal companion object {
+    public companion object {
         private const val HEADER_SIZE = 3
+        private const val MATCHER_BINARY = "credential_transfer_matcher.wasm"
+
+        /**
+         * Creates a [RegisterExportRequest]. The request will be created with a default matcher
+         * that filters on credential types.
+         *
+         * @param context the context of the calling app
+         * @param entries the entries to be displayed to the users on the provider selector ui. The
+         *   entries will be displayed in the order provided.
+         */
+        @WorkerThread
+        @JvmStatic
+        public fun create(context: Context, entries: List<ExportEntry>): RegisterExportRequest {
+            val exportMatcher = context.assets.open(MATCHER_BINARY).use { it.readBytes() }
+            return RegisterExportRequest(entries, exportMatcher)
+        }
 
         private fun getIconBytes(icon: Bitmap): ByteArrayOutputStream {
             val scaledIcon = Bitmap.createScaledBitmap(icon, 24, 24, true)

@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     style="@style/Glance.AppWidget.Background.Error"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,6 +32,7 @@
             android:layout_weight="1"
             android:text="@string/glance_error_layout_text_v2"
             android:textColor="@color/glance_colorOnSurface"
+            tools:ignore="PrivateResource"
             />
     </FrameLayout>
 

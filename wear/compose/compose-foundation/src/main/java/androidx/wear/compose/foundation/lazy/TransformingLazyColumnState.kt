@@ -19,13 +19,15 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -40,9 +42,9 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemAnimator
-import androidx.wear.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
+import kotlin.math.max
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -50,87 +52,59 @@ import kotlinx.coroutines.launch
 /**
  * Creates a [TransformingLazyColumnState] that is remembered across compositions.
  *
- * @param initialAnchorItemIndex the index of an item that is going to be placed in the center of
- *   the screen (if possible). This correlates with [TransformingLazyColumnState.anchorItemIndex].
- * @param initialAnchorItemScrollOffset the offset of an item to be used when placing the item in
- *   the center of the screen (if possible). This correlates with
- *   [TransformingLazyColumnState.anchorItemScrollOffset].
+ * @param initialAnchorItemIndex The index of the item to be used as the anchor. If a non-negative
+ *   index is provided, the state will attempt to center this item in the viewport. If a negative
+ *   index is provided then the list will be initialized with the first item (index 0) pinned to the
+ *   start of the viewport, respecting any content padding. This is the default behavior.
+ * @param initialAnchorItemScrollOffset The offset to be applied to the anchor item. Defaults to 0.
+ *   This offset is ONLY used when a non-negative `initialAnchorItemIndex` is provided (i.e., when
+ *   the item is being centered). It is ignored if `initialAnchorItemIndex` is less than 0. The
+ *   offset is used when placing the item in the center of the screen; a positive value scrolls the
+ *   item towards the end of the list, and a negative value scrolls it towards the start. This
+ *   correlates with [TransformingLazyColumnState.anchorItemScrollOffset].
  */
 @Composable
 public fun rememberTransformingLazyColumnState(
-    initialAnchorItemIndex: Int = 0,
+    initialAnchorItemIndex: Int = -1,
     initialAnchorItemScrollOffset: Int = 0,
 ): TransformingLazyColumnState =
     rememberSaveable(saver = TransformingLazyColumnState.Saver) {
-        TransformingLazyColumnState(
-            initialAnchorItemIndex = initialAnchorItemIndex,
-            initialAnchorItemScrollOffset = initialAnchorItemScrollOffset,
-        )
+        TransformingLazyColumnState(initialAnchorItemIndex, initialAnchorItemScrollOffset)
     }
 
 /**
- * Creates a [TransformingLazyColumnState] that is remembered across compositions.
+ * A state object that can be hoisted to control and observe scrolling in a
+ * [TransformingLazyColumn].
  *
- * @param initialAnchorItemIndex the index of an item that is going to be placed in the center of
- *   the screen (if possible). This correlates with [TransformingLazyColumnState.anchorItemIndex].
- * @param initialAnchorItemScrollOffset the offset of an item to be used when placing the item in
- *   the center of the screen (if possible). This correlates with
- *   [TransformingLazyColumnState.anchorItemScrollOffset].
- * @param prefetchStrategy The prefetching strategy to use.
- */
-@Composable
-internal fun rememberTransformingLazyColumnState(
-    initialAnchorItemIndex: Int = 0,
-    initialAnchorItemScrollOffset: Int = 0,
-    prefetchStrategy: TransformingLazyColumnPrefetchStrategy = remember {
-        DefaultTransformingLazyColumnPrefetchStrategy()
-    },
-): TransformingLazyColumnState =
-    rememberSaveable(saver = TransformingLazyColumnState.Saver) {
-        TransformingLazyColumnState(
-            initialAnchorItemIndex = initialAnchorItemIndex,
-            initialAnchorItemScrollOffset = initialAnchorItemScrollOffset,
-            prefetchStrategy = prefetchStrategy,
-        )
-    }
-
-/**
- * A state object that can be hoisted to control and observe scrolling.
- *
- * In most cases, this will be created via [rememberTransformingLazyColumnState].
+ * @param initialAnchorItemIndex The index of the item to be used as the anchor. If a non-negative
+ *   index is provided, the state will attempt to center this item in the viewport. If a negative
+ *   index is provided then the list will be initialized with the first item (index 0) pinned to the
+ *   start of the viewport, respecting any content padding. This is the default behavior.
+ * @param initialAnchorItemScrollOffset The offset to be applied to the anchor item. Defaults to 0.
+ *   This offset is ONLY used when a non-negative `initialAnchorItemIndex` is provided (i.e., when
+ *   the item is being centered). It is ignored if `initialAnchorItemIndex` is less than 0. The
+ *   offset is used when placing the item in the center of the screen; a positive value scrolls the
+ *   item towards the end of the list, and a negative value scrolls it towards the start. This
+ *   correlates with [TransformingLazyColumnState.anchorItemScrollOffset].
  */
 @Stable
 public class TransformingLazyColumnState
-internal constructor(
-    initialAnchorItemIndex: Int,
-    initialAnchorItemScrollOffset: Int,
-    private val prefetchStrategy: TransformingLazyColumnPrefetchStrategy =
-        DefaultTransformingLazyColumnPrefetchStrategy(),
-) : ScrollableState {
+@RememberInComposition
+constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int = 0) :
+    ScrollableState {
 
-    /**
-     * @param initialAnchorItemIndex the index of an item that is going to be placed in the center
-     *   of the screen (if possible). This correlates with
-     *   [TransformingLazyColumnState.anchorItemIndex].
-     * @param initialAnchorItemScrollOffset the offset of an item to be used when placing the item
-     *   in the center of the screen (if possible). This correlates with
-     *   [TransformingLazyColumnState.anchorItemScrollOffset].
-     */
-    public constructor(
-        initialAnchorItemIndex: Int = 0,
-        initialAnchorItemScrollOffset: Int = 0,
-    ) : this(
-        initialAnchorItemIndex = initialAnchorItemIndex,
-        initialAnchorItemScrollOffset = initialAnchorItemScrollOffset,
-        prefetchStrategy = DefaultTransformingLazyColumnPrefetchStrategy(),
-    )
+    private val actualInitialAnchorItemIndex = max(0, initialAnchorItemIndex)
 
-    public constructor() :
-        this(
-            initialAnchorItemIndex = 0,
-            initialAnchorItemScrollOffset = 0,
-            prefetchStrategy = DefaultTransformingLazyColumnPrefetchStrategy(),
-        )
+    private val actualInitialAnchorItemScrollOffset =
+        // Determine if we should use the special "pin to start" behavior.
+        // This is triggered whenever initialAnchorItemIndex is negative.
+        if (initialAnchorItemIndex < 0) {
+            // Default behavior: Pin the first item (index 0) to the start of the viewport.
+            OffsetToTriggerInitialPin
+        } else {
+            // Explicit non-negative index provided: Use the centering logic.
+            initialAnchorItemScrollOffset
+        }
 
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
@@ -169,7 +143,7 @@ internal constructor(
      * consider using "snapshotFlow":
      */
     public val layoutInfo: TransformingLazyColumnLayoutInfo
-        get() = layoutInfoState.value
+        @FrequentlyChangingValue get() = layoutInfoState.value
 
     internal val density: Density
         get() = layoutInfoState.value.density
@@ -196,7 +170,8 @@ internal constructor(
      *
      * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnScrollToItemSample
      */
-    public var anchorItemIndex: Int by mutableIntStateOf(initialAnchorItemIndex)
+    @get:FrequentlyChangingValue
+    public var anchorItemIndex: Int by mutableIntStateOf(actualInitialAnchorItemIndex)
         private set
 
     /**
@@ -208,7 +183,8 @@ internal constructor(
      *
      * @see anchorItemIndex for samples with the recommended usage patterns.
      */
-    public var anchorItemScrollOffset: Int by mutableIntStateOf(initialAnchorItemScrollOffset)
+    @get:FrequentlyChangingValue
+    public var anchorItemScrollOffset: Int by mutableIntStateOf(actualInitialAnchorItemScrollOffset)
         private set
 
     /**
@@ -224,7 +200,7 @@ internal constructor(
 
     internal var nearestRange: IntRange by
         mutableStateOf(
-            calculateNearestItemsRange(initialAnchorItemIndex),
+            calculateNearestItemsRange(actualInitialAnchorItemIndex),
             structuralEqualityPolicy(),
         )
         private set
@@ -247,12 +223,9 @@ internal constructor(
             }
         }
 
-    internal val prefetchState =
-        LazyLayoutPrefetchState(prefetchStrategy.prefetchScheduler) {
-            with(prefetchStrategy) {
-                onNestedPrefetch(Snapshot.withoutReadObservation { anchorItemIndex })
-            }
-        }
+    internal val prefetchStrategy: TransformingLazyColumnPrefetchStrategy =
+        TransformingLazyColumnPrefetchStrategy()
+    internal val prefetchState = LazyLayoutPrefetchState()
 
     private val prefetchScope: TransformingLazyColumnPrefetchScope =
         object : TransformingLazyColumnPrefetchScope {
@@ -262,7 +235,7 @@ internal constructor(
                 // prefetch is best effort.
                 val constraints =
                     Snapshot.withoutReadObservation { layoutInfoState.value.childConstraints }
-                return prefetchState.schedulePrefetch(index, constraints)
+                return prefetchState.schedulePrecompositionAndPremeasure(index, constraints)
             }
         }
 
@@ -284,8 +257,7 @@ internal constructor(
     internal val animator = LazyLayoutItemAnimator<TransformingLazyColumnMeasuredItem>()
 
     internal fun applyMeasureResult(measureResult: TransformingLazyColumnMeasureResult) {
-        // TODO(b/416503918): The scroll shouldn't be fully consumed during the first touch.
-        scrollToBeConsumed = 0f
+        scrollToBeConsumed -= measureResult.consumedScroll
         anchorItemKey = measureResult.anchorItemKey
         anchorItemIndex = measureResult.anchorItemIndex
         anchorItemScrollOffset = measureResult.anchorItemScrollOffset
@@ -321,6 +293,14 @@ internal constructor(
                 slidingWindowStart + NearestItemsSlidingWindowSize + NearestItemsExtraItemCount
             return start until end
         }
+
+        /**
+         * A very large scroll offset used to intentionally trigger the overscroll correction logic
+         * on the first composition. This is a trick to ensure that when the state is created with
+         * default arguments, the list is correctly pinned to the start of the viewport (top or
+         * bottom, depending on `reverseLayout`).
+         */
+        internal const val OffsetToTriggerInitialPin = -1_000_000
 
         /** The default [Saver] implementation for [TransformingLazyColumnState]. */
         internal val Saver =
@@ -478,6 +458,8 @@ private val EmptyTransformingLazyColumnMeasureResult =
         beforeContentPadding = 0,
         afterContentPadding = 0,
         childConstraints = Constraints(),
+        reverseLayout = false,
+        consumedScroll = 0f,
         measureResult =
             object : MeasureResult {
                 override val width: Int = 0

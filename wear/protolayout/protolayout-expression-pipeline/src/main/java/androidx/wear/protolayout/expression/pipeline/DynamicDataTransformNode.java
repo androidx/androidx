@@ -62,6 +62,10 @@ class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
                             return;
                         }
                         O result = mTransformer.apply(newData);
+                        if (result == null) {
+                            mDownstream.onInvalidated();
+                            return;
+                        }
                         mDownstream.onData(result);
                     }
 

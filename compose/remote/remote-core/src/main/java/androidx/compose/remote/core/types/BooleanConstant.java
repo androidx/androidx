@@ -17,12 +17,15 @@ package androidx.compose.remote.core.types;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -31,12 +34,24 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Used to represent a boolean */
-public class BooleanConstant extends Operation implements Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BooleanConstant extends Operation
+        implements Serializable, VariableProvider, ComponentData {
     private static final String CLASS_NAME = "BooleanConstant";
-
     private static final int OP_CODE = Operations.DATA_BOOLEAN;
-    private boolean mValue = false;
+
+    private boolean mValue;
     private int mId;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public BooleanConstant(int id, boolean value) {
         mId = id;
@@ -111,8 +126,7 @@ public class BooleanConstant extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
+        int id = buffer.declareId();
         boolean value = buffer.readBoolean();
         operations.add(new BooleanConstant(id, value));
     }
@@ -123,7 +137,7 @@ public class BooleanConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, "BooleanConstant")
+        doc.operation("Data Operations", OP_CODE, "BooleanConstant")
                 .description("A boolean and its associated id")
                 .field(DocumentedOperation.INT, "id", "id of Int")
                 .field(BYTE, "value", "8-bit 0 or 1");

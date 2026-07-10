@@ -50,6 +50,7 @@ import org.mockito.kotlin.whenever
 
 /** Tests related to the WearSDK API for [ComplicationDataSourceUpdateRequesterImpl]. */
 @RunWith(ComplicationsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @SdkSuppress(minSdkVersion = 36, codeName = "Baklava")
 @OptIn(ExperimentalCoroutinesApi::class)
 class ComplicationDataSourceUpdateRequesterWearSdkTests {

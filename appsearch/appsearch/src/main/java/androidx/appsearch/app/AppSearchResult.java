@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
@@ -40,15 +41,16 @@ import java.util.concurrent.ExecutionException;
  *
  * @param <ValueType> The type of result object for successful calls.
  */
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings("JSpecifyNullness")
 public final class AppSearchResult<ValueType> {
     private static final String TAG = "AppSearchResult";
 
     /**
      * Result codes from {@link AppSearchSession} methods.
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @IntDef(value = {
             RESULT_OK,
             RESULT_UNKNOWN_ERROR,
@@ -256,9 +258,8 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull <ValueType> AppSearchResult<ValueType> newFailedResult(
             @NonNull AppSearchResult<?> otherFailedResult) {
@@ -268,7 +269,7 @@ public final class AppSearchResult<ValueType> {
                 otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
     }
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull <ValueType> AppSearchResult<ValueType> throwableToFailedResult(

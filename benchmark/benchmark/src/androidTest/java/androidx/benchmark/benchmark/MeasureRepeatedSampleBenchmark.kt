@@ -17,7 +17,6 @@
 package androidx.benchmark.benchmark
 
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.ExperimentalBlackHoleApi
 import androidx.benchmark.TestDefinition
 import androidx.benchmark.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,7 +24,7 @@ import androidx.test.filters.LargeTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalBenchmarkConfigApi::class, ExperimentalBlackHoleApi::class)
+@OptIn(ExperimentalBenchmarkConfigApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class MeasureRepeatedSampleBenchmark {

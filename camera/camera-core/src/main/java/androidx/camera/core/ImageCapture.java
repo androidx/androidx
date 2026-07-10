@@ -178,7 +178,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SuppressWarnings("unused")
 public final class ImageCapture extends UseCase {
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
     // they could be created in the constructor.
@@ -289,6 +288,11 @@ public final class ImageCapture extends UseCase {
     /** The timeout in seconds within which screen flash UI changes have to be completed. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final long SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS = 3;
+
+    private static final String ERROR_MSG_SCREEN_FLASH_NOT_SET =
+            "A ScreenFlash instance is required for FLASH_MODE_SCREEN but was not found. If value"
+                    + " from PreviewView.getScreenFlash() is set to ImageCapture.setScreenFlash(),"
+                    + " ensure PreviewView.setScreenFlashWindow() is invoked first.";
 
     /**
      * When flash is required for taking a picture, a normal one shot flash will be used.
@@ -517,6 +521,21 @@ public final class ImageCapture extends UseCase {
             }
         }
 
+        // Disable ZSL if it's not supported by the camera with the given UseCaseConfig.
+        boolean isZslDisabled = Boolean.TRUE.equals(
+                builder.getMutableConfig().retrieveOption(OPTION_ZSL_DISABLED, false));
+        if (!isZslDisabled) {
+            Rect sensorRect = cameraInfo.getSensorRect();
+            Size activeArraySize = new Size(sensorRect.width(), sensorRect.height());
+            SupportedOutputSizesSorter sorter = new SupportedOutputSizesSorter(cameraInfo,
+                    activeArraySize);
+            List<Size> sortedSizes = sorter.getSortedSupportedOutputSizes(
+                    builder.getUseCaseConfig());
+            if (!cameraInfo.canSupportZsl(sortedSizes)) {
+                builder.getMutableConfig().insertOption(OPTION_ZSL_DISABLED, true);
+            }
+        }
+
         return builder.getUseCaseConfig();
     }
 
@@ -537,7 +556,6 @@ public final class ImageCapture extends UseCase {
      *
      * @see #setFeatureGroup
      */
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private void applyFeatureGroupToConfig(UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
         Set<@NonNull GroupableFeature> featureGroup = getFeatureGroup();
 
@@ -655,7 +673,7 @@ public final class ImageCapture extends UseCase {
                 && flashMode != FLASH_MODE_OFF) {
             if (flashMode == FLASH_MODE_SCREEN) {
                 if (mScreenFlashWrapper.getBaseScreenFlash() == null) {
-                    throw new IllegalArgumentException("ScreenFlash not set for FLASH_MODE_SCREEN");
+                    throw new IllegalArgumentException(ERROR_MSG_SCREEN_FLASH_NOT_SET);
                 }
 
                 if (getCamera() != null && getCameraLens() != CameraSelector.LENS_FACING_FRONT) {
@@ -668,6 +686,9 @@ public final class ImageCapture extends UseCase {
         }
 
         synchronized (mLockedFlashMode) {
+            if (getFlashMode() == flashMode) {
+                return;
+            }
             mFlashMode = flashMode;
             trySetFlashModeToCameraControl();
         }
@@ -823,6 +844,12 @@ public final class ImageCapture extends UseCase {
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    protected void onProviderRotationChanged(int rotation) {
+        setTargetRotation(rotation);
     }
 
     /**
@@ -1029,25 +1056,23 @@ public final class ImageCapture extends UseCase {
      *
      * <p>Some capabilities are only exposed on Extensions-enabled cameras. To get the correct
      * capabilities when Extensions are enabled, you need to pass the {@link CameraInfo} from the
-     * Extensions-enabled {@link Camera} instance. To do this, use the {@link CameraSelector}
-     * instance retrieved from
-     * {@link androidx.camera.extensions.ExtensionsManager#getExtensionEnabledCameraSelector(CameraSelector, int)}
-     * to invoke {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle} where
-     * you can skip use cases arguments if you'd like to query it before opening the camera. Then,
-     * use the returned {@link Camera} to get the {@link CameraInfo} instance.
+     * Extensions-enabled {@link Camera} instance. To do this, use an
+     * {@link androidx.camera.extensions.ExtensionSessionConfig} containing the desired extension
+     * mode to invoke
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#getCameraInfo(CameraSelector,
+     * androidx.camera.core.SessionConfig)}.
      *
-     * <p>>The following code snippet demonstrates how to enable postview:
-     *
+     * <p>The following code snippet demonstrates how to enable postview with an extension enabled:
      * <pre>{@code
-     * CameraSelector extensionCameraSelector =
-     *     extensionsManager.getExtensionEnabledCameraSelector(cameraSelector, ExtensionMode.NIGHT);
-     * Camera camera = cameraProvider.bindToLifecycle(activity, extensionCameraSelector);
+     * ExtensionSessionConfig config = new ExtensionSessionConfig(ExtensionMode.NIGHT,
+     *         extensionsManager);
+     * CameraInfo extensionCameraInfo = cameraProvider.getCameraInfo(cameraSelector, config);
      * ImageCaptureCapabilities capabilities =
-     *     ImageCapture.getImageCaptureCapabilities(camera.getCameraInfo());
+     *         ImageCapture.getImageCaptureCapabilities(extensionCameraInfo);
      * ImageCapture imageCapture = new ImageCapture.Builder()
-     *     .setPostviewEnabled(capabilities.isPostviewSupported())
-     *     .build();
-     * }}</pre>
+     *         .setPostviewEnabled(capabilities.isPostviewSupported())
+     *         .build();
+     * }</pre>
      *
      * @return {@link ImageCaptureCapabilities}
      */
@@ -1582,7 +1607,7 @@ public final class ImageCapture extends UseCase {
         checkMainThread();
         if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN
                 && mScreenFlashWrapper.getBaseScreenFlash() == null) {
-            throw new IllegalArgumentException("ScreenFlash not set for FLASH_MODE_SCREEN");
+            throw new IllegalArgumentException(ERROR_MSG_SCREEN_FLASH_NOT_SET);
         }
         Log.d(TAG, "takePictureInternal");
         CameraInternal camera = getCamera();
@@ -1592,7 +1617,7 @@ public final class ImageCapture extends UseCase {
         }
         boolean isSimultaneousCapture = getCurrentConfig()
                 .getSecondaryInputFormat() != ImageFormat.UNKNOWN;
-        if (isSimultaneousCapture && secondaryOutputFileOptions == null) {
+        if (isSimultaneousCapture && secondaryOutputFileOptions == null && onDiskCallback != null) {
             throw new IllegalArgumentException(
                     "Simultaneous capture RAW and JPEG needs two output file options");
         }
@@ -1770,6 +1795,17 @@ public final class ImageCapture extends UseCase {
     public @Nullable ResolutionSelector getPostviewResolutionSelector() {
         return getCurrentConfig().retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR,
                 null);
+    }
+
+    /**
+     * Returns whether the use case supports auto-rotation.
+     *
+     * @return true if the use case supports auto-rotation, false otherwise.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean isAutoRotationSupported() {
+        return true;
     }
 
     /**
@@ -2578,9 +2614,7 @@ public final class ImageCapture extends UseCase {
                 if (flashMode == FLASH_MODE_SCREEN) {
                     if (getMutableConfig().retrieveOption(OPTION_SCREEN_FLASH, null)
                             == null) {
-                        throw new IllegalArgumentException(
-                                "The flash mode is not allowed to set to FLASH_MODE_SCREEN "
-                                        + "without setting ScreenFlash");
+                        throw new IllegalArgumentException(ERROR_MSG_SCREEN_FLASH_NOT_SET);
                     }
                 }
             }

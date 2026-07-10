@@ -31,6 +31,10 @@ class IdentityHashCodeTest {
         assertNotEquals(a, b)
         assertNotEquals(b, a)
 
+        assertEquals(identityHashCode(a), identityHashCode(a))
+        assertNotEquals(identityHashCode(a), identityHashCode(b))
+        assertNotEquals(identityHashCode(b), identityHashCode(a))
+
         val set = mutableSetOf<DefaultImpl>()
         set.add(a)
         set.add(a)

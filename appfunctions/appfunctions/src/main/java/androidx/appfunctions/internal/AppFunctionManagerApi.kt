@@ -16,10 +16,15 @@
 
 package androidx.appfunctions.internal
 
+import android.app.appfunctions.AppFunctionRegistration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.appfunctions.AppFunctionManagerCompat
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.RegisterAppFunctionRequest
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
 /** Provides the backend to the [android.app.appfunctions.AppFunctionManager] API. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -31,7 +36,8 @@ public interface AppFunctionManagerApi {
      * @return the result of the attempt to execute the function.
      */
     public suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse
 
     /**
@@ -52,6 +58,12 @@ public interface AppFunctionManagerApi {
      */
     public suspend fun setAppFunctionEnabled(
         functionId: String,
-        @AppFunctionManagerCompat.EnabledState newEnabledState: Int,
+        @AppFunctionManager.EnabledState newEnabledState: Int,
     )
+
+    /** Registers multiple callback-based runtime implementations of app functions. */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    public fun registerAppFunctions(
+        requests: List<RegisterAppFunctionRequest>
+    ): AppFunctionRegistration
 }

@@ -15,15 +15,13 @@
  */
 
 import org.gradle.api.attributes.java.TargetJvmEnvironment
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
-    id ("kotlin-parcelize")
+    id("kotlin-parcelize")
 }
 
 configurations {
@@ -40,7 +38,6 @@ configurations {
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
             attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(TargetJvmEnvironment, TargetJvmEnvironment.ANDROID))
-            attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
             attribute(Attribute.of("artifactType", String), "android-classes-jar")
         }
     }
@@ -69,5 +66,5 @@ dependencies {
 }
 
 tasks.withType(KotlinCompile).configureEach {
-    it.friendPaths.from(configurations.friends.incoming.artifactView { }.files)
+    it.friendPaths.from(configurations.friends.incoming.files)
 }

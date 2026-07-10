@@ -24,4 +24,5 @@ import java.lang.annotation.Inherited
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 @Inherited
+@Deprecated("Library is deprecated")
 annotation class TargetLibrary(val libraryName: String)

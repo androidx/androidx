@@ -17,12 +17,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
-    implementation(libs.kotlinStdlib)
     implementation("androidx.fragment:fragment:1.3.0")
     implementation(project(":lifecycle:lifecycle-process"))
     implementation(project(":lifecycle:lifecycle-common"))
@@ -31,6 +29,7 @@ dependencies {
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
     androidTestImplementation(project(":lifecycle:lifecycle-common")) // Added for b/155802460
+    androidTestImplementation(project(":tracing:tracing"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -45,4 +44,5 @@ dependencies {
 
 android {
     namespace = "androidx.lifecycle.testapp"
+    testOptions.unitTests.returnDefaultValues = true
 }

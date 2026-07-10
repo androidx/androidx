@@ -20,7 +20,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.models.Dimensions;
 
 import org.jspecify.annotations.NonNull;
 
@@ -73,13 +72,6 @@ public final class RectUtils {
      */
     public static int area(@NonNull Rect rect) {
         return rect.width() * rect.height();
-    }
-
-    /**
-     *
-     */
-    public static @NonNull Rect fromDimensions(@NonNull Dimensions dimensions) {
-        return new Rect(0, 0, dimensions.getWidth(), dimensions.getHeight());
     }
 
     /**

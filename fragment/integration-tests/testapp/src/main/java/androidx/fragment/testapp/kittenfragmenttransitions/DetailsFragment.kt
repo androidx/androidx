@@ -60,6 +60,9 @@ class DetailsFragment : Fragment(R.layout.kitten_details_fragment) {
          */
         @JvmStatic
         fun newInstance(@IntRange(from = 1, to = 6) kittenNumber: Int) =
-            DetailsFragment().apply { arguments = bundleOf(ARG_KITTEN_NUMBER to kittenNumber) }
+            DetailsFragment().apply {
+                @Suppress("DEPRECATION") // bundleOf is deprecated
+                arguments = bundleOf(ARG_KITTEN_NUMBER to kittenNumber)
+            }
     }
 }

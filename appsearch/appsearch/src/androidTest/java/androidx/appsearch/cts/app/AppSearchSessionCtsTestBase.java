@@ -33,6 +33,7 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.appsearch.app.AppSearchAccount;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -67,6 +68,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.usagereporting.ClickAction;
 import androidx.appsearch.usagereporting.DismissAction;
@@ -75,6 +77,7 @@ import androidx.appsearch.usagereporting.SearchAction;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -729,8 +732,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addSchemas(schemaBuilder.build()).setForceOverride(true).build()).get());
         Throwable cause = exception.getCause();
         assertThat(cause).isInstanceOf(AppSearchException.class);
-        assertThat(cause).hasMessageThat().isEqualTo("Too many properties to be indexed, max "
-                + "number of properties allowed: " + maxProperties);
+        assertThat(cause).hasMessageThat().contains("Too many properties to be indexed");
     }
 
     @Test
@@ -798,6 +800,76 @@ public abstract class AppSearchSessionCtsTestBase {
         Throwable cause = exception.getCause();
         assertThat(cause).isInstanceOf(AppSearchException.class);
         assertThat(cause).hasMessageThat().contains("Too many properties to be indexed");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    public void testSetSchema_setAccountPropertyPaths() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+        AppSearchSchema accountSchema =
+                new AppSearchSchema.Builder("builtin:Account").build();
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("type1")
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "nested", "type2")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "account1", "builtin:Account")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("type2")
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "account2", "builtin:Account")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(accountSchema, schema1, schema2)
+                        .setSchemaTypeWipeoutAccountPropertyPaths("type1",
+                                ImmutableSet.of(new PropertyPath("account1")), /*autoWipeout=*/true)
+                        .setSchemaTypeWipeoutAccountPropertyPaths("type1",
+                                ImmutableSet.of(new PropertyPath("nested.account2")),
+                                /*autoWipeout=*/true)
+                        .build()).get();
+
+        GetSchemaResponse getSchemaResponse = mDb1.getSchemaAsync().get();
+        assertThat(getSchemaResponse.getSchemasWipeoutAccountPropertyPaths()).containsExactly(
+                "type1",
+                ImmutableSet.of(new PropertyPath("account1"), new PropertyPath("nested.account2")));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    public void testSetSchema_setAccountPropertyPaths_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+        AppSearchSchema accountSchema =
+                new AppSearchSchema.Builder("builtin:Account").build();
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("type1")
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "account1", "builtin:Account")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .build();
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(accountSchema, schema1)
+                                .setSchemaTypeWipeoutAccountPropertyPaths("type1",
+                                        ImmutableSet.of(new PropertyPath("account1")),
+                                        /*autoWipeout=*/true)
+                                .build()).get());
+
+        GetSchemaResponse getSchemaResponse = mDb1.getSchemaAsync().get();
+        assertThat(getSchemaResponse.getSchemasWipeoutAccountPropertyPaths()).isEmpty();
     }
 
 // @exportToFramework:startStrip()
@@ -1335,6 +1407,170 @@ public abstract class AppSearchSessionCtsTestBase {
                                 + "not supported on this AppSearch implementation.");
     }
 
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_REPEATED_FIELD_JOINS)
+    @Test
+    public void testGetSchema_joinableValueTypeQualifiedIdRepeatedProperty() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_joinableValueTypeQualifiedIdRepeatedProperty_notAllowed()
+            throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        Exception e = assertThrows(Exception.class, () -> mDb1.setSchemaAsync(request).get());
+        if (e instanceof ExecutionException) {
+            // Jetpack local storage or framework AppSearch.
+            // - No joinable property cardinality check will be enforced in AppSearch.
+            // - Icing setSchema API will return an error, and AppSearch will wrap it as
+            //   ExecutionException and throw.
+            assertThat(e).hasCauseThat().isInstanceOf(AppSearchException.class);
+            AppSearchException a = (AppSearchException) e.getCause();
+            assertThat(a.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+            assertThat(a).hasMessageThat().contains(
+                    "Qualified id joinable property 'qualifiedId' cannot have REPEATED "
+                            + "cardinality");
+        } else {
+            // Jetpack platform storage.
+            // - Previous behavior in AppSearchSchema.StringPropertyConfig.Builder#build (platform
+            //   SDK) would throw IllegalStateException if callers set
+            //   JOINABLE_VALUE_TYPE_QUALIFIED_ID and CARDINALITY_REPEATED. If this test runs
+            //   against older builds of certain backends, when converting from jetpack schema to
+            //   platform schema, platform SDK AppSearchSchema.StringPropertyConfig.Builder#build
+            //   will throw this exception.
+            // - New behavior in platform SDK does not throw IllegalStateException. If this test
+            //   runs against newer builds on Android C+ devices (with enableRepeatedFieldJoins()
+            //   ON), then:
+            //   - AppSearch and Icing WON't throw exception or return an error anymore.
+            //   - Normally, this test should've been skipped since the feature is enabled, but
+            //     there is a gap between ramping platform flag and Jetpack platform storage
+            //     isFeatureSupported() feature ramping.
+            //   - IOW, before Jetpack platform storage library releases the feature, this test will
+            //     fail on Android C+ device with new platform SDK (framework AppSearch).
+            // - Therefore, add back cardinality check in SchemaToPlatformConverter to unify the
+            //   Jetpack platform storage library behavior without being affected by different
+            //   platform SDKs (framework AppSearch).
+            assertThat(e).isInstanceOf(IllegalStateException.class);
+            assertThat(e).hasMessageThat().contains(
+                    "Cannot set JOINABLE_VALUE_TYPE_QUALIFIED_ID with CARDINALITY_REPEATED.");
+        }
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testGetSchema_deletePropagationTypePropagateFrom() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));
+
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("normalStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletePropagationType(
+                                StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testGetSchema_deletePropagationTypeNoneWithNonJoinable_succeeds() throws Exception {
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("optionalString")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .setDeletePropagationType(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("requiredString")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .setDeletePropagationType(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("repeatedString")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .setDeletePropagationType(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testGetSchema_deletePropagationTypeNoneWithJoinable_succeeds() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("optionalString")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletePropagationType(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("requiredString")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletePropagationType(StringPropertyConfig.DELETE_PROPAGATION_TYPE_NONE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
     @Test
     public void testGetNamespaces() throws Exception {
         // Schema registration
@@ -1633,6 +1869,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 // @exportToFramework:endStrip()
 
+    @SdkSuppress(minSdkVersion = 24) // b/441557822
     @Test
     public void testPutHugeDocumentInBatch() throws Exception {
         // Schema registration
@@ -1682,7 +1919,7 @@ public abstract class AppSearchSessionCtsTestBase {
         inDocuments.add(inDocument);
         getByDocumentIdRequestBuilder.addIds(id);
 
-        for (int i = 101; i < 200; ++i) {
+        for (int i = 101; i < 400; ++i) {
             chars = new char[1024];
             Arrays.fill(chars, ' ');
             body = String.valueOf(chars) + "the end.";
@@ -2608,6 +2845,37 @@ public abstract class AppSearchSessionCtsTestBase {
         // check all document presents
         assertThat(documents).containsExactlyElementsIn(emailSet);
         assertThat(pageNumber).isEqualTo(6); // 5 (upper(31/7)) + 1 (final empty page)
+    }
+
+    @Test
+    public void testQuery_searchSourceLogTag() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
+
+        // Query for the document with log tag set. This should not cause any issues because the
+        // feature must be available.
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setSearchSourceLogTag("LOG_TAG")
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(inEmail);
     }
 
     @Test
@@ -5684,7 +5952,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
     public void testSnippet_usingTextMatchInfo() throws Exception {
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
@@ -5817,8 +6084,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testEmbeddingSnippet() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -5944,8 +6209,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testHybridSnippet() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -6090,8 +6353,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testEmbeddingSnippet_withSnippetCountPerPropertyLimit() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -6360,6 +6621,386 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testRemove_withDeletePropagationFromParentToChildren() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));
+
+        // Person (parent) schema.
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(
+                        new StringPropertyConfig.Builder("name")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .build();
+        // Email (child) schema: "sender" has delete propagation type PROPAGATE_FROM, and "receiver"
+        // doesn't have delete propagation.
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(
+                        new StringPropertyConfig.Builder("subject")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("sender")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .setDeletePropagationType(
+                                        StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("receiver")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build())
+                .build();
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, emailSchema)
+                        .build()).get();
+
+        // Put 1 person and 2 email documents.
+        GenericDocument person =
+                new GenericDocument.Builder<>("namespace", "person", "Person")
+                        .setPropertyString("name", "test person")
+                        .build();
+        String personQualifiedId = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, "namespace", "person");
+        GenericDocument email1 =
+                new GenericDocument.Builder<>("namespace", "email1", "Email")
+                        .setPropertyString("subject", "test email subject")
+                        .setPropertyString("sender", personQualifiedId)
+                        .build();
+        GenericDocument email2 =
+                new GenericDocument.Builder<>("namespace", "email2", "Email")
+                        .setPropertyString("subject", "test email subject")
+                        .setPropertyString("receiver", personQualifiedId)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(person, email1, email2)
+                        .build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace", "person")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "email1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "email2")).hasSize(1);
+
+        // Delete the person (parent) document
+        checkIsBatchResultSuccess(mDb1.removeAsync(
+                new RemoveByDocumentIdRequest.Builder("namespace").addIds("person").build()));
+
+        // Verify that:
+        // - Person document is deleted.
+        // - Email1 document is also deleted due to the delete propagation via "sender".
+        // - Email2 document is still present since "receiver" does not have delete propagation.
+        AppSearchBatchResult<String, GenericDocument> getResult1 =
+                mDb1.getByDocumentIdAsync(
+                                new GetByDocumentIdRequest.Builder("namespace").addIds(
+                                        "person", "email1").build())
+                        .get();
+        assertThat(getResult1.isSuccess()).isFalse();
+        assertThat(getResult1.getFailures()).hasSize(2);
+        assertThat(getResult1.getFailures().get("person").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult1.getFailures().get("email1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        AppSearchBatchResult<String, GenericDocument> getResult2 =
+                mDb1.getByDocumentIdAsync(
+                                new GetByDocumentIdRequest.Builder("namespace").addIds(
+                                        "email2").build())
+                        .get();
+        assertThat(getResult2.isSuccess()).isTrue();
+        assertThat(getResult2.getSuccesses()).hasSize(1);
+        assertThat(getResult2.getSuccesses().get("email2")).isEqualTo(email2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testRemove_withDeletePropagationFromParentToGrandchildren() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));
+
+        // Person (parent) schema.
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(
+                        new StringPropertyConfig.Builder("name")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .build();
+        // Email (child) schema: "sender" has delete propagation type PROPAGATE_FROM, and "receiver"
+        // doesn't have delete propagation.
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(
+                        new StringPropertyConfig.Builder("subject")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("sender")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .setDeletePropagationType(
+                                        StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("receiver")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build())
+                .build();
+
+        // Label (grandchild) schema: "object" has delete propagation type PROPAGATE_FROM, and
+        // "softLink" doesn't have delete propagation.
+        AppSearchSchema labelSchema = new AppSearchSchema.Builder("Label")
+                .addProperty(
+                        new StringPropertyConfig.Builder("text")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("object")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .setDeletePropagationType(
+                                        StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("softLink")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build())
+                .build();
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, emailSchema, labelSchema)
+                        .build()).get();
+
+        // Put 1 person, 2 email, and 4 label documents with the following relations:
+        //
+        //                           ("object") - label1
+        //                         /
+        //               email1 <-
+        //             /           \
+        //       ("sender")          ("softLink") - label2
+        //           /
+        // person <-
+        //           \
+        //       ("receiver")        ("object") - label3
+        //             \           /
+        //               email2 <-
+        //                         \
+        //                           ("softLink") - label4
+        GenericDocument person =
+                new GenericDocument.Builder<>("namespace", "person", "Person")
+                        .setPropertyString("name", "test person")
+                        .build();
+        String personQualifiedId = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, "namespace", "person");
+
+        GenericDocument email1 =
+                new GenericDocument.Builder<>("namespace", "email1", "Email")
+                        .setPropertyString("subject", "test email subject")
+                        .setPropertyString("sender", personQualifiedId)
+                        .build();
+        GenericDocument email2 =
+                new GenericDocument.Builder<>("namespace", "email2", "Email")
+                        .setPropertyString("subject", "test email subject")
+                        .setPropertyString("receiver", personQualifiedId)
+                        .build();
+        String emailQualifiedId1 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, "namespace", "email1");
+        String emailQualifiedId2 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, "namespace", "email2");
+
+        GenericDocument label1 =
+                new GenericDocument.Builder<>("namespace", "label1", "Label")
+                        .setPropertyString("text", "label1")
+                        .setPropertyString("object", emailQualifiedId1)
+                        .build();
+        GenericDocument label2 =
+                new GenericDocument.Builder<>("namespace", "label2", "Label")
+                        .setPropertyString("text", "label2")
+                        .setPropertyString("softLink", emailQualifiedId1)
+                        .build();
+        GenericDocument label3 =
+                new GenericDocument.Builder<>("namespace", "label3", "Label")
+                        .setPropertyString("text", "label3")
+                        .setPropertyString("object", emailQualifiedId2)
+                        .build();
+        GenericDocument label4 =
+                new GenericDocument.Builder<>("namespace", "label4", "Label")
+                        .setPropertyString("text", "label4")
+                        .setPropertyString("softLink", emailQualifiedId2)
+                        .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(
+                                person, email1, email2, label1, label2, label3, label4)
+                        .build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace", "person")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "email1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "email2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "label1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "label2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "label3")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "label4")).hasSize(1);
+
+        // Delete the person (parent) document
+        checkIsBatchResultSuccess(mDb1.removeAsync(
+                new RemoveByDocumentIdRequest.Builder("namespace").addIds("person").build()));
+
+        // Verify that:
+        // - Person document is deleted.
+        // - Email1 document is also deleted due to the delete propagation via "sender".
+        // - Label1 document is also deleted due to the delete propagation via "object".
+        // - Label2 document is still present since "softLink" does not have delete propagation.
+        // - Email2 document is still present since "receiver" does not have delete propagation.
+        // - Label3 document is still present since Email2 is not deleted.
+        // - Label4 document is still present since Email2 is not deleted.
+        AppSearchBatchResult<String, GenericDocument> getResult1 =
+                mDb1.getByDocumentIdAsync(
+                                new GetByDocumentIdRequest.Builder("namespace").addIds(
+                                        "person", "email1", "label1").build())
+                        .get();
+        assertThat(getResult1.isSuccess()).isFalse();
+        assertThat(getResult1.getFailures()).hasSize(3);
+        assertThat(getResult1.getFailures().get("person").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult1.getFailures().get("email1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult1.getFailures().get("label1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        AppSearchBatchResult<String, GenericDocument> getResult2 =
+                mDb1.getByDocumentIdAsync(
+                                new GetByDocumentIdRequest.Builder("namespace").addIds(
+                                        "email2", "label2", "label3", "label4").build())
+                        .get();
+        assertThat(getResult2.isSuccess()).isTrue();
+        assertThat(getResult2.getSuccesses()).hasSize(4);
+        assertThat(getResult2.getSuccesses().get("email2")).isEqualTo(email2);
+        assertThat(getResult2.getSuccesses().get("label2")).isEqualTo(label2);
+        assertThat(getResult2.getSuccesses().get("label3")).isEqualTo(label3);
+        assertThat(getResult2.getSuccesses().get("label4")).isEqualTo(label4);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
+    public void testRemove_withDeletePropagationFromParentToChildren_fromMultipleProperties()
+            throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));
+
+        // Person (parent) schema.
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(
+                        new StringPropertyConfig.Builder("name")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .build();
+        // Email (child) schema: "sender" has delete propagation type PROPAGATE_FROM, and "receiver"
+        // doesn't have delete propagation.
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(
+                        new StringPropertyConfig.Builder("subject")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("sender")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .setDeletePropagationType(
+                                        StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
+                                .build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("receiver")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build())
+                .build();
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, emailSchema)
+                        .build()).get();
+
+        // Put 1 person and 1 email document.
+        // Email document has both "sender" and "receiver" referring to the person document.
+        GenericDocument person =
+                new GenericDocument.Builder<>("namespace", "person", "Person")
+                        .setPropertyString("name", "test person")
+                        .build();
+        String personQualifiedId = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, "namespace", "person");
+        GenericDocument email =
+                new GenericDocument.Builder<>("namespace", "email", "Email")
+                        .setPropertyString("subject", "test email subject")
+                        .setPropertyString("sender", personQualifiedId)
+                        .setPropertyString("receiver", personQualifiedId)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(person, email)
+                        .build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace", "person")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "email")).hasSize(1);
+
+        // Delete the person (parent) document
+        checkIsBatchResultSuccess(mDb1.removeAsync(
+                new RemoveByDocumentIdRequest.Builder("namespace").addIds("person").build()));
+
+        // Verify that:
+        // - Person document is deleted.
+        // - Email document is also deleted since there is at least one property ("sender") with
+        //   DELETE_PROPAGATION_TYPE_PROPAGATE_FROM.
+        AppSearchBatchResult<String, GenericDocument> getResult1 =
+                mDb1.getByDocumentIdAsync(
+                                new GetByDocumentIdRequest.Builder("namespace").addIds(
+                                        "person", "email").build())
+                        .get();
+        assertThat(getResult1.isSuccess()).isFalse();
+        assertThat(getResult1.getFailures()).hasSize(2);
+        assertThat(getResult1.getFailures().get("person").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult1.getFailures().get("email").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
 
     @Test
     public void testRemove_emptyIds_hasNoEffect() throws Exception {
@@ -7905,8 +8546,7 @@ public abstract class AppSearchSessionCtsTestBase {
         Exception e = assertThrows(IllegalArgumentException.class, () ->
                 mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
                         .setForceOverride(true).addSchemas(emailSchema).build()).get());
-        assertThat(e).hasMessageThat().isEqualTo(
-                "tokenizerType is out of range of [0, 1] (too high)");
+        assertThat(e).hasMessageThat().contains("tokenizerType is out of range");
     }
 
 
@@ -11146,7 +11786,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_simple() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11230,7 +11869,90 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingSearch_ann() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig
+                                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                        new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingQueryProbeCount(10)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(-0.2);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-0.9);
+
+        // Test with probe count 0. If probe count is <= 0, embeddings in properties marked with
+        // INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR will be skipped.
+        SearchSpec searchSpecProbeCountZero = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingQueryProbeCount(0)
+                .build();
+        searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpecProbeCountZero);
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).isEmpty();
+    }
+
+    @Test
     public void testEmbeddingSearch_propertyRestriction() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11313,7 +12035,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_multipleSearchEmbeddings() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11402,7 +12123,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_hybrid() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11484,7 +12204,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
@@ -11503,6 +12222,36 @@ public abstract class AppSearchSessionCtsTestBase {
                         searchSpec).getNextPageAsync().get());
         assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                 + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingSearch_ann_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+
+        // Test that setSchema throws UnsupportedOperationException when using
+        // INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig
+                                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                        .build())
+                .build();
+        UnsupportedOperationException schemaException = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder().addSchemas(schema).build()).get());
+        assertThat(schemaException).hasMessageThat().contains(
+                Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR
+                        + " is not available on this AppSearch implementation.");
     }
 
     @Test
@@ -11676,10 +12425,59 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testInformationalRankingExpressions() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email").build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        final int doc0DocScore = 2;
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setScore(doc0DocScore)
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        final int doc1DocScore = 3;
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setScore(doc1DocScore)
+                        .setCreationTimestampMillis(1001)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Make an embedding query that matches all documents.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy("this.creationTimestamp()")
+                .addInformationalRankingExpressions("this.documentScore()")
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search("", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+
+        // doc1:
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(0).getRankingSignal()).isEqualTo(1001);
+        // doc1 has a document score of 3.
+        assertThat(results.get(0).getInformationalRankingSignals())
+                .containsExactly((double) doc1DocScore);
+
+        // doc0:
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(1).getRankingSignal()).isEqualTo(1000);
+        // doc0 has a document score of 2.
+        assertThat(results.get(1).getInformationalRankingSignals())
+                .containsExactly((double) doc0DocScore);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+    public void testInformationalRankingExpressions_embeddingExpression() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
         assumeTrue(mDb1.getFeatures().isFeatureSupported(
@@ -11812,8 +12610,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingQuantization() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11863,9 +12659,117 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isWithin(0.0001)
                 .of(256);
     }
+
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+    public void testEmbeddingPreQuantized() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .setQuantizationType(
+                                AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_8_BIT)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // 1. Construct a pre-quantized embedding vector using the direct constructor.
+        // Supposing minValue = 0, scale = 1.0f, quantized byte = 10, it represents float value
+        // 10.0f.
+        byte[] quantizedValues = new byte[]{10, 20, 30};
+        EmbeddingVector preQuantizedVector1 =
+                new EmbeddingVector(
+                        new EmbeddingVector.QuantizedData(0.0f, 1.0f, quantizedValues),
+                        "my_model");
+
+        // 2. Construct a pre-quantized embedding vector using the static factory method.
+        // Passing {0.0f, 127.5f, 255.0f} calculates min = 0, max = 255, scale = 1.0f,
+        // quantizing to bytes {0, (byte) 128, (byte) 255}.
+        EmbeddingVector preQuantizedVector2 =
+                new EmbeddingVector(
+                        EmbeddingVector.QuantizedData.fromUnquantizedValues(
+                                new float[]{0.0f, 127.5f, 255.0f}),
+                        "my_model");
+
+        // Index documents
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding", preQuantizedVector1)
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "Email")
+                        .setCreationTimestampMillis(1001)
+                        .setPropertyEmbedding("embedding", preQuantizedVector2)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
+
+        // Search using a query vector {1, 1, 1}.
+        // - doc1 dot product with {10, 20, 30} is 10 + 20 + 30 = 60.
+        // - doc2 dot product with {0, 128, 255} is 0 + 128 + 255 = 383.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(new EmbeddingVector(new float[]{1, 1, 1}, "my_model"))
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1000, 1000)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+
+        // Results are sorted by ranking signal descending, so doc2 (383) comes before doc1 (60).
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc2);
+        assertThat(results.get(0).getRankingSignal())
+                .isWithin(0.0001)
+                .of(383);
+
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal())
+                .isWithin(0.0001)
+                .of(60);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+    public void testEmbeddingPreQuantized_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+
+        byte[] quantizedValues = new byte[]{10, 20, 30};
+        EmbeddingVector preQuantizedVector =
+                new EmbeddingVector(
+                        new EmbeddingVector.QuantizedData(0.0f, 1.0f, quantizedValues),
+                        "my_model");
+
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "Email")
+                .setPropertyEmbedding("embedding", preQuantizedVector)
+                .build();
+
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()).get());
+
+        assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA
+                + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
     public void testEmbeddingQuantization_changeSchema() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11952,8 +12856,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingQuantization_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
@@ -11987,7 +12889,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testRankingFunction_maxMinOrDefault() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12133,7 +13034,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testRankingFunction_filterByRange() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -13610,5 +14510,72 @@ public abstract class AppSearchSessionCtsTestBase {
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCORABLE_PROPERTY)
     public void testRankWithInvalidPropertyName() throws Exception {
         // TODO(b/379923400): Implement this test.
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    public void testSetSchema_promoteToAccountProperty_compatible() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("account",
+                                AppSearchAccount.SCHEMA_TYPE)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setShouldIndexNestedProperties(true)
+                                .build())
+                        .build(),
+                AppSearchAccount.SCHEMA);
+
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .build()).get();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .setSchemaTypeWipeoutAccountPropertyPaths(
+                        "Type", ImmutableSet.of(new PropertyPath("account")), true)
+                .build();
+
+        mDb1.setSchemaAsync(request).get();
+    }
+
+    @Test
+    @RequiresFlagsEnabled({
+            Flags.FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK,
+            Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS
+    })
+    public void testSetSchema_promoteToAccountProperty_incompatible() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT));
+
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("account",
+                                AppSearchAccount.SCHEMA_TYPE)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setShouldIndexNestedProperties(true)
+                                .build())
+                        .build(),
+                AppSearchAccount.SCHEMA);
+
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .build()).get();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schemas)
+                .setSchemaTypeWipeoutAccountPropertyPaths(
+                        "Type", ImmutableSet.of(new PropertyPath("account")), true)
+                .build();
+
+        ExecutionException executionException = assertThrows(ExecutionException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_SCHEMA);
+        assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 }

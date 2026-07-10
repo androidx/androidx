@@ -51,7 +51,7 @@ interface TraversableNode : DelegatableNode {
 // *********** Nearest Traversable Ancestor methods ***********
 /** Finds the nearest traversable ancestor with a matching [key]. */
 fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
-    visitAncestors(Nodes.Traversable) {
+    visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (key == it.traverseKey) {
             return it
         }
@@ -61,7 +61,7 @@ fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
 
 /** Finds the nearest ancestor of the same class and key. */
 fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
-    visitAncestors(Nodes.Traversable) {
+    visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
             @Suppress("UNCHECKED_CAST")
             return it as T

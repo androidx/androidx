@@ -17,19 +17,20 @@ package androidx.compose.remote.core.operations.layout.managers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -39,6 +40,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** FitBox layout implementation -- only display the child that fits in the available space */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FitBoxLayout extends LayoutManager {
 
     public static final int START = 1;
@@ -86,7 +88,7 @@ public class FitBoxLayout extends LayoutManager {
     @NonNull
     @Override
     public String toString() {
-        return "BOX ["
+        return "FITBOX ["
                 + mComponentId
                 + ":"
                 + mAnimationId
@@ -108,10 +110,12 @@ public class FitBoxLayout extends LayoutManager {
         return "FITBOX";
     }
 
-    @Override
-    public void computeWrapSize(
+    @SuppressWarnings("UnusedVariable")
+    private void computeWrapSizeOriginal(
             @NonNull PaintContext context,
+            float minWidth,
             float maxWidth,
+            float minHeight,
             float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
@@ -127,14 +131,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }
@@ -159,7 +163,109 @@ public class FitBoxLayout extends LayoutManager {
     }
 
     @Override
+    public void computeWrapSize(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            boolean horizontalWrap,
+            boolean verticalWrap,
+            @NonNull MeasurePass measure,
+            @NonNull Size size) {
+
+        if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+            computeWrapSizePriorityFix(
+                    context,
+                    minWidth,
+                    maxWidth,
+                    minHeight,
+                    maxHeight,
+                    horizontalWrap,
+                    verticalWrap,
+                    measure,
+                    size);
+        } else {
+            computeWrapSizeOriginal(
+                    context,
+                    minWidth,
+                    maxWidth,
+                    minHeight,
+                    maxHeight,
+                    horizontalWrap,
+                    verticalWrap,
+                    measure,
+                    size);
+        }
+    }
+
+    @SuppressWarnings("UnusedVariable")
+    private void computeWrapSizePriorityFix(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            boolean horizontalWrap,
+            boolean verticalWrap,
+            @NonNull MeasurePass measure,
+            @NonNull Size size) {
+
+        boolean found = false;
+        ComponentMeasure self = measure.get(this);
+        self.clearVisibilityOverride();
+
+        for (Component c : mChildrenComponents) {
+            ComponentMeasure m = measure.get(c);
+            m.clearVisibilityOverride();
+
+            if (!found) {
+                float childMinWidth = c.minIntrinsicWidth(context.getContext());
+                float childMinHeight = c.minIntrinsicHeight(context.getContext());
+
+                if (childMinWidth <= maxWidth && childMinHeight <= maxHeight) {
+                    // Measure with actual constraints
+                    c.measure(context, childMinWidth, maxWidth, childMinHeight, maxHeight, measure);
+                    // Check if it fits (without shrinking)
+                    if (m.getW() <= maxWidth && m.getH() <= maxHeight) {
+                        found = true;
+                        m.addVisibilityOverride(Visibility.OVERRIDE_VISIBLE);
+                        size.setWidth(m.getW());
+                        size.setHeight(m.getH());
+                    } else {
+                        m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+                    }
+                } else {
+                    m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+                }
+            } else {
+                m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+            }
+        }
+
+        if (!found) {
+            self.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+        } else {
+            self.addVisibilityOverride(Visibility.OVERRIDE_VISIBLE);
+        }
+    }
+
+    @Override
     public void computeSize(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            @NonNull MeasurePass measure) {
+        if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+            computeSizePriorityFix(context, minWidth, maxWidth, minHeight, maxHeight, measure);
+        } else {
+            computeSizeOriginal(context, minWidth, maxWidth, minHeight, maxHeight, measure);
+        }
+    }
+
+    private void computeSizeOriginal(
             @NonNull PaintContext context,
             float minWidth,
             float maxWidth,
@@ -174,14 +280,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }
@@ -202,6 +308,50 @@ public class FitBoxLayout extends LayoutManager {
             } else {
                 m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
             }
+        }
+    }
+
+    @SuppressWarnings("UnusedVariable")
+    private void computeSizePriorityFix(
+            @NonNull PaintContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
+            @NonNull MeasurePass measure) {
+        boolean found = false;
+        ComponentMeasure self = measure.get(this);
+        self.clearVisibilityOverride();
+
+        for (Component c : mChildrenComponents) {
+            ComponentMeasure m = measure.get(c);
+            m.clearVisibilityOverride();
+
+            if (!found) {
+                float childMinWidth = c.minIntrinsicWidth(context.getContext());
+                float childMinHeight = c.minIntrinsicHeight(context.getContext());
+
+                if (childMinWidth <= maxWidth && childMinHeight <= maxHeight) {
+                    // Measure with actual constraints
+                    c.measure(context, childMinWidth, maxWidth, childMinHeight, maxHeight, measure);
+                    if (m.getW() <= maxWidth && m.getH() <= maxHeight) {
+                        found = true;
+                        m.addVisibilityOverride(Visibility.OVERRIDE_VISIBLE);
+                    } else {
+                        m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+                    }
+                } else {
+                    m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+                }
+            } else {
+                m.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+            }
+        }
+
+        if (!found) {
+            self.addVisibilityOverride(Visibility.OVERRIDE_GONE);
+        } else {
+            self.addVisibilityOverride(Visibility.OVERRIDE_VISIBLE);
         }
     }
 
@@ -249,7 +399,7 @@ public class FitBoxLayout extends LayoutManager {
      */
     @NonNull
     public static String name() {
-        return "BoxLayout";
+        return "FitBoxLayout";
     }
 
     /**
@@ -290,8 +440,8 @@ public class FitBoxLayout extends LayoutManager {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
         int verticalPositioning = buffer.readInt();
         operations.add(
@@ -309,28 +459,23 @@ public class FitBoxLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("fitbox")
                 .description(
                         "FitBox layout implementation.\n\n"
-                            + "Only display the first child component that fits in the available"
-                            + " space")
-                .examplesDimension(150, 100)
-                .exampleImage("Top", "layout-BoxLayout-start-top.png")
-                .exampleImage("Center", "layout-BoxLayout-center-center.png")
-                .exampleImage("Bottom", "layout-BoxLayout-end-bottom.png")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
-                .field(
-                        INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "HORIZONTAL_POSITIONING", "horizontal positioning value")
-                .possibleValues("START", FitBoxLayout.START)
-                .possibleValues("CENTER", FitBoxLayout.CENTER)
-                .possibleValues("END", FitBoxLayout.END)
-                .field(INT, "VERTICAL_POSITIONING", "vertical positioning value")
-                .possibleValues("TOP", FitBoxLayout.TOP)
-                .possibleValues("CENTER", FitBoxLayout.CENTER)
-                .possibleValues("BOTTOM", FitBoxLayout.BOTTOM);
+                                + "Only displays the first child component that fits in the "
+                                + "available"
+                                + " space.")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .possibleValues("START", START)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("END", END)
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .possibleValues("TOP", TOP)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("BOTTOM", BOTTOM);
     }
 
     @Override

@@ -18,9 +18,9 @@ package androidx.compose.runtime.snapshots
 
 /**
  * This annotation designates that a property on a [State] class will autobox when it is read from
- * or assigned to. This is helpful for state APIs like [IntState], which define an alternative value
- * property that does not box while maintaining compatibility with the generic [`State<T>`][State]
- * API.
+ * or assigned to. This is helpful for state APIs like [androidx.compose.runtime.IntState], which
+ * define an alternative value property that does not box while maintaining compatibility with the
+ * generic [`State<T>`][State] API.
  *
  * Whenever a property that is annotated with `AutoboxingStateValueProperty` is accessed in code, it
  * will be flagged with a warning and will suggest using an alternative, non-boxing property

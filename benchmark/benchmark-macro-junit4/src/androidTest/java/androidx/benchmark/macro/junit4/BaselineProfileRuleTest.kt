@@ -31,6 +31,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -185,6 +186,9 @@ class BaselineProfileRuleTest {
     }
 
     @Test
+    @Ignore(
+        "ART is making a change to the way profiles work. Classes loaded in the background are no longer added to the profile. The goal is reduce the size of the app image (helps with memory). [b/502168386]"
+    )
     fun captureRulesRemoteProcess() {
         val result =
             baselineRule.collectWithResults(TrivialServiceHandle.TARGET, maxIterations = 1) {

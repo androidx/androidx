@@ -23,6 +23,8 @@ import androidx.annotation.RestrictTo;
 import androidx.work.impl.utils.SerialExecutorImpl;
 
 import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.CoroutineScopeKt;
 import kotlinx.coroutines.ExecutorsKt;
 
 import org.jspecify.annotations.NonNull;
@@ -36,13 +38,19 @@ import java.util.concurrent.Executor;
 public class WorkManagerTaskExecutor implements TaskExecutor {
 
     private final SerialExecutorImpl mBackgroundExecutor;
+    private final CoroutineDispatcher mEventDispatcher;
     private final CoroutineDispatcher mTaskDispatcher;
+    private final CoroutineScope mCoroutineScope;
 
     public WorkManagerTaskExecutor(@NonNull Executor backgroundExecutor) {
         // Wrap it with a serial executor so we have ordering guarantees on commands
         // being executed.
         mBackgroundExecutor = new SerialExecutorImpl(backgroundExecutor);
         mTaskDispatcher = ExecutorsKt.from(mBackgroundExecutor);
+        // Wrap it with a *separate* serial executor so we still have ordering guarantees on
+        // event hooks, but they do not block commands being executed
+        mEventDispatcher = ExecutorsKt.from(new SerialExecutorImpl(backgroundExecutor));
+        mCoroutineScope = CoroutineScopeKt.CoroutineScope(mTaskDispatcher);
     }
 
     final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
@@ -65,7 +73,17 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     }
 
     @Override
+    public @NonNull CoroutineScope getCoroutineScope() {
+        return mCoroutineScope;
+    }
+
+    @Override
     public @NonNull CoroutineDispatcher getTaskCoroutineDispatcher() {
         return mTaskDispatcher;
+    }
+
+    @Override
+    public @NonNull CoroutineDispatcher getEventListenerDispatcher() {
+        return mEventDispatcher;
     }
 }

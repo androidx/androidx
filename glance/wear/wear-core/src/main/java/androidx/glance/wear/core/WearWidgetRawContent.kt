@@ -1,0 +1,67 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.glance.wear.core
+
+import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.glance.wear.parcel.WearWidgetRawContentParcel
+import androidx.glance.wear.proto.WearWidgetRawContentProto
+import okio.ByteString.Companion.toByteString
+
+/**
+ * Describes the raw contents from [WearWidgetContent]. This is after RC content is captured and
+ * serialized.
+ *
+ * @property rcDocument The remote compose document.
+ * @property extras Extras to be sent along with the response.
+ * @property widgetTitle The override widget title. This can be used when the widget is shown in
+ *   compatibility mode (containerType = FULLSCREEN).
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class WearWidgetRawContent(
+    public val rcDocument: ByteArray,
+    public val extras: Bundle,
+    public val widgetTitle: String? = null,
+) {
+
+    /** Convert to the parcelable [androidx.glance.wear.parcel.WearWidgetRawContentParcel]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toParcel(): WearWidgetRawContentParcel {
+        val contentProto =
+            WearWidgetRawContentProto(
+                rc_document = rcDocument.toByteString(),
+                widget_title = widgetTitle,
+            )
+        return WearWidgetRawContentParcel().apply {
+            payload = contentProto.encode()
+            extras = this@WearWidgetRawContent.extras
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        public fun fromParcel(contentParcel: WearWidgetRawContentParcel): WearWidgetRawContent {
+            val contentProto =
+                WearWidgetRawContentProto.Companion.ADAPTER.decode(contentParcel.payload)
+            return WearWidgetRawContent(
+                rcDocument = contentProto.rc_document.toByteArray(),
+                extras = contentParcel.extras ?: Bundle.EMPTY,
+                widgetTitle = contentProto.widget_title,
+            )
+        }
+    }
+}

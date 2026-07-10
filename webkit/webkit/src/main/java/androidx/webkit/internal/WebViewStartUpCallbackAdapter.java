@@ -25,8 +25,6 @@ import org.chromium.support_lib_boundary.WebViewStartUpResultBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.InvocationHandler;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +34,7 @@ import java.util.Objects;
  * Adapter between WebViewCompat.WebViewStartUpCallback and WebViewStartUpCallbackBoundaryInterface
  * (the corresponding interface shared with the support library glue in the WebView APK).
  */
+@SuppressWarnings("removal")
 @WebViewCompat.ExperimentalAsyncStartUp
 public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoundaryInterface {
     private final WebViewCompat.WebViewStartUpCallback mWebViewStartUpCallback;
@@ -66,13 +65,23 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
 
         /**
          * Gets the stack information depicting the code location.
+         *
+         * <p><b>Note:</b> The returned {@link Throwable} can be converted to a diagnostic String
+         * using the following code:
+         *
+         * <pre>{@code
+         * Throwable stackInfo = getStackInformation();
+         * StringWriter sw = new StringWriter();
+         * try (PrintWriter pw = new PrintWriter(sw)) {
+         *     stackInfo.printStackTrace(pw);
+         * }
+         * String sStackTrace = sw.toString();
+         * }</pre>
          */
         @Override
         @NonNull
-        public String getStackInformation() {
-            StringWriter sw = new StringWriter();
-            mThrowable.printStackTrace(new PrintWriter(sw));
-            return sw.toString();
+        public Throwable getStackInformation() {
+            return mThrowable;
         }
     }
 

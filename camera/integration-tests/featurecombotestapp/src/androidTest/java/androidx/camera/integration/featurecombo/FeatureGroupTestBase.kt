@@ -24,18 +24,20 @@ import android.hardware.DataSpace.TRANSFER_HLG
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.os.SystemClock
+import android.util.Log
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
+import androidx.camera.camera2.adapter.awaitUntil
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ExtendableBuilder
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.getImageCaptureCapabilities
 import androidx.camera.core.Preview
@@ -46,14 +48,18 @@ import androidx.camera.core.featuregroup.GroupableFeature.Companion.FPS_60
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.HDR_HLG10
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.IMAGE_ULTRA_HDR
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.PREVIEW_STABILIZATION
+import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.utils.AspectRatioUtil
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.takePicture
-import androidx.camera.integration.featurecombo.FeatureGroupTestBase.Companion.SupportedUseCase.IMAGE_CAPTURE
-import androidx.camera.integration.featurecombo.FeatureGroupTestBase.Companion.SupportedUseCase.PREVIEW
-import androidx.camera.integration.featurecombo.FeatureGroupTestBase.Companion.SupportedUseCase.VIDEO_CAPTURE
+import androidx.camera.integration.featurecombo.AppUseCase.IMAGE_ANALYSIS
+import androidx.camera.integration.featurecombo.AppUseCase.IMAGE_CAPTURE
+import androidx.camera.integration.featurecombo.AppUseCase.PREVIEW
+import androidx.camera.integration.featurecombo.AppUseCase.VIDEO_CAPTURE
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.Camera2CaptureCallbackImpl
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -62,6 +68,12 @@ import androidx.camera.testing.impl.UltraHdrImageVerification.assertJpegUltraHdr
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.util.Camera2InteropUtil
+import androidx.camera.video.GroupableFeatures.FHD_RECORDING
+import androidx.camera.video.GroupableFeatures.HD_RECORDING
+import androidx.camera.video.GroupableFeatures.QHD_RECORDING
+import androidx.camera.video.GroupableFeatures.SD_RECORDING
+import androidx.camera.video.GroupableFeatures.UHD_RECORDING
+import androidx.camera.video.GroupableFeatures.VIDEO_STABILIZATION
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
@@ -69,9 +81,16 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.collections.forEach
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
@@ -87,18 +106,8 @@ open class FeatureGroupTestBase(
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(
-                if (implName == Camera2Config::class.simpleName) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            )
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
@@ -110,9 +119,16 @@ open class FeatureGroupTestBase(
 
     protected val surfaceTextureDeferred = CompletableDeferred<SurfaceTexture>()
 
-    private val preview =
+    private fun createPreview(aspectRatio: Int) =
         Preview.Builder()
-            .apply { applySessionCaptureCallback() }
+            .apply {
+                applyResolutionSelector(
+                    aspectRatio,
+                    resolutionSelectorSetter = ::setResolutionSelector,
+                )
+
+                applySessionCaptureCallback()
+            }
             .build()
             .apply {
                 runBlocking {
@@ -136,19 +152,63 @@ open class FeatureGroupTestBase(
                 }
             }
 
-    private val imageCapture =
-        ImageCapture.Builder().apply { applySessionCaptureCallback() }.build()
+    private fun createImageCapture(aspectRatio: Int) =
+        ImageCapture.Builder()
+            .apply {
+                applyResolutionSelector(
+                    aspectRatio,
+                    resolutionSelectorSetter = ::setResolutionSelector,
+                )
 
-    private val videoCapture =
-        VideoCapture.Builder(Recorder.Builder().build())
+                applySessionCaptureCallback()
+            }
+            .build()
+
+    private fun createImageAnalysis(aspectRatio: Int) =
+        ImageAnalysis.Builder()
+            .apply {
+                applyResolutionSelector(
+                    aspectRatio,
+                    resolutionSelectorSetter = ::setResolutionSelector,
+                )
+
+                applySessionCaptureCallback()
+            }
+            .build()
+            .apply {
+                setAnalyzer(Dispatchers.Default.asExecutor()) {
+                    // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent
+                    // the closing of the CameraDevice from being stuck.
+                    it.close()
+                }
+            }
+
+    private fun createVideoCapture(aspectRatio: Int) =
+        VideoCapture.Builder(Recorder.Builder().setAspectRatio(aspectRatio).build())
             .apply { applySessionCaptureCallback() }
             .build()
 
-    protected fun List<SupportedUseCase>.toUseCases() = map {
+    private fun applyResolutionSelector(
+        aspectRatio: Int,
+        resolutionSelectorSetter: (ResolutionSelector) -> Unit,
+    ) {
+        if (aspectRatio != AspectRatio.RATIO_DEFAULT) {
+            resolutionSelectorSetter(
+                ResolutionSelector.Builder()
+                    .setAspectRatioStrategy(
+                        AspectRatioStrategy(aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO)
+                    )
+                    .build()
+            )
+        }
+    }
+
+    protected fun List<AppUseCase>.toUseCases(aspectRatio: Int = AspectRatio.RATIO_DEFAULT) = map {
         when (it) {
-            PREVIEW -> preview
-            IMAGE_CAPTURE -> imageCapture
-            VIDEO_CAPTURE -> videoCapture
+            PREVIEW -> createPreview(aspectRatio)
+            IMAGE_CAPTURE -> createImageCapture(aspectRatio)
+            IMAGE_ANALYSIS -> createImageAnalysis(aspectRatio)
+            VIDEO_CAPTURE -> createVideoCapture(aspectRatio)
         }
     }
 
@@ -171,28 +231,39 @@ open class FeatureGroupTestBase(
         }
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @SuppressLint("NewApi")
     protected suspend fun Set<GroupableFeature>.verifyFeatures(
         useCases: List<UseCase>,
         cameraInfo: CameraInfo,
+        aspectRatio: Int = AspectRatio.RATIO_DEFAULT,
     ) {
-        forEach {
-            when (it) {
-                HDR_HLG10 -> {
-                    // Reaching this stage before API 33 means query API didn't work correctly
-                    require(Build.VERSION.SDK_INT >= 33)
-                    verifyHlg10Hdr(useCases, cameraInfo)
+        Log.d(TAG, "verifyFeatures: $this, useCases = $useCases")
+
+        coroutineScope {
+            map {
+                    async {
+                        when {
+                            it == HDR_HLG10 -> {
+                                // Reaching this stage before API 33 means query API didn't work
+                                // correctly
+                                require(Build.VERSION.SDK_INT >= 33)
+                                verifyHlg10Hdr(useCases, cameraInfo)
+                            }
+                            it == FPS_60 -> verify60Fps(cameraInfo)
+                            it == PREVIEW_STABILIZATION ->
+                                verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
+                            it == IMAGE_ULTRA_HDR -> {
+                                // Reaching this stage before API 34 means query API didn't work
+                                // correctly
+                                require(Build.VERSION.SDK_INT >= 34)
+                                verifyUltraHdr(useCases, cameraInfo)
+                            }
+                            it.featureTypeInternal == FeatureTypeInternal.RECORDING_QUALITY ->
+                                verifyRecordingQuality(useCases, it, aspectRatio)
+                        }
+                    }
                 }
-                FPS_60 -> verify60Fps(cameraInfo)
-                PREVIEW_STABILIZATION ->
-                    verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
-                IMAGE_ULTRA_HDR -> {
-                    // Reaching this stage before API 34 means query API didn't work correctly
-                    require(Build.VERSION.SDK_INT >= 34)
-                    verifyUltraHdr(useCases, cameraInfo)
-                }
-            }
+                .awaitAll()
         }
     }
 
@@ -237,6 +308,45 @@ open class FeatureGroupTestBase(
         assertThat(cameraInfo.supportedFrameRateRanges).contains(Range(60, 60))
 
         verifyCaptureResult(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(60, 60))
+
+        // Wait a little bit for the frame rate to settle
+        delay(500)
+
+        val lastFrameNumber = AtomicLong(-1)
+        val frameCount = AtomicInteger(0)
+        val startTime = AtomicLong(0L)
+        val currentFps = AtomicReference(0.0)
+
+        val result =
+            sessionCaptureCallback.verify { _, captureResult ->
+                val currentFrame = captureResult.frameNumber
+                if (lastFrameNumber.getAndSet(currentFrame) != currentFrame) {
+                    frameCount.incrementAndGet()
+                }
+
+                val currentTime = SystemClock.elapsedRealtime()
+                if (startTime.compareAndSet(0L, currentTime)) {
+                    // Start counting from the first observed frame in the window
+                    frameCount.set(0)
+                }
+
+                val timeDiff = currentTime - startTime.get()
+                if (timeDiff >= 3000) { // Calculate over a 3-second window
+                    currentFps.set((frameCount.get() * 1000.0) / timeDiff)
+                    true // Complete verification
+                } else {
+                    false
+                }
+            }
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 5000)
+        assertWithMessage("Test failed to complete FPS verification in time")
+            .that(isCompleted)
+            .isTrue()
+
+        assertWithMessage("Actual capture result FPS was too low: ${currentFps.get()}")
+            .that(currentFps.get())
+            .isGreaterThan(40.0)
     }
 
     private suspend fun verifyPreviewStabilization(cameraInfo: CameraInfo) {
@@ -256,6 +366,57 @@ open class FeatureGroupTestBase(
         val imageCapture = useCases.filterIsInstance<ImageCapture>().first()
 
         imageCapture.takePicture().assertJpegUltraHdr()
+    }
+
+    private fun verifyRecordingQuality(
+        useCases: List<UseCase>,
+        feature: GroupableFeature,
+        aspectRatio: Int = AspectRatio.RATIO_DEFAULT,
+    ) {
+        val videoCapture = checkNotNull(useCases.firstOrNull { it is VideoCapture<*> })
+
+        val expectedHeightRange =
+            when (feature) {
+                UHD_RECORDING -> Range(2160, 4319)
+                QHD_RECORDING -> Range(1440, 2159)
+                FHD_RECORDING -> Range(1080, 1439)
+                HD_RECORDING -> Range(720, 1079)
+                SD_RECORDING -> Range(241, 719)
+                else -> throw IllegalStateException("Unknown recording quality feature: $feature")
+            }
+
+        val resolution =
+            checkNotNull(videoCapture.attachedStreamSpec?.resolution).run {
+                if (width >= height) this else Size(height, width)
+            }
+
+        if (aspectRatio != AspectRatio.RATIO_DEFAULT) {
+            assertWithMessage(
+                    "AspectRatio matching failed for VideoCapture resolution = $resolution" +
+                        ", feature = $feature, aspectRatio = $aspectRatio" +
+                        ", expectedHeightRange = $expectedHeightRange"
+                )
+                .that(
+                    AspectRatioUtil.hasMatchingAspectRatio(
+                        resolution,
+                        when (aspectRatio) {
+                            AspectRatio.RATIO_16_9 -> AspectRatioUtil.ASPECT_RATIO_16_9
+                            AspectRatio.RATIO_4_3 -> AspectRatioUtil.ASPECT_RATIO_4_3
+                            else ->
+                                throw IllegalStateException("Unknown aspect ratio: $aspectRatio")
+                        },
+                    )
+                )
+                .isTrue()
+        }
+
+        assertWithMessage(
+                "Height range matching failed for VideoCapture resolution = $resolution" +
+                    ", feature = $feature, aspectRatio = $aspectRatio" +
+                    ", expectedHeightRange = $expectedHeightRange"
+            )
+            .that(expectedHeightRange.contains(resolution.height))
+            .isTrue()
     }
 
     private suspend fun <T> verifyCaptureResult(
@@ -283,21 +444,39 @@ open class FeatureGroupTestBase(
     }
 
     companion object {
-        enum class SupportedUseCase {
-            PREVIEW,
-            IMAGE_CAPTURE,
-            VIDEO_CAPTURE,
-        }
-
         /** The most common use case combinations expected for feature group API. */
         val useCaseCombinationsToTest =
             listOf(
                 listOf(PREVIEW, IMAGE_CAPTURE),
                 listOf(PREVIEW, VIDEO_CAPTURE),
                 listOf(PREVIEW, IMAGE_CAPTURE, VIDEO_CAPTURE),
+                listOf(PREVIEW, VIDEO_CAPTURE, IMAGE_ANALYSIS),
             )
 
-        @OptIn(ExperimentalSessionConfig::class)
-        val allFeatures = setOf(HDR_HLG10, FPS_60, PREVIEW_STABILIZATION, IMAGE_ULTRA_HDR)
+        val allHighQualityFeatures =
+            setOf(
+                HDR_HLG10,
+                FPS_60,
+                PREVIEW_STABILIZATION,
+                VIDEO_STABILIZATION,
+                IMAGE_ULTRA_HDR,
+                UHD_RECORDING,
+            )
+
+        val allFeatures =
+            setOf(
+                HDR_HLG10,
+                FPS_60,
+                PREVIEW_STABILIZATION,
+                VIDEO_STABILIZATION,
+                IMAGE_ULTRA_HDR,
+                UHD_RECORDING,
+                QHD_RECORDING,
+                FHD_RECORDING,
+                HD_RECORDING,
+                SD_RECORDING,
+            )
+
+        private const val TAG = "FeatureGroupTestBase"
     }
 }

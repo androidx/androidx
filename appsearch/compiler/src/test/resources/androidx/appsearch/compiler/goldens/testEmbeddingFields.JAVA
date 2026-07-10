@@ -63,6 +63,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
             .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
             .build())
+          .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("annVec")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
+            .build())
           .build();
   }
 
@@ -105,6 +110,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (arrVecCopy != null) {
       builder.setPropertyEmbedding("arrVec", arrVecCopy);
     }
+    EmbeddingVector annVecCopy = document.annVec;
+    if (annVecCopy != null) {
+      builder.setPropertyEmbedding("annVec", annVecCopy);
+    }
     return builder.build();
   }
 
@@ -144,6 +153,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
       collectVecConv = Arrays.asList(collectVecCopy);
     }
     EmbeddingVector[] arrVecConv = genericDoc.getPropertyEmbeddingArray("arrVec");
+    EmbeddingVector[] annVecCopy = genericDoc.getPropertyEmbeddingArray("annVec");
+    EmbeddingVector annVecConv = null;
+    if (annVecCopy != null && annVecCopy.length != 0) {
+      annVecConv = annVecCopy[0];
+    }
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
@@ -154,6 +168,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.listVec = listVecConv;
     document.collectVec = collectVecConv;
     document.arrVec = arrVecConv;
+    document.annVec = annVecConv;
     return document;
   }
 }

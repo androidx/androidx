@@ -67,8 +67,9 @@ import kotlin.math.min
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
- * animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
+ * [androidx.compose.animation.core.AnimationSpec] when animating progress, such as in the following
+ * example:
  *
  * @sample androidx.compose.material3.samples.LinearProgressIndicatorSample
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
@@ -119,8 +120,9 @@ fun LinearProgressIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
- * animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
+ * [androidx.compose.animation.core.AnimationSpec] when animating progress, such as in the following
+ * example:
  *
  * @sample androidx.compose.material3.samples.LinearProgressIndicatorSample
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
@@ -445,8 +447,9 @@ private fun DrawScope.drawLinearIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
- * animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
+ * [androidx.compose.animation.core.AnimationSpec] when animating progress, such as in the following
+ * example:
  *
  * @sample androidx.compose.material3.samples.CircularProgressIndicatorSample
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
@@ -500,8 +503,9 @@ fun CircularProgressIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
- * animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
+ * [androidx.compose.animation.core.AnimationSpec] when animating progress, such as in the following
+ * example:
  *
  * @sample androidx.compose.material3.samples.CircularProgressIndicatorSample
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
@@ -863,8 +867,8 @@ object ProgressIndicatorDefaults {
     val CircularIndicatorTrackGapSize: Dp = CircularProgressIndicatorTokens.TrackActiveSpace
 
     /**
-     * The default [AnimationSpec] that should be used when animating between progress in a
-     * determinate progress indicator.
+     * The default [androidx.compose.animation.core.AnimationSpec] that should be used when
+     * animating between progress in a determinate progress indicator.
      */
     val ProgressAnimationSpec =
         SpringSpec(

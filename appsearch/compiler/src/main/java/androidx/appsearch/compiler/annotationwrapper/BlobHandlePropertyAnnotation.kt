@@ -16,9 +16,9 @@
 package androidx.appsearch.compiler.annotationwrapper
 
 import androidx.appsearch.compiler.IntrospectionHelper
-import androidx.appsearch.compiler.ProcessingException
-import com.squareup.javapoet.ClassName
-import javax.lang.model.type.TypeMirror
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.XType
 
 /** An instance of the `@Document.BlobHandleProperty` annotation. */
 data class BlobHandlePropertyAnnotation(
@@ -33,10 +33,10 @@ data class BlobHandlePropertyAnnotation(
         genericDocSetterName = "setPropertyBlobHandle",
     ) {
     companion object {
-        val CLASS_NAME: ClassName =
+        val CLASS_NAME: XClassName =
             IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.nestedClass("BlobHandleProperty")
 
-        val CONFIG_CLASS: ClassName =
+        val CONFIG_CLASS: XClassName =
             IntrospectionHelper.APPSEARCH_SCHEMA_CLASS.nestedClass("BlobHandlePropertyConfig")
 
         /**
@@ -44,17 +44,15 @@ data class BlobHandlePropertyAnnotation(
          *
          * @param defaultName The name to use for the annotated property in case the annotation
          *   params do not mention an explicit name.
-         * @throws ProcessingException If the annotation points to an Illegal serializer class.
          */
-        @Throws(ProcessingException::class)
         fun parse(
-            annotationParams: Map<String, Any?>,
+            annotationParams: Map<String, XAnnotationValue>,
             defaultName: String,
         ): BlobHandlePropertyAnnotation {
-            val name = annotationParams["name"] as? String
+            val name = annotationParams["name"]?.value as? String
             return BlobHandlePropertyAnnotation(
                 name = if (name.isNullOrEmpty()) defaultName else name,
-                isRequired = annotationParams["required"] as Boolean,
+                isRequired = annotationParams.getValue("required").asBoolean(),
             )
         }
     }
@@ -62,6 +60,6 @@ data class BlobHandlePropertyAnnotation(
     override val dataPropertyKind
         get() = Kind.BLOB_HANDLE_PROPERTY
 
-    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): TypeMirror =
+    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): XType =
         helper.blobHandleType
 }

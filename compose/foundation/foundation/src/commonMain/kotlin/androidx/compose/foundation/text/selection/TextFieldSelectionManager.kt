@@ -21,7 +21,6 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
-import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.internal.isAutofillAvailable
 import androidx.compose.foundation.internal.isReadSupported
 import androidx.compose.foundation.internal.isWriteSupported
@@ -247,9 +246,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         },
                         onHide = { textToolbarShownViaProvider = false },
                         computeContentBounds = { destinationCoordinates ->
+                            // We have to compute the root bounds first even if layoutCoordinates is
+                            // null, so that the Snapshot reads can be correctly recorded.
                             val rootBounds = getContentRect()
                             val localCoordinates =
-                                checkPreconditionNotNull(state?.layoutCoordinates)
+                                state?.layoutCoordinates
+                                    ?: return@textContextMenuToolbarHandler null
                             translateRootToDestination(
                                 rootContentBounds = rootBounds,
                                 localCoordinates = localCoordinates,
@@ -263,6 +265,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         object : TextDragObserver {
             private var isLongPressSelectionOnly = true
             private var runningSelection: TextRange? = null
+            private var selectionAdjustmentMode = SelectionAdjustment.None
 
             override fun onDown(point: Offset) {
                 // Not supported for long-press-drag.
@@ -272,7 +275,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 // Nothing to do.
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 if (!enabled || draggingHandle != null) return
                 // While selecting by long-press-dragging, the "end" of the selection is always the
                 // one
@@ -280,6 +283,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 draggingHandle = Handle.SelectionEnd
                 previousRawDragOffset = -1
                 isLongPressSelectionOnly = true
+                selectionAdjustmentMode = selectionAdjustment
 
                 // ensuring that current action mode (selection toolbar) is invalidated
                 hideSelectionToolbar()
@@ -297,7 +301,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                             )
 
                         enterSelectionMode(showFloatingToolbar = false)
-                        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.LongPress)
                         onValueChange(newValue)
                         latestSelection = newValue.selection
                     }
@@ -314,8 +318,9 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                             currentPosition = startPoint,
                             isStartOfSelection = true,
                             isStartHandle = false,
-                            adjustment = SelectionAdjustment.Word,
+                            adjustment = selectionAdjustmentMode,
                             isTouchBasedSelection = true,
+                            hapticFeedbackType = HapticFeedbackType.LongPress,
                         )
                     // For touch, set the begin selection to the adjusted selection.
                     // When char based selection is used, we want to ensure we snap the
@@ -372,6 +377,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                                 isStartHandle = false,
                                 adjustment = adjustment,
                                 isTouchBasedSelection = true,
+                                hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                             )
                         } else {
                             val startOffset =
@@ -397,8 +403,9 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                                 currentPosition = currentDragPosition!!,
                                 isStartOfSelection = false,
                                 isStartHandle = false,
-                                adjustment = SelectionAdjustment.Word,
+                                adjustment = selectionAdjustmentMode,
                                 isTouchBasedSelection = true,
+                                hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                             )
                         }
 
@@ -417,6 +424,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             private fun onEnd() {
                 draggingHandle = null
                 currentDragPosition = null
+                selectionAdjustmentMode = SelectionAdjustment.None
                 updateFloatingToolbar(show = true)
 
                 val collapsed = runningSelection?.collapsed ?: value.selection.collapsed
@@ -528,6 +536,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         isStartHandle = false,
                         adjustment = adjustment,
                         isTouchBasedSelection = false,
+                        hapticFeedbackType = null,
                     )
                 if (newSelection != initialSelection) {
                     isDoubleOrTripleClickSelectionOnly = false
@@ -617,7 +626,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 updateFloatingToolbar(show = true)
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 // handled in onDown
             }
 
@@ -632,6 +641,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     isStartHandle = isStartHandle,
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     isTouchBasedSelection = true, // handle drag infers touch
+                    hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                 )
                 updateFloatingToolbar(show = false)
             }
@@ -657,7 +667,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 currentDragPosition = null
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 // The position of the character where the drag gesture should begin. This is in
                 // the inner text field coordinates.
                 val handleCoordinates = getAdjustedCoordinates(getHandlePosition(true))
@@ -794,8 +804,23 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     private val hasSelection: Boolean
         get() = !value.selection.collapsed
 
-    internal fun canCopy(): Boolean =
-        hasSelection && !isPassword && clipboard?.isWriteSupported() == true
+    /**
+     * Whether it makes sense to show the "Copy" menu item. It makes sense when:
+     * - copying is allowed in the current state
+     * - Clipboard API supports writing
+     */
+    internal fun canShowCopyMenuItem(): Boolean =
+        isCopyAllowed() && clipboard?.isWriteSupported() == true
+
+    /**
+     * Whether the copying is allowed in the current state. It checks the essential conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     *
+     * Also, see [copyWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCopyAllowed(): Boolean = hasSelection && !isPassword
 
     internal suspend fun updateClipboardEntry() {
         if (clipboard?.isReadSupported() == true) {
@@ -817,15 +842,38 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     }
 
     /** Only fully accurate if [updateClipboardEntry] has been called. */
-    internal fun canPaste(): Boolean =
-        editable && hasAvailableTextToPaste && clipboard?.isReadSupported() == true
+    internal fun canShowPasteMenuItem(): Boolean =
+        isPasteAllowed() && hasAvailableTextToPaste && clipboard?.isReadSupported() == true
 
-    internal fun canCut(): Boolean =
-        hasSelection && editable && !isPassword && clipboard?.isWriteSupported() == true
+    /**
+     * Whether 'paste' is allowed. It's allowed when the text field is editable.
+     *
+     * Also, see [paste]
+     */
+    @Suppress("NOTHING_TO_INLINE") internal inline fun isPasteAllowed(): Boolean = editable
 
-    internal fun canSelectAll(): Boolean = value.selection.length != value.text.length
+    /**
+     * Whether it makes sense to show the "Cut" menu item. It makes sense when:
+     * - cut operation is allowed in the current state
+     * - Clipboard API supports writing
+     */
+    internal fun canShowCutMenuItem(): Boolean =
+        isCutAllowed() && clipboard?.isWriteSupported() == true
 
-    internal fun canAutofill(): Boolean = editable && value.selection.collapsed
+    /**
+     * Whether the "cut" action is allowed in the current state. It checks the essential conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     * - the text field is editable
+     *
+     * Also, see [cutWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCutAllowed(): Boolean = hasSelection && editable && !isPassword
+
+    internal fun canShowSelectAllMenuItem(): Boolean = value.selection.length != value.text.length
+
+    internal fun canShowAutofillMenuItem(): Boolean = editable && value.selection.collapsed
 
     /**
      * The method for copying text.
@@ -837,23 +885,35 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     internal fun copy(cancelSelection: Boolean = true) =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
-            if (value.selection.collapsed) return@launch
+            val valueToCopy = copyWithResult(cancelSelection) ?: return@launch
 
             // TODO(b/171947959) check if original or transformed should be copied
-            clipboard?.setClipEntry(value.getSelectedText().toClipEntry())
-
-            if (!cancelSelection) return@launch
-
-            val newCursorOffset = value.selection.max
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = value.annotatedString,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
+            clipboard?.setClipEntry(valueToCopy.toClipEntry())
         }
+
+    /**
+     * The method for copying text.
+     *
+     * It returns the text that is expected to be copied (stored in a Clipboard). This method
+     * doesn't interact with the Clipboard directly, it covers the case when handling a 'copy'
+     * ClipboardEvent.
+     */
+    internal fun copyWithResult(cancelSelection: Boolean = true): AnnotatedString? {
+        if (!isCopyAllowed()) return null
+        val selectedText = value.getSelectedText()
+
+        if (!cancelSelection) return selectedText
+
+        val newCursorOffset = value.selection.max
+        val newValue =
+            createTextFieldValue(
+                annotatedString = value.annotatedString,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        return selectedText
+    }
 
     /**
      * The method for pasting text.
@@ -866,23 +926,35 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     internal fun paste() =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
             val text = clipboard?.getClipEntry()?.readAnnotatedString() ?: return@launch
-
-            val newText =
-                value.getTextBeforeSelection(value.text.length) +
-                    text +
-                    value.getTextAfterSelection(value.text.length)
-            val newCursorOffset = value.selection.min + text.length
-
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = newText,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
-            undoManager?.forceNextSnapshot()
+            paste(text)
         }
+
+    /**
+     * The method for pasting text.
+     *
+     * @param text - the text to paste. It can be provided externally, for example from a platform's
+     *   ClipboardEvent.
+     *
+     * This overload doesn't interact with the Clipboard directly. It covers the case when handling
+     * a 'paste' ClipboardEvent.
+     */
+    internal fun paste(text: AnnotatedString) {
+        if (!isPasteAllowed()) return
+        val newText =
+            value.getTextBeforeSelection(value.text.length) +
+                text +
+                value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min + text.length
+
+        val newValue =
+            createTextFieldValue(
+                annotatedString = newText,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+    }
 
     /**
      * The method for cutting text.
@@ -893,26 +965,38 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     internal fun cut() =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
-            if (value.selection.collapsed) return@launch
+            val valueToCut = cutWithResult() ?: return@launch
 
             // TODO(b/171947959) check if original or transformed should be cut
-            clipboard?.setClipEntry(value.getSelectedText().toClipEntry())
-
-            val newText =
-                value.getTextBeforeSelection(value.text.length) +
-                    value.getTextAfterSelection(value.text.length)
-            val newCursorOffset = value.selection.min
-
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = newText,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
-            undoManager?.forceNextSnapshot()
+            clipboard?.setClipEntry(valueToCut.toClipEntry())
         }
+
+    /**
+     * The method for cutting text.
+     *
+     * It returns the text that was cut and it is expected to be copied (stored in a Clipboard).
+     * This overload covers the case when handling a 'cut' ClipboardEvent.
+     */
+    internal fun cutWithResult(): AnnotatedString? {
+        if (!isCutAllowed()) return null
+        val selectedText = value.getSelectedText()
+
+        val newText =
+            value.getTextBeforeSelection(value.text.length) +
+                value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min
+
+        val newValue =
+            createTextFieldValue(
+                annotatedString = newText,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+
+        return selectedText
+    }
 
     /*@VisibleForTesting*/
     internal fun selectAll() {
@@ -963,6 +1047,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         return Offset(x, cursorRect.bottom)
     }
 
+    internal fun getCursorRect(): Rect {
+        val offset = offsetMapping.originalToTransformed(value.selection.start)
+        val layoutResult = state?.layoutResult!!.value
+        return layoutResult.getCursorRect(offset.coerceIn(0, layoutResult.layoutInput.text.length))
+    }
+
     /**
      * Update the [LegacyTextFieldState.showFloatingToolbar] state and show/hide the toolbar.
      *
@@ -1003,7 +1093,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             // in a composition loop.
             Snapshot.withoutReadObservation {
                 val copy: (() -> Unit)? =
-                    if (canCopy()) {
+                    if (canShowCopyMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { copy() }
                             hideSelectionToolbar()
@@ -1011,7 +1101,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val cut: (() -> Unit)? =
-                    if (canCut()) {
+                    if (canShowCutMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { cut() }
                             hideSelectionToolbar()
@@ -1019,7 +1109,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val paste: (() -> Unit)? =
-                    if (canPaste()) {
+                    if (canShowPasteMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { paste() }
                             hideSelectionToolbar()
@@ -1027,12 +1117,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val selectAll: (() -> Unit)? =
-                    if (canSelectAll()) {
+                    if (canShowSelectAllMenuItem()) {
                         { selectAll() }
                     } else null
 
                 val autofill: (() -> Unit)? =
-                    if (canAutofill()) {
+                    if (canShowAutofillMenuItem()) {
                         { autofill() }
                     } else null
 
@@ -1078,6 +1168,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 isStartHandle = false,
                 adjustment = SelectionAdjustment.Word,
                 isTouchBasedSelection = false,
+                hapticFeedbackType = null,
             )
         }
     }
@@ -1153,6 +1244,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      * @param isStartHandle whether the start handle is being updated
      * @param adjustment The selection adjustment to use
      * @param isTouchBasedSelection Whether this is a touch based selection
+     * @param hapticFeedbackType Which type of haptic feedback to perform if selection changes.
      */
     private fun updateSelection(
         value: TextFieldValue,
@@ -1161,6 +1253,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
         isTouchBasedSelection: Boolean,
+        hapticFeedbackType: HapticFeedbackType?,
     ): TextRange {
         val layoutResult = state?.layoutResult ?: return TextRange.Zero
         val previousTransformedSelection =
@@ -1229,9 +1322,10 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             isTouchBasedSelection &&
                 value.text.isNotEmpty() &&
                 !onlyChangeIsReversed &&
-                !bothSelectionsCollapsed
+                !bothSelectionsCollapsed &&
+                hapticFeedbackType != null
         ) {
-            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            hapticFeedBack?.performHapticFeedback(hapticFeedbackType)
         }
 
         val newValue =
@@ -1290,7 +1384,11 @@ internal fun TextFieldSelectionHandle(
 }
 
 /** Whether the selection handle is in the visible bound of the TextField. */
-internal fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+internal expect fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean
+
+internal fun TextFieldSelectionManager.isSelectionHandleInVisibleBoundDefault(
     isStartHandle: Boolean
 ): Boolean =
     state?.layoutCoordinates?.visibleBounds()?.containsInclusive(getHandlePosition(isStartHandle))

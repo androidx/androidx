@@ -18,9 +18,11 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -38,25 +40,66 @@ import java.util.List;
  * [command][textId][before,after][flags] before and after define number of digits before and after
  * the decimal point
  */
-public class TextFromFloat extends Operation implements VariableSupport, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TextFromFloat extends Operation
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_FROM_FLOAT;
     private static final String CLASS_NAME = "TextFromFloat";
     public int mTextId;
+
     public float mValue;
     public float mOutValue;
     public short mDigitsBefore;
     public short mDigitsAfter;
     public int mFlags;
-    public static final int MAX_STRING_SIZE = 4000;
+    public boolean mLegacy = false;
     char mPre = ' ';
     char mAfter = ' ';
+    byte mGroup = GROUPING_NONE;
+    byte mSeparator = SEPARATOR_PERIOD_COMMA;
+    int mOptions;
+    boolean mFullFormat = false;
+
     // Theses flags define what how to/if  fill the space
     public static final int PAD_AFTER_SPACE = 0; // pad past point with space
     public static final int PAD_AFTER_NONE = 1; // do not pad past last digit
     public static final int PAD_AFTER_ZERO = 3; // pad with 0 past last digit
     public static final int PAD_PRE_SPACE = 0; // pad before number with spaces
-    public static final int PAD_PRE_NONE = 4; // pad before number with 0s
-    public static final int PAD_PRE_ZERO = 12; // do not pad before number
+    public static final int PAD_PRE_NONE = 4; // do not pad before number
+    public static final int PAD_PRE_ZERO = 12; // pad before number with 0s
+    public static final int GROUPING_NONE = 0; // e.g. 1234567890.12
+    public static final int GROUPING_BY3 = 1 << 4; // e.g. 1,234,567,890.12
+    public static final int GROUPING_BY4 = 2 << 4; // e.g. 12,3456,7890.12
+    public static final int GROUPING_BY32 = 3 << 4; // e.g. 1,23,45,67,890.12
+    public static final int SEPARATOR_COMMA_PERIOD = 0; // e.g. 123,456.12
+    public static final int SEPARATOR_PERIOD_COMMA = 1 << 6; // e.g. 123.456,12
+    public static final int SEPARATOR_SPACE_COMMA = 2 << 6; // e.g. 123 456,12
+    public static final int SEPARATOR_UNDER_PERIOD = 3 << 6; // e.g. 123_456.12
+    public static final int OPTIONS_NONE = 0; // e.g. -890.12
+    public static final int OPTIONS_NEGATIVE_PARENTHESES = 1 << 8; // e.g. (890.12)
+    public static final int OPTIONS_ROUNDING = 2 << 8; // Default is simple clipping
+    public static final int LEGACY_MODE = 1 << 10; // Default is simple clipping
+    public static final int FULL_FORMAT = 1 << 12; // ignore all of the above full fidelity
+
+    // the flags are critical
+    // A = pad after
+    // P = pad before
+    // G = grouping
+    // S = separator
+    // O = options
+    // L = legacy mode
+    // F = full format
+    // bit pattern for flags . F L O O _ S S G G _ P P A A
+
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextFromFloat(
             int textId, float value, short digitsBefore, short digitsAfter, int flags) {
@@ -66,7 +109,7 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
         this.mDigitsBefore = digitsBefore;
         this.mFlags = flags;
         mOutValue = mValue;
-        switch (mFlags & 3) {
+        switch (mFlags & 3) { // post bits 0000_0011
             case PAD_AFTER_SPACE:
                 mAfter = ' ';
                 break;
@@ -77,7 +120,7 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
                 mAfter = '0';
                 break;
         }
-        switch (mFlags & 12) {
+        switch (mFlags & (3 << 2)) { // pre pad bits 0000_1100
             case PAD_PRE_SPACE:
                 mPre = ' ';
                 break;
@@ -87,6 +130,42 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
             case PAD_PRE_ZERO:
                 mPre = '0';
                 break;
+        }
+
+        switch (mFlags & (3 << 4)) { // pre pad bits 0000_1100
+            case GROUPING_BY3:
+                mGroup = GROUPING_BY3 >> 4;
+                break;
+            case GROUPING_BY4:
+                mGroup = GROUPING_BY4 >> 4;
+                break;
+            case GROUPING_BY32:
+                mGroup = GROUPING_BY32 >> 4;
+                break;
+        }
+        switch (mFlags & (3 << 6)) { // pre pad bits 000
+            case SEPARATOR_PERIOD_COMMA:
+                mSeparator = SEPARATOR_PERIOD_COMMA >> 6;
+                break;
+            case SEPARATOR_COMMA_PERIOD:
+                mSeparator = SEPARATOR_COMMA_PERIOD >> 6;
+                break;
+            case SEPARATOR_SPACE_COMMA:
+                mSeparator = SEPARATOR_SPACE_COMMA >> 6;
+                break;
+            case SEPARATOR_UNDER_PERIOD:
+                mSeparator = SEPARATOR_UNDER_PERIOD >> 6;
+                break;
+        }
+        if ((mFlags & OPTIONS_ROUNDING) != 0) {
+            mOptions |= OPTIONS_ROUNDING >> 8;
+        }
+        if ((mFlags & OPTIONS_NEGATIVE_PARENTHESES) != 0) {
+            mOptions |= OPTIONS_NEGATIVE_PARENTHESES >> 8;
+        }
+        mLegacy = (mFlags & LEGACY_MODE) != 0;
+        if ((mFlags & FULL_FORMAT) != 0) {
+            mFullFormat = true;
         }
     }
 
@@ -174,8 +253,8 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        float value = buffer.readFloat();
+        int textId = buffer.declareId();
+        float value = buffer.readNanId();
         int tmp = buffer.readInt();
         short post = (short) (tmp & 0xFFFF);
         short pre = (short) ((tmp >> 16) & 0xFFFF);
@@ -190,19 +269,39 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "textId", "id of the text generated")
-                .field(INT, "value", "Value to add")
-                .field(SHORT, "prePoint", "digits before the decimal point")
-                .field(SHORT, "pstPoint", "digit after the decimal point")
-                .field(INT, "flags", "options on padding");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Convert a float value into a formatted string")
+                .field(DocumentedOperation.INT, "textId", "The ID of the resulting text")
+                .field(DocumentedOperation.FLOAT, "value", "The float value to convert")
+                .field(SHORT, "digitsBefore", "Number of digits before the decimal point")
+                .field(SHORT, "digitsAfter", "Number of digits after the decimal point")
+                .field(INT, "flags", "Formatting and padding flags");
     }
 
     @Override
     public void apply(@NonNull RemoteContext context) {
+        updateVariables(context);
         float v = mOutValue;
-        String s = StringUtils.floatToString(v, mDigitsBefore, mDigitsAfter, mPre, mAfter);
+        String s;
+        if (mFullFormat) {
+            s = Float.toString(v);
+            context.loadText(mTextId, s);
+            return;
+        }
+        if (mLegacy) {
+            s = StringUtils.floatToString(v, mDigitsBefore, mDigitsAfter, mPre, mAfter);
+        } else {
+            s =
+                    StringUtils.floatToString(
+                            v,
+                            mDigitsBefore,
+                            mDigitsAfter,
+                            mPre,
+                            mAfter,
+                            mSeparator,
+                            mGroup,
+                            mOptions);
+        }
         context.loadText(mTextId, s);
     }
 

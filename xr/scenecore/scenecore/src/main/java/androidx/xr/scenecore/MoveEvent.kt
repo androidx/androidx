@@ -17,6 +17,7 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 
@@ -31,7 +32,8 @@ import androidx.xr.runtime.math.Ray
  * @param previousScale Scale before this event.
  * @param currentScale Scale when this event is applied.
  */
-internal class MoveEvent(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MoveEvent(
     @MoveState public val moveState: Int,
     public val initialInputRay: Ray,
     public val currentInputRay: Ray,
@@ -80,6 +82,7 @@ internal class MoveEvent(
     }
 
     @IntDef(value = [MOVE_STATE_START, MOVE_STATE_ONGOING, MOVE_STATE_END])
+    @Retention(AnnotationRetention.SOURCE)
     public annotation class MoveState
 }
 
@@ -125,7 +128,7 @@ public interface EntityMoveListener {
      * @param finalPose [Pose] of the Entity during this event relative to its parent.
      * @param finalScale Scale of the Entity during this event.
      * @param updatedParent If anchorPlacement is set, the Entity may have a new parent when the
-     *   movement completes. This will be a new [AnchorEntity], if it was anchored or re-anchored
+     *   movement completes. This will be a new [AnchorSpace], if it was anchored or re-anchored
      *   during the movement; or the [ActivitySpace], if it was unanchored. This will be null if
      *   there was no updated parent on the Entity.
      */

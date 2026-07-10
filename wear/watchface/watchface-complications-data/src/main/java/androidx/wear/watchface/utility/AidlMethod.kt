@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
  * Logs and rethrow failures.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <T> aidlMethod(classTag: String, methodName: String, block: () -> T): T {
+public inline fun <T> aidlMethod(classTag: String, methodName: String, block: () -> T): T {
     try {
         return block()
     } catch (e: Throwable) {

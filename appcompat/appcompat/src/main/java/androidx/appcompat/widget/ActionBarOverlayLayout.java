@@ -90,7 +90,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private boolean mDecorFitsSystemWindows = true;
     private boolean mActionBarExtendsIntoSystemInsets = false;
 
-    // Used on API 21+
     private @NonNull WindowInsetsCompat mBaseInnerInsets = WindowInsetsCompat.CONSUMED;
     private @NonNull WindowInsetsCompat mLastBaseInnerInsets = WindowInsetsCompat.CONSUMED;
     private @NonNull WindowInsetsCompat mInnerInsets = WindowInsetsCompat.CONSUMED;

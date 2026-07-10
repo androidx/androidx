@@ -18,6 +18,7 @@ package androidx.test.shell.command
 
 import androidx.test.shell.Shell
 
+/** Commands to grant and revoke permission on a given app (defined via package name). */
 public class PermissionCommands
 internal constructor(private val shell: Shell, private val packageName: String) {
 

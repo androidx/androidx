@@ -16,20 +16,6 @@
 
 package androidx.camera.video.internal.workaround;
 
-import static android.media.CamcorderProfile.QUALITY_1080P;
-import static android.media.CamcorderProfile.QUALITY_2160P;
-import static android.media.CamcorderProfile.QUALITY_480P;
-import static android.media.CamcorderProfile.QUALITY_720P;
-import static android.media.CamcorderProfile.QUALITY_HIGH;
-import static android.media.CamcorderProfile.QUALITY_LOW;
-
-import static androidx.camera.video.Quality.FHD;
-import static androidx.camera.video.Quality.HD;
-import static androidx.camera.video.Quality.HIGHEST;
-import static androidx.camera.video.Quality.LOWEST;
-import static androidx.camera.video.Quality.SD;
-import static androidx.camera.video.Quality.UHD;
-
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
@@ -42,9 +28,6 @@ import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * An implementation that provides the {@link EncoderProfilesProxy} only when the quality is
  * capable of video recording
@@ -52,16 +35,6 @@ import java.util.Map;
  * @see VideoQualityQuirk
  */
 public class QualityValidatedEncoderProfilesProvider implements EncoderProfilesProvider {
-
-    private static final Map<Integer, Quality> CAMCORDER_TO_VIDEO_QUALITY_MAP = new HashMap<>();
-    static {
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_HIGH, HIGHEST);
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_2160P, UHD);
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_1080P, FHD);
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_720P, HD);
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_480P, SD);
-        CAMCORDER_TO_VIDEO_QUALITY_MAP.put(QUALITY_LOW, LOWEST);
-    }
 
     private final @NonNull EncoderProfilesProvider mProvider;
     private final @NonNull CameraInfoInternal mCameraInfo;
@@ -89,7 +62,7 @@ public class QualityValidatedEncoderProfilesProvider implements EncoderProfilesP
     }
 
     private boolean isDeviceValidQuality(int quality) {
-        Quality videoQuality = CAMCORDER_TO_VIDEO_QUALITY_MAP.get(quality);
+        Quality videoQuality = Quality.castOrNull(quality);
 
         // Check if the quality is not problematic or can be workaround.
         if (videoQuality != null) {

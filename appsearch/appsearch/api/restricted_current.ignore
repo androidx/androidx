@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.appsearch.ast:
+    Removed package androidx.appsearch.ast from compatibility checked API surface
+BecameUnchecked: androidx.appsearch.ast.operators:
+    Removed package androidx.appsearch.ast.operators from compatibility checked API surface
+BecameUnchecked: androidx.appsearch.ast.query:
+    Removed package androidx.appsearch.ast.query from compatibility checked API surface
+BecameUnchecked: androidx.appsearch.usagereporting:
+    Removed package androidx.appsearch.usagereporting from compatibility checked API surface

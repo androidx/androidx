@@ -22,8 +22,8 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class providing the adapter to populate pages inside of
@@ -112,8 +112,7 @@ public abstract class PagerAdapter {
      * need to be a View, but can be some other container of the page.
      */
     @SuppressWarnings("deprecation")
-    @NonNull
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public @NonNull Object instantiateItem(@NonNull ViewGroup container, int position) {
         return instantiateItem((View) container, position);
     }
 
@@ -183,8 +182,7 @@ public abstract class PagerAdapter {
      * @deprecated Use {@link #instantiateItem(ViewGroup, int)}
      */
     @Deprecated
-    @NonNull
-    public Object instantiateItem(@NonNull View container, int position) {
+    public @NonNull Object instantiateItem(@NonNull View container, int position) {
         throw new UnsupportedOperationException(
                 "Required method instantiateItem was not overridden");
     }
@@ -251,8 +249,7 @@ public abstract class PagerAdapter {
      *
      * @return Saved state for this adapter
      */
-    @Nullable
-    public Parcelable saveState() {
+    public @Nullable Parcelable saveState() {
         return null;
     }
 
@@ -331,8 +328,7 @@ public abstract class PagerAdapter {
      * @param position The position of the title requested
      * @return A title for the requested page
      */
-    @Nullable
-    public CharSequence getPageTitle(int position) {
+    public @Nullable CharSequence getPageTitle(int position) {
         return null;
     }
 

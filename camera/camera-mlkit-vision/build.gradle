@@ -18,7 +18,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -33,23 +32,20 @@ dependencies {
         }
     }
     implementation("androidx.annotation:annotation-experimental:1.4.1")
-    implementation("com.google.android.gms:play-services-tasks:18.0.1")
+    implementation("com.google.android.gms:play-services-tasks:18.2.1")
     implementation(libs.playServicesBasement)
 
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.testRunner)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
     testImplementation(project(":camera:camera-testing"))
-    testImplementation("org.robolectric:annotations:4.14")
-    testImplementation("org.robolectric:shadowapi:4.14")
     testImplementation(libs.junit)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
 
     lint {
         enable.add("CameraXQuirksClassDetector")

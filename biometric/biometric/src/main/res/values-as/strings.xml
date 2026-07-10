@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"ফিংগাৰপ্ৰিণ্টৰ বিশ্বাসযোগ্যতা প্ৰমাণীকৰণৰ ডায়লগ"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ফিংগাৰপ্ৰিণ্ট ছেন্সৰটো স্পৰ্শ কৰক"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"চিনাক্ত কৰিব পৰা নাই"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ফিংগাৰপ্ৰিণ্ট হাৰ্ডৱেৰ নাই।"</string>

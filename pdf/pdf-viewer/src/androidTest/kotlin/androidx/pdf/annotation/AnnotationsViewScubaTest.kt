@@ -17,22 +17,22 @@
 package androidx.pdf.annotation
 
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.SparseArray
 import android.widget.FrameLayout
 import androidx.pdf.ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_NO_TRANSFORM
 import androidx.pdf.ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_SHARED_TRANSFORM
-import androidx.pdf.ANNOTATION_VIEW_MULTI_PAGE_DIFFERENT_TRANSFORMS
+import androidx.pdf.ANNOTATION_VIEW_MULTI_PAGE
 import androidx.pdf.ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_COMBINED_TRANSFORM
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_SCALED
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_TRANSLATED
 import androidx.pdf.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PdfAnnotation
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.assertScreenshot
 import androidx.pdf.view.PdfViewTestActivity
 import androidx.test.core.app.ActivityScenario
@@ -40,6 +40,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import java.util.UUID
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -60,49 +61,81 @@ class AnnotationViewScubaTest {
     @Test
     fun testAnnotationView_withSingleSquareAndNoTransform() {
         val square = createSquareAnnotation()
-        val pageData = createPageRenderData(annotations = listOf(square))
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square)))
+            }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(0f, 0f, 500f, 800f)) },
+                zoom = 1f,
+            )
 
-        setupAndTakeScreenshot(annotationsOnPage, ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM)
+        setupAndTakeScreenshot(
+            viewportState,
+            annotations,
+            ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM,
+        )
     }
 
     @Test
     fun testAnnotationView_withTranslatedSquare() {
         val square = createSquareAnnotation()
-        val translationMatrix = Matrix().apply { postTranslate(50f, 30f) }
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square)))
+            }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(50f, 30f, 550f, 830f)) },
+                zoom = 1f,
+            )
 
-        val pageData =
-            createPageRenderData(annotations = listOf(square), transform = translationMatrix)
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
-
-        setupAndTakeScreenshot(annotationsOnPage, ANNOTATION_VIEW_SQUARE_TRANSLATED)
+        setupAndTakeScreenshot(viewportState, annotations, ANNOTATION_VIEW_SQUARE_TRANSLATED)
     }
 
     @Test
     fun testAnnotationView_withScaledSquare() {
         val square = createSquareAnnotation()
-        val scaleMatrix = Matrix().apply { postScale(2f, 2f) }
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square)))
+            }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(0f, 0f, 500f, 800f)) },
+                zoom = 2f,
+            )
 
-        val pageData = createPageRenderData(annotations = listOf(square), transform = scaleMatrix)
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
-
-        setupAndTakeScreenshot(annotationsOnPage, ANNOTATION_VIEW_SQUARE_SCALED)
+        setupAndTakeScreenshot(viewportState, annotations, ANNOTATION_VIEW_SQUARE_SCALED)
     }
 
     @Test
     fun testAnnotationView_withCombinedTransformSquare() {
         val square = createSquareAnnotation()
-        val transformMatrix =
-            Matrix().apply {
-                postScale(2f, 2f)
-                postTranslate(30f, 30f)
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square)))
             }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(30f, 30f, 530f, 830f)) },
+                zoom = 2f,
+            )
 
-        val pageData =
-            createPageRenderData(annotations = listOf(square), transform = transformMatrix)
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
-
-        setupAndTakeScreenshot(annotationsOnPage, ANNOTATION_VIEW_SQUARE_COMBINED_TRANSFORM)
+        setupAndTakeScreenshot(
+            viewportState,
+            annotations,
+            ANNOTATION_VIEW_SQUARE_COMBINED_TRANSFORM,
+        )
     }
 
     @Test
@@ -111,11 +144,21 @@ class AnnotationViewScubaTest {
         val square2 =
             createSquareAnnotation(size = 50f, color = Color.GREEN, xOffset = 70f, yOffset = 20f)
 
-        val pageData = createPageRenderData(annotations = listOf(square1, square2))
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square1, square2)))
+            }
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(0f, 0f, 500f, 800f)) },
+                zoom = 1f,
+            )
 
         setupAndTakeScreenshot(
-            annotationsOnPage,
+            viewportState,
+            annotations,
             ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_NO_TRANSFORM,
         )
     }
@@ -126,32 +169,29 @@ class AnnotationViewScubaTest {
         val square2 =
             createSquareAnnotation(size = 50f, color = Color.GREEN, xOffset = 70f, yOffset = 20f)
 
-        // This single transform will apply to all annotations on this page
-        val sharedTransform =
-            Matrix().apply {
-                postScale(2f, 2f)
-                postTranslate(50f, 50f)
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square1, square2)))
             }
-        val pageData =
-            createPageRenderData(
-                annotations = listOf(square1, square2),
-                transform = sharedTransform,
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 1,
+                pageBounds = SparseArray<RectF>().apply { put(0, RectF(50f, 50f, 550f, 850f)) },
+                zoom = 2f,
             )
-        val annotationsOnPage = SparseArray<PageAnnotationsData>().apply { put(0, pageData) }
+
         setupAndTakeScreenshot(
-            annotationsOnPage,
+            viewportState,
+            annotations,
             ANNOTATION_VIEW_MULTIPLE_SQUARES_SAME_PAGE_SHARED_TRANSFORM,
         )
     }
 
     @Test
-    fun testAnnotationView_withAnnotationsOnDifferentPagesAndDifferentTransforms() {
+    fun testAnnotationView_withAnnotationsOnDifferentPages() {
         val square1 =
             createSquareAnnotation(pageNumber = 0, color = Color.RED, xOffset = 10f, yOffset = 10f)
-        val transformationMatrix1 = Matrix().apply { postScale(1.5f, 1.5f) }
-        val pageData0 =
-            createPageRenderData(annotations = listOf(square1), transform = transformationMatrix1)
-
         val square2 =
             createSquareAnnotation(
                 pageNumber = 1,
@@ -159,37 +199,43 @@ class AnnotationViewScubaTest {
                 xOffset = 10f,
                 yOffset = 10f,
             )
-        val transformationMatrix2 =
-            Matrix().apply {
-                postScale(2f, 2f)
-                postTranslate(0f, 500f) // Let's assume page size as 200*500
-            }
-        val pageData1 =
-            createPageRenderData(annotations = listOf(square2), transform = transformationMatrix2)
 
-        val annotationsAcrossPages =
-            SparseArray<PageAnnotationsData>().apply {
-                put(0, pageData0)
-                put(1, pageData1)
+        val annotations =
+            SparseArray<List<KeyedPdfAnnotation>>().apply {
+                put(0, createKeyedAnnotations(listOf(square1)))
+                put(1, createKeyedAnnotations(listOf(square2)))
             }
-        setupAndTakeScreenshot(
-            annotationsAcrossPages,
-            ANNOTATION_VIEW_MULTI_PAGE_DIFFERENT_TRANSFORMS,
-        )
+        val viewportState =
+            PdfViewportState(
+                firstVisiblePage = 0,
+                visiblePagesCount = 2,
+                pageBounds =
+                    SparseArray<RectF>().apply {
+                        put(0, RectF(0f, 0f, 500f, 800f))
+                        put(1, RectF(0f, 500f, 500f, 1300f))
+                    },
+                zoom = 2f,
+            )
+
+        setupAndTakeScreenshot(viewportState, annotations, ANNOTATION_VIEW_MULTI_PAGE)
     }
 
     private fun setupAndTakeScreenshot(
-        annotationData: SparseArray<PageAnnotationsData>,
+        viewportState: PdfViewportState,
+        annotationData: SparseArray<List<KeyedPdfAnnotation>>,
         screenshotName: String,
     ) {
-        setupAnnotationViewInActivity(annotationData)
+        setupAnnotationViewInActivity(viewportState, annotationData)
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             assertScreenshot(ANNOTATION_VIEW_ID, screenshotRule, screenshotName)
             close()
         }
     }
 
-    private fun setupAnnotationViewInActivity(annotationData: SparseArray<PageAnnotationsData>) {
+    private fun setupAnnotationViewInActivity(
+        viewportState: PdfViewportState,
+        annotationData: SparseArray<List<KeyedPdfAnnotation>>,
+    ) {
         PdfViewTestActivity.onCreateCallback = { activity ->
             with(activity) {
                 val layoutParams =
@@ -201,7 +247,7 @@ class AnnotationViewScubaTest {
                         id = ANNOTATION_VIEW_ID
                         this.layoutParams =
                             FrameLayout.LayoutParams(CONTAINER_VIEW_WIDTH, CONTAINER_VIEW_HEIGHT)
-                        this.annotations = annotationData
+                        updateDisplayState(viewportState, annotationData)
                     }
                 container.addView(annotationView)
             }
@@ -217,22 +263,19 @@ class AnnotationViewScubaTest {
     ): StampAnnotation {
         val pathInputs =
             listOf(
-                PathPdfObject.PathInput(xOffset, yOffset),
-                PathPdfObject.PathInput(xOffset + size, yOffset),
-                PathPdfObject.PathInput(xOffset + size, yOffset + size),
-                PathPdfObject.PathInput(xOffset, yOffset + size),
-                PathPdfObject.PathInput(xOffset, yOffset), // Close the path
+                PathInput(xOffset, yOffset, PathInput.MOVE_TO),
+                PathInput(xOffset + size, yOffset, PathInput.LINE_TO),
+                PathInput(xOffset + size, yOffset + size, PathInput.LINE_TO),
+                PathInput(xOffset, yOffset + size, PathInput.LINE_TO),
+                PathInput(xOffset, yOffset, PathInput.LINE_TO), // Close the path
             )
         val pathObject = PathPdfObject(brushColor = color, brushWidth = 5f, inputs = pathInputs)
         val bounds = RectF(xOffset, yOffset, xOffset + size, yOffset + size)
         return StampAnnotation(pageNumber, bounds, listOf(pathObject))
     }
 
-    private fun createPageRenderData(
-        annotations: List<PdfAnnotation>,
-        transform: Matrix = Matrix(),
-    ): PageAnnotationsData {
-        return PageAnnotationsData(annotations, transform)
+    private fun createKeyedAnnotations(annotations: List<PdfAnnotation>): List<KeyedPdfAnnotation> {
+        return annotations.map { KeyedPdfAnnotation(key = UUID.randomUUID().toString(), it) }
     }
 
     companion object {

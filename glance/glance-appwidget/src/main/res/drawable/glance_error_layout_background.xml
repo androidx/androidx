@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+<shape xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:shape="rectangle">
     <corners android:radius="8dp"/>
-    <solid android:color="@color/glance_colorSurface"/>
+    <solid android:color="@color/glance_colorSurface" tools:ignore="PrivateResource"/>
 </shape>

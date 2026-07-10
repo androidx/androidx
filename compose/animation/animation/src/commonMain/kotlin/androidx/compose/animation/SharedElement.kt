@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSharedTransitionApi::class)
-
 package androidx.compose.animation
 
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.launch
 
 internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl) {
 
@@ -30,6 +40,18 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     internal val state
         get() = stateMachine.state
+
+    /**
+     * Each entry comes from a call site of sharedElement/sharedBounds of the same key. In most
+     * cases there will be 1 (i.e. no match) or 2 (i.e. match found) entries. In the interrupted
+     * cases, there may be multiple scenes showing simultaneously, resulting in more than 2 shared
+     * element entries for the same key to be present. In those cases, we expect there to be only 1
+     * state that is becoming visible, which we will use to derive target bounds. If none is
+     * becoming visible, then we consider this an error case for the lack of target, and
+     * consequently animate none of them.
+     */
+    private var _allEntries by mutableStateOf<List<SharedElementEntry>>(emptyList())
+    private var _enabledEntries by mutableStateOf<List<SharedElementEntry>>(emptyList())
 
     // Read-only entries
     val enabledEntries: List<SharedElementEntry>
@@ -41,16 +63,69 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     fun isAnimating(): Boolean = enabledEntries.fastAny { it.boundsAnimation.isRunning }
 
+    fun isMutating(): Boolean =
+        enabledEntries.fastAny { it.activeMutableTransformState?.isMutating == true }
+
+    private val momentumAnimation = Animatable(Offset.Zero, Offset.VectorConverter)
+
     internal fun updateMatch() {
         @Suppress("VisibleForTests") scope.testBlockToRun?.invoke()
-        _enabledEntries.removeAll { !allEntries.contains(it) || !it.isEnabled }
+        val allEntries = _allEntries
+        val newEnabledEntries = mutableListOf<SharedElementEntry>()
+        var hasVisibleContent = false
         allEntries.fastForEach {
-            if (it.isEnabled && !enabledEntries.contains(it)) {
-                _enabledEntries.add(it)
+            if (it.isEnabled) {
+                newEnabledEntries.add(it)
+                if (it.boundsAnimation.target) hasVisibleContent = true
             }
         }
-        val hasVisibleContent = _enabledEntries.hasVisibleContent()
+        _enabledEntries = newEnabledEntries
         stateMachine.checkForAndDeferStateUpdates(hasVisibleContent)
+    }
+
+    private var animationSpecFinalized = false
+
+    internal fun updateExitVelocity(velocity: Velocity) {
+        // Start the momentum animation right away, in order to use the next frame as the start
+        // time. In contrast, the actual shared element will need to wait for the next composition
+        // to start the animation. The shared element transition will then acquire its official
+        // start time the frame after the composition. For velocity related animations, a 2-frame
+        // delay on the start will cause visual jank.
+        scope.coroutineScope.launch {
+            // Start the animation right away. The expectation is in the first frame we will
+            // finalize the animation spec.
+            momentumAnimation.animateTo(
+                Offset.Zero,
+                DefaultMomentumSpring,
+                initialVelocity = velocity.toOffset(),
+            )
+            animationSpecFinalized = true
+        }
+    }
+
+    val momentumAnimationOffset: () -> Offset = {
+        if (!animationSpecFinalized && scope.isTransitionActive && momentumAnimation.isRunning) {
+            enabledEntries
+                .fastFirstOrNull { it.target }
+                ?.let {
+                    val targetSpec = it.boundsAnimation.animationSpec
+                    // New target animation acquired. Finalize the animation spec for the momentum
+                    // animation.
+                    if (targetSpec is SpringSpec) {
+                        val spring =
+                            spring(
+                                targetSpec.dampingRatio,
+                                targetSpec.stiffness,
+                                Offset.VisibilityThreshold,
+                            )
+                        scope.coroutineScope.launch {
+                            momentumAnimation.animateTo(Offset.Zero, spring)
+                        }
+                    }
+                    animationSpecFinalized = true
+                }
+        }
+        momentumAnimation.value
     }
 
     fun invalidateTargetBoundsProvider() = stateMachine.invalidateTargetBoundsProvider()
@@ -104,30 +179,18 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         }
     }
 
-    /**
-     * Each entry comes from a call site of sharedElement/sharedBounds of the same key. In most
-     * cases there will be 1 (i.e. no match) or 2 (i.e. match found) entries. In the interrupted
-     * cases, there may be multiple scenes showing simultaneously, resulting in more than 2 shared
-     * element entries for the same key to be present. In those cases, we expect there to be only 1
-     * state that is becoming visible, which we will use to derive target bounds. If none is
-     * becoming visible, then we consider this an error case for the lack of target, and
-     * consequently animate none of them.
-     */
-    private val _allEntries = mutableStateListOf<SharedElementEntry>()
-    private val _enabledEntries = mutableStateListOf<SharedElementEntry>()
-
     internal val observingVisibilityChange: () -> Unit = {
-        allEntries.any { it.target && it.isEnabled }
+        allEntries.fastAny { it.target && it.isEnabled }
     }
 
     fun addEntry(sharedElementState: SharedElementEntry) {
-        _allEntries.add(sharedElementState)
+        _allEntries += sharedElementState
         updateMatch()
     }
 
     fun removeEntry(sharedElementState: SharedElementEntry) {
-        _allEntries.remove(sharedElementState)
-        _enabledEntries.remove(sharedElementState)
+        _allEntries -= sharedElementState
+        _enabledEntries -= sharedElementState
         updateMatch()
     }
 }
@@ -135,3 +198,8 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 private fun List<SharedElementEntry>.hasVisibleContent(): Boolean = fastAny {
     it.boundsAnimation.target
 }
+
+private val DefaultMomentumSpring =
+    spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = Offset(3f, 3f))
+
+internal fun Velocity.toOffset(): Offset = Offset(x, y)

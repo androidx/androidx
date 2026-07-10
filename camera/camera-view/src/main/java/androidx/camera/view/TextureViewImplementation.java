@@ -85,13 +85,17 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
         mResolution = surfaceRequest.getResolution();
-        mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
         initializePreview();
         if (mSurfaceRequest != null) {
-            mSurfaceRequest.willNotProvideSurface();
+            if (mSurfaceRequest.willNotProvideSurface()) {
+                // Invokes the onSurfaceNotInUse method to ensure the PreviewView can do the
+                // clean flow properly.
+                notifySurfaceNotInUse();
+            }
         }
 
         mSurfaceRequest = surfaceRequest;
+        mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
         surfaceRequest.addRequestCancellationListener(
                 ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
                     if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {

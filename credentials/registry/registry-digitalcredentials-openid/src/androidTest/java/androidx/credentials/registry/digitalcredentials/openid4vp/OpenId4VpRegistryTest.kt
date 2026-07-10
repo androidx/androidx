@@ -19,10 +19,13 @@ package androidx.credentials.registry.digitalcredentials.openid4vp
 import android.graphics.Bitmap
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocEntry
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocField
+import androidx.credentials.registry.digitalcredentials.mdoc.MdocInlineIssuanceEntry
 import androidx.credentials.registry.digitalcredentials.openid4vp.OpenId4VpDefaults.DEFAULT_MATCHER
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtClaim
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtEntry
+import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanceEntry
 import androidx.credentials.registry.provider.RegistryManager
+import androidx.credentials.registry.provider.digitalcredentials.InlineIssuanceEntry
 import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayProperties
 import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -83,6 +86,8 @@ class OpenId4VpRegistryTest {
         assertThat(json.getJSONObject("credentials").getJSONObject("dc+sd-jwt").length())
             .isEqualTo(0)
         assertThat(json.getJSONObject("credentials").getJSONObject("mso_mdoc").length())
+            .isEqualTo(0)
+        assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
             .isEqualTo(0)
         assertThat(icons).isEmpty()
         assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
@@ -167,6 +172,9 @@ class OpenId4VpRegistryTest {
         // Assert mdoc part
         val mdocCreds = credentials.getJSONObject("mso_mdoc")
         assertThat(mdocCreds.length()).isEqualTo(0)
+        // Assert inline issuance
+        assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
+            .isEqualTo(0)
     }
 
     @Test
@@ -309,6 +317,9 @@ class OpenId4VpRegistryTest {
         // Assert mdoc part
         val mdocCreds = credentials.getJSONObject("mso_mdoc")
         assertThat(mdocCreds.length()).isEqualTo(0)
+        // Assert inline issuance
+        assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
+            .isEqualTo(0)
     }
 
     @Test
@@ -369,6 +380,10 @@ class OpenId4VpRegistryTest {
             .isEqualTo(mdocEntryVerificationDisplay.subtitle)
         assertThat(mdocDisplay.getJSONObject("icon").getInt("length"))
             .isEqualTo(icons[mdocEntry.id]!!.size)
+
+        // Assert inline issuance
+        assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
+            .isEqualTo(0)
     }
 
     @Test
@@ -480,10 +495,14 @@ class OpenId4VpRegistryTest {
             .isEqualTo(mdocEntryVerificationDisplay3.subtitle)
         assertThat(mdocDisplay3.getJSONObject("icon").getInt("length"))
             .isEqualTo(icons[mdocEntry3.id]!!.size)
+
+        // Assert inline issuance
+        assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
+            .isEqualTo(0)
     }
 
     @Test
-    fun construction_mixedMdocAndSdJwt() {
+    fun construction_mixedMdocAndSdJwtAndInlineIssuances() {
         val sdJwtClaim1 =
             SdJwtClaim(
                 path = listOf("claim1"),
@@ -583,6 +602,28 @@ class OpenId4VpRegistryTest {
                 entryDisplayPropertySet = setOf(mdocEntryVerificationDisplay3),
                 id = "mdocid3",
             )
+        val issuanceDisplay1 =
+            InlineIssuanceEntry.InlineIssuanceDisplayProperties(subtitle = "New mdoc")
+        val issuanceEntry1 =
+            MdocInlineIssuanceEntry(
+                id = "issuance_id_1",
+                display = issuanceDisplay1,
+                supportedMdocs =
+                    setOf(MdocInlineIssuanceEntry.SupportedMdoc("org.iso.18013.5.1.mDL")),
+            )
+
+        val issuanceDisplay2 =
+            InlineIssuanceEntry.InlineIssuanceDisplayProperties(
+                titleHint = "Test Wallet",
+                subtitle = "New sd-jwt",
+                iconHint = TEST_ICON_2,
+            )
+        val issuanceEntry2 =
+            SdJwtInlineIssuanceEntry(
+                id = "issuance_id_2",
+                display = issuanceDisplay2,
+                supportedSdJwts = setOf(SdJwtInlineIssuanceEntry.SupportedSdJwt("urn:eudi:pid:1")),
+            )
 
         val registry =
             OpenId4VpRegistry(
@@ -595,6 +636,7 @@ class OpenId4VpRegistryTest {
                         mdocEntry2,
                         mdocEntry3,
                     ),
+                inlineIssuanceEntries = listOf(issuanceEntry1, issuanceEntry2),
                 id = "registry_id",
             )
 
@@ -606,7 +648,8 @@ class OpenId4VpRegistryTest {
         val credentials = json.getJSONObject("credentials")
         assertThat(credentials.has("dc+sd-jwt")).isTrue()
         assertThat(credentials.has("mso_mdoc")).isTrue()
-        assertThat(icons).hasSize(6)
+        assertThat(credentials.has("issuance")).isTrue()
+        assertThat(icons).hasSize(7)
 
         // Assert SD-JWT part
         val sdJwtCreds = credentials.getJSONObject("dc+sd-jwt")
@@ -713,6 +756,67 @@ class OpenId4VpRegistryTest {
             .isEqualTo(mdocEntryVerificationDisplay3.subtitle)
         assertThat(mdocDisplay3.getJSONObject("icon").getInt("length"))
             .isEqualTo(icons[mdocEntry3.id]!!.size)
+
+        // Assert issuance part
+        val issuanceCreds = credentials.getJSONObject("issuance")
+        assertThat(issuanceCreds.has("mso_mdoc")).isTrue()
+        val mdocIssuanceArray = issuanceCreds.getJSONArray("mso_mdoc")
+        assertThat(mdocIssuanceArray.length()).isEqualTo(1)
+        val mdocIssuanceJson = mdocIssuanceArray.getJSONObject(0)
+        assertThat(mdocIssuanceJson.getString("id")).isEqualTo(issuanceEntry1.id)
+        assertThat(mdocIssuanceJson.getString("subtitle")).isEqualTo(issuanceDisplay1.subtitle)
+        assertThat(mdocIssuanceJson.has("title")).isFalse()
+        assertThat(mdocIssuanceJson.has("icon")).isFalse()
+
+        assertThat(issuanceCreds.has("dc+sd-jwt")).isTrue()
+        val sdJwtIssuanceArray = issuanceCreds.getJSONArray("dc+sd-jwt")
+        assertThat(sdJwtIssuanceArray.length()).isEqualTo(1)
+        val sdJwtIssuanceJson = sdJwtIssuanceArray.getJSONObject(0)
+        assertThat(sdJwtIssuanceJson.getString("id")).isEqualTo(issuanceEntry2.id)
+        assertThat(sdJwtIssuanceJson.getString("subtitle")).isEqualTo(issuanceDisplay2.subtitle)
+        assertThat(sdJwtIssuanceJson.getString("title")).isEqualTo(issuanceDisplay2.titleHint)
+        assertThat(sdJwtIssuanceJson.getJSONObject("icon").getInt("length"))
+            .isEqualTo(icons[issuanceEntry2.id]!!.size)
+    }
+
+    @Test
+    fun construction_singleIssuance() {
+        val issuanceDisplay =
+            InlineIssuanceEntry.InlineIssuanceDisplayProperties(
+                subtitle = "New credential",
+                titleHint = "Issuance",
+            )
+        val issuanceEntry =
+            MdocInlineIssuanceEntry(
+                id = "issuance_id",
+                display = issuanceDisplay,
+                supportedMdocs =
+                    setOf(MdocInlineIssuanceEntry.SupportedMdoc("org.iso.18013.5.1.mDL")),
+            )
+
+        val registry =
+            OpenId4VpRegistry(
+                credentialEntries = emptyList(),
+                inlineIssuanceEntries = listOf(issuanceEntry),
+                id = "registry_id",
+            )
+
+        assertThat(registry.id).isEqualTo("registry_id")
+        val (json, icons) = parseCredentialBytes(registry.credentials)
+        assertThat(json.has("credentials")).isTrue()
+        val credentials = json.getJSONObject("credentials")
+        assertThat(credentials.has("issuance")).isTrue()
+        assertThat(icons).isEmpty()
+
+        val issuanceCreds = credentials.getJSONObject("issuance")
+        assertThat(issuanceCreds.has("mso_mdoc")).isTrue()
+        val issuanceArray = issuanceCreds.getJSONArray("mso_mdoc")
+        assertThat(issuanceArray.length()).isEqualTo(1)
+        val issuanceJson = issuanceArray.getJSONObject(0)
+        assertThat(issuanceJson.getString("id")).isEqualTo(issuanceEntry.id)
+        assertThat(issuanceJson.getString("subtitle")).isEqualTo(issuanceDisplay.subtitle)
+        assertThat(issuanceJson.getString("title")).isEqualTo(issuanceDisplay.titleHint)
+        assertThat(issuanceJson.has("icon")).isFalse()
     }
 
     /** Helper to parse the custom byte format into a JSON object and a map of icon bytes. */
@@ -733,6 +837,7 @@ class OpenId4VpRegistryTest {
         val creds = json.getJSONObject("credentials")
         val sdJwtCreds = creds.optJSONObject("dc+sd-jwt")
         val mdocCreds = creds.optJSONObject("mso_mdoc")
+        val inlineIssuanceCreds = creds.optJSONObject("issuance")
 
         val allCreds = mutableListOf<JSONObject>()
         sdJwtCreds?.keys()?.forEach { key ->
@@ -745,11 +850,17 @@ class OpenId4VpRegistryTest {
                 for (i in 0 until it.length()) allCreds.add(it.getJSONObject(i))
             }
         }
+        inlineIssuanceCreds?.keys()?.forEach { key ->
+            inlineIssuanceCreds.getJSONArray(key).let { array ->
+                for (i in 0 until array.length()) allCreds.add(array.getJSONObject(i))
+            }
+        }
 
         for (cred in allCreds) {
             val id = cred.getString("id")
             val iconInfo =
                 cred.optJSONObject("display")?.optJSONObject("verification")?.optJSONObject("icon")
+                    ?: cred.optJSONObject("icon")
             if (iconInfo != null) {
                 val start = iconInfo.getInt("start")
                 val length = iconInfo.getInt("length")

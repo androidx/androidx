@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/220884819
-
 package androidx.paging
 
 import android.view.View
@@ -33,11 +31,8 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -46,12 +41,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("DEPRECATION") // LivePagedList is deprecated.
 class LivePagedListTest {
     @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
-
-    private val testScope = TestCoroutineScope()
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -197,43 +189,40 @@ class LivePagedListTest {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     @Test
-    fun initialLoad_loadResultInvalid() =
-        testScope.runTest {
-            val dispatcher = coroutineContext[CoroutineDispatcher.Key]!!
-            val pagingSources = mutableListOf<TestPagingSource>()
-            val factory = {
-                TestPagingSource().also {
-                    if (pagingSources.isEmpty())
-                        it.nextLoadResult = PagingSource.LoadResult.Invalid()
-                    pagingSources.add(it)
-                }
+    fun initialLoad_loadResultInvalid() = runTest {
+        @OptIn(ExperimentalStdlibApi::class)
+        val dispatcher = coroutineContext[CoroutineDispatcher.Key]!!
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val factory = {
+            TestPagingSource().also {
+                if (pagingSources.isEmpty()) it.nextLoadResult = PagingSource.LoadResult.Invalid()
+                pagingSources.add(it)
             }
-            val config =
-                PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(3).build()
-
-            val livePagedList =
-                LivePagedList(
-                    coroutineScope = testScope,
-                    initialKey = null,
-                    config = config,
-                    boundaryCallback = null,
-                    pagingSourceFactory = factory,
-                    notifyDispatcher = dispatcher,
-                    fetchDispatcher = dispatcher,
-                )
-
-            val pagedLists = mutableListOf<PagedList<Int>>()
-            livePagedList.observeForever { pagedLists.add(it) }
-
-            advanceUntilIdle()
-
-            assertThat(pagedLists.size).isEqualTo(2)
-            assertThat(pagingSources.size).isEqualTo(2)
-            assertThat(pagedLists.size).isEqualTo(2)
-            assertThat(pagedLists[1]).containsExactly(0, 1, 2, 3, 4, 5, 6, 7, 8)
         }
+        val config = PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(3).build()
+
+        val livePagedList =
+            LivePagedList(
+                coroutineScope = this@runTest,
+                initialKey = null,
+                config = config,
+                boundaryCallback = null,
+                pagingSourceFactory = factory,
+                notifyDispatcher = dispatcher,
+                fetchDispatcher = dispatcher,
+            )
+
+        val pagedLists = mutableListOf<PagedList<Int>>()
+        livePagedList.observeForever { pagedLists.add(it) }
+
+        testScheduler.advanceUntilIdle()
+
+        assertThat(pagedLists.size).isEqualTo(2)
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(pagedLists.size).isEqualTo(2)
+        assertThat(pagedLists[1]).containsExactly(0, 1, 2, 3, 4, 5, 6, 7, 8)
+    }
 
     companion object {
         @Suppress("DEPRECATION")

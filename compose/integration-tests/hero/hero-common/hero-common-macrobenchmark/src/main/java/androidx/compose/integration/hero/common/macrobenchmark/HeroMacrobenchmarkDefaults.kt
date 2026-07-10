@@ -17,5 +17,5 @@
 package androidx.compose.integration.hero.common.macrobenchmark
 
 object HeroMacrobenchmarkDefaults {
-    const val ITERATIONS = 10
+    const val ITERATIONS = 5
 }

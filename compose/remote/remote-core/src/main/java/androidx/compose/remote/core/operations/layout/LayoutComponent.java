@@ -15,24 +15,40 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.VERTICAL_CONSTRAINTS;
+
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.OperationInterface;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableSupport;
+import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.ComponentData;
+import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixSave;
 import androidx.compose.remote.core.operations.MatrixTranslate;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
+import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
@@ -47,8 +63,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /** Component with modifiers and children */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LayoutComponent extends Component {
 
     @Nullable protected WidthModifierOperation mWidthModifier = null;
@@ -74,6 +92,16 @@ public class LayoutComponent extends Component {
 
     protected boolean mChildrenHaveZIndex = false;
     private CanvasOperations mDrawContentOperations;
+
+    /** Get the horizontal scroll delegate */
+    public @Nullable ScrollDelegate getHorizontalScrollDelegate() {
+        return mHorizontalScrollDelegate;
+    }
+
+    /** Get the vertical scroll delegate */
+    public @Nullable ScrollDelegate getVerticalScrollDelegate() {
+        return mVerticalScrollDelegate;
+    }
 
     public LayoutComponent(
             @Nullable Component parent,
@@ -102,6 +130,31 @@ public class LayoutComponent extends Component {
         return mPaddingBottom;
     }
 
+    @Nullable ArrayList<LayoutComputeOperation> mComputedLayoutModifiers = null;
+
+    @Override
+    public boolean hasComputedLayout() {
+        return mComputedLayoutModifiers != null;
+    }
+
+    @Override
+    public boolean applyComputedLayout(
+            int type,
+            @NonNull PaintContext context,
+            @NonNull ComponentMeasure m,
+            @NonNull ComponentMeasure parent) {
+        if (mComputedLayoutModifiers != null) {
+            boolean needsMeasure = false;
+            for (LayoutComputeOperation modifier : mComputedLayoutModifiers) {
+                if (modifier.getType() == type) {
+                    needsMeasure |= modifier.applyToMeasure(context, m, parent);
+                }
+            }
+            return needsMeasure;
+        }
+        return false;
+    }
+
     @Nullable
     public WidthModifierOperation getWidthModifier() {
         return mWidthModifier;
@@ -123,27 +176,48 @@ public class LayoutComponent extends Component {
     @Nullable protected LayoutComponentContent mContent = null;
 
     // Should be removed after ImageLayout is in
-    private static final boolean USE_IMAGE_TEMP_FIX = true;
+    private static final boolean USE_IMAGE_TEMP_FIX = false;
 
-    /**
-     * Set canvas operations op on this component
-     *
-     * @param operations
-     */
+    /** Set canvas operations op on this component */
     public void setCanvasOperations(@Nullable CanvasOperations operations) {
         mDrawContentOperations = operations;
     }
 
+    /** Returns the canvas operations for draw content if defined */
+    public @Nullable CanvasOperations getCanvasOperations() {
+        return mDrawContentOperations;
+    }
+
+    /** Allow override of the behavior */
+    protected void getComponentsData(
+            @NonNull LayoutComponentContent content, @NonNull ArrayList<Operation> data) {
+        content.getData(data);
+    }
+
     @Override
     public void inflate() {
+        for (Operation op : mList) {
+            if (op instanceof ComponentModifiers) {
+                return;
+            }
+        }
         ArrayList<Operation> data = new ArrayList<>();
         ArrayList<Operation> supportedOperations = new ArrayList<>();
+
+        mChildrenComponents.clear();
+        mComponentModifiers.getModifiersList().clear();
+        mWidthModifier = null;
+        mHeightModifier = null;
+        mZIndexModifier = null;
+        mGraphicsLayerModifier = null;
+        mComputedLayoutModifiers = null;
+        mHorizontalScrollDelegate = null;
+        mVerticalScrollDelegate = null;
 
         for (Operation op : mList) {
             if (op instanceof LayoutComponentContent) {
                 mContent = (LayoutComponentContent) op;
                 mContent.mParent = this;
-                mChildrenComponents.clear();
                 LayoutComponentContent content = (LayoutComponentContent) op;
                 content.getComponents(mChildrenComponents);
                 if (USE_IMAGE_TEMP_FIX) {
@@ -171,23 +245,64 @@ public class LayoutComponent extends Component {
                             canvasContent.inflate();
                         }
                     } else {
-                        content.getData(data);
+                        getComponentsData(content, data);
                     }
                 } else {
-                    content.getData(data);
+                    getComponentsData(content, data);
                 }
             } else if (op instanceof ModifierOperation) {
+                // TODO: refactor to introduce a common interface
+                // for the setParent() calls
                 if (op instanceof ComponentVisibilityOperation) {
                     ((ComponentVisibilityOperation) op).setParent(this);
+                }
+                if (op instanceof AlignByModifierOperation) {
+                    ((AlignByModifierOperation) op).setParent(this);
+                }
+                if (op instanceof LayoutComputeOperation) {
+                    if (mComputedLayoutModifiers == null) {
+                        mComputedLayoutModifiers = new ArrayList<>();
+                    }
+                    ((LayoutComputeOperation) op).setParent(this);
+                    mComputedLayoutModifiers.add((LayoutComputeOperation) op);
                 }
                 if (op instanceof ScrollModifierOperation) {
                     ((ScrollModifierOperation) op).inflate(this);
                 }
                 mComponentModifiers.add((ModifierOperation) op);
+            } else if (op instanceof ComponentModifiers) {
+                ComponentModifiers collapsedModifiers = (ComponentModifiers) op;
+                for (ModifierOperation modifier : collapsedModifiers.getModifiersList()) {
+                    if (modifier instanceof ComponentVisibilityOperation) {
+                        ((ComponentVisibilityOperation) modifier).setParent(this);
+                    }
+                    if (modifier instanceof AlignByModifierOperation) {
+                        ((AlignByModifierOperation) modifier).setParent(this);
+                    }
+                    if (modifier instanceof LayoutComputeOperation) {
+                        if (mComputedLayoutModifiers == null) {
+                            mComputedLayoutModifiers = new ArrayList<>();
+                        }
+                        ((LayoutComputeOperation) modifier).setParent(this);
+                        mComputedLayoutModifiers.add((LayoutComputeOperation) modifier);
+                    }
+                    if (modifier instanceof ScrollModifierOperation) {
+                        ((ScrollModifierOperation) modifier).inflate(this);
+                    }
+                    mComponentModifiers.add(modifier);
+                }
             } else if (op instanceof ComponentData) {
                 supportedOperations.add(op);
+                // TODO: remove
                 if (op instanceof TouchListener) {
                     ((TouchListener) op).setComponent(this);
+                }
+                if (op instanceof LayoutComputeOperation) {
+                    ((LayoutComputeOperation) op).setParent(this);
+                }
+            } else if (op instanceof Component) {
+                if (!mChildrenComponents.contains(op)) {
+                    mChildrenComponents.add((Component) op);
                 }
             } else {
                 // nothing
@@ -197,6 +312,19 @@ public class LayoutComponent extends Component {
         mList.clear();
         mList.addAll(data);
         mList.addAll(supportedOperations);
+        for (Operation op : mList) {
+            // TODO: this probably should be moved to a setParent call
+            if (op instanceof ComponentValue) {
+                ComponentValue componentValue = (ComponentValue) op;
+                componentValue.setComponentId(getComponentId());
+            }
+            if (op instanceof TouchListener) {
+                ((TouchListener) op).setComponent(this);
+            }
+            if (op instanceof LayoutComputeOperation) {
+                ((LayoutComputeOperation) op).setParent(this);
+            }
+        }
         mList.add(mComponentModifiers);
         for (Component c : mChildrenComponents) {
             c.mParent = this;
@@ -213,10 +341,10 @@ public class LayoutComponent extends Component {
         mPaddingRight = 0f;
         mPaddingBottom = 0f;
 
-        WidthInModifierOperation widthInConstraints = null;
-        HeightInModifierOperation heightInConstraints = null;
+        DimensionInModifierOperation widthInConstraints = null;
+        DimensionInModifierOperation heightInConstraints = null;
 
-        for (OperationInterface op : mComponentModifiers.getList()) {
+        for (OperationInterface op : mComponentModifiers.getModifiersList()) {
             if (op instanceof PaddingModifierOperation) {
                 // We are accumulating padding modifiers to compute the margin
                 // until we hit a dimension; the computed padding for the
@@ -237,6 +365,16 @@ public class LayoutComponent extends Component {
                 widthInConstraints = (WidthInModifierOperation) op;
             } else if (op instanceof HeightInModifierOperation) {
                 heightInConstraints = (HeightInModifierOperation) op;
+            } else if (op instanceof DimensionConstraintsModifierOperation) {
+                DimensionConstraintsModifierOperation dc =
+                        (DimensionConstraintsModifierOperation) op;
+                if (dc.getType() == HORIZONTAL_CONSTRAINTS
+                        || dc.getType() == REQUIRED_HORIZONTAL_CONSTRAINTS) {
+                    widthInConstraints = dc;
+                } else if (dc.getType() == VERTICAL_CONSTRAINTS
+                        || dc.getType() == REQUIRED_VERTICAL_CONSTRAINTS) {
+                    heightInConstraints = dc;
+                }
             } else if (op instanceof ZIndexModifierOperation) {
                 mZIndexModifier = (ZIndexModifierOperation) op;
             } else if (op instanceof GraphicsLayerModifierOperation) {
@@ -275,8 +413,8 @@ public class LayoutComponent extends Component {
             }
         }
 
-        setWidth(computeModifierDefinedWidth(null));
-        setHeight(computeModifierDefinedHeight(null));
+        setWidth(computeModifierDefinedWidth(null, true));
+        setHeight(computeModifierDefinedHeight(null, true));
     }
 
     @NonNull
@@ -286,11 +424,21 @@ public class LayoutComponent extends Component {
     }
 
     @Override
-    public void getLocationInWindow(float @NonNull [] value, boolean forSelf) {
-        value[0] += mX + mPaddingLeft;
-        value[1] += mY + mPaddingTop;
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
+        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
+            value[0] += mX;
+            value[1] += mY;
+            if (!forSelf) {
+                value[0] += mPaddingLeft + getScrollX();
+                value[1] += mPaddingTop + getScrollY();
+            }
+        } else {
+            value[0] += mX + mPaddingLeft;
+            value[1] += mY + mPaddingTop;
+        }
         if (mParent != null) {
-            mParent.getLocationInWindow(value, false);
+            mParent.getLocationInWindow(context, value, false);
         }
     }
 
@@ -318,18 +466,6 @@ public class LayoutComponent extends Component {
         mScrollY = value;
     }
 
-    @Override
-    public void paint(@NonNull PaintContext context) {
-        if (mDrawContentOperations != null) {
-            context.save();
-            context.translate(mX, mY);
-            mDrawContentOperations.paint(context);
-            context.restore();
-            return;
-        }
-        super.paint(context);
-    }
-
     /**
      * Paint the component content. Used by the DrawContent operation. (back out mX/mY -- TODO:
      * refactor paintingComponent instead, to not include mX/mY etc.)
@@ -339,14 +475,34 @@ public class LayoutComponent extends Component {
     public void drawContent(@NonNull PaintContext context) {
         context.save();
         context.translate(-mX, -mY);
-        paintingComponent(context);
+        // Skip modifiers here because they are already applied in paintingComponent
+        // before calling mDrawContentOperations.
+        internalPaintingComponent(context, /* skipModifiers= */ true);
         context.restore();
     }
 
     protected final HashMap<Integer, Object> mCachedAttributes = new HashMap<>();
 
+    /** This allow subclasses to handle the list of operations differently */
+    protected void handleOperations(
+            @NonNull RemoteContext context, @NonNull ArrayList<Operation> operations) {
+        // nothing here
+    }
+
     @Override
     public void paintingComponent(@NonNull PaintContext context) {
+        if (mDrawContentOperations != null) {
+            context.save();
+            context.translate(mX, mY);
+            mComponentModifiers.paint(context);
+            mDrawContentOperations.paint(context);
+            context.restore();
+            return;
+        }
+        internalPaintingComponent(context, /* skipModifiers= */ false);
+    }
+
+    private void internalPaintingComponent(@NonNull PaintContext context, boolean skipModifiers) {
         Component prev = context.getContext().mLastComponent;
         RemoteContext remoteContext = context.getContext();
 
@@ -362,10 +518,37 @@ public class LayoutComponent extends Component {
             mGraphicsLayerModifier.fillInAttributes(mCachedAttributes);
             context.setGraphicsLayer(mCachedAttributes);
         }
-        mComponentModifiers.paint(context);
+        mComponentModifiers.layout(remoteContext, this, getWidth(), getHeight());
+        // Canvas already does its own handling of internal operations
+        if (!(this instanceof CanvasLayout)) {
+            for (Operation op : mList) {
+                if (op instanceof ComponentModifiers) {
+                    continue;
+                }
+                if (!(op instanceof ComponentData)) {
+                    continue;
+                }
+                if (op instanceof VariableSupport && op.isDirty()) {
+                    ((VariableSupport) op).updateVariables(remoteContext);
+                }
+                op.apply(remoteContext);
+            }
+        }
+        if (!skipModifiers) {
+            mComponentModifiers.paint(context);
+        }
         float tx = mPaddingLeft + getScrollX();
         float ty = mPaddingTop + getScrollY();
         context.translate(tx, ty);
+        handleOperations(remoteContext, mList);
+        if (mHorizontalScrollDelegate != null) {
+            context.save();
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.PRE_DRAW);
+        }
+        if (mVerticalScrollDelegate != null) {
+            context.save();
+            mVerticalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.PRE_DRAW);
+        }
         if (mChildrenHaveZIndex) {
             // TODO -- should only sort when something has changed
             ArrayList<Component> sorted = new ArrayList<Component>(mChildrenComponents);
@@ -391,26 +574,78 @@ public class LayoutComponent extends Component {
         if (mGraphicsLayerModifier != null) {
             context.endGraphicsLayer();
         }
+        if (mHorizontalScrollDelegate != null) {
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.POST_DRAW);
+            context.restore();
+        }
+        if (mVerticalScrollDelegate != null) {
+            mVerticalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.POST_DRAW);
+            context.restore();
+        }
         context.translate(-tx, -ty);
         context.restore();
         context.getContext().mLastComponent = prev;
     }
 
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        Component prev = context.mLastComponent;
+        context.mLastComponent = this;
+        super.updateVariables(context);
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
+            if (op.isDirty() && op instanceof VariableSupport) {
+                ((VariableSupport) op).updateVariables(context);
+            }
+        }
+        updatePadding();
+        context.mLastComponent = prev;
+    }
+
+    private void updatePadding() {
+        mPaddingLeft = 0f;
+        mPaddingTop = 0f;
+        mPaddingRight = 0f;
+        mPaddingBottom = 0f;
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation padding = (PaddingModifierOperation) op;
+                mPaddingLeft += padding.getLeft();
+                mPaddingTop += padding.getTop();
+                mPaddingRight += padding.getRight();
+                mPaddingBottom += padding.getBottom();
+            }
+        }
+    }
+
     /** Traverse the modifiers to compute indicated dimension */
     public float computeModifierDefinedWidth(@Nullable RemoteContext context) {
+        return computeModifierDefinedWidth(context, false);
+    }
+
+    /** Traverse the modifiers to compute indicated dimension */
+    public float computeModifierDefinedWidth(@Nullable RemoteContext context, boolean isMin) {
         float s = 0f;
         float e = 0f;
         float w = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        boolean dirty = false;
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (context != null && c.isDirty() && c instanceof VariableSupport) {
                 ((VariableSupport) c).updateVariables(context);
                 c.markNotDirty();
+                dirty = true;
             }
             if (c instanceof WidthModifierOperation) {
                 WidthModifierOperation o = (WidthModifierOperation) c;
                 if (o.getType() == DimensionModifierOperation.Type.EXACT
                         || o.getType() == DimensionModifierOperation.Type.EXACT_DP) {
                     w = o.getValue();
+                } else if (o.getType() == DimensionModifierOperation.Type.FILL
+                        || o.getType() == DimensionModifierOperation.Type.FILL_PARENT_MAX_WIDTH) {
+                    w = isMin ? 0f : Float.MAX_VALUE;
+                }
+                DimensionInModifierOperation widthIn = o.getWidthIn();
+                if (widthIn != null) {
+                    w = Math.max(w, widthIn.getMin());
                 }
                 break;
             }
@@ -420,7 +655,34 @@ public class LayoutComponent extends Component {
                 e += pop.getRight();
             }
         }
+        if (dirty) {
+            updatePadding();
+        }
         return s + w + e;
+    }
+
+    /** Applies width constraints from modifiers to the specified width dimension. */
+    public float applyWidthConstraints(float width) {
+        if (mWidthModifier == null) {
+            return width;
+        }
+        DimensionInModifierOperation widthIn = mWidthModifier.getWidthIn();
+        if (widthIn == null) {
+            return width;
+        }
+        return widthIn.applyWidthConstraint(width);
+    }
+
+    /** Applies height constraints from modifiers to the specified height dimension. */
+    public float applyHeightConstraints(float height) {
+        if (mHeightModifier == null) {
+            return height;
+        }
+        DimensionInModifierOperation heightIn = mHeightModifier.getHeightIn();
+        if (heightIn == null) {
+            return height;
+        }
+        return heightIn.applyHeightConstraint(height);
     }
 
     /**
@@ -432,7 +694,7 @@ public class LayoutComponent extends Component {
     public float computeModifierDefinedPaddingWidth(float @NonNull [] padding) {
         float s = 0f;
         float e = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (c instanceof PaddingModifierOperation) {
                 PaddingModifierOperation pop = (PaddingModifierOperation) c;
                 s += pop.getLeft();
@@ -446,19 +708,33 @@ public class LayoutComponent extends Component {
 
     /** Traverse the modifiers to compute indicated dimension */
     public float computeModifierDefinedHeight(@Nullable RemoteContext context) {
+        return computeModifierDefinedHeight(context, false);
+    }
+
+    /** Traverse the modifiers to compute indicated dimension */
+    public float computeModifierDefinedHeight(@Nullable RemoteContext context, boolean isMin) {
         float t = 0f;
         float b = 0f;
         float h = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        boolean dirty = false;
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (context != null && c.isDirty() && c instanceof VariableSupport) {
                 ((VariableSupport) c).updateVariables(context);
                 c.markNotDirty();
+                dirty = true;
             }
             if (c instanceof HeightModifierOperation) {
                 HeightModifierOperation o = (HeightModifierOperation) c;
                 if (o.getType() == DimensionModifierOperation.Type.EXACT
                         || o.getType() == DimensionModifierOperation.Type.EXACT_DP) {
                     h = o.getValue();
+                } else if (o.getType() == DimensionModifierOperation.Type.FILL
+                        || o.getType() == DimensionModifierOperation.Type.FILL_PARENT_MAX_HEIGHT) {
+                    h = isMin ? 0f : Float.MAX_VALUE;
+                }
+                DimensionInModifierOperation heightIn = o.getHeightIn();
+                if (heightIn != null) {
+                    h = Math.max(h, heightIn.getMin());
                 }
                 break;
             }
@@ -467,6 +743,9 @@ public class LayoutComponent extends Component {
                 t += pop.getTop();
                 b += pop.getBottom();
             }
+        }
+        if (dirty) {
+            updatePadding();
         }
         return t + h + b;
     }
@@ -480,7 +759,7 @@ public class LayoutComponent extends Component {
     public float computeModifierDefinedPaddingHeight(float @NonNull [] padding) {
         float t = 0f;
         float b = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (c instanceof PaddingModifierOperation) {
                 PaddingModifierOperation pop = (PaddingModifierOperation) c;
                 t += pop.getTop();
@@ -519,7 +798,7 @@ public class LayoutComponent extends Component {
             return operationClass.cast(this);
         }
 
-        for (ModifierOperation op : mComponentModifiers.getList()) {
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
             if (operationClass.isInstance(op)) {
                 return operationClass.cast(op);
             }
@@ -528,10 +807,19 @@ public class LayoutComponent extends Component {
         return null;
     }
 
-    @Override
-    public void registerVariables(@NonNull RemoteContext context) {
-        if (mDrawContentOperations != null) {
-            mDrawContentOperations.registerListening(context);
-        }
+    /**
+     * Read the operation from the buffer
+     *
+     * @param buffer
+     * @param operations
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
+        float x = buffer.readFloat();
+        float y = buffer.readFloat();
+        float width = buffer.readFloat();
+        float height = buffer.readFloat();
+        operations.add(new LayoutComponent(null, componentId, animationId, x, y, width, height));
     }
 }

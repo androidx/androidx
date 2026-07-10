@@ -16,15 +16,13 @@
 
 package androidx.webkit;
 
-import androidx.annotation.RestrictTo;
-
 import org.jspecify.annotations.NonNull;
 
 /**
- * Thrown by {@link WebViewBuilder#build} if there was an issue with validation, or constructing the
+ * Thrown by {@link WebViewBuilder#build} if there was an issue with validation or constructing the
  * WebView.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@WebViewBuilder.Experimental
 public class WebViewBuilderException extends RuntimeException {
     WebViewBuilderException(@NonNull Throwable cause) {
         super(cause);

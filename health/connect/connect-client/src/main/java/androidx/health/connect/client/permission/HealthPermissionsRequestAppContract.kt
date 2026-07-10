@@ -18,13 +18,12 @@ package androidx.health.connect.client.permission
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.annotation.RestrictTo
-import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.permission.Permission as ParcelablePermission
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION_REQUEST_PERMISSIONS
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
 
@@ -35,7 +34,6 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  *   choice.
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class HealthPermissionsRequestAppContract(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
 ) : ActivityResultContract<Set<String>, Set<String>>() {

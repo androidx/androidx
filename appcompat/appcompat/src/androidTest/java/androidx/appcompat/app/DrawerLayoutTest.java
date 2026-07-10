@@ -40,7 +40,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.os.Build;
 import android.view.View;
 
 import androidx.appcompat.custom.CustomDrawerLayout;
@@ -271,32 +270,26 @@ public class DrawerLayoutTest {
         // On all devices the height of the drawer layout and the drawer should be identical.
         assertEquals("Drawer layout and drawer heights", drawerLayoutHeight, startDrawerHeight);
 
-        if (Build.VERSION.SDK_INT < 21) {
-            // On pre-L devices the content height should be the same as the drawer layout height.
-            assertEquals("Drawer layout and content heights on pre-L",
-                    drawerLayoutHeight, contentHeight);
-        } else {
-            // Our drawer layout is configured with android:fitsSystemWindows="true" which should be
-            // respected on L+ devices to extend the drawer layout into the system status bar.
-            // The start drawer is also configured with the same attribute so it should have the
-            // same height as the drawer layout. The main content does not have that attribute
-            // specified, so it should have its height reduced by the height of the system status
-            // bar.
+        // Our drawer layout is configured with android:fitsSystemWindows="true" to extend the
+        // drawer layout into the system status bar.
+        // The start drawer is also configured with the same attribute so it should have the
+        // same height as the drawer layout. The main content does not have that attribute
+        // specified, so it should have its height reduced by the height of the system status
+        // bar.
 
-            final int[] contentViewLocationOnScreen = new int[2];
-            mContentView.getLocationOnScreen(contentViewLocationOnScreen);
-            final int statusBarHeight = contentViewLocationOnScreen[1];
-            // Get the system window top inset that was propagated to the top-level DrawerLayout
-            // during its layout.
-            int drawerTopInset = mDrawerLayout.getSystemWindowInsetTop();
-            if (statusBarHeight > 0) {
-                assertEquals("Drawer top inset is positive on L+", statusBarHeight, drawerTopInset);
-            } else {
-                assertEquals("Drawer top inset 0 due to no status bar", 0, drawerTopInset);
-            }
-            assertEquals("Drawer layout and drawer heights on L+",
-                    drawerLayoutHeight - drawerTopInset, contentHeight);
+        final int[] contentViewLocationOnScreen = new int[2];
+        mContentView.getLocationOnScreen(contentViewLocationOnScreen);
+        final int statusBarHeight = contentViewLocationOnScreen[1];
+        // Get the system window top inset that was propagated to the top-level DrawerLayout
+        // during its layout.
+        int drawerTopInset = mDrawerLayout.getSystemWindowInsetTop();
+        if (statusBarHeight > 0) {
+            assertEquals("Drawer top inset is positive", statusBarHeight, drawerTopInset);
+        } else {
+            assertEquals("Drawer top inset 0 due to no status bar", 0, drawerTopInset);
         }
+        assertEquals("Drawer layout and drawer heights", drawerLayoutHeight - drawerTopInset,
+                contentHeight);
     }
 
     // Tests for listener(s) being notified of various events

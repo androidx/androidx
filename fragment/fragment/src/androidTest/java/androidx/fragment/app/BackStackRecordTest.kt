@@ -539,6 +539,7 @@ class BackStackRecordTest {
     }
 }
 
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class BackStackRecordVerify(private val backStackRecord: BackStackRecord) {
     var currentOp = 0
 
@@ -557,6 +558,7 @@ internal class BackStackRecordVerify(private val backStackRecord: BackStackRecor
     }
 }
 
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal fun BackStackRecord.verifyOps(block: BackStackRecordVerify.() -> Unit) {
     val verify = BackStackRecordVerify(this).apply(block)
     assertWithMessage("Not all operations were verified")

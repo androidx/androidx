@@ -19,8 +19,12 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.annotation.IntRange as AndroidXIntRange
+import androidx.collection.IntSet
+import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableIntSetOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -29,6 +33,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.lazy.grid.singleAxisViewportSize
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
@@ -50,6 +55,7 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
@@ -153,6 +159,32 @@ internal constructor(
     private val layoutInfoState =
         mutableStateOf(EmptyLazyStaggeredGridLayoutInfo, neverEqualPolicy())
 
+    private val _scrollIndicatorState =
+        object : ScrollIndicatorState {
+            override val scrollOffset: Int
+                get() =
+                    if (layoutInfo.reverseLayout) {
+                        layoutInfo.calculateContentSize(laneCount) -
+                            layoutInfo.singleAxisViewportSize -
+                            calculateScrollOffset()
+                    } else {
+                        calculateScrollOffset()
+                    }
+
+            override val contentSize: Int
+                get() = layoutInfo.calculateContentSize(laneCount)
+
+            override val viewportSize: Int
+                get() = layoutInfo.singleAxisViewportSize
+        }
+
+    private fun calculateScrollOffset(): Int {
+        val info = layoutInfo
+        if (info.totalItemsCount == 0) return 0
+        return ((info.visibleItemsAverageSize() * firstVisibleItemIndex) / laneCount) +
+            firstVisibleItemScrollOffset
+    }
+
     /** storage for lane assignments for each item for consistent scrolling in both directions */
     internal val laneInfo = LazyStaggeredGridLaneInfo()
 
@@ -169,6 +201,9 @@ internal constructor(
     @get:Suppress("GetterSetterNames")
     override val lastScrolledBackward: Boolean
         get() = scrollableState.lastScrolledBackward
+
+    override val scrollIndicatorState: ScrollIndicatorState?
+        get() = _scrollIndicatorState
 
     internal var remeasurement: Remeasurement? = null
         private set
@@ -213,7 +248,7 @@ internal constructor(
 
     /** prefetch state */
     private var prefetchBaseIndex: Int = -1
-    private val currentItemPrefetchHandles = mutableMapOf<Int, PrefetchHandle>()
+    private val currentItemPrefetchHandles = mutableIntObjectMapOf<PrefetchHandle>()
 
     internal val laneCount
         get() = layoutInfoState.value.slots.sizes.size
@@ -250,7 +285,9 @@ internal constructor(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit,
     ) {
-        awaitLayoutModifier.waitForFirstLayout()
+        if (layoutInfoState.value === EmptyLazyStaggeredGridLayoutInfo) {
+            awaitLayoutModifier.waitForFirstLayout()
+        }
         scrollableState.scroll(scrollPriority, block)
     }
 
@@ -462,7 +499,7 @@ internal constructor(
             }
             prefetchBaseIndex = prefetchIndex
 
-            val prefetchHandlesUsed = mutableSetOf<Int>()
+            val prefetchHandlesUsed = mutableIntSetOf()
             var targetIndex = prefetchIndex
             val slots = info.slots
             val laneCount = slots.sizes.size
@@ -521,14 +558,11 @@ internal constructor(
         }
     }
 
-    private fun clearLeftoverPrefetchHandles(prefetchHandlesUsed: Set<Int>) {
-        val iterator = currentItemPrefetchHandles.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            if (entry.key !in prefetchHandlesUsed) {
-                entry.value.cancel()
-                iterator.remove()
-            }
+    private fun clearLeftoverPrefetchHandles(prefetchHandlesUsed: IntSet) {
+        currentItemPrefetchHandles.removeIf { key, value ->
+            val used = key in prefetchHandlesUsed
+            if (!used) value.cancel()
+            !used
         }
     }
 
@@ -537,7 +571,7 @@ internal constructor(
         if (prefetchBaseIndex != -1 && items.isNotEmpty()) {
             if (prefetchBaseIndex !in items.first().index..items.last().index) {
                 prefetchBaseIndex = -1
-                currentItemPrefetchHandles.values.forEach { it.cancel() }
+                currentItemPrefetchHandles.forEachValue { it.cancel() }
                 currentItemPrefetchHandles.clear()
             }
         }
@@ -552,6 +586,22 @@ internal constructor(
         if (!isLookingAhead && hasLookaheadOccurred) {
             // If there was already a lookahead pass, record this result as Approach result
             approachLayoutInfo = result
+            Snapshot.withoutReadObservation {
+                // Check whether backscroll animation (from _lazyLayoutScrollDeltaBetweenPasses) is
+                // necessary. This animation handles cases where lookahead and approach passes
+                // have different maximum scroll bounds due to measurement differences (e.g.,
+                // when scrolling past the last item). If both passes already have the same
+                // scroll position, the animation is unnecessary and can be stopped.
+                if (
+                    _lazyLayoutScrollDeltaBetweenPasses.isActive &&
+                        result.firstVisibleItemIndices.contentEquals(scrollPosition.indices) &&
+                        result.firstVisibleItemScrollOffsets.contentEquals(
+                            scrollPosition.scrollOffsets
+                        )
+                ) {
+                    _lazyLayoutScrollDeltaBetweenPasses.stop()
+                }
+            }
         } else {
             if (isLookingAhead) {
                 hasLookaheadOccurred = true

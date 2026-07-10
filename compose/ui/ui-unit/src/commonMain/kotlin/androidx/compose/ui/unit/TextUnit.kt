@@ -55,9 +55,14 @@ value class TextUnitType(internal val type: Long) {
     }
 
     companion object {
-        val Unspecified = TextUnitType(UNIT_TYPE_UNSPECIFIED)
-        val Sp = TextUnitType(UNIT_TYPE_SP)
-        val Em = TextUnitType(UNIT_TYPE_EM)
+        val Unspecified
+            get() = TextUnitType(UNIT_TYPE_UNSPECIFIED)
+
+        val Sp
+            get() = TextUnitType(UNIT_TYPE_SP)
+
+        val Em
+            get() = TextUnitType(UNIT_TYPE_EM)
     }
 }
 
@@ -207,7 +212,9 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
          * Notice that performing arithmetic operations on [Unspecified] may result in an
          * [IllegalArgumentException].
          */
-        @Stable val Unspecified = pack(UNIT_TYPE_UNSPECIFIED, Float.NaN)
+        @Stable
+        val Unspecified
+            get() = pack(UNIT_TYPE_UNSPECIFIED, Float.NaN)
     }
 
     /**

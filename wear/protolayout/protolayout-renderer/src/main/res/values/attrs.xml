@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <attr name="anchorAngleDegrees" format="float"/>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <attr name="anchorAngleDegrees" format="float" tools:ignore="PrivateResource" />
 
-  <attr name="anchorPosition" format="enum">
+  <attr name="anchorPosition" format="enum" tools:ignore="PrivateResource" >
     <enum name="start" value="0" />
     <enum name="center" value="1" />
     <enum name="end" value="2" />
   </attr>
 
-  <attr name="clockwise" format="boolean"/>
+  <attr name="clockwise" format="boolean" tools:ignore="PrivateResource" />
   <attr name="sweepAngleDegrees" format="float" />
   <attr name="thickness" format="dimension" />
 

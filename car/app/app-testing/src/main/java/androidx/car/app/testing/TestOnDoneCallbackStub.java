@@ -37,4 +37,9 @@ public class TestOnDoneCallbackStub extends IOnDoneCallback.Stub {
     @Override
     public void onFailure(@NonNull Bundleable failureResponse) {
     }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
 }

@@ -43,6 +43,7 @@ import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.SupportedWindowFeatures
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_VISUALS_ON
 import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculatorCompat
@@ -263,6 +264,7 @@ class ExtensionWindowBackendTest {
                 } doAnswer
                     { invocation ->
                         val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
+                        @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
                         consumer.accept(OEMWindowLayoutInfo(emptyList()))
                     }
             }
@@ -721,6 +723,67 @@ class ExtensionWindowBackendTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun testExtensionWindowBackend_translateEngagementMode() {
+        assumeAtLeastWindowExtensionVersion(10)
+        val component =
+            mock<WindowLayoutComponent> {
+                on {
+                    addWindowLayoutInfoListener(any(), any<OEMConsumer<OEMWindowLayoutInfo>>())
+                } doAnswer
+                    { invocation ->
+                        val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
+                        consumer.accept(
+                            OEMWindowLayoutInfo.Builder()
+                                .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_VISUALS_ON)
+                                .build()
+                        )
+                    }
+            }
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
+        activityScenario.scenario.onActivity { activity ->
+            val consumer = TestConsumer<WindowLayoutInfo>()
+            backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
+
+            @Suppress("DEPRECATION")
+            val expected =
+                WindowLayoutInfo(emptyList(), setOf(WindowLayoutInfo.EngagementMode.VISUALS_ON))
+            consumer.assertValue(expected)
+        }
+    }
+
+    @Test
+    fun testExtensionWindowBackend_translateEngagementMode_defaultValue() {
+        assumeBeforeWindowExtensionVersion(10)
+        val component =
+            mock<WindowLayoutComponent> {
+                on {
+                    addWindowLayoutInfoListener(any(), any<OEMConsumer<OEMWindowLayoutInfo>>())
+                } doAnswer
+                    { invocation ->
+                        val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
+                        @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
+                        consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                    }
+            }
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
+        activityScenario.scenario.onActivity { activity ->
+            val consumer = TestConsumer<WindowLayoutInfo>()
+            backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
+
+            @Suppress("DEPRECATION")
+            val expected =
+                WindowLayoutInfo(
+                    emptyList(),
+                    setOf(
+                        WindowLayoutInfo.EngagementMode.VISUALS_ON,
+                        WindowLayoutInfo.EngagementMode.AUDIO_ON,
+                    ),
+                )
+            consumer.assertValue(expected)
+        }
+    }
+
     internal companion object {
         private fun newTestOEMWindowLayoutInfo(activity: Activity): OEMWindowLayoutInfo {
             val bounds =
@@ -728,6 +791,7 @@ class ExtensionWindowBackendTest {
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
+            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
             return OEMWindowLayoutInfo(displayFeatures)
         }
 
@@ -742,6 +806,7 @@ class ExtensionWindowBackendTest {
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
+            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
             return OEMWindowLayoutInfo(displayFeatures)
         }
     }
@@ -777,6 +842,7 @@ class ExtensionWindowBackendTest {
 
     private class FakeWindowComponent(
         private val windowFeatures: SupportedWindowFeatures? = null,
+        @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
         private val currentWindowLayoutInfo: OEMWindowLayoutInfo = OEMWindowLayoutInfo(emptyList()),
     ) : WindowLayoutComponent {
 

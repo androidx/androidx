@@ -55,20 +55,21 @@ import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class TextToggleButtonTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testTag() {
@@ -694,7 +695,10 @@ class TextToggleButtonTest {
             color = { shapeColor(checked = false) },
             releaseAfterTap = false,
         ) { modifier ->
-            CompositionLocalProvider(LocalContentColor provides shapeColor(checked = false)) {
+            CompositionLocalProvider(
+                LocalContentColor provides shapeColor(checked = false),
+                LocalRippleConfiguration provides null,
+            ) {
                 TextToggleButton(
                     checked = false,
                     onCheckedChange = {},
@@ -727,7 +731,10 @@ class TextToggleButtonTest {
             color = { shapeColor(checked = true) },
             releaseAfterTap = false,
         ) { modifier ->
-            CompositionLocalProvider(LocalContentColor provides shapeColor(checked = true)) {
+            CompositionLocalProvider(
+                LocalContentColor provides shapeColor(checked = true),
+                LocalRippleConfiguration provides null,
+            ) {
                 TextToggleButton(
                     checked = true,
                     onCheckedChange = {},

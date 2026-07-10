@@ -19,8 +19,6 @@ package androidx.compose.ui
 import android.os.Handler
 import android.os.Looper
 
-internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
-
 private val handler = Handler(Looper.getMainLooper())
 
 internal actual fun postDelayed(delayMillis: Long, block: () -> Unit): Any {

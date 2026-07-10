@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.core.splashscreen.SplashScreenViewProvider#getIconAnimationDurationMillis():
+    Source breaking change: method androidx.core.splashscreen.SplashScreenViewProvider.getIconAnimationDurationMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.splashscreen.SplashScreenViewProvider#getIconAnimationStartMillis():
+    Source breaking change: method androidx.core.splashscreen.SplashScreenViewProvider.getIconAnimationStartMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.splashscreen.SplashScreenViewProvider#getIconView():
+    Source breaking change: method androidx.core.splashscreen.SplashScreenViewProvider.getIconView() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.splashscreen.SplashScreenViewProvider#getView():
+    Source breaking change: method androidx.core.splashscreen.SplashScreenViewProvider.getView() can no longer be resolved from Kotlin source

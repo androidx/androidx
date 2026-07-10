@@ -16,7 +16,7 @@
 
 package androidx.javascriptengine.common;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Denotes that the length of an entity is greater than the maximum allowed limit.

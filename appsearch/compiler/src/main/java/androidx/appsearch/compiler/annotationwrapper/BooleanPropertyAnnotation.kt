@@ -16,8 +16,9 @@
 package androidx.appsearch.compiler.annotationwrapper
 
 import androidx.appsearch.compiler.IntrospectionHelper
-import com.squareup.javapoet.ClassName
-import javax.lang.model.type.TypeMirror
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.XType
 
 /** An instance of the `@Document.BooleanProperty` annotation. */
 data class BooleanPropertyAnnotation(override val name: String, override val isRequired: Boolean) :
@@ -29,10 +30,10 @@ data class BooleanPropertyAnnotation(override val name: String, override val isR
         genericDocSetterName = "setPropertyBoolean",
     ) {
     companion object {
-        val CLASS_NAME: ClassName =
+        val CLASS_NAME: XClassName =
             IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.nestedClass("BooleanProperty")
 
-        val CONFIG_CLASS: ClassName =
+        val CONFIG_CLASS: XClassName =
             IntrospectionHelper.APPSEARCH_SCHEMA_CLASS.nestedClass("BooleanPropertyConfig")
 
         /**
@@ -40,13 +41,13 @@ data class BooleanPropertyAnnotation(override val name: String, override val isR
          *   params do not mention an explicit name.
          */
         fun parse(
-            annotationParams: Map<String, Any?>,
+            annotationParams: Map<String, XAnnotationValue>,
             defaultName: String,
         ): BooleanPropertyAnnotation {
-            val name = annotationParams["name"] as? String
+            val name = annotationParams["name"]?.value as? String
             return BooleanPropertyAnnotation(
                 name = if (name.isNullOrEmpty()) defaultName else name,
-                isRequired = annotationParams["required"] as Boolean,
+                isRequired = annotationParams.getValue("required").asBoolean(),
             )
         }
     }
@@ -54,6 +55,6 @@ data class BooleanPropertyAnnotation(override val name: String, override val isR
     override val dataPropertyKind
         get() = Kind.BOOLEAN_PROPERTY
 
-    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): TypeMirror =
+    override fun getUnderlyingTypeWithinGenericDoc(helper: IntrospectionHelper): XType =
         helper.booleanPrimitiveType
 }

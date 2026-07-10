@@ -11,18 +11,10 @@ set -e
 # --------- androidx specific code needed for build server. ------------------
 
 SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
-if [ -n "$OUT_DIR" ] ; then
-    mkdir -p "$OUT_DIR"
-    OUT_DIR="$(cd $OUT_DIR && pwd -P)"
-    export TMPDIR="$OUT_DIR/tmp"
-elif [[ $SCRIPT_PATH == /google/cog/* ]] ; then
-    export OUT_DIR="$HOME/androidxout"
-else
-    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
-    export OUT_DIR="$CHECKOUT_ROOT/out"
-fi
-export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-export KONAN_DATA_DIR="$OUT_DIR/.konan"
+
+# Establish build environment variables: OUT_DIR and the directories
+# derived from it, prebuilts JDK and SDK, and local.properties.
+. "$SCRIPT_PATH/development/build-environment/build-environment.sh"
 
 ORG_GRADLE_JVMARGS="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
 if [ -n "$DIST_DIR" ]; then
@@ -35,9 +27,6 @@ if [ -n "$DIST_DIR" ]; then
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
-
-# unset ANDROID_BUILD_TOP so that Lint doesn't think we're building the platform itself
-unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
@@ -74,11 +63,6 @@ case "`uname`" in
     msys=true
     ;;
 esac
-platform_suffix="x86"
-case "$(arch)" in
-  arm64* )
-    platform_suffix="arm64"
-esac
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"
@@ -96,37 +80,6 @@ SAVED="`pwd`"
 cd "`dirname \"$PRG\"`/" >/dev/null
 APP_HOME="`pwd -P`"
 cd "$SAVED" >/dev/null
-
-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-
-# --------- androidx specific code needed for lint and java. ------------------
-
-# Pick the correct fullsdk for this OS.
-if [ $darwin == "true" ]; then
-    plat="darwin"
-else
-    plat="linux"
-fi
-
-# Tests for lint checks default to using sdk defined by this variable. This removes a lot of
-# setup from each lint module.
-export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
-# override JAVA_HOME, because CI machines have it and it points to very old JDK
-export ANDROIDX_JDK17="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
-export ANDROIDX_JDK21="$APP_HOME/../../prebuilts/jdk/jdk21/$plat-$platform_suffix"
-export JAVA_HOME=$ANDROIDX_JDK21
-export STUDIO_GRADLE_JDK=$JAVA_HOME
-
-# Warn developers if they try to build top level project without the full checkout
-[ ! -d "$JAVA_HOME" ] && echo "Failed to find: $JAVA_HOME
-
-Typically, this means either:
-1. You are using the standalone AndroidX checkout, e.g. GitHub, which only supports
-   building a subset of projects. See CONTRIBUTING.md for details.
-2. You are using the repo checkout, but the last repo sync failed. Use repo status
-   to check for projects which are partially-synced, e.g. showing ***NO BRANCH***." && exit -1
-
-# ----------------------------------------------------------------------------
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
@@ -174,7 +127,6 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin ; then
     APP_HOME=`cygpath --path --mixed "$APP_HOME"`
-    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
     JAVACMD=`cygpath --unix "$JAVACMD"`
 
     # We build the pattern for arguments to be converted via cygpath
@@ -252,13 +204,16 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
        --no-watch-fs\
-       -Pandroidx.highMemory\
-       --profile"
+       -Pandroidx.highMemory"
     fi
   fi
   if [ "$compact" == "--strict" ]; then
-    expanded="-Pandroidx.validateNoUnrecognizedMessages\
-     -Pandroidx.verifyUpToDate"
+    if [[ " ${@} " =~ " -Pandroidx.useMaxDepVersions " ]]; then
+      expanded="-Pandroidx.validateNoUnrecognizedMessages"
+    else
+      expanded="-Pandroidx.validateNoUnrecognizedMessages\
+       -Pandroidx.verifyUpToDate"
+    fi
     if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" -o "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "false" ]; then
       expanded="$expanded --offline"
     fi
@@ -296,29 +251,49 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
-# workaround for https://github.com/gradle/gradle/issues/18386
-if [[ " ${@} " =~ " --profile " ]]; then
-  mkdir -p reports
+# automatically raise memory if machine memory is more than 32GB
+HIGH_MEM_THRESHOLD_KB=$(( 64 * 1024 * 1024 ))  # 64 GB in KB
+MEDIUM_MEM_THRESHOLD_KB=$(( 32 * 1024 * 1024 ))  # 32 GB in KB
+
+OS_NAME=$(uname -s)
+TOTAL_MEM_KB=0
+
+if [[ "${OS_NAME}" == "Linux" ]]; then
+  # Get total memory in KB on the machine
+  TOTAL_MEM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+elif [[ "${OS_NAME}" == "Darwin" ]]; then
+  # Get total memory in bytes on macOS using sysctl, then convert to KB
+  TOTAL_MEM_BYTES=$(sysctl -n hw.memsize)
+  TOTAL_MEM_KB=$(( TOTAL_MEM_BYTES / 1024 ))
 fi
 
-raiseMemory=false
 if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-    raiseMemory=true
+  MAX_MEMORY_OVERRIDE=38g
+else
+  # determine the memory total
+  if (( TOTAL_MEM_KB >= MEDIUM_MEM_THRESHOLD_KB && TOTAL_MEM_KB < HIGH_MEM_THRESHOLD_KB )); then
+    MAX_MEMORY_OVERRIDE=19g
+  elif (( TOTAL_MEM_KB >= LARGE_MEM_THRESHOLD_KB )); then
+    MAX_MEMORY_OVERRIDE=38g
+  fi
 fi
+
 if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
   if [ "$raiseMemory" == "true" ]; then
     echo "androidx.lowMemory overriding androidx.highMemory"
     echo
   fi
-  raiseMemory=false
+  unset MAX_MEMORY_OVERRIDE
 fi
 
-if [ "$raiseMemory" == "true" ]; then
+# checking if the MAX_MEMORY_OVERRIDE variable is set using -v doesn't work on a lot of mac
+# machines, this is a workaround for that
+if [[ -n "${MAX_MEMORY_OVERRIDE+x}" ]]; then
   # Set the initial heap size to match the max heap size,
   # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-  MAX_MEM=38g
+
   # First sed command replaces Gradle daemon -Xmx and second replaces Kotlin compliler deamon -Xmx
-  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/" | sed "s/,-Xmx\([^ ]*\)/,-Xms$MAX_MEM,-Xmx$MAX_MEM/")"
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEMORY_OVERRIDE -Xmx$MAX_MEMORY_OVERRIDE/" | sed "s/,-Xmx\([^ ]*\)/,-Xms$MAX_MEMORY_OVERRIDE,-Xmx$MAX_MEMORY_OVERRIDE/")"
 
   # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
   ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
@@ -418,6 +393,11 @@ function runGradle() {
   if [[ "${@} " =~ " -Pandroidx.printTimestamps " ]]; then
     processOutput=true
   fi
+  # Skip build_log_processor as we are re-running an already successful build but with --dry-run so we can cache it
+  if [[ "${@} " =~ " --dry-run" && $ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE == "true" ]]; then
+    processOutput=false
+  fi
+
   if [ "$processOutput" == "true" ]; then
     wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
   else
@@ -425,14 +405,14 @@ function runGradle() {
   fi
 
   RETURN_VALUE=0
-  set -- "$@" -Dorg.gradle.projectcachedir="$OUT_DIR/gradle-project-cache"
+  set -- "$@" -Dorg.gradle.projectcachedir="$ANDROIDX_PROJECT_CACHE_DIR"
   # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
   if [[ " ${@} " =~ " --dependency-verification=" ]]; then
     VERIFICATION_ARGUMENT="" # already specified by caller
   else
     VERIFICATION_ARGUMENT=--dependency-verification=strict
   fi
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails

@@ -21,9 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppApiLevelsTest {
     @Test
@@ -34,5 +36,16 @@ public class CarAppApiLevelsTest {
     @Test
     public void isValid_apiHigherThanLatest_notValid() {
         assertThat(CarAppApiLevels.isValid(CarAppApiLevels.getLatest() + 1)).isFalse();
+    }
+
+    @Test
+    public void getLatest_isStable() {
+        // 1. Initial load
+        int firstCall = CarAppApiLevels.getLatest();
+
+        // 2. Second call should return exactly the same value from memory
+        // (This confirms stability, though not strictly that it didn't hit I/O)
+        int secondCall = CarAppApiLevels.getLatest();
+        assertThat(secondCall).isEqualTo(firstCall);
     }
 }

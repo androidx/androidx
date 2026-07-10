@@ -29,13 +29,14 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.resolution.KaSimpleFunctionCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaImplicitInvokeCall
 import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
 import org.jetbrains.kotlin.analysis.api.types.KaFunctionType
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtParenthesizedExpression
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
@@ -132,6 +133,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
             val resolvedLambdaSource =
                 sourcePsi.calleeExpression
+                    ?.let { (it as? KtParenthesizedExpression)?.expression ?: it }
                     ?.toUElement()
                     ?.tryResolve()
                     ?.toUElement()
@@ -210,8 +212,7 @@ private fun KaSession.dispatchReceiverType(callElement: KtCallElement): KaFuncti
     callElement
         .resolveToCall()
         ?.singleFunctionCallOrNull()
-        ?.takeIf { it is KaSimpleFunctionCall && it.isImplicitInvoke }
-        ?.partiallyAppliedSymbol
+        ?.takeIf { it is KaImplicitInvokeCall }
         ?.dispatchReceiver
         ?.type as? KaFunctionType
 

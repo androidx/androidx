@@ -73,6 +73,7 @@ private fun StateMonitoringPager() {
     }
 }
 
+@Suppress("FrequentlyChangingValue")
 @Composable
 private fun PageMonitor(modifier: Modifier, pagerState: PagerState) {
     Column(modifier.fillMaxWidth()) {

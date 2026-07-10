@@ -17,6 +17,8 @@
 package androidx.build
 
 import androidx.build.dependencyTracker.AffectedModuleDetector
+import java.io.StringReader
+import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
@@ -105,14 +107,13 @@ const val ALLOW_MISSING_LINT_CHECKS_PROJECT = "androidx.allow.missing.lint"
  */
 const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri"
 
-/** If true, don't restrict usage of compileSdk property. */
-const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
-
 /** If true, yarn dependencies are fetched from an offline mirror */
 const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 
 /** Defined by AndroidX Benchmark Plugin, may be used for local experiments with compilation */
 const val FORCE_BENCHMARK_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
+
+const val ALLOW_LOCKFILE_MISMATCH = "androidx.allowLockfileMismatch"
 
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
@@ -139,11 +140,11 @@ val ALL_ANDROIDX_PROPERTIES =
         ENABLED_KMP_TARGET_PLATFORMS,
         ALLOW_MISSING_LINT_CHECKS_PROJECT,
         XCODEGEN_DOWNLOAD_URI,
-        ALLOW_CUSTOM_COMPILE_SDK,
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
         YARN_OFFLINE_MODE,
         FORCE_BENCHMARK_AOT_COMPILATION,
+        ALLOW_LOCKFILE_MISMATCH,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 /**
@@ -170,20 +171,18 @@ fun Project.isValidateProjectStructureEnabled(): Boolean =
  * Validates that all properties passed by the user of the form "-Pandroidx.*" are not misspelled
  */
 fun Project.validateAllAndroidxArgumentsAreRecognized() {
-    for (propertyName in project.properties.keys) {
-        if (propertyName.startsWith("androidx")) {
-            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
-                val message =
-                    "Unrecognized Androidx property '$propertyName'.\n" +
-                        "\n" +
-                        "Is this a misspelling? All recognized Androidx properties:\n" +
-                        ALL_ANDROIDX_PROPERTIES.joinToString("\n") +
-                        "\n" +
-                        "\n" +
-                        "See AndroidXGradleProperties.kt if you need to add this property to " +
-                        "the list of known properties."
-                throw GradleException(message)
-            }
+    for (propertyName in providers.gradlePropertiesPrefixedBy("androidx.").get().keys) {
+        if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
+            val message =
+                "Unrecognized Androidx property '$propertyName'.\n" +
+                    "\n" +
+                    "Is this a misspelling? All recognized Androidx properties:\n" +
+                    ALL_ANDROIDX_PROPERTIES.joinToString("\n") +
+                    "\n" +
+                    "\n" +
+                    "See AndroidXGradleProperties.kt if you need to add this property to " +
+                    "the list of known properties."
+            throw GradleException(message)
         }
     }
 }
@@ -212,6 +211,36 @@ fun Project.usingMaxDepVersions(): Provider<Boolean> {
     return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).map { true }.orElse(false)
 }
 
+/** Gradle property controlling whether Kotlin/Native KLIBs are cross-compiled on non-Mac hosts. */
+private const val KLIB_CROSS_COMPILATION_ENABLED = "kotlin.native.enableKlibsCrossCompilation"
+
+/**
+ * Returns whether Kotlin/Native KLIB cross-compilation is enabled for this project.
+ *
+ * When disabled (via `kotlin.native.enableKlibsCrossCompilation=false` in the project's
+ * `gradle.properties`), the project's Apple targets cannot be built on a non-Mac host because it,
+ * or one of its dependencies, uses C-interop.
+ *
+ * Gradle does not surface per-project `gradle.properties` values through the standard property
+ * APIs, so the project's own `gradle.properties` file is read directly, falling back to the global
+ * value which defaults to `true`.
+ */
+fun Project.isKlibCrossCompilationEnabled(): Provider<Boolean> {
+    val globalValue =
+        providers.gradleProperty(KLIB_CROSS_COMPILATION_ENABLED).map { it.toBoolean() }.orElse(true)
+    return providers
+        .fileContents(layout.projectDirectory.file("gradle.properties"))
+        .asText
+        .map { text -> Properties().apply { load(StringReader(text)) } }
+        .flatMap { props ->
+            when (val value = props.getProperty(KLIB_CROSS_COMPILATION_ENABLED)) {
+                null -> globalValue
+                else -> providers.provider { value.toBoolean() }
+            }
+        }
+        .orElse(globalValue)
+}
+
 /** Returns whether we should use the offline mirror for dependencies */
 fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
 
@@ -222,9 +251,7 @@ fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
 fun Project.allowMissingLintProject() =
     findBooleanProperty(ALLOW_MISSING_LINT_CHECKS_PROJECT) ?: false
 
-/** Whether libraries are allowed to customize the value of the compileSdk property. */
-fun Project.isCustomCompileSdkAllowed(): Boolean =
-    findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
+fun Project.allowLockfileMismatch() = findBooleanProperty(ALLOW_LOCKFILE_MISMATCH) ?: true
 
 fun Project.findBooleanProperty(propName: String): Boolean? =
     project.providers.gradleProperty(propName).map { it.toBoolean() }.getOrNull()

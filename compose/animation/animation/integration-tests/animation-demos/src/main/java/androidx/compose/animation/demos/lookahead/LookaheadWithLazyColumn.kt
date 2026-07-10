@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -58,7 +57,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithLazyColumn() {

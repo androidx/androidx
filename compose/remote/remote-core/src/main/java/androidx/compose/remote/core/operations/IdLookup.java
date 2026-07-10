@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** looks up an id from and array of id's created using DataListIds */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IdLookup extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.ID_LOOKUP;
     private static final String CLASS_NAME = "IdLookup";
@@ -116,9 +118,9 @@ public class IdLookup extends Operation implements VariableSupport, Serializable
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int dataSetId = buffer.readInt();
-        float index = buffer.readFloat();
+        int textId = buffer.readId();
+        int dataSetId = buffer.readId();
+        float index = buffer.readNanId();
         operations.add(new IdLookup(textId, dataSetId, index));
     }
 
@@ -128,11 +130,12 @@ public class IdLookup extends Operation implements VariableSupport, Serializable
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("access an id (integer) from and array")
-                .field(INT, "textId", "id of the integer generated")
-                .field(FLOAT, "dataSet", "float pointer to the array/list to turn int a string")
-                .field(FLOAT, "index", "index of element to return");
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Look up an ID from an ID collection via index")
+                .field(INT, "textId", "The ID of the integer variable to store the result")
+                .field(FLOAT, "dataSet", "The ID of the collection")
+                .field(FLOAT, "index", "The index of the ID to retrieve");
     }
 
     @Override

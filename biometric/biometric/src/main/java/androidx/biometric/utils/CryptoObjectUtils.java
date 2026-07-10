@@ -40,7 +40,6 @@ import java.security.NoSuchProviderException;
 import java.security.Signature;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -118,6 +117,16 @@ public class CryptoObjectUtils {
             }
         }
 
+        // Key agreement is only supported on API 36.1 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            final javax.crypto.KeyAgreement keyAgreement =
+                    Api36MinorImpl.getKeyAgreement(cryptoObject);
+            if (keyAgreement != null) {
+                return new BiometricPrompt.CryptoObject(keyAgreement);
+            }
+        }
+
         // Operation handle is only supported on API 35 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // This should be the bottom one and only be reachable when cryptoObject was
@@ -181,6 +190,15 @@ public class CryptoObjectUtils {
             }
         }
 
+        // Key agreement is only supported on API 36.1 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            final javax.crypto.KeyAgreement keyAgreement = cryptoObject.getKeyAgreement();
+            if (keyAgreement != null) {
+                return Api36MinorImpl.create(keyAgreement);
+            }
+        }
+
         // Operation handle is only supported on API 35 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             final long operationHandle = cryptoObject.getOperationHandleCryptoObject();
@@ -213,16 +231,16 @@ public class CryptoObjectUtils {
 
     /**
      * Unwraps a crypto object returned by
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      *
      * @param cryptoObject A crypto object from
-     *                     {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     *                     {@link androidx.biometric.internal.FingerprintManagerCompat}.
      * @return An equivalent {@link androidx.biometric.BiometricPrompt.CryptoObject} instance.
      */
     @SuppressWarnings("deprecation")
     static BiometricPrompt.@Nullable CryptoObject unwrapFromFingerprintManager(
-            androidx.core.hardware.fingerprint.FingerprintManagerCompat.@Nullable CryptoObject
-                    cryptoObject) {
+            androidx.biometric.internal.FingerprintManagerCompat.@Nullable
+                    CryptoObject cryptoObject) {
 
         if (cryptoObject == null) {
             return null;
@@ -248,14 +266,14 @@ public class CryptoObjectUtils {
 
     /**
      * Wraps a crypto object to be passed to
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      *
      * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      * @return An equivalent crypto object that is compatible with
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      */
     @SuppressWarnings("deprecation")
-    public static androidx.core.hardware.fingerprint.FingerprintManagerCompat.@Nullable CryptoObject
+    public static androidx.biometric.internal.FingerprintManagerCompat.@Nullable CryptoObject
             wrapForFingerprintManager(BiometricPrompt.@Nullable CryptoObject cryptoObject) {
 
         if (cryptoObject == null) {
@@ -264,19 +282,19 @@ public class CryptoObjectUtils {
 
         final Cipher cipher = cryptoObject.getCipher();
         if (cipher != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
+            return new androidx.biometric.internal.FingerprintManagerCompat.CryptoObject(
                     cipher);
         }
 
         final Signature signature = cryptoObject.getSignature();
         if (signature != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
+            return new androidx.biometric.internal.FingerprintManagerCompat.CryptoObject(
                     signature);
         }
 
         final Mac mac = cryptoObject.getMac();
         if (mac != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
+            return new androidx.biometric.internal.FingerprintManagerCompat.CryptoObject(
                     mac);
         }
 
@@ -289,6 +307,13 @@ public class CryptoObjectUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && cryptoObject.getPresentationSession() != null) {
             Log.e(TAG, "Presentation session is not supported by FingerprintManager.");
+            return null;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
+                && cryptoObject.getKeyAgreement() != null) {
+            Log.e(TAG, "Key agreement is not supported by FingerprintManager.");
             return null;
         }
 
@@ -308,23 +333,22 @@ public class CryptoObjectUtils {
      * @return An internal-only instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      */
     @SuppressLint("TrulyRandom")
-    @RequiresApi(Build.VERSION_CODES.M)
     public static BiometricPrompt.@Nullable CryptoObject createFakeCryptoObject() {
         try {
             final KeyStore keystore = KeyStore.getInstance(KEYSTORE_INSTANCE);
             keystore.load(null);
 
             final KeyGenParameterSpec.Builder keySpecBuilder =
-                    Api23Impl.createKeyGenParameterSpecBuilder(
+                    new KeyGenParameterSpec.Builder(
                             FAKE_KEY_NAME,
                             KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
-            Api23Impl.setBlockModeCBC(keySpecBuilder);
-            Api23Impl.setEncryptionPaddingPKCS7(keySpecBuilder);
+            keySpecBuilder.setBlockModes(KeyProperties.BLOCK_MODE_CBC);
+            keySpecBuilder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
 
             final KeyGenerator keyGenerator =
                     KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE);
-            final KeyGenParameterSpec keySpec = Api23Impl.buildKeyGenParameterSpec(keySpecBuilder);
-            Api23Impl.initKeyGenerator(keyGenerator, keySpec);
+            final KeyGenParameterSpec keySpec = keySpecBuilder.build();
+            keyGenerator.init(keySpec);
             keyGenerator.generateKey();
 
             final SecretKey secretKey =
@@ -340,6 +364,39 @@ public class CryptoObjectUtils {
                  | UnrecoverableKeyException | IOException | NoSuchProviderException e) {
             Log.w(TAG, "Failed to create fake crypto object.", e);
             return null;
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+    private static class Api36MinorImpl {
+        // Prevent instantiation.
+        private Api36MinorImpl() {
+        }
+
+        /**
+         * Creates an instance of the framework class
+         * { @link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given
+         * key agreement.
+         *
+         * @param keyAgreement The key agreement to be wrapped.
+         * @return An instance of { @link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        static android.hardware.biometrics.BiometricPrompt.@NonNull CryptoObject create(
+                javax.crypto.@NonNull KeyAgreement keyAgreement) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(keyAgreement);
+        }
+
+        /**
+         * Gets the key agreement associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               { @link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped key agreement object, or { @code null}.
+         */
+        static javax.crypto.@Nullable KeyAgreement getKeyAgreement(
+                android.hardware.biometrics.BiometricPrompt.@NonNull CryptoObject crypto) {
+            return crypto.getKeyAgreement();
         }
     }
 
@@ -533,72 +590,6 @@ public class CryptoObjectUtils {
         static @Nullable Mac getMac(
                 android.hardware.biometrics.BiometricPrompt.@NonNull CryptoObject crypto) {
             return crypto.getMac();
-        }
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
-     */
-    @RequiresApi(Build.VERSION_CODES.M)
-    private static class Api23Impl {
-        // Prevent instantiation.
-        private Api23Impl() {
-        }
-
-        /**
-         * Creates a new instance of {@link KeyGenParameterSpec.Builder}.
-         *
-         * @param keystoreAlias The keystore alias for the resulting key.
-         * @param purposes      The purposes for which the resulting key will be used.
-         * @return An instance of {@link KeyGenParameterSpec.Builder}.
-         */
-        @SuppressWarnings("SameParameterValue")
-        static KeyGenParameterSpec.@NonNull Builder createKeyGenParameterSpecBuilder(
-                @NonNull String keystoreAlias, int purposes) {
-            return new KeyGenParameterSpec.Builder(keystoreAlias, purposes);
-        }
-
-        /**
-         * Sets CBC block mode for the given key spec builder.
-         *
-         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
-         */
-        static void setBlockModeCBC(KeyGenParameterSpec.@NonNull Builder keySpecBuilder) {
-            keySpecBuilder.setBlockModes(KeyProperties.BLOCK_MODE_CBC);
-        }
-
-        /**
-         * Sets PKCS7 encryption padding for the given key spec builder.
-         *
-         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
-         */
-        static void setEncryptionPaddingPKCS7(KeyGenParameterSpec.@NonNull Builder keySpecBuilder) {
-            keySpecBuilder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-        }
-
-        /**
-         * Builds a key spec from the given builder.
-         *
-         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
-         * @return A {@link KeyGenParameterSpec} created from the given builder.
-         */
-        static @NonNull KeyGenParameterSpec buildKeyGenParameterSpec(
-                KeyGenParameterSpec.@NonNull Builder keySpecBuilder) {
-            return keySpecBuilder.build();
-        }
-
-        /**
-         * Calls {@link KeyGenerator#init(AlgorithmParameterSpec)} for the given key generator and
-         * spec.
-         *
-         * @param keyGenerator An instance of {@link KeyGenerator}.
-         * @param keySpec      The key spec with which to initialize the generator.
-         * @throws InvalidAlgorithmParameterException If the key spec is invalid.
-         */
-        static void initKeyGenerator(
-                @NonNull KeyGenerator keyGenerator, @NonNull KeyGenParameterSpec keySpec)
-                throws InvalidAlgorithmParameterException {
-            keyGenerator.init(keySpec);
         }
     }
 }

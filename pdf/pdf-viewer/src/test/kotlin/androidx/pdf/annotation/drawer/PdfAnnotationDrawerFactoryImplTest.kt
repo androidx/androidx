@@ -17,8 +17,8 @@
 package androidx.pdf.annotation.drawer
 
 import android.graphics.RectF
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.StampAnnotation
+import androidx.pdf.annotation.content.TestPdfAnnotation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PdfAnnotationDrawerFactoryImplTest {
 
     private lateinit var pdfObjectDrawerFactory: PdfObjectDrawerFactory
@@ -48,7 +49,7 @@ class PdfAnnotationDrawerFactoryImplTest {
 
     @Test
     fun create_withUnsupportedAnnotationType_throwsIllegalArgumentException() {
-        val unsupportedAnnotation = object : PdfAnnotation(pageNum = 0) {}
+        val unsupportedAnnotation = TestPdfAnnotation(pageNum = 0)
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {

@@ -1,0 +1,237 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.tracing.wire
+
+import androidx.annotation.GuardedBy
+import androidx.annotation.IntRange
+import androidx.tracing.AbstractTraceSink
+import androidx.tracing.PooledTracePacketArray
+import androidx.tracing.Queue
+import androidx.tracing.synchronized
+import com.squareup.wire.ProtoWriter
+import kotlin.concurrent.Volatile
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
+import kotlin.coroutines.resume
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import okio.BufferedSink
+
+/**
+ * The trace sink that writes [BufferedSink], to a new file per trace session.
+ *
+ * This implementation converts [androidx.tracing.TraceEvent]s into binary protos using
+ * [the Wire library](https://square.github.io/wire/).
+ *
+ * The outputs created by [TraceSink] can be visualized with
+ * [ui.perfetto.dev](https://ui.perfetto.dev/), and queried by
+ * [TraceProcessor](https://developer.android.com/reference/androidx/benchmark/traceprocessor/TraceProcessor)
+ * from the `androidx.benchmark:benchmark-traceprocessor` library, the
+ * [C++](https://perfetto.dev/docs/analysis/trace-processor) tool it's built on, or the
+ * [Python](https://perfetto.dev/docs/analysis/trace-processor-python) wrapper.
+ *
+ * As binary protos embed strings as UTF-8, note that any strings serialized by TraceSink will be
+ * serialized as UTF-8.
+ */
+public class TraceSink(
+    /**
+     * ID which uniquely identifies the trace capture system, within which uuids are guaranteed to
+     * be unique.
+     *
+     * This is only relevant when merging traces across multiple sources (e.g. combining the trace
+     * output of this library with a trace captured on Android with Perfetto).
+     *
+     * Value must be greater than 0.
+     */
+    @param:IntRange(from = 1) private val sequenceId: Int,
+
+    /**
+     * Provide the [BufferedSink] the trace will be written to.
+     *
+     * Note: Sometimes trying to obtain a buffered sink might fail. For e.g. on Android, calling
+     * `context.filesDir` will throw a `NullPointerException` prior to `Application.onCreate()`.
+     */
+    private val sinkProvider: () -> BufferedSink,
+
+    /** Coroutine context to execute the serialization on. */
+    private val coroutineContext: CoroutineContext = NonCancellable + Dispatchers.IO,
+) : AbstractTraceSink() {
+
+    /**
+     * Constructs an instance of [TraceSink].
+     *
+     * @param sequenceId ID which uniquely identifies the trace capture system. Value must be
+     *   greater than 0.
+     * @param bufferedSink The [BufferedSink] that the trace will be written to.
+     * @param coroutineContext The [CoroutineContext] to execute the serialization on.
+     */
+    public constructor(
+        @IntRange(from = 1) sequenceId: Int,
+        bufferedSink: BufferedSink,
+        coroutineContext: CoroutineContext,
+    ) : this(
+        sequenceId = sequenceId,
+        sinkProvider = { bufferedSink },
+        coroutineContext = coroutineContext,
+    )
+
+    private val wireTraceEventSerializer = WireTraceEventSerializer(sequenceId)
+
+    // There are 2 distinct mechanisms for thread safety here, and they are not necessarily in sync.
+    // The Queue by itself is thread-safe, but after we drain the queue we mark drainRequested
+    // to false (not an atomic operation). So a writer can come along and add a pooled array of
+    // trace packets. That is still okay given, those packets will get picked during the next
+    // drain request; or on flush() prior to the close() of the Sink.
+    // No packets are lost or dropped; and therefore we are still okay with this small
+    // compromise with thread safety.
+    internal val queue = Queue<PooledTracePacketArray>()
+
+    private val drainLock = Any() // Lock used to keep drainRequested, resumeDrain in sync.
+
+    // We are guarding the creation of bufferedSink, protoWriter with a lock because
+    // enqueue() can be called from any Thread. However, the actual act of draining the queue,
+    // is effectively single threaded. So reads don't have to be guarded.
+    @GuardedBy("drainLock") private var bufferedSink: BufferedSink? = null
+    @GuardedBy("drainLock") private var protoWriter: ProtoWriter? = null
+    @GuardedBy("drainLock") private var drainRequested = false
+
+    // Once the sink is marked as closed. No more enqueue()'s are allowed. This way we can never
+    // race between a new drainRequest() after the last request for flush() happened. This
+    // is because we simply disallow adding more items to the underlying queue.
+    @Volatile private var closed = false
+
+    @GuardedBy("drainLock") private var resumeDrain: Continuation<Unit>
+
+    init {
+        require(sequenceId > 0) {
+            "Provided sequenceId was $sequenceId, it must be greater than 0."
+        }
+        resumeDrain =
+            suspend {
+                    coroutineContext[Job]?.invokeOnCompletion { makeDrainRequest() }
+                    while (true) {
+                        drainQueue()
+                        // Set drainRequested to false on completion
+                        suspendCoroutineUninterceptedOrReturn { continuation ->
+                            synchronized(drainLock) {
+                                drainRequested = false
+                                resumeDrain = continuation
+                            }
+                            COROUTINE_SUSPENDED // Suspend
+                        }
+                    }
+                }
+                .createCoroutineUnintercepted(Continuation(context = coroutineContext) {})
+
+        // Kick things off and suspend
+        makeDrainRequest()
+    }
+
+    override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
+        if (!closed) {
+            queue.addLast(pooledPacketArray)
+            makeDrainRequest()
+        }
+    }
+
+    override fun onDroppedTraceEvent() {
+        if (!closed && !queue.isDroppedTraceEvent) {
+            queue.setDroppedTraceEvent(droppedTraceEvent = true)
+            makeDrainRequest()
+        }
+    }
+
+    override fun flush() {
+        makeDrainRequest()
+        while (protoWriter != null && queue.isNotEmpty()) {
+            // Await completion of the drain.
+        }
+        bufferedSink?.flush()
+    }
+
+    private fun makeDrainRequest() {
+        // Only make a request if one is not already ongoing
+        synchronized(drainLock) {
+            if (protoWriter == null) {
+                // Try and obtain a buffered sink from the provider. Be graceful, given the provider
+                // may not be ready.
+                val result = runCatching { sinkProvider() }
+                if (result.isSuccess) {
+                    val bufferedSink = result.getOrThrow()
+                    this.bufferedSink = bufferedSink
+                    protoWriter = ProtoWriter(sink = bufferedSink)
+                }
+            }
+            // Even though drainQueue() will do nothing, if the protoWriter is not ready.
+            // This prevents us for scheduling unnecessary work on the Coroutine scheduler.
+            if (protoWriter != null && !drainRequested) {
+                drainRequested = true
+                resumeDrain.resume(Unit)
+            }
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun drainQueue() {
+        val protoWriter = protoWriter ?: return
+        while (queue.isNotEmpty()) {
+            // We are not trying to be accurate about exactly which specific event has the
+            // dropped flag set.
+            val reportDroppedTraceEvent = queue.isDroppedTraceEvent
+            queue.setDroppedTraceEvent(false)
+            val pooledPacketArray = queue.firstOrNull()
+            if (pooledPacketArray != null) {
+                var firstEventInBatch = true
+                pooledPacketArray.forEach {
+                    // Only emit the packet dropped signal as part of the first write in a batch.
+                    val reportDroppedEvent =
+                        if (firstEventInBatch) reportDroppedTraceEvent else false
+                    wireTraceEventSerializer.writeTraceEvent(
+                        protoWriter = protoWriter,
+                        event = it,
+                        reportDroppedTraceEvent = reportDroppedEvent,
+                    )
+                    firstEventInBatch = false
+                }
+                pooledPacketArray.recycle()
+                // Remove the item from the Queue to denote that we have written the underlying
+                // bytes to the proto stream.
+                queue.removeFirst()
+            }
+        }
+    }
+
+    override fun close() {
+        // If already closed then we have nothing to do.
+        if (closed) return
+
+        // Mark closed.
+        // We don't need a critical section here, given we have one final flush() that blocks
+        // until the queue is drained. So even if we are racing against additions to the queue,
+        // that should still be okay, because enqueue()'s will eventually start no-oping.
+
+        // Note: Closed only means that we will no longer enqueue() new items into the Queue.
+        // Flushing and closing of the underlying BufferedSink are still allowed.
+        closed = true
+        flush()
+        bufferedSink?.close()
+    }
+}

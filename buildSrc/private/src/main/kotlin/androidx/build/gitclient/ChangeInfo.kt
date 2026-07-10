@@ -16,13 +16,13 @@
 
 package androidx.build.gitclient
 
-import androidx.build.getCheckoutRoot
 import androidx.build.parseXml
 import com.google.gson.Gson
 import java.io.File
 import org.gradle.api.GradleException
-import org.gradle.api.Project
-import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
 
 /**
  * A provider of changed files based on changeinfo files and manifest files created by the build
@@ -33,48 +33,76 @@ import org.gradle.api.provider.Provider
  *
  * For more information, see b/171569941
  */
-fun Project.getChangedFilesFromChangeInfoProvider(
-    manifestPath: Provider<String>,
-    changeInfoPath: Provider<String>,
-    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString(),
-): Provider<List<String>> {
-    val manifestTextProvider =
-        providers
-            .fileContents(objects.fileProperty().fileProvider(manifestPath.map { File(it) }))
-            .asText
-    return project.providers
-        .fileContents(project.objects.fileProperty().fileProvider(changeInfoPath.map { File(it) }))
-        .asText
-        .zip(manifestTextProvider) { changeInfoText, manifestText ->
-            val fileList = mutableListOf<String>()
-            val fileSet = mutableSetOf<String>()
-            val gson = Gson()
-            val changeInfoEntries = gson.fromJson(changeInfoText, ChangeInfo::class.java)
-            val projectName = computeProjectName(projectDirRelativeToRoot, manifestText)
-            val changes =
-                changeInfoEntries.changes?.filter { it.project == projectName } ?: emptyList()
-            for (change in changes) {
-                val revisions = change.revisions ?: listOf()
-                for (revision in revisions) {
-                    val fileInfos = revision.fileInfos ?: listOf()
-                    for (fileInfo in fileInfos) {
-                        fileInfo.oldPath?.let { path ->
-                            if (!fileSet.contains(path)) {
-                                fileList.add(path)
-                                fileSet.add(path)
-                            }
-                        }
-                        fileInfo.path?.let { path ->
-                            if (!fileSet.contains(path)) {
-                                fileList.add(path)
-                                fileSet.add(path)
-                            }
-                        }
+internal abstract class NonGitChangedFilesSource :
+    ValueSource<List<String>, NonGitChangedFilesSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val projectDirRelativeToRoot: Property<String>
+        val baseCommitOverridePresent: Property<Boolean>
+    }
+
+    override fun obtain(): List<String>? {
+        val changeInfo = System.getenv("CHANGE_INFO")
+        val manifest = System.getenv("MANIFEST")
+        val hasChangeInfo = changeInfo != null
+        val hasManifest = manifest != null
+        return when {
+            hasChangeInfo && hasManifest -> {
+                if (parameters.baseCommitOverridePresent.get()) {
+                    throw GradleException(
+                        "Overriding base commit is not supported when using CHANGE_INFO and MANIFEST"
+                    )
+                }
+                val changeInfoText = File(changeInfo).readText()
+                val manifestText = File(manifest).readText()
+                return getChangedFilesFromChangeInfoAndManifest(
+                    changeInfoText,
+                    manifestText,
+                    parameters.projectDirRelativeToRoot.get(),
+                )
+            }
+            hasChangeInfo xor hasManifest -> {
+                throw GradleException(
+                    if (hasChangeInfo) "Setting CHANGE_INFO requires also setting MANIFEST"
+                    else "Setting MANIFEST requires also setting CHANGE_INFO"
+                )
+            }
+            else -> null
+        }
+    }
+}
+
+internal fun getChangedFilesFromChangeInfoAndManifest(
+    changeInfoText: String,
+    manifestText: String,
+    projectDirRelativeToRoot: String,
+): List<String> {
+    val fileList = mutableListOf<String>()
+    val fileSet = mutableSetOf<String>()
+    val gson = Gson()
+    val changeInfoEntries = gson.fromJson(changeInfoText, ChangeInfo::class.java)
+    val projectName = computeProjectName(projectDirRelativeToRoot, manifestText)
+    val changes = changeInfoEntries.changes?.filter { it.project == projectName } ?: emptyList()
+    for (change in changes) {
+        val revisions = change.revisions ?: listOf()
+        for (revision in revisions) {
+            val fileInfos = revision.fileInfos ?: listOf()
+            for (fileInfo in fileInfos) {
+                fileInfo.oldPath?.let { path ->
+                    if (!fileSet.contains(path)) {
+                        fileList.add(path)
+                        fileSet.add(path)
+                    }
+                }
+                fileInfo.path?.let { path ->
+                    if (!fileSet.contains(path)) {
+                        fileList.add(path)
+                        fileSet.add(path)
                     }
                 }
             }
-            return@zip fileList
         }
+    }
+    return fileList
 }
 
 // Data classes uses to parse CHANGE_INFO json files
@@ -93,30 +121,35 @@ internal data class FileInfo(val path: String?, val oldPath: String?, val status
  *
  * For more information, see b/171569941
  */
-fun Project.getHeadShaFromManifestProvider(
-    manifestPath: Provider<String>,
-    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString(),
-): Provider<String> {
-    val contentsProvider =
-        project.providers.fileContents(
-            project.objects.fileProperty().fileProvider(manifestPath.map { File(it) })
-        )
-    return contentsProvider.asText.map { manifestContent ->
-        val projectName = computeProjectName(projectDirRelativeToRoot, manifestContent)
-        val revisionRegex = Regex("revision=\"([^\"]*)\"")
-        for (line in manifestContent.split("\n")) {
-            if (line.contains("name=\"${projectName}\"")) {
-                val result = revisionRegex.find(line)?.groupValues?.get(1)
-                if (result != null) {
-                    return@map result
-                }
-            }
-        }
-        throw GradleException(
-            "Could not identify version of project '$projectName' from config text" +
-                "'$manifestContent'"
+internal abstract class NonGitHeadShaSource : ValueSource<String, NonGitHeadShaSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val projectDirRelativeToRoot: Property<String>
+    }
+
+    override fun obtain(): String? {
+        val manifest = System.getenv("MANIFEST") ?: return null
+        return getHeadShaFromManifest(
+            File(manifest).readText(),
+            parameters.projectDirRelativeToRoot.get(),
         )
     }
+}
+
+internal fun getHeadShaFromManifest(
+    manifestText: String,
+    projectDirRelativeToRoot: String,
+): String {
+    val projectName = computeProjectName(projectDirRelativeToRoot, manifestText)
+    val revisionRegex = Regex("revision=\"([^\"]*)\"")
+    for (line in manifestText.split("\n")) {
+        if (line.contains("name=\"${projectName}\"")) {
+            val result = revisionRegex.find(line)?.groupValues?.get(1)
+            if (result != null) {
+                return result
+            }
+        }
+    }
+    throw GradleException("Could not identify version of project '$projectName' from config text")
 }
 
 private fun computeProjectName(projectPath: String, config: String): String {

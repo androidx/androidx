@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * When used on a View annotated with
  * {@link androidx.resourceinspection.annotation.AppCompatShadowedAttributes}, this interface
  * implies that AppCompat shadows the platform's image tint attributes. See
- * {@link androidx.resourceinspection.processor} for more details and a full mapping of attributes.
+ * {@code androidx.resourceinspection.processor} for more details and a full mapping of attributes.
  *
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)

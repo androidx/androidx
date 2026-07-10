@@ -19,14 +19,15 @@ package androidx.camera.testing.impl.fakes
 import android.util.Range
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
-public class FakeVideoEncoderInfo(
-    @JvmField public var canSwapWidthHeight: Boolean = true,
-    @JvmField public var supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
-    @JvmField public var supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
-    @JvmField public var widthAlignment: Int = 2,
-    @JvmField public var heightAlignment: Int = 2,
-    @JvmField public var supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE),
-) : FakeEncoderInfo(), VideoEncoderInfo {
+public open class FakeVideoEncoderInfo(
+    private var canSwapWidthHeight: Boolean = true,
+    private var supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
+    private var supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
+    override var widthAlignment: Int = 2,
+    override var heightAlignment: Int = 2,
+    override var supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE),
+    mime: String = "video/fake",
+) : FakeEncoderInfo(mime = mime), VideoEncoderInfo {
 
     override fun canSwapWidthHeight(): Boolean {
         return canSwapWidthHeight
@@ -52,17 +53,5 @@ public class FakeVideoEncoderInfo(
 
     override fun getSupportedHeightsFor(width: Int): Range<Int> {
         return supportedHeights
-    }
-
-    override fun getWidthAlignment(): Int {
-        return widthAlignment
-    }
-
-    override fun getHeightAlignment(): Int {
-        return heightAlignment
-    }
-
-    override fun getSupportedBitrateRange(): Range<Int> {
-        return supportedBitrateRange
     }
 }

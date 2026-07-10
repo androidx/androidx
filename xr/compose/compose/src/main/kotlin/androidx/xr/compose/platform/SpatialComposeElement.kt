@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.CoreEntity
 
@@ -49,7 +48,7 @@ import androidx.xr.compose.subspace.layout.CoreEntity
  *   composition.
  */
 internal abstract class AbstractComposeElement(
-    internal var compositionContext: CompositionContext? = null,
+    internal val compositionContext: CompositionContext,
     internal val rootCoreEntity: CoreEntity? = null,
 ) : SpatialElement() {
 
@@ -112,7 +111,6 @@ internal abstract class AbstractComposeElement(
      * This method should only be called if this element is attached to a [SpatialComposeScene] or
      * if a parent [CompositionContext] has been set explicitly.
      */
-    @OptIn(InternalComposeUiApi::class)
     protected fun createComposition() {
         if (composition != null) return
 
@@ -133,23 +131,17 @@ internal abstract class AbstractComposeElement(
         addChild(compositionOwner)
         compositionOwner.root.entity = rootCoreEntity
         composition =
-            WrappedComposition(
-                    compositionOwner,
-                    compositionContext
-                        ?: SubspaceRecomposerPolicy.createAndInstallSubspaceRecomposer(this),
-                )
-                .also {
-                    compositionOwner.wrappedComposition = it
-                    it.setContent { Content() }
-                }
+            WrappedComposition(compositionOwner, compositionContext).also {
+                compositionOwner.wrappedComposition = it
+                it.setContent { Content() }
+            }
 
         creatingComposition = false
     }
 
     /** Whether any of the ancestor elements have a [CompositionContext]. */
     private fun hasAncestorWithCompositionContext(): Boolean =
-        generateSequence(parent) { it.parent }
-            .any { it is AbstractComposeElement && it.compositionContext != null }
+        generateSequence(parent) { it.parent }.any { it is AbstractComposeElement }
 
     /**
      * Disposes the composition for this element.
@@ -170,27 +162,18 @@ internal abstract class AbstractComposeElement(
  * This class is based on the existing `ComposeView` class in [androidx.compose.ui.platform].
  *
  * @param scene The [SpatialComposeScene] that this element is attached to.
- * @param compositionContext the [CompositionContext] from a parent composition to propagate
- *   composition state. Should be `null` when this instance is the top-level composition context, in
- *   which case a new [CompositionContext] will be created. This value should be provided when this
- *   instance is a sub-composition of another composition.
+ * @param compositionContext the [CompositionContext] from a parent composition.
  * @param rootCoreEntity The [CoreEntity] associated with the root layout of this composition (see
  *   [AbstractComposeElement.rootCoreEntity])
  */
 internal class SpatialComposeElement(
     scene: SpatialComposeScene,
-    compositionContext: CompositionContext? = null,
+    compositionContext: CompositionContext,
     rootCoreEntity: CoreEntity? = null,
 ) : AbstractComposeElement(compositionContext, rootCoreEntity) {
     init {
         spatialComposeScene = scene
     }
-
-    var rootVolumeConstraints
-        get() = compositionOwner.rootVolumeConstraints
-        set(value) {
-            compositionOwner.rootVolumeConstraints = value
-        }
 
     private val content = mutableStateOf<(@Composable @SubspaceComposable () -> Unit)?>(null)
 

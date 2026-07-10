@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AfMode mAfMode = CameraCaptureMetaData.AfMode.UNKNOWN;
     private CameraCaptureMetaData.AfState mAfState = CameraCaptureMetaData.AfState.UNKNOWN;

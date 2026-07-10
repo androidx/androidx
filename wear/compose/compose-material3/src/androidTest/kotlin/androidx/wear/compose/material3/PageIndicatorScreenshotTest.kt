@@ -26,16 +26,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.PageIndicatorTest.Companion.PAGE_COUNT
 import androidx.wear.compose.material3.PageIndicatorTest.Companion.SELECTED_PAGE_INDEX
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -46,7 +47,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class PageIndicatorScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -230,9 +231,9 @@ class PageIndicatorScreenshotTest {
                 contentAlignment = if (isHorizontal) Alignment.BottomCenter else Alignment.CenterEnd,
             ) {
                 val pagerState =
-                    PagerState(
-                        currentPage = selectedPageIndex,
-                        currentPageOffsetFraction = offsetFraction,
+                    rememberPagerState(
+                        initialPage = selectedPageIndex,
+                        initialPageOffsetFraction = offsetFraction,
                         pageCount = { pageCount },
                     )
                 if (isHorizontal) {

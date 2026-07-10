@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** translate the matrix command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixTranslate extends DrawBase2 {
     private static final int OP_CODE = Operations.MATRIX_TRANSLATE;
     private static final String CLASS_NAME = "MatrixTranslate";
@@ -73,7 +75,8 @@ public class MatrixTranslate extends DrawBase2 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, "MatrixTranslate")
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_translate")
                 .description("Preconcat the current matrix with the specified translation")
                 .field(DocumentedOperation.FLOAT, "dx", "The distance to translate in X")
                 .field(DocumentedOperation.FLOAT, "dy", "The distance to translate in Y");

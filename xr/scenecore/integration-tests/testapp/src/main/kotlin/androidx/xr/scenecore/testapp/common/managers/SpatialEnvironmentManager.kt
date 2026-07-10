@@ -20,8 +20,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
@@ -43,15 +43,15 @@ class SpatialEnvironmentManager(
             _geometryFlow.value = value
         }
 
-    private val _skyboxFlow = MutableStateFlow<ExrImage?>(null)
-    private var skybox: ExrImage?
+    private val _skyboxFlow = MutableStateFlow<ImageBasedLightingAsset?>(null)
+    private var skybox: ImageBasedLightingAsset?
         get() = _skyboxFlow.value
         set(value) {
             _skyboxFlow.value = value
         }
 
     init {
-        activity.lifecycleScope.launch { loadExrImagesAndModels() }
+        activity.lifecycleScope.launch { loadImageBasedLightingAssetsAndModels() }
 
         activity.findViewById<Button>(R.id.button_set_both_geometry_and_skybox).also {
             it.setOnClickListener {
@@ -70,9 +70,10 @@ class SpatialEnvironmentManager(
         }
     }
 
-    private suspend fun loadExrImagesAndModels() {
+    private suspend fun loadImageBasedLightingAssetsAndModels() {
         geometry = GltfModel.create(session, Paths.get("models", "GroundGeometry.glb"))
 
-        skybox = ExrImage.createFromZip(session, Paths.get("skyboxes", "BlueSkybox.zip"))
+        skybox =
+            ImageBasedLightingAsset.createFromZip(session, Paths.get("skyboxes", "BlueSkybox.zip"))
     }
 }

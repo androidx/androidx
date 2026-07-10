@@ -1,0 +1,16 @@
+// Signature format: 4.0
+package androidx.wear.utils {
+
+  public final class WearApiVersionHelper {
+    method public static boolean isApiVersionAtLeast(String);
+    field public static final String WEAR_BAKLAVA_0 = "WEAR_BAKLAVA_0";
+    field public static final String WEAR_TIRAMISU_1 = "WEAR_TIRAMISU_1";
+    field public static final String WEAR_TIRAMISU_2 = "WEAR_TIRAMISU_2";
+    field public static final String WEAR_TIRAMISU_3 = "WEAR_TIRAMISU_3";
+    field public static final String WEAR_TIRAMISU_4 = "WEAR_TIRAMISU_4";
+    field public static final String WEAR_UDC_1 = "WEAR_UDC_1";
+    field public static final String WEAR_VIC_1 = "WEAR_VIC_1";
+  }
+
+}
+

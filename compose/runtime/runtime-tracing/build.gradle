@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,7 +26,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -36,9 +34,9 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation(libs.kotlinStdlib)
     implementation("androidx.compose.runtime:runtime:1.3.3")
-    implementation("androidx.tracing:tracing-perfetto:1.0.0")
+    // Keep the versions of tracing-perfetto used by Benchmark and Runtime Tracing in sync.
+    implementation("androidx.tracing:tracing-perfetto:1.0.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

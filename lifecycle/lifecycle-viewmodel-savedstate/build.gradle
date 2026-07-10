@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -35,10 +34,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.viewmodel.savedstate"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     desktop()
     mac()
@@ -53,144 +48,60 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.9.1")
-                api(project(":savedstate:savedstate"))
-                api(project(":lifecycle:lifecycle-viewmodel"))
-                implementation(project(":lifecycle:lifecycle-common"))
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinSerializationCore)
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api("androidx.savedstate:savedstate:1.4.0")
+            api(project(":lifecycle:lifecycle-viewmodel"))
+            implementation(project(":lifecycle:lifecycle-common"))
+            implementation("androidx.collection:collection:1.5.0")
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinSerializationCore)
         }
 
-        commonTest {
-            dependencies {
-                implementation(project(":lifecycle:lifecycle-runtime"))
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidMain.dependencies {
+            api("androidx.core:core-ktx:1.2.0")
+            api(project(":lifecycle:lifecycle-livedata-core"))
+            api(libs.kotlinCoroutinesAndroid)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(project(":lifecycle:lifecycle-livedata-core"))
+            implementation ("androidx.fragment:fragment:1.3.0")
+            implementation(project(":internal-testutils-runtime"))
+            implementation(project(":lifecycle:lifecycle-viewmodel"))
+            implementation(libs.truth)
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.core:core-ktx:1.2.0")
-                api(project(":lifecycle:lifecycle-livedata-core"))
-                api(libs.kotlinCoroutinesAndroid)
-            }
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nonJvmMain.dependsOn(nonAndroidMain)
+    }
+}
+
+dependencies {
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 2.9.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.5") {
+            because "prevents symbols duplication"
         }
 
-        androidUnitTest {
-            dependsOn(jvmTest)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(project(":lifecycle:lifecycle-livedata-core"))
-                implementation ("androidx.fragment:fragment:1.3.0")
-                implementation(project(":internal-testutils-runtime"))
-                implementation(project(":lifecycle:lifecycle-viewmodel"))
-                implementation(libs.truth)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
-            }
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(commonTest)
-            dependsOn(nonAndroidTest)
-        }
-
-        darwinMain {
-            dependsOn(nativeMain)
-        }
-
-        darwinTest {
-            dependsOn(nativeTest)
-        }
-
-        linuxMain {
-            dependsOn(nativeMain)
-        }
-
-        linuxTest {
-            dependsOn(nativeTest)
-        }
-
-        mingwMain {
-            dependsOn(nativeMain)
-        }
-
-        mingwTest {
-            dependsOn(nativeTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                } else if (target.konanTarget.family == Family.MINGW) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
-                } else {
-                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        // Fragment 1.2.0+ is the first version to use `SavedStateViewModelFactory` to handle
+        // saving and restoring state. This makes `LegacySavedStateHandleController` obsolete.
+        androidMainImplementation("androidx.fragment:fragment:1.2.0") {
+            because "SavedStateViewModelFactory replaces LegacySavedStateHandleController by default"
         }
     }
 }

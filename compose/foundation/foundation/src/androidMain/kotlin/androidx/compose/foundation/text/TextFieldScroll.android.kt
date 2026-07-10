@@ -26,12 +26,14 @@ internal actual fun Modifier.textFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
+    overscrollEffect: OverscrollEffect?,
     textLayoutResultProvider: () -> TextLayoutResultProxy?,
 ): Modifier =
     defaultTextFieldScroll(
         scrollerPosition,
         textFieldValue,
         visualTransformation,
+        overscrollEffect,
         textLayoutResultProvider,
     )
 

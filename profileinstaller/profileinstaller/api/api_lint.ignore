@@ -1,3 +1,3 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.profileinstaller.ProfileInstallReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
-    Invalid nullability on parameter `context` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onReceive`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.

@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,6 +32,7 @@
         android:background="?attr/defaultBrandColor"
         android:elevation="@dimen/lb_preference_decor_title_container_elevation"
         android:transitionGroup="false"
+        tools:ignore="PrivateResource"
         >
         <TextView
             android:id="@+id/decor_title"

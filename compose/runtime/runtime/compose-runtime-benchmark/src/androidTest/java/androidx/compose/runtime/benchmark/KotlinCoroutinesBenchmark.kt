@@ -20,12 +20,13 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +37,24 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
+class KotlinCoroutinesBenchmark(dispatcherType: DispatcherType) {
+    companion object {
+        @Parameterized.Parameters(name = "Dispatcher={0}")
+        @JvmStatic
+        fun parameters(): List<Any> = DispatcherType.entries
+    }
+
+    enum class DispatcherType {
+        Main,
+        Unconfined,
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val dispatcher =
+        when (dispatcherType) {
+            DispatcherType.Main -> Dispatchers.Main
+            DispatcherType.Unconfined -> UnconfinedTestDispatcher()
+        }
 
     @get:Rule val benchmarkRule = BenchmarkRule()
 
@@ -131,12 +149,5 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
 
     private suspend fun noopForever() {
         delay(Int.MAX_VALUE.toLong())
-    }
-
-    companion object {
-        @Parameterized.Parameters(name = "Dispatcher={0}")
-        @JvmStatic
-        fun parameters() =
-            listOf<Array<Any?>>(arrayOf(Dispatchers.Main), arrayOf(Dispatchers.Unconfined))
     }
 }

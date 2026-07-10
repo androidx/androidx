@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.runtime.retain"
+
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(project(":compose:runtime:runtime"))
+            implementation("androidx.collection:collection:1.5.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+            implementation(project(":compose:runtime:runtime-test-utils"))
+        }
+
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+        }
+
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:runtime:runtime-retain-lint"))
+    lintPublish(project(":compose:runtime:runtime-retain-lint"))
+}
+
+androidx {
+    name = "Compose Runtime Retain"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2025"
+    description = "Preserve state in composable methods across configuration changes and other transient content destruction scenarios"
+    samples(project(":compose:runtime:runtime-retain:runtime-retain-samples"))
+    enableRobolectric()
+}

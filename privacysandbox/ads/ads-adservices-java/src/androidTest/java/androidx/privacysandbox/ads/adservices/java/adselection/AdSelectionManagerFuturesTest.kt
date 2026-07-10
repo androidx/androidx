@@ -657,7 +657,7 @@ class AdSelectionManagerFuturesTest {
 
             val answer2 = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer2).`when`(adSelectionManager).reportImpression(any(), any(), any())
@@ -702,7 +702,7 @@ class AdSelectionManagerFuturesTest {
             // UpdateAdCounterHistogramResponse().
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer)
@@ -717,7 +717,7 @@ class AdSelectionManagerFuturesTest {
             // ReportEvent().
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer).`when`(adSelectionManager).reportEvent(any(), any(), any())

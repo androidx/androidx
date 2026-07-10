@@ -19,7 +19,6 @@ package androidx.camera.integration.core
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
@@ -33,7 +32,6 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -73,10 +71,6 @@ class CameraAvailabilityDeviceTest(
     private val baseConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(baseConfig)
@@ -90,7 +84,6 @@ class CameraAvailabilityDeviceTest(
         fun data() =
             mutableListOf<Array<Any?>>().apply {
                 add(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
-                add(arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()))
             }
     }
 
@@ -257,6 +250,128 @@ class CameraAvailabilityDeviceTest(
         }
     }
 
+    @Test
+    fun cameraReconnected_providesNewValidInstance() {
+        // Arrange: Setup the factory and initialize the provider.
+        val allCameraIds = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        assumeTrue("Device must have at least one camera", allCameraIds.isNotEmpty())
+        val cameraIdToTest = allCameraIds.first() // Dynamically pick the first camera
+
+        factoryWrapper =
+            FakeCameraFactoryWrapper(
+                baseConfig.getCameraFactoryProvider(null)!!,
+                initialVisibleIds = setOf(cameraIdToTest),
+            )
+        val customConfig =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setCameraFactoryProvider(factoryWrapper)
+                .build()
+        initializeProviderWithConfig(customConfig)
+        val controllableFactory = factoryWrapper.controllableFactory!!
+
+        // Arrange: Create a selector that specifically targets our chosen camera.
+        val cameraIdentifierToTest = cameraProvider!!.availableCameraInfos.first().cameraIdentifier
+        val specificCameraSelector =
+            CameraSelector.Builder()
+                .addCameraFilter { cameraInfos ->
+                    cameraInfos.filter { it.cameraIdentifier == cameraIdentifierToTest }
+                }
+                .build()
+
+        // === Phase 1: Bind to the camera for the first time ===
+        lateinit var camera1: Camera
+        instrumentation.runOnMainSync {
+            camera1 = cameraProvider!!.bindToLifecycle(fakeLifecycleOwner, specificCameraSelector)
+        }
+        assertThat(camera1).isNotNull()
+        // The rest of the test logic remains the same...
+        val camera1Identifier = camera1.cameraInfo.cameraIdentifier
+
+        // === Phase 2: Simulate unplugging the camera ===
+        val removalLatch = CountDownLatch(1)
+        cameraProvider!!.addCameraPresenceListener(
+            Executors.newSingleThreadExecutor(),
+            object : CameraPresenceListener {
+                override fun onCamerasAdded(cameraIdentifiers: Set<CameraIdentifier>) {}
+
+                override fun onCamerasRemoved(cameraIdentifiers: Set<CameraIdentifier>) {
+                    if (cameraIdentifiers.contains(camera1Identifier)) {
+                        removalLatch.countDown()
+                    }
+                }
+            },
+        )
+
+        val camera1StateLatch = CountDownLatch(1)
+        instrumentation.runOnMainSync {
+            camera1.cameraInfo.cameraState.observe(
+                fakeLifecycleOwner,
+                Observer<CameraState> { state ->
+                    if (
+                        state.type == CameraState.Type.CLOSED &&
+                            state.error?.code == CameraState.ERROR_CAMERA_REMOVED
+                    ) {
+                        camera1StateLatch.countDown()
+                    }
+                },
+            )
+        }
+
+        controllableFactory.setVisibleCameraIds(emptySet())
+        assertThat(removalLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(camera1StateLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(cameraProvider!!.hasCamera(specificCameraSelector)).isFalse()
+
+        // === Phase 3: Simulate plugging the camera back in ===
+        val additionLatch = CountDownLatch(1)
+        cameraProvider!!.addCameraPresenceListener(
+            Executors.newSingleThreadExecutor(),
+            object : CameraPresenceListener {
+                override fun onCamerasAdded(cameraIdentifiers: Set<CameraIdentifier>) {
+                    if (cameraIdentifiers.any { it.cameraIds == camera1Identifier?.cameraIds }) {
+                        additionLatch.countDown()
+                    }
+                }
+
+                override fun onCamerasRemoved(cameraIdentifiers: Set<CameraIdentifier>) {}
+            },
+        )
+
+        controllableFactory.setVisibleCameraIds(setOf(cameraIdToTest))
+        assertThat(additionLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(cameraProvider!!.hasCamera(specificCameraSelector)).isTrue()
+
+        // === Phase 4: Re-bind and verify a new, valid camera instance is returned ===
+        lateinit var camera2: Camera
+        val preview = Preview.Builder().build()
+        val previewMonitor = PreviewMonitor()
+        val camera2StateLatch = CountDownLatch(1)
+
+        instrumentation.runOnMainSync {
+            preview.surfaceProvider = previewMonitor.getSurfaceProvider()
+            camera2 =
+                cameraProvider!!.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    specificCameraSelector,
+                    preview,
+                )
+
+            camera2.cameraInfo.cameraState.observe(
+                fakeLifecycleOwner,
+                Observer<CameraState> { state ->
+                    if (state.type == CameraState.Type.OPEN) {
+                        camera2StateLatch.countDown()
+                    }
+                },
+            )
+        }
+
+        assertThat(camera2).isNotNull()
+        assertThat(camera2).isNotSameInstanceAs(camera1)
+        assertThat(camera2StateLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        previewMonitor.waitForStream()
+    }
+
     private fun initializeProviderWithConfig(config: CameraXConfig) {
         ProcessCameraProvider.configureInstance(config)
         cameraProvider = ProcessCameraProvider.getInstance(context).get(10, TimeUnit.SECONDS)
@@ -324,13 +439,13 @@ class ControllableCameraFactory(
     initialVisibleIds: Set<String>,
 ) : CameraFactory by delegate {
     private val cameraPresenceSource =
-        FakeObservable(initialVisibleIds.map { CameraIdentifier.create(it) })
+        FakeObservable(initialVisibleIds.map { CameraIdentifier.Factory.create(it) })
 
     @Volatile private var visibleCameraIds: Set<String> = initialVisibleIds
 
     fun setVisibleCameraIds(ids: Set<String>) {
         visibleCameraIds = ids
-        cameraPresenceSource.setValue(ids.map { CameraIdentifier.create(it) })
+        cameraPresenceSource.setValue(ids.map { CameraIdentifier.Factory.create(it) })
     }
 
     override fun getAvailableCameraIds(): Set<String> = visibleCameraIds

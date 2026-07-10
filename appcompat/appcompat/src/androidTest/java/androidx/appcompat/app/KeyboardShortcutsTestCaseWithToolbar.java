@@ -47,7 +47,7 @@ public class KeyboardShortcutsTestCaseWithToolbar {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 24, // O+ uses navigation clusters for jumping to ActionBar.
+    @SdkSuppress(minSdkVersion = 25, // O+ uses navigation clusters for jumping to ActionBar.
             maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testAccessActionBar() throws Throwable {
         if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {

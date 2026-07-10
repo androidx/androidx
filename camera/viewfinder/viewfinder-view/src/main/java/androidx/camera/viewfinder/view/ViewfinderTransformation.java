@@ -32,6 +32,7 @@ import android.view.View;
 
 import androidx.camera.viewfinder.core.ScaleType;
 import androidx.camera.viewfinder.core.TransformationInfo;
+import androidx.camera.viewfinder.core.TransformationMode;
 import androidx.camera.viewfinder.core.impl.RotationValue;
 import androidx.camera.viewfinder.core.impl.Transformations;
 import androidx.camera.viewfinder.view.internal.utils.Logger;
@@ -141,8 +142,11 @@ final class ViewfinderTransformation {
 
         if (viewfinder instanceof TextureView) {
             // For TextureView, correct the orientation to match the display rotation.
+            int correctionDegrees =
+                    mTransformationInfo.getTransformationMode() == TransformationMode.DEFERRED
+                            ? Transformations.surfaceRotationToRotationDegrees(displayRotation) : 0;
             ((TextureView) viewfinder).setTransform(Transformations.getTextureViewCorrectionMatrix(
-                    Transformations.surfaceRotationToRotationDegrees(displayRotation),
+                    correctionDegrees,
                     mResolution.getWidth(),
                     mResolution.getHeight()
             ));
@@ -185,9 +189,12 @@ final class ViewfinderTransformation {
         if (!isResolutionAvailable()) {
             return original;
         }
+        int correctionDegrees =
+                mTransformationInfo.getTransformationMode() == TransformationMode.DEFERRED
+                        ? Transformations.surfaceRotationToRotationDegrees(displayRotation) : 0;
         Matrix textureViewCorrection =
                 Transformations.getTextureViewCorrectionMatrix(
-                        Transformations.surfaceRotationToRotationDegrees(displayRotation),
+                        correctionDegrees,
                         mResolution.getWidth(),
                         mResolution.getHeight()
                 );

@@ -50,7 +50,7 @@ public object LocalActivityResultRegistryOwner {
 
     /**
      * Associates a [LocalActivityResultRegistryOwner] key to a value in a call to
-     * [CompositionLocalProvider].
+     * [androidx.compose.runtime.CompositionLocalProvider].
      */
     public infix fun provides(
         registryOwner: ActivityResultRegistryOwner
@@ -63,8 +63,9 @@ public object LocalActivityResultRegistryOwner {
  * Register a request to [Activity#startActivityForResult][start an activity for result], designated
  * by the given [ActivityResultContract][contract].
  *
- * This creates a record in the [ActivityResultRegistry][registry] associated with this caller,
- * managing request code, as well as conversions to/from [Intent] under the hood.
+ * This creates a record in the [registry][androidx.activity.result.ActivityResultRegistry]
+ * associated with this caller, managing request code, as well as conversions to/from
+ * [android.content.Intent] under the hood.
  *
  * This *must* be called unconditionally, as part of initialization path.
  *
@@ -72,7 +73,7 @@ public object LocalActivityResultRegistryOwner {
  * [ActivityResultLauncher]. Attempting to do so will result in an [IllegalStateException].
  *
  * @sample androidx.activity.compose.samples.RememberLauncherForActivityResult
- * @param contract the contract, specifying conversions to/from [Intent]s
+ * @param contract the contract, specifying conversions to/from [android.content.Intent]s
  * @param onResult the callback to be called on the main thread when activity result is available
  * @return the launcher that can be used to start the activity.
  */

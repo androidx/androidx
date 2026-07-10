@@ -19,4 +19,7 @@
     <public name="fastScrollPageIndicatorBackgroundDrawable" type="attr" />
     <public name="fastScrollPageIndicatorMarginEnd" type="attr" />
     <public name="fastScrollVerticalThumbMarginEnd" type="attr" />
+    <public name="pdfHorizontalPageSpacing" type="attr" />
+    <public name="pdfPagesPerRow" type="attr" />
+    <public name="pdfVerticalPageSpacing" type="attr" />
 </resources>

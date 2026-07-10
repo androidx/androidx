@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -148,6 +149,23 @@ public class InlineSuggestionUiTest {
         assertEquals(TITLE, titleView.getText());
         assertEquals(Color.GREEN, titleView.getCurrentTextColor());
         TestUtils.verifyTextSize(mContext, titleView, 30);
+    }
+
+    @Test
+    public void testRender_animatableIcon() {
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent).setStartIcon(
+                Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_animation)).build();
+        View view = InlineSuggestionUi.render(mContext, content, style);
+        addView(view);
+
+        verifyVisibility(false, false, true, false);
+        ImageView imageView = view.findViewById(R.id.autofill_inline_suggestion_start_icon);
+        mInstrumentation.waitForIdle(() -> {
+            assertTrue(((Animatable) imageView.getDrawable()).isRunning());
+        });
     }
 
     @Test

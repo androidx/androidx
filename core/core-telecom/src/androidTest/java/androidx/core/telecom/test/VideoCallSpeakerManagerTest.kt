@@ -16,10 +16,15 @@
 
 package androidx.core.telecom.test
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.os.Build.VERSION_CODES
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.BluetoothDeviceChecker
+import androidx.core.telecom.internal.ProductionBluetoothDeviceChecker
 import androidx.core.telecom.internal.VideoCallSpeakerManager
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -54,6 +59,29 @@ class VideoCallSpeakerManagerTest {
         }
     }
 
+    private class FakeContext(
+        base: Context,
+        private val hasPermission: Boolean,
+        private val throwSecurityExceptionOnBluetoothService: Boolean = false,
+    ) : ContextWrapper(base) {
+        override fun checkPermission(permission: String, pid: Int, uid: Int): Int {
+            return if (hasPermission) PackageManager.PERMISSION_GRANTED
+            else PackageManager.PERMISSION_DENIED
+        }
+
+        override fun checkSelfPermission(permission: String): Int {
+            return if (hasPermission) PackageManager.PERMISSION_GRANTED
+            else PackageManager.PERMISSION_DENIED
+        }
+
+        override fun getSystemService(name: String): Any? {
+            if (name == Context.BLUETOOTH_SERVICE && throwSecurityExceptionOnBluetoothService) {
+                throw SecurityException("Mocked SecurityException")
+            }
+            return super.getSystemService(name)
+        }
+    }
+
     private lateinit var fakeBluetoothDeviceChecker: FakeBluetoothDeviceChecker
     private lateinit var speakerManager: VideoCallSpeakerManager
 
@@ -66,6 +94,10 @@ class VideoCallSpeakerManagerTest {
         CallEndpointCompat("Headset", CallEndpointCompat.TYPE_BLUETOOTH, sessionId)
     private val wiredHeadset =
         CallEndpointCompat("Wired", CallEndpointCompat.TYPE_WIRED_HEADSET, sessionId)
+
+    private fun createEndpoint(name: String, type: Int): CallEndpointCompat {
+        return CallEndpointCompat(name, type, sessionId)
+    }
 
     @Before
     fun setUp() {
@@ -192,5 +224,57 @@ class VideoCallSpeakerManagerTest {
 
         assertThat(result).isFalse()
         assertThat(fakeBluetoothDeviceChecker.wasChecked).isFalse()
+    }
+
+    @Test
+    fun testHasAvailableNonWatchDevice_permissionDenied_usesHeuristic_returnsFalse() {
+        val context =
+            FakeContext(ApplicationProvider.getApplicationContext(), hasPermission = false)
+        val checker = ProductionBluetoothDeviceChecker(context)
+
+        val endpoints = listOf(createEndpoint("Pixel Watch", CallEndpointCompat.TYPE_BLUETOOTH))
+
+        assertThat(checker.hasAvailableNonWatchDevice(endpoints)).isFalse()
+    }
+
+    @Test
+    fun testHasAvailableNonWatchDevice_permissionDenied_usesHeuristic_returnsTrue() {
+        val context =
+            FakeContext(ApplicationProvider.getApplicationContext(), hasPermission = false)
+        val checker = ProductionBluetoothDeviceChecker(context)
+
+        val endpoints = listOf(createEndpoint("AirPods Pro", CallEndpointCompat.TYPE_BLUETOOTH))
+
+        assertThat(checker.hasAvailableNonWatchDevice(endpoints)).isTrue()
+    }
+
+    @Test
+    fun testHasAvailableNonWatchDevice_securityException_usesHeuristic_returnsFalse() {
+        val context =
+            FakeContext(
+                ApplicationProvider.getApplicationContext(),
+                hasPermission = true,
+                throwSecurityExceptionOnBluetoothService = true,
+            )
+        val checker = ProductionBluetoothDeviceChecker(context)
+
+        val endpoints = listOf(createEndpoint("Galaxy Watch 5", CallEndpointCompat.TYPE_BLUETOOTH))
+
+        assertThat(checker.hasAvailableNonWatchDevice(endpoints)).isFalse()
+    }
+
+    @Test
+    fun testHasAvailableNonWatchDevice_securityException_usesHeuristic_returnsTrue() {
+        val context =
+            FakeContext(
+                ApplicationProvider.getApplicationContext(),
+                hasPermission = true,
+                throwSecurityExceptionOnBluetoothService = true,
+            )
+        val checker = ProductionBluetoothDeviceChecker(context)
+
+        val endpoints = listOf(createEndpoint("Bose Headphones", CallEndpointCompat.TYPE_BLUETOOTH))
+
+        assertThat(checker.hasAvailableNonWatchDevice(endpoints)).isTrue()
     }
 }

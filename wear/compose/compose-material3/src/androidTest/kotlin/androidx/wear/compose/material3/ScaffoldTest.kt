@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
@@ -53,11 +53,12 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class ScaffoldTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun app_scaffold_supports_testtag() {
@@ -109,6 +110,69 @@ class ScaffoldTest {
         }
 
         rule.onNodeWithText(TIME_TEXT_MESSAGE).assertIsDisplayed()
+    }
+
+    @Test
+    fun displays_screen_time_text_after_app_scaffold_recomposes() {
+        val count = androidx.compose.runtime.mutableStateOf(0)
+
+        rule.setContentWithTheme {
+            AppScaffold(
+                contentColor =
+                    if (count.value % 2 == 0) Color.White else Color.White.copy(alpha = 0.99f),
+                timeText = { Text("App Time Text") },
+            ) {
+                ScreenScaffold(timeText = { Text(TIME_TEXT_MESSAGE) }) {}
+            }
+        }
+
+        rule.onNodeWithText(TIME_TEXT_MESSAGE).assertIsDisplayed()
+
+        // Force AppScaffold to recompose
+        count.value++
+        rule.waitForIdle()
+
+        rule.onNodeWithText(TIME_TEXT_MESSAGE).assertIsDisplayed()
+    }
+
+    @Test
+    fun app_scaffold_time_text_updates_dynamically() {
+        val currentLambda =
+            androidx.compose.runtime.mutableStateOf<@Composable () -> Unit>({
+                Text("Initial Time")
+            })
+
+        rule.setContentWithTheme {
+            AppScaffold(timeText = currentLambda.value) { ScreenScaffold {} }
+        }
+
+        rule.onNodeWithText("Initial Time").assertIsDisplayed()
+
+        // Swap the actual lambda instance reference completely
+        currentLambda.value = { Text("Updated Time") }
+        rule.waitForIdle()
+
+        rule.onNodeWithText("Updated Time").assertIsDisplayed()
+    }
+
+    @Test
+    fun screen_scaffold_time_text_updates_dynamically() {
+        val currentLambda =
+            androidx.compose.runtime.mutableStateOf<@Composable () -> Unit>({
+                Text("Initial Screen Time")
+            })
+
+        rule.setContentWithTheme {
+            AppScaffold { ScreenScaffold(timeText = currentLambda.value) {} }
+        }
+
+        rule.onNodeWithText("Initial Screen Time").assertIsDisplayed()
+
+        // Swap the actual lambda instance reference completely
+        currentLambda.value = { Text("Updated Screen Time") }
+        rule.waitForIdle()
+
+        rule.onNodeWithText("Updated Screen Time").assertIsDisplayed()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

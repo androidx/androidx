@@ -18,7 +18,6 @@ package androidx.navigation.internal
 
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
@@ -31,7 +30,6 @@ import androidx.navigation.NavBackStackEntryState
 import androidx.navigation.NavController
 import androidx.navigation.NavController.NavControllerNavigatorState
 import androidx.navigation.NavController.OnDestinationChangedListener
-import androidx.navigation.NavControllerViewModel
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.createRoute
@@ -41,6 +39,7 @@ import androidx.navigation.NavGraph.Companion.childHierarchy
 import androidx.navigation.NavOptions
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavUri
+import androidx.navigation.NavViewModelStoreProvider
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
@@ -93,7 +92,6 @@ internal class NavControllerImpl(
     internal val _currentBackStack: MutableStateFlow<List<NavBackStackEntry>> =
         MutableStateFlow(emptyList())
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal val currentBackStack: StateFlow<List<NavBackStackEntry>> =
         _currentBackStack.asStateFlow()
 
@@ -130,7 +128,7 @@ internal class NavControllerImpl(
     internal var lifecycleOwner: LifecycleOwner? = null
         private set
 
-    internal var viewModel: NavControllerViewModel? = null
+    internal var viewModelStoreProvider: NavViewModelStoreProvider? = null
     internal val onDestinationChangedListeners = mutableListOf<OnDestinationChangedListener>()
     internal var hostLifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
         get() {
@@ -157,7 +155,6 @@ internal class NavControllerImpl(
 
     internal var _navigatorProvider = NavigatorProvider()
 
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**  */
@@ -230,7 +227,13 @@ internal class NavControllerImpl(
     }
 
     internal fun createBackStackEntry(destination: NavDestination, arguments: SavedState?) =
-        NavBackStackEntry.create(navContext, destination, arguments, hostLifecycleState, viewModel)
+        NavBackStackEntry.create(
+            navContext,
+            destination,
+            arguments,
+            hostLifecycleState,
+            viewModelStoreProvider,
+        )
 
     internal fun pop(
         state: NavControllerNavigatorState,
@@ -270,7 +273,7 @@ internal class NavControllerImpl(
                 entry.maxLifecycle = Lifecycle.State.DESTROYED
             }
             if (backQueue.none { it.id == entry.id } && !savedState) {
-                viewModel?.clear(entry.id)
+                viewModelStoreProvider?.clear(entry.id)
             }
             updateBackStackLifecycle()
             // Nothing in backQueue changed, so unlike other places where
@@ -613,7 +616,7 @@ internal class NavControllerImpl(
             }
         }
         if (!saveState && !transitioning) {
-            viewModel?.clear(entry.id)
+            viewModelStoreProvider?.clear(entry.id)
         }
     }
 
@@ -941,7 +944,8 @@ internal class NavControllerImpl(
                             "found from the current destination $currentDestination"
                     )
                 }
-                val entry = state.instantiate(navContext, node, hostLifecycleState, viewModel)
+                val entry =
+                    state.instantiate(navContext, node, hostLifecycleState, viewModelStoreProvider)
                 val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
                 val navigatorBackStack =
                     navigatorState.getOrPut(navigator) {
@@ -1208,7 +1212,7 @@ internal class NavControllerImpl(
                         node,
                         finalArgs,
                         hostLifecycleState,
-                        viewModel,
+                        viewModelStoreProvider,
                     )
                 val navigator =
                     _navigatorProvider.getNavigator<Navigator<NavDestination>>(node.navigatorName)
@@ -1250,7 +1254,8 @@ internal class NavControllerImpl(
         while (backQueue.lastIndex >= nodeIndex) {
             val oldEntry = backQueue.removeLastKt()
             unlinkChildFromParent(oldEntry)
-            val newEntry = NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
+            val newEntry =
+                NavBackStackEntry.create(oldEntry, oldEntry.destination.addInDefaultArgs(args))
             tempBackQueue.addFirst(newEntry)
         }
 
@@ -1387,7 +1392,8 @@ internal class NavControllerImpl(
                 "Restore State failed: destination $dest cannot be found from the current " +
                     "destination $currentDestination"
             }
-            backStack += state.instantiate(navContext, node, hostLifecycleState, viewModel)
+            backStack +=
+                state.instantiate(navContext, node, hostLifecycleState, viewModelStoreProvider)
             currentDestination = node
         }
         return backStack
@@ -1430,7 +1436,7 @@ internal class NavControllerImpl(
                                 parent,
                                 finalArgs,
                                 hostLifecycleState,
-                                viewModel,
+                                viewModelStoreProvider,
                             )
                     hierarchy.addFirst(entry)
                     // Pop any orphaned copy of that navigation graph off the back stack
@@ -1462,7 +1468,7 @@ internal class NavControllerImpl(
                             parent,
                             parent.addInDefaultArgs(args),
                             hostLifecycleState,
-                            viewModel,
+                            viewModelStoreProvider,
                         )
                 hierarchy.addFirst(entry)
             }
@@ -1491,7 +1497,7 @@ internal class NavControllerImpl(
                         _graph!!,
                         _graph!!.addInDefaultArgs(finalArgs),
                         hostLifecycleState,
-                        viewModel,
+                        viewModelStoreProvider,
                     )
             hierarchy.addFirst(entry)
         }
@@ -1574,10 +1580,24 @@ internal class NavControllerImpl(
         var b: SavedState? = null
         val navigatorNames = ArrayList<String>()
         val navigatorState = savedState()
+        navigatorStateToRestore?.read {
+            if (contains(KEY_NAVIGATOR_STATE_NAMES)) {
+                val names = getStringList(KEY_NAVIGATOR_STATE_NAMES)
+                for (name in names) {
+                    if (contains(name)) {
+                        val state = getSavedState(name)
+                        navigatorNames.add(name)
+                        navigatorState.write { putSavedState(name, state) }
+                    }
+                }
+            }
+        }
         for ((name, value) in _navigatorProvider.navigators) {
             val savedState = value.onSaveState()
             if (savedState != null) {
-                navigatorNames.add(name)
+                if (!navigatorNames.contains(name)) {
+                    navigatorNames.add(name)
+                }
                 navigatorState.write { putSavedState(name, savedState) }
             }
         }
@@ -1596,6 +1616,11 @@ internal class NavControllerImpl(
                 backStack.add(NavBackStackEntryState(backStackEntry).writeToState())
             }
             b.write { putSavedStateList(KEY_BACK_STACK, backStack) }
+        } else if (backStackToRestore != null) {
+            if (b == null) {
+                b = savedState()
+            }
+            b.write { putSavedStateList(KEY_BACK_STACK, backStackToRestore!!.toList()) }
         }
         if (backStackMap.isNotEmpty()) {
             if (b == null) {
@@ -1674,7 +1699,6 @@ internal class NavControllerImpl(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun setLifecycleOwner(owner: LifecycleOwner) {
         if (owner == lifecycleOwner) {
             return
@@ -1685,15 +1709,13 @@ internal class NavControllerImpl(
     }
 
     internal fun setViewModelStore(viewModelStore: ViewModelStore) {
-        if (viewModel == NavControllerViewModel.getInstance(viewModelStore)) {
-            return
-        }
+        if (viewModelStoreProvider != null) return
         check(backQueue.isEmpty()) { "ViewModelStore should be set before setGraph call" }
-        viewModel = NavControllerViewModel.getInstance(viewModelStore)
+        viewModelStoreProvider = NavViewModelStoreProvider(viewModelStore)
     }
 
     internal fun getViewModelStoreOwner(navGraphId: Int): ViewModelStoreOwner {
-        checkNotNull(viewModel) {
+        checkNotNull(viewModelStoreProvider) {
             "You must call setViewModelStore() before calling getViewModelStoreOwner()."
         }
         val lastFromBackStack = getBackStackEntry(navGraphId)

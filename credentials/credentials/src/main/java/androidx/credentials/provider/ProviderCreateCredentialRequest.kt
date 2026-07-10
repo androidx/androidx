@@ -17,6 +17,7 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.provider.CallingAppInfo.Companion.EXTRA_CREDENTIAL_REQUEST_ORIGIN
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
@@ -39,13 +40,27 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  */
 class ProviderCreateCredentialRequest
-@JvmOverloads
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo,
-    val biometricPromptResult: BiometricPromptResult? = null,
+    val biometricPromptResult: BiometricPromptResult?,
+    // The source Bundle used to construct this request, if applicable
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val sourceBundle: Bundle?,
 ) {
+    /**
+     * @constructor constructs an instance of [ProviderCreateCredentialRequest]
+     * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
+     */
+    @JvmOverloads
+    constructor(
+        callingRequest: CreateCredentialRequest,
+        callingAppInfo: CallingAppInfo,
+        biometricPromptResult: BiometricPromptResult? = null,
+    ) : this(callingRequest, callingAppInfo, biometricPromptResult, null)
+
     companion object {
+
         private const val EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_REQUEST_TYPE"
         private const val EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA =
@@ -111,6 +126,8 @@ constructor(
                             origin,
                         ),
                     callingAppInfo = callingAppInfo,
+                    biometricPromptResult = null,
+                    sourceBundle = bundle,
                 )
             } catch (e: Exception) {
                 throw IllegalArgumentException("Conversion failed with $e")

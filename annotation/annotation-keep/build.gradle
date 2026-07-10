@@ -16,8 +16,6 @@
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import androidx.build.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -36,27 +34,13 @@ androidXMultiplatform {
     watchos()
 
     defaultPlatform(PlatformIdentifier.JVM)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
-        }
-    }
 }
 
 androidx {
     name = "Keep Annotation"
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
     mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
     inceptionYear = "2025"
     description = "Provides annotations to guide optimizers / code shrinkers."
+    samples(project(":annotation:annotation-keep:annotation-keep-samples"))
 }

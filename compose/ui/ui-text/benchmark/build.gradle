@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -28,7 +27,6 @@ dependencies {
     implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui-test-junit4"))
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinReflect)
     implementation(libs.testRules)
     implementation(libs.junit)
@@ -36,15 +34,14 @@ dependencies {
     androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":compose:ui:ui"))
-    androidTestImplementation(libs.kotlinTestCommon)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
-        // Using blocked private API b/425739542
-        targetSdk = 34
+        minSdk { version = release(24) }
     }
     namespace = "androidx.compose.ui.text.benchmark"
 }

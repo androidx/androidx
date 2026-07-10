@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,63 +29,25 @@ plugins {
     id("AndroidXPlugin")
 }
 
-configurations {
-    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
-    // Until we migrate, use the configuration below. It removes need for suppressing
-    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
-    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
-    // IDE does not support this configuration yet, so you will still see references to internal
-    // members marked as an error
-    friends {
-        canBeResolved = true
-        canBeConsumed = false
-        transitive = false
-        attributes {
-            attribute(
-                    Attribute.of("artifactType", String), "jar"
-            )
-        }
-    }
-    compileOnly.extendsFrom(friends)
-
-}
-
 androidXMultiplatform {
     jvm()
     sourceSets {
-        jvmMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                implementation(libs.binaryCompatibilityValidator)
-            }
+        jvmMain.dependencies {
+            implementation(libs.kotlinAbiTools)
+            compileOnly(libs.kotlinCompiler)
         }
-        jvmTest {
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCompiler)
-            }
+        jvmTest.dependencies {
+            implementation(libs.truth)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
         }
     }
     provideKlibStdLibForTests()
 }
-
-dependencies {
-    friends(libs.kotlinCompiler)
-}
-
-configurations.getByName("jvmMainImplementation").extendsFrom(configurations.getByName("friends"))
 
 androidx {
     name = "AndroidX Binary Compatibility Validator"
     type = SoftwareType.INTERNAL_HOST_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Enforce binary compatibility for klibs"
-}
-
-tasks.withType(KotlinCompile).configureEach { task ->
-    task.compilerOptions {
-        friendPaths.from(configurations.friends.incoming.artifactView {}.files)
-    }
 }

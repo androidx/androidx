@@ -19,27 +19,36 @@ package androidx.xr.projected
 import android.companion.virtual.VirtualDeviceManager
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
+import android.hardware.display.VirtualDisplay
+import android.hardware.display.VirtualDisplayConfig
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.xr.projected.ProjectedContext.PROJECTED_DEVICE_NAME
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
-import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowDisplayManager
+import org.robolectric.shadows.ShadowVirtualDeviceManager
 import org.robolectric.util.ReflectionHelpers
 import org.robolectric.util.ReflectionHelpers.ClassParameter
 
-@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
+@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@OptIn(ExperimentalProjectedApi::class)
 class ProjectedContextTest {
+
+    @get:Rule() val projectedTestRule = ProjectedTestRule()
 
     val context: ContextWrapper = ApplicationProvider.getApplicationContext()
     val virtualDeviceManager =
@@ -50,13 +59,13 @@ class ProjectedContextTest {
 
     @Test
     fun createProjectedDeviceContext_hasVirtualDevice_returnsContext() {
-        createVirtualDevice()
-
         assertThat(ProjectedContext.createProjectedDeviceContext(context)).isNotNull()
     }
 
     @Test
     fun createProjectedDeviceContext_noVirtualDevice_throwsIllegalStateException() {
+        projectedTestRule.isDeviceConnected = false
+
         assertThrows(IllegalStateException::class.java) {
             assertThat(ProjectedContext.createProjectedDeviceContext(context)).isNull()
         }
@@ -70,16 +79,12 @@ class ProjectedContextTest {
 
     @Test
     fun getProjectedDeviceName_projectedDeviceContext_returnsName() {
-        createVirtualDevice()
-
         assertThat(ProjectedContext.getProjectedDeviceName(projectedDeviceContext))
             .isEqualTo(PROJECTED_DEVICE_NAME)
     }
 
     @Test
     fun getProjectedDeviceName_anotherContext_throwsIllegalArgumentException() {
-        createVirtualDevice()
-
         assertThrows(IllegalArgumentException::class.java) {
             ProjectedContext.getProjectedDeviceName(context)
         }
@@ -87,64 +92,95 @@ class ProjectedContextTest {
 
     @Test
     fun isProjectedDeviceContext_returnsTrue() {
-        createVirtualDevice()
-
         assertThat(ProjectedContext.isProjectedDeviceContext(projectedDeviceContext)).isTrue()
     }
 
     @Test
     fun isProjectedDeviceContext_returnsFalse() {
-        createVirtualDevice()
-
         assertThat(ProjectedContext.isProjectedDeviceContext(context)).isFalse()
     }
 
     @Test
-    fun addProjectedFlags_returnsIntentWithAddedFlags() {
-        val intent = Intent().setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        val expectedFlags = intent.flags or ProjectedContext.REQUIRED_LAUNCH_FLAGS
-
-        ProjectedContext.addProjectedFlags(intent)
-
-        assertThat(intent.flags).isEqualTo(expectedFlags)
-    }
-
-    @Test
-    @Ignore // Bring back this test once a new Robolectric version is available
-    fun createProjectedActivityOptions_projectedDeviceContext_returnsActivityOptionsWithLaunchDisplayId() {
-        createVirtualDevice()
-
+    fun createProjectedActivityOptions_projectedDisplayAvailable_projectedDeviceContext_returnsActivityOptionsWithLaunchDisplayId() {
         val activityOptions =
             ProjectedContext.createProjectedActivityOptions(projectedDeviceContext)
 
-        assertThat(activityOptions.launchDisplayId).isEqualTo(DISPLAY_ID)
+        assertThat(activityOptions.launchDisplayId).isEqualTo(1)
     }
 
     @Test
-    @Ignore // Bring back this test once a new Robolectric version is available
-    fun createProjectedActivityOptions_anotherContext_returnsActivityOptionsWithLaunchDisplayId() {
-        createVirtualDevice()
-
+    fun createProjectedActivityOptions_projectedDisplayAvailable_anotherContext_returnsActivityOptionsWithLaunchDisplayId() {
         val activityOptions = ProjectedContext.createProjectedActivityOptions(context)
 
-        assertThat(activityOptions.launchDisplayId).isEqualTo(DISPLAY_ID)
+        assertThat(activityOptions.launchDisplayId).isEqualTo(1)
     }
 
     @Test
-    fun isProjectedDeviceConnected_projectedDeviceCreated_isTrue() = runBlocking {
-        createVirtualDevice()
+    fun createProjectedActivityOptions_projectedDisplayUnavailable_throwsIllegalStateException() {
+        ShadowDisplayManager.removeDisplay(
+            virtualDeviceManager.virtualDevices.first().displayIds[0]
+        )
 
+        assertThrows(IllegalStateException::class.java) {
+            ProjectedContext.createProjectedActivityOptions(context)
+        }
+    }
+
+    @Test
+    fun createProjectedActivityOptions_projectedDisplayDoesNotBelongToProjectedDevice_throwsIllegalStateException() {
+        ShadowDisplayManager.removeDisplay(
+            virtualDeviceManager.virtualDevices.first().displayIds[0]
+        )
+
+        // Create a display with the Projected display name that belongs to another device.
+        ShadowDisplayManager.addDisplay("", ProjectedContext.PROJECTED_DISPLAY_NAME)
+
+        assertThrows(IllegalStateException::class.java) {
+            ProjectedContext.createProjectedActivityOptions(context)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_projectedDeviceCreated_isTrue() = runBlocking {
         assertThat(ProjectedContext.isProjectedDeviceConnected(context, coroutineContext).first())
             .isTrue()
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_displayAddedLater_isTrue() = runBlocking {
+        val virtualDevice = createVirtualDevice()
+        val flow = ProjectedContext.isProjectedDeviceConnected(context, coroutineContext)
+        createVirtualDisplayForDevice(virtualDevice)
+
+        assertThat(flow.first()).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_displayRemoved_isFalse() = runBlocking {
+        val flow = ProjectedContext.isProjectedDeviceConnected(context, coroutineContext)
+        assertThat(flow.first()).isTrue()
+
+        ShadowDisplayManager.removeDisplay(
+            virtualDeviceManager.virtualDevices.first().displayIds[0]
+        )
+
+        assertThat(flow.first()).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
     @Test
     fun isProjectedDeviceConnected_projectedDeviceNotCreated_isFalse() = runBlocking {
+        projectedTestRule.isDeviceConnected = false
+
         assertThat(ProjectedContext.isProjectedDeviceConnected(context, coroutineContext).first())
             .isFalse()
     }
 
-    private fun createVirtualDevice() {
+    // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
+    private fun createVirtualDevice(): Any? {
         val virtualDeviceParamsBuilderClass =
             Class.forName("android.companion.virtual.VirtualDeviceParams\$Builder")
         val virtualDeviceParamsClass =
@@ -159,20 +195,33 @@ class ProjectedContextTest {
             )
         virtualDeviceParamsBuilder =
             ReflectionHelpers.callInstanceMethod(virtualDeviceParamsBuilder, "build")
-        ReflectionHelpers.callInstanceMethod<Any?>(
-            virtualDeviceManager,
-            "createVirtualDevice",
-            ClassParameter(Int::class.javaPrimitiveType, 1),
-            ClassParameter(virtualDeviceParamsClass, virtualDeviceParamsBuilder),
-        )
-    }
+        val virtualDevice =
+            ReflectionHelpers.callInstanceMethod<Any?>(
+                virtualDeviceManager,
+                "createVirtualDevice",
+                ClassParameter(Int::class.javaPrimitiveType, 1),
+                ClassParameter(virtualDeviceParamsClass, virtualDeviceParamsBuilder),
+            )
 
-    companion object {
-        private const val DISPLAY_ID = 5
+        return virtualDevice
     }
 
     class LocalContextWrapper(context: Context, private val deviceId: Int) :
         ContextWrapper(context) {
         override fun getDeviceId() = deviceId
     }
+
+    private fun createVirtualDisplayForDevice(virtualDevice: Any?): VirtualDisplay =
+        Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(virtualDevice)
+            .createVirtualDisplay(
+                VirtualDisplayConfig.Builder(
+                        ProjectedContext.PROJECTED_DISPLAY_NAME,
+                        /* width = */ 10,
+                        /* height = */ 10,
+                        /* densityDpi = */ 10,
+                    )
+                    .build(),
+                /* executor= */ null,
+                /* callback= */ null,
+            )
 }

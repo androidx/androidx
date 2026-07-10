@@ -27,6 +27,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.util.fastForEach
+import kotlin.math.max
+import kotlin.math.min
 
 internal class SelectionRegistrarImpl private constructor(initialIncrementId: Long) :
     SelectionRegistrar {
@@ -100,13 +103,14 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
     override var subselections: LongObjectMap<Selection> by mutableStateOf(emptyLongObjectMap())
 
     override fun subscribe(selectable: Selectable): Selectable {
-        requirePrecondition(selectable.selectableId != SelectionRegistrar.InvalidSelectableId) {
-            "The selectable contains an invalid id: ${selectable.selectableId}"
+        val selectableId = selectable.selectableId
+        requirePrecondition(selectableId != SelectionRegistrar.InvalidSelectableId) {
+            "The selectable contains an invalid id: $selectableId"
         }
-        requirePrecondition(!_selectableMap.containsKey(selectable.selectableId)) {
-            "Another selectable with the id: $selectable.selectableId has already subscribed."
+        requirePrecondition(!_selectableMap.containsKey(selectableId)) {
+            "Another selectable with the id: $selectableId has already subscribed."
         }
-        _selectableMap[selectable.selectableId] = selectable
+        _selectableMap[selectableId] = selectable
         _selectables.add(selectable)
         sorted = false
         return selectable
@@ -128,34 +132,84 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
     }
 
     /**
-     * Sort the list of registered [Selectable]s in [SelectionRegistrar]. Currently the order of
+     * Sort the list of registered [Selectable]s in [SelectionRegistrar]. Currently, the order of
      * selectables is geometric-based.
      */
     fun sort(containerLayoutCoordinates: LayoutCoordinates): List<Selectable> {
         if (!sorted) {
+            // Trying to sort selectables when some of them have no LayoutCoordinates is a mistake,
+            // as the order will necessarily be wrong. Unfortunately, there are too many flows where
+            // this can potentially happen to be sure that this actually does not happen. So this
+            // debug-only check is in-lieu of requireNotNull(layoutCoordinates), which would crash
+            // the app if not satisfied.
+            if (DEBUG) {
+                _selectables.fastForEach {
+                    if (it.getLayoutCoordinates() == null) {
+                        logDebug { "Asked to sort selectable $it, with null LayoutCoordinates" }
+                    }
+                }
+            }
+
             // Sort selectables by y-coordinate first, and then x-coordinate, to match English
             // hand-writing habit.
             _selectables.sortWith { a: Selectable, b: Selectable ->
                 val layoutCoordinatesA = a.getLayoutCoordinates()
                 val layoutCoordinatesB = b.getLayoutCoordinates()
 
-                val positionA =
-                    if (layoutCoordinatesA != null) {
-                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesA, Offset.Zero)
-                    } else {
-                        Offset.Zero
-                    }
-                val positionB =
-                    if (layoutCoordinatesB != null) {
-                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesB, Offset.Zero)
-                    } else {
-                        Offset.Zero
-                    }
+                val positionATopLeft: Offset
+                val positionBTopLeft: Offset
+                val positionABottomRight: Offset
+                val positionBBottomRight: Offset
 
-                if (positionA.y == positionB.y) {
-                    compareValues(positionA.x, positionB.x)
+                if (layoutCoordinatesA != null) {
+                    positionATopLeft =
+                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesA, Offset.Zero)
+                    positionABottomRight =
+                        Offset(
+                            positionATopLeft.x + layoutCoordinatesA.size.width,
+                            positionATopLeft.y + layoutCoordinatesA.size.height,
+                        )
                 } else {
-                    compareValues(positionA.y, positionB.y)
+                    positionATopLeft = Offset.Zero
+                    positionABottomRight = Offset.Zero
+                }
+
+                if (layoutCoordinatesB != null) {
+                    positionBTopLeft =
+                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesB, Offset.Zero)
+                    positionBBottomRight =
+                        Offset(
+                            positionBTopLeft.x + layoutCoordinatesB.size.width,
+                            positionBTopLeft.y + layoutCoordinatesB.size.height,
+                        )
+                } else {
+                    positionBTopLeft = Offset.Zero
+                    positionBBottomRight = Offset.Zero
+                }
+
+                // Regression fix for b/439758956
+                // A moving handle can be on an "in-between" slot while a real handle can only be
+                // anchored to a "real" slot. However, there are two sources of truth when it comes
+                // to determining whether handles are crossed;
+                //   1) Including moving handle and its slot
+                //   2) Only looking at anchor locations.
+                //
+                // The problem that causes a crash is that we use the former information to check
+                // the latter case. The difficulty in solving this problem is that this information
+                // is so ingrained in the Selection system, changing it causes some other parts to
+                // start failing. Therefore we introduce this inARow heuristic to circumvent the
+                // crash while improving the selection order behavior.
+                val areTextLayoutsInARow =
+                    inARow(
+                        boxATopLeft = positionATopLeft,
+                        boxABottomRight = positionABottomRight,
+                        boxBTopLeft = positionBTopLeft,
+                        boxBBottomRight = positionBBottomRight,
+                    )
+                if (areTextLayoutsInARow) {
+                    compareValues(positionATopLeft.x, positionBTopLeft.x)
+                } else {
+                    compareValues(positionATopLeft.y, positionBTopLeft.y)
                 }
             }
             sorted = true
@@ -212,5 +266,58 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
 
     override fun notifySelectableChange(selectableId: Long) {
         onSelectableChangeCallback?.invoke(selectableId)
+    }
+}
+
+/**
+ * Determines whether two boxes A and B can be considered to be in a row.
+ *
+ * The heuristics are;
+ * - Intersection of boxes' vertical segments span at least 50% of either one of them.
+ * - Intersection of boxes' horizontal segments span 50% of neither of them.
+ */
+internal fun inARow(
+    boxATopLeft: Offset,
+    boxABottomRight: Offset,
+    boxBTopLeft: Offset,
+    boxBBottomRight: Offset,
+): Boolean {
+    // 1. Calculate Box Dimensions (Height and Width)
+    val heightA = boxABottomRight.y - boxATopLeft.y
+    val widthA = boxABottomRight.x - boxATopLeft.x
+
+    val heightB = boxBBottomRight.y - boxBTopLeft.y
+    val widthB = boxBBottomRight.x - boxBTopLeft.x
+
+    // 2. Calculate Intersection Lengths
+    // Vertical Intersection (Overlap of Y coordinates)
+    val vertInterTop = max(boxATopLeft.y, boxBTopLeft.y)
+    val vertInterBottom = min(boxABottomRight.y, boxBBottomRight.y)
+    val vertIntersection = max(0f, vertInterBottom - vertInterTop)
+
+    // Horizontal Intersection (Overlap of X coordinates)
+    val horzInterLeft = max(boxATopLeft.x, boxBTopLeft.x)
+    val horzInterRight = min(boxABottomRight.x, boxBBottomRight.x)
+    val horzIntersection = max(0f, horzInterRight - horzInterLeft)
+
+    // 3. Apply Heuristics
+    // Heuristic A: Vertical intersection spans at least 50% of EITHER height
+    val isVerticallyAligned =
+        vertIntersection >= (heightA * 0.5f) || vertIntersection >= (heightB * 0.5f)
+
+    // Heuristic B: Horizontal intersection spans 50% of NEITHER width
+    // (Meaning: Intersection must be LESS than 50% of A AND LESS than 50% of B)
+    val isHorizontallyDistinct =
+        horzIntersection < (widthA * 0.5f) && horzIntersection < (widthB * 0.5f)
+
+    return isVerticallyAligned && isHorizontallyDistinct
+}
+
+private const val DEBUG = false
+private const val DEBUG_TAG = "SelectionRegistrarImpl"
+
+private inline fun logDebug(text: () -> String) {
+    if (DEBUG) {
+        println("$DEBUG_TAG: ${text()}")
     }
 }

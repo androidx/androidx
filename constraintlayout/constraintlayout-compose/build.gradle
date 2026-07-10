@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -30,76 +29,45 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
         namespace = "androidx.constraintlayout.compose"
         androidResources.enable = true
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation("androidx.compose.ui:ui:1.7.0")
-                implementation("androidx.compose.ui:ui-unit:1.7.0")
-                implementation("androidx.compose.ui:ui-util:1.7.0")
-                implementation("androidx.compose.foundation:foundation:1.7.0")
-                implementation("androidx.compose.foundation:foundation-layout:1.7.0")
-                implementation(project(":constraintlayout:constraintlayout-core"))
-                implementation("androidx.collection:collection:1.4.2")
-                implementation(libs.kotlinStdlib)
-            }
+        commonMain.dependencies {
+            implementation("androidx.compose.ui:ui:1.7.0")
+            implementation("androidx.compose.ui:ui-unit:1.7.0")
+            implementation("androidx.compose.ui:ui-util:1.7.0")
+            implementation("androidx.compose.foundation:foundation:1.7.0")
+            implementation("androidx.compose.foundation:foundation-layout:1.7.0")
+            implementation(project(":constraintlayout:constraintlayout-core"))
+            implementation("androidx.collection:collection:1.4.2")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.core:core-ktx:1.5.0")
         }
 
-        jvmCommonMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:material:material"))
+            implementation("androidx.compose.material:material-icons-core:1.6.7")
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:test-utils"))
         }
 
-
-        androidMain {
-            dependsOn(jvmCommonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.core:core-ktx:1.5.0")
-            }
-        }
-
-        jvmCommonTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmCommonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:material:material"))
-                implementation("androidx.compose.material:material-icons-core:1.6.7")
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmCommonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
         }
     }
 }

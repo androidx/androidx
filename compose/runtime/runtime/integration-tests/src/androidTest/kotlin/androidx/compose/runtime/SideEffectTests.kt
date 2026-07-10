@@ -108,6 +108,208 @@ class SideEffectTests : BaseComposeTest() {
     }
 
     @Test
+    fun testSideEffectsWithKeys() {
+        var results = ""
+        var resultsAtComposition = ""
+        var scope: RecomposeScope? = null
+        var key1 = "A"
+        var key2 = "B"
+        var key3 = "C"
+        var key4 = "D"
+        var keys = arrayOf(key1, key2, key3, key4)
+        compose {
+                SideEffect { results += 1 }
+                SideEffect(key1) { results += 2 }
+                SideEffect(key1, key2) { results += 3 }
+                SideEffect(key1, key2, key3) { results += 4 }
+                SideEffect(key1, key2, key3, key4) { results += 5 }
+                SideEffect(*keys) { results += 6 }
+                resultsAtComposition = results
+                scope = currentRecomposeScope
+            }
+            .then {
+                assertEquals("123456", results, "side effects were applied")
+                assertEquals(
+                    "",
+                    resultsAtComposition,
+                    "side effects weren't applied until after composition",
+                )
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "123456" + "1",
+                    results,
+                    "side effects applied a second time (no key changes)",
+                )
+                key1 = "a"
+                keys = arrayOf(key1, key2, key3, key4)
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "1234561" + "123456",
+                    results,
+                    "side effects applied a second time (key1 changed)",
+                )
+                key2 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "1234561123456" + "13456",
+                    results,
+                    "side effects applied a second time (key2 changed)",
+                )
+                key3 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "123456112345613456" + "1456",
+                    results,
+                    "side effects applied a second time (key3 changed)",
+                )
+                key4 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "1234561123456134561456" + "156",
+                    results,
+                    "side effects applied a second time (key4 changed)",
+                )
+                keys = arrayOf("x", "y")
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "1234561123456134561456156" + "16",
+                    results,
+                    "side effects applied a second time (keys array changed)",
+                )
+                keys = arrayOf("x", "y", "z")
+                scope?.invalidate() ?: error("missing recompose function")
+            }
+            .then {
+                assertEquals(
+                    "123456112345613456145615616" + "16",
+                    results,
+                    "side effects applied a second time (keys array changed)",
+                )
+            }
+    }
+
+    @Test
+    fun testSideEffectsWithStateKeys() {
+        var results = ""
+        var resultsAtComposition = ""
+        var key1 by mutableStateOf("A")
+        var key2 by mutableStateOf("B")
+        var key3 by mutableStateOf("C")
+        var key4 by mutableStateOf("D")
+        var keys by mutableStateOf(arrayOf(key1, key2, key3, key4))
+        compose {
+                SideEffect { results += 1 }
+                SideEffect(key1) { results += 2 }
+                SideEffect(key1, key2) { results += 3 }
+                SideEffect(key1, key2, key3) { results += 4 }
+                SideEffect(key1, key2, key3, key4) { results += 5 }
+                SideEffect(*keys) { results += 6 }
+                resultsAtComposition = results
+            }
+            .then {
+                assertEquals("123456", results, "side effects were applied")
+                assertEquals(
+                    "",
+                    resultsAtComposition,
+                    "side effects weren't applied until after composition",
+                )
+                key1 = "a"
+                keys = arrayOf(key1, key2, key3, key4)
+            }
+            .then {
+                assertEquals(
+                    "123456" + "123456",
+                    results,
+                    "side effects applied a second time (key1 changed)",
+                )
+                key2 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+            }
+            .then {
+                assertEquals(
+                    "123456123456" + "13456",
+                    results,
+                    "side effects applied a second time (key2 changed)",
+                )
+                key3 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+            }
+            .then {
+                assertEquals(
+                    "12345612345613456" + "1456",
+                    results,
+                    "side effects applied a second time (key3 changed)",
+                )
+                key4 = "b"
+                keys = arrayOf(key1, key2, key3, key4)
+            }
+            .then {
+                assertEquals(
+                    "123456123456134561456" + "156",
+                    results,
+                    "side effects applied a second time (key4 changed)",
+                )
+                keys = arrayOf("x", "y")
+            }
+            .then {
+                assertEquals(
+                    "123456123456134561456156" + "16",
+                    results,
+                    "side effects applied a second time (keys array changed)",
+                )
+                keys = arrayOf("x", "y", "z")
+            }
+            .then {
+                assertEquals(
+                    "12345612345613456145615616" + "16",
+                    results,
+                    "side effects applied a second time (keys array changed)",
+                )
+            }
+    }
+
+    @Test
+    fun testSideEffectVarargKeyRemoved() {
+        var keys by mutableStateOf(arrayOf(1, 2, 3))
+        var invocations = 0
+        compose { SideEffect(*keys) { invocations++ } }
+            .then {
+                assertEquals(
+                    invocations,
+                    1,
+                    "SideEffect should execute once after initial composition",
+                )
+                keys = arrayOf(1, 2)
+            }
+            .then {
+                assertEquals(
+                    invocations,
+                    2,
+                    "SideEffect should execute when dropping trailing keys",
+                )
+                keys = arrayOf()
+            }
+            .then {
+                assertEquals(invocations, 3, "SideEffect should execute when removing all keys")
+            }
+    }
+
+    @Test
     fun testDisposableEffectExecutionOrder() {
         var mount by mutableStateOf(true)
 

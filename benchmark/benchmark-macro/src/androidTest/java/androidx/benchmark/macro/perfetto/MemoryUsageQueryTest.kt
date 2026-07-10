@@ -16,11 +16,13 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build.VERSION.SDK_INT
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.MemoryUsageMetric.SubMetric
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -34,6 +36,8 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedTrace31() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
@@ -67,6 +71,8 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedTrace33() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api33_motionlayout_messagejson", ".perfetto-trace")
         TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
@@ -102,6 +108,8 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedGpuTrace34() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api34_startup_cold", ".perfetto-trace")
         TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {

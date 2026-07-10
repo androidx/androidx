@@ -13,28 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("NavigatorProviderKt")
+@file:JvmMultifileClass
+
 package androidx.navigation
 
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 public actual open class NavigatorProvider actual constructor() {
+    private val _typeToNavigatorName = mutableMapOf<KClass<*>, String>()
+    private val _namedNavigators = mutableMapOf<String, Navigator<out NavDestination>>()
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual val navigators: Map<String, Navigator<out NavDestination>>
-        get() = implementedInJetBrainsFork()
+        get() = _namedNavigators
+
+    /**
+     * Retrieves a registered [Navigator] using class.
+     *
+     * @param navigatorClass class of the navigator to return
+     * @return the registered navigator with the given [KClass]
+     * @throws IllegalStateException if the Navigator has not been added
+     * @see NavigatorProvider.addNavigator
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <T : Navigator<*>> getNavigator(navigatorClass: KClass<T>): T {
+        val navigator =
+            _typeToNavigatorName[navigatorClass]?.let { name -> _namedNavigators[name] }
+                ?: throw IllegalStateException(
+                    "Could not find Navigator with class \"$navigatorClass\". You must call " +
+                        "NavController.addNavigator() for each navigation type."
+                )
+        return navigator as T
+    }
 
     @Suppress("UNCHECKED_CAST")
     @CallSuper
     public actual open fun <T : Navigator<*>> getNavigator(name: String): T {
-        implementedInJetBrainsFork()
+        require(validateName(name)) { "navigator name cannot be an empty string" }
+        val navigator =
+            _namedNavigators[name]
+                ?: throw IllegalStateException(
+                    "Could not find Navigator with name \"$name\". You must call " +
+                        "NavController.addNavigator() for each navigation type."
+                )
+        return navigator as T
     }
 
     public actual fun addNavigator(
         navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>? {
-        implementedInJetBrainsFork()
+        return addNavigator(navigator.name, navigator)
     }
 
     @CallSuper
@@ -42,11 +76,29 @@ public actual open class NavigatorProvider actual constructor() {
         name: String,
         navigator: Navigator<out NavDestination>,
     ): Navigator<out NavDestination>? {
-        implementedInJetBrainsFork()
+        require(validateName(name)) { "Navigator name cannot be an empty string" }
+        _typeToNavigatorName[navigator::class] = name
+        val previousNavigator = _namedNavigators[name]
+        if (previousNavigator == navigator) {
+            return navigator
+        }
+        check(previousNavigator?.isAttached != true) {
+            "Navigator $navigator is replacing an already attached $previousNavigator"
+        }
+        check(!navigator.isAttached) {
+            "Navigator $navigator is already attached to another NavController"
+        }
+        return _namedNavigators.put(name, navigator)
+    }
+
+    internal actual companion object {
+        internal actual fun validateName(name: String?): Boolean {
+            return !name.isNullOrEmpty()
+        }
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     clazz: KClass<T>
-): T = implementedInJetBrainsFork()
+): T = getNavigator(clazz)

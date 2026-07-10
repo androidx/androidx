@@ -56,7 +56,7 @@ class CoreStateTest {
     @Test
     fun equals_differentObjectType_returnsFalse() {
         val coreState = CoreState(timeMark = timeSource.markNow())
-        val other = Object()
+        val other = Any()
 
         assertThat(coreState).isNotEqualTo(other)
     }

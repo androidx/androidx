@@ -26,13 +26,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.isShiftTab
+import androidx.compose.material3.internal.isTab
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.window.DialogProperties
@@ -88,6 +95,8 @@ actual fun DatePickerDialog(
             tonalElevation = tonalElevation,
         ) {
             Column(verticalArrangement = Arrangement.SpaceBetween) {
+                val focusManager = LocalFocusManager.current
+                val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                 // Wrap the content with a Box and Modifier.weight(1f) to ensure that any "confirm"
                 // and "dismiss" buttons are not pushed out of view when running on small screens,
                 // or when nesting a DateRangePicker.
@@ -111,8 +120,59 @@ actual fun DatePickerDialog(
                                     DialogButtonsCrossAxisSpacing,
                                 ),
                         ) {
-                            confirmButton()
-                            dismissButton?.invoke()
+                            // We need to change the focus order via tabbing since visually the
+                            // dismiss button comes before the confirm button.
+                            Box(
+                                Modifier.onKeyEvent {
+                                    if (it.isTab) {
+                                        focusManager.moveFocus(FocusDirection.Next)
+                                        if (dismissButton != null) {
+                                            // If focus landed on dismiss button, move focus forward
+                                            // again.
+                                            focusManager.moveFocus(FocusDirection.Next)
+                                        }
+                                        return@onKeyEvent true
+                                    } else if (it.isShiftTab) {
+                                        // If there's a dismiss button, move focus to it when going
+                                        // back from confirm button.
+                                        if (dismissButton != null) {
+                                            val toDismiss =
+                                                if (isRtl) FocusDirection.Right
+                                                else FocusDirection.Left
+                                            focusManager.moveFocus(toDismiss)
+                                            return@onKeyEvent true
+                                        }
+                                    }
+                                    return@onKeyEvent false
+                                }
+                            ) {
+                                confirmButton()
+                            }
+                            Box(
+                                Modifier.onKeyEvent {
+                                    val toConfirm =
+                                        if (isRtl) FocusDirection.Left else FocusDirection.Right
+                                    if (it.isTab) {
+                                        // Move to confirm button.
+                                        val moved = focusManager.moveFocus(toConfirm)
+                                        if (!moved) {
+                                            // If didn't move, confirm button is not enabled, so
+                                            // move focus along.
+                                            focusManager.moveFocus(FocusDirection.Next)
+                                        }
+                                        return@onKeyEvent true
+                                    } else if (it.isShiftTab) {
+                                        // Move up from the confirm button to make sure we move back
+                                        // to last date of the month.
+                                        focusManager.moveFocus(toConfirm)
+                                        focusManager.moveFocus(FocusDirection.Previous)
+                                        return@onKeyEvent true
+                                    }
+                                    return@onKeyEvent false
+                                }
+                            ) {
+                                dismissButton?.invoke()
+                            }
                         }
                     }
                 }

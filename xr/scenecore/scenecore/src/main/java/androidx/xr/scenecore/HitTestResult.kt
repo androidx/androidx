@@ -16,27 +16,27 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Vector3
 
 /**
  * Specifies an intersection between a ray and the Scene.
  *
- * This can be obtained by running [ScenePose.hitTest] or [ScenePose.hitTestAsync].
+ * This can be obtained by running [ScenePose.hitTest] and related methods.
  *
- * @property hitPosition the [Vector3] position of the intersection between a ray and the Scene, or
- *   null if nothing was hit.
+ * @property hitPosition the [Vector3] position of the intersection between a ray and the Scene.
  * @property surfaceNormal The normal of the surface of the Entity or surface that was hit, or null
- *   if nothing was hit.
+ *   if the normal could not be computed.
  * @property surfaceType the [HitTestResult.SurfaceType] that was hit.
- * @property distance the distance from the origin to the hit location, or POSITIVE_INFINITY if
- *   nothing was hit.
+ * @property distance the distance from the origin to the hit location.
  */
 public class HitTestResult(
-    public val hitPosition: Vector3?,
+    public val hitPosition: Vector3,
     public val surfaceNormal: Vector3?,
     @SurfaceTypeValue public val surfaceType: Int,
-    public val distance: Float,
+    @get:FloatRange(from = 0.0) public val distance: Float,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -68,7 +68,8 @@ public class HitTestResult(
     }
 
     /** The type of the source of this event. */
-    @IntDef(SurfaceType.UNKNOWN, SurfaceType.PLANE, SurfaceType.OBJECT)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
-    internal annotation class SurfaceTypeValue
+    @IntDef(SurfaceType.UNKNOWN, SurfaceType.PLANE, SurfaceType.OBJECT)
+    public annotation class SurfaceTypeValue
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.wear.protolayout.modifiers
 
 import android.annotation.SuppressLint
@@ -35,7 +37,7 @@ import androidx.wear.protolayout.expression.RequiresSchemaVersion
  *   the dynamic change, you can use one of [DynamicFloat.animate] methods.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.opacity(
+public fun LayoutModifier.opacity(
     @FloatRange(from = 0.0, to = 1.0) staticValue: Float,
     dynamicValue: DynamicFloat? = null,
 ): LayoutModifier = this then BaseOpacityElement(staticValue, dynamicValue)
@@ -51,7 +53,7 @@ fun LayoutModifier.opacity(
  * @sample androidx.wear.protolayout.material3.samples.lottieWithFadeIn
  */
 @RequiresSchemaVersion(major = 1, minor = 500)
-fun LayoutModifier.fadeInOnVisibleModifier(
+public fun LayoutModifier.fadeInOnVisibleModifier(
     animationSpec: AnimationParameterBuilders.AnimationSpec =
         AnimationParameterBuilders.AnimationSpec.Builder()
             .setAnimationParameters(

@@ -23,20 +23,20 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.VisibleForTesting
 import androidx.camera.integration.uiwidgets.compose.ui.ComposeCameraApp
 import androidx.camera.integration.uiwidgets.compose.ui.PermissionsUI
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
 import androidx.camera.view.PreviewView.StreamState
 import androidx.core.content.ContextCompat
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class ComposeCameraActivity : ComponentActivity() {
 
     // Variables for testing StreamState changes in PreviewView
     private var expectedScreen: ComposeCameraScreen = ComposeCameraScreen.ImageCapture
     private var expectedStreamState: StreamState = StreamState.STREAMING
-    private var latchForState: CountDownLatch = CountDownLatch(0)
+    private var latchForState: CountDownLatch = CountDownLatch(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,17 +56,25 @@ class ComposeCameraActivity : ComponentActivity() {
         }
     }
 
-    // Saves the expected ComposeCameraScreen and StreamState for testing PreviewView
-    // Once saved, this method waits to be notified of StreamState changes
-    // Used to assert that PreviewView is streaming within reasonable timeout
-    fun waitForStreamState(
+    /**
+     * Sets up the expected screen and stream state for monitoring.
+     *
+     * This should be set before changing the screen to ensure that the stream state can be received
+     * to match the testing settings correctly.
+     */
+    fun setUpExpectedScreenAndStreamState(
         expectedScreen: ComposeCameraScreen,
         expectedState: StreamState,
-    ): Boolean {
+    ) {
         this.expectedScreen = expectedScreen
         expectedStreamState = expectedState
         latchForState = CountDownLatch(1)
-        return latchForState.await(LATCH_TIMEOUT, TimeUnit.MILLISECONDS)
+    }
+
+    /** Returns whether the expected screen and stream state have been reached. */
+    @VisibleForTesting
+    fun isExpectedStateReached(): Boolean {
+        return latchForState.count == 0L
     }
 
     // Callback to observe changes in PreviewView.StreamState happening in some ComposeCameraScreen
@@ -95,7 +103,6 @@ class ComposeCameraActivity : ComponentActivity() {
 
     companion object {
         private const val TAG = "ComposeCameraActivity"
-        private const val LATCH_TIMEOUT: Long = 5000
         val REQUIRED_PERMISSIONS =
             mutableListOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
                 .apply {

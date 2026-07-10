@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 pluginManagement {
     repositories {
         mavenCentral()
@@ -43,3 +42,5 @@ dependencyResolutionManagement {
         }
     }
 }
+
+includeBuild("build-logic")

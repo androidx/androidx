@@ -22,17 +22,19 @@ import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation
 import androidx.appsearch.compiler.annotationwrapper.SerializerClass
 import androidx.appsearch.compiler.annotationwrapper.StringPropertyAnnotation
+import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
+import androidx.room.compiler.processing.isField
+import androidx.room.compiler.processing.isMethod
 import java.util.Locale
 import java.util.stream.Collectors
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.ArrayType
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 
 /**
  * A getter or field annotated with a [PropertyAnnotation] annotation. For example,
@@ -51,12 +53,13 @@ import javax.lang.model.type.TypeMirror
  * }
  * </pre>
  */
+@OptIn(ExperimentalProcessingApi::class)
 data class AnnotatedGetterOrField(
     /** The annotation that the getter or field is annotated with. */
     val annotation: PropertyAnnotation,
 
     /** The annotated getter or field. */
-    val element: Element,
+    val element: XElement,
 
     /**
      * The type-category of the getter or field.
@@ -77,7 +80,7 @@ data class AnnotatedGetterOrField(
      * @BytesProperty List<bytes[]> mField; // componentType: byte[]
      * </pre>
      */
-    val componentType: TypeMirror,
+    val componentType: XType,
 
     /**
      * The normalized/stemmed [.getJvmName].
@@ -114,10 +117,10 @@ data class AnnotatedGetterOrField(
          * Creates a [AnnotatedGetterOrField] if the element is annotated with some
          * [PropertyAnnotation]. Otherwise returns null.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         @JvmStatic
-        fun tryCreateFor(element: Element, env: ProcessingEnvironment): AnnotatedGetterOrField? {
-            val annotation: AnnotationMirror = getSingleAppSearchAnnotation(element) ?: return null
+        fun tryCreateFor(element: XElement, env: XProcessingEnv): AnnotatedGetterOrField? {
+            val annotation: XAnnotation = getSingleAppSearchAnnotation(element) ?: return null
 
             val metadataPropertyAnnotation = MetadataPropertyAnnotation.tryParse(annotation)
             if (metadataPropertyAnnotation != null) {
@@ -138,11 +141,11 @@ data class AnnotatedGetterOrField(
          * Creates a [AnnotatedGetterOrField] for a `getterOrField` annotated with the specified
          * `annotation`.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun create(
             annotation: PropertyAnnotation,
-            getterOrField: Element,
-            env: ProcessingEnvironment,
+            getterOrField: XElement,
+            env: XProcessingEnv,
         ): AnnotatedGetterOrField {
             requireIsGetterOrField(getterOrField)
 
@@ -161,19 +164,18 @@ data class AnnotatedGetterOrField(
             return annotatedGetterOrField
         }
 
-        @Throws(ProcessingException::class)
-        private fun requireIsGetterOrField(element: Element) {
-            when (element.kind) {
-                ElementKind.FIELD -> return
-                ElementKind.METHOD -> {
-                    val method = element as ExecutableElement
-                    val errors = IntrospectionHelper.validateIsGetter(method)
+        @Throws(XProcessingException::class)
+        private fun requireIsGetterOrField(element: XElement) {
+            when {
+                element.isField() -> return
+                element.isMethod() -> {
+                    val errors = IntrospectionHelper.validateIsGetter(element)
                     if (errors.isNotEmpty()) {
                         val err =
-                            ProcessingException(
+                            XProcessingException(
                                 "Failed to find a suitable getter for element " +
-                                    "\"${method.simpleName}\"",
-                                method,
+                                    "\"${element.name}\"",
+                                element,
                             )
                         err.addWarnings(errors)
                         throw err
@@ -189,18 +191,17 @@ data class AnnotatedGetterOrField(
          * Note: `byte[]` are treated specially as documented in [ElementTypeCategory].
          */
         private fun inferTypeCategory(
-            getterOrField: Element,
-            env: ProcessingEnvironment,
+            getterOrField: XElement,
+            env: XProcessingEnv,
         ): ElementTypeCategory {
-            val jvmType = IntrospectionHelper.getPropertyType(getterOrField)
-            val typeUtils = env.typeUtils
+            val jvmType: XType = IntrospectionHelper.getPropertyType(getterOrField)
             val helper = IntrospectionHelper(env)
-            return if (typeUtils.isAssignable(typeUtils.erasure(jvmType), helper.collectionType)) {
+            return if (helper.collectionType.rawType.isAssignableFrom(jvmType)) {
                 ElementTypeCategory.COLLECTION
             } else if (
-                jvmType.kind == TypeKind.ARRAY &&
-                    !typeUtils.isSameType(jvmType, helper.bytePrimitiveArrayType) &&
-                    !typeUtils.isSameType(jvmType, helper.byteBoxArrayType)
+                jvmType.isArray() &&
+                    !jvmType.isSameType(helper.bytePrimitiveArrayType) &&
+                    !jvmType.isSameType(helper.byteBoxArrayType)
             ) {
                 // byte[] has a native representation in Icing and should be considered a
                 // primitive by itself.
@@ -217,32 +218,32 @@ data class AnnotatedGetterOrField(
          *
          * For example, `String mField -> String` and `List<String> mField -> String`.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun inferComponentType(
-            getterOrField: Element,
+            getterOrField: XElement,
             typeCategory: ElementTypeCategory,
-        ): TypeMirror {
+        ): XType {
             val jvmType = IntrospectionHelper.getPropertyType(getterOrField)
             return when (typeCategory) {
                 ElementTypeCategory.SINGLE -> jvmType
                 ElementTypeCategory.COLLECTION -> {
                     // e.g. List<T>
                     //           ^
-                    val typeArguments = (jvmType as DeclaredType).typeArguments
+                    val typeArguments = jvmType.typeArguments
                     if (typeArguments.isEmpty()) {
-                        throw ProcessingException(
+                        throw XProcessingException(
                             "Property is repeated but has no generic rawType",
                             getterOrField,
                         )
                     }
                     typeArguments.first()
                 }
-                ElementTypeCategory.ARRAY -> (jvmType as ArrayType).componentType
+                ElementTypeCategory.ARRAY -> (jvmType as XArrayType).componentType
             }
         }
 
-        private fun inferNormalizedName(element: Element, env: ProcessingEnvironment): String {
-            return if (element.kind == ElementKind.METHOD) {
+        private fun inferNormalizedName(element: XElement, env: XProcessingEnv): String {
+            return if (element.isMethod()) {
                 inferNormalizedMethodName(element, env)
             } else {
                 inferNormalizedFieldName(element)
@@ -253,10 +254,10 @@ data class AnnotatedGetterOrField(
          * Makes sure the getter/field's JVM type matches the type expected by the
          * [PropertyAnnotation].
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun requireTypeMatchesAnnotation(
             getterOrField: AnnotatedGetterOrField,
-            env: ProcessingEnvironment,
+            env: XProcessingEnv,
         ) {
             val annotation = getterOrField.annotation
             when (annotation.propertyKind) {
@@ -280,34 +281,33 @@ data class AnnotatedGetterOrField(
          *
          * Returns null if no such annotation exists on the element.
          *
-         * @throws ProcessingException If the element is annotated with more than one of such
+         * @throws XProcessingException If the element is annotated with more than one of such
          *   annotations.
          */
-        @Throws(ProcessingException::class)
-        private fun getSingleAppSearchAnnotation(element: Element): AnnotationMirror? {
+        @Throws(XProcessingException::class)
+        private fun getSingleAppSearchAnnotation(element: XElement): XAnnotation? {
             // @Document.* annotation
             val annotations =
-                element.annotationMirrors
+                element
+                    .getAllAnnotations()
                     .stream()
                     .filter {
-                        it.annotationType
-                            .toString()
-                            .startsWith(
-                                IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName()
-                            )
+                        it.qualifiedName.startsWith(
+                            IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName
+                        )
                     }
                     .toList()
             if (annotations.isEmpty()) {
                 return null
             }
             if (annotations.size > 1) {
-                throw ProcessingException("Cannot use multiple @Document.* annotations", element)
+                throw XProcessingException("Cannot use multiple @Document.* annotations", element)
             }
             return annotations.first()
         }
 
-        private fun inferNormalizedMethodName(method: Element, env: ProcessingEnvironment): String {
-            val methodName = method.simpleName.toString()
+        private fun inferNormalizedMethodName(method: XElement, env: XProcessingEnv): String {
+            val methodName = method.name
             val helper = IntrospectionHelper(env)
             // String getName() -> name
             if (
@@ -333,8 +333,8 @@ data class AnnotatedGetterOrField(
             return methodName
         }
 
-        private fun inferNormalizedFieldName(field: Element): String {
-            val fieldName = field.simpleName.toString()
+        private fun inferNormalizedFieldName(field: XElement): String {
+            val fieldName = field.name
             if (fieldName.length < 2) {
                 return fieldName
             }
@@ -365,11 +365,11 @@ data class AnnotatedGetterOrField(
          *
          * For example, fields annotated with `@Document.Score` must be of type `int` or [Integer].
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun requireTypeMatchesMetadataPropertyAnnotation(
             getterOrField: AnnotatedGetterOrField,
             annotation: MetadataPropertyAnnotation,
-            env: ProcessingEnvironment,
+            env: XProcessingEnv,
         ) {
             val helper = IntrospectionHelper(env)
             when (annotation) {
@@ -378,7 +378,6 @@ data class AnnotatedGetterOrField(
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.stringType),
-                        env,
                         allowRepeated = false,
                     )
                 MetadataPropertyAnnotation.TTL_MILLIS,
@@ -391,14 +390,12 @@ data class AnnotatedGetterOrField(
                             helper.longBoxType,
                             helper.integerBoxType,
                         ),
-                        env,
                         allowRepeated = false,
                     )
                 MetadataPropertyAnnotation.SCORE ->
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.intPrimitiveType, helper.integerBoxType),
-                        env,
                         allowRepeated = false,
                     )
             }
@@ -411,41 +408,32 @@ data class AnnotatedGetterOrField(
          * For example, fields annotated with [StringPropertyAnnotation] must be of type [String] or
          * a collection or array of [String]s.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun requireTypeMatchesDataPropertyAnnotation(
             getterOrField: AnnotatedGetterOrField,
             annotation: DataPropertyAnnotation,
-            env: ProcessingEnvironment,
+            env: XProcessingEnv,
         ) {
             val helper = IntrospectionHelper(env)
             when (annotation.dataPropertyKind) {
                 DataPropertyAnnotation.Kind.STRING_PROPERTY -> {
                     val stringSerializer = (annotation as StringPropertyAnnotation).customSerializer
                     if (stringSerializer != null) {
-                        requireComponentTypeMatchesWithSerializer(
-                            getterOrField,
-                            stringSerializer,
-                            env,
-                        )
+                        requireComponentTypeMatchesWithSerializer(getterOrField, stringSerializer)
                     } else {
                         requireTypeIsOneOf(
                             getterOrField,
                             listOf(helper.stringType),
-                            env,
                             allowRepeated = true,
                         )
                     }
                 }
                 DataPropertyAnnotation.Kind.DOCUMENT_PROPERTY ->
-                    requireTypeIsSomeDocumentClass(getterOrField, env)
+                    requireTypeIsSomeDocumentClass(getterOrField)
                 DataPropertyAnnotation.Kind.LONG_PROPERTY -> {
                     val longSerializer = (annotation as LongPropertyAnnotation).customSerializer
                     if (longSerializer != null) {
-                        requireComponentTypeMatchesWithSerializer(
-                            getterOrField,
-                            longSerializer,
-                            env,
-                        )
+                        requireComponentTypeMatchesWithSerializer(getterOrField, longSerializer)
                     } else {
                         requireTypeIsOneOf(
                             getterOrField,
@@ -455,7 +443,6 @@ data class AnnotatedGetterOrField(
                                 helper.longBoxType,
                                 helper.integerBoxType,
                             ),
-                            env,
                             allowRepeated = true,
                         )
                     }
@@ -469,35 +456,30 @@ data class AnnotatedGetterOrField(
                             helper.doubleBoxType,
                             helper.floatBoxType,
                         ),
-                        env,
                         allowRepeated = true,
                     )
                 DataPropertyAnnotation.Kind.BOOLEAN_PROPERTY ->
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.booleanPrimitiveType, helper.booleanBoxType),
-                        env,
                         allowRepeated = true,
                     )
                 DataPropertyAnnotation.Kind.BYTES_PROPERTY ->
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.bytePrimitiveArrayType),
-                        env,
                         allowRepeated = true,
                     )
                 DataPropertyAnnotation.Kind.EMBEDDING_PROPERTY ->
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.embeddingType),
-                        env,
                         allowRepeated = true,
                     )
                 DataPropertyAnnotation.Kind.BLOB_HANDLE_PROPERTY ->
                     requireTypeIsOneOf(
                         getterOrField,
                         listOf(helper.blobHandleType),
-                        env,
                         allowRepeated = true,
                     )
             }
@@ -509,58 +491,53 @@ data class AnnotatedGetterOrField(
          * If `allowRepeated` is true, also allows the getter/field's type to be an array or
          * collection of any of the expected types.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun requireTypeIsOneOf(
             getterOrField: AnnotatedGetterOrField,
-            expectedTypes: Collection<TypeMirror>,
-            env: ProcessingEnvironment,
+            expectedTypes: Collection<XType>,
             allowRepeated: Boolean,
         ) {
-            val typeUtils = env.typeUtils
             val target = if (allowRepeated) getterOrField.componentType else getterOrField.jvmType
             val isValid =
-                expectedTypes.stream().anyMatch { expectedType: TypeMirror ->
-                    typeUtils.isSameType(expectedType, target)
+                expectedTypes.stream().anyMatch { expectedType: XType ->
+                    expectedType.isSameType(target)
                 }
             if (!isValid) {
                 val error =
-                    ("@${getterOrField.annotation.className.simpleName()}" +
+                    ("@${getterOrField.annotation.className.simpleName}" +
                         " must only be placed on a getter/field of type " +
                         (if (allowRepeated) "or array or collection of " else "") +
                         expectedTypes
                             .stream()
-                            .map(TypeMirror::toString)
+                            .map(XType::toString)
                             .collect(Collectors.joining("|")))
-                throw ProcessingException(error, getterOrField.element)
+                throw XProcessingException(error, getterOrField.element)
             }
         }
 
         /**
          * Makes sure the getter/field's component type is consistent with the serializer class.
          *
-         * @throws ProcessingException If the getter/field is of a different type than what the
+         * @throws XProcessingException If the getter/field is of a different type than what the
          *   serializer class serializes to/from.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun requireComponentTypeMatchesWithSerializer(
             getterOrField: AnnotatedGetterOrField,
             serializerClass: SerializerClass,
-            env: ProcessingEnvironment,
         ) {
             // The component type must exactly match the type for which we have a serializer.
             // Subtypes do not work e.g.
             // @StringProperty(serializer = ParentSerializer.class) Child mField;
             // because ParentSerializer.deserialize(String) would return a Parent, which we won't be
             // able to assign to mField.
-            if (
-                !env.typeUtils.isSameType(getterOrField.componentType, serializerClass.customType)
-            ) {
-                throw ProcessingException(
+            if (!getterOrField.componentType.isSameType(serializerClass.customType)) {
+                throw XProcessingException(
                     ("@%s with serializer = %s must only be placed on a getter/field of type or " +
                             "array or collection of %s")
                         .format(
-                            getterOrField.annotation.className.simpleName(),
-                            serializerClass.element.simpleName,
+                            getterOrField.annotation.className.simpleName,
+                            serializerClass.element.name,
                             serializerClass.customType,
                         ),
                     getterOrField.element,
@@ -573,44 +550,40 @@ data class AnnotatedGetterOrField(
          *
          * Allows for arrays and collections of such a type as well.
          */
-        @Throws(ProcessingException::class)
-        private fun requireTypeIsSomeDocumentClass(
-            annotatedGetterOrField: AnnotatedGetterOrField,
-            env: ProcessingEnvironment,
-        ) {
-            val componentType = annotatedGetterOrField.componentType
-            if (componentType.kind == TypeKind.DECLARED) {
-                val element = env.typeUtils.asElement(componentType)
-                if (IntrospectionHelper.getDocumentAnnotation(element) != null) {
-                    return
-                }
+        @Throws(XProcessingException::class)
+        private fun requireTypeIsSomeDocumentClass(annotatedGetterOrField: AnnotatedGetterOrField) {
+            val componentTypeElement = annotatedGetterOrField.componentType.typeElement
+            if (
+                componentTypeElement == null ||
+                    IntrospectionHelper.getDocumentAnnotation(componentTypeElement) == null
+            ) {
+                throw XProcessingException(
+                    "Invalid type for @DocumentProperty. Must be another class " +
+                        "annotated with @Document (or collection or array of)",
+                    annotatedGetterOrField.element,
+                )
             }
-            throw ProcessingException(
-                "Invalid type for @DocumentProperty. Must be another class " +
-                    "annotated with @Document (or collection or array of)",
-                annotatedGetterOrField.element,
-            )
         }
     }
 
     /** The field/getter's return type. */
-    val jvmType: TypeMirror
+    val jvmType: XType
         get() =
             if (isGetter) {
-                (element as ExecutableElement).returnType
+                (element as XMethodElement).returnType
             } else {
-                element.asType()
+                (element as XFieldElement).type
             }
 
     /** The getter/field's jvm name e.g. `mId` or `getName`. */
     val jvmName: String
-        get() = element.simpleName.toString()
+        get() = element.name
 
     /** Whether the [.getElement] is a getter. */
     val isGetter: Boolean
-        get() = element.kind == ElementKind.METHOD
+        get() = element.isMethod()
 
     /** Whether the [.getElement] is a field. */
     val isField: Boolean
-        get() = element.kind == ElementKind.FIELD
+        get() = element.isField()
 }

@@ -5,7 +5,7 @@ gradle = "8.4.2"
 androidGradlePlugin = "8.4.2"
 androidx-annotation-experimental = "1.4.1"
 androidx-core = "1.13.1"
-androidx-car = "1.7.0-beta01"
+androidx-car = "1.9.0-alpha01"
 androidx-constraintlayout = "2.1.4"
 core-ktx = "1.13.1"
 

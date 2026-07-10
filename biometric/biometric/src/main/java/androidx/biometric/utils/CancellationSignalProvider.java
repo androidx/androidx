@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Creates and caches cancellation signal objects that are compatible with
  * {@link android.hardware.biometrics.BiometricPrompt} or
- * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+ * {@link androidx.biometric.internal.FingerprintManagerCompat}.
  */
 @SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -50,7 +50,7 @@ public class CancellationSignalProvider {
 
         /**
          * Returns a cancellation signal object that is compatible with
-         * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+         * {@link androidx.biometric.internal.FingerprintManagerCompat}.
          *
          * @return An instance of {@link androidx.core.os.CancellationSignal}.
          */
@@ -70,7 +70,7 @@ public class CancellationSignalProvider {
 
     /**
      * A cancellation signal object that is compatible with
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      */
     private androidx.core.os.@Nullable CancellationSignal mFingerprintCancellationSignal;
 
@@ -120,13 +120,13 @@ public class CancellationSignalProvider {
 
     /**
      * Provides a cancellation signal object that is compatible with
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      *
      * <p>Subsequent calls to this method for the same provider instance will return the same
      * cancellation signal, until {@link #cancel()} is invoked.
      *
      * @return A cancellation signal that can be passed to
-     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      */
     public androidx.core.os.@NonNull CancellationSignal getFingerprintCancellationSignal() {
         if (mFingerprintCancellationSignal == null) {

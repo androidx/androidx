@@ -16,6 +16,11 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.FocusMeteringAction.FLAG_AE;
+import static androidx.camera.core.FocusMeteringAction.FLAG_AF;
+import static androidx.camera.core.FocusMeteringAction.FLAG_AWB;
+
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 
 import org.jspecify.annotations.NonNull;
@@ -79,29 +84,43 @@ public class ConvergenceUtils {
      */
     public static boolean is3AConverged(@NonNull CameraCaptureResult captureResult,
             boolean isTorchAsFlash) {
+        return is3AConverged(captureResult, isTorchAsFlash,
+                /* required3aModes= */ FLAG_AE | FLAG_AF | FLAG_AWB);
+    }
 
-        // If afMode is OFF or UNKNOWN , no need for waiting.
+    /**
+     * Check if the capture result is converged.
+     */
+    public static boolean is3AConverged(@NonNull CameraCaptureResult captureResult,
+            boolean isTorchAsFlash, @FocusMeteringAction.MeteringMode int required3aModes) {
+
+        // If afMode is OFF, no need for waiting.
         // otherwise wait until af is locked or focused.
         boolean isAfReady = captureResult.getAfMode() == CameraCaptureMetaData.AfMode.OFF
-                || captureResult.getAfMode() == CameraCaptureMetaData.AfMode.UNKNOWN
+                || ((required3aModes & FLAG_AF) == 0)
                 || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
 
         boolean isAeReady;
         boolean isAeModeOff = captureResult.getAeMode() == CameraCaptureMetaData.AeMode.OFF;
         if (isTorchAsFlash) {
             isAeReady = isAeModeOff
+                    || ((required3aModes & FLAG_AE) == 0)
                     || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         } else {
-            isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+            isAeReady = isAeModeOff
+                    || ((required3aModes & FLAG_AE) != 0)
+                    || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         }
 
         boolean isAwbModeOff = captureResult.getAwbMode() == CameraCaptureMetaData.AwbMode.OFF;
         boolean isAwbReady = isAwbModeOff
+                || ((required3aModes & FLAG_AWB) == 0)
                 || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
 
-        Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
-                + " AF =" + captureResult.getAfState()
-                + " AWB=" + captureResult.getAwbState());
+        Logger.d(TAG, "checkCaptureResult: AE =" + captureResult.getAeState()
+                + ", AF =" + captureResult.getAfState()
+                + ", AWB=" + captureResult.getAwbState()
+                + ", required3aModes = " + Integer.toHexString(required3aModes));
         return isAfReady && isAeReady && isAwbReady;
     }
 }

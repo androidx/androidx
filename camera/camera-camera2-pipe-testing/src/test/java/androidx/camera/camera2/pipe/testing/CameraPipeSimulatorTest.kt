@@ -34,19 +34,20 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraPipeSimulatorTest {
     private val testScope = TestScope()
     private val backCameraMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK),
+            lensFacing = CameraCharacteristics.LENS_FACING_BACK,
         )
     private val frontCameraMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
         )
 
     private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
@@ -212,6 +213,19 @@ class CameraPipeSimulatorTest {
                     ConfigQueryResult.UNKNOWN
                 }
             assertThat(unsupportedResult).isEqualTo(expectedResult)
+        }
+    }
+
+    @Test
+    fun cameraDevicesCanBeDisconnectedAfterGraphClose() {
+        testScope.runTest {
+            val cameraGraphSimulator = cameraPipe.createCameraGraph(graphConfig)
+            cameraGraphSimulator.start()
+            cameraGraphSimulator.initializeSurfaces()
+            cameraGraphSimulator.simulateCameraStarted()
+
+            cameraGraphSimulator.close()
+            cameraPipe.cameras().disconnectAll()
         }
     }
 }

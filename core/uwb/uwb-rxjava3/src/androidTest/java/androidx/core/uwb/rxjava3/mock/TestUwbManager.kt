@@ -118,4 +118,6 @@ class TestUwbManager : UwbManager {
     ) {}
 
     override fun clearUwbAvailabilityCallback() {}
+
+    override fun close() {}
 }

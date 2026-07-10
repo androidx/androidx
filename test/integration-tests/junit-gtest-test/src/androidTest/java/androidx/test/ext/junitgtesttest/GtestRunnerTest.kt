@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.test.ext.junitgtesttest
 
 import androidx.test.ext.junitgtest.GtestRunner

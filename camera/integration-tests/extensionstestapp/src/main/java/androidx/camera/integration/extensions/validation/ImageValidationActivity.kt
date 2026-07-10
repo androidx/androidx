@@ -59,6 +59,7 @@ import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_TAK
 import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.PhotoFragment.Companion.decodeImageToBitmap
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -108,6 +109,12 @@ class ImageValidationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.image_validation_activity)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(R.id.image_validation_activity_root),
+        )
+
         testResults = TestResults.getInstance(this)
 
         testType = intent?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!

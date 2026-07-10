@@ -36,7 +36,9 @@ internal object LifecycleCameraRepositories {
      * @see android.content.Context.getDeviceId
      */
     @JvmStatic
-    fun getInstance(deviceId: Int = ContextUtil.getDefaultDeviceId()): LifecycleCameraRepository {
+    internal fun getInstance(
+        deviceId: Int = ContextUtil.getDefaultDeviceId()
+    ): LifecycleCameraRepository {
         return synchronized(repositoryMap) {
             repositoryMap.getOrPut(deviceId) { LifecycleCameraRepository(deviceId) }
         }

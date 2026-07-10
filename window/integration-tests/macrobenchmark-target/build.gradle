@@ -17,20 +17,19 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
-        minSdk = 28
+        minSdk { version = release(28) }
     }
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.window.integration.macrobenchmark.target"
@@ -40,7 +39,6 @@ dependencies {
     implementation("androidx.core:core-ktx")
     implementation("androidx.startup:startup-runtime:1.1.1")
     implementation(libs.constraintLayout)
-    implementation(libs.kotlinStdlib)
     implementation(libs.material)
     implementation("androidx.activity:activity:1.10.1")
     implementation(project(":profileinstaller:profileinstaller"))

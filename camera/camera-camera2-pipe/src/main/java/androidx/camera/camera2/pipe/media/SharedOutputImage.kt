@@ -17,7 +17,8 @@
 package androidx.camera.camera2.pipe.media
 
 import android.media.Image
-import kotlin.reflect.KClass
+import androidx.camera.common.unwrapAs
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /**
@@ -31,14 +32,18 @@ public interface SharedOutputImage : OutputImage {
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Throws an
      * exception if this reference is already closed.
+     *
+     * [onClose] if provided, is invoked exactly once at the start of the close method.
      */
-    public fun acquire(): SharedOutputImage
+    public fun acquire(onClose: (() -> Unit) = {}): SharedOutputImage
 
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Returns
      * null if this image has already been finalized.
+     *
+     * [onClose] if provided, is invoked exactly once at the start of the close method.
      */
-    public fun acquireOrNull(): SharedOutputImage?
+    public fun acquireOrNull(onClose: (() -> Unit) = {}): SharedOutputImage?
 
     /**
      * Set a finalizer that is responsible for closing the underlying [OutputImage] when all
@@ -58,7 +63,7 @@ public interface SharedOutputImage : OutputImage {
 
             // This attempts to unwrap the OutputImage as a SharedOutputImage. This avoids
             // creating layers of reference counted objects.
-            val shared = image.unwrapAs(SharedOutputImage::class)
+            val shared = image.unwrapAs<SharedOutputImage>()
             if (shared != null) {
                 return shared.acquire()
             }
@@ -66,23 +71,25 @@ public interface SharedOutputImage : OutputImage {
             // By default, create the SharedReference with a ClosingFinalizer, which will simply
             // close the underlying image when it is no longer in use.
             val sharedReference = SharedReference(image, ClosingFinalizer)
-            return SharedOutputImageImpl(image, sharedReference)
+            return SharedOutputImageImpl(image, sharedReference, onClose = null)
         }
 
         private class SharedOutputImageImpl(
             private val outputImage: OutputImage,
             private val sharedReference: SharedReference<OutputImage>,
+            private val onClose: (() -> Unit)?,
         ) : OutputImage by outputImage, SharedOutputImage {
             private val closed = atomic(false)
 
-            override fun acquire(): SharedOutputImage = checkNotNull(acquireOrNull())
+            override fun acquire(onClose: (() -> Unit)): SharedOutputImage =
+                checkNotNull(acquireOrNull(onClose))
 
-            override fun acquireOrNull(): SharedOutputImage? {
+            override fun acquireOrNull(onClose: (() -> Unit)): SharedOutputImage? {
                 if (closed.value) {
                     return null
                 }
                 return sharedReference.acquireOrNull()?.let {
-                    SharedOutputImageImpl(outputImage, sharedReference)
+                    SharedOutputImageImpl(outputImage, sharedReference, onClose)
                 }
             }
 
@@ -95,25 +102,20 @@ public interface SharedOutputImage : OutputImage {
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+            override fun <T : Any> unwrapAs(type: Class<T>): T? {
                 return if (closed.value) {
                     null
                 } else {
                     when (type) {
-                        SharedOutputImage::class -> this as T?
-                        OutputImage::class -> this as T?
-                        ImageWrapper::class -> this as T?
-
-                        // WARNING: Do not allow shared images to be directly unwrapped as a
-                        // android.media.Image to avoid circumventing the finalizer protection
-                        // methods. This restriction may be removed in the future if there is a
-                        // compelling use case.
-                        Image::class ->
+                        SharedOutputImage::class.java -> this as T?
+                        OutputImage::class.java -> this as T?
+                        ImageWrapper::class.java -> this as T?
+                        Image::class.java ->
                             throw UnsupportedOperationException(
                                 "Cannot unwrap $this as android.media.Image. Use setFinalizer" +
                                     "instead and close all outstanding references."
                             )
-                        else -> null
+                        else -> outputImage.unwrapAs(type)
                     }
                 }
             }
@@ -125,8 +127,14 @@ public interface SharedOutputImage : OutputImage {
 
                     // Decrement the shared reference once and only once.
                     sharedReference.decrement()
+
+                    // Invoke the onClose at end. This is to make sure that any exception in the
+                    // onClose doesn't affect the decrement of the reference count.
+                    onClose?.invoke()
                 }
             }
+
+            override fun toString(): String = outputImage.toString()
         }
     }
 }

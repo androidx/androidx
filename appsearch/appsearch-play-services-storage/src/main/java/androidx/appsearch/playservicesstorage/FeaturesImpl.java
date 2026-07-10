@@ -110,7 +110,21 @@ final class FeaturesImpl implements Features {
             case Features.SEARCH_EMBEDDING_MATCH_INFO:
                 // TODO(b/395128139) : Update once this features is supported.
                 // fall through
-
+            case Features.SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM:
+                // READ_GLOBAL_APP_SEARCH_DATA permission is only supported in platform storage.
+                // fall through
+            case Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES:
+                // TODO(b/457496944) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
+                // TODO(b/395128139) : Update once this features is supported.
+                // fall through
+            case Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR:
+                // TODO(b/448886757) : Update once this features is supported.
+                // fall through
+            case Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA:
+                // TODO(b/390450012) : Update once this features is supported.
+                // fall through
             default:
                 return false; // AppSearch features absent in GMSCore AppSearch.
         }

@@ -389,6 +389,18 @@ public interface WorkSpecDao {
     )
     public fun getEligibleWorkForScheduling(schedulerLimit: Int): List<WorkSpec>
 
+    /**
+     * @return All [WorkSpec]s that are in an [ENQUEUED] state and do not have content URI triggers.
+     */
+    @Query(
+        "SELECT * FROM workspec WHERE " +
+            "state=$ENQUEUED" +
+            " AND LENGTH(content_uri_triggers)=0" +
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            " ORDER BY last_enqueue_time"
+    )
+    public fun getAllUnblockedWork(): List<WorkSpec>
+
     /** @return The List of [WorkSpec]s that are eligible to be scheduled. */
     @Query(
         "SELECT * FROM workspec WHERE " +
@@ -414,13 +426,47 @@ public interface WorkSpecDao {
     ): List<WorkSpec> // Unfinished work
 
     // We only want WorkSpecs which have been scheduled.
-    /** @return The List of [WorkSpec]s that are unfinished and scheduled. */
+    /**
+     * @return The List of [WorkSpec]s that are unfinished and scheduled, including those with
+     *   content URI triggers.
+     */
     @Query(
         "SELECT * FROM workspec WHERE " + // Unfinished work
             "state=" +
             ENQUEUED + // We only want WorkSpecs which have been scheduled.
             " AND schedule_requested_at<>" +
             WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+    )
+    public fun getScheduledWorkWithContentUris(): List<WorkSpec>
+
+    /**
+     * Determines if a [WorkSpec] is scheduled.
+     *
+     * @param id The identifier for the [WorkSpec]
+     * @return `true` if the [WorkSpec] with the given id is scheduled.
+     */
+    @Query(
+        "SELECT COUNT(*) > 0 FROM workspec WHERE " +
+            "id=:id" +
+            " AND state=" +
+            ENQUEUED +
+            " AND schedule_requested_at<>" +
+            WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+    )
+    public fun isWorkSpecScheduled(id: String): Boolean
+
+    /**
+     * @return All [WorkSpec]s that are currently scheduled, excluding those with content URI
+     *   triggers. This is used to identify jobs that may need to be unscheduled when they are no
+     *   longer considered "representative".
+     */
+    @Query(
+        "SELECT * FROM workspec WHERE " + // Unfinished work
+            "state=" +
+            ENQUEUED + // We only want WorkSpecs which have been scheduled.
+            " AND schedule_requested_at<>" +
+            WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            " AND LENGTH(content_uri_triggers)=0"
     )
     public fun getScheduledWork(): List<WorkSpec>
 
@@ -490,6 +536,11 @@ public fun WorkSpecDao.getWorkStatusPojoFlowForTag(
     tag: String,
 ): Flow<List<WorkInfo>> = getWorkStatusPojoFlowForTag(tag).dedup(dispatcher)
 
+public fun WorkSpecDao.getWorkInfo(id: String): WorkInfo? = getWorkStatusPojoForId(id)?.toWorkInfo()
+
+internal fun WorkSpecDao.getWorkInfos(ids: List<String>): List<WorkInfo> =
+    getWorkStatusPojoForIds(ids).map { it.toWorkInfo() }
+
 internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
     dispatcher: CoroutineDispatcher
 ): Flow<List<WorkInfo>> =
@@ -499,7 +550,7 @@ private const val WORK_INFO_COLUMNS =
     "id, state, output, run_attempt_count, generation" +
         ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration, backoff_policy" +
         ", backoff_delay_duration, last_enqueue_time, period_count, next_schedule_time_override, " +
-        "stop_reason"
+        "stop_reason, worker_class_name"
 
 @Language("sql")
 private const val WORK_INFO_BY_IDS = "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)"

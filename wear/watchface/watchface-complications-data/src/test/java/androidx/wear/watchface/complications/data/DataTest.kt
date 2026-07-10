@@ -53,6 +53,7 @@ import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
@@ -468,7 +469,8 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
-    public fun rangedValueComplicationData_withStringExpression() {
+    public fun rangedValueComplicationData_withStringExpression_whenVerboseLevelEnabled() {
+        ShadowLog.setLoggable("ComplicationData", Log.VERBOSE)
         val data =
             RangedValueComplicationData.Builder(
                     value = 95f,
@@ -509,6 +511,59 @@ public class AsWireComplicationDataTest {
                     "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
                     "title=ComplicationText{mSurroundingText=fallback, mTimeDependentText=null, " +
                     "mDynamicText=FixedString{value=title}}, text=null, " +
+                    "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                    "mTimeDependentText=null, mDynamicText=null}), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                    "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                    "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
+                    "persistencePolicy=0, displayPolicy=0, " +
+                    "dynamicValueInvalidationFallback=null, extras=PersistableBundle[{}])"
+            )
+    }
+
+    @Test
+    public fun rangedValueComplicationData_withStringExpression_whenDebugLevelEnabled() {
+        val data =
+            RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    contentDescription = "content description".complicationText,
+                )
+                .setTitle(DynamicComplicationText(DynamicString.constant("title"), "fallback"))
+                .setDataSource(dataSource)
+                .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationData.Builder(WireComplicationData.TYPE_RANGED_VALUE)
+                    .setRangedValue(95f)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
+                    .setRangedMinValue(0f)
+                    .setRangedMaxValue(100f)
+                    .setShortTitle(
+                        WireComplicationText("fallback", DynamicString.constant("title"))
+                    )
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSource)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as RangedValueComplicationData
+        assertThat(deserialized.max).isEqualTo(100f)
+        assertThat(deserialized.min).isEqualTo(0f)
+        assertThat(deserialized.value).isEqualTo(95f)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+
+        assertThat(data.toString())
+            .isEqualTo(
+                "RangedValueComplicationData(value=95.0, dynamicValue=null, valueType=0, " +
+                    "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
+                    "title=ComplicationText{mSurroundingText=fallback, mTimeDependentText=null, " +
+                    "mDynamicText=VALUE_HIDDEN_UNLESS_VERBOSE}, text=null, " +
                     "contentDescription=ComplicationText{mSurroundingText=content description, " +
                     "mTimeDependentText=null, mDynamicText=null}), " +
                     "tapActionLostDueToSerialization=false, tapAction=null, " +
@@ -1856,9 +1911,29 @@ public class AsWireComplicationDataTest {
         objectInputStream.close()
         return wireData.toApiComplicationData()
     }
+
+    @Test
+    fun toApiComplicationData_invalidShortTextMissingField_isInvalidatedSafely() {
+        val parcel = android.os.Parcel.obtain()
+        parcel.writeInt(WireComplicationData.TYPE_SHORT_TEXT)
+        parcel.writeBundle(
+            android.os.Bundle().apply {
+                // Intentionally omit FIELD_SHORT_TEXT
+            }
+        )
+        parcel.setDataPosition(0)
+        val wireData = WireComplicationData.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        // Omitted required field is intercepted safely, returning NoDataComplicationData instead of
+        // crashing.
+        val apiData = wireData.toApiComplicationData()
+        org.junit.Assert.assertTrue(apiData is NoDataComplicationData)
+    }
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class FromWireComplicationDataTest {
     @Test
@@ -2272,6 +2347,7 @@ public class FromWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @SuppressLint("NewApi")
 class GetContentDescriptionTest {
     @get:Rule val expect = Expect.create()
@@ -2408,6 +2484,7 @@ class GetContentDescriptionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class TapActionTest {
     private val mPendingIntent =
         PendingIntent.getBroadcast(ApplicationProvider.getApplicationContext(), 0, Intent(), 0)
@@ -2555,6 +2632,7 @@ public class TapActionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class RoundtripTapActionTest {
     private val mPendingIntent =
         PendingIntent.getBroadcast(ApplicationProvider.getApplicationContext(), 0, Intent(), 0)
@@ -2710,6 +2788,7 @@ public class RoundtripTapActionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class ValidTimeRangeTest {
     private val testStartInstant = Instant.ofEpochMilli(1000L)
@@ -3124,6 +3203,7 @@ public class ValidTimeRangeTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class RedactionTest {
     @Before
     fun setup() {

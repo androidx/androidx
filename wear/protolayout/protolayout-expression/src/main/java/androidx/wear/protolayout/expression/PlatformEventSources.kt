@@ -62,6 +62,14 @@ public object PlatformEventSources {
         )
 
     /**
+     * A [DynamicBool] which receives the current ambient mode status from platform.
+     *
+     * The ambient status value is `true` if the device is in ambient mode and `false` otherwise.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    private val isInAmbientMode: DynamicBool = DynamicBool.from(Keys.AMBIENT_MODE_STATUS)
+
+    /**
      * Returns a [DynamicBool] which receives the current visibility status from platform.
      *
      * The visibility status value is `true` when layout is visible, and `false` when invisible.
@@ -85,6 +93,15 @@ public object PlatformEventSources {
     @JvmStatic
     @RequiresSchemaVersion(major = 1, minor = 600)
     public fun layoutUpdateStatus(): DynamicLayoutUpdateStatus = layoutUpdateStatus
+
+    /**
+     * Returns a [DynamicBool] which receives the current ambient mode status from platform.
+     *
+     * The ambient status value is `true` if the device is in ambient mode and `false` otherwise.
+     */
+    @JvmStatic
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    public fun isInAmbientMode(): DynamicBool = isInAmbientMode
 
     /** Data sources keys for platform event. */
     public object Keys {
@@ -111,6 +128,16 @@ public object PlatformEventSources {
         @JvmField
         public val LAYOUT_UPDATE_STATUS: PlatformDataKey<DynamicLayoutUpdateStatus> =
             PlatformDataKey<DynamicLayoutUpdateStatus>("LayoutUpdateStatus")
+
+        /**
+         * The data source key for ambient mode status from platform sources.
+         *
+         * The ambient status value is `true` if the device is in ambient mode and `false`
+         * otherwise.
+         */
+        @JvmField
+        public val AMBIENT_MODE_STATUS: PlatformDataKey<DynamicBool> =
+            PlatformDataKey<DynamicBool>("AmbientModeStatus")
     }
 
     /** Dynamic layout update status value. */

@@ -15,6 +15,7 @@
  */
 package androidx.build.dependencyTracker
 
+import java.io.File
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import org.gradle.api.plugins.ExtraPropertiesExtension
@@ -24,85 +25,69 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class ProjectGraphTest {
-    @Rule
-    @JvmField
-    val tmpFolder = TemporaryFolder()
+    @Rule @JvmField val tmpFolder = TemporaryFolder()
 
     @Test
     fun testSimple() {
         val tmpDir = tmpFolder.root
-        val root = ProjectBuilder.builder()
-            .withProjectDir(tmpDir)
-            .withName("root")
-            .build()
+        val root = ProjectBuilder.builder().withProjectDir(tmpDir).withName("root").build()
         // Project Graph expects supportRootFolder.
-        (root.properties.get("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
-        val p1 = ProjectBuilder.builder()
-            .withProjectDir(tmpDir.resolve("p1"))
-            .withName("p1")
-            .withParent(root)
-            .build()
-        val p2 = ProjectBuilder.builder()
-            .withProjectDir(tmpDir.resolve("p2"))
-            .withName("p2")
-            .withParent(root)
-            .build()
-        val p3 = ProjectBuilder.builder()
-            .withProjectDir(tmpDir.resolve("p1").resolve("p3"))
-            .withName("p3")
-            .withParent(p1)
-            .build()
+        (root.property("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
+        val p1 =
+            ProjectBuilder.builder()
+                .withProjectDir(tmpDir.resolve("p1"))
+                .withName("p1")
+                .withParent(root)
+                .build()
+        val p2 =
+            ProjectBuilder.builder()
+                .withProjectDir(tmpDir.resolve("p2"))
+                .withName("p2")
+                .withParent(root)
+                .build()
+        val p3 =
+            ProjectBuilder.builder()
+                .withProjectDir(tmpDir.resolve("p1").resolve("p3"))
+                .withName("p3")
+                .withParent(p1)
+                .build()
         val graph = ProjectGraph(root)
         assertNull(graph.findContainingProject("nowhere"))
         assertNull(
             "When root project is the root folder, changes in it shouldn't be detected",
-            graph.findContainingProject("rootfile.java")
+            graph.findContainingProject("rootfile.java"),
         )
-        assertEquals(
-            p1.path,
-            graph.findContainingProject("p1/px/x.java".toLocalPath())
-        )
-        assertEquals(
-            p1.path,
-            graph.findContainingProject("p1/a.java".toLocalPath())
-        )
-        assertEquals(
-            p3.path,
-            graph.findContainingProject("p1/p3/a.java".toLocalPath())
-        )
-        assertEquals(
-            p2.path,
-            graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath())
-        )
+        assertEquals(p1.path, graph.findContainingProject("p1/px/x.java".toLocalPath()))
+        assertEquals(p1.path, graph.findContainingProject("p1/a.java".toLocalPath()))
+        assertEquals(p3.path, graph.findContainingProject("p1/p3/a.java".toLocalPath()))
+        assertEquals(p2.path, graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath()))
         assertNull(graph.findContainingProject("root/x.java"))
     }
 
     @Test
     fun rootProjectChange() {
         val tmpDir = tmpFolder.root
-        val root = ProjectBuilder.builder()
-            .withProjectDir(tmpDir.resolve("subRoot"))
-            .withName("subRoot")
-            .build()
-        (root.properties.get("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
-        val p1 = ProjectBuilder.builder()
-            .withProjectDir(tmpDir.resolve("p1"))
-            .withName("p1")
-            .withParent(root)
-            .build()
+        val root =
+            ProjectBuilder.builder()
+                .withProjectDir(tmpDir.resolve("subRoot"))
+                .withName("subRoot")
+                .build()
+        (root.property("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
+        val p1 =
+            ProjectBuilder.builder()
+                .withProjectDir(tmpDir.resolve("p1"))
+                .withName("p1")
+                .withParent(root)
+                .build()
         val graph = ProjectGraph(root)
-        assertEquals(
-            p1.path,
-            graph.findContainingProject("p1/px/x.java".toLocalPath())
-        )
+        assertEquals(p1.path, graph.findContainingProject("p1/px/x.java".toLocalPath()))
         assertEquals(
             "When root project is not support root, changes in it should be detected",
             root.path,
-            graph.findContainingProject("subRoot/x.gradle".toLocalPath())
+            graph.findContainingProject("subRoot/x.gradle".toLocalPath()),
         )
     }
 

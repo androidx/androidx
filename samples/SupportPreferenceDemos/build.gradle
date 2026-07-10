@@ -1,19 +1,16 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
-    implementation(libs.kotlinStdlib)
     implementation("androidx.core:core-ktx:1.5.0")
     implementation(project(":appcompat:appcompat"))
     implementation(project(":preference:preference"))
@@ -27,6 +24,6 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "com.example.androidx.preference"
 }

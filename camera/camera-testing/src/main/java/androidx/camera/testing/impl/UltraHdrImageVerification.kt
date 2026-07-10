@@ -67,7 +67,7 @@ public object UltraHdrImageVerification {
      * Asserts that the [ImageProxy] contains a JPEG/R image (Ultra HDR) and has a gain map.
      *
      * This function is intended for use in tests. It will:
-     * 1. Assert that the [ImageProxy.getFormat] is [ImageFormat.JPEG_R].
+     * 1. Assert that the [ImageProxy.format] is [ImageFormat.JPEG_R].
      * 2. Attempt to convert the [ImageProxy] to a [Bitmap] using the `toBitmap()` extension.
      * 3. Assert that the conversion was successful (bitmap is not null).
      * 4. Assert that the decoded bitmap has a gain map.

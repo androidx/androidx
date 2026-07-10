@@ -159,7 +159,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
      *
      * @param navigator navigator used to create the destination
      * @param route the destination's unique route. This sets the [route] on the newly constructed
-     *   [NavDestination]. This can be any valid non-empty String.
+     *   [androidx.navigation.NavDestination]. This can be any valid non-empty String.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
      *   destination
      */
@@ -176,7 +176,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
      *
      * @param navigator navigator used to create the destination
      * @param route the destination's unique route from a [KClass]. This sets the [route] on the
-     *   newly constructed [NavDestination].
+     *   newly constructed [androidx.navigation.NavDestination].
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
      *   [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this

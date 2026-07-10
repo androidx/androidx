@@ -32,7 +32,8 @@ internal interface LazyLayoutBeyondBoundsState {
     fun itemsPerViewport(): Int
 }
 
-internal class GlimmerListBeyondBoundsState(val state: ListState) : LazyLayoutBeyondBoundsState {
+internal class GlimmerLazyListBeyondBoundsState(val state: GlimmerLazyListState) :
+    LazyLayoutBeyondBoundsState {
 
     override val itemCount: Int
         get() = state.layoutInfo.totalItemsCount
@@ -47,15 +48,18 @@ internal class GlimmerListBeyondBoundsState(val state: ListState) : LazyLayoutBe
         get() = state.layoutInfo.visibleItemsInfo.last().index
 
     override fun itemsPerViewport(): Int {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0
-        val viewportSize = state.layoutInfo.singleAxisViewportSize
-        val averageItemSize = state.layoutInfo.visibleItemsAverageSize()
+        val layoutInfo = state.layoutInfoState.value
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0
+        val viewportSize = layoutInfo.mainAxisViewportSize
+        val averageItemSize = layoutInfo.visibleItemsAverageSize
         if (averageItemSize == 0) return 1
         return (viewportSize / averageItemSize).coerceAtLeast(1)
     }
 }
 
 @Composable
-internal fun rememberGlimmerListBeyondBoundsState(state: ListState): LazyLayoutBeyondBoundsState {
-    return remember(state) { GlimmerListBeyondBoundsState(state) }
+internal fun rememberGlimmerLazyListBeyondBoundsState(
+    state: GlimmerLazyListState
+): LazyLayoutBeyondBoundsState {
+    return remember(state) { GlimmerLazyListBeyondBoundsState(state) }
 }

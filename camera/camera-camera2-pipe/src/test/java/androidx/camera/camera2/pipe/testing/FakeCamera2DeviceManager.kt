@@ -47,7 +47,7 @@ internal class FakeCamera2DeviceManager : Camera2DeviceManager {
         return CompletableDeferred(Unit)
     }
 
-    override fun closeAll(): Deferred<Unit> {
+    override fun closeAll(forceCancelOpen: Boolean): Deferred<Unit> {
         fakeVirtualCameraMap.clear()
         return CompletableDeferred(Unit)
     }

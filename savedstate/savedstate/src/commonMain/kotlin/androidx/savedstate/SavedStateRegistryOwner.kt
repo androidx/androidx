@@ -41,7 +41,7 @@ import androidx.lifecycle.LifecycleOwner
  * owner has received the [Lifecycle.Event.ON_STOP] event. The SavedState passed to performSave will
  * be the SavedState restored by performRestore.
  */
-public interface SavedStateRegistryOwner : androidx.lifecycle.LifecycleOwner {
+public interface SavedStateRegistryOwner : LifecycleOwner {
     /** The [SavedStateRegistry] owned by this SavedStateRegistryOwner */
     public val savedStateRegistry: SavedStateRegistry
 }

@@ -20,7 +20,6 @@ import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.OrientationEventListener;
@@ -30,14 +29,13 @@ import android.widget.Toast;
 
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.camera2.Camera2Config;
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.FileUtil;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
@@ -54,6 +52,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -80,13 +79,6 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private static final String VIDEO_FILE_PREFIX = "video";
     private static final String INFO_FILE_PREFIX = "video_camera_switching_test_info";
     private static final String KEY_DEVICE_ORIENTATION = "device_orientation";
-    private static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
-    // Camera2 implementation.
-    private static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
-    // Camera-pipe implementation.
-    private static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
-
-    private static String sCameraImplementationType;
 
     private @NonNull CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
     private @Nullable ProcessCameraProvider mCameraProvider;
@@ -109,6 +101,9 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_camera_switching);
 
+        EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.root_layout,
+                Collections.singletonList(R.id.top_controls));
+
         Bundle bundle = this.getIntent().getExtras();
         long extraDurationMillis = INVALID_TIME_VALUE;
         long extraSwitchTimeMillis = INVALID_TIME_VALUE;
@@ -130,21 +125,6 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
                 mMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
             } else {
                 mMirrorMode = MIRROR_MODE_OFF;
-            }
-
-            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-            if (cameraImplementation != null && sCameraImplementationType == null) {
-                if (cameraImplementation.equals(CAMERA2_IMPLEMENTATION_OPTION)) {
-                    ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
-                    sCameraImplementationType = cameraImplementation;
-                } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
-                    ProcessCameraProvider.configureInstance(
-                            CameraPipeConfig.defaultConfig());
-                    sCameraImplementationType = cameraImplementation;
-                } else {
-                    throw new IllegalArgumentException("Failed to configure the CameraProvider "
-                            + "using unknown " + cameraImplementation + " implementation option.");
-                }
             }
         }
 
@@ -240,7 +220,6 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         mCamera = mCameraProvider.bindToLifecycle(this, newLensFacing, mPreview, mVideoCapture);
     }
 
-    @SuppressLint("NullAnnotationGroup")
     @SuppressWarnings("FutureReturnValueIgnored")
     @OptIn(markerClass = ExperimentalPersistentRecording.class)
     private void startRecording() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,19 +26,18 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(project(":xr:runtime:runtime-manifest"))
+    api(project(":xr:runtime:runtime-interfaces"))
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.lifecycle:lifecycle-common:2.8.7")
 
+    implementation(project(":xr:runtime:runtime-openxr"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-    implementation("com.google.ar:impress:0.0.6")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
@@ -47,20 +45,19 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(project(":kruth:kruth"))
-    testImplementation(project(":xr:scenecore:scenecore-testing"))
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation("androidx.appcompat:appcompat:1.2.0")
     testImplementation(libs.testRules)
 }
 
 android {
-    // TODO: b/409058039 - Drop back to 23 (default) once dependency on scenecore is removed.
-    defaultConfig {
-        minSdk = 24
-    }
     namespace = "androidx.xr.runtime"
+    buildFeatures {
+        resValues = true
+    }
     defaultConfig {
-        consumerProguardFiles 'proguard-rules.pro'
+        def xrProjectedMinApiVersion = libs.versions.xrProjectedMinApiVersion.get()
+        resValue "string", "xr_projected_min_api_version", xrProjectedMinApiVersion
     }
 }
 

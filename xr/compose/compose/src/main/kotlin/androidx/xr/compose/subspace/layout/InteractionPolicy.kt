@@ -1,0 +1,213 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.compose.subspace.layout
+
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
+import androidx.xr.compose.subspace.node.currentValueOf
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.InputEvent
+import androidx.xr.scenecore.InputEvent.Action
+import androidx.xr.scenecore.InteractableComponent
+import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.scene
+import java.util.function.Consumer
+
+/**
+ * Defines the [InteractionPolicy] for a spatial object. This policy enables reacting to a
+ * [SpatialInputEvent] from the user. An [InteractionPolicy] will not propagate to children, for
+ * example, an attached [androidx.xr.compose.spatial.Orbiter].
+ */
+public interface InteractionPolicy {
+    /**
+     * Whether an interaction policy is enabled for this object. If `false`, spatial interaction
+     * input events will not be returned.
+     */
+    public val isEnabled: Boolean
+
+    /** Raw event executed with every input update. */
+    public fun onInputEvent(event: SpatialInputEvent)
+
+    public companion object {
+        /**
+         * An [InteractionPolicy] that detects only click inputs
+         *
+         * @param isEnabled Whether an interaction policy is enabled for this object. If `false`,
+         *   click events will not be returned.
+         * @param onClick Executed after a click occurs.
+         * @return an [InteractionPolicy] that filters for click events.
+         */
+        public fun clickable(isEnabled: Boolean = true, onClick: () -> Unit): InteractionPolicy =
+            object : InteractionPolicy {
+                override val isEnabled: Boolean = isEnabled
+
+                override fun onInputEvent(event: SpatialInputEvent) {
+                    if (event.action == Action.UP && event.hitPosition != null) {
+                        onClick()
+                    }
+                }
+            }
+    }
+}
+
+internal fun SubspaceModifier.interactable(
+    enabled: Boolean = true,
+    onInputEvent: ((SpatialInputEvent) -> Unit)? = null,
+): SubspaceModifier = this.then(InteractableElement(enabled, onInputEvent))
+
+private class InteractableElement(
+    val enabled: Boolean = true,
+    val onInputEvent: ((SpatialInputEvent) -> Unit)? = null,
+) : SubspaceModifierNodeElement<InteractableNode>() {
+    override fun create(): InteractableNode =
+        InteractableNode(enabled = enabled, onInputEvent = onInputEvent)
+
+    override fun update(node: InteractableNode) {
+        node.enabled = enabled
+        node.onInputEvent = onInputEvent
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is InteractableElement) return false
+        if (enabled != other.enabled) return false
+        if (onInputEvent !== other.onInputEvent) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = enabled.hashCode()
+        result = 31 * result + onInputEvent.hashCode()
+        return result
+    }
+}
+
+internal class InteractableNode(
+    var enabled: Boolean,
+    var onInputEvent: ((SpatialInputEvent) -> Unit)? = null,
+) :
+    SubspaceModifier.Node(),
+    CompositionLocalConsumerSubspaceModifierNode,
+    CoreEntityNode,
+    Consumer<InputEvent> {
+    private inline val density: Density
+        get() = currentValueOf(LocalDensity)
+
+    private inline val session: Session
+        get() = checkNotNull(currentValueOf(LocalSession)) { "Interactable requires a Session." }
+
+    private inline val pixelDensity: PixelDensity
+        get() = session.scene.virtualPixelDensity
+
+    private var component: InteractableComponent? = null
+
+    override fun CoreEntityScope.modifyCoreEntity() {
+        // For disabling and enabling component on recomposition.
+        updateState()
+    }
+
+    override fun onAttach() {
+        super.onAttach()
+        updateState()
+    }
+
+    private var isIgnoringCurrentActionSequence = false
+
+    override fun onDetach() {
+        if (component != null) {
+            disableComponent()
+        }
+        isIgnoringCurrentActionSequence = false
+    }
+
+    /** Updates the movable state of this CoreEntity. */
+    private fun updateState() {
+        if (coreEntity !is InteractableCoreEntity) {
+            return
+        }
+        // Enabled is on the Node. It means "should be enabled" for the Component.
+        if (enabled && component == null) {
+            enableComponent()
+        } else if (!enabled && component != null) {
+            disableComponent()
+        }
+    }
+
+    /** Enables the InteractableComponent and anchorPlacement for this CoreEntity. */
+    private fun enableComponent() {
+        check(component == null) { "InteractableComponent already enabled." }
+        component = InteractableComponent.create(session = session, inputEventListener = this)
+
+        check(component?.let { coreEntity.addComponent(it) } == true) {
+            "Could not add InteractableComponent to Core Entity."
+        }
+    }
+
+    /**
+     * Disables the InteractableComponent for this CoreEntity. Takes care of life cycle tasks for
+     * the underlying component in SceneCore.
+     */
+    private fun disableComponent() {
+        check(component != null) { "InteractableComponent already disabled." }
+        component?.let { coreEntity.removeComponent(it) }
+        component = null
+    }
+
+    override fun accept(event: InputEvent) {
+        val hitInfo = event.hitInfoList.firstOrNull()
+
+        // The first entity in hitInfoList will always be the Entity from which the start of the
+        // touch sequence originated. If this doesn't match the CoreEntity of the component, we can
+        // ignore the rest of the touch sequence as this means the touch originated from a child.
+        if (event.action == Action.DOWN) {
+            isIgnoringCurrentActionSequence =
+                !coreEntity.isUnderlyingEntityEqualTo(hitInfo?.inputEntity)
+        }
+        if (isIgnoringCurrentActionSequence) {
+            if (event.action == Action.UP || event.action == Action.CANCEL) {
+                isIgnoringCurrentActionSequence = false
+            }
+            return
+        }
+
+        // Events that stop hitting an interactable object (hitInfo != null) will have a null hit
+        // position.
+        val localizedHitPosition =
+            hitInfo?.hitPosition?.let { hitPosition ->
+                session.scene.activitySpace
+                    .transformPoseTo(Pose(translation = hitPosition), hitInfo.inputEntity)
+                    .metersToPx(pixelDensity)
+                    .translation
+            }
+
+        onInputEvent?.invoke(
+            SpatialInputEvent(
+                source = event.source,
+                action = event.action,
+                pointerType = event.pointerType,
+                timestamp = event.timestamp,
+                hitPosition = localizedHitPosition,
+                origin = event.origin.metersToPx(pixelDensity),
+                direction = event.direction.metersToPx(pixelDensity),
+            )
+        )
+    }
+}

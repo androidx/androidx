@@ -75,14 +75,14 @@ import java.util.stream.Collectors;
 @SuppressLint("BanSynchronizedMethods")
 public class ProfileSession {
     private static final String SIMPLEPERF_PATH_IN_IMAGE = "/system/bin/simpleperf";
-
-    enum State {
+    public enum State {
         NOT_YET_STARTED,
         STARTED,
         PAUSED,
         STOPPED,
     }
 
+    // Making this accessible so we can introspect the state of the Profiling Session
     private State mState = State.NOT_YET_STARTED;
     private final String mAppDataDir;
     private String mSimpleperfPath;
@@ -128,6 +128,14 @@ public class ProfileSession {
             mAppDataDir = "/data/data/" + packageName;
         }
         mSimpleperfDataDir = mAppDataDir + "/simpleperf_data";
+    }
+
+    /**
+     * @return The current {@link ProfileSession} state.
+     */
+    @NonNull
+    public synchronized State getState() {
+        return mState;
     }
 
     /**

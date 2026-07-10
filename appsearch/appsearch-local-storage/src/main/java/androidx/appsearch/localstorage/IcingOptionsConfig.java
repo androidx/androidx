@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage;
 import android.app.appsearch.SearchSpec;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.flags.Flags;
 
 import com.google.android.icing.proto.IcingSearchEngineOptions;
@@ -49,9 +50,9 @@ public interface IcingOptionsConfig {
 
     /**
      * The default compression mem level in IcingSearchEngineOptions proto matches the
-     * previously-hardcoded document compression level in Icing (which is 8).
+     * previously-hardcoded document compression level in Icing (which is 1).
      */
-    int DEFAULT_COMPRESSION_MEM_LEVEL = 8;
+    int DEFAULT_COMPRESSION_MEM_LEVEL = 1;
 
     boolean DEFAULT_USE_PREMAPPING_WITH_FILE_BACKED_VECTOR = false;
 
@@ -71,23 +72,21 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_INTEGER_INDEX_BUCKET_SPLIT_THRESHOLD = 65536;
 
-    boolean DEFAULT_LITE_INDEX_SORT_AT_INDEXING = true;
-
     /**
      * The default sort threshold for the lite index when sort at indexing is enabled.
      * 8192 is picked based on Icing microbenchmarks (icing-search-engine_benchmarks.cc).
      */
     int DEFAULT_LITE_INDEX_SORT_SIZE = 8192;   // 8Kib
 
-    boolean DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX = false;
-
-    boolean DEFAULT_BUILD_PROPERTY_EXISTENCE_METADATA_HITS = false;
-
     long DEFAULT_ORPHAN_BLOB_TIME_TO_LIVE_MS = 7 * 24 * 60 * 60 * 1000L; // 1 week.
 
     String DEFAULT_ICU_DATA_FILE_ABSOLUTE_PATH = "";
 
     int DEFAULT_COMPRESSION_THRESHOLD_BYTES = 600;
+
+    int DEFAULT_EMBEDDING_INDEX_NUM_SHARDS = 32;
+
+    long DEFAULT_EXPIRED_DOCUMENT_PURGING_THRESHOLD_MILLIS = 60 * 1000L; // 1 minute.
 
     /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
@@ -141,12 +140,12 @@ public interface IcingOptionsConfig {
      */
     int getCompressionLevel();
 
-
     /**
      * The mem level for gzip compression for documents in the Icing document store.
      *
      * <p> 1 uses minimum memory but is slow and reduces compression ratio; 9 uses maximum memory
-     * for optimal speed and compression ratio. Icing historically used a memLevel of 8.
+     * for optimal speed and compression ratio. Icing historically used a memLevel of 8, and then
+     * switched to 1 for memory performance
      */
     int getCompressionMemLevel();
 
@@ -226,18 +225,6 @@ public interface IcingOptionsConfig {
     /**
      * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
      *
-     * <p>Whether Icing should sort and merge its lite index HitBuffer unsorted tail at indexing
-     * time.
-     *
-     * <p>If set to true, the HitBuffer will be sorted at indexing time after exceeding the sort
-     * threshold. If false, the HifBuffer will be sorted at querying time, before the first query
-     * after inserting new elements into the HitBuffer.
-     */
-    boolean getLiteIndexSortAtIndexing();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
      * <p>Size (in bytes) at which Icing's lite index should sort and merge the HitBuffer's
      * unsorted tail into the sorted head for sorting at indexing time. Size specified here is
      * unsorted tail section.
@@ -245,13 +232,6 @@ public interface IcingOptionsConfig {
      * <p>Setting a lower sort size reduces querying latency at the expense of indexing latency.
      */
     int getLiteIndexSortSize();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
-     * <p>Whether to use the new qualified Id join index.
-     */
-    boolean getUseNewQualifiedIdJoinIndex();
 
     /**
      * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
@@ -285,13 +265,52 @@ public interface IcingOptionsConfig {
      */
     int getCompressionThresholdBytes();
 
+    /** The number of shards to use for the embedding index. 1 means no sharding. */
+    int getEmbeddingIndexNumShards();
+
+    /**
+     * Controls whether repeated fields may set joinable value type to
+     * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
+     */
+    boolean enableRepeatedFieldJoins();
+
+    /**
+     * Controls whether enabling Icing background task scheduler or not.
+     *
+     * <p>Native background thread is not recommended in Android system service, so AppSearch
+     * framework service should disable it.
+     */
+    boolean enableIcingBackgroundTaskScheduler();
+
+    /**
+     * The time threshold for an expired document to be purged.
+     *
+     * <ul>
+     *   <li>Since we schedule a background task to purge expired documents according to the next
+     *       expiration time of the documents, it is possible that some documents expire within a
+     *       small time window and the task executes too frequently.
+     *   <li>Therefore, we use this flag to purge more documents that also expire in a short period
+     *       of time after the current time.
+     * </ul>
+     *
+     * <p>For example, if the value is 1000 ms and the current time is 10000 ms:
+     *
+     * <ul>
+     *   <li>All documents that are expired before 10000 ms will be purged, since they are already
+     *       expired.
+     *   <li>Additionally, we will also purge documents that expire in the next 1000 ms, i.e.
+     *       (10000, 11000] ms.
+     * </ul>
+     */
+    long getExpiredDocumentPurgingThresholdMillis();
+
     /**
      * Converts to an {@link IcingSearchEngineOptions} instance.
      *
      * @param baseDir base directory of the icing instance.
      */
     default @NonNull IcingSearchEngineOptions toIcingSearchEngineOptions(
-            @NonNull String baseDir, boolean isVMEnabled) {
+            @NonNull String baseDir, boolean isVmEnabled) {
         return IcingSearchEngineOptions.newBuilder()
                 .setBaseDir(baseDir)
                 .setMaxTokenLength(getMaxTokenLength())
@@ -307,57 +326,31 @@ public interface IcingOptionsConfig {
                 .setUsePersistentHashMap(getUsePersistentHashMap())
                 .setIntegerIndexBucketSplitThreshold(
                         getIntegerIndexBucketSplitThreshold())
-                .setLiteIndexSortAtIndexing(getLiteIndexSortAtIndexing())
                 .setLiteIndexSortSize(getLiteIndexSortSize())
-                .setUseNewQualifiedIdJoinIndex(
-                        getUseNewQualifiedIdJoinIndex())
                 .setBuildPropertyExistenceMetadataHits(
                         getBuildPropertyExistenceMetadataHits())
-                .setEnableBlobStore(Flags.enableBlobStore())
                 .setOrphanBlobTimeToLiveMs(getOrphanBlobTimeToLiveMs())
-                .setEnableEmbeddingIndex(
-                        Flags.enableSchemaEmbeddingPropertyConfig())
-                .setEnableEmbeddingQuantization(
-                        Flags.enableSchemaEmbeddingQuantization())
                 .setEnableScorableProperties(Flags.enableScorableProperty())
                 .setIcuDataFileAbsolutePath(getIcuDataFileAbsolutePath())
                 .setManageBlobFiles(!Flags.enableAppSearchManageBlobFiles())
-                // Join index v3 is a prerequisite for delete propagation.
-                .setEnableDeletePropagationFrom(
-                        Flags.enableDeletePropagationType() && Flags.enableQualifiedIdJoinIndexV3())
-                .setCalculateTimeSinceLastAttemptedOptimize(
-                        Flags.enableCalculateTimeSinceLastAttemptedOptimize())
-                .setEnableQualifiedIdJoinIndexV3(Flags.enableQualifiedIdJoinIndexV3())
-                .setEnableSoftIndexRestoration(Flags.enableSoftIndexRestoration())
-                .setEnableMarkerFileForOptimize(Flags.enableMarkerFileForOptimize())
-                .setReleaseBackupSchemaFileIfOverlayPresent(
-                        Flags.enableReleaseBackupSchemaFileIfOverlayPresent())
-                // This is a necessary bug fix for the VMEnabled case. VMEnabled is guarded by its
-                // own trunk-stable flag, therefore this can be included there. Otherwise, we should
-                // use this trank-stable flag.
-                .setEnableStrictPageByteSizeLimit(
-                        Flags.enableStrictPageByteSizeLimit() || isVMEnabled)
+                .setEnableDeletePropagationFrom(Flags.enableDeletePropagationRw())
+                .setExpiredDocumentPurgeThresholdMs(getExpiredDocumentPurgingThresholdMillis())
                 .setCompressionThresholdBytes(
-                        (Flags.enableCompressionThreshold() || isVMEnabled)
+                        (Flags.enableCompressionThreshold() || isVmEnabled)
                                 ? Math.max(0, getCompressionThresholdBytes()) : 0)
-                .setCompressionMemLevel(
-                        (Flags.enableCompressionMemLevelOne() || isVMEnabled) ? 1
-                                : getCompressionMemLevel())
-                .setEnableSchemaDatabase(
-                        Flags.enableDatabaseScopedSchemaOperations() || isVMEnabled)
-                .setEnableSmallerDecompressionBufferSize(
-                        Flags.enableSmallerDecompressionBufferSize() || isVMEnabled)
-                .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVMEnabled)
-                .setEnablePassingFilterToChildren(
-                        Flags.enablePassingFilterToChildren() || isVMEnabled)
-                .setEnableProtoLogNewHeaderFormat(
-                        Flags.enableProtoLogNewHeaderFormat() || isVMEnabled)
-                .setEnableEmbeddingIteratorV2(
-                        Flags.enableEmbeddingIteratorV2() || isVMEnabled)
-                .setEnableReusableDecompressionBuffer(
-                        Flags.enableReusableDecompressionBuffer() || isVMEnabled)
-                .setEnableSchemaTypeIdOptimization(
-                        Flags.enableSchemaTypeIdOptimization() || isVMEnabled)
+                .setCompressionMemLevel(getCompressionMemLevel())
+                .setEmbeddingIndexNumShards(Math.max(1, getEmbeddingIndexNumShards()))
+                .setEnableOptimizeImprovements(
+                        Flags.enableOptimizeImprovements())
+                .setEnableRepeatedFieldJoins(enableRepeatedFieldJoins())
+                .setEnableNonExistentQualifiedIdJoin(Flags.enableNonExistentQualifiedIdJoin())
+                .setEnableSkipSetSchemaTypeEqualityCheck(
+                        Flags.enableSkipSetSchemaTypeEqualityCheck())
+                .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
+                .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
+                .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())
+                .setEnableAccountPropertyIncompatibilityCheck(
+                        Flags.enableAccountPropertyIncompatibilityCheck())
                 .build();
     }
 }

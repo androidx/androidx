@@ -59,7 +59,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 34) // maxSdkVersion due to b/427258439
+@SdkSuppress(minSdkVersion = 29)
 class SurfaceControlCompatTest {
     var executor: Executor? = null
 
@@ -160,8 +160,7 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
@@ -184,8 +183,7 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testSurfaceTransactionOnCommitCallback_multiple() {
         val listener = TransactionOnCommitListener()
@@ -1138,9 +1136,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_null() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1166,9 +1163,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardCrop() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1194,9 +1190,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardThenNullCrop() {
         val destroyLatch = CountDownLatch(1)
         val listener = TransactionOnCommitListener()
@@ -1273,9 +1268,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetPosition() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1313,9 +1307,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetScale() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1354,9 +1347,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_identity() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1398,9 +1390,8 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_singleTransform() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat =
@@ -1447,8 +1438,7 @@ class SurfaceControlCompatTest {
         }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testSurfaceTransactionCommitOnDraw() {
         verifySurfaceControlTest({ surfaceView ->
@@ -1504,8 +1494,7 @@ class SurfaceControlCompatTest {
             }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRate120WithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1515,8 +1504,7 @@ class SurfaceControlCompatTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateNegativeWithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1526,9 +1514,8 @@ class SurfaceControlCompatTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @SuppressLint("NewApi")
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateZeroWithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1538,24 +1525,21 @@ class SurfaceControlCompatTest {
         )
     }
 
-    // maxSdkVersion due to b/427258439
     @SuppressLint("NewApi")
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidCompatibility() {
         testFrameRate(120f, 42, SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS)
     }
 
-    // maxSdkVersion due to b/427258439
     @SuppressLint("NewApi")
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidStrategy() {
         testFrameRate(120f, SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT, 108)
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testClearFrameRate() {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
@@ -1632,8 +1616,7 @@ class SurfaceControlCompatTest {
             }
     }
 
-    // maxSdkVersion due to b/427258439
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, maxSdkVersion = 34)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testSetExtendedRangeBrightness() {
         val destroyLatch = CountDownLatch(1)

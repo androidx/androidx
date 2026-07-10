@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.AnchorPlacement
-import androidx.xr.scenecore.internal.PlaneSemantic
-import androidx.xr.scenecore.internal.PlaneType
+import androidx.xr.scenecore.runtime.AnchorPlacement
+import androidx.xr.scenecore.runtime.PlaneSemantic
+import androidx.xr.scenecore.runtime.PlaneType
 
 /**
- * A test implementation of the [androidx.xr.scenecore.internal.AnchorPlacement] interface, used to
+ * A test implementation of the [androidx.xr.scenecore.runtime.AnchorPlacement] interface, used to
  * define and inspect anchor placement rules in tests.
  *
  * This class specifies the conditions under which an entity can be anchored to a real-world plane.
- * An entity is eligible for anchoring if it is released near a plane that matches the criteria
- * defined by both the [planeTypeFilter] and [planeSemanticFilter]. A plane is considered a match if
- * its type is present in the [planeTypeFilter] AND its semantic label is present in the
- * [planeSemanticFilter].
- *
- * By default, both filters are initialized to allow anchoring on any plane. If either filter set is
- * empty, no planes will match, and anchoring will not occur.
+ * An entity is eligible for anchoring if it is released near a plane that matches the predefined
+ * criteria for plane type and semantic labels.
  *
  * For plane-based anchoring to function, the [androidx.xr.runtime.Session] must be configured with
- * [androidx.xr.runtime.Config.PlaneTrackingMode.Companion.HORIZONTAL_AND_VERTICAL] to enable plane
+ * [androidx.xr.runtime.PlaneTrackingMode.Companion.HORIZONTAL_AND_VERTICAL] to enable plane
  * detection.
  *
  * When an entity is successfully anchored, its pose is adjusted so that its local Z-axis aligns
  * with the plane's normal vector (i.e., it sits flat against the surface).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeAnchorPlacement
 internal constructor(
-    internal val planeTypeFilter: Set<@JvmSuppressWildcards PlaneType> = setOf(PlaneType.ANY),
+    internal val planeTypeFilter: Set<@JvmSuppressWildcards PlaneType> = PlaneType.entries.toSet(),
     internal val planeSemanticFilter: Set<@JvmSuppressWildcards PlaneSemantic> =
-        setOf(PlaneSemantic.ANY),
+        PlaneSemantic.entries.toSet(),
 ) : AnchorPlacement

@@ -28,9 +28,9 @@ public interface ProviderSignalCredentialStateCallback {
      * means that if the provider does not need to consume the signal and does not invoke this
      * endpoint, there are no consequences.
      *
-     * Note that this signal is only for the framework, and will not be propagated back to the RP
-     * and hence cannot be used as a means to collect information about credentials and with which
-     * credential provider they live.
+     * Note that this signal is only for the framework, and will not be propagated back to the
+     * calling app and hence cannot be used as a means to collect information about credentials and
+     * with which credential provider they live.
      */
     public fun onSignalConsumed()
 }

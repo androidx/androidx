@@ -22,6 +22,9 @@
     <uses-permission android:name="android.permission.HEAD_TRACKING" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.android.extensions.xr.INHERIT_FSM_ENV" />
     <application
         android:allowBackup="true"
@@ -30,28 +33,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.IntegrationTestsApp">
         <activity
+            android:name=".handtracking.HandTrackingTest"
+            android:exported="false" />
+        <activity
             android:name=".sceneviewer.SceneViewerActivity"
             android:exported="false" />
         <activity
             android:name=".environment.EnvironmentActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="false" />
         <activity
             android:name=".spatialuser.SpatialUserActivity"
             android:exported="false" />
         <activity
             android:name=".fsmhsmtransition.FsmHsmTransitionActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".visibility.VisibilityActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".spatialcapabilities.SpatialCapabilitiesActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
-            android:name=".anchorentity.AnchorEntityActivity"
+            android:name=".anchorspace.AnchorSpaceActivity"
             android:exported="true" />
         <activity
             android:name=".fieldofviewvisibility.FieldOfViewVisibilityActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".activitypanel.ActivityPanel"
@@ -72,19 +83,54 @@
             android:name=".headlockedui.HeadLockedUiActivity"
             android:exported="true" />
         <activity
+            android:name=".model.GltfModelMaterialTextureActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:exported="true" />
+        <activity
+            android:name=".meshentity.MeshEntityActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:exported="true" />
+        <activity
+            android:name=".model.GltfModelAnimationActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:exported="true" />
+        <activity
+            android:name=".surfacecustommesh.SurfaceEntityCustomMeshActivity"
+            android:exported="true" />
+        <activity
+            android:name=".surfaceimage.SurfaceEntityImageActivity"
+            android:exported="true" />
+        <activity
+            android:name=".surfaceinteraction.SurfaceEntityInteractionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".surfaceplayback.SurfaceEntityPlaybackActivity"
+            android:exported="true" />
+        <activity
             android:name=".movable.MovableActivity"
             android:exported="true" />
         <activity
             android:name=".inputmoveresize.InputMoveResizeTestActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".spatialaudio.SpatialAudioActivity"
+            android:exported="true" />
+        <activity
+            android:name=".spatialaudio.SpatialAudioComponentsActivity"
             android:exported="true" />
         <activity
             android:name=".hittest.HitTestActivity"
             android:exported="true" />
         <activity
             android:name=".accessibilitytest.AccessibilityTestActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:exported="true" />
+        <activity
+            android:name=".memoryleak.MemoryLeakActivity"
+            android:exported="true" />
+        <activity
+            android:name=".panelcoordinate.PanelCoordinateActivity"
             android:exported="true" />
         <property
             android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"

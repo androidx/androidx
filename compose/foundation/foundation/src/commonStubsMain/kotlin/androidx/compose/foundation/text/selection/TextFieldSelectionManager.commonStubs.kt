@@ -31,3 +31,7 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
 internal actual suspend fun TextFieldSelectionManager.hasAvailableTextToPaste(): Boolean {
     implementedInJetBrainsFork()
 }
+
+internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean = implementedInJetBrainsFork()

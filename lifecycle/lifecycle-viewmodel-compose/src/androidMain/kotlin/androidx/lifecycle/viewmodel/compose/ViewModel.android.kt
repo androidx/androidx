@@ -19,10 +19,10 @@
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
 
 /**
@@ -78,7 +78,7 @@ public fun <VM : ViewModel> viewModel(
         },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory)
+): VM = viewModel(modelClass.kotlin, viewModelStoreOwner, key, factory)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or an
@@ -110,10 +110,5 @@ public fun <VM : ViewModel> viewModel(
         },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-    extras: CreationExtras =
-        if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
-            viewModelStoreOwner.defaultViewModelCreationExtras
-        } else {
-            CreationExtras.Empty
-        },
-): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory, extras)
+    extras: CreationExtras = viewModelStoreOwner.defaultViewModelCreationExtras,
+): VM = viewModel(modelClass.kotlin, viewModelStoreOwner, key, factory, extras)

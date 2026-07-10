@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,9 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -156,14 +159,16 @@ fun Surface(
  *    [ColorScheme.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  *    the same value set above this Surface.
  * 5) Click handling. This version of surface will react to the clicks, calling [onClick] lambda,
- *    updating the [interactionSource] when [PressInteraction] occurs, and showing ripple indication
- *    in response to press events. If you don't need click handling, consider using the Surface
- *    function that doesn't require [onClick] param. If you need to set a custom label for the
- *    [onClick], apply a `Modifier.semantics { onClick(label = "YOUR_LABEL", action = null) }` to
- *    the Surface.
+ *    updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need click handling, consider using the
+ *    Surface function that doesn't require [onClick] param. If you need to set a custom label for
+ *    the [onClick], apply a `Modifier.semantics { onClick(label = "YOUR_LABEL", action = null) }`
+ *    to the Surface.
  * 6) Semantics for clicks. Just like with [Modifier.clickable], clickable version of Surface will
  *    produce semantics to indicate that it is clicked. No semantic role is set by default, you may
- *    specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
@@ -217,6 +222,26 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -226,7 +251,13 @@ fun Surface(
                     )
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onClick = onClick,
                     )
@@ -262,12 +293,14 @@ fun Surface(
  *    [ColorScheme.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  *    the same value set above this Surface.
  * 5) Click handling. This version of surface will react to the clicks, calling [onClick] lambda,
- *    updating the [interactionSource] when [PressInteraction] occurs, and showing ripple indication
- *    in response to press events. If you don't need click handling, consider using the Surface
- *    function that doesn't require [onClick] param.
+ *    updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need click handling, consider using the
+ *    Surface function that doesn't require [onClick] param.
  * 6) Semantics for selection. Just like with [Modifier.selectable], selectable version of Surface
  *    will produce semantics to indicate that it is selected. No semantic role is set by default,
- *    you may specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    you may specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
@@ -323,6 +356,26 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -333,7 +386,13 @@ fun Surface(
                     .selectable(
                         selected = selected,
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onClick = onClick,
                     )
@@ -369,12 +428,14 @@ fun Surface(
  *    [ColorScheme.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  *    the same value set above this Surface.
  * 5) Click handling. This version of surface will react to the check toggles, calling
- *    [onCheckedChange] lambda, updating the [interactionSource] when [PressInteraction] occurs, and
- *    showing ripple indication in response to press events. If you don't need check handling,
- *    consider using a Surface function that doesn't require [onCheckedChange] param.
+ *    [onCheckedChange] lambda, updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need check handling, consider using a
+ *    Surface function that doesn't require [onCheckedChange] param.
  * 6) Semantics for toggle. Just like with [Modifier.toggleable], toggleable version of Surface will
  *    produce semantics to indicate that it is checked. No semantic role is set by default, you may
- *    specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
@@ -430,6 +491,27 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    // Draw the focus ring here if focus rings are enabled
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -440,7 +522,13 @@ fun Surface(
                     .toggleable(
                         value = checked,
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onValueChange = onCheckedChange,
                     )
@@ -473,6 +561,50 @@ private fun Modifier.surface(
         .then(if (border != null) Modifier.border(border, shape) else Modifier)
         .background(color = backgroundColor, shape = shape)
         .clip(shape)
+
+@Composable
+internal fun Surface(
+    backgroundColor: ColorProducer,
+    modifier: Modifier,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
+    content: @Composable () -> Unit,
+) {
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    val tonalElevationEnabled = LocalTonalElevationEnabled.current
+    val colorScheme = MaterialTheme.colorScheme
+    CompositionLocalProvider(LocalAbsoluteTonalElevation provides absoluteElevation) {
+        Box(
+            modifier =
+                modifier
+                    .then(
+                        if (shadowElevation > 0.dp) {
+                            Modifier.graphicsLayer {
+                                this.shadowElevation = shadowElevation.toPx()
+                                clip = false
+                            }
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .drawBehind {
+                        val backgroundColorResolved = backgroundColor()
+                        val color =
+                            if (
+                                backgroundColorResolved == colorScheme.surface &&
+                                    tonalElevationEnabled
+                            ) {
+                                colorScheme.surfaceColorAtElevation(tonalElevation)
+                            } else {
+                                backgroundColorResolved
+                            }
+                        drawRect(color = color)
+                    }
+        ) {
+            content()
+        }
+    }
+}
 
 @Composable
 private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color =

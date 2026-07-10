@@ -4,27 +4,27 @@ ActionValue: androidx.leanback.app.GuidedStepSupportFragment#EXTRA_UI_STYLE:
 
 
 ArrayReturn: androidx.leanback.app.SearchSupportFragment#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
-    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+    Method parameter should be Collection<android.view.inputmethod.CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
 ArrayReturn: androidx.leanback.widget.AbstractMediaItemPresenter.ViewHolder#getMediaItemRowActions():
-    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+    Method should return Collection<androidx.leanback.widget.MultiActionsProvider.MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
 ArrayReturn: androidx.leanback.widget.ClassPresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.ControlButtonPresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider#getActions():
-    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+    Method should return Collection<androidx.leanback.widget.MultiActionsProvider.MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#getDrawables():
-    Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method should return Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
-    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method parameter should be Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.PlaybackControlsRow.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
-    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method parameter should be Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.PresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.SearchBar#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
-    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+    Method parameter should be Collection<android.view.inputmethod.CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
 ArrayReturn: androidx.leanback.widget.SinglePresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.picker.PickerColumn#getStaticLabels():
     Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 ArrayReturn: androidx.leanback.widget.picker.PickerColumn#setStaticLabels(CharSequence[]) parameter #0:
@@ -103,8 +103,6 @@ ExecutorRegistration: androidx.leanback.media.SurfaceHolderGlueHost#setSurfaceHo
 
 GetterSetterNames: androidx.leanback.widget.FullWidthDetailsOverviewSharedElementHelper#getAutoStartSharedElementTransition():
     Symmetric method for `setAutoStartSharedElementTransition` must be named `isAutoStartSharedElementTransition`; was `getAutoStartSharedElementTransition`
-GetterSetterNames: androidx.leanback.widget.GuidedAction#setSubActions(java.util.List<androidx.leanback.widget.GuidedAction>):
-    Symmetric method for `hasSubActions` must be named `setHasSubActions`; was `setSubActions`
 GetterSetterNames: androidx.leanback.widget.ListRowPresenter#getShadowEnabled():
     Symmetric method for `setShadowEnabled` must be named `isShadowEnabled`; was `getShadowEnabled`
 GetterSetterNames: androidx.leanback.widget.RowPresenter#getSelectEffectEnabled():
@@ -132,7 +130,7 @@ InternalField: androidx.leanback.widget.RowPresenter.ViewHolder#mColorDimmer:
 
 
 InvalidNullabilityOverride: androidx.leanback.widget.GuidedActionEditText#onTouchEvent(android.view.MotionEvent) parameter #0:
-    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.MotionEvent in parameter `event` in method `onTouchEvent`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 KotlinOperator: androidx.leanback.widget.ObjectAdapter#get(int):
@@ -1713,3 +1711,7 @@ NotCloseable: androidx.leanback.widget.CursorObjectAdapter:
 
 SingletonConstructor: androidx.leanback.widget.GuidedActionDiffCallback#GuidedActionDiffCallback():
     Singleton classes should use `getInstance()` methods: `GuidedActionDiffCallback`
+
+
+TypeParameterName: androidx.leanback.widget.DiffCallback:
+    Invalid type parameter name "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

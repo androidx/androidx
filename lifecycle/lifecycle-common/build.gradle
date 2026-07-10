@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -43,40 +42,33 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.jspecify)
-            }
+        jvmMain.dependencies {
+            api(libs.jspecify)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-            }
+        jvmTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
         }
 
-        nonJvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
         }
+    }
+}
 
-        targets.configureEach { target ->
-            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
-            }
+dependencies {
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 2.9.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5") {
+            because "prevents symbols duplication"
         }
     }
 }

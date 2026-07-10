@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,9 +54,12 @@ fun SimplePicker() {
                 ),
         contentAlignment = Alignment.Center,
     ) {
+        val selectedLabel by remember {
+            derivedStateOf { "Selected: ${items[state.selectedOptionIndex]}" }
+        }
         Text(
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp),
-            text = "Selected: ${items[state.selectedOptionIndex]}",
+            text = selectedLabel,
         )
         Picker(
             modifier = Modifier.size(100.dp, 100.dp),

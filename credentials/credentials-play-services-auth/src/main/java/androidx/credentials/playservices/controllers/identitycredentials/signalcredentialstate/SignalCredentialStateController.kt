@@ -18,8 +18,11 @@ package androidx.credentials.playservices.controllers.identitycredentials.signal
 import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.exceptions.publickeycredential.SignalCredentialRateLimitExceededException
 import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateException
 import androidx.credentials.playservices.controllers.CredentialProviderController
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
 import com.google.android.gms.identitycredentials.SignalCredentialStateRequest
 import com.google.android.gms.identitycredentials.SignalCredentialStateResponse
@@ -64,7 +67,19 @@ internal class SignalCredentialStateController(private val context: Context) :
                 }
             }
             .addOnFailureListener { e ->
-                val exception = SignalCredentialStateException.createFrom(e.message)
+                var exception: SignalCredentialStateException =
+                    SignalCredentialStateException.createFrom(e.message)
+                if (
+                    e is ApiException &&
+                        e.statusCode == CommonStatusCodes.CANCELED &&
+                        e.message?.contains(RATE_LIMIT_EXCEPTION_MESSAGE_MATCHER) == true
+                ) {
+                    exception =
+                        SignalCredentialRateLimitExceededException(
+                            parseRefillMinutesRegex(e.message),
+                            e.message,
+                        )
+                }
                 executor.execute { callback.onError(exception) }
             }
     }
@@ -83,6 +98,18 @@ internal class SignalCredentialStateController(private val context: Context) :
 
     companion object {
         const val SIGNAL_REQUEST_JSON_KEY = "androidx.credentials.signal_request_json_key"
+        const val RATE_LIMIT_EXCEPTION_MESSAGE_MATCHER = "called too frequently"
+        const val MAX_RETRY_TIME = 600000L // 10 minutes
+
+        fun parseRefillMinutesRegex(exceptionMessage: String?): Long {
+            if (exceptionMessage == null) return MAX_RETRY_TIME
+            val regex =
+                """^SignalCredentialState has been called too frequently\. Please retry later after (\d+) minutes\.$"""
+                    .toRegex()
+            val matchResult = regex.find(exceptionMessage)
+
+            return matchResult?.groups?.get(1)?.value?.toIntOrNull()?.toLong() ?: MAX_RETRY_TIME
+        }
 
         @JvmStatic
         fun getInstance(context: Context): SignalCredentialStateController {

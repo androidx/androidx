@@ -1,0 +1,18 @@
+ROOT [-2:-1] = [0.0, 0.0, 400.0, 400.0] VISIBLE
+  ROW [1:-1] = [0.0, 0.0, 316.0, 400.0] VISIBLE
+    MODIFIERS
+      BACKGROUND = [0.0, 0.0, 316.0, 400.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+      PADDING = [8.0, 8.0, 8.0, 8.0]
+    BOX [3:-1] = [0.0, 0.0, 100.0, 100.0] VISIBLE
+      MODIFIERS
+        WIDTH = 100.0
+        HEIGHT = 100.0
+        BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+        CLICK_MODIFIER
+          VALUE_INTEGER_CHANGE = 43 -> 1
+    BOX [2:-1] = [100.0, 0.0, 200.0, 200.0] VISIBLE
+      MODIFIERS
+        WIDTH = 200.0
+        HEIGHT = 200.0
+        COMPONENT_VISIBILITY = 43
+        BACKGROUND = [0.0, 0.0, 200.0, 200.0] color [0.0, 1.0, 0.0, 1.0] shape [0]

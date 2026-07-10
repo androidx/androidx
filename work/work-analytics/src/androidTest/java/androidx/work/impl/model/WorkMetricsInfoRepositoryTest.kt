@@ -1,0 +1,1297 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.work.analytics
+
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.work.Clock
+import androidx.work.Data
+import androidx.work.ExperimentalEventsApi
+import androidx.work.ListenableWorker
+import androidx.work.WorkInfo
+import androidx.work.analytics.impl.WorkMetricsDatabase
+import java.util.UUID
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Constants used across multiple tests to ensure consistency and avoid duplication. */
+private const val TEST_WORKER_CLASS = "androidx.work.impl.workers.TestWorker"
+private val TEST_TAGS = setOf("test-tag", "analytics")
+
+/** A simple TestClock implementation that allows explicit control over the reported time. */
+private class TestClock(var currentTime: Long = 1000L) : Clock {
+    override fun currentTimeMillis(): Long = currentTime
+}
+
+@ExperimentalEventsApi
+@RunWith(AndroidJUnit4::class)
+@SmallTest
+class WorkMetricsInfoRepositoryTest {
+    private lateinit var database: WorkMetricsDatabase
+    private lateinit var repository: WorkMetricsInfoRepository
+    private val testClock = TestClock()
+
+    @Before
+    fun setUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        database = Room.inMemoryDatabaseBuilder(context, WorkMetricsDatabase::class.java).build()
+        repository = WorkMetricsInfoRepository(database, testClock)
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
+    }
+
+    @Test
+    fun onEnqueued_updatesStateAndTimestamp() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, results.size)
+        val result = results[0]
+        assertEquals(workId, result.workSpecId)
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, result.state)
+        assertEquals(1000L, result.enqueueTimeMillis)
+    }
+
+    @Test
+    fun onEnqueued_duplicate_throwsException() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        assertThrows(IllegalStateException::class.java) {
+            runBlocking { repository.onEnqueued(workInfo) }
+        }
+    }
+
+    @Test
+    fun onEnqueued_blockedWork_updatesState() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, state = WorkInfo.State.BLOCKED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, results.size)
+        val result = results[0]
+        assertEquals(workId, result.workSpecId)
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_BLOCKED, result.state)
+        assertEquals(1000L, result.enqueueTimeMillis)
+    }
+
+    @Test
+    fun onUnblocked_updatesState() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, state = WorkInfo.State.BLOCKED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, result.state)
+        assertEquals(2000L, result.unblockTimeMillis)
+    }
+
+    @Test
+    fun onStarted_updatesStateToRunning() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.RUNNING, result.state)
+        assertEquals(3000L, result.firstStartTimeMillis)
+    }
+
+    @Test
+    fun onStarted_setsRunAttemptCountFromWorkInfo() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        val startedWorkInfo =
+            createTestWorkInfo(id = workId, state = WorkInfo.State.RUNNING, runAttemptCount = 5)
+        repository.onStarted(startedWorkInfo)
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.RUNNING, result.state)
+        assertEquals(5, result.runAttemptCount)
+    }
+
+    @Test
+    fun onStarted_multipleCalls_preservesFirstStartTime() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onStopped(
+            WorkInfo.STOP_REASON_UNKNOWN,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        testClock.currentTime = 5000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(3000L, result.firstStartTimeMillis)
+        assertEquals(WorkMetricsInfo.State.RUNNING, result.state)
+    }
+
+    @Test
+    fun onStopped_updatesStateToEnqueuedPending() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, generation = 0)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        val updatedInfos = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, updatedInfos.size)
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, updatedInfos[0].state)
+    }
+
+    @Test
+    fun onStarted_updatesRunAttemptCount() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1))
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.runAttemptCount)
+
+        repository.onStopped(
+            WorkInfo.STOP_REASON_UNKNOWN,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 2))
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.runAttemptCount)
+    }
+
+    @Test
+    fun onStopped_updatesStopReasonCounts() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onStopped(
+            WorkInfo.STOP_REASON_TIMEOUT,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.stopReasonCounts[WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY])
+        assertEquals(1, result.stopReasonCounts[WorkInfo.STOP_REASON_TIMEOUT])
+    }
+
+    @Test
+    fun onFinished_oneTimeRetry_incrementsExplicitRetryCount() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        var result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(1, result.explicitRetryCount)
+
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(2, result.explicitRetryCount)
+    }
+
+    @Test
+    fun onFinished_oneTimeSuccess_finalizesRecord() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
+        assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
+    }
+
+    @Test
+    fun onFinished_oneTimeFailure_finalizesRecord() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onFinished(
+            ListenableWorker.Result.failure(),
+            workInfo.copy(state = WorkInfo.State.FAILED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.FAILED, result.state)
+        assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
+    }
+
+    @Test
+    fun onFinished_oneTimeRetry_resetsToPending() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, result.state)
+        assertEquals(0L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
+    }
+
+    @Test
+    fun onFinished_periodicSuccess_createsNewRecord() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, isPeriodic = true)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val finishedPeriod = results.find { it.state == WorkMetricsInfo.State.SUCCEEDED }!!
+        assertEquals(4000L, finishedPeriod.finishTimeMillis)
+
+        val currentPeriod = results.find { it.state == WorkMetricsInfo.State.ENQUEUED_PENDING }!!
+        assertEquals(4000L, currentPeriod.enqueueTimeMillis)
+    }
+
+    @Test
+    fun onFinished_periodicFailure_createsNewRecord() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, isPeriodic = true)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onFinished(
+            ListenableWorker.Result.failure(),
+            workInfo.copy(state = WorkInfo.State.FAILED),
+        )
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val finishedPeriod = results.find { it.state == WorkMetricsInfo.State.FAILED }!!
+        assertEquals(4000L, finishedPeriod.finishTimeMillis)
+
+        val currentPeriod = results.find { it.state == WorkMetricsInfo.State.ENQUEUED_PENDING }!!
+        assertEquals(4000L, currentPeriod.enqueueTimeMillis)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun onFinished_success_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, results[0].state)
+    }
+
+    @Test
+    fun onFinished_failure_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onFinished(
+            ListenableWorker.Result.failure(),
+            workInfo.copy(state = WorkInfo.State.FAILED),
+        )
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
+    fun onFinished_periodicSuccesses_emitsMultipleInfos() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, isPeriodic = true)
+
+        // 1st period
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        testClock.currentTime = 2000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2nd period
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        testClock.currentTime = 3000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        assertEquals(2, results.size)
+        for (result in results) {
+            assertEquals(workId, result.workSpecId)
+            assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
+        }
+        assertEquals(results[0].finishTimeMillis, 2000L)
+        assertEquals(results[1].finishTimeMillis, 3000L)
+    }
+
+    @Test
+    fun onCancelled_finalizesRecord() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+
+        testClock.currentTime = 3000L
+        repository.onCancelled(workInfo.copy(state = WorkInfo.State.CANCELLED))
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.CANCELLED, result.state)
+        assertEquals(3000L, result.finishTimeMillis)
+    }
+
+    @Test
+    fun onCancelled_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onCancelled(workInfo.copy(state = WorkInfo.State.CANCELLED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.CANCELLED, results[0].state)
+    }
+
+    @Test
+    fun onUpdated_finalizesOldAsObsoleteAndInsertsNew() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.BLOCKED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        val enqueuedResult = repository.getWorkMetricsInfoById(workId)
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_BLOCKED, enqueuedResult[0].state)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.ENQUEUED)
+        repository.onUnblocked(workInfoGen0)
+
+        testClock.currentTime = 3000L
+        val workInfoGen1 = workInfoGen0.copy(generation = 1)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val oldRecord = results.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, oldRecord.state)
+        assertEquals(3000L, oldRecord.finishTimeMillis)
+
+        val newRecord = results.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, newRecord.state)
+        assertEquals(3000L, newRecord.enqueueTimeMillis)
+        assertEquals(3000L, newRecord.unblockTimeMillis)
+    }
+
+    @Test
+    fun onUpdated_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfoGen0 = createTestWorkInfo(id = workId, generation = 0)
+
+        repository.onEnqueued(workInfoGen0)
+        val workInfoGen1 = workInfoGen0.copy(generation = 1)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, results[0].state)
+    }
+
+    @Test
+    fun onException_finalizesRecordAsFailed() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+
+        testClock.currentTime = 4000L
+        repository.onException(
+            RuntimeException("test"),
+            workInfo.copy(state = WorkInfo.State.FAILED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.FAILED, result.state)
+        assertEquals(4000L, result.finishTimeMillis)
+        assertEquals(1000L, result.workerDurationMillis)
+        assertEquals(1000L, result.totalRuntimeMillis)
+    }
+
+    @Test
+    fun onException_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onUnblocked(workInfo)
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING))
+        repository.onException(RuntimeException(), workInfo.copy(state = WorkInfo.State.FAILED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
+    fun onPrerequisiteFailed_finalizesRecordAsFailed() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId, state = WorkInfo.State.BLOCKED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+
+        testClock.currentTime = 2000L
+        repository.onPrerequisiteFailed(workInfo.copy(state = WorkInfo.State.FAILED))
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.FAILED, result.state)
+        assertEquals(2000L, result.finishTimeMillis)
+    }
+
+    @Test
+    fun onPrerequisiteFailed_emitsFinishedInfo() = runTest {
+        val finishedInfos = repository.finishedWorkMetricsInfoFlow
+        val results = mutableListOf<WorkMetricsInfo>()
+        // Run unconfined on background scope to ensure flow subscriber changes are immediately
+        // reflected after the event is triggered.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            finishedInfos.toList(results)
+        }
+
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+        repository.onEnqueued(workInfo)
+        repository.onPrerequisiteFailed(workInfo.copy(state = WorkInfo.State.FAILED))
+
+        assertEquals(1, results.size)
+        assertEquals(workId, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.FAILED, results[0].state)
+    }
+
+    @Test
+    fun cumulativeRuntime_multipleExecutions() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfo = createTestWorkInfo(id = workId)
+
+        // 1. Enqueue
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo)
+        testClock.currentTime = 2000L
+        repository.onUnblocked(workInfo)
+
+        // 2. First run (stopped)
+        testClock.currentTime = 3000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1))
+        testClock.currentTime = 4000L
+        repository.onStopped(
+            WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        // 3. Second run (explicit retry result)
+        testClock.currentTime = 5000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 2))
+        testClock.currentTime = 7000L
+        repository.onFinished(
+            ListenableWorker.Result.retry(),
+            workInfo.copy(state = WorkInfo.State.ENQUEUED),
+        )
+
+        // 4. Third run (succeeds)
+        testClock.currentTime = 9000L
+        repository.onStarted(workInfo.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 3))
+        testClock.currentTime = 10000L
+        repository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        val result = repository.getWorkMetricsInfoById(workId)[0]
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, result.state)
+        assertEquals(10000L, result.finishTimeMillis)
+        // workerDurationMillis = last execution attempt (10000 - 9000 = 1000L)
+        assertEquals(1000L, result.workerDurationMillis)
+        // totalRuntimeMillis = (4000 - 3000) + (7000 - 5000) + (10000 - 9000) = 1000 + 2000 + 1000
+        // = 4000L
+        assertEquals(4000L, result.totalRuntimeMillis)
+    }
+
+    fun getWorkMetricsInfos_filterByWorkId() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        val workInfo3 = createTestWorkInfo(id = workId3)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        val query = WorkMetricsQuery.Builder().addWorkIds(listOf(workId1, workId2)).build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId1, results[0].workSpecId)
+        assertEquals(workId2, results[1].workSpecId)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByState() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        val workInfo3 = createTestWorkInfo(id = workId3)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        repository.onUnblocked(workInfo1)
+        repository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+
+        repository.onUnblocked(workInfo2)
+        repository.onStarted(workInfo2.copy(state = WorkInfo.State.RUNNING))
+
+        val query =
+            WorkMetricsQuery.Builder().addStates(listOf(WorkMetricsInfo.State.RUNNING)).build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId1, results[0].workSpecId)
+        assertEquals(WorkMetricsInfo.State.RUNNING, results[0].state)
+        assertEquals(workId2, results[1].workSpecId)
+        assertEquals(WorkMetricsInfo.State.RUNNING, results[1].state)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByTag() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1, tags = setOf("tag1", "common"))
+        val workInfo2 = createTestWorkInfo(id = workId2, tags = setOf("tag1", "common"))
+        val workInfo3 = createTestWorkInfo(id = workId3, tags = setOf("tag2"))
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        // Query by specific tag1
+        val queryTag1 = WorkMetricsQuery.Builder().addTags(listOf("tag1")).build()
+        val resultsTag1 = repository.getWorkMetricsInfos(queryTag1)
+        assertEquals(2, resultsTag1.size)
+        assertEquals(workId1, resultsTag1[0].workSpecId)
+        assertEquals(setOf("tag1", "common"), resultsTag1[0].tags)
+        assertEquals(workId2, resultsTag1[1].workSpecId)
+        assertEquals(setOf("tag1", "common"), resultsTag1[1].tags)
+
+        // Query by common tag
+        val queryCommon = WorkMetricsQuery.Builder().addTags(listOf("common")).build()
+        val resultsCommon = repository.getWorkMetricsInfos(queryCommon)
+        assertEquals(2, resultsCommon.size)
+        assertEquals(setOf("tag1", "common"), resultsCommon[0].tags)
+        assertEquals(setOf("tag1", "common"), resultsCommon[1].tags)
+
+        // Query by tag1 OR tag2
+        val queryMultiple = WorkMetricsQuery.Builder().addTags(listOf("tag1", "tag2")).build()
+        val resultsMultiple = repository.getWorkMetricsInfos(queryMultiple)
+        assertEquals(3, resultsMultiple.size)
+        assertEquals(setOf("tag1", "common"), resultsMultiple[0].tags)
+        assertEquals(setOf("tag1", "common"), resultsMultiple[1].tags)
+        assertEquals(setOf("tag2"), resultsMultiple[2].tags)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByWorkerClassName() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1, workerClass = "Worker1")
+        val workInfo2 = createTestWorkInfo(id = workId2, workerClass = "Worker1")
+        val workInfo3 = createTestWorkInfo(id = workId3, workerClass = "Worker2")
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        val query = WorkMetricsQuery.Builder().addWorkerClassNames(listOf("Worker1")).build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId1, results[0].workSpecId)
+        assertEquals("Worker1", results[0].workerClassName)
+        assertEquals(workId2, results[1].workSpecId)
+        assertEquals("Worker1", results[1].workerClassName)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByEnqueueTime_beginTime() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        val workInfo3 = createTestWorkInfo(id = workId3)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        val query =
+            WorkMetricsQuery.Builder()
+                .addWorkIds(listOf(workId1, workId2, workId3))
+                .setBeginTimeMillis(1500L)
+                .build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId2, results[0].workSpecId)
+        assertEquals(workId3, results[1].workSpecId)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByEnqueueTime_endTime() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        val workInfo3 = createTestWorkInfo(id = workId3)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        val query =
+            WorkMetricsQuery.Builder()
+                .addWorkIds(listOf(workId1, workId2, workId3))
+                .setEndTimeMillis(2500L)
+                .build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId1, results[0].workSpecId)
+        assertEquals(workId2, results[1].workSpecId)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByEnqueueTime_beginAndEndTime() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workId4 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        val workInfo3 = createTestWorkInfo(id = workId3)
+        val workInfo4 = createTestWorkInfo(id = workId4)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+        testClock.currentTime = 4000L
+        repository.onEnqueued(workInfo4)
+
+        val query =
+            WorkMetricsQuery.Builder()
+                .addWorkIds(listOf(workId1, workId2, workId3, workId4))
+                .setBeginTimeMillis(1500L)
+                .setEndTimeMillis(3500L)
+                .build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+        assertEquals(workId2, results[0].workSpecId)
+        assertEquals(workId3, results[1].workSpecId)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_emptyQueryReturnsAll() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+
+        val query = WorkMetricsQuery.Builder().build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(2, results.size)
+    }
+
+    @Test
+    fun getWorkMetricsInfos_filterByMultipleCriteria() = runTest {
+        val workId1 = UUID.randomUUID()
+        val workId2 = UUID.randomUUID()
+        val workId3 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1, workerClass = "Worker1")
+        val workInfo2 = createTestWorkInfo(id = workId2, workerClass = "Worker1")
+        val workInfo3 = createTestWorkInfo(id = workId3, workerClass = "Worker2")
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfo1)
+        testClock.currentTime = 2000L
+        repository.onEnqueued(workInfo2)
+        testClock.currentTime = 3000L
+        repository.onEnqueued(workInfo3)
+
+        repository.onUnblocked(workInfo1)
+        repository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+
+        val query =
+            WorkMetricsQuery.Builder()
+                .addWorkerClassNames(listOf("Worker1"))
+                .addStates(listOf(WorkMetricsInfo.State.RUNNING))
+                .build()
+        val results = repository.getWorkMetricsInfos(query)
+
+        assertEquals(1, results.size)
+        assertEquals(workId1, results[0].workSpecId)
+        assertEquals("Worker1", results[0].workerClassName)
+        assertEquals(WorkMetricsInfo.State.RUNNING, results[0].state)
+    }
+
+    private fun WorkInfo.copy(
+        state: WorkInfo.State = this.state,
+        generation: Int = this.generation,
+        runAttemptCount: Int = this.runAttemptCount,
+    ): WorkInfo {
+        return WorkInfo(
+            id = this.id,
+            state = state,
+            tags = this.tags,
+            outputData = this.outputData,
+            progress = this.progress,
+            runAttemptCount = runAttemptCount,
+            generation = generation,
+            constraints = this.constraints,
+            initialDelayMillis = this.initialDelayMillis,
+            periodicityInfo = this.periodicityInfo,
+            nextScheduleTimeMillis = this.nextScheduleTimeMillis,
+            stopReason = this.stopReason,
+            workerClassName = this.workerClassName,
+        )
+    }
+
+    private fun createTestWorkInfo(
+        id: UUID,
+        generation: Int = 0,
+        state: WorkInfo.State = WorkInfo.State.ENQUEUED,
+        runAttemptCount: Int = 0,
+        isPeriodic: Boolean = false,
+        tags: Set<String> = TEST_TAGS,
+        workerClass: String = TEST_WORKER_CLASS,
+    ): WorkInfo {
+        val periodicityInfo =
+            if (isPeriodic) {
+                WorkInfo.PeriodicityInfo(
+                    repeatIntervalMillis = 15 * 60 * 1000,
+                    flexIntervalMillis = 15 * 60 * 1000,
+                )
+            } else null
+
+        return WorkInfo(
+            id = id,
+            state = state,
+            tags = tags,
+            outputData = Data.EMPTY,
+            progress = Data.EMPTY,
+            runAttemptCount = runAttemptCount,
+            generation = generation,
+            workerClassName = workerClass,
+            periodicityInfo = periodicityInfo,
+        )
+    }
+
+    @Test
+    fun testRetentionPolicy_deletesOldFinishedMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 1.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // 1. Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // Verify it is there
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 2. Enqueue work 2 at t = 1000 + 1 day + 1 sec (t = 86402000)
+        // This should trigger cleanup and delete work 1
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is deleted, work 2 is present
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_doesNotDeleteYoungMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 2.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // Enqueue work 2 at t = 1000 + 25 hours (t = 90001000)
+        // This triggers cleanup, but threshold is 90001000 - 2 days = -82799000.
+        // Work 1 finished at 1000, which is > -82799000, so it should NOT be deleted.
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime = baseTime + 25.hours.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify both are present
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_doesNotDeleteActiveMetrics() = runTest {
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 1.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // Enqueue work 1 at t=1000, leave it active (ENQUEUED_PENDING)
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+
+        // Enqueue work 2 at t = 86402000 ( > 1 day) to trigger cleanup
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is STILL there because it is active
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_throttlesCleanup() = runTest {
+        // Use 1 ms retention for testing throttling.
+        // This means almost any finished work is older than threshold.
+        val retentionRepository =
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = 1L)
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        val baseTime = 1000L
+        // 1. Enqueue and finish work 1 at t=1000
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2. Enqueue work 2 at t=2000.
+        // Cleanup should NOT run because t=2000 is < 24h from initial 0.
+        // Work 1 should still be there.
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+        testClock.currentTime = baseTime + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 3. Advance to t=86402000 (> 24h).
+        // Enqueue work 3. Cleanup SHOULD run. lastCleanup becomes 86402000.
+        // Work 1 (finished at 1000) should be deleted.
+        val workId3 = UUID.randomUUID()
+        val workInfo3 = createTestWorkInfo(id = workId3)
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo3)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+
+        // 4. Finish work 2 (enqueued at 2000) at t=86403000.
+        retentionRepository.onUnblocked(workInfo2)
+        retentionRepository.onStarted(workInfo2.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo2.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+
+        // 5. Enqueue work 4 at t=86404000 (only 2000ms after last cleanup).
+        // Cleanup should NOT run.
+        // Work 2 (finished at 86403000) should STILL be there, even though retention is 0 and it is
+        // finished.
+        val workId4 = UUID.randomUUID()
+        val workInfo4 = createTestWorkInfo(id = workId4)
+        testClock.currentTime =
+            baseTime + 1.days.inWholeMilliseconds + 3.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo4)
+        assertEquals(1, retentionRepository.getWorkMetricsInfoById(workId2).size)
+
+        // 6. Advance to t=172804000 (> 24h since 86402000).
+        // Enqueue work 5. Cleanup SHOULD run.
+        // Work 2 should now be deleted.
+        val workId5 = UUID.randomUUID()
+        val workInfo5 = createTestWorkInfo(id = workId5)
+        testClock.currentTime =
+            baseTime + 2.days.inWholeMilliseconds + 3.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo5)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId2).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_clampsToMaxRetention() = runTest {
+        // Pass 40 days, should be clamped to 30 days (MAX_RETENTION_TIME_MILLIS)
+        val retentionRepository =
+            WorkMetricsInfoRepository(
+                database,
+                testClock,
+                retentionTimeMillis = 40.days.inWholeMilliseconds,
+            )
+
+        val workId1 = UUID.randomUUID()
+        val workInfo1 = createTestWorkInfo(id = workId1)
+
+        // 1. Enqueue and finish work 1 at t=1000
+        val baseTime = 1000L
+        testClock.currentTime = baseTime
+        retentionRepository.onEnqueued(workInfo1)
+        retentionRepository.onUnblocked(workInfo1)
+        retentionRepository.onStarted(workInfo1.copy(state = WorkInfo.State.RUNNING))
+        retentionRepository.onFinished(
+            ListenableWorker.Result.success(),
+            workInfo1.copy(state = WorkInfo.State.SUCCEEDED),
+        )
+
+        // 2. Enqueue work 2 at t = 1000 + 31 days (exceeds 30 days max, but less than 40 days)
+        // If it was NOT clamped, work 1 would NOT be deleted (since 31 days < 40 days).
+        // Since it IS clamped to 30 days, work 1 SHOULD be deleted (since 31 days > 30 days).
+        val workId2 = UUID.randomUUID()
+        val workInfo2 = createTestWorkInfo(id = workId2)
+
+        testClock.currentTime =
+            baseTime + 31.days.inWholeMilliseconds + 1.seconds.inWholeMilliseconds
+        retentionRepository.onEnqueued(workInfo2)
+
+        // Verify work 1 is deleted (proving clamping to 30 days occurred)
+        assertEquals(0, retentionRepository.getWorkMetricsInfoById(workId1).size)
+    }
+
+    @Test
+    fun testRetentionPolicy_invalidTime_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = -1L)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            WorkMetricsInfoRepository(database, testClock, retentionTimeMillis = 0L)
+        }
+    }
+}

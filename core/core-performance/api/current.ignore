@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.core.performance.DefaultDevicePerformance#getMediaPerformanceClass():
+    Source breaking change: method androidx.core.performance.DefaultDevicePerformance.getMediaPerformanceClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.performance.DevicePerformance#getMediaPerformanceClass():
+    Source breaking change: method androidx.core.performance.DevicePerformance.getMediaPerformanceClass() can no longer be resolved from Kotlin source

@@ -285,7 +285,7 @@ src/androidTest/androidx/foo/TestJava.java:13: Error: @SdkSuppress on screenshot
     }
 
     @Test
-    fun `sdk suppress annotation missing in screenshot test class in kotlin sources under androidInstrumentedTest dir`() {
+    fun `sdk suppress annotation missing in screenshot test class in kotlin sources under androidDeviceTest dir`() {
         val input =
             arrayOf(
                 kotlin(
@@ -308,12 +308,12 @@ src/androidTest/androidx/foo/TestJava.java:13: Error: @SdkSuppress on screenshot
                 }
                 """
                     )
-                    .within("src/androidInstrumentedTest")
+                    .within("src/androidDeviceTest")
             )
 
         val expected =
             """
-       src/androidInstrumentedTest/androidx/foo/TestInInstrumentedTestDirKotlin.kt:11: Error: Screenshot test class TestInInstrumentedTestDirKotlin must be annotated with @SdkSuppress to run only on API 35. [ScreenshotTestSdkSuppress]
+       src/androidDeviceTest/androidx/foo/TestInInstrumentedTestDirKotlin.kt:11: Error: Screenshot test class TestInInstrumentedTestDirKotlin must be annotated with @SdkSuppress to run only on API 35. [ScreenshotTestSdkSuppress]
                 class TestInInstrumentedTestDirKotlin {
                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 error
@@ -350,7 +350,7 @@ src/androidTest/androidx/foo/TestJava.java:13: Error: @SdkSuppress on screenshot
 
         val expected =
             """
-       src/androidInstrumentedTest/androidx/foo/TestInInstrumentedTestDirKotlin.kt:11: Error: Screenshot test class TestInInstrumentedTestDirKotlin must be annotated with @SdkSuppress to run only on API 35. [ScreenshotTestSdkSuppress]
+       src/androidDeviceTest/androidx/foo/TestInInstrumentedTestDirKotlin.kt:11: Error: Screenshot test class TestInInstrumentedTestDirKotlin must be annotated with @SdkSuppress to run only on API 35. [ScreenshotTestSdkSuppress]
                 class TestInInstrumentedTestDirKotlin {
                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 error

@@ -25,6 +25,10 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * [ThreePaneScaffoldHorizontalOrder] represents an order of three panes supported by the three pane
  * scaffold implementations like [ListDetailPaneScaffold] and [SupportingPaneScaffold].
  *
+ * Note that this class is not supposed to be used directly by developers. It's defined as public to
+ * support [ThreePaneScaffoldOverride], which can be replaced in the future by other mechanisms. By
+ * then we will hide this class as well.
+ *
  * @see ThreePaneScaffoldHorizontalOrder
  */
 @ExperimentalMaterial3AdaptiveApi

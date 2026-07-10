@@ -33,6 +33,7 @@ import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,6 +62,8 @@ class InitializeBenchmark {
 
         taskExecutor =
             object : TaskExecutor {
+                private val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
+
                 override fun getMainThreadExecutor(): Executor {
                     return serialExecutor
                 }
@@ -68,6 +71,8 @@ class InitializeBenchmark {
                 override fun getSerialTaskExecutor(): SerialExecutor {
                     return serialExecutor
                 }
+
+                override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
             }
 
         configuration =

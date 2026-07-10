@@ -9,9 +9,9 @@ package androidx.benchmark.traceprocessor {
 
   @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public final class Insight {
     ctor public Insight(androidx.benchmark.traceprocessor.Insight.Category category, String observedLabel, androidx.benchmark.traceprocessor.PerfettoTrace.Link traceLink);
-    method public androidx.benchmark.traceprocessor.Insight.Category getCategory();
-    method public String getObservedLabel();
-    method public androidx.benchmark.traceprocessor.PerfettoTrace.Link getTraceLink();
+    method @InaccessibleFromKotlin public androidx.benchmark.traceprocessor.Insight.Category getCategory();
+    method @InaccessibleFromKotlin public String getObservedLabel();
+    method @InaccessibleFromKotlin public androidx.benchmark.traceprocessor.PerfettoTrace.Link getTraceLink();
     property public androidx.benchmark.traceprocessor.Insight.Category category;
     property public String observedLabel;
     property public androidx.benchmark.traceprocessor.PerfettoTrace.Link traceLink;
@@ -19,9 +19,9 @@ package androidx.benchmark.traceprocessor {
 
   @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public static final class Insight.Category {
     ctor public Insight.Category(String title, String? titleUrl, String postTitleLabel);
-    method public String getPostTitleLabel();
-    method public String getTitle();
-    method public String? getTitleUrl();
+    method @InaccessibleFromKotlin public String getPostTitleLabel();
+    method @InaccessibleFromKotlin public String getTitle();
+    method @InaccessibleFromKotlin public String? getTitleUrl();
     property public String postTitleLabel;
     property public String title;
     property public String? titleUrl;
@@ -42,11 +42,11 @@ package androidx.benchmark.traceprocessor {
   @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public static final class PerfettoTrace.Link {
     ctor public PerfettoTrace.Link(String title, String path, String urlParamsEncoded);
     ctor public PerfettoTrace.Link(String title, String path, java.util.Map<java.lang.String,java.lang.String> urlParamMap);
-    method public String getMarkdownUriLink();
-    method public String getPath();
-    method public String getTitle();
-    method public String getUri();
-    method public String getUrlParamsEncoded();
+    method @InaccessibleFromKotlin public String getMarkdownUriLink();
+    method @InaccessibleFromKotlin public String getPath();
+    method @InaccessibleFromKotlin public String getTitle();
+    method @InaccessibleFromKotlin public String getUri();
+    method @InaccessibleFromKotlin public String getUrlParamsEncoded();
     property public String markdownUriLink;
     property public String path;
     property public String title;
@@ -62,17 +62,17 @@ package androidx.benchmark.traceprocessor {
     method @BytecodeOnly public Object! computeIfAbsent(String!, java.util.function.Function<? super java.lang.String!,? extends java.lang.Object!>!);
     method @BytecodeOnly public Object! computeIfPresent(String!, java.util.function.BiFunction<? super java.lang.String!,? super java.lang.Object!,? extends java.lang.Object!>!);
     method @BytecodeOnly public boolean containsKey(Object!);
-    method @InaccessibleFromJava public boolean containsKey(String key);
-    method @InaccessibleFromJava public boolean containsValue(Object? value);
+    method public boolean containsKey(String key);
+    method public boolean containsValue(Object? value);
     method public double double(String columnName);
     method @BytecodeOnly public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!>! entrySet();
     method @BytecodeOnly public Object! get(Object!);
-    method @InaccessibleFromJava public operator Object? get(String key);
-    method @BytecodeOnly public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!> getEntries();
-    method @BytecodeOnly public java.util.Set<java.lang.String!> getKeys();
-    method @BytecodeOnly public int getSize();
-    method @BytecodeOnly public java.util.Collection<java.lang.Object!> getValues();
-    method @InaccessibleFromJava public boolean isEmpty();
+    method public operator Object? get(String key);
+    method public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!> getEntries();
+    method public java.util.Set<java.lang.String!> getKeys();
+    method public int getSize();
+    method public java.util.Collection<java.lang.Object!> getValues();
+    method public boolean isEmpty();
     method @BytecodeOnly public java.util.Set<java.lang.String!>! keySet();
     method public long long(String columnName);
     method @BytecodeOnly public Object! merge(String!, Object!, java.util.function.BiFunction<? super java.lang.Object!,? super java.lang.Object!,? extends java.lang.Object!>!);
@@ -121,7 +121,9 @@ package androidx.benchmark.traceprocessor {
 
   public static final class TraceProcessor.Companion {
     method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public <T> T runServer(androidx.benchmark.traceprocessor.ServerLifecycleManager serverLifecycleManager, androidx.benchmark.traceprocessor.TraceProcessor.EventCallback eventCallback, androidx.benchmark.traceprocessor.TraceProcessor.Tracer tracer, optional long timeoutMs, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static Object! runServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, androidx.benchmark.traceprocessor.ServerLifecycleManager!, androidx.benchmark.traceprocessor.TraceProcessor.EventCallback!, androidx.benchmark.traceprocessor.TraceProcessor.Tracer!, long, kotlin.jvm.functions.Function1!, int, Object!);
     method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.ServerLifecycleManager serverLifecycleManager, androidx.benchmark.traceprocessor.TraceProcessor.EventCallback eventCallback, androidx.benchmark.traceprocessor.TraceProcessor.Tracer tracer, optional long timeoutMs);
+    method @BytecodeOnly @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle! startServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, androidx.benchmark.traceprocessor.ServerLifecycleManager!, androidx.benchmark.traceprocessor.TraceProcessor.EventCallback!, androidx.benchmark.traceprocessor.TraceProcessor.Tracer!, long, int, Object!);
   }
 
   public static interface TraceProcessor.EventCallback {
@@ -136,7 +138,7 @@ package androidx.benchmark.traceprocessor {
   public static final class TraceProcessor.Handle implements java.lang.AutoCloseable {
     ctor public TraceProcessor.Handle(androidx.benchmark.traceprocessor.TraceProcessor traceProcessor);
     method public void close();
-    method public androidx.benchmark.traceprocessor.TraceProcessor getTraceProcessor();
+    method @InaccessibleFromKotlin public androidx.benchmark.traceprocessor.TraceProcessor getTraceProcessor();
     property public androidx.benchmark.traceprocessor.TraceProcessor traceProcessor;
   }
 
@@ -151,7 +153,7 @@ package androidx.benchmark.traceprocessor {
   public static final class TraceProcessor.Session.Handle implements java.lang.AutoCloseable {
     ctor public TraceProcessor.Session.Handle(androidx.benchmark.traceprocessor.TraceProcessor.Session session);
     method public void close();
-    method public androidx.benchmark.traceprocessor.TraceProcessor.Session getSession();
+    method @InaccessibleFromKotlin public androidx.benchmark.traceprocessor.TraceProcessor.Session getSession();
     property public androidx.benchmark.traceprocessor.TraceProcessor.Session session;
   }
 

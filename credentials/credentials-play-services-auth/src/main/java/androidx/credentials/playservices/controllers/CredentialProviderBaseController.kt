@@ -16,11 +16,13 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
+import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
@@ -33,7 +35,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.gms.common.api.CommonStatusCodes
 
 /** Holds all non type specific details shared by the controllers. */
-internal open class CredentialProviderBaseController(private val context: Context) {
+internal open class CredentialProviderBaseController(context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found
@@ -91,6 +93,9 @@ internal open class CredentialProviderBaseController(private val context: Contex
         // Key for the failure boolean sent back from hidden activity to controller
         const val FAILURE_RESPONSE_TAG = "FAILURE_RESPONSE"
 
+        // Key for the dummy boolean sent back from hidden activity to controller
+        const val DUMMY_RESPONSE_TAG = "DUMMY_RESPONSE"
+
         // Key for the exception type sent back from hidden activity to controllers if error
         const val EXCEPTION_TYPE_TAG = "EXCEPTION_TYPE"
 
@@ -140,6 +145,12 @@ internal open class CredentialProviderBaseController(private val context: Contex
             this.send(resultCode, bundle)
         }
 
+        internal fun ResultReceiver.reportDummyResult() {
+            val bundle = Bundle()
+            bundle.putBoolean(DUMMY_RESPONSE_TAG, false)
+            this.send(Activity.RESULT_OK, bundle)
+        }
+
         internal fun createCredentialExceptionTypeToException(
             typeName: String?,
             msg: String?,
@@ -156,6 +167,13 @@ internal open class CredentialProviderBaseController(private val context: Contex
                 }
             }
         }
+
+        internal fun <R : Any, E : Any> emptyCallback(): CredentialManagerCallback<R, E> =
+            object : CredentialManagerCallback<R, E> {
+                override fun onResult(result: R) {}
+
+                override fun onError(e: E) {}
+            }
     }
 
     fun <T : ResultReceiver?> toIpcFriendlyResultReceiver(resultReceiver: T): ResultReceiver? {

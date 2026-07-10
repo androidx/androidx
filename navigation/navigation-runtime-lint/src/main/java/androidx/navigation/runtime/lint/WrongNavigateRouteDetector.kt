@@ -69,7 +69,7 @@ class WrongNavigateRouteDetector() : Detector(), SourceCodeScanner {
                 context.getNameLocation(startNode as UElement),
                 """
                 The route should be a destination class instance or destination object.
-                    """
+                """
                     .trimIndent(),
             )
         }

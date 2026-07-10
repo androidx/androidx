@@ -87,6 +87,7 @@ fun createFontFamilyResolver(
 fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
+        AndroidFontResolveInterceptor(context),
         typefaceRequestCache = TypefaceRequestCache(),
         fontListFontFamilyTypefaceAdapter = FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
     )

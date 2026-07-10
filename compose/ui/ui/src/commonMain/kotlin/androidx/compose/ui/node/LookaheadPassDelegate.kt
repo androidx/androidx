@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectList
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -117,7 +118,8 @@ internal class LookaheadPassDelegate(
      * nextChildLookaheadPlaceOrder and increments this counter. Not placed items will still have
      * [NotPlacedPlaceOrder] set.
      */
-    internal var placeOrder: Int = NotPlacedPlaceOrder
+    override var placeOrder: Int = NotPlacedPlaceOrder
+        internal set
 
     internal var measuredByParent = LayoutNode.UsageByParent.NotUsed
     internal val measurePassDelegate: MeasurePassDelegate
@@ -147,7 +149,7 @@ internal class LookaheadPassDelegate(
 
     private var lastExplicitLayer: GraphicsLayer? = null
 
-    override val isPlaced: Boolean
+    internal val isPlaced: Boolean
         get() = _placedState != PlacedState.IsNotPlaced
 
     private var _placedState: PlacedState = PlacedState.IsNotPlaced
@@ -158,6 +160,22 @@ internal class LookaheadPassDelegate(
     override val alignmentLines: AlignmentLines = LookaheadAlignmentLines(this)
 
     private val _childDelegates = MutableVector<LookaheadPassDelegate>()
+
+    internal fun onApproachPlacement() {
+        if (_placedState == PlacedState.IsNotPlaced) {
+            // The node has not been placed *by parent* in the lookahead pass before approach
+            // placement.
+            if (layoutNode.isOutMostLookaheadRoot) {
+                // The above behavior is expected for lookahead roots.
+                return
+            } else {
+                // Not placed in lookahead && this node is not completely detached
+                // from parent's lookahead pass (i.e. properly measured during parent's
+                // lookahead), mark only placement detached from lookahead.
+                layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = true
+            }
+        }
+    }
 
     /**
      * This property indicates whether the lookahead pass delegate needs to be placed in the
@@ -170,23 +188,7 @@ internal class LookaheadPassDelegate(
      *    measuring it.
      */
     val needsToBePlacedInApproach: Boolean
-        get() =
-            if (layoutNode.isOutMostLookaheadRoot) {
-                true
-            } else {
-                if (
-                    _placedState == PlacedState.IsNotPlaced &&
-                        !layoutNodeLayoutDelegate.detachedFromParentLookaheadPass
-                ) {
-                    // Never placed in lookahead. Since this node is not completely detached
-                    // from
-                    // parent's lookahead pass (i.e. properly measured during parent's
-                    // lookahead),
-                    // mark only placement detached from lookahead.
-                    layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = true
-                }
-                detachedFromParentLookaheadPlacement
-            }
+        get() = layoutNode.isOutMostLookaheadRoot || detachedFromParentLookaheadPlacement
 
     internal var childDelegatesDirty: Boolean = true
 
@@ -215,17 +217,32 @@ internal class LookaheadPassDelegate(
         forEachChildAlignmentLinesOwner { child ->
             child.alignmentLines.usedDuringParentLayout = false
         }
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { forAlignment ->
-            layoutNode.children.fastForEach {
-                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = forAlignment
+
+        val lookaheadDelegate =
+            innerCoordinator.lookaheadDelegate ?: error("Expected lookahead delegate")
+        var childrenPlacingForAlignment: MutableObjectList<LayoutNode>? = null
+        layoutNode.children.fastForEach {
+            val childDelegate = it.outerCoordinator.lookaheadDelegate ?: return@fastForEach
+            val isPlacingForAlignment = childDelegate.isPlacingForAlignment
+            if (isPlacingForAlignment) {
+                // This is an edge case that might only happen during recursive alignment
+                // calculations, so we allocate the list here to preserve correctness instead of
+                // reserving a field for this.
+                childrenPlacingForAlignment =
+                    childrenPlacingForAlignment
+                        ?: MutableObjectList<LayoutNode>().also { childrenPlacingForAlignment = it }
+                childrenPlacingForAlignment.add(it)
             }
+            childDelegate.isPlacingForAlignment = lookaheadDelegate.isPlacingForAlignment
         }
-        innerCoordinator.lookaheadDelegate!!.measureResult.placeChildren()
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { _ ->
-            layoutNode.children.fastForEach {
-                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
-            }
+
+        lookaheadDelegate.measureResult.placeChildren()
+
+        layoutNode.children.fastForEach {
+            val wasPlacingForAlignment = childrenPlacingForAlignment?.contains(it) == true
+            it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = wasPlacingForAlignment
         }
+
         checkChildrenPlaceOrderForUpdates()
         forEachChildAlignmentLinesOwner { child ->
             child.alignmentLines.previousUsedDuringParentLayout =
@@ -300,8 +317,8 @@ internal class LookaheadPassDelegate(
      */
     internal fun markNodeAndSubtreeAsNotPlaced(inLookahead: Boolean) {
         if (
-            (inLookahead && detachedFromParentLookaheadPlacement) ||
-                (!inLookahead && !detachedFromParentLookaheadPlacement)
+            (inLookahead && needsToBePlacedInApproach) ||
+                (!inLookahead && !needsToBePlacedInApproach)
         ) {
             // Not in the right pass. No-op
             return
@@ -333,9 +350,10 @@ internal class LookaheadPassDelegate(
                 alignmentLines.usedByModifierLayout = true
             }
         }
+        val wasPlacingForAlignment = innerCoordinator.lookaheadDelegate?.isPlacingForAlignment
         innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = true
         layoutChildren()
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
+        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = wasPlacingForAlignment ?: false
         return alignmentLines.getLastCalculation()
     }
 

@@ -22,8 +22,7 @@ import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.InProgressStrokesFinishedListener
 import androidx.ink.authoring.InProgressStrokesView
 import androidx.ink.strokes.Stroke
-import androidx.pdf.ink.util.StrokeProcessor
-import kotlin.collections.forEach
+import androidx.pdf.ink.util.toStampAnnotation
 
 /**
  * Listener that processes finished "wet" strokes, converts them to annotations, and adds them to
@@ -32,8 +31,7 @@ import kotlin.collections.forEach
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 internal class WetStrokesOnFinishedListener(
     private val wetStrokesView: InProgressStrokesView,
-    private val strokeProcessor: StrokeProcessor?,
-    private val pdfViewZoomProvider: () -> Float,
+    private val strokeIdToPageNumMap: MutableMap<InProgressStrokeId, Int>,
     private val annotationsViewModel: EditableDocumentViewModel,
 ) : InProgressStrokesFinishedListener {
 
@@ -41,8 +39,9 @@ internal class WetStrokesOnFinishedListener(
         super.onStrokesFinished(strokes)
         wetStrokesView.removeFinishedStrokes(strokes.keys)
 
-        strokes.values.forEach { stroke ->
-            strokeProcessor?.process(stroke, pdfViewZoomProvider())?.let { annotation ->
+        for ((id, stroke) in strokes) {
+            strokeIdToPageNumMap[id]?.let { pageNum ->
+                val annotation = stroke.toStampAnnotation(pageNum)
                 annotationsViewModel.addDraftAnnotation(annotation)
             }
         }

@@ -74,13 +74,16 @@ import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
 import androidx.compose.ui.text.android.style.getEllipsizedRightPadding
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.util.fastCoerceAtMost
+import kotlin.concurrent.getOrSet
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-/** We swap canvas delegates, and can share the wrapper. */
-private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
+/** We swap canvas delegates, and can share the wrapper on the current thread. */
+@VisibleForTesting
+internal val SharedTextAndroidCanvas: ThreadLocal<TextAndroidCanvas> = ThreadLocal()
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -508,7 +511,19 @@ constructor(
 
     fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
 
-    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical - topPadding)
+    fun getLineForVertical(vertical: Int): Int {
+        if (lineCount <= 0) return 0
+        return layout.getLineForVertical(vertical - topPadding).fastCoerceAtMost(lineCount - 1)
+    }
+
+    /**
+     * Returns the line number for the vertical position unbounded. The result is not coerced to
+     * [lineCount]. Be careful using this result in line query functions of
+     * [androidx.compose.ui.text.MultiParagraph] because it may throw an [IllegalArgumentException].
+     */
+    fun getLineForVerticalUnbounded(vertical: Int): Int {
+        return layout.getLineForVertical(vertical - topPadding)
+    }
 
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int {
         return layout.getOffsetForHorizontal(line, horizontal + -1 * getHorizontalPadding(line))
@@ -588,7 +603,16 @@ constructor(
         ) + getHorizontalPadding(getLineForOffset(offset))
     }
 
-    fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
+    fun getLineForOffset(offset: Int): Int {
+        if (lineCount <= 0) return 0
+        if (offset >= layout.text.length) {
+            return lineCount - 1
+        }
+        if (offset <= 0) {
+            return 0
+        }
+        return layout.getLineForOffset(offset).fastCoerceAtMost(lineCount - 1)
+    }
 
     fun isRtlCharAt(offset: Int): Boolean = layout.isRtlCharAt(offset)
 
@@ -813,9 +837,9 @@ constructor(
             canvas.translate(0f, topPadding.toFloat())
         }
 
-        with(SharedTextAndroidCanvas) {
-            setCanvas(canvas)
-            layout.draw(this)
+        val threadSharedTextAndroidCanvas = SharedTextAndroidCanvas.getOrSet { TextAndroidCanvas() }
+        threadSharedTextAndroidCanvas.withCanvas(canvas) { clipFixedCanvas ->
+            layout.draw(clipFixedCanvas)
         }
 
         if (topPadding != 0) {

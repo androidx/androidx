@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -32,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(37) }
         namespace = "androidx.compose.ui.test.junit4"
     }
     jvmStubs()
@@ -40,62 +39,60 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":compose:ui:ui-test"))
-                implementation("androidx.annotation:annotation:1.8.1")
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonMain.dependencies {
+            api(project(":compose:ui:ui-test"))
+            implementation("androidx.annotation:annotation:1.8.1")
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        commonTest {
-            dependencies {
-            }
+        jvmAndAndroidMain.dependencies {
+            api(libs.junit)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.junit)
-            }
+        androidMain.dependencies {
+            api("androidx.activity:activity:1.2.1")
+            api("androidx.test.ext:junit:1.1.5")
+            implementation("androidx.activity:activity-compose:1.3.0")
+            implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
+            implementation("androidx.lifecycle:lifecycle-common:2.5.1")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")
+            implementation("androidx.test:core:1.5.0")
+            implementation("androidx.test:monitor:1.6.1")
+            implementation("androidx.test.espresso:espresso-core:3.5.0")
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.activity:activity:1.2.1")
-                api("androidx.test.ext:junit:1.1.5")
-                implementation("androidx.activity:activity-compose:1.3.0")
-                implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
-                implementation("androidx.lifecycle:lifecycle-common:2.5.1")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")
-                implementation("androidx.test:core:1.5.0")
-                implementation("androidx.test:monitor:1.6.1")
-            }
+        jvmStubsMain.dependencies {
+            implementation(libs.truth)
         }
 
-        jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-                implementation(libs.truth)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:animation:animation"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:material:material"))
+            implementation("androidx.fragment:fragment-testing:1.4.1")
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+            implementation(libs.mockitoCore)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoKotlin)
         }
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
+        androidHostTest {
             dependencies {
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:test-utils"))
-                implementation(project(":compose:material:material"))
-                implementation("androidx.fragment:fragment-testing:1.4.1")
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.junit)
                 implementation(libs.truth)
-                implementation(libs.mockitoCore)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.mockitoKotlin)
+                implementation(libs.kotlinTest)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
+                implementation(libs.byteBuddy)
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-fonts"))
+                implementation(project(":compose:test-utils"))
             }
         }
     }
@@ -107,4 +104,6 @@ androidx {
     inceptionYear = "2020"
     description = "Compose testing integration with JUnit4"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
+    samples(project(":compose:ui:ui-test-junit4:ui-test-junit4-samples"))
 }

@@ -17,12 +17,12 @@
 package androidx.compose.material3.benchmark
 
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.util.fastForEach
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -44,11 +44,10 @@ class ButtonGroupBenchmark {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ButtonGroupTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        ButtonGroup(overflowIndicator = {}) {
+        ButtonGroup(overflowIndicator = {}, verticalAlignment = Alignment.Top) {
             val options = listOf("A", "B", "C")
             options.fastForEach { label -> clickableItem(onClick = {}, label = label) }
         }

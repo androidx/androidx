@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.filters.SdkSuppress
-import androidx.xr.scenecore.internal.SpatialEnvironment
+import androidx.xr.scenecore.runtime.SpatialEnvironment
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
 import org.junit.Before
@@ -35,11 +37,12 @@ class FakeSpatialEnvironmentTest {
     @Before
     fun setUp() {
         underTest = FakeSpatialEnvironment()
+        underTest.onRenderingFeatureReady(FakeSpatialEnvironmentFeature())
 
         check(underTest.preferredSpatialEnvironment == null)
         check(
             underTest.preferredPassthroughOpacity ==
-                SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
+                SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
         )
     }
 
@@ -48,7 +51,7 @@ class FakeSpatialEnvironmentTest {
     fun getCurrentPassthroughOpacity_fireDefaultListener_returnsCorrectValue() {
         check(underTest.currentPassthroughOpacity == 0.0f)
 
-        underTest.passthroughOpacityChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.passthroughOpacityChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(1.0f) }
         }
 
@@ -64,7 +67,7 @@ class FakeSpatialEnvironmentTest {
         check(listener.receivedValue == null)
 
         underTest.addOnPassthroughOpacityChangedListener({ command -> command.run() }, listener)
-        underTest.passthroughOpacityChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.passthroughOpacityChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(0.5f) }
         }
 
@@ -84,7 +87,7 @@ class FakeSpatialEnvironmentTest {
 
         underTest.addOnPassthroughOpacityChangedListener({ command -> command.run() }, listener)
         underTest.removeOnPassthroughOpacityChangedListener(listener)
-        underTest.passthroughOpacityChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.passthroughOpacityChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(0.5f) }
         }
 
@@ -99,7 +102,7 @@ class FakeSpatialEnvironmentTest {
     fun getIsPreferredSpatialEnvironmentActive_fireDefaultListener_returnsCorrectValue() {
         check(!underTest.isPreferredSpatialEnvironmentActive)
 
-        underTest.spatialEnvironmentChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.spatialEnvironmentChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(true) }
         }
 
@@ -115,7 +118,7 @@ class FakeSpatialEnvironmentTest {
         check(listener.receivedValue == null)
 
         underTest.addOnSpatialEnvironmentChangedListener({ command -> command.run() }, listener)
-        underTest.spatialEnvironmentChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.spatialEnvironmentChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(true) }
         }
 
@@ -135,7 +138,7 @@ class FakeSpatialEnvironmentTest {
 
         underTest.addOnSpatialEnvironmentChangedListener({ command -> command.run() }, listener)
         underTest.removeOnSpatialEnvironmentChangedListener(listener)
-        underTest.spatialEnvironmentChangedListenerMap.forEach { (executor, consumer) ->
+        underTest.spatialEnvironmentChangedListenerMap.forEach { (consumer, executor) ->
             executor.execute { consumer.accept(true) }
         }
 
@@ -143,6 +146,17 @@ class FakeSpatialEnvironmentTest {
         assertThat(listener.receivedValue).isNull()
         // Default listener is invoked
         assertThat(underTest.isPreferredSpatialEnvironmentActive).isTrue()
+    }
+
+    @Test
+    fun setPreferredSpatialEnvironment_setsCorrectValue() {
+        val rtImage = FakeExrImageResource(0)
+        val rtModel = FakeGltfModelResource(0)
+        val rtPreference = SpatialEnvironment.SpatialEnvironmentPreference(rtImage, rtModel, null)
+
+        underTest.preferredSpatialEnvironment = rtPreference
+
+        assertThat(underTest.preferredSpatialEnvironment).isEqualTo(rtPreference)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)

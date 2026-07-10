@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -10,7 +9,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -25,7 +23,6 @@ dependencies {
     api("androidx.lifecycle:lifecycle-runtime:2.5.1")
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -35,7 +32,6 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
 
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testExtJunit)
@@ -52,9 +48,6 @@ dependencies {
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
     namespace = "androidx.wear"
 }
 
@@ -65,7 +58,6 @@ androidx {
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     failOnDeprecationWarnings = false
-    legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
     enableRobolectric()
 }

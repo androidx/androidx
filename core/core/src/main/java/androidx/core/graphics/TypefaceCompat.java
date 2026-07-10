@@ -268,7 +268,7 @@ public class TypefaceCompat {
             }
 
             FontFamily family;
-            if (TextUtils.isEmpty(fr.getVariationSettings())) {
+            if (!TextUtils.isEmpty(fr.getVariationSettings())) {
                 try {
                     family = new FontFamily.Builder(
                             new Font.Builder(font).setFontVariationSettings(

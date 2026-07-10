@@ -28,7 +28,7 @@ class SignalUnknownCredentialRequestTest {
 
     @Test
     fun isValidSignalRequest_unknownCredential_invalidBase64Url_failure() {
-        val requestJson = "{\"rpId\":\"example.com\",\"credentialId\":\"Zm9mFy+\"}"
+        val requestJson = "{\"rpId\":\"example.com\",\"credentialId\":\"d+\"}"
         assertThat(SignalUnknownCredentialRequest.isValidRequestJson(requestJson)).isFalse()
     }
 

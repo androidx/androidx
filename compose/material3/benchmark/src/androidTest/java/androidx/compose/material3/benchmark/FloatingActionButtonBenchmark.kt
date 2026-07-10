@@ -18,7 +18,6 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.LargeFloatingActionButton
@@ -120,7 +119,6 @@ class FloatingActionButtonBenchmark(private val size: FabSize) {
 
 internal class FloatingActionButtonTestCase(private val size: FabSize) : LayeredComposeTestCase() {
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun MeasuredContent() {
         when (size) {
@@ -148,7 +146,6 @@ internal class FloatingActionButtonTestCase(private val size: FabSize) : Layered
 internal class ExtendedFloatingActionButtonTestCase(private val size: FabSize) :
     LayeredComposeTestCase() {
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun MeasuredContent() {
         when (size) {

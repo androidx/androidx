@@ -1,0 +1,14 @@
+// Signature format: 4.0
+package androidx.datastore.tink {
+
+  public final class AeadSerializer<T> implements androidx.datastore.core.Serializer<T> {
+    ctor @BytecodeOnly public AeadSerializer(com.google.crypto.tink.Aead!, androidx.datastore.core.Serializer!, byte[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public AeadSerializer(com.google.crypto.tink.Aead aead, androidx.datastore.core.Serializer<T> wrappedSerializer, optional byte[] associatedData);
+    method @InaccessibleFromKotlin public T getDefaultValue();
+    method @kotlin.jvm.Throws(exceptionClasses={CorruptionException::class, GeneralSecurityException::class}) public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T>) throws androidx.datastore.core.CorruptionException, java.security.GeneralSecurityException;
+    method public suspend Object? writeTo(T t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public T defaultValue;
+  }
+
+}
+

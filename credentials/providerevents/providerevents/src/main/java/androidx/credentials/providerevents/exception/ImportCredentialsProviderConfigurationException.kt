@@ -16,13 +16,13 @@
 
 package androidx.credentials.providerevents.exception
 
-import androidx.annotation.RestrictTo
+import androidx.credentials.providerevents.ProviderEventsApiProvider
 
 /**
- * During the import credentials flow, this is thrown if the provider dependency is missing in the
- * manifest
+ * During the import credentials flow, this is thrown if a [ProviderEventsApiProvider] was not found
+ * to handle the request. The [ProviderEventsApiProvider] dependency was missing from the app
+ * manifest.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImportCredentialsProviderConfigurationException(errorMessage: String? = null) :
     ImportCredentialsException(
         TYPE_IMPORT_CREDENTIALS_PROVIDER_CONFIGURATION_EXCEPTION,

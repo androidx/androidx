@@ -15,20 +15,23 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Set;
 
 /** The base communication buffer capable of encoding and decoding various types */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WireBuffer {
-    private static final int BUFFER_SIZE = 1024 * 1024;
     int mMaxSize;
     byte @NonNull [] mBuffer;
     int mIndex = 0;
     int mStartingIndex = 0;
     int mSize = 0;
     boolean[] mValidOperations = new boolean[256];
+    @NonNull SystemInfo mSystemInfo = new SystemInfo();
 
     /**
      * Create a wire buffer
@@ -43,7 +46,7 @@ public class WireBuffer {
 
     /** Create a wire buffer of default size */
     public WireBuffer() {
-        this(BUFFER_SIZE);
+        this(Limits.BUFFER_SIZE);
     }
 
     private void resize(int need) {
@@ -51,6 +54,24 @@ public class WireBuffer {
             mMaxSize = Math.max(mMaxSize * 2, mSize + need);
             mBuffer = Arrays.copyOf(mBuffer, mMaxSize);
         }
+    }
+
+    /**
+     * get the system info
+     *
+     * @return system information that can be used during parsing of the buffer
+     */
+    public @NonNull SystemInfo getSystemInfo() {
+        return mSystemInfo;
+    }
+
+    /**
+     * set the system info
+     *
+     * @param systemInfo information that can be used during parsing of the buffer
+     */
+    public void setSystemInfo(@NonNull SystemInfo systemInfo) {
+        mSystemInfo = systemInfo;
     }
 
     /**
@@ -162,6 +183,44 @@ public class WireBuffer {
      */
     public boolean available() {
         return mSize - mIndex > 0;
+    }
+
+    /**
+     * Declare an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the declared ID
+     */
+    public int declareId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the resolved ID
+     */
+    public int readId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN float read from the buffer. Default implementation returns
+     * readFloat().
+     *
+     * @return the resolved float value
+     */
+    public float readNanId() {
+        return readFloat();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN long read from the buffer. Default implementation returns
+     * readLong().
+     *
+     * @return the resolved long value
+     */
+    public long readLongNanId() {
+        return readLong();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -287,7 +346,7 @@ public class WireBuffer {
 
     /**
      * Read a byte buffer limited to max size. bytes are encoded as 4 byte length followed by length
-     * bytes index is increased by 4 + number of bytes Throw an exception if the read excedes the
+     * bytes index is increased by 4 + number of bytes Throw an exception if the read exceeds the
      * max size. This is the preferred form of read buffer.
      *
      * @return byte array
@@ -381,6 +440,19 @@ public class WireBuffer {
     }
 
     /**
+     * overwrite an integer at a specific position a int (4 byte) value
+     *
+     * @param position position to write
+     * @param value value to write
+     */
+    public void overwriteInt(int position, int value) {
+        mBuffer[position++] = (byte) (value >>> 24 & 0xFF);
+        mBuffer[position++] = (byte) (value >>> 16 & 0xFF);
+        mBuffer[position++] = (byte) (value >>> 8 & 0xFF);
+        mBuffer[position] = (byte) (value & 0xFF);
+    }
+
+    /**
      * Write a long (8 byte) value
      *
      * @param value value to write
@@ -432,6 +504,18 @@ public class WireBuffer {
     }
 
     /**
+     * Write a byte array to the wirebuffer
+     *
+     * @param b byte array
+     */
+    public void write(byte @NonNull [] b) {
+        resize(b.length);
+        System.arraycopy(b, 0, mBuffer, mIndex, b.length);
+        mIndex += b.length;
+        mSize += b.length;
+    }
+
+    /**
      * Write a string is encoded as UTF8
      *
      * @param content the string to write
@@ -473,8 +557,51 @@ public class WireBuffer {
      *     Any operation code not in this set will be considered invalid.
      */
     public void setValidOperations(@NonNull Set<Integer> supportedOperations) {
+        Arrays.fill(mValidOperations, false);
         for (Integer o : supportedOperations) {
             mValidOperations[o] = true;
+        }
+    }
+
+    /**
+     * Move the commands from beyond to mSize to insertLocation. The support pushing commands to
+     * earlier in the buffer <code><br>
+     *  before:  0..... ........ xxxxxxxx mSize<br>
+     *  insertLocation ^ beyond ^<br>
+     *  after: 0..... xxxxxxxx ........  mSize>br>
+     *  </code>
+     *
+     * @param beyond the index to move from
+     * @param insertLocation the index to move to
+     */
+    public void moveBlock(int beyond, int insertLocation) {
+        if (insertLocation < 0 || beyond > mSize || insertLocation >= beyond) {
+            return;
+        }
+
+        int lengthOfBlockA = beyond - insertLocation;
+        int lengthOfBlockB = mSize - beyond;
+
+        if (lengthOfBlockB < lengthOfBlockA) {
+            // Strategy: Copy Block B (the moving part) out, shift A, put B back.
+            byte[] temp = new byte[lengthOfBlockB];
+            System.arraycopy(mBuffer, beyond, temp, 0, lengthOfBlockB);
+            // System.arraycopy handles overlapping regions safely.
+            System.arraycopy(
+                    mBuffer,
+                    insertLocation,
+                    mBuffer,
+                    insertLocation + lengthOfBlockB,
+                    lengthOfBlockA);
+            System.arraycopy(temp, 0, mBuffer, insertLocation, lengthOfBlockB);
+
+        } else {
+            // Strategy: Copy Block A (the shifting part) out, move B, put A back.
+            // This is efficient when the gap we are crossing is small
+            byte[] temp = new byte[lengthOfBlockA];
+            System.arraycopy(mBuffer, insertLocation, temp, 0, lengthOfBlockA);
+            System.arraycopy(mBuffer, beyond, mBuffer, insertLocation, lengthOfBlockB);
+            System.arraycopy(temp, 0, mBuffer, insertLocation + lengthOfBlockB, lengthOfBlockA);
         }
     }
 }

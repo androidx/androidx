@@ -16,7 +16,6 @@
 
 package androidx.appsearch.safeparcel;
 
-
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -24,6 +23,7 @@ import android.os.Parcelable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
@@ -38,9 +38,8 @@ import java.util.Objects;
  * A {@link SafeParcelable} to hold the value of a property in {@code GenericDocument#mProperties}.
  *
  * <p>This resembles PropertyProto in IcingLib.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SafeParcelable.Class(creator = "PropertyParcelCreator")
 // This won't be used to send data over binder, and we have to use Parcelable for code sync purpose.

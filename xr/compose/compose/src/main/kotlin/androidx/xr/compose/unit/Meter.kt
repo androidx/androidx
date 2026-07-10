@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "DEPRECATION")
 
 package androidx.xr.compose.unit
 
@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isFinite
 import androidx.compose.ui.unit.isSpecified
-import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import androidx.xr.scenecore.ActivitySpace
+import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.runtime.TypeHolder
+import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import com.android.extensions.xr.XrExtensions
 import kotlin.math.roundToInt
 
@@ -36,6 +39,10 @@ import kotlin.math.roundToInt
  */
 @Immutable
 @JvmInline
+@Deprecated(
+    "Use LocalSession.current?.scene?.virtualPixelDensity instead. See " +
+        "androidx.xr.compose.samples.SceneCoreEntitySample for an example."
+)
 public value class Meter(public val value: Float) : Comparable<Meter> {
 
     /**
@@ -126,6 +133,7 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
     /**
      * Converts this [Meter] value to an approximate number of pixels it contains.
      *
+     * @param density the pixel density of the display.
      * @return the approximate equivalent value in pixels as a [Float].
      */
     public inline fun toPx(density: Density): Float {
@@ -138,6 +146,7 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
      * Converts this [Meter] value to the nearest [Int] number of pixels, taking into account
      * [density].
      *
+     * @param density the pixel density of the display.
      * @return the rounded equivalent value in pixels as an [Int].
      */
     public inline fun roundToPx(density: Density): Int {
@@ -186,7 +195,7 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
          * was measured on the current Android XR device and will need to be updated if the device's
          * config changes.
          */
-        private const val DP_PER_METER_FALLBACK: Float = 1151.856f
+        private const val DP_PER_METER_FALLBACK: Float = 2000f
 
         /**
          * DPs per meter. The system's API is in pixels, but we can get the value we want be
@@ -206,9 +215,14 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
         /**
          * Attempts to retrieve an instance of [XrExtensions].
          *
-         * @return an instance of [XrExtensions] if available, or [null] otherwise.
+         * @return an instance of [XrExtensions] if available, or `null` otherwise.
          */
-        private fun getXrExtensions(): XrExtensions? = XrExtensionsProvider.getXrExtensions()
+        // TODO (b/515242854) - Remove the suppress before Compose goes to Beta.
+        @Suppress("RestrictedApiAndroidX")
+        private fun getXrExtensions(): XrExtensions? =
+            XrExtensionsHolderAccessor.holderLegacy?.let {
+                TypeHolder.safeCast(it, XrExtensions::class.java)?.value
+            }
 
         /**
          * Creates a [Meter] value from a given number of pixels.
@@ -220,10 +234,8 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
         public inline fun fromPixel(px: Float, density: Density): Meter {
             with(density) {
                 // We do the conversion inline instead of calling Dp.toMeter(), which will check its
-                // inputs.
-                // We know if the input is an integer pixel, we won't have any exceptional Dp
-                // values, e.g.,
-                // Dp.Infinity.
+                // inputs. We know if the input is an integer pixel, we won't have any exceptional
+                // Dp values, e.g., Dp.Infinity.
                 return Meter(px.toDp().value / DP_PER_METER)
             }
         }
@@ -276,6 +288,10 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
  * @return the equivalent value in meters, or [Meter.NaN] if the [Dp] is unspecified, or
  *   [Meter.Infinity] if the [Dp] is infinite.
  */
+@Deprecated(
+    "Use LocalSession.current?.scene?.virtualPixelDensity instead. See " +
+        "androidx.xr.compose.samples.SceneCoreEntitySample for an example."
+)
 public inline fun Dp.toMeter(): Meter {
     if (!isSpecified) {
         return Meter.NaN
@@ -286,16 +302,82 @@ public inline fun Dp.toMeter(): Meter {
     return Meter(this.value / Meter.DP_PER_METER)
 }
 
+/** Converts a Float value representing meters in [ActivitySpace] to virtual pixels. */
+internal fun Float.metersToPx(pixelDensity: PixelDensity): Float =
+    pixelDensity.convertMetersToPixels(this)
+
+/** Converts a Float value representing virtual pixels to meters in [ActivitySpace]. */
+internal fun Float.pxToMeters(pixelDensity: PixelDensity): Float =
+    pixelDensity.convertPixelsToMeters(this)
+
+/** Converts an Int value representing virtual pixels to meters in [ActivitySpace]. */
+internal fun Int.pxToMeters(pixelDensity: PixelDensity): Float =
+    this.toFloat().pxToMeters(pixelDensity)
+
+/** Converts a Float value representing meters in [ActivitySpace] to rounded virtual pixels. */
+internal fun Float.roundMetersToPx(pixelDensity: PixelDensity): Int =
+    metersToPx(pixelDensity).roundToInt()
+
+/** Uses [density] to convert a [Dp] value to meters in [ActivitySpace]. */
+internal fun Dp.toMeters(density: Density, pixelDensity: PixelDensity): Float =
+    with(density) { toPx().pxToMeters(pixelDensity) }
+
+/** Uses [density] to convert a Float value representing meters in [ActivitySpace] to [Dp]. */
+internal fun Float.metersToDp(density: Density, pixelDensity: PixelDensity): Dp =
+    with(density) { metersToPx(pixelDensity).toDp() }
+
 // Operator functions for performing arithmetic operations between numeric types and Meter
 
+/**
+ * Multiplies an [Int] factor by a [Meter] value.
+ *
+ * @param other the [Meter] value to multiply by.
+ * @return a new [Meter] representing the product.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Int.times(other: Meter): Meter = Meter(this * other.value)
 
+/**
+ * Multiplies a [Float] factor by a [Meter] value.
+ *
+ * @param other the [Meter] value to multiply by.
+ * @return a new [Meter] representing the product.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Float.times(other: Meter): Meter = Meter(this * other.value)
 
+/**
+ * Multiplies a [Double] factor by a [Meter] value.
+ *
+ * @param other the [Meter] value to multiply by.
+ * @return a new [Meter] representing the product.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Double.times(other: Meter): Meter = Meter(this.toFloat() * other.value)
 
+/**
+ * Divides an [Int] value by a [Meter] value.
+ *
+ * @param other the [Meter] value to divide by.
+ * @return a new [Meter] representing the quotient.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Int.div(other: Meter): Meter = Meter(this / other.value)
 
+/**
+ * Divides a [Float] value by a [Meter] value.
+ *
+ * @param other the [Meter] value to divide by.
+ * @return a new [Meter] representing the quotient.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Float.div(other: Meter): Meter = Meter(this / other.value)
 
+/**
+ * Divides a [Double] value by a [Meter] value.
+ *
+ * @param other the [Meter] value to divide by.
+ * @return a new [Meter] representing the quotient.
+ */
+@Deprecated("Meter class is deprecated. Use Float math instead.")
 public inline operator fun Double.div(other: Meter): Meter = Meter(this.toFloat() / other.value)

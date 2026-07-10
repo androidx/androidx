@@ -86,5 +86,10 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
                         return null;
                     });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

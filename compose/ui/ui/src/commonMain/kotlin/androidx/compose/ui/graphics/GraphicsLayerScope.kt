@@ -219,6 +219,16 @@ interface GraphicsLayerScope : Density {
      */
     val size: Size
         get() = Size.Unspecified
+
+    /**
+     * Adds to the size of the layer increasing its bounds. This can be used to prevent content that
+     * renders outside the layer's size (such as shadows) from being clipped if the graphicsLayer is
+     * promoted to an offscreen rasterization layer. The clip and shadow will still be based on the
+     * original size of the layer.
+     */
+    var outsets: LayerOutsets
+        get() = LayerOutsets.Zero
+        set(_) {}
 }
 
 private class GraphicsContextObserver(private val graphicsContext: GraphicsContext) :
@@ -276,6 +286,7 @@ internal object Fields {
     const val RenderEffect: Int = 0b1 shl 17
     const val ColorFilter: Int = 0b1 shl 18
     const val BlendMode: Int = 0b1 shl 19
+    const val Outsets: Int = 0b1 shl 20
 
     const val MatrixAffectingFields =
         ScaleX or
@@ -422,6 +433,14 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
 
     override var size: Size = Size.Unspecified
 
+    override var outsets: LayerOutsets = LayerOutsets.Zero
+        set(value) {
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.Outsets
+                field = value
+            }
+        }
+
     internal var graphicsDensity: Density = Density(1.0f)
 
     internal var layoutDirection: LayoutDirection = LayoutDirection.Ltr
@@ -479,6 +498,7 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         colorFilter = null
         blendMode = BlendMode.SrcOver
         compositingStrategy = CompositingStrategy.Auto
+        outsets = LayerOutsets.Zero
         size = Size.Unspecified
         outline = null
         // mutatedFields should be reset last as all the setters above modify it.

@@ -31,27 +31,52 @@ data class AppFunctionPropertyDeclaration(
     val propertyAnnotations: Sequence<KSAnnotation> = emptySequence(),
     val qualifiedName: String,
 ) {
-    /** Creates an [AppFunctionPropertyDeclaration] from [KSPropertyDeclaration]. */
-    constructor(
-        property: KSPropertyDeclaration,
-        isDescribedByKdoc: Boolean,
-        isRequired: Boolean,
-        sharedDataTypeDescriptionMap: Map<String, String>,
-    ) : this(
-        checkNotNull(property.simpleName).asString(),
-        property.type,
-        if (isDescribedByKdoc) {
-            property.docString?.ifEmpty {
-                sharedDataTypeDescriptionMap[property.getQualifiedName()]
-            } ?: ""
-        } else {
-            ""
-        },
-        isRequired,
-        property.annotations,
-        property.getQualifiedName(),
-    )
-
     /** Indicates whether the [type] is a generic type or not. */
     val isGenericType: Boolean by lazy { type.resolve().declaration is KSTypeParameter }
+
+    companion object {
+        /** Creates an [AppFunctionPropertyDeclaration] from [KSPropertyDeclaration]. */
+        fun create(
+            property: KSPropertyDeclaration,
+            isDescribedByKDoc: Boolean,
+            isRequired: Boolean,
+            sharedDataTypeDescriptionMap: Map<String, String>,
+            properTagDescriptions: Map<String, String> = emptyMap(),
+            paramTagDescriptions: Map<String, String> = emptyMap(),
+        ): AppFunctionPropertyDeclaration {
+            val instruction =
+                property.annotations
+                    .findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+                    ?.requirePropertyValueOfType(
+                        IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                        String::class,
+                    )
+
+            val docString = property.docString
+            val propertyName = checkNotNull(property.simpleName).asString()
+            val description =
+                instruction
+                    ?: if (isDescribedByKDoc) {
+                        if (!docString.isNullOrEmpty()) {
+                            docString
+                        } else {
+                            properTagDescriptions[propertyName]
+                                ?: paramTagDescriptions[propertyName]
+                                ?: sharedDataTypeDescriptionMap[property.getQualifiedName()]
+                                ?: ""
+                        }
+                    } else {
+                        ""
+                    }
+
+            return AppFunctionPropertyDeclaration(
+                checkNotNull(property.simpleName).asString(),
+                property.type,
+                description,
+                isRequired,
+                property.annotations,
+                property.getQualifiedName(),
+            )
+        }
+    }
 }

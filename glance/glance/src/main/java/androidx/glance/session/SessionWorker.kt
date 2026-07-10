@@ -124,10 +124,13 @@ public class SessionWorker(
                     withTimerOrNull(timeouts.timeSource) {
                         observeIdleEvents(
                             applicationContext,
-                            onIdle = {
+                            onIdle = { action ->
                                 startTimer(timeouts.idleTimeout)
-                                if (DEBUG)
-                                    Log.d(TAG, "Received idle event, session timeout $timeLeft")
+                                Log.d(
+                                    TAG,
+                                    "Session ${currentSession.key} received idle event ($action)," +
+                                        "timeout in $timeLeft",
+                                )
                             },
                         ) {
                             runSession(
@@ -151,6 +154,7 @@ public class SessionWorker(
                 nextSession = sessionManager.runWithLock { recreateOrClose(currentSession) }
             } finally {
                 if (currentSession.hasError) {
+                    Log.e(TAG, "Closing session ${currentSession.key} due to error")
                     // An error was thrown, make sure to close the session.
                     withContext(NonCancellable) {
                         sessionManager.runWithLock { closeSession(currentSession.key) }
@@ -234,7 +238,13 @@ private suspend fun TimerScope.runSession(
                         }
                         lastRecomposeCount = recomposer.changeCount
                     }
-                    Recomposer.State.ShutDown -> cancel()
+                    Recomposer.State.ShutDown -> {
+                        Log.d(
+                            SessionWorker.TAG,
+                            "Recomposer for session ${session.key} shut down, cancelling worker",
+                        )
+                        cancel()
+                    }
                     else -> {}
                 }
             }

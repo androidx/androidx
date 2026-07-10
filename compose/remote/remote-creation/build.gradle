@@ -24,7 +24,7 @@ plugins {
 
 androidx {
     name = "Remote Compose Creation"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Provides a procedural API to create RemoteCompose documents"
 }
@@ -33,55 +33,55 @@ androidXMultiplatform {
     androidLibrary {
         withJava()
         namespace = "androidx.compose.remote.creation"
-        compileSdk = 35
+        minSdk { version = release(23) }
     }
     jvm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.jspecify)
-            }
+        commonMain.dependencies {
+            api(libs.jspecify)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":compose:remote:remote-core"))
-            }
+        jvmAndAndroidMain.dependencies {
+            api(project(":compose:remote:remote-core"))
+            api(project(":compose:remote:remote-creation-core"))
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":compose:remote:remote-core"))
-                api(project(":compose:remote:remote-creation-core"))
-                implementation(project(":graphics:graphics-path"))
-            }
+        jvmMain.dependencies {
+            api(project(":compose:remote:remote-core"))
+            api(project(":compose:remote:remote-creation-core"))
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api(project(":compose:remote:remote-core"))
+            api(project(":compose:remote:remote-creation-core"))
+            implementation("androidx.graphics:graphics-path:1.1.0-rc01")
         }
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.kotlinTest)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(project(":compose:remote:test-utils"))
-                implementation(project(":compose:remote:remote-player-view"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-test-manifest"))
-            }
+        jvmTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
+            implementation(project(":compose:remote:remote-core"))
+            implementation project(':compose:remote:remote-creation-core')
+            implementation(project(":compose:remote:remote-core-testutils"))
+            implementation("org.yaml:snakeyaml:2.4")
+            implementation("org.jetbrains.kotlin:kotlin-stdlib")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinTest)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(project(":compose:remote:remote-core-testutils"))
+            implementation(project(":compose:remote:remote-player-view"))
+            implementation(project(":compose:ui:ui-test-junit4"))
         }
     }
 }

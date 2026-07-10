@@ -34,9 +34,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation3.runtime.DecoratedNavEntryProvider
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.samples.CommonUiNavDisplay.DEFAULT_TRANSITION_DURATION_MILLISECOND
 import androidx.navigation3.runtime.samples.CommonUiNavDisplay.NAV_UI_LAYOUT_POLICY
 import androidx.navigation3.runtime.samples.CommonUiNavDisplay.POP_TRANSITION_SPEC
@@ -80,7 +80,7 @@ fun <T : Any> CommonUiNavDisplay(
     topLevelRoutes: List<TopLevelRoute>,
     onItemClick: (TopLevelRoute) -> Unit,
     modifier: Modifier = Modifier,
-    entryDecorators: List<NavEntryDecorator<*>> = emptyList(),
+    entryDecorators: List<NavEntryDecorator<T>> = emptyList(),
     contentAlignment: Alignment = Alignment.TopStart,
     sizeTransform: SizeTransform? = null,
     transitionSpec: ContentTransform =
@@ -91,57 +91,53 @@ fun <T : Any> CommonUiNavDisplay(
         ),
     popTransitionSpec: ContentTransform = transitionSpec,
     onBack: () -> Unit = { if (backstack is MutableList) backstack.removeAt(backstack.size - 1) },
-    entryProvider: (key: T) -> NavEntry<out T>,
+    entryProvider: (key: T) -> NavEntry<T>,
 ) {
     BackHandler(backstack.size > 1, onBack)
-    DecoratedNavEntryProvider(backstack, entryProvider, entryDecorators) { entries ->
-        // Make a copy shallow copy so that transition.currentState and transition.targetState are
-        // different backstack instances. This ensures currentState reflects the old backstack when
-        // the backstack (targetState) is updated.
-        val newStack = entries.map { it.contentKey }
-        val entry = entries.last()
-        val transition = updateTransition(targetState = newStack, label = newStack.toString())
-        val isPop = isPop(transition.currentState, newStack)
-        // Incoming entry defines transitions, otherwise it uses default transitions from
-        // NavDisplay
-        val contentTransform =
-            if (isPop) {
-                entry.metadata[POP_TRANSITION_SPEC] as? ContentTransform ?: popTransitionSpec
-            } else {
-                entry.metadata[TRANSITION_SPEC] as? ContentTransform ?: transitionSpec
-            }
-        transition.AnimatedContent(
-            modifier = modifier,
-            transitionSpec = {
-                ContentTransform(
-                    targetContentEnter = contentTransform.targetContentEnter,
-                    initialContentExit = contentTransform.initialContentExit,
-                    sizeTransform = contentTransform.sizeTransform,
-                )
+    val entries = rememberDecoratedNavEntries(backstack, entryDecorators, entryProvider)
+    // Make a copy shallow copy so that transition.currentState and transition.targetState are
+    // different backstack instances. This ensures currentState reflects the old backstack when
+    // the backstack (targetState) is updated.
+    val newStack = entries.map { it.contentKey }
+    val entry = entries.last()
+    val transition = updateTransition(targetState = newStack, label = newStack.toString())
+    val isPop = isPop(transition.currentState, newStack)
+    // Incoming entry defines transitions, otherwise it uses default transitions from
+    // NavDisplay
+    val contentTransform =
+        if (isPop) {
+            entry.metadata[POP_TRANSITION_SPEC] as? ContentTransform ?: popTransitionSpec
+        } else {
+            entry.metadata[TRANSITION_SPEC] as? ContentTransform ?: transitionSpec
+        }
+    transition.AnimatedContent(
+        modifier = modifier,
+        transitionSpec = {
+            ContentTransform(
+                targetContentEnter = contentTransform.targetContentEnter,
+                initialContentExit = contentTransform.initialContentExit,
+                sizeTransform = contentTransform.sizeTransform,
+            )
+        },
+        contentAlignment = contentAlignment,
+        contentKey = { it.last() },
+    ) { innerStack ->
+        val lastKey = innerStack.last()
+        val layoutPolicy =
+            entry.metadata[NAV_UI_LAYOUT_POLICY] as? NavUiLayoutPolicy ?: NavUiLayoutPolicy.Default
+        NavigationSuiteScaffold(
+            layoutType = layoutPolicy.toLayoutType(),
+            navigationSuiteItems = {
+                topLevelRoutes.forEach { topLevelRoute ->
+                    item(
+                        selected = topLevelRoute.route == innerStack.last(),
+                        onClick = { onItemClick(topLevelRoute) },
+                        icon = { Icon(imageVector = topLevelRoute.icon, contentDescription = null) },
+                    )
+                }
             },
-            contentAlignment = contentAlignment,
-            contentKey = { it.last() },
-        ) { innerStack ->
-            val lastKey = innerStack.last()
-            val layoutPolicy =
-                entry.metadata[NAV_UI_LAYOUT_POLICY] as? NavUiLayoutPolicy
-                    ?: NavUiLayoutPolicy.Default
-            NavigationSuiteScaffold(
-                layoutType = layoutPolicy.toLayoutType(),
-                navigationSuiteItems = {
-                    topLevelRoutes.forEach { topLevelRoute ->
-                        item(
-                            selected = topLevelRoute.route == innerStack.last(),
-                            onClick = { onItemClick(topLevelRoute) },
-                            icon = {
-                                Icon(imageVector = topLevelRoute.icon, contentDescription = null)
-                            },
-                        )
-                    }
-                },
-            ) {
-                entries.findLast { entry -> entry.contentKey == lastKey }?.Content()
-            }
+        ) {
+            entries.findLast { entry -> entry.contentKey == lastKey }?.Content()
         }
     }
 }
@@ -154,6 +150,7 @@ enum class NavUiLayoutPolicy {
     NoNavBar; // Never show the nav bar
 
     @Composable
+    @Suppress("DEPRECATION") // Move to currentWindowAdaptiveInfoV2 when dependency is updated
     fun toLayoutType(): NavigationSuiteType {
         val defaultLayout =
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())

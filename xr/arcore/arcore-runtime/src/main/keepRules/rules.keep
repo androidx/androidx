@@ -1,0 +1,32 @@
+# androidx.xr.arcore.runtime.Anchor is referenced by native code.
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.runtime.Anchor { *; }
+
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.runtime.Anchor$PersistenceState { *; }
+
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.runtime.Anchor$PersistenceState$Companion { *; }
+
+# androidx.xr.arcore.runtime.Geospatial is referenced by native code.
+-if class androidx.xr.arcore.Geospatial
+-keep class androidx.xr.arcore.runtime.Geospatial { *; }
+
+-if class androidx.xr.arcore.Geospatial
+-keep class androidx.xr.arcore.runtime.Geospatial$GeospatialPoseResult { *; }
+
+# androidx.xr.arcore.runtime.Plane is referenced by native code.
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.runtime.Plane { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.runtime.Plane$Label { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.runtime.Plane$Label$Companion { *; }
+
+-if class ** implements androidx.xr.arcore.runtime.Trackable
+-keep class androidx.xr.arcore.runtime.TrackingState { *; }
+
+-if class androidx.xr.arcore.runtime.TrackingState
+-keep class androidx.xr.arcore.runtime.TrackingState$Companion { *; }

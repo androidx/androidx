@@ -48,6 +48,7 @@ import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -121,6 +122,7 @@ public class BrowseSupportFragmentTest {
         });
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/460508283
     @Test
     public void testTouchMode() throws Throwable {
         Intent intent = new Intent();

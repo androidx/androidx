@@ -36,7 +36,7 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
  *
  * @sample androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
  *
- * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]:
+ * Example of using [androidx.wear.compose.foundation.edgeSwipeToDismiss] with [SwipeToDismissBox]:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
  *
@@ -98,7 +98,7 @@ public fun SwipeToDismissBox(
  *
  * @sample androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
  *
- * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]:
+ * Example of using [androidx.wear.compose.foundation.edgeSwipeToDismiss] with [SwipeToDismissBox]:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
  *

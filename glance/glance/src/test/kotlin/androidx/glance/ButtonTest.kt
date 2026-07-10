@@ -24,6 +24,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.runTestingComposition
+import androidx.glance.text.EmittableText
 import androidx.glance.text.TextStyle
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
@@ -99,11 +100,14 @@ class ButtonTest {
                 )
             }
 
-            val child = assertIs<EmittableButton>(root.children.single())
-            val asText = child.toEmittableText()
+            val emittableButton: EmittableButton = assertIs<EmittableButton>(root.children.single())
+            val asText: EmittableText = emittableButton.toEmittableText()
+
+            val emittableTextModifier = asText.modifier
+            val emittableButtonModifier = emittableButton.modifier
 
             assertThat(asText.text).isEqualTo("button")
-            assertThat(asText.modifier).isEqualTo(child.modifier)
+            assertThat(emittableTextModifier).isEqualTo(emittableButtonModifier)
             assertThat(asText.style?.fontSize).isEqualTo(12.sp)
             assertThat(asText.maxLines).isEqualTo(3)
         }

@@ -35,6 +35,20 @@ class QuaternionTest {
     }
 
     @Test
+    fun constructor_nonNormalizedValues_returnsQuaternionNormalized() {
+        val underTest = Quaternion(1f, 2f, 3f, 4f)
+        assertRotation(underTest, 0.1825742f, 0.3651484f, 0.5477226f, 0.7302967f)
+    }
+
+    @Test
+    fun constructor_zeroLengthInput_returnsIdentityQuaternion() {
+        // A zero-length input cannot be normalized; it must fall back to identity rather than
+        // dividing by zero and producing an all-NaN quaternion.
+        val underTest = Quaternion(0f, 0f, 0f, 0f)
+        assertRotation(underTest, 0f, 0f, 0f, 1f)
+    }
+
+    @Test
     fun equals_sameValues_returnsTrue() {
         val underTest = Quaternion(1f, 2f, 3f, 4f)
         val underTest2 = Quaternion(1f, 2f, 3f, 4f)
@@ -183,20 +197,6 @@ class QuaternionTest {
     }
 
     @Test
-    fun normalized_returnsQuaternionNormalized() {
-        val underTest = Quaternion(1f, 2f, 3f, 4f)
-        val underTestNormalized = underTest.toNormalized()
-
-        assertRotation(
-            underTest,
-            underTestNormalized.x,
-            underTestNormalized.y,
-            underTestNormalized.z,
-            underTestNormalized.w,
-        )
-    }
-
-    @Test
     fun inverted_returnsQuaternionInverted() {
         val underTest = Quaternion(1f, 2f, 3f, 4f)
         val underTestInverted = underTest.inverse
@@ -242,14 +242,6 @@ class QuaternionTest {
         val underTestTimes = underTest * underTest2
 
         assertRotation(underTestTimes, 0.6090002f, -0.442909f, -0.16609f, -0.63668f)
-    }
-
-    @Test
-    fun div_returnsQuaternionDividedByScalar() {
-        val underTest = Quaternion(0f, 0f, 0f, 1f)
-        val underTestDiv = underTest / 2f
-
-        assertRotation(underTestDiv, 0f, 0f, 0f, 1f)
     }
 
     @Test
@@ -494,5 +486,108 @@ class QuaternionTest {
             Quaternion.fromLookTowards(Vector3(1f, 0f, 0f), Vector3(0f, 1f, 0f))
 
         assertRotation(resultantQuaternion2, 0f, 0.707107f, 0f, 0.707107f)
+    }
+
+    @Test
+    fun fromLookTowards_upParallelToForward_returnsWellDefinedRotation() {
+        // up is parallel to forward, so the naive right = up x forward is the zero vector and
+        // would normalize to NaN. The fallback must still yield a finite, valid rotation.
+        val forward = Vector3(0f, 1f, 0f)
+        val result = Quaternion.fromLookTowards(forward, Vector3(0f, 1f, 0f))
+
+        assertThat(result.x.isNaN()).isFalse()
+        assertThat(result.y.isNaN()).isFalse()
+        assertThat(result.z.isNaN()).isFalse()
+        assertThat(result.w.isNaN()).isFalse()
+
+        // Contract: the rotation maps the reference forward (+Z, the identity look direction) onto
+        // the requested forward direction. Asserting the contract avoids hand-computing components.
+        val rotatedForward = result * Vector3.Backward
+        assertThat(rotatedForward.x).isWithin(1e-5f).of(forward.x)
+        assertThat(rotatedForward.y).isWithin(1e-5f).of(forward.y)
+        assertThat(rotatedForward.z).isWithin(1e-5f).of(forward.z)
+    }
+
+    @Test
+    fun axisAngle_withMarginallyOutOfBoundsW_doesNotReturnNaN() {
+        val underTest = Quaternion.Identity.copy(w = 1.000001f)
+        try {
+            val field = Quaternion::class.java.getDeclaredField("w")
+            field.isAccessible = true
+            field.set(underTest, 1.000001f)
+        } catch (e: Exception) {
+            // Fallback if reflection is not allowed by the runtime environment
+        }
+
+        val (axis, angle) = underTest.axisAngle
+
+        assertThat(axis.x.isNaN()).isFalse()
+        assertThat(axis.y.isNaN()).isFalse()
+        assertThat(axis.z.isNaN()).isFalse()
+        assertThat(angle.isNaN()).isFalse()
+    }
+
+    @Test
+    fun constructor_underflowInput_returnsIdentityQuaternion() {
+        // Values that are non-zero but their squared sum underflows to 0.0f
+        // must fall back to the identity rotation rather than NaN.
+        val underTest = Quaternion(1e-25f, 1e-25f, 1e-25f, 1e-25f)
+        assertRotation(underTest, 0f, 0f, 0f, 1f)
+    }
+
+    @Test
+    fun constructor_subThresholdInput_returnsIdentityQuaternion() {
+        // Length of this quaternion is sqrt(4 * 9e-18) = 6e-9f, which is below NORMALIZE_EPSILON
+        // (1e-8f)
+        val underTest = Quaternion(3e-9f, 3e-9f, 3e-9f, 3e-9f)
+        assertRotation(underTest, 0f, 0f, 0f, 1f)
+    }
+
+    @Test
+    fun constructor_aboveThresholdInput_normalizesQuaternion() {
+        // Length of this quaternion is sqrt(4 * 9e-16) = 6e-8f, which is above NORMALIZE_EPSILON
+        // (1e-8f)
+        val underTest = Quaternion(3e-8f, 3e-8f, 3e-8f, 3e-8f)
+        assertRotation(underTest, 0.5f, 0.5f, 0.5f, 0.5f)
+    }
+
+    @Test
+    fun axisAngle_withNegativeMarginallyOutOfBoundsW_doesNotReturnNaN() {
+        val underTest = Quaternion.Identity.copy(w = -1.000001f)
+        try {
+            val field = Quaternion::class.java.getDeclaredField("w")
+            field.isAccessible = true
+            field.set(underTest, -1.000001f)
+        } catch (e: Exception) {
+            // Fallback if reflection is not allowed
+        }
+
+        val (axis, angle) = underTest.axisAngle
+
+        assertThat(axis.x.isNaN()).isFalse()
+        assertThat(axis.y.isNaN()).isFalse()
+        assertThat(axis.z.isNaN()).isFalse()
+        assertThat(angle.isNaN()).isFalse()
+        // angle should be close to 360 (due to clamp capping w at -1.0, acos(-1) = pi, angle = 2pi
+        // rad = 360 deg)
+        assertThat(angle).isWithin(1e-3f).of(360f)
+    }
+
+    @Test
+    fun fromLookTowards_upParallelToForwardPointingAlongX_returnsWellDefinedRotation() {
+        // forward points along X, up is parallel to it.
+        // forwardNormalized.y is 0, so it triggers Vector3.Up fallback.
+        val forward = Vector3(1f, 0f, 0f)
+        val result = Quaternion.fromLookTowards(forward, Vector3(1f, 0f, 0f))
+
+        assertThat(result.x.isNaN()).isFalse()
+        assertThat(result.y.isNaN()).isFalse()
+        assertThat(result.z.isNaN()).isFalse()
+        assertThat(result.w.isNaN()).isFalse()
+
+        val rotatedForward = result * Vector3.Backward
+        assertThat(rotatedForward.x).isWithin(1e-5f).of(forward.x)
+        assertThat(rotatedForward.y).isWithin(1e-5f).of(forward.y)
+        assertThat(rotatedForward.z).isWithin(1e-5f).of(forward.z)
     }
 }

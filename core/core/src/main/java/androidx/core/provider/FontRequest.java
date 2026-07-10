@@ -61,19 +61,29 @@ public final class FontRequest {
         this(providerAuthority, providerPackage, query, certificates, null, null);
     }
 
-    @RestrictTo(LIBRARY)
-    public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+    /**
+     * @param providerAuthority The authority of the Font Provider to be used for the request.
+     * @param query The query to be sent over to the provider. Refer to your font provider's
+     *         documentation on the format of this string.
+     * @param providerPackage The package for the Font Provider to be used for the request. This is
+     *         used to verify the identity of the provider.
+     * @param certificates The list of sets of hashes for the certificates the provider should be
+     *         signed with. This is used to verify the identity of the provider. Each set in the
+     *         list represents one collection of signature hashes. Refer to your font provider's
+     *         documentation for these values.
+     * @param variationSettings {@link String} specifying the font variation settings (e.g. standard
+     *         axes like weight, width, and slant, or custom axes) to be applied to a variable font
+     *         when it is loaded. See
+     *         {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     *         about the format of the string. Supported on API 26 (Android O) and above. Note that
+     *         these settings will only be effective if the font provider actually returns a
+     *         variable font.
+     */
+    public FontRequest(
+            @NonNull String providerAuthority, @NonNull String providerPackage,
             @NonNull String query, @NonNull List<List<byte[]>> certificates,
-            @Nullable String systemFont, @Nullable String variationSettings) {
-        mProviderAuthority = Preconditions.checkNotNull(providerAuthority);
-        mProviderPackage = Preconditions.checkNotNull(providerPackage);
-        mQuery = Preconditions.checkNotNull(query);
-        mCertificates = Preconditions.checkNotNull(certificates);
-        mCertificatesArray = 0;
-        mSystemFont = systemFont;
-        mVariationSettings = variationSettings;
-        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, systemFont,
-                mVariationSettings);
+            @Nullable String variationSettings) {
+        this(providerAuthority, providerPackage, query, certificates, null, variationSettings);
     }
 
     /**
@@ -89,15 +99,60 @@ public final class FontRequest {
      */
     public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
             @NonNull String query, @ArrayRes int certificates) {
+        this(providerAuthority, providerPackage, query, certificates, null, null);
+    }
+
+    /**
+     * @param providerAuthority The authority of the Font Provider to be used for the request.
+     * @param query The query to be sent over to the provider. Refer to your font provider's
+     *         documentation on the format of this string.
+     * @param providerPackage The package for the Font Provider to be used for the request. This is
+     *         used to verify the identity of the provider.
+     * @param certificates A resource array with the list of sets of hashes for the certificates the
+     *         provider should be signed with. This is used to verify the identity of the provider.
+     *         Each set in the list represents one collection of signature hashes. Refer to your
+     *         font provider's documentation for these values.
+     * @param variationSettings {@link String} specifying the font variation settings (e.g. standard
+     *         axes like weight, width, and slant, or custom axes) to be applied to a variable font
+     *         when it is loaded. See
+     *         {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     *         about the format of the string. Supported on API 26 (Android O) and above. Note that
+     *         these settings will only be effective if the font provider actually returns a
+     *         variable font.
+     */
+    public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+            @NonNull String query, @ArrayRes int certificates, @Nullable String variationSettings) {
+        this(providerAuthority, providerPackage, query, certificates, null, variationSettings);
+    }
+
+    @RestrictTo(LIBRARY)
+    public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+            @NonNull String query, @NonNull List<List<byte[]>> certificates,
+            @Nullable String systemFont, @Nullable String variationSettings) {
+        mProviderAuthority = Preconditions.checkNotNull(providerAuthority);
+        mProviderPackage = Preconditions.checkNotNull(providerPackage);
+        mQuery = Preconditions.checkNotNull(query);
+        mCertificates = Preconditions.checkNotNull(certificates);
+        mCertificatesArray = 0;
+        mSystemFont = systemFont;
+        mVariationSettings = variationSettings;
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, systemFont,
+                mVariationSettings);
+    }
+
+    private FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+            @NonNull String query, @ArrayRes int certificates,
+            @Nullable String systemFont, @Nullable String variationSettings) {
         mProviderAuthority = Preconditions.checkNotNull(providerAuthority);
         mProviderPackage = Preconditions.checkNotNull(providerPackage);
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = null;
         Preconditions.checkArgument(certificates != 0);
         mCertificatesArray = certificates;
-        mSystemFont = null;
-        mVariationSettings = null;
-        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, null, null);
+        mSystemFont = systemFont;
+        mVariationSettings = variationSettings;
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, null,
+                mVariationSettings);
     }
 
     private String createIdentifier(
@@ -107,8 +162,17 @@ public final class FontRequest {
             @Nullable String systemFont,
             @Nullable String variationSettings
     ) {
-        return providerAuthority + "-" + providerPackage + "-" + query + "-" + systemFont + "-"
-                + variationSettings;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(providerAuthority)
+                .append("-").append(providerPackage)
+                .append("-").append(query)
+                .append("-").append(systemFont);
+
+        if (variationSettings != null && !variationSettings.isBlank()) {
+            stringBuilder.append("-VF");
+        }
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -179,11 +243,18 @@ public final class FontRequest {
         return mSystemFont;
     }
 
+    /**
+     * Returns the font variation settings.
+     *
+     * See {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     * about the format of the string.
+     */
     @RestrictTo(LIBRARY)
     public @Nullable String getVariationSettings() {
         return mVariationSettings;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

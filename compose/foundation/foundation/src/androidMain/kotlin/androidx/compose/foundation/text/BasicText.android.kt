@@ -66,6 +66,7 @@ internal actual fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
     if (executor != null && shouldPrefetch(text.length)) {
@@ -83,9 +84,22 @@ internal actual fun BackgroundTextMeasurement(
                                 style = resolvedStyle,
                                 density = density,
                                 fontFamilyResolver = fontFamilyResolver,
-                                annotations = emptyList(),
+                                annotations =
+                                    emptyList<AnnotatedString.Range<AnnotatedString.Annotation>>(),
+                                placeholders = emptyList(),
+                                softWrap = softWrap,
                             )
+                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
+                        // because the primary role of background text measurement is to warm the
+                        // platform word layout cache.
+
+                        // maxIntrinsicWidth premeasures all words in the given text. This warms
+                        // the platform word layout cache so that when the UI thread starts
+                        // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
+                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
+                        // caches an instance of BreakIteratorCache in `android.icu.text`
+                        intrinsics.minIntrinsicWidth
                     }
                 }
             }
@@ -100,6 +114,7 @@ internal actual fun BackgroundTextMeasurement(
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
+    softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
     if (executor != null && shouldPrefetch(text.length)) {
@@ -118,8 +133,19 @@ internal actual fun BackgroundTextMeasurement(
                                 density = density,
                                 placeholders = placeholders ?: emptyList(),
                                 fontFamilyResolver = fontFamilyResolver,
+                                softWrap = softWrap,
                             )
+                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
+                        // because the primary role of background text measurement is to warm the
+                        // platform word layout cache.
+
+                        // maxIntrinsicWidth premeasures all words in the given text. This warms
+                        // the platform word layout cache so that when the UI thread starts
+                        // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
+                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
+                        // caches an instance of BreakIteratorCache in `android.icu.text`
+                        intrinsics.minIntrinsicWidth
                     }
                 }
             }

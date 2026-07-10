@@ -18,6 +18,8 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.checker.initialization.qual.UnknownInitialization;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
@@ -41,9 +43,8 @@ import java.util.Set;
 
 /**
  * Caches and manages schema information for AppSearch.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaCache {
     /**
@@ -70,6 +71,15 @@ public class SchemaCache {
      */
     private final Map<String, Map<String, List<String>>>
             mSchemaChildToTransitiveUnprefixedParentsMap = new ArrayMap<>();
+
+    /**
+     * An in-memory cache of property paths, keyed by prefixed schema type, that point to
+     * {@link androidx.appsearch.app.AppSearchAccount} property paths.
+     *
+     * <p>This map is used for runtime validation of documents. It is rebuilt from schema
+     * information during {@code getSchema} calls.
+     */
+    private final Map<String, Set<String>> mPrefixedAccountPropertyPaths = new ArrayMap<>();
 
     public SchemaCache() {
     }
@@ -173,6 +183,11 @@ public class SchemaCache {
         }
     }
 
+    /**  Add all the prefixed schema types with account {@link PropertyPath}s . */
+    public @NonNull Map<String, Set<String>> getPrefixedAccountPropertyPaths() {
+        return mPrefixedAccountPropertyPaths;
+    }
+
     /**
      * Rebuilds the schema parent-to-children and child-to-parents maps for the given prefix,
      * based on the current schema map.
@@ -271,6 +286,12 @@ public class SchemaCache {
             mSchemaMap.put(prefix, schemaTypeMap);
         }
         schemaTypeMap.put(schemaTypeConfigProto.getSchemaType(), schemaTypeConfigProto);
+    }
+
+    /**  Add the account {@link PropertyPath} for the given prefixed schema type. */
+    public void addToSchemasWipeoutAccountPropertyPaths(@NonNull String prefixedSchemaType,
+            @NonNull Set<String> accountPropertyPaths) {
+        mPrefixedAccountPropertyPaths.put(prefixedSchemaType, accountPropertyPaths);
     }
 
     /**

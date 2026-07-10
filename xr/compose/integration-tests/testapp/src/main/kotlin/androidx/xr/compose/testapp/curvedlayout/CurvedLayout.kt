@@ -61,18 +61,17 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialCurvedRow
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.layout.SpatialAlignment
+import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -102,11 +101,11 @@ class CurvedLayout : ComponentActivity() {
         var curvePercent by remember { mutableFloatStateOf(0.625f) }
         val curveRadius by remember { derivedStateOf { (1000.dp * curvePercent) + 200.dp } }
         val sidePanelModifier = SubspaceModifier.fillMaxWidth().height(200.dp)
-        SpatialColumn {
-            SpatialRow(alignment = SpatialAlignment.TopCenter) {
+        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(40.dp)) {
+            SpatialRow {
                 // Curve radius adjustment panel.
                 SpatialPanel(
-                    modifier = SubspaceModifier.width(400.dp).height(150.dp),
+                    modifier = SubspaceModifier.width(400.dp),
                     shape = SpatialRoundedCornerShape(CornerSize(0.dp)),
                 ) {
                     Column {
@@ -130,26 +129,28 @@ class CurvedLayout : ComponentActivity() {
 
             SpatialCurvedRow(
                 modifier = SubspaceModifier.width(2000.dp).height(600.dp),
-                alignment = SpatialAlignment.BottomCenter,
+                verticalAlignment = SpatialAlignment.Bottom,
                 curveRadius = curveRadius,
+                horizontalArrangement = SpatialArrangement.SpaceEvenly,
             ) {
-                SpatialColumn(modifier = SubspaceModifier.width(200.dp).fillMaxHeight()) {
+                SpatialColumn(
+                    modifier = SubspaceModifier.width(200.dp).fillMaxHeight(),
+                    verticalArrangement = SpatialArrangement.spacedBy(20.dp),
+                ) {
                     AppPanel(modifier = sidePanelModifier, text = "Panel Top Left")
-                    SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
                     ViewBasedAppPanel(
                         modifier = sidePanelModifier,
                         text = "Panel Bottom Left (View)",
                     )
                 }
-                SpatialColumn(
-                    modifier =
-                        SubspaceModifier.width(800.dp).fillMaxHeight().padding(horizontal = 20.dp)
-                ) {
+                SpatialColumn(modifier = SubspaceModifier.width(800.dp).fillMaxHeight()) {
                     SpatialMainPanel(modifier = SubspaceModifier.fillMaxSize())
                 }
-                SpatialColumn(modifier = SubspaceModifier.width(200.dp).fillMaxHeight()) {
+                SpatialColumn(
+                    modifier = SubspaceModifier.width(200.dp).fillMaxHeight(),
+                    verticalArrangement = SpatialArrangement.spacedBy(20.dp),
+                ) {
                     AppPanel(modifier = sidePanelModifier, text = "Panel Top Right")
-                    SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
                     AppPanel(modifier = sidePanelModifier, text = "Panel Bottom Right")
                 }
             }
@@ -161,6 +162,7 @@ class CurvedLayout : ComponentActivity() {
         SpatialPanel(modifier = modifier) { PanelContent(false, title = "Side Panel", text) }
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     private fun PanelContent(backButton: Boolean = false, title: String, vararg text: String) {
         var addHighlight by remember { mutableStateOf(false) }

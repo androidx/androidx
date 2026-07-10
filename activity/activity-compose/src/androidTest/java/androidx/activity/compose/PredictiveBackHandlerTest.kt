@@ -28,13 +28,19 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.testing.TestNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -44,6 +50,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +58,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PredictiveBackHandlerTestApi {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private fun OnBackPressedDispatcher.startGestureBack() =
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -135,57 +142,61 @@ class PredictiveBackHandlerTestApi {
 
     @Test
     fun testDisabledBackHandler() {
+        val owner = TestNavigationEventDispatcherOwner()
+        val dispatcher = owner.navigationEventDispatcher
+        val input = DirectNavigationEventInput()
+        dispatcher.addInput(input)
+
         val result = mutableListOf<String>()
         var enabled by mutableStateOf(true)
-        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
-        lateinit var dispatcher: OnBackPressedDispatcher
 
         rule.setContent {
-            dispatcherOwner =
-                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
                 PredictiveBackHandler(enabled) { progress ->
                     progress.collect()
                     result += "onBack"
                 }
-                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             }
         }
 
-        dispatcher.startGestureBack()
-        dispatcher.api34Complete()
+        input.backStarted(NavigationEvent())
+        input.backCompleted()
         rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
 
         enabled = false
         rule.runOnIdle {
-            dispatcher.startGestureBack()
-            dispatcher.api34Complete()
+            input.backStarted(NavigationEvent())
+            input.backCompleted()
+        }
+
+        rule.runOnIdle {
             assertThat(result).isEqualTo(listOf("onBack"))
-            assertThat(dispatcherOwner.fallbackCount).isEqualTo(1)
+            assertThat(owner.onBackCompletedFallbackInvocations).isEqualTo(1)
         }
 
         enabled = true
         rule.runOnIdle {
-            dispatcher.startGestureBack()
-            dispatcher.api34Complete()
-            assertThat(result).isEqualTo(listOf("onBack", "onBack"))
+            input.backStarted(NavigationEvent())
+            input.backCompleted()
         }
+        rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack", "onBack")) }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 34) // Below API 34 startGestureBack triggers back
     fun testPredictiveBackHandlerDisabledBeforeStart() {
+        val owner = TestNavigationEventDispatcherOwner()
+        val dispatcher = owner.navigationEventDispatcher
+        val input = DirectNavigationEventInput()
+        dispatcher.addInput(input)
+
         val result = mutableListOf<String>()
         var count by mutableStateOf(2)
-        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
-        lateinit var dispatcher: OnBackPressedDispatcher
         var started = false
         var cancelled = false
 
         rule.setContent {
-            dispatcherOwner =
-                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
                 PredictiveBackHandler(count > 1) { progress ->
                     if (count <= 1) {
                         started = true
@@ -197,34 +208,34 @@ class PredictiveBackHandlerTestApi {
                         cancelled = true
                     }
                 }
-                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             }
         }
 
         // Changing the count right before starting the gesture is received in the
         // onBackStackStarted callback
         count = 1
-        dispatcher.startGestureBack()
+        input.backStarted(NavigationEvent())
 
         // In a test, we don't get the launched effect fast enough to prevent starting
         // but since we idle here, we can cancel the callback channel and keep from completing
         rule.runOnIdle { assertThat(started).isTrue() }
-        dispatcher.api34Complete()
+        input.backCompleted()
         rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
         rule.runOnIdle { assertThat(cancelled).isFalse() }
     }
 
     fun testPredictiveBackHandlerDisabledAfterStart() {
+        val owner = TestNavigationEventDispatcherOwner()
+        val dispatcher = owner.navigationEventDispatcher
+        val input = DirectNavigationEventInput()
+        dispatcher.addInput(input)
+
         val result = mutableListOf<String>()
         var count by mutableStateOf(2)
-        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
-        lateinit var dispatcher: OnBackPressedDispatcher
         var started = false
 
         rule.setContent {
-            dispatcherOwner =
-                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
                 PredictiveBackHandler(count > 1) { progress ->
                     if (count <= 1) {
                         started = true
@@ -232,17 +243,16 @@ class PredictiveBackHandlerTestApi {
                     progress.collect()
                     result += "onBack"
                 }
-                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             }
         }
 
-        dispatcher.startGestureBack()
+        input.backStarted(NavigationEvent())
         // Changing the count right after starting the gesture is not received in the
         // onBackStackStarted callback
         count = 1
 
         rule.runOnIdle { assertThat(started).isFalse() }
-        dispatcher.api34Complete()
+        input.backCompleted()
         rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
     }
 
@@ -404,7 +414,14 @@ class PredictiveBackHandlerTestApi {
         rule.setContent {
             PredictiveBackHandler(onBack = handler)
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            Button(onClick = { dispatcher.startGestureBack() }) { Text(text = "backPress") }
+            Button(
+                onClick = {
+                    dispatcher.startGestureBack()
+                    dispatcher.api34Complete()
+                }
+            ) {
+                Text(text = "backPress")
+            }
         }
         rule.onNodeWithText("backPress").performClick()
         rule.runOnIdle {
@@ -453,7 +470,7 @@ class PredictiveBackHandlerTestApi {
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 34)
 class PredictiveBackHandlerTestApi34 {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testHandleOnProgress() {
@@ -494,6 +511,8 @@ class PredictiveBackHandlerTestApi34 {
 
         dispatcher.dispatchOnBackStarted(fakeBackEventCompat())
         dispatcher.dispatchOnBackProgressed(fakeBackEventCompat())
+        // Ensure the handler's coroutine starts before we cancel it.
+        rule.waitForIdle()
         dispatcher.dispatchOnBackCancelled()
 
         rule.runOnIdle {
@@ -517,6 +536,8 @@ class PredictiveBackHandlerTestApi34 {
 
         dispatcher.dispatchOnBackStarted(fakeBackEventCompat())
         dispatcher.dispatchOnBackProgressed(fakeBackEventCompat())
+        // Ensure the handler's coroutine starts before we cancel it.
+        rule.waitForIdle()
         dispatcher.dispatchOnBackCancelled()
 
         rule.runOnIdle { assertThat(result).isEqualTo(listOf("start", "progress")) }
@@ -541,6 +562,8 @@ class PredictiveBackHandlerTestApi34 {
 
         dispatcher.dispatchOnBackStarted(fakeBackEventCompat())
         dispatcher.dispatchOnBackProgressed(fakeBackEventCompat())
+        // Ensure the handler's coroutine starts before we cancel it.
+        rule.waitForIdle()
         dispatcher.dispatchOnBackCancelled()
 
         rule.runOnIdle {
@@ -589,12 +612,12 @@ class PredictiveBackHandlerTestApi34 {
 }
 
 class TestOnBackPressedDispatcherOwner(override val lifecycle: Lifecycle) :
-    OnBackPressedDispatcherOwner {
+    OnBackPressedDispatcherOwner, NavigationEventDispatcherOwner {
     var fallbackCount = 0
 
-    private var dispatcher = OnBackPressedDispatcher { fallbackCount++ }
-    override val onBackPressedDispatcher: OnBackPressedDispatcher
-        get() = dispatcher
+    override val onBackPressedDispatcher = OnBackPressedDispatcher { fallbackCount++ }
+
+    override val navigationEventDispatcher = NavigationEventDispatcher { fallbackCount++ }
 }
 
 private fun fakeBackEventCompat(progress: Float = 0f) =

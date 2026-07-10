@@ -28,6 +28,8 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetPasswordOption
+import androidx.credentials.provider.CredentialEntry.Companion.marshall
+import androidx.credentials.provider.CredentialEntry.Companion.unmarshallCredentialEntries
 import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.PasswordCredentialEntry.Companion.fromSlice
 import androidx.credentials.provider.ui.UiUtils.Companion.testBiometricPromptData
@@ -316,6 +318,36 @@ class PasswordCredentialEntryTest {
                 ?.let { PasswordCredentialEntry.fromCredentialEntry(it) }
         assertNotNull(entry)
         entry?.let { assertEntryWithAllParams(entry) }
+    }
+
+    @Test
+    fun createFromBundle_success() {
+        val expected =
+            PasswordCredentialEntry(
+                mContext,
+                "title",
+                mPendingIntent,
+                BEGIN_OPTION,
+                "displayname",
+                Instant.ofEpochMilli(1760047935000L),
+                ICON,
+                true,
+                "affiliatedDomain",
+                true,
+            )
+        val bundle = Bundle()
+        listOf(expected).marshall(bundle)
+
+        val actual = bundle.unmarshallCredentialEntries().single() as PasswordCredentialEntry
+
+        assertThat(actual.displayName).isEqualTo(expected.displayName)
+        assertThat(actual.affiliatedDomain).isEqualTo(expected.affiliatedDomain)
+        assertThat(actual.lastUsedTime?.toEpochMilli())
+            .isEqualTo(expected.lastUsedTime?.toEpochMilli())
+        assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+        assertThat(actual.entryGroupId).isEqualTo(expected.entryGroupId)
+        assertThat(actual.isDefaultIconPreferredAsSingleProvider)
+            .isEqualTo(expected.isDefaultIconPreferredAsSingleProvider)
     }
 
     @Suppress("DEPRECATION")

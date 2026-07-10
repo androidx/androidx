@@ -23,17 +23,17 @@ import android.os.Build;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricManager.Authenticators;
 import androidx.biometric.BiometricPrompt;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import javax.crypto.Cipher;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class AuthenticatorUtilsTest {
     private int[] mAuthenticatorCombinations;

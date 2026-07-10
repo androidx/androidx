@@ -19,6 +19,7 @@ package androidx.slidingpanelayout.widget
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -765,7 +766,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
     }
 
-    private fun computeDividerTargetRect(outRect: Rect, dividerPositionX: Int): Rect {
+    @VisibleForTesting
+    internal fun computeDividerTargetRect(outRect: Rect, dividerPositionX: Int): Rect {
         val divider = userResizingDividerDrawable
         if (divider == null) {
             outRect.setEmpty()
@@ -2257,7 +2259,34 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             }
 
             val bounds = computeDividerTargetRect(tmpRect, visualDividerPosition)
-            if (parent.getChildVisibleRect(this@SlidingPaneLayout, bounds, null)) {
+            val center = Point(bounds.centerX(), bounds.centerY())
+            if (parent.getChildVisibleRect(this@SlidingPaneLayout, bounds, center)) {
+                // The bounds is still visible, but it's too small after clip.
+                // Enlarge the bounds so that A11y services won't ignore it.
+                // We have to use the center of the unclipped bounds, so that it's still aligned
+                // with the divider position.
+                if (bounds.width() < touchTargetMin) {
+                    val left = center.x - touchTargetMin / 2
+                    val right = left + touchTargetMin
+                    bounds.left = left
+                    bounds.right = right
+                }
+
+                if (bounds.height() < touchTargetMin) {
+                    val top = center.y - touchTargetMin / 2
+                    val bottom = top + touchTargetMin
+                    bounds.top = top
+                    bounds.bottom = bottom
+                }
+
+                val windowLocation = IntArray(2)
+                val screenLocation = IntArray(2)
+                getLocationInWindow(windowLocation)
+                getLocationOnScreen(screenLocation)
+                bounds.offset(
+                    -windowLocation[0] + screenLocation[0],
+                    -windowLocation[1] + screenLocation[1],
+                )
                 node.isVisibleToUser = true
                 node.setBoundsInScreen(bounds)
             }
@@ -2700,11 +2729,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 if (isLayoutRtl) {
                     val startBound = (width - (paddingRight + lp.rightMargin + slideableView.width))
                     val endBound = startBound - slideRange
-                    newLeft.coerceIn(endBound, startBound)
+                    newLeft.coerceAtMost(startBound).coerceAtLeast(endBound)
                 } else {
                     val startBound = paddingLeft + lp.leftMargin
                     val endBound = startBound + slideRange
-                    newLeft.coerceIn(startBound, endBound)
+                    newLeft.coerceAtMost(endBound).coerceAtLeast(startBound)
                 }
             return newLeft
         }
@@ -2851,15 +2880,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 leftChild = getChildAt(0)
                 rightChild = getChildAt(1)
             }
-            return proposedPositionX.coerceIn(
-                paddingLeft +
-                    leftChild.spLayoutParams.horizontalMargin +
-                    getMinimumChildWidth(leftChild),
-                width -
-                    paddingRight -
-                    rightChild.spLayoutParams.horizontalMargin -
-                    getMinimumChildWidth(rightChild),
-            )
+            return proposedPositionX
+                .coerceAtMost(
+                    width -
+                        paddingRight -
+                        rightChild.spLayoutParams.horizontalMargin -
+                        getMinimumChildWidth(rightChild)
+                )
+                .coerceAtLeast(
+                    paddingLeft +
+                        leftChild.spLayoutParams.horizontalMargin +
+                        getMinimumChildWidth(leftChild)
+                )
         }
 
         override fun onUserResizeStarted() {
@@ -3040,7 +3072,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          *   [SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_LEFT] or
          *   [SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_RIGHT].
          */
-        fun onAccessibilityResize(slidingPaneLayout: SlidingPaneLayout, direction: Int) {
+        fun onAccessibilityResize(
+            slidingPaneLayout: SlidingPaneLayout,
+            @AccessibilityResizeDirection direction: Int,
+        ) {
             if (direction == SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_LEFT) {
                 slidingPaneLayout.splitDividerPosition =
                     if (slidingPaneLayout.splitDividerPosition == slidingPaneLayout.width) {
@@ -3106,6 +3141,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * be moved rightward.
          */
         const val SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_RIGHT = 1
+
+        @IntDef(SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_LEFT, SPLIT_DIVIDER_ACCESSIBILITY_RESIZE_RIGHT)
+        @Retention(AnnotationRetention.SOURCE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public annotation class AccessibilityResizeDirection
 
         /**
          * [UserResizeBehavior] where the divider can be released at any position respecting the

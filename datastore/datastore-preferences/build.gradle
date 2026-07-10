@@ -15,13 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
@@ -43,49 +44,18 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api(project(":datastore:datastore"))
-                api(project(":datastore:datastore-preferences-core"))
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(project(":datastore:datastore"))
+            api(project(":datastore:datastore-preferences-core"))
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
-        commonJvmMain {
-            dependsOn(commonMain)
-        }
-        commonJvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-            }
-        }
-        jvmMain {
-            dependsOn(commonJvmMain)
-        }
-        jvmTest {
-            dependsOn(commonJvmTest)
-        }
-        androidMain {
-            dependsOn(commonJvmMain)
-        }
-        androidUnitTest {
-            dependsOn(commonJvmTest)
-        }
-        androidInstrumentedTest {
-            dependsOn(commonJvmTest)
-            dependencies {
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
     }
 }
@@ -96,4 +66,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

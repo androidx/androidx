@@ -11,8 +11,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <attr name="moduleName" format="string|reference"/>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <attr name="moduleName" format="string|reference" tools:ignore="PrivateResource"/>
     <declare-styleable name="DynamicFragmentNavigator">
         <attr name="moduleName"/>
     </declare-styleable>

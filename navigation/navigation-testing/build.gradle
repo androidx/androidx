@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -35,12 +34,14 @@ androidXMultiplatform {
         namespace = "androidx.navigation.testing"
         experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
     }
-    jvmStubs()
-    linuxX64Stubs()
-//    desktop()
-//    linux()
-//    mac()
-//    ios()
+    desktop()
+    linux()
+    mac()
+    watchos()
+    tvos()
+    ios()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -49,125 +50,66 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
 
-        commonMain {
-            dependencies {
-                api(project(":navigation:navigation-runtime"))
-                api(project(":lifecycle:lifecycle-runtime-testing"))
+        commonMain.dependencies {
+            api(project(":navigation:navigation-runtime"))
+            api("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
 
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.kotlinSerializationCore)
-                implementation(project(":navigation:navigation-common"))
-                implementation(project(":lifecycle:lifecycle-common"))
-                implementation(project(":lifecycle:lifecycle-viewmodel"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            }
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinSerializationCore)
+            implementation(project(":navigation:navigation-common"))
+            implementation("androidx.lifecycle:lifecycle-common:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0")
         }
 
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        nonAndroidMain {
-            dependsOn(commonMain)
+        jvmAndAndroidTest.dependencies {
+            runtimeOnly(libs.kotlinTestJunit)
+            implementation(libs.junit)
         }
 
-        nonAndroidTest {
-            dependsOn(commonTest)
+        androidMain.dependencies {
+            api("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+            api("androidx.savedstate:savedstate-ktx:1.4.0")
+            implementation("androidx.core:core-ktx:1.1.0")
+            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
         }
 
-        jvmCommonMain {
-            dependsOn(commonMain)
+        androidHostTest.dependencies {
+            runtimeOnly(libs.testCore)
+            runtimeOnly(libs.kotlinTestJunit)
+            implementation(libs.junit)
+            implementation(libs.testRunner)
         }
 
-        jvmCommonTest {
-            dependsOn(commonTest)
-            dependencies {
-                runtimeOnly(libs.kotlinTestJunit)
-                implementation(libs.junit)
-            }
-        }
-        jvmStubsMain {
-            dependsOn(jvmCommonMain)
-            dependsOn(nonAndroidMain)
-        }
-        jvmStubsTest {
-            dependsOn(jvmCommonTest)
-            dependsOn(nonAndroidTest)
+        androidDeviceTest.dependencies {
+            implementation(project(":internal-testutils-navigation"))
+            implementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
+            implementation(libs.testExtJunit)
+            implementation(libs.testExtTruth)
+            implementation(libs.testRules)
+
+            runtimeOnly(libs.testCore)
+            runtimeOnly(libs.kotlinTestJunit)
+            implementation(libs.junit)
+            implementation(libs.testRunner)
         }
 
-//        desktopMain {
-//            dependsOn(jvmCommonMain)
-//            dependsOn(nonAndroidMain)
-//        }
-//
-//        desktopTest {
-//            dependsOn(jvmCommonTest)
-//            dependsOn(nonAndroidTest)
-//        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
 
-        androidMain {
-            dependsOn(jvmCommonMain)
-            dependencies {
-                api(project(":lifecycle:lifecycle-runtime"))
-                api(project(":lifecycle:lifecycle-viewmodel"))
-                api(project(":savedstate:savedstate-ktx"))
-                implementation("androidx.core:core-ktx:1.1.0")
-                implementation("androidx.profileinstaller:profileinstaller:1.4.0")
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                runtimeOnly(libs.testCore)
-                runtimeOnly(libs.kotlinTestJunit)
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmCommonTest)
-            dependencies {
-                implementation(project(":internal-testutils-navigation"))
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
-                implementation(libs.testExtJunit)
-                implementation(libs.testExtTruth)
-                implementation(libs.testRules)
-
-                runtimeOnly(libs.testCore)
-                runtimeOnly(libs.kotlinTestJunit)
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-            }
-        }
-
-        nonJvmCommonMain { dependsOn(nonAndroidMain) }
-        nonJvmCommonTest { dependsOn(nonAndroidTest) }
-        nativeMain { dependsOn(nonJvmCommonMain) }
-        linuxMain { dependsOn(nativeMain) }
-//        darwinMain { dependsOn(nativeMain) }
-//
-        nativeTest { dependsOn(nonJvmCommonTest) }
-        linuxTest { dependsOn(nativeTest) }
-//        darwinTest { dependsOn(nativeTest) }
-//
-        targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-//                if (target.konanTarget.family.appleFamily) {
-//                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-//                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-//                } else
-                if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                }
-            }
-        }
-        linuxx64StubsMain.dependsOn(linuxMain)
-        linuxx64StubsTest.dependsOn(linuxTest)
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

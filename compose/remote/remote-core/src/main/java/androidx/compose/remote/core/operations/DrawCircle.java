@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -27,6 +28,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawCircle extends DrawBase3 {
     private static final int OP_CODE = Operations.DRAW_CIRCLE;
     private static final String CLASS_NAME = "DrawCircle";
@@ -68,6 +70,7 @@ public class DrawCircle extends DrawBase3 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_circle")
                 .description("Draw a Circle")
                 .field(
                         DocumentedOperation.FLOAT,

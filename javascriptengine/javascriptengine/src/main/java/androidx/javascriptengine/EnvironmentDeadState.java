@@ -19,11 +19,12 @@ package androidx.javascriptengine;
 import android.content.res.AssetFileDescriptor;
 import android.os.ParcelFileDescriptor;
 
-import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -76,7 +77,7 @@ final class EnvironmentDeadState implements IsolateState {
     }
 
     @Override
-    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes) {
     }
 
     @Override
@@ -95,7 +96,8 @@ final class EnvironmentDeadState implements IsolateState {
     }
 
     @Override
-    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {}
+    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
+    }
 
     private ListenableFuture<String> getEnvironmentDeadFuture() {
         return CallbackToFutureAdapter.getFuture(completer -> {
@@ -103,5 +105,12 @@ final class EnvironmentDeadState implements IsolateState {
             completer.setException(mTerminationInfo.toJavaScriptException());
             return futureDebugMessage;
         });
+    }
+
+    @NonNull
+    @Override
+    public MessagePort provideMessagePort(@NonNull String name, @NonNull Executor executor,
+            @NonNull MessagePortClient client) {
+        return new MessagePort();
     }
 }

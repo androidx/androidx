@@ -16,75 +16,58 @@
 
 package androidx.xr.compose.platform
 
-import android.annotation.SuppressLint
-import android.util.CloseGuard
-import androidx.annotation.RestrictTo
+import android.content.Context
+import android.view.View
+import androidx.xr.compose.R
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
- * Manager for all [SpatialComposeScene]s that are created when the [SceneManager] is running.
+ * Manager for all [SpatialComposeScene]s that are created in a given context.
  *
  * Enables finding all semantic roots in a spatial scene graph. This is useful for testing libraries
  * as well as developer tooling to help semantically identify parts of the compose tree. It is not
- * intended to be used in individual apps.
+ * intended to be used in individual apps. Scenes are scoped to the current View hierarchy.
  */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
-@Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object SceneManager : AutoCloseable {
-    private val registeredScenes: MutableList<SpatialComposeScene> = mutableListOf()
-    private var isRunning = false
-    private val guard = CloseGuard()
-
-    /**
-     * Start keeping track of the scenes that are created. Scenes created before [SceneManager] is
-     * running will not be tracked.
-     */
-    public fun start() {
-        isRunning = true
-        guard.open("stop")
-    }
-
-    /**
-     * Stop tracking the created scenes and clear the set of scenes that [SceneManager] was keeping
-     * track of.
-     */
-    public fun stop() {
-        guard.close()
-        isRunning = false
-        registeredScenes.clear()
-    }
-
-    /** Alias to [SceneManager.stop] To implement the [AutoCloseable] interface. */
-    override fun close() {
-        stop()
-    }
-
+internal object SceneManager {
     internal fun onSceneCreated(scene: SpatialComposeScene) {
-        if (isRunning && scene !in registeredScenes) {
-            registeredScenes.add(scene)
-        }
+        scene.context.contentView
+            ?.registeredRoots
+            ?.takeIf { scene.semanticsInfo !in it }
+            ?.add(scene.semanticsInfo)
     }
 
     internal fun onSceneDisposed(scene: SpatialComposeScene) {
-        if (isRunning) {
-            registeredScenes.remove(scene)
-        }
+        scene.context.contentView?.registeredRoots?.remove(scene.semanticsInfo)
     }
 
     /**
-     * Returns all root subspace semantics nodes of all registered scenes.
+     * Returns all root subspace semantics nodes of all registered scenes in the given context.
      *
-     * [SceneManager.start] should be called before attempting to get the root subspace semantics
-     * nodes. This will throw an [IllegalStateException] if the [SceneManager] is not in a running
-     * state.
+     * @param context The context to search for registered scenes.
      */
-    public fun getAllRootSubspaceSemanticsNodes(): List<SubspaceSemanticsInfo> {
-        check(isRunning) { "SceneManager is not started. Call SceneManager.start() first." }
-        return registeredScenes.map { it.rootElement.compositionOwner.root.measurableLayout }
-    }
+    fun getAllRootSubspaceSemanticsNodes(context: Context): List<SubspaceSemanticsInfo> =
+        context.contentView?.registeredRoots ?: emptyList()
 
-    public fun getSceneCount(): Int {
-        return registeredScenes.size
-    }
+    /**
+     * Returns the number of registered scene for the given context.
+     *
+     * @param context The context to search for registered scenes.
+     */
+    fun getSceneCount(context: Context): Int = context.contentView?.registeredRoots?.size ?: 0
 }
+
+private val SpatialComposeScene.semanticsInfo: SubspaceSemanticsInfo
+    get() = rootElement.compositionOwner.root.measurableLayout
+
+private val Context.contentView: View?
+    get() = getActivity()?.window?.decorView
+
+private val View.registeredRoots: MutableList<SubspaceSemanticsInfo>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return (getTag(R.id.compose_xr_registered_roots)
+            ?: mutableListOf<SubspaceSemanticsInfo>().also {
+                setTag(R.id.compose_xr_registered_roots, it)
+            })
+            as MutableList<SubspaceSemanticsInfo>
+    }

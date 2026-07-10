@@ -29,6 +29,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [BridgingManager]. */
 @RunWith(WearPhoneInteractionsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument // Needed because it is defined in the "android" package.
 public class BridgingManagerTest {
 

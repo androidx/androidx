@@ -3,6 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -16,151 +17,82 @@
 
 package androidx.biometric.internal
 
-import android.app.Activity
 import android.app.Application
-import android.app.KeyguardManager
-import android.content.Context
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.biometric.utils.BiometricErrorData
+import androidx.biometric.internal.data.CanceledFrom
+import androidx.biometric.internal.data.FakeAuthenticationStateRepository
+import androidx.biometric.internal.data.FakePromptConfigRepository
+import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.intent.Intents
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executor
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnit
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowKeyguardManager
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class AuthenticationHandlerKeyguardManagerTest {
-    @get:Rule val mocks = MockitoJUnit.rule()
-    private lateinit var context: Application
-    private val viewModel: BiometricViewModel = BiometricViewModel()
-    private val mockLauncherRunnable: Runnable = mock()
-    private val mockCallback: BiometricPrompt.AuthenticationCallback = mock()
-    private val testExecutor: Executor = MoreExecutors.directExecutor()
+    private val context: Application = ApplicationProvider.getApplicationContext()
+    private val promptRepository = FakePromptConfigRepository()
+    private val authRepository = FakeAuthenticationStateRepository()
+    private val viewModel: AuthenticationViewModel =
+        AuthenticationViewModel(promptRepository, authRepository)
+    private val clientExecutor: Executor = Executor { it.run() }
+    private val clientAuthenticationCallback: BiometricPrompt.AuthenticationCallback = mock()
 
-    private val mockViewModelStoreOwner: ViewModelStoreOwner = mock()
-    private val viewModelStore = ViewModelStore()
-    private lateinit var shadowKeyguardManager: ShadowKeyguardManager
-    private lateinit var keyguardManager: KeyguardManager
+    private var isConfirmCredentialActivityLaunched = false
 
-    private lateinit var testLifecycleOwner: TestLifecycleOwner
     private lateinit var handler: AuthenticationHandlerKeyguardManager
-
-    private class TestLifecycleOwner : LifecycleOwner {
-        private val lifecycleRegistry = LifecycleRegistry(this)
-
-        fun handleLifecycleEvent(event: Lifecycle.Event) =
-            lifecycleRegistry.handleLifecycleEvent(event)
-
-        override val lifecycle: Lifecycle = lifecycleRegistry
-    }
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
-        testLifecycleOwner = TestLifecycleOwner()
-        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        val testLifecycleOwner = TestLifecycleOwner()
 
-        // TODO(b/178855209): Add unit tests for AuthenticationHandlerKeyguardManager and
-        // AuthenticationManager
         handler =
             AuthenticationHandlerKeyguardManager(
-                context,
-                testLifecycleOwner,
-                viewModel,
-                mockLauncherRunnable,
-                testExecutor,
-                mockCallback,
+                AuthenticationManager(
+                    context = context,
+                    lifecycleOwner = testLifecycleOwner,
+                    viewModel = viewModel,
+                    confirmCredentialActivityLauncher = {
+                        isConfirmCredentialActivityLaunched = true
+                    },
+                    clientExecutor = clientExecutor,
+                    clientAuthenticationCallback = clientAuthenticationCallback,
+                    onDismissed = {},
+                )
             )
 
-        whenever(mockViewModelStoreOwner.viewModelStore).thenReturn(viewModelStore)
-
-        keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        shadowKeyguardManager = shadowOf(keyguardManager)
-
-        Intents.init()
-    }
-
-    @After
-    fun tearDown() {
-        Intents.release()
-        viewModelStore.clear()
+        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
     @Test
-    fun launchConfirmCredentialActivity_withLauncher_launchesIntent() {
-        shadowKeyguardManager.setIsDeviceSecure(true)
+    fun authenticate_launchesConfirmCredentialActivity() {
+        handler.authenticate(getPromptInfo(), null)
 
-        val mockLauncher: ActivityResultLauncher<Intent> = mock()
-
-        context.launchConfirmCredentialActivity(mockViewModelStoreOwner, mockLauncher)
-
-        val intentCaptor = argumentCaptor<Intent>()
-        verify(mockLauncher).launch(intentCaptor.capture())
-        assertThat(intentCaptor.lastValue.action)
-            .isEqualTo("android.app.action.CONFIRM_DEVICE_CREDENTIAL")
-        assertThat(intentCaptor.lastValue.flags and Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            .isNotEqualTo(0)
-        assertThat(intentCaptor.lastValue.flags and Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-            .isNotEqualTo(0)
+        assertThat(isConfirmCredentialActivityLaunched).isTrue()
     }
 
     @Test
-    fun launchConfirmCredentialActivity_withLauncher_noIntent_doesNotLaunch() {
-        // This makes getConfirmCredentialIntent return null
-        shadowKeyguardManager.setIsDeviceSecure(false)
-        val mockLauncher: ActivityResultLauncher<Intent> = mock()
+    fun cancelAuthentication_cancelsSignalAndSetsFlag() {
+        handler.authenticate(getPromptInfo(), null)
+        val cancellationSignal = viewModel.cancellationSignalProvider.biometricCancellationSignal
+        assertThat(cancellationSignal.isCanceled).isFalse()
 
-        context.launchConfirmCredentialActivity(mockViewModelStoreOwner, mockLauncher)
+        handler.cancelAuthentication(CanceledFrom.CLIENT)
 
-        verify(mockLauncher, never()).launch(any())
+        assertThat(cancellationSignal.isCanceled).isTrue()
+        assertThat(viewModel.canceledFrom).isEqualTo(CanceledFrom.CLIENT)
     }
 
-    @Test
-    fun handleConfirmCredentialResult_resultOk_wasUsingKeyguardManager() {
-        val captor = argumentCaptor<BiometricPrompt.AuthenticationResult>()
-        val observer = mock<Observer<BiometricPrompt.AuthenticationResult>>()
-        viewModel.authenticationResult.observeForever(observer)
-
-        handleConfirmCredentialResult(context, viewModel, Activity.RESULT_OK)
-
-        verify(observer).onChanged(captor.capture())
-        assertThat(captor.lastValue.authenticationType)
-            .isEqualTo(BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL)
-        assertThat(captor.lastValue.cryptoObject).isNull()
-    }
-
-    @Test
-    fun handleConfirmCredentialResult_resultCanceled() {
-        val captor = argumentCaptor<BiometricErrorData>()
-        val observer = mock<Observer<BiometricErrorData>>()
-        viewModel.authenticationError.observeForever(observer)
-
-        handleConfirmCredentialResult(context, viewModel, Activity.RESULT_CANCELED)
-
-        verify(observer).onChanged(captor.capture())
-        assertThat(captor.lastValue.errorCode).isEqualTo(BiometricPrompt.ERROR_USER_CANCELED)
-    }
+    private fun getPromptInfo(): BiometricPrompt.PromptInfo =
+        BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Title")
+            .setSubtitle("Subtitle")
+            .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            .build()
 }

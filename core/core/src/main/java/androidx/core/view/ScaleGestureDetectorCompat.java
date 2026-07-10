@@ -50,7 +50,7 @@ public final class ScaleGestureDetectorCompat {
      *
      * @param scaleGestureDetector detector for which to set the scaling mode.
      * @param enabled true to enable quick scaling, false to disable
-     * @deprecated Call {@link ScaleGestureDetector#setQuickScaleEnabled()} directly.
+     * @deprecated Call {@link ScaleGestureDetector#setQuickScaleEnabled(boolean)} directly.
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "scaleGestureDetector.setQuickScaleEnabled(enabled)")

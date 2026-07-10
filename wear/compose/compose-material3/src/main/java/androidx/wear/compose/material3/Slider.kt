@@ -85,9 +85,16 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.wear.compose.material3.samples.SliderSample
  *
+ * ![SliderSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderSample_CompositeImage.png)
+ *
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.SliderSegmentedSample
+ *
+ * ![SliderSegmentedSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderSegmentedSample_CompositeImage.png)
+ *
  * @param value Current value of the Slider. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated.
@@ -155,9 +162,11 @@ public fun Slider(
         val containerColor = colors.containerColor(enabled)
         val selectedBarSeparatorColor = colors.barSeparatorColor(enabled, true)
         val unselectedBarSeparatorColor = colors.barSeparatorColor(enabled, false)
+        val buttonIconColor = colors.buttonIconColor(enabled).value
 
         CompositionLocalProvider(
-            LocalIndication provides ripple(bounded = false, radius = this.maxWidth / 2)
+            LocalIndication provides ripple(bounded = false, radius = this.maxWidth),
+            LocalContentColor provides buttonIconColor,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -258,9 +267,16 @@ public fun Slider(
  *
  * @sample androidx.wear.compose.material3.samples.SliderWithIntegerSample
  *
+ * ![SliderWithIntegerSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderWithIntegerSample_CompositeImage.png)
+ *
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.SliderSegmentedSample
+ *
+ * ![SliderSegmentedSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderSegmentedSample_CompositeImage.png)
+ *
  * @param value Current value of the Slider. If outside of [valueProgression] provided, value will
  *   be coerced to this range.
  * @param onValueChange Lambda in which value should be updated.
@@ -419,6 +435,9 @@ public object SliderDefaults {
      * value:
      *
      * @sample androidx.wear.compose.material3.samples.ChangedSliderSample
+     *
+     * ![ChangedSliderSample Composite
+     * Image](https://developer.android.com/wear/images/design/WearComposeM3_ChangedSliderSample_CompositeImage.png)
      */
     @Composable
     public fun variantSliderColors(): SliderColors =
@@ -432,6 +451,10 @@ public object SliderDefaults {
      * value:
      *
      * @sample androidx.wear.compose.material3.samples.ChangedSliderSample
+     *
+     * ![ChangedSliderSample Composite
+     * Image](https://developer.android.com/wear/images/design/WearComposeM3_ChangedSliderSample_CompositeImage.png)
+     *
      * @param containerColor The background color of this [Slider] when enabled
      * @param buttonIconColor The color of the icon of buttons when enabled
      * @param selectedBarColor The color of the progress bar when enabled

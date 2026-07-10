@@ -47,29 +47,39 @@ import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
 @RunWith(Parameterized::class)
-internal class MultipleDataStoresInMultipleProcessesTest(
-    private val storageVariant: StorageVariant,
+internal class MultipleDataStoresInMultipleProcessesTest(param: Param) {
+    private val storageVariant: StorageVariant = param.storageVariant
     /**
      * if set to true, we'll run remote subjects in 2 different processes. if set to false, we'll
      * run them on the same remote process.
      */
-    private val useMultipleRemoteProcesses: Boolean,
+    private val useMultipleRemoteProcesses: Boolean = param.useMultipleProcesses
     /**
-     * If true, both datastores will be created in the same folder. If false, their parent folders
+     * If true, both dataStores will be created in the same folder. If false, their parent folders
      * will be different.
      */
-    private val useTheSameParentFolder: Boolean,
-) {
+    private val useTheSameParentFolder: Boolean = param.useTheSameParentFolder
+
+    data class Param(
+        val storageVariant: StorageVariant,
+        val useMultipleProcesses: Boolean,
+        val useTheSameParentFolder: Boolean,
+    ) {
+        override fun toString(): String {
+            return "storage=$storageVariant" +
+                " multipleProcesses=$useMultipleProcesses" +
+                " sameParentFolder=$useTheSameParentFolder"
+        }
+    }
 
     companion object {
-        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING", "unused") // test parameters
-        @get:JvmStatic
-        @get:Parameters(name = "storage_{0}_multipleProcesses={1}_sameParentFolder={2}")
-        val params = buildList {
-            for (storageVariant in StorageVariant.values()) {
+        @JvmStatic
+        @Parameters(name = "{0}")
+        fun initParameters() = buildList {
+            for (storageVariant in StorageVariant.entries) {
                 for (useMultipleProcesses in arrayOf(true, false)) {
                     for (useTheSameParentFolder in arrayOf(true, false)) {
-                        add(arrayOf(storageVariant, useMultipleProcesses, useTheSameParentFolder))
+                        add(Param(storageVariant, useMultipleProcesses, useTheSameParentFolder))
                     }
                 }
             }
@@ -245,7 +255,7 @@ private suspend fun StateFlow<FooProto>.awaitValue(value: String) {
         // 5 seconds is what we use for IPC action timeouts, hence we pick a lower number
         // here to get this timeout before the IPC
         withTimeout(4.seconds) { this@awaitValue.takeWhile { it.text != value }.collect() }
-    } catch (timeout: TimeoutCancellationException) {
+    } catch (_: TimeoutCancellationException) {
         throw AssertionError(
             """
                 expected "$value" didn't arrive, current value: "${this@awaitValue.value.text}"

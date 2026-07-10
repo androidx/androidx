@@ -16,9 +16,11 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.TextLayoutInput
@@ -39,6 +41,22 @@ internal interface Selectable {
      * @see SelectionRegistrar.nextSelectableId
      */
     val selectableId: Long
+
+    /**
+     * The [PinnableContainer] of the selectable element.
+     *
+     * This is used to pin the element while it has selection, to avoid lazy containers removing it
+     * from the composition.
+     */
+    val pinnableContainer: PinnableContainer?
+
+    /**
+     * The [BringIntoViewRequester] of the selectable content.
+     *
+     * This is used, during drag selection gestures, to bring the dragged position into view. The
+     * coordinates of [BringIntoViewRequester.bringIntoView] are local to the selectable.
+     */
+    val bringIntoViewRequester: BringIntoViewRequester?
 
     /**
      * A function which adds [SelectableInfo] representing this [Selectable] to the
@@ -67,8 +85,8 @@ internal interface Selectable {
     /**
      * Return the [LayoutCoordinates] of the [Selectable].
      *
-     * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before
-     *   composing.
+     * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before the
+     *   selectable is placed.
      */
     fun getLayoutCoordinates(): LayoutCoordinates?
 

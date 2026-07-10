@@ -16,19 +16,34 @@
 
 package androidx.pdf.viewer.fragment
 
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.net.Uri
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
+import androidx.pdf.PdfDocument
+import androidx.pdf.PdfLoader
+import androidx.pdf.PdfPoint
 import androidx.pdf.SandboxedPdfLoader
+import androidx.pdf.models.FormEditInfo
+import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.ocr.OcrProvider
+import androidx.pdf.ocr.OcrResult
 import androidx.pdf.viewer.coroutines.collectTill
 import androidx.pdf.viewer.coroutines.toListDuring
+import androidx.pdf.viewer.document.FakePdfDocument
 import androidx.pdf.viewer.fragment.TestUtils.openFileAsUri
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.IOException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -41,6 +56,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 35)
 class PdfDocumentViewModelTest {
 
     private val appContext =
@@ -260,6 +276,259 @@ class PdfDocumentViewModelTest {
         assertTrue(
             pdfDocumentViewModel.fragmentUiScreenState.value is PdfFragmentUiState.DocumentError
         )
+    }
+
+    @Test
+    fun testApplyFormEdit_withEditableDocument_appliesTheEdit() = runTest {
+        // 1. Arrange: Load a real document with form fields.
+        val documentUri = openFileAsUri(appContext, "click_form.pdf")
+        pdfDocumentViewModel.loadDocument(uri = documentUri, password = null)
+
+        // Wait until the document is loaded.
+        val uiStates = mutableListOf<PdfFragmentUiState>()
+        val collectJob = launch {
+            pdfDocumentViewModel.fragmentUiScreenState.collectTill(uiStates) { state ->
+                state is PdfFragmentUiState.DocumentLoaded
+            }
+        }
+        collectJob.join()
+        val loadedState = pdfDocumentViewModel.fragmentUiScreenState.value
+        assertTrue(loadedState is PdfFragmentUiState.DocumentLoaded)
+        val document = (loadedState as PdfFragmentUiState.DocumentLoaded).pdfDocument
+
+        // Use a latch to wait for the async edit to complete.
+        val latch = CountDownLatch(1)
+        var editApplied = false
+        var editedPageNum: Int? = null
+        var dirtyAreasOnEdit: List<Rect>? = null
+        val listener =
+            object : PdfDocument.OnPdfContentInvalidatedListener {
+                override fun onPdfContentInvalidated(pageNumber: Int, dirtyAreas: List<Rect>) {
+                    editApplied = true
+                    editedPageNum = pageNumber
+                    dirtyAreasOnEdit = dirtyAreas
+                    latch.countDown()
+                }
+            }
+        document.addOnPdfContentInvalidatedListener({ command -> command.run() }, listener)
+
+        // Bounds in content coordinates of the widget on which the edit is applied
+        val widgetArea = Rect(135, 70, 155, 90)
+        val formEditInfo =
+            FormEditInfo.createClick(widgetIndex = 1, clickPoint = PdfPoint(0, 145f, 80f))
+
+        // 2. Act: Call the method on the ViewModel.
+        pdfDocumentViewModel.applyFormEdit(formEditInfo)
+
+        val wasApplied = latch.await(5, TimeUnit.SECONDS)
+        document.removeOnPdfContentInvalidatedListener(listener)
+
+        assertTrue(wasApplied)
+        assertTrue(editApplied)
+        assertTrue(editedPageNum == 0)
+        assertTrue(dirtyAreasOnEdit != null)
+        assertTrue(fullyContains(listOf(widgetArea), dirtyAreasOnEdit!!))
+    }
+
+    @Test
+    fun test_formFilling_stateRestoration() = runTest {
+        // Assemble a list of edits which were applied to the document.
+        // This replicates a scenario where process death occurs after edits were applied.
+        val formEditInfos = ArrayList<FormEditInfo>()
+        // CheckBox at index 1 is un-checked, becomes checked post this edit, i.e. textValue = true
+        val clickOnCheckBox =
+            FormEditInfo.createClick(widgetIndex = 1, clickPoint = PdfPoint(0, 145f, 80f))
+        // Radio button at widgetIndex 5 is selected, widgetIndex 7 (derived from metadata) which
+        // was initially selected will become unselected.
+        val clickOnRadioButton =
+            FormEditInfo.createClick(widgetIndex = 5, clickPoint = PdfPoint(0, 95f, 240f))
+        formEditInfos.add(clickOnCheckBox)
+        formEditInfos.add(clickOnRadioButton)
+
+        val documentUri = openFileAsUri(appContext, "click_form.pdf")
+        val localSavedStateHandle =
+            SavedStateHandle().also {
+                it["documentUri"] = documentUri
+                it["formEditInfos"] = formEditInfos
+            }
+
+        val pdfDocumentViewModel =
+            PdfDocumentViewModel(localSavedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
+
+        val collectJob = launch {
+            pdfDocumentViewModel.fragmentUiScreenState.collectTill(mutableListOf()) { state ->
+                state is PdfFragmentUiState.DocumentLoaded
+            }
+        }
+        pdfDocumentViewModel.loadDocument(uri = documentUri, password = null)
+        collectJob.join()
+
+        assertTrue(
+            pdfDocumentViewModel.fragmentUiScreenState.value is PdfFragmentUiState.DocumentLoaded
+        )
+        val loadedState = pdfDocumentViewModel.fragmentUiScreenState.value
+        assertTrue(loadedState is PdfFragmentUiState.DocumentLoaded)
+        val document = (loadedState as PdfFragmentUiState.DocumentLoaded).pdfDocument
+        val formWidgetInfos = document.getFormWidgetInfos(0)
+        val expectedFormWidgetInfoIndex1 =
+            FormWidgetInfo.createCheckbox(
+                widgetIndex = 1,
+                widgetRect = Rect(135, 70, 155, 90),
+                textValue = "true",
+                accessibilityLabel = "checkbox",
+                isReadOnly = false,
+            )
+        val expectedFormWidgetInfoIndex5 =
+            FormWidgetInfo.createRadioButton(
+                widgetIndex = 5,
+                widgetRect = Rect(85, 230, 105, 250),
+                textValue = "true",
+                accessibilityLabel = "",
+                isReadOnly = false,
+            )
+        val expectedFormWidgetInfoIndex7 =
+            FormWidgetInfo.createRadioButton(
+                widgetIndex = 7,
+                widgetRect = Rect(185, 230, 205, 250),
+                textValue = "false",
+                accessibilityLabel = "",
+                isReadOnly = false,
+            )
+
+        for (widget: FormWidgetInfo in formWidgetInfos) {
+            when (widget.widgetIndex) {
+                1 -> assertTrue(widget == expectedFormWidgetInfoIndex1)
+                5 -> assertTrue(widget == expectedFormWidgetInfoIndex5)
+                7 -> assertTrue(widget == expectedFormWidgetInfoIndex7)
+            }
+        }
+    }
+
+    @Test
+    fun test_pdfDocumentViewModel_forceLoadDocument_reloadsSuccessfully() = runTest {
+        val documentUri = openFileAsUri(appContext, "sample.pdf")
+        val savedState = SavedStateHandle()
+        val testViewModel =
+            TestPdfDocumentViewModel(savedState, SandboxedPdfLoader(appContext, dispatcher))
+
+        testViewModel.loadDocument(uri = documentUri, password = null)
+
+        testViewModel.fragmentUiScreenState.first { it is PdfFragmentUiState.DocumentLoaded }
+        assertTrue(testViewModel.fragmentUiScreenState.value is PdfFragmentUiState.DocumentLoaded)
+
+        val uiStates = mutableListOf<PdfFragmentUiState>()
+        val reloadJob = launch {
+            testViewModel.fragmentUiScreenState.collectTill(uiStates) { state ->
+                state is PdfFragmentUiState.DocumentLoaded &&
+                    uiStates.any { it is PdfFragmentUiState.Loading }
+            }
+        }
+
+        // force load document without current state
+        testViewModel.forceLoadDocument()
+        reloadJob.join()
+
+        // Should contain Loading followed by DocumentLoaded
+        assertTrue(uiStates.any { it is PdfFragmentUiState.Loading })
+        assertTrue(uiStates.last() is PdfFragmentUiState.DocumentLoaded)
+        // Assert states get reset
+        assertFalse(testViewModel.isTextSearchActiveFromState)
+        assertFalse(testViewModel.isImmersiveModeDesired)
+        assertFalse(savedState.contains("formEditInfos"))
+    }
+
+    @Test
+    fun test_pdfDocumentViewModel_loadDocumentFailure_zeroPageCount() = runTest {
+        val documentUri = Uri.parse("content://test.app/zero_page.pdf")
+        val fakePdfLoader = FakePdfLoader()
+        fakePdfLoader.documentToReturn = FakePdfDocument(pages = emptyList())
+
+        val pdfViewModel = PdfDocumentViewModel(SavedStateHandle(), fakePdfLoader)
+
+        val uiStates = mutableListOf<PdfFragmentUiState>()
+        val collectJob = launch {
+            pdfViewModel.fragmentUiScreenState.collectTill(uiStates) { state ->
+                state is PdfFragmentUiState.DocumentError
+            }
+        }
+
+        pdfViewModel.loadDocument(documentUri, null)
+        collectJob.join()
+
+        assertTrue(uiStates.last() is PdfFragmentUiState.DocumentError)
+        val errorState = uiStates.last() as PdfFragmentUiState.DocumentError
+        assertTrue(errorState.exception is IllegalStateException)
+    }
+
+    @Test
+    fun test_ocrProvider_closedOnCleared() = runTest {
+        val ocrProvider = FakeOcrProvider()
+        val testViewModel =
+            TestPdfDocumentViewModel(SavedStateHandle(), SandboxedPdfLoader(appContext, dispatcher))
+        testViewModel.ocrProvider = ocrProvider
+
+        testViewModel.onCleared()
+
+        assertTrue(ocrProvider.isClosed)
+    }
+
+    @Test
+    fun test_ocrProvider_closedOnReplace() = runTest {
+        val oldProvider = FakeOcrProvider()
+        val newProvider = FakeOcrProvider()
+        val testViewModel =
+            TestPdfDocumentViewModel(SavedStateHandle(), SandboxedPdfLoader(appContext, dispatcher))
+
+        testViewModel.ocrProvider = oldProvider
+        testViewModel.ocrProvider = newProvider
+
+        assertTrue(oldProvider.isClosed)
+        assertFalse(newProvider.isClosed)
+    }
+
+    private fun fullyContains(innerRects: List<Rect>, outerRects: List<Rect>): Boolean {
+        return innerRects.all { inner -> outerRects.any { outer -> outer.contains(inner) } }
+    }
+
+    /** A test-only subclass to expose protected methods for verification. */
+    private class FakePdfLoader : PdfLoader {
+        var documentToReturn: PdfDocument? = null
+
+        override suspend fun openDocument(uri: Uri, password: String?): PdfDocument {
+            return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
+        }
+
+        override suspend fun openDocument(
+            uri: Uri,
+            fileDescriptor: android.os.ParcelFileDescriptor,
+            password: String?,
+            renderParams: androidx.pdf.RenderParams,
+        ): PdfDocument {
+            return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
+        }
+    }
+
+    private class TestPdfDocumentViewModel(
+        savedStateHandle: SavedStateHandle,
+        pdfLoader: SandboxedPdfLoader,
+    ) : PdfDocumentViewModel(savedStateHandle, pdfLoader) {
+        public override fun forceLoadDocument() {
+            super.forceLoadDocument()
+        }
+
+        public override fun onCleared() {
+            super.onCleared()
+        }
+    }
+
+    private class FakeOcrProvider : OcrProvider {
+        var isClosed = false
+
+        override suspend fun recognizeText(image: Bitmap): OcrResult? = null
+
+        override fun close() {
+            isClosed = true
+        }
     }
 
     companion object {

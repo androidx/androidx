@@ -549,7 +549,7 @@ class Matrix4Test {
         // 90 degree rotation around the z axis
         val underTest =
             Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f))
-        val underTestPose = underTest.pose
+        val underTestPose = underTest.toPose()
 
         assertThat(underTestPose.translation.x).isWithin(1e-5f).of(0f)
         assertThat(underTestPose.translation.y).isWithin(1e-5f).of(0f)
@@ -565,7 +565,7 @@ class Matrix4Test {
         // 90 degree rotation around the z axis with uniform scale of 2 and (1, 0, 0) translation
         val underTest =
             Matrix4(floatArrayOf(0f, 2f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 2f, 0f, 1f, 0f, 0f, 1f))
-        val underTestPose = underTest.pose
+        val underTestPose = underTest.toPose()
 
         assertThat(underTestPose.translation.x).isWithin(1e-5f).of(1f)
         assertThat(underTestPose.translation.y).isWithin(1e-5f).of(0f)
@@ -582,7 +582,7 @@ class Matrix4Test {
         // 90 degree rotation around the z axis with (1, 2, 3) scale and (1, 2, 3) translation
         val underTest =
             Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 1f, 2f, 3f, 1f))
-        val underTestPose = underTest.pose
+        val underTestPose = underTest.toPose()
 
         assertThat(underTestPose.translation.x).isWithin(1e-5f).of(1f)
         assertThat(underTestPose.translation.y).isWithin(1e-5f).of(2f)

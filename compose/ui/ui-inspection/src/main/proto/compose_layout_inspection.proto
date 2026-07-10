@@ -215,7 +215,88 @@ message ParameterGroup {
   repeated Parameter unmerged_semantics = 5;
 }
 
-// ======= COMMANDS, RESPONSES, AND EVENTS =======
+// The StateReads for a single recomposition.
+message StateReadGroup {
+    // The recomposition these state reads belong to.
+    // For example first, second etc recomposition of a composable
+    int32 recomposition_number = 1;
+    // The StateReads for this recomposition.
+    repeated StateRead read = 2;
+    // The parameters that were changed.
+    repeated Parameter parameter_changes = 3;
+}
+
+// A single StateRead observation.
+message StateRead {
+    // The value of the state variable that was read.
+    Parameter value = 1;
+    // The hash of the mutable state variable.
+    int32 value_instance_hash = 2;
+    // True if this state variable was invalidated before this recomposition.
+    bool invalidated = 3;
+    // The stack trace recorded for this read.
+    repeated StackTraceLine stack_trace_line = 4;
+}
+
+// A single stack trace line.
+message StackTraceLine {
+    // Corresponds to StackTraceElement.getClassName()
+    int32 declaring_class = 1;
+    // Corresponds to StackTraceElement.getMethodName()
+    int32 method_name = 2;
+    // Corresponds to StackTraceElement.getFileName()
+    int32 file_name = 3;
+    // Corresponds to StackTraceElement.getLineNumber()
+    int32 line_number = 4;
+}
+
+// The settings around recomposition state reads.
+message StateReadSettings {
+  // The kind of State Read method (should match the oneof below).
+  enum Kind {
+    // No State Reads are observed.
+    NONE = 0;
+    // All composable are observed.
+    ALL = 1;
+    // A select number of composable are observed (Kind.BY_ID).
+    BY_ID = 2;
+  }
+
+  // Determines the method in which State Reads are handled.
+  oneof method {
+    // No State Reads are observed (Kind.NONE).
+    None none = 1;
+    // All composable are observed (Kind.ALL).
+    All all = 2;
+    // A select number of composable are observed (Kind.BY_ID).
+    ById by_id = 3;
+  }
+
+  // Empty method message meaning State Reads are tuned off.
+  message None {}
+
+  // The agent should start recording State Reads for all composable.
+  message All {
+      // Limit the number of state reads kept on the device. The default is 5000.
+      int32 max_state_reads = 1;
+      // Include parameter changes with the state reads.
+      bool include_parameter_changes = 2;
+  }
+
+  // The agent should start recording State Reads for the specified composable.
+  message ById {
+      // Limit the number of state reads kept on the device. The default is 5000.
+      int32 max_state_reads = 1;
+
+      // The anchor hash of the composable to observe recompose state reads for.
+      repeated sint32 composable_to_observe = 2;
+
+      // Include parameter changes with the state reads.
+      bool include_parameter_changes = 3;
+  }
+}
+
+// ======= COMMANDS AND RESPONSES =======
 
 // Response fired when incoming command bytes cannot be parsed or handled. This may occur if a newer
 // version of the client tries to interact with an older inspector.
@@ -234,12 +315,17 @@ message GetComposablesCommand {
   int32 generation = 3;
   // If true, extract all parameters even if `delayParameterExtractions` is off.
   bool extract_all_parameters = 4;
+  // If true, return an empty response if no changes were detected since the last request.
+  bool allow_empty_if_unchanged = 5;
 }
 
 message GetComposablesResponse {
     // A collection of all text referenced by other fields in this message
     repeated StringEntry strings = 1;
+    // A collection of all root notes found.
     repeated ComposableRoot roots = 2;
+    // If true, no changes were detected since the last request and the strings and roots are empty.
+    bool unchanged = 3;
 }
 
 message GetParametersCommand {
@@ -308,18 +394,49 @@ message UpdateSettingsCommand {
   // If false stop counting recompositions.
   bool include_recompose_counts = 1;
   // If true, the recomposition counts will be kept.
-  // If false, the recomposition counts will be reset.
+  // If false, the recomposition counts will be reset along with all state reads.
   bool keep_recompose_counts = 2;
   // If true, the compose parameters will not be extracted before
   bool delay_parameter_extractions = 3;
   // If true, encode nested single children under the top node.
   bool reduce_child_nesting = 4;
+  // Settings around recomposition state reads.
+  StateReadSettings state_read_settings = 5;
 }
 
 // The active settings after handling of an UpdateSettingsCommand
 message UpdateSettingsResponse {
   // If true, the agent has the capability for delaying parameter extractions
   bool can_delay_parameter_extractions = 3;
+  // If true, the agent has the capability for observing recompose state reads
+  repeated StateReadSettings.Kind supported_state_read_kind = 4;
+}
+
+// Get recomposition state reads for a composable and a range of recompositions.
+message GetRecompositionStateReadCommand {
+    // The anchor hash of the composable to retrieve state reads for.
+    sint32 anchor_hash = 1;
+    // Specifies the lower recomposition number of the range to retrieve state reads for.
+    int32 recomposition_number_start = 2;
+    // Specifies the upper recomposition number of the range to retrieve state reads for.
+    int32 recomposition_number_end = 3;
+    // If false: return state reads for the specified range of recompositions only.
+    // If true: include extra recompositions after recomposition_number_end if any of the
+    // recompositions in the specified range doesn't have state reads.
+    bool include_extra = 4;
+}
+
+// State reads for a single composable as a response to GetRecompositionStateReadCommand.
+message GetRecompositionStateReadResponse {
+    // The anchor hash of the composable which the state reads is for.
+    sint32 anchor_hash = 1;
+    // The string table for the state reads.
+    repeated StringEntry strings = 2;
+    // The groups of state reads for the requested recompositions. If the specific recompositions
+    // were not found return the closest recompositions in the specified search direction.
+    repeated StateReadGroup read = 3;
+    // The number of state reads discarded by the agent so far
+    uint64 purged_state_reads = 4;
 }
 
 message Command {
@@ -329,6 +446,7 @@ message Command {
     GetAllParametersCommand get_all_parameters_command = 3;
     GetParameterDetailsCommand get_parameter_details_command = 4;
     UpdateSettingsCommand update_settings_command = 5;
+    GetRecompositionStateReadCommand get_recomposition_state_read_command = 6;
   }
 }
 
@@ -339,6 +457,7 @@ message Response {
     GetAllParametersResponse get_all_parameters_response = 3;
     GetParameterDetailsResponse get_parameter_details_response = 4;
     UpdateSettingsResponse update_settings_response = 5;
+    GetRecompositionStateReadResponse get_recomposition_state_read_response = 6;
 
     UnknownCommandResponse unknown_command_response = 100;
   }

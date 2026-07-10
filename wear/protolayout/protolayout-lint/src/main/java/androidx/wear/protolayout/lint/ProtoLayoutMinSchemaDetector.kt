@@ -35,6 +35,7 @@ import com.intellij.psi.PsiModifierListOwner
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UField
 import org.jetbrains.uast.UResolvable
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getContainingUVariable
@@ -98,7 +99,21 @@ class ProtoLayoutMinSchemaDetector : Detector(), Detector.UastScanner {
         context: JavaContext
     ): SchemaAnnotation? {
         return if (this is UAnnotated) {
-            findAnnotation(REQUIRES_SCHEMA_ANNOTATION)?.asSchemaAnnotation(context)
+            // TODO: b/448156089 - Remove this workaround and use findSourceAnnotation() directly
+            try {
+                // Replaces this.sourceAnnotations as that is not backwards compatible
+                val sourceAnnotationsMethod =
+                    UField::class.java.getDeclaredMethod("getSourceAnnotations")
+                sourceAnnotationsMethod.isAccessible = true
+                @Suppress("UNCHECKED_CAST")
+                val result = sourceAnnotationsMethod.invoke(this) as List<UAnnotation>
+                result
+                    .find { it.qualifiedName == REQUIRES_SCHEMA_ANNOTATION }
+                    ?.asSchemaAnnotation(context)
+            } catch (_: Exception) {
+                // AGP 9.0.0-alpha08 or higher not available, use the old way
+                findAnnotation(REQUIRES_SCHEMA_ANNOTATION)?.asSchemaAnnotation(context)
+            }
         } else {
             context.evaluator
                 .getAnnotationInHierarchy(this, REQUIRES_SCHEMA_ANNOTATION)
@@ -145,6 +160,7 @@ class ProtoLayoutMinSchemaDetector : Detector(), Detector.UastScanner {
                 in 201..300 -> 34
                 in 301..400 -> 35
                 in 401..500 -> 36
+                in 501..600 -> 37
                 else -> Int.MAX_VALUE
             }
 

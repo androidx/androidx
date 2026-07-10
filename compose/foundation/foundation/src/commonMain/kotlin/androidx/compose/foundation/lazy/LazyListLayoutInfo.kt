@@ -89,6 +89,26 @@ interface LazyListLayoutInfo {
 
 internal fun LazyListLayoutInfo.visibleItemsAverageSize(): Int {
     val visibleItems = visibleItemsInfo
+    if (visibleItems.isEmpty()) return 0
     val itemsSum = visibleItems.fastSumBy { it.size }
     return itemsSum / visibleItems.size + mainAxisItemSpacing
 }
+
+internal fun LazyListLayoutInfo.calculateContentSize(): Int {
+    val contentPadding = beforeContentPadding + afterContentPadding
+    if (totalItemsCount == 0) return contentPadding
+
+    val contentSizeWithoutSpacing =
+        (visibleItemsAverageSize() - mainAxisItemSpacing) * totalItemsCount
+    val totalSpacing = (totalItemsCount - 1) * mainAxisItemSpacing
+
+    return contentSizeWithoutSpacing + totalSpacing + contentPadding
+}
+
+internal val LazyListLayoutInfo.singleAxisViewportSize: Int
+    get() =
+        if (orientation == Orientation.Vertical) {
+            viewportSize.height
+        } else {
+            viewportSize.width
+        }

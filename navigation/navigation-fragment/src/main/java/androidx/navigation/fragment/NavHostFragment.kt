@@ -25,7 +25,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -35,6 +34,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.Navigator
 import androidx.navigation.plusAssign
+import androidx.savedstate.savedState
 
 /**
  * NavHostFragment provides an area within your layout for self-contained navigation to occur.
@@ -64,8 +64,9 @@ import androidx.navigation.plusAssign
  * ```
  *
  * Each NavHostFragment has a [NavController] that defines valid navigation within the navigation
- * host. This includes the [navigation graph][NavGraph] as well as navigation state such as current
- * location and back stack that will be saved and restored along with the NavHostFragment itself.
+ * host. This includes the [navigation graph][androidx.navigation.NavGraph] as well as navigation
+ * state such as current location and back stack that will be saved and restored along with the
+ * NavHostFragment itself.
  *
  * NavHostFragments register their navigation controller at the root of their view subtree such that
  * any descendant can obtain the controller instance through the [Navigation] helper class's methods
@@ -94,7 +95,7 @@ public open class NavHostFragment : Fragment(), NavHost {
             }
             savedStateRegistry.registerSavedStateProvider(KEY_GRAPH_ID) {
                 if (graphId != 0) {
-                    bundleOf(KEY_GRAPH_ID to graphId)
+                    savedState { putInt(KEY_GRAPH_ID, graphId) }
                 } else {
                     Bundle.EMPTY
                 }
@@ -174,7 +175,7 @@ public open class NavHostFragment : Fragment(), NavHost {
      * subclasses.
      *
      * @param navHostController The newly created [NavHostController] that will be returned by
-     *   [getNavController] after
+     *   [NavHost.navController] after
      */
     @Suppress("DEPRECATION")
     @CallSuper
@@ -183,9 +184,9 @@ public open class NavHostFragment : Fragment(), NavHost {
     }
 
     /**
-     * Callback for when the [NavController][getNavController] is created. If you support any custom
-     * destination types, their [Navigator] should be added here to ensure it is available before
-     * the navigation graph is inflated / set.
+     * Callback for when the [NavController][NavHost.navController] is created. If you support any
+     * custom destination types, their [Navigator] should be added here to ensure it is available
+     * before the navigation graph is inflated / set.
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
@@ -361,7 +362,8 @@ public open class NavHostFragment : Fragment(), NavHost {
         }
 
         /**
-         * Create a new NavHostFragment instance with an inflated [NavGraph] resource.
+         * Create a new NavHostFragment instance with an inflated [androidx.navigation.NavGraph]
+         * resource.
          *
          * @param graphResId Resource id of the navigation graph to inflate.
          * @param startDestinationArgs Arguments to send to the start destination of the graph.

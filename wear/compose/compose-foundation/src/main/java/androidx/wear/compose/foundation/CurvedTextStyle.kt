@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
@@ -51,6 +52,10 @@ internal val DefaultCurvedTextStyles =
  * Sample using different letter spacings for top & bottom text:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedLetterSpacingSample
+ *
+ * Sample using different warping:
+ *
+ * @sample androidx.wear.compose.foundation.samples.CurvedWarpingSample
  * @param background The background color for the text.
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This may be
@@ -70,6 +75,12 @@ internal val DefaultCurvedTextStyles =
  * @param lineHeight Line height for the text in [TextUnit] unit, e.g. SP or EM. Note that since
  *   curved text only has one line, this used the equivalent of a lineHeightStyle: alignment =
  *   Center, trim = None, mode = Fixed
+ * @param warpOffset specifies if we want to warp the text, and if so, the offset for warping.
+ *   Warping the text will cause each character to be modified in shape so that it is thinner when
+ *   it is closer to the center of the center of the screen and wider when it's further away. This
+ *   also makes adjacent characters share a line, so this is particularly useful for cursive fonts.
+ *   When warping is active, this parameter specifies which horizontal line of the text will keep
+ *   its width.
  */
 public class CurvedTextStyle(
     public val background: Color = Color.Unspecified,
@@ -82,6 +93,7 @@ public class CurvedTextStyle(
     public val letterSpacing: TextUnit = TextUnit.Unspecified,
     public val letterSpacingCounterClockwise: TextUnit = TextUnit.Unspecified,
     public val lineHeight: TextUnit = TextUnit.Unspecified,
+    public val warpOffset: WarpOffset = WarpOffset.Unspecified,
 ) {
     /**
      * Styling configuration for a curved text.
@@ -170,6 +182,57 @@ public class CurvedTextStyle(
     )
 
     /**
+     * @param background The background color for the text.
+     * @param color The text color.
+     * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
+     *   may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+     * @param fontFamily The font family to be used when rendering the text.
+     * @param fontWeight The thickness of the glyphs, in a range of [1, 1000]. see [FontWeight]
+     * @param fontStyle The typeface variant to use when drawing the letters (e.g. italic).
+     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
+     *   or style cannot be found in the provided font family.
+     * @param letterSpacing The amount of space (in em or sp) to add between each letter, when text
+     *   is going clockwise.
+     * @param letterSpacingCounterClockwise The amount of space (in em or sp) to add between each
+     *   letter, when text is going counterClockwise. Note that this usually needs to be bigger than
+     *   [letterSpacing] to account for the fact that going clockwise, text fans out from the
+     *   baseline while going counter clockwise text fans in. If not specified, the value for
+     *   [letterSpacing] will be used.
+     * @param lineHeight Line height for the text in [TextUnit] unit, e.g. SP or EM. Note that since
+     *   curved text only has one line, this used the equivalent of a lineHeightStyle: alignment =
+     *   Center, trim = None, mode = Fixed
+     */
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for " +
+            "Wear OS 1.5. A newer overload is available with additional warpOffset parameter.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    public constructor(
+        background: Color = Color.Unspecified,
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontFamily: FontFamily? = null,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        letterSpacingCounterClockwise: TextUnit = TextUnit.Unspecified,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+    ) : this(
+        background,
+        color,
+        fontSize,
+        fontFamily,
+        fontWeight,
+        fontStyle,
+        fontSynthesis,
+        letterSpacing,
+        letterSpacingCounterClockwise,
+        lineHeight,
+        WarpOffset.Unspecified,
+    )
+
+    /**
      * Create a curved text style from the given text style.
      *
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
@@ -220,6 +283,7 @@ public class CurvedTextStyle(
                     other.letterSpacingCounterClockwise
                 else this.letterSpacingCounterClockwise,
             lineHeight = other.lineHeight.takeOrElse { this.lineHeight },
+            warpOffset = other.warpOffset.takeOrElse { this.warpOffset },
         )
     }
 
@@ -247,6 +311,7 @@ public class CurvedTextStyle(
             letterSpacing = this.letterSpacing,
             letterSpacingCounterClockwise = this.letterSpacingCounterClockwise,
             lineHeight = this.lineHeight,
+            warpOffset = this.warpOffset,
         )
     }
 
@@ -275,6 +340,7 @@ public class CurvedTextStyle(
             letterSpacing = this.letterSpacing,
             letterSpacingCounterClockwise = this.letterSpacingCounterClockwise,
             lineHeight = this.lineHeight,
+            warpOffset = this.warpOffset,
         )
     }
 
@@ -307,9 +373,15 @@ public class CurvedTextStyle(
             letterSpacingCounterClockwise =
                 letterSpacing.takeOrElse { letterSpacingCounterClockwise },
             lineHeight = this.lineHeight,
+            warpOffset = this.warpOffset,
         )
     }
 
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for " +
+            "Wear OS 1.5. A newer overload is available with additional warpOffset parameter.",
+        level = DeprecationLevel.HIDDEN,
+    )
     public fun copy(
         background: Color = this.background,
         color: Color = this.color,
@@ -333,6 +405,35 @@ public class CurvedTextStyle(
             letterSpacing = letterSpacing,
             letterSpacingCounterClockwise = letterSpacingCounterClockwise,
             lineHeight = lineHeight,
+            warpOffset = this.warpOffset,
+        )
+    }
+
+    public fun copy(
+        background: Color = this.background,
+        color: Color = this.color,
+        fontSize: TextUnit = this.fontSize,
+        fontFamily: FontFamily? = this.fontFamily,
+        fontWeight: FontWeight? = this.fontWeight,
+        fontStyle: FontStyle? = this.fontStyle,
+        fontSynthesis: FontSynthesis? = this.fontSynthesis,
+        letterSpacing: TextUnit = this.letterSpacing,
+        letterSpacingCounterClockwise: TextUnit = this.letterSpacingCounterClockwise,
+        lineHeight: TextUnit = this.lineHeight,
+        warpOffset: WarpOffset = this.warpOffset,
+    ): CurvedTextStyle {
+        return CurvedTextStyle(
+            background = background,
+            color = color,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            letterSpacing = letterSpacing,
+            letterSpacingCounterClockwise = letterSpacingCounterClockwise,
+            lineHeight = lineHeight,
+            warpOffset = warpOffset,
         )
     }
 
@@ -349,7 +450,8 @@ public class CurvedTextStyle(
             fontSynthesis == other.fontSynthesis &&
             letterSpacing == other.letterSpacing &&
             letterSpacingCounterClockwise == other.letterSpacingCounterClockwise &&
-            lineHeight == other.lineHeight
+            lineHeight == other.lineHeight &&
+            warpOffset == other.warpOffset
     }
 
     override fun hashCode(): Int {
@@ -363,6 +465,7 @@ public class CurvedTextStyle(
         result = 31 * result + letterSpacing.hashCode()
         result = 31 * result + letterSpacingCounterClockwise.hashCode()
         result = 31 * result + lineHeight.hashCode()
+        result = 31 * result + warpOffset.hashCode()
         return result
     }
 
@@ -378,6 +481,91 @@ public class CurvedTextStyle(
             "letterSpacing=$letterSpacing, " +
             "letterSpacingCounterClockwise=$letterSpacingCounterClockwise, " +
             "lineHeight=$lineHeight, " +
+            "warpOffset=$warpOffset, " +
             ")"
+    }
+
+    /**
+     * Used to specify if we want to warp the text, and if so, the offset for warping. Warping the
+     * text will cause each character to be modified in shape so that it is thinner when it is
+     * closer to the center of the center of the screen and wider when it's further away. This also
+     * makes adjacent characters share a line, so this is particularly useful for cursive fonts.
+     * When warping is active, this parameter specifies which horizontal line of the text will keep
+     * its width.
+     */
+    // Note that options is a Byte because if we make it an Int there is a JVM signature conflict
+    // with one of the Kotlin generated java methods for the previous overload.
+    @kotlin.jvm.JvmInline
+    public value class WarpOffset internal constructor(internal val option: Byte) {
+        override fun toString(): String =
+            when (this) {
+                Unspecified -> "Unspecified"
+                None -> "None"
+                Baseline -> "Baseline"
+                HalfAscent -> "Half Ascent"
+                HalfOpticalHeight -> "Half Optical Height"
+                Ascent -> "Ascent"
+                Descent -> "Descent"
+                else -> "Unknown: $option"
+            }
+
+        /** `false` when this is [WarpOffset.Unspecified]. */
+        @Stable
+        public inline val isSpecified: Boolean
+            get() = !isUnspecified
+
+        /** `true` when this is [WarpOffset.Unspecified]. */
+        @Stable
+        public inline val isUnspecified: Boolean
+            get() = this == Unspecified
+
+        /**
+         * If this [WarpOffset] [isSpecified] then this is returned, otherwise [block] is executed
+         * and its result is returned.
+         */
+        public inline fun takeOrElse(block: () -> WarpOffset): WarpOffset =
+            if (isSpecified) this else block()
+
+        public companion object {
+            /** Unspecified, used for merging styles */
+            public val Unspecified: WarpOffset = WarpOffset(0)
+
+            /** Do not warp, use the standard Android rendering */
+            public val None: WarpOffset = WarpOffset(1)
+
+            /** Warp using the baseline of the text. */
+            public val Baseline: WarpOffset = WarpOffset(2)
+
+            /** Warp using half the ascent of the text. */
+            public val HalfAscent: WarpOffset = WarpOffset(3)
+
+            /**
+             * Warp using the middle point between ascent and descent of the text. This is the
+             * default
+             */
+            public val HalfOpticalHeight: WarpOffset = WarpOffset(4)
+
+            /** Warp using the ascent of the text. */
+            public val Ascent: WarpOffset = WarpOffset(5)
+
+            /** Warp using the descent of the text. */
+            public val Descent: WarpOffset = WarpOffset(6)
+        }
+
+        internal fun determineWarpRadiusOffset(ascent: Float, descent: Float): Float {
+            return when (this) {
+                Baseline -> 0f
+
+                HalfAscent -> -ascent / 2f
+
+                HalfOpticalHeight -> -(ascent + descent) / 2f
+
+                Ascent -> -ascent
+
+                Descent -> -descent
+
+                else -> throw IllegalArgumentException("Illegal warp offset: $this")
+            }
+        }
     }
 }

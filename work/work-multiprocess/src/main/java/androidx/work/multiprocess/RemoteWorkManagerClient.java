@@ -62,6 +62,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -357,7 +358,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         session.addListener(() -> {
             try {
                 session.get();
-            } catch (ExecutionException | InterruptedException exception) {
+            } catch (CancellationException | ExecutionException | InterruptedException exception) {
                 cleanUp();
             }
         }, mExecutor);

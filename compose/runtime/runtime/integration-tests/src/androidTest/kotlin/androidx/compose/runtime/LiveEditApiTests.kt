@@ -17,10 +17,13 @@
 package androidx.compose.runtime
 
 import androidx.compose.material.Text
+import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -365,6 +368,69 @@ class LiveEditApiTests : BaseComposeTest() {
             errors = compositionErrors()
             assertThat(errors).hasSize(0)
         }
+    }
+
+    @OptIn(ComposeToolingApi::class)
+    @Test
+    @MediumTest
+    fun throwError_recompositionErrorsListener() {
+        val start = errorInvoked
+        val recompositionErrors =
+            mutableMapOf<RecomposerInfo, MutableList<RecomposerErrorInformation?>>()
+        val shouldThrow = mutableStateOf(false)
+        var latch = CountDownLatch(1)
+        activity.show {
+            LaunchedEffect(Unit) {
+                Recomposer.runningRecomposers.collect { recomposerInfos ->
+                    recomposerInfos.forEach { info ->
+                        if (info !in recompositionErrors) {
+                            recompositionErrors[info] = mutableListOf()
+                        }
+                        info.errorState.collect { error ->
+                            recompositionErrors[info]!!.add(error)
+                            latch.countDown()
+                        }
+                    }
+                }
+            }
+            TestError { shouldThrow.value }
+        }
+
+        // Await initial state
+        assertTrue("Expected error state change", latch.await(1, TimeUnit.SECONDS))
+
+        run {
+            latch = CountDownLatch(1)
+            shouldThrow.value = true
+            // Await until the error is reported
+            activity.waitForAFrame()
+            assertTrue("Expected error state change", latch.await(1, TimeUnit.SECONDS))
+
+            latch = CountDownLatch(1)
+            shouldThrow.value = false
+            invalidateGroup(errorKey)
+            activity.waitForAFrame()
+
+            assertTrue("TestError should be invoked!", errorInvoked > start)
+
+            // Await until the invalidation is settled
+            assertTrue("Expected error state change", latch.await(1, TimeUnit.SECONDS))
+        }
+
+        assertThat(recompositionErrors).hasSize(1)
+        val errorsList = recompositionErrors.values.first()
+        assertThat(errorsList).hasSize(3)
+
+        // there are no errors at the start
+        assertThat(errorsList[0]).isNull()
+
+        // check the error
+        assertThat(errorsList[1]).isNotNull()
+        assertThat(errorsList[1]!!.cause.message).isEqualTo("Test crash!")
+        assertThat(errorsList[1]!!.isRecoverable).isEqualTo(true)
+
+        // there are no errors at the end
+        assertThat(errorsList[2]).isNull()
     }
 
     @Test

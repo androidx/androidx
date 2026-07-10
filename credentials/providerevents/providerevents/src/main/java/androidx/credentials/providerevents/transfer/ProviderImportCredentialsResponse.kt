@@ -16,7 +16,6 @@
 
 package androidx.credentials.providerevents.transfer
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo
 
 /**
@@ -27,7 +26,6 @@ import androidx.credentials.provider.CallingAppInfo
  * @property response a response of credential import
  * @property callingAppInfo the exporter's app info
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ProviderImportCredentialsResponse(
     public val response: ImportCredentialsResponse,
     public val callingAppInfo: CallingAppInfo,

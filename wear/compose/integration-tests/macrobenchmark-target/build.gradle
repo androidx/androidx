@@ -19,20 +19,18 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
 
     namespace = "androidx.wear.compose.integration.macrobenchmark.target"
-    defaultConfig.minSdk = 25
+    defaultConfig.minSdk { version = release(25) }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'),
-                    "proguard-benchmark.pro")
+            optimization {
+                enable = true
+            }
         }
     }
 }

@@ -47,6 +47,7 @@ import androidx.wear.watchface.complications.data.PhotoImageComplicationData
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.TimeDifferenceStyle
 import androidx.wear.watchface.complications.data.TimeRange
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion.METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS
@@ -82,7 +83,7 @@ constructor(
 ) {
     /** Constructs a [ComplicationRequest] without setting [isForSafeWatchFace]. */
     @Suppress("NewApi")
-    constructor(
+    public constructor(
         complicationInstanceId: Int,
         complicationType: ComplicationType,
         immediateResponseRequired: Boolean,
@@ -111,7 +112,7 @@ constructor(
      * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
      */
     @get:JvmName("isImmediateResponseRequired")
-    public val immediateResponseRequired = immediateResponseRequired
+    public val immediateResponseRequired: Boolean = immediateResponseRequired
 
     /**
      * Intended for OEM use, returns whether this request is on behalf of a 'safe' watch face as
@@ -132,7 +133,7 @@ constructor(
     public val isForSafeWatchFace: Int = isForSafeWatchFace
 
     @Deprecated("Use a constructor that specifies responseNeededSoon.")
-    constructor(
+    public constructor(
         complicationInstanceId: Int,
         complicationType: ComplicationType,
     ) : this(complicationInstanceId, complicationType, false)
@@ -173,6 +174,7 @@ public object TargetWatchFaceSafety {
     value =
         [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE],
 )
+@Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class IsForSafeWatchFace
 
@@ -308,6 +310,146 @@ public annotation class IsForSafeWatchFace
  *
  * There's no need to call `setDataSource` for any the [ComplicationData] Builders because the
  * system will append this value on your behalf.
+ *
+ * ## Static preview data (Recommended)
+ *
+ * From Wear 7 (API 37) onwards, it is recommended to provide static preview data via an XML
+ * resource. This allows the system (e.g., watch face editors) to render complication previews
+ * instantly without binding to your service, which helps to improve performance.
+ *
+ * ### 1. Manifest Declaration
+ *
+ * Point to your XML resource using the following meta-data key in your service declaration:
+ * ```xml
+ * <meta-data
+ *     android:name="com.google.android.wearable.complications.STATIC_PREVIEW_DATA"
+ *     android:resource="@xml/my_complication_previews" />
+ * ```
+ *
+ * ---
+ *
+ * ### 2. XML attribute reference
+ *
+ * The root XML element (typically <static-previews>) contains multiple `<complication>` tags. Each
+ * is for a certain type.
+ *
+ * #### The `<complication>` tag
+ *
+ * This tag defines preview data for a specific complication type.
+ * * `type`: (options: `SHORT_TEXT`, `LONG_TEXT`, `RANGED_VALUE`, `GOAL_PROGRESS`,
+ *   `WEIGHTED_ELEMENTS`, `MONOCHROMATIC_IMAGE`, `SMALL_IMAGE`)
+ * * `value`: Current value (Float). Required for `RANGED_VALUE` and `GOAL_PROGRESS`.
+ * * `min`: Range minimum (Float). Required for `RANGED_VALUE`.
+ * * `max`: Range maximum (Float). Required for `RANGED_VALUE`.
+ * * `targetValue`: The target goal (Float). Required for `GOAL_PROGRESS`.
+ * * `valueType`: Optional integer for `RANGED_VALUE` (e.g., `0` for Undefined, `1` for Rating, `2`
+ *   for Percentage).
+ * * `monochromaticImage`: Resource ID for an icon.
+ * * `monochromaticImageTint`: Color resource ID to tint the monochromatic icon.
+ * * `smallImage`: Resource ID for a small image.
+ * * `smallImageType`: Either `icon` or `photo`.
+ * * `smallImageTint`: Color resource ID for the small image tint.
+ * * `colorRamp`: Resource ID for a color array (e.g., `@array/my_colors`).
+ * * `colorRampInterpolated`: Boolean. Whether colors in the ramp should be interpolated.
+ * * `backgroundColor`: Background color resource (used for `WEIGHTED_ELEMENTS`).
+ *
+ * ---
+ *
+ * ### 3. Text child tags
+ *
+ * The `<text>` and `<title>` can be added as child elements and wrap one of the following:
+ *
+ * #### `<plain>`
+ * * `value`: Literal string or reference (e.g., `"123"` or `@string/label`).
+ * * `valueType`: The type of data (`string`, `integer`, `long`, or `float`).
+ *
+ * #### `<formatted>`
+ * * `format`: A string resource with placeholders (e.g., `"Steps: %d"`).
+ * * Note: `<formatted>` tag Can contain child `<param>` tags which in turn contain other text
+ *   types: `<plain>`, `<time>`, `<date>`, or `<time-difference>`.
+ *
+ * #### `<time>`
+ * * `instant`: Unix epoch seconds. Can be defined directly or through an integer resource.
+ * * `shouldShortenAmPm`: Boolean. If true, uses shorter localized AM/PM strings.
+ * * `timeComponent`: Specifies parts of the time to show (`timeOnly` or `amPmOnly`).
+ *
+ * #### `<date>`
+ * * `instant`: Unix epoch seconds. Can be defined directly or through an integer resource.
+ * * `formats`: Comma-separated skeletons (e.g., `"MMMd", "MMd"`).
+ * * The parser will choose the one that most fits the complication type.
+ * * `fallback`: Skeleton to enforce if none of the skeleton options provided was suitable.
+ *
+ * #### `<time-difference>`
+ * * `type`: The [TimeDifferenceStyle] name (e.g., `SHORT_SINGLE_UNIT`).
+ * * `targetInstant`: The goal event time in epoch seconds. Can be defined directly or through an
+ *   integer resource
+ * * `currentInstant`: The relative "now" time in epoch seconds. Can be defined directly or through
+ *   an integer resource
+ * * `minUnit`: The smallest unit to display (e.g., `MINUTES`, `SECONDS`).
+ * * `displayAsNow`: Boolean. If true, shows localized "now" when the difference is zero.
+ *
+ * ---
+ *
+ * ### 4. Specialized logic tags
+ *
+ * #### `<element>` (Inside `WEIGHTED_ELEMENTS`)
+ * * `weight`: The relative size of the segment (Float > 0).
+ * * `color`: Color resource for this segment.
+ *
+ * ---
+ *
+ * ### 5. Complete XML example
+ *
+ * ```xml
+ * <static-previews xmlns:android="[http://schemas.android.com/apk/res/android](http://schemas.android.com/apk/res/android)">
+ *     <!-- A Short Text Complication with a Title -->
+ *     <complication
+ *         type="SHORT_TEXT"
+ *         monochromaticImage="@drawable/ic_steps">
+ *         <text>
+ *             <formatted format="@string/steps_count">
+ *                 <param>
+ *                     <plain
+ *                         value="8500"
+ *                         valueType="integer" />
+ *                 </param>
+ *             </formatted>
+ *         </text>
+ *         <title>
+ *             <plain value="Steps" />
+ *         </title>
+ *     </complication>
+ *
+ *     <!-- A Ranged Value showing Battery percentage -->
+ *     <complication
+ *         type="RANGED_VALUE"
+ *         value="75.0"
+ *         min="0.0"
+ *         max="100.0">
+ *         <text>
+ *             <plain value="75%" />
+ *         </text>
+ *     </complication>
+ *
+ *     <!-- A Weighted Element chart -->
+ *     <complication
+ *         type="WEIGHTED_ELEMENTS"
+ *         backgroundColor="@color/gray">
+ *         <element
+ *             weight="1.5"
+ *             color="@color/blue" />
+ *         <element
+ *             weight="0.5"
+ *             color="@color/green" />
+ *         <text>
+ *             <plain value="Activity" />
+ *         </text>
+ *     </complication>
+ * </static-preview>
+ * ```
+ *
+ * **Note:** If static preview data is declared in the manifest, it will take precedence over the
+ * result of [getPreviewData] for supported types on compatible system versions.
  */
 public abstract class ComplicationDataSourceService : Service() {
     private val wrapper: IComplicationProviderWrapper by lazy { IComplicationProviderWrapper() }
@@ -322,7 +464,7 @@ public abstract class ComplicationDataSourceService : Service() {
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
+    public open fun createMainThreadHandler(): Handler = Handler(Looper.getMainLooper())
 
     final override fun onBind(intent: Intent): IBinder? =
         when (intent.action) {
@@ -461,7 +603,7 @@ public abstract class ComplicationDataSourceService : Service() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract class ComplicationDataRequester : Binder() {
-        abstract fun onComplicationRequest(
+        public abstract fun onComplicationRequest(
             request: ComplicationRequest,
             listener: ComplicationRequestListener,
         )
@@ -481,10 +623,8 @@ public abstract class ComplicationDataSourceService : Service() {
         ): Unit =
             aidlMethod(TAG, "onUpdate2") {
                 val isForSafeWatchFace =
-                    bundle?.getInt(
-                        IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN,
-                    ) ?: TargetWatchFaceSafety.UNKNOWN
+                    bundle?.getInt(BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE, TargetWatchFaceSafety.UNKNOWN)
+                        ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
                 mainThreadHandler.post {
@@ -679,10 +819,8 @@ public abstract class ComplicationDataSourceService : Service() {
         ): WireComplicationData? =
             aidlMethod(TAG, "onSynchronousComplicationRequest2") {
                 val isForSafeWatchFace =
-                    bundle?.getInt(
-                        IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN,
-                    ) ?: TargetWatchFaceSafety.UNKNOWN
+                    bundle?.getInt(BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE, TargetWatchFaceSafety.UNKNOWN)
+                        ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val complicationType = fromWireType(type)
                 val latch = CountDownLatch(1)
@@ -916,7 +1054,7 @@ public abstract class ComplicationDataSourceService : Service() {
          * to Android U.
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        public const val METADATA_KEY_CONFIG_RESTORE_SUPPORTED =
+        public const val METADATA_KEY_CONFIG_RESTORE_SUPPORTED: String =
             "androidx.watchface.complications.datasource.CONFIG_RESTORE_SUPPORTED"
 
         /**

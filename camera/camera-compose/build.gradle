@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,34 +26,34 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(project(":camera:camera-core"))
-    api("androidx.compose.ui:ui:1.7.8")
+    api("androidx.compose.ui:ui:1.11.2")
+    implementation("androidx.compose.foundation:foundation:1.11.2")
     // TODO(b/357895362): Switch to pinned dependencies when stable is released
     api(project(":camera:viewfinder:viewfinder-compose"))
     api(project(":camera:viewfinder:viewfinder-core"))
-    implementation("androidx.compose.foundation:foundation-layout:1.6.1")
-    implementation("androidx.compose.runtime:runtime:1.7.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.11.2")
+    implementation("androidx.compose.runtime:runtime:1.11.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesGuava)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
-    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.1")
-    androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.6.1")
-    androidTestImplementation("androidx.compose.ui:ui-test:1.7.8")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:ui:ui-test-manifest"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.3")
     androidTestImplementation(libs.guavaAndroid)
@@ -64,7 +63,6 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
@@ -76,7 +74,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
     namespace = "androidx.camera.compose"
 }
 

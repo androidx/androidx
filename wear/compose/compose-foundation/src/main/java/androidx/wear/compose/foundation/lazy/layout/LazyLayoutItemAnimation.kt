@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.wear.compose.foundation.lazy.MeasurementDirection
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnParentData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -90,6 +91,13 @@ internal class LazyLayoutItemAnimation(
      * [rawOffset] it takes into account things like reverse layout and content padding.
      */
     var finalOffset: IntOffset = IntOffset.Zero
+
+    /**
+     * The final logical offset of the item in a standard, top-to-bottom coordinate space. This
+     * value does NOT account for `reverseLayout`. It is used by the animator as a stable, logical
+     * anchor to calculate the starting position for placement animations when items are reordered.
+     */
+    var logicalOffset: IntOffset = IntOffset.Zero
 
     /** Current [GraphicsLayer]. It will be set to null in [release]. */
     var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
@@ -299,8 +307,10 @@ internal class LazyLayoutAnimationSpecsNode(
     var placementSpec: FiniteAnimationSpec<IntOffset>?,
     var fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : Modifier.Node(), ParentDataModifierNode {
-
-    override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        (parentData as? TransformingLazyColumnParentData)?.copy(
+            animationSpecs = this@LazyLayoutAnimationSpecsNode
+        ) ?: TransformingLazyColumnParentData(animationSpecs = this@LazyLayoutAnimationSpecsNode)
 }
 
 /** We switch to this spec when a duration based animation is being interrupted. */

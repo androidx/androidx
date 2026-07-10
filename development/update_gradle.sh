@@ -10,10 +10,12 @@ fi
 
 VERSION="$1"
 DEST_DIR="../../tools/external/gradle"
-WRAPPER_FILES=("gradle/wrapper/gradle-wrapper.properties" "playground-common/gradle/wrapper/gradle-wrapper.properties")
+WRAPPER_FILES=("gradle/wrapper/gradle-wrapper.properties" "playground-common/gradle/wrapper/gradle-wrapper.properties" "../../tools/metalava/gradle/wrapper/gradle-wrapper.properties")
 
 BASE_URL="https://services.gradle.org/distributions"
 ZIP_FILE="gradle-${VERSION}-bin.zip"
+SRC_FILE="gradle-${VERSION}-src.zip"
+SIGNATURE_FILE="$ZIP_FILE.asc"
 SHA_FILE="${ZIP_FILE}.sha256"
 
 # Function to check if a URL is valid by checking the HTTP status code
@@ -33,6 +35,8 @@ check_url() {
 }
 
 check_url "$BASE_URL/$ZIP_FILE"
+check_url "$BASE_URL/$SRC_FILE"
+check_url "$BASE_URL/$SIGNATURE_FILE"
 check_url "$BASE_URL/$SHA_FILE"
 
 echo "Cleaning destination directory: $DEST_DIR"
@@ -41,6 +45,8 @@ mkdir -p "$DEST_DIR"
 
 echo "Downloading Gradle ${VERSION}..."
 curl -Lo "$DEST_DIR/$ZIP_FILE" "$BASE_URL/$ZIP_FILE"
+curl -Lo "$DEST_DIR/$SRC_FILE" "$BASE_URL/$SRC_FILE"
+curl -Lo "$DEST_DIR/$SIGNATURE_FILE" "$BASE_URL/$SIGNATURE_FILE"
 curl -Lo "$DEST_DIR/$SHA_FILE" "$BASE_URL/$SHA_FILE"
 
 GRADLE_SHA256SUM=$(cat "$DEST_DIR/$SHA_FILE")
@@ -51,19 +57,12 @@ update_gradle_wrapper_properties() {
   local file="$1"
   echo "Updating $file..."
 
-  if [ "$(uname)" = "Darwin" ]; then
-    sed -i '' "
-      s|distributionUrl=.*tools/external/gradle/.*|distributionUrl=../../../../tools/external/gradle/${ZIP_FILE}|;
-      s|distributionUrl=https\\\://services.gradle.org/distributions/.*|distributionUrl=https\\\://services.gradle.org/distributions/${ZIP_FILE}|;
-      s|distributionSha256Sum=.*|distributionSha256Sum=${GRADLE_SHA256SUM}|
-    " "$file"
-  else
-    sed -i "
-      s|distributionUrl=.*tools/external/gradle/.*|distributionUrl=../../../../tools/external/gradle/${ZIP_FILE}|;
-      s|distributionUrl=https\\\://services.gradle.org/distributions/.*|distributionUrl=https\\\://services.gradle.org/distributions/${ZIP_FILE}|;
-      s|distributionSha256Sum=.*|distributionSha256Sum=${GRADLE_SHA256SUM}|
-    " "$file"
-  fi
+  [ "$(uname)" = "Darwin" ] && sed_i=(-i '') || sed_i=(-i)
+
+  sed "${sed_i[@]}" "
+    s|^\(distributionUrl=.*\/\)[^/]*$|\1${ZIP_FILE}|;
+    s|^\(distributionSha256Sum=\).*|\1${GRADLE_SHA256SUM}|
+  " "$file"
 
   echo "Updated $file."
 }
@@ -77,5 +76,5 @@ echo "Gradle binary downloaded, and the wrapper properties updated successfully!
 echo "Testing the setup with './gradlew bOS --dry-run'..."
 if ./gradlew bOS --dry-run; then
   echo "Download and setup successful!"
-  echo "You can now upload changes in $(pwd) and $DEST_DIR to Gerrit!"
+  echo "You can now upload changes in $(pwd), $DEST_DIR, and ../../tools/metalava to Gerrit!"
 fi

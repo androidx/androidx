@@ -16,65 +16,61 @@
 
 package androidx.compose.ui.hapticfeedback
 
-import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.core.view.HapticFeedbackConstantsCompat
+import androidx.core.view.ViewCompat
 
 /** Android implementation for [HapticFeedback] */
 internal class PlatformHapticFeedback(private val view: View) : HapticFeedback {
 
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
-        when (hapticFeedbackType) {
-            HapticFeedbackType.Confirm ->
-                view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
-            HapticFeedbackType.ContextClick ->
-                view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-            HapticFeedbackType.GestureEnd ->
-                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-            HapticFeedbackType.GestureThresholdActivate ->
-                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
-            HapticFeedbackType.KeyboardTap ->
-                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            HapticFeedbackType.LongPress ->
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            HapticFeedbackType.Reject -> view.performHapticFeedback(HapticFeedbackConstants.REJECT)
-            HapticFeedbackType.SegmentFrequentTick ->
-                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-            HapticFeedbackType.SegmentTick ->
-                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
-            HapticFeedbackType.TextHandleMove ->
-                view.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
-            HapticFeedbackType.ToggleOff ->
-                view.performHapticFeedback(HapticFeedbackConstants.TOGGLE_OFF)
-            HapticFeedbackType.ToggleOn ->
-                view.performHapticFeedback(HapticFeedbackConstants.TOGGLE_ON)
-            HapticFeedbackType.VirtualKey ->
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-        }
+        val constant =
+            when (hapticFeedbackType) {
+                HapticFeedbackType.Confirm -> HapticFeedbackConstantsCompat.CONFIRM
+                HapticFeedbackType.ContextClick -> HapticFeedbackConstantsCompat.CONTEXT_CLICK
+                HapticFeedbackType.GestureEnd -> HapticFeedbackConstantsCompat.GESTURE_END
+                HapticFeedbackType.GestureThresholdActivate ->
+                    HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_ACTIVATE
+                HapticFeedbackType.KeyboardTap -> HapticFeedbackConstantsCompat.KEYBOARD_TAP
+                HapticFeedbackType.LongPress -> HapticFeedbackConstantsCompat.LONG_PRESS
+                HapticFeedbackType.Reject -> HapticFeedbackConstantsCompat.REJECT
+                HapticFeedbackType.SegmentFrequentTick ->
+                    HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+                HapticFeedbackType.SegmentTick -> HapticFeedbackConstantsCompat.SEGMENT_TICK
+                HapticFeedbackType.TextHandleMove -> HapticFeedbackConstantsCompat.TEXT_HANDLE_MOVE
+                HapticFeedbackType.ToggleOff -> HapticFeedbackConstantsCompat.TOGGLE_OFF
+                HapticFeedbackType.ToggleOn -> HapticFeedbackConstantsCompat.TOGGLE_ON
+                HapticFeedbackType.VirtualKey -> HapticFeedbackConstantsCompat.VIRTUAL_KEY
+                else -> HapticFeedbackConstantsCompat.NO_HAPTICS
+            }
+        ViewCompat.performHapticFeedback(view, constant)
     }
 }
 
 internal actual object PlatformHapticFeedbackType {
-    actual val Confirm: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.CONFIRM)
+    actual val Confirm: HapticFeedbackType =
+        HapticFeedbackType(HapticFeedbackConstantsCompat.CONFIRM)
     actual val ContextClick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.CONTEXT_CLICK)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
     actual val GestureEnd: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.GESTURE_END)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.GESTURE_END)
     actual val GestureThresholdActivate: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_ACTIVATE)
     actual val KeyboardTap: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.KEYBOARD_TAP)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
     actual val LongPress: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.LONG_PRESS)
-    actual val Reject: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.REJECT)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.LONG_PRESS)
+    actual val Reject: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstantsCompat.REJECT)
     actual val SegmentFrequentTick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK)
     actual val SegmentTick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.SEGMENT_TICK)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.SEGMENT_TICK)
     actual val TextHandleMove: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.TEXT_HANDLE_MOVE)
     actual val ToggleOff: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.TOGGLE_OFF)
-    actual val ToggleOn: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.TOGGLE_ON)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.TOGGLE_OFF)
+    actual val ToggleOn: HapticFeedbackType =
+        HapticFeedbackType(HapticFeedbackConstantsCompat.TOGGLE_ON)
     actual val VirtualKey: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.VIRTUAL_KEY)
+        HapticFeedbackType(HapticFeedbackConstantsCompat.VIRTUAL_KEY)
 }

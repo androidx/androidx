@@ -9,7 +9,7 @@ package androidx.lifecycle {
 
   public final class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
     method public static androidx.lifecycle.LifecycleOwner get();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle getLifecycle();
     property public androidx.lifecycle.Lifecycle lifecycle;
     field public static final androidx.lifecycle.ProcessLifecycleOwner.Companion Companion;
   }

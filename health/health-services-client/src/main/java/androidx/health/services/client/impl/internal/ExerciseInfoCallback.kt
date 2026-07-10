@@ -37,4 +37,6 @@ public class ExerciseInfoCallback(private val resultFuture: SettableFuture<Exerc
     override fun onFailure(message: String) {
         resultFuture.setException(HealthServicesException(message))
     }
+
+    override fun getInterfaceVersion(): Int = VERSION
 }

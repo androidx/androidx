@@ -39,3 +39,4 @@ org.robolectric.shadows.util
 org.robolectric.util
 org.robolectric.util.inject
 org.robolectric.util.reflector
+org.robolectric.versioning

@@ -65,6 +65,7 @@ public final class ActionsConstraints {
                     .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)
                     .build();
+
     /** Conservative constraints for most template types. */
     private static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_CONSERVATIVE =
             new ActionsConstraints.Builder()
@@ -185,6 +186,112 @@ public final class ActionsConstraints {
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_TABS =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
                     .addRequiredActionType(Action.TYPE_APP_ICON)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} header action.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 1}
+     *     <li>Must be of type {@link Action#TYPE_APP_ICON}, {@link Action#TYPE_BACK}, or
+     *     {@link Action#TYPE_CUSTOM}
+     *     <li>Must have an icon
+     *     <li>Cannot have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_IN_CALL_HEADER =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addAllowedActionType(Action.TYPE_APP_ICON)
+                    .addAllowedActionType(Action.TYPE_BACK)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} content actions.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 5}
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM}
+     *     <li>Must have an icon
+     *     <li>Cannot have custom titles
+     *     <li>Maximum of {@code 1} primary action
+     *     <li>Can have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_IN_CALL_CONTENT =
+            new ActionsConstraints.Builder()
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
+                    .setMaxActions(5)
+                    .setMaxCustomTitles(0)
+                    .setMaxPrimaryActions(1)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.TelephoneKeypadTemplate} header action.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 1}
+     *     <li>Must be of type {@link Action#TYPE_APP_ICON} or {@link Action#TYPE_BACK}
+     *     <li>Must have an icon
+     *     <li>Cannot have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_TELEPHONE_KEYPAD_HEADER =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addAllowedActionType(Action.TYPE_APP_ICON)
+                    .addAllowedActionType(Action.TYPE_BACK)
+                    .build();
+
+    /**
+     * Constraints for the actions in this template (eg. the call button). Currently, only a single
+     * primary action that consists of an icon is allowed.
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_TELEPHONE_KEYPAD_PRIMARY =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .setOnClickListenerAllowed(true)
+                    .setRequireActionIcons(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setMaxCustomTitles(0)
+                    .build();
+
+    /**
+     * Constraints for the trailing actions of a {@code Banner}.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 2} actions
+     *     <li>Must be {@link Action#TYPE_CUSTOM}
+     *     <li>Must not have backgrounds
+     *     <li>Must not be marked {@link Action#FLAG_PRIMARY}
+     *     <li>May have click listeners
+     * </ul>
+     */
+    public static final @NonNull ActionsConstraints ACTION_CONSTRAINTS_BANNER_TRAILING =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(2)
+                    .setMaxCustomTitles(2)
+                    .setOnClickListenerAllowed(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
+    /**
+     * Constraints for the actions below the title and subtitle of a {@code Banner}.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 3} actions
+     *     <li>Up to 2 actions may have text
+     *     <li>Must be {@link Action#TYPE_CUSTOM}
+     *     <li>May have click listeners
+     * </ul>
+     */
+    public static final @NonNull ActionsConstraints ACTION_CONSTRAINTS_BANNER_BELOW =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(3)
+                    .setMaxCustomTitles(2)
+                    .setOnClickListenerAllowed(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
                     .build();
 
     private final int mMaxActions;

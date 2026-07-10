@@ -66,6 +66,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ServiceBackedExerciseClientTest {
 
     private lateinit var client: ServiceBackedExerciseClient
@@ -504,5 +505,7 @@ class ServiceBackedExerciseClientTest {
             this.exerciseConfig = newExerciseConfig
             this.statusCallbackAction.invoke(statuscallback)
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

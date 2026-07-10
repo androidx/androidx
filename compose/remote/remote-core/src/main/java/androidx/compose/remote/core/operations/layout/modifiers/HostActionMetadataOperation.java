@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -36,6 +37,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Capture a host action information. This can be triggered on eg. a click. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostActionMetadataOperation extends Operation
         implements ActionOperation, SerializableToString, Serializable {
     private static final int OP_CODE = Operations.HOST_METADATA_ACTION;
@@ -83,7 +85,9 @@ public class HostActionMetadataOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mActionId, mMetadataId);
+    }
 
     @Override
     public void runAction(
@@ -119,8 +123,8 @@ public class HostActionMetadataOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int actionId = buffer.readInt();
-        int metadataId = buffer.readInt();
+        int actionId = buffer.readId();
+        int metadataId = buffer.readId();
         operations.add(new HostActionMetadataOperation(actionId, metadataId));
     }
 
@@ -130,8 +134,10 @@ public class HostActionMetadataOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "HostAction")
-                .description("Host action. This operation represents a host action")
+        doc.operation("Layout Operations", OP_CODE, "HostActionMetadata")
+                .description(
+                        "Host action + metadata. This operation represents a host action"
+                                + " that can also provides some metadata")
                 .field(INT, "ACTION_ID", "Host Action ID")
                 .field(INT, "METADATA", "Host Action Text Metadata ID");
     }

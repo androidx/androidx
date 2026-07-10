@@ -344,7 +344,7 @@ final class FixedValueBuilders {
         /**
          * Gets the value. Note that a NaN value is considered invalid and any expression with this
          * node will have an invalid value delivered via {@link
-         * DynamicTypeValueReceiver<T>#onInvalidate()}.
+         * androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver#onInvalidated()}.
          */
         public float getValue() {
             return mImpl.getValue();
@@ -463,7 +463,8 @@ final class FixedValueBuilders {
             /**
              * Sets the value. Note that a NaN value is considered invalid and any expression with
              * this node will have an invalid value delivered via {@link
-             * DynamicTypeValueReceiver<T>#onInvalidate()}.
+             * androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver#onInvalidated()
+             * }.
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
             public @NonNull Builder setValue(float value) {

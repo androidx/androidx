@@ -18,6 +18,7 @@ package androidx.paging.compose.demos
 
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.paging.compose.demos.room3.PagingWithRoom3
 import androidx.paging.compose.samples.PagingWithHorizontalPager
 import androidx.paging.compose.samples.PagingWithLazyGrid
 import androidx.paging.compose.samples.PagingWithLazyList
@@ -31,5 +32,6 @@ val PagingFoundationDemos =
             ComposableDemo("Paging with VerticalPager") { PagingWithVerticalPager() },
             ComposableDemo("Paging with LazyGrid") { PagingWithLazyGrid() },
             ComposableDemo("Paging with LazyColumn") { PagingWithLazyList() },
+            ComposableDemo("Paging with Room 3.0") { PagingWithRoom3() },
         ),
     )

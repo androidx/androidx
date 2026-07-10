@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+dependencies {
+    implementation("androidx.navigation3:navigation3-ui:1.0.0")
+    implementation("androidx.navigation3:navigation3-runtime:1.0.0")
+    implementation(project(":wear:compose:compose-material3"))
+    implementation("androidx.compose.animation:animation:1.9.3")
+
+    androidTestImplementation(project(":navigationevent:navigationevent-testing"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":navigation3:navigation3-ui"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.7.0")
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+}
+
+android {
+    compileSdk { version = release(37) }
+
+    defaultConfig {
+        minSdk { version = release(25) }
+    }
+    namespace = "androidx.wear.compose.navigation3"
+}
+
+androidx {
+    name = "Android Wear Compose Navigation 3"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2025"
+    description = "WearOS Compose Navigation3 Library. This library makes it easier " +
+            "for developers to write Jetpack Compose applications for Wearable devices by " +
+            "providing functionality to support navigation with Jetpack Navigation3. " +
+            "It builds upon the Jetpack Compose libraries."
+    samples(project(":wear:compose:compose-navigation3-samples"))
+}

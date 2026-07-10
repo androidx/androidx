@@ -174,13 +174,13 @@ message LottieProperty {
   oneof inner {
     // A single point of customization for Lottie file, that applies given color on all slots with
     // the specified slot ID.
-    LottieSlotColorFilter slot_color = 1;
+    LottieColorForSlot slot_color = 1;
   }
 }
 
 // A single point of customization for Lottie file, that applies given color on all slots with the
 // specified slot ID.
-message LottieSlotColorFilter {
+message LottieColorForSlot {
   // The slot ID to which color filter should be applied. The same ID can correspond to multiple
   // slots, however, for each of those, all parents in the path should have names.
   string sid = 1;

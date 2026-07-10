@@ -27,8 +27,9 @@ import androidx.pdf.PdfDocumentRemote
  * A [Service] that provides functionality to interact with PDF document.
  *
  * This service runs in the background. It exposes a [PdfDocumentRemote] interface for clients to
- * interact with, enabling them to access and render PDF documents. The service uses [PdfRenderer]
- * and [PdfRendererPreV] internally to process the documents based on the Android OS version.
+ * interact with, enabling them to access and render PDF documents. The service uses
+ * [android.graphics.pdf.PdfRenderer] and [android.graphics.pdf.PdfRendererPreV] internally to
+ * process the documents based on the Android OS version.
  *
  * Clients can bind to this service to perform operations such as rendering pages, extracting text,
  * and accessing document metadata.

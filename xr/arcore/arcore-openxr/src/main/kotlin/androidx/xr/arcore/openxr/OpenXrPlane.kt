@@ -1,0 +1,150 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore.openxr
+
+import androidx.xr.arcore.runtime.Anchor
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.Plane
+import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector2
+
+/**
+ * Wraps a native
+ * [XrTrackablePlaneANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrTrackablePlaneANDROID.html)
+ * with the [Plane] interface.
+ *
+ * @property planeId the ID of the plane
+ * @property type the [Type] of the plane
+ * @property timeSource the [OpenXrTimeSource] for the plane
+ * @property label the [Label] of the plane
+ * @property centerPose the [Pose] of the center of the plane
+ * @property vertices the vertices of the plane
+ * @property extents the extents of the plane
+ * @property subsumedBy the plane that subsumed this plane
+ * @property trackingState the [TrackingState] of the plane
+ */
+internal class OpenXrPlane(
+    val planeId: Long,
+    override val type: Plane.Type,
+    val timeSource: OpenXrTimeSource,
+    private val xrResources: XrResources,
+) : Plane, Updatable {
+    override var label: Plane.Label = Plane.Label.UNKNOWN
+        private set
+
+    override var centerPose: Pose = Pose()
+        private set
+
+    override var vertices: List<Vector2> = emptyList()
+        private set
+
+    override var extents: FloatSize2d = FloatSize2d()
+        private set
+
+    override var subsumedBy: Plane? = null
+        private set
+
+    override var trackingState: TrackingState = TrackingState.PAUSED
+        private set
+
+    override fun createAnchor(pose: Pose): Anchor {
+        val xrTime = timeSource.getXrTime(timeSource.markNow())
+        val anchorNativePointer = nativeCreateAnchorForPlane(planeId, pose, xrTime)
+        checkNativeAnchorIsValid(anchorNativePointer)
+        val anchor: Anchor = OpenXrAnchor(anchorNativePointer, xrResources)
+        xrResources.addUpdatable(anchor as Updatable)
+        return anchor
+    }
+
+    /**
+     * Updates the entity retrieving its state at [xrTime].
+     *
+     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
+     */
+    override fun update(xrTime: Long) {
+        val planeState = nativeGetPlaneState(planeId, xrTime)
+        if (planeState == null) {
+            trackingState = TrackingState.PAUSED
+            return
+        }
+
+        label = planeState.label
+        trackingState = planeState.trackingState
+        centerPose = planeState.centerPose
+        extents = planeState.extents
+        vertices = planeState.vertices.toList()
+
+        if (planeState.subsumedByPlaneId != 0L) {
+            subsumedBy = xrResources.trackablesMap[planeState.subsumedByPlaneId] as OpenXrPlane?
+        }
+    }
+
+    private fun checkNativeAnchorIsValid(nativeAnchor: Long) {
+        when (nativeAnchor) {
+            -2L -> throw IllegalStateException("Failed to create anchor.") // kErrorRuntimeFailure
+            -10L -> throw AnchorResourcesExhaustedException() // kErrorLimitReached
+        }
+    }
+
+    private external fun nativeGetPlaneState(planeId: Long, timestampNs: Long): PlaneState?
+
+    private external fun nativeCreateAnchorForPlane(
+        planeId: Long,
+        pose: Pose,
+        timeStampNs: Long,
+    ): Long
+}
+
+/**
+ * Create a [Plane.Type] from an integer value corresponding to
+ * [XrPlaneTypeANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrPlaneTypeANDROID.html).
+ *
+ * @param type the integer value representing the OpenXR plane type
+ * @return the corresponding [Plane.Type]
+ */
+internal fun Plane.Type.Companion.fromOpenXrType(type: Int): Plane.Type =
+    when (type) {
+        0 ->
+            Plane.Type
+                .HORIZONTAL_DOWNWARD_FACING // XR_PLANE_TYPE_HORIZONTAL_DOWNWARD_FACING_ANDROID
+        1 -> Plane.Type.HORIZONTAL_UPWARD_FACING // XR_PLANE_TYPE_HORIZONTAL_UPWARD_FACING_ANDROID
+        2 -> Plane.Type.VERTICAL // XR_PLANE_TYPE_VERTICAL_ANDROID
+        else -> {
+            throw IllegalArgumentException("Invalid plane type.")
+        }
+    }
+
+/**
+ * Create a [Plane.Label] from an integer value corresponding to
+ * [XrPlaneLabelANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrPlaneLabelANDROID.html).
+ *
+ * @param label the integer value representing the OpenXR plane label
+ * @return the corresponding [Plane.Label]
+ */
+internal fun Plane.Label.Companion.fromOpenXrLabel(label: Int): Plane.Label =
+    when (label) {
+        0 -> Plane.Label.UNKNOWN // XR_PLANE_LABEL_UNKNOWN_ANDROID
+        1 -> Plane.Label.WALL // XR_PLANE_LABEL_WALL_ANDROID
+        2 -> Plane.Label.FLOOR // XR_PLANE_LABEL_FLOOR_ANDROID
+        3 -> Plane.Label.CEILING // XR_PLANE_LABEL_CEILING_ANDROID
+        4 -> Plane.Label.TABLE // XR_PLANE_LABEL_TABLE_ANDROID
+        else -> {
+            throw IllegalArgumentException("Invalid plane label.")
+        }
+    }

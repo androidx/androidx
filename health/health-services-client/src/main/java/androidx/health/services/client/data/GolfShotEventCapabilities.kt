@@ -26,7 +26,7 @@ import java.util.Objects
 public class GolfShotEventCapabilities(
     /** Whether the device has the capability of supporting [GolfShotEvent]. */
     override val isSupported: Boolean,
-    /** Whether the device has the capability of supporting [GolfShotSwingType]. */
+    /** Whether the device has the capability of supporting [GolfShotEvent.GolfShotSwingType]. */
     public val isSwingTypeClassificationSupported: Boolean,
 ) : ExerciseEventCapabilities() {
     internal constructor(

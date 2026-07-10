@@ -1,27 +1,31 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.windowsizeclass.AndroidWindowSizeClass_androidKt:
+    Removed class androidx.compose.material3.windowsizeclass.AndroidWindowSizeClass_androidKt from compatibility checked API surface
+
+
 RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass#compareTo(T):
     Binary breaking change: method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.compareTo(androidx.compose.material3.windowsizeclass.WindowHeightSizeClass) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass#compareTo(T):
     Binary breaking change: method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.compareTo(androidx.compose.material3.windowsizeclass.WindowWidthSizeClass) has been removed from bytecode
 
 
+RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass#compareTo(androidx.compose.material3.windowsizeclass.WindowHeightSizeClass):
+    Binary breaking change: method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.compareTo(androidx.compose.material3.windowsizeclass.WindowHeightSizeClass) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass#compareTo(androidx.compose.material3.windowsizeclass.WindowWidthSizeClass):
+    Binary breaking change: method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.compareTo(androidx.compose.material3.windowsizeclass.WindowWidthSizeClass) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion#getAllSizeClasses():
+    Source breaking change: method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.getAllSizeClasses() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion#getDefaultSizeClasses():
+    Source breaking change: method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.getDefaultSizeClasses() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion#getAllSizeClasses():
+    Source breaking change: method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.getAllSizeClasses() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion#getDefaultSizeClasses():
+    Source breaking change: method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.getDefaultSizeClasses() can no longer be resolved from Kotlin source
+
+
 RemovedMethod: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass#compareTo(int):
     Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.compareTo(int)
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion#getCompact():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.getCompact()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion#getExpanded():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.getExpanded()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion#getMedium():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.getMedium()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowSizeClass#getHeightSizeClass():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowSizeClass.getHeightSizeClass()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowSizeClass#getWidthSizeClass():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowSizeClass.getWidthSizeClass()
 RemovedMethod: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass#compareTo(int):
     Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.compareTo(int)
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion#getCompact():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.getCompact()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion#getExpanded():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.getExpanded()
-RemovedMethod: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion#getMedium():
-    Binary breaking change: Removed method androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.getMedium()

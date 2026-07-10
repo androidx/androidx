@@ -20,6 +20,7 @@ import androidx.build.Version
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.SourceSetInputs
+import androidx.build.getSupportRootFolder
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -28,6 +29,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -54,20 +56,24 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     /** Dependencies (compiled classes) of the project. */
     @get:Classpath lateinit var dependencyClasspath: FileCollection
 
-    @get:Input abstract val k2UastEnabled: Property<Boolean>
-
     @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
     @get:Input abstract val targetsJavaConsumers: Property<Boolean>
 
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    val configFile: RegularFileProperty =
+        project.objects.fileProperty().convention {
+            File(project.getSupportRootFolder(), "buildSrc/metalava-config.xml")
+        }
+
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(
-            metalavaClasspath,
-            args,
-            k2UastEnabled.get(),
-            kotlinSourceLevel.get(),
-            workerExecutor,
-        )
+        val allArgs = buildList {
+            addAll(args)
+            add("--config-file")
+            add(configFile.get().asFile.absolutePath)
+        }
+        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel.get(), workerExecutor)
     }
 }
 
@@ -88,15 +94,17 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      * validating its compatibility, but Gradle does offer the ability to check whether two sets of
      * classes have the same API.
      *
-     * So, we ask Gradle to rerun this task only if the public API changes, which we implement by
-     * declaring the compiled classes as inputs rather than the sources
+     * Ideally, we would ask Gradle to rerun this task only if the public API changes, by declaring
+     * the compiled classes as inputs rather than the sources. However, annotations with source
+     * retention do not appear in compiled classes but do change API file output, so sources are
+     * also currently declared as inputs.
      */
     /** Source files against which API signatures will be validated. */
-    @get:Internal // UP-TO-DATE checking is done based on the compiled classes
+    @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
     var sourcePaths: FileCollection = project.files()
 
     /** Class files compiled from sourcePaths */
-    @get:Classpath var compiledSources: FileCollection = project.files()
+    @get:Classpath abstract val compiledSources: ConfigurableFileCollection
 
     @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val manifestPath: RegularFileProperty
@@ -122,6 +130,32 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     @get:Internal abstract val sourceSets: ListProperty<SourceSetInputs>
 
     /**
+     * For jvm/android projects, the [compiledSources] is used to determine whether to rerun
+     * metalava, but it won't exist for a KMP project without a jvm/android target. In this case,
+     * the source files are what should be used to determine whether to rerun metalava.
+     */
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    fun getKmpSources(): Provider<List<FileCollection>> {
+        return hasJvmOrAndroidTarget.zip(sourceSets) { hasJvmOrAndroidTarget, sourceSets ->
+            if (!hasJvmOrAndroidTarget) {
+                sourceSets.map { it.sourcePaths }
+            } else {
+                emptyList()
+            }
+        }
+    }
+
+    /** Whether metalava should process the project as multiplatform. */
+    @get:Input abstract val multiplatform: Property<Boolean>
+
+    /**
+     * Whether the project has a jvm or android compilation. This is always true for non-KMP
+     * projects, but can be false for KMP projects.
+     */
+    @get:Input abstract val hasJvmOrAndroidTarget: Property<Boolean>
+
+    /**
      * Creates an XML file representing the project structure.
      *
      * This should only be called during task execution.
@@ -130,7 +164,12 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         val sourceSets = sourceSets.get()
         check(sourceSets.isNotEmpty()) { "Project must have at least one source set." }
         val outputFile = File(temporaryDir, "project.xml")
-        ProjectXml.create(sourceSets, bootClasspath.files, compiledSources.singleFile, outputFile)
+        ProjectXml.create(
+            sourceSets,
+            bootClasspath.files,
+            compiledSources.singleOrNull(),
+            outputFile,
+        )
         return outputFile
     }
 }
@@ -163,8 +202,10 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
         return listOf(
             apiLocation.publicApiFile,
             apiLocation.restrictedApiFile,
+            apiLocation.multiplatformApiDirectory,
             referenceApiLocation.publicApiFile,
             referenceApiLocation.restrictedApiFile,
+            referenceApiLocation.multiplatformApiDirectory,
             baselineApiLocation.publicApiFile,
             baselineApiLocation.restrictedApiFile,
         )
@@ -198,14 +239,38 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
             } else {
                 api.get().publicApiFile to referenceApi.get().publicApiFile
             }
+        // Restricted API files aren't generated for multiplatform.
+        val (currentMultiplatform, previousMultiplatform) =
+            if (restricted) {
+                null to null
+            } else {
+                api.get().multiplatformApiDirectory to referenceApi.get().multiplatformApiDirectory
+            }
 
         return buildList {
-            add("--classpath")
-            add((bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator))
-            add("--source-files")
-            add(currentSignature.toString())
-            add("--check-compatibility:api:released")
-            add(previousSignature.toString())
+            val classpath = bootClasspath + dependencyClasspath.files
+            if (classpath.isNotEmpty()) {
+                add("--classpath")
+                add(classpath.joinToString(File.pathSeparator))
+            }
+            // Compatibility check for regular signature files, if they exist.
+            if (currentSignature.exists()) {
+                add("--source-files")
+                add(currentSignature.toString())
+                add("--check-compatibility:api:released")
+                add(previousSignature.toString())
+            }
+            // Compatibility check for multiplatform signature files, if they exist. Gradle may
+            // create an empty directory because this is marked as a task input/output, but only use
+            // it if there are actually any signature files in it.
+            if (previousMultiplatform?.let { ApiLocation.containsApiFiles(it) } == true) {
+                add("--multiplatform-enabled")
+                add("--multiplatform-api-sources")
+                add(currentMultiplatform.toString())
+                add("--multiplatform-compatibility-api")
+                add(previousMultiplatform.toString())
+            }
+
             add("--warnings-as-errors")
 
             if (freezeApis) {

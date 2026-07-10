@@ -16,12 +16,13 @@
 package androidx.appsearch.compiler
 
 import androidx.appsearch.compiler.AnnotatedGetterOrField.ElementTypeCategory
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.isField
+import androidx.room.compiler.processing.isMethod
 import java.util.Locale
 import java.util.stream.Collectors
-import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 
 /**
  * The public/package-private accessor for an [AnnotatedGetterOrField].
@@ -43,7 +44,7 @@ import javax.lang.model.element.Modifier
  */
 data class PropertyAccessor(
     /** The getter/field element. */
-    val element: Element
+    val element: XElement
 ) {
     companion object {
         /**
@@ -52,20 +53,20 @@ data class PropertyAccessor(
          * @param neighboringMethods The surrounding methods in the same class as the field. In case
          *   the field is private, an appropriate non-private getter can be picked from this list.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         @JvmStatic
         fun infer(
             getterOrField: AnnotatedGetterOrField,
-            neighboringMethods: Collection<ExecutableElement>,
+            neighboringMethods: Collection<XMethodElement>,
             helper: IntrospectionHelper,
         ): PropertyAccessor {
-            if (!getterOrField.element.modifiers.contains(Modifier.PRIVATE)) {
+            if (getterOrField.element !is XHasModifiers || !getterOrField.element.isPrivate()) {
                 // Accessible as-is
                 return PropertyAccessor(getterOrField.element)
             }
 
             if (getterOrField.isGetter) {
-                throw ProcessingException(
+                throw XProcessingException(
                     "Annotated getter must not be private",
                     getterOrField.element,
                 )
@@ -76,18 +77,15 @@ data class PropertyAccessor(
             )
         }
 
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun findCorrespondingGetter(
             privateField: AnnotatedGetterOrField,
-            neighboringMethods: Collection<ExecutableElement>,
+            neighboringMethods: Collection<XMethodElement>,
             helper: IntrospectionHelper,
-        ): ExecutableElement {
+        ): XMethodElement {
             val getterNames = getAcceptableGetterNames(privateField, helper)
-            val potentialGetters: List<ExecutableElement> =
-                neighboringMethods
-                    .stream()
-                    .filter { getterNames.contains(it.simpleName.toString()) }
-                    .toList()
+            val potentialGetters: List<XMethodElement> =
+                neighboringMethods.stream().filter { getterNames.contains(it.name) }.toList()
 
             // Start building the exception for the case where we don't find a suitable getter
             val potentialSignatures =
@@ -96,7 +94,7 @@ data class PropertyAccessor(
                     .map { "[public] ${privateField.jvmType} $it()" }
                     .collect(Collectors.joining(" OR "))
             val processingException =
-                ProcessingException(
+                XProcessingException(
                     ("Field '${privateField.jvmName}' cannot be read: it is private and has no " +
                         "suitable getters $potentialSignatures"),
                     privateField.element,
@@ -142,9 +140,9 @@ data class PropertyAccessor(
 
     /** Whether the accessor is a getter. */
     val isGetter: Boolean
-        get() = element.kind == ElementKind.METHOD
+        get() = element.isMethod()
 
     /** Whether the accessor is a field. */
     val isField: Boolean
-        get() = element.kind == ElementKind.FIELD
+        get() = element.isField()
 }

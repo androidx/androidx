@@ -19,6 +19,7 @@ package androidx.appsearch.debugview.model;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.debugview.DebugAppSearchManager;
@@ -45,9 +46,8 @@ import java.util.concurrent.ExecutorService;
  *
  * <p>This model captures the data for displaying a list of {@link AppSearchSchema} objects that
  * compose of the schema. This also captures the overall schema version.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListModel extends ViewModel {
     private static final String TAG = "AppSearchSchemaTypeList";

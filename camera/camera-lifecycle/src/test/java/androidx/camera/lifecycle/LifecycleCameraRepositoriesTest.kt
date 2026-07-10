@@ -18,8 +18,8 @@ package androidx.camera.lifecycle
 
 import android.content.Context
 import android.os.Build
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.LegacySessionConfig
+import androidx.camera.core.RotationProvider
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.StreamSpecsCalculatorImpl
 import androidx.camera.testing.fakes.FakeCamera
@@ -43,6 +43,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 @DoNotInstrument
 class LifecycleCameraRepositoriesTest {
 
@@ -183,9 +184,9 @@ class LifecycleCameraRepositoriesTest {
                 ),
                 FakeUseCaseConfigFactory(),
             ),
+            RotationProvider(context),
         )
 
-    @OptIn(ExperimentalSessionConfig::class)
     private fun LifecycleCameraRepository.lazyBindToLifecycleCamera(
         lifecycleCamera: LifecycleCamera
     ) =

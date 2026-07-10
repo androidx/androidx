@@ -50,8 +50,8 @@ internal class PdfFormFillingState(val numPages: Int) : Parcelable {
         pageFormWidgetInfos[pageNum] = formWidgetInfos
     }
 
-    fun getPageFormWidgetInfos(pageNum: Int): List<FormWidgetInfo>? {
-        return pageFormWidgetInfos[pageNum]?.toList()
+    fun getPageFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
+        return pageFormWidgetInfos[pageNum]?.toList() ?: emptyList()
     }
 
     override fun describeContents(): Int {

@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.datastore.preferences.core.Preferences.Key#getName():
+    Source breaking change: method androidx.datastore.preferences.core.Preferences.Key.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesFactory#create(androidx.datastore.preferences.core.Preferences.Pair<?>...):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesFactory.create(androidx.datastore.preferences.core.Preferences.Pair<?>...) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesFactory#createEmpty():
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesFactory.createEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesFactory#createMutable(androidx.datastore.preferences.core.Preferences.Pair<?>...):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesFactory.createMutable(androidx.datastore.preferences.core.Preferences.Pair<?>...) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#booleanKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.booleanKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#byteArrayKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.byteArrayKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#doubleKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.doubleKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#floatKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.floatKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#intKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.intKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#longKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.longKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#stringKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.stringKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesKeys#stringSetKey(String):
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesKeys.stringSetKey(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.datastore.preferences.core.PreferencesSerializer#getDefaultValue():
+    Source breaking change: method androidx.datastore.preferences.core.PreferencesSerializer.getDefaultValue() can no longer be resolved from Kotlin source

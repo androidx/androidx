@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Utility serializer maintaining an indent buffer */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StringSerializer {
     @NonNull StringBuffer mBuffer = new StringBuffer();
 

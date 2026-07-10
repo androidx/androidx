@@ -23,8 +23,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.core.util.Consumer;
 
@@ -32,8 +30,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -68,6 +70,10 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @NonNull
     private IsolateState mIsolateState;
 
+    @GuardedBy("mLock")
+    @NonNull
+    final Set<String> mMessagePorts = new HashSet<>();
+
     private final class JsSandboxIsolateClient extends IJsSandboxIsolateClient.Stub {
         JsSandboxIsolateClient() {}
 
@@ -80,6 +86,11 @@ public final class JavaScriptIsolate implements AutoCloseable {
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 
@@ -174,6 +185,18 @@ public final class JavaScriptIsolate implements AutoCloseable {
             } else {
                 return null;
             }
+        }
+    }
+
+    boolean containsMessagePort(String name) {
+        synchronized (mLock) {
+            return mMessagePorts.contains(name);
+        }
+    }
+
+    void addMessagePort(String name) {
+        synchronized (mLock) {
+            mMessagePorts.add(name);
         }
     }
 
@@ -372,7 +395,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
-    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(inputBytes);
         synchronized (mLock) {
@@ -381,7 +404,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     }
 
     @Override
-    @SuppressWarnings("GenericException") // super.finalize() throws Throwable
+    @SuppressWarnings({"GenericException", "removal"}) // super.finalize() throws Throwable
     protected void finalize() throws Throwable {
         try {
             mGuard.warnIfOpen();
@@ -508,6 +531,80 @@ public final class JavaScriptIsolate implements AutoCloseable {
         Objects.requireNonNull(callback);
         synchronized (mLock) {
             mIsolateState.removeOnTerminatedCallback(callback);
+        }
+    }
+
+    /**
+     * Sets up a message channel (MessagePort pair) between the app and isolate.
+     * <p>
+     * The returned MessagePort can be used to send and receive data to and from the isolate.
+     * <p>
+     * An app could set up a message port as follows:
+     * <pre class="prettyprint">
+     *     // Listen for console logs.
+     *     isolate.setConsoleCallback(getMainExecutor(), new JavaScriptConsoleCallback() {
+     *         &#064;Override
+     *         public void onMessage(&#064;NonNull ConsoleMessage message) {
+     *             Log.i(TAG, "Console: " + message.toString());
+     *         }
+     *     });
+     *     // Set up the message port and send it to the isolate.
+     *     MessagePortClient client = new MessagePortClient() {
+     *         &#064;Override
+     *         public void onMessage(&#064;NonNull Message message) {
+     *             if (message.getType() == Message.TYPE_STRING) {
+     *                 Log.i(TAG, "Isolate to App: " + message.getString());
+     *             }
+     *         }
+     *     };
+     *     MessagePort port = isolate.createMessageChannel(
+     *             "myPortName", getMainExecutor(), client);
+     *     // Execute JavaScript that listens on the port and posts a message back to the app.
+     *     ListenableFuture&lt;String&gt; future = isolate.evaluateJavaScriptAsync(
+     *             """
+     *             (async () => {
+     *               const port = await android.getNamedPort("myPortName");
+     *               port.onmessage = (event) => {console.log("App to Isolate: " + event.data);};
+     *               port.postMessage("hello app!");
+     *             })();
+     *             """);
+     *      // Wait for the isolate to obtain the port. (Exception handling skipped for brevity.)
+     *      future.get(5, TimeUnit.SECONDS);
+     *      // Send the isolate a message.
+     *      port.postMessage(Message.createStringMessage("hello isolate!"));
+     * </pre>
+     * <p>
+     * If the isolate/sandbox is dead, an unentangled MessagePort (which drops all posted messages)
+     * will be returned.
+     * <p>
+     * Messages delivered before JavaScript has set an onmessage handler will be silently dropped.
+     * Otherwise, messages are delivered across the channel reliably and in order.
+     * <p>
+     * Messages that are queued waiting to be processed by the onmessage handler count towards
+     * isolate memory usage and may cause the isolate to be terminiated with a
+     * {@link MemoryLimitExceededException}.
+     * <p>
+     * The isolate may not send back messages to the app where the individual size exceeds the limit
+     * set by {@link IsolateStartupParameters#setMaxEvaluationReturnSizeBytes(int)}.
+     *
+     * @param name The name used by JavaScript to access the message port on its side of the message
+     *             channel.
+     * @param executor The executor on which the supplied client's methods will be invoked.
+     * @param client Client that handles {@link Message}s received from the isolate-side port.
+     * @return The {@link MessagePort} used to send data to the isolate.
+     * @throws IllegalStateException If the name has been already used by another MessagePort.
+     * @throws IllegalStateException If the isolate is closed.
+     */
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_MESSAGE_PORTS,
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+    @NonNull
+    public MessagePort createMessageChannel(@NonNull String name, @NonNull Executor executor,
+            @NonNull MessagePortClient client) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(executor);
+        Objects.requireNonNull(client);
+        synchronized (mLock) {
+            return mIsolateState.provideMessagePort(name, executor, client);
         }
     }
 }

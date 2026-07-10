@@ -45,7 +45,9 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String mNamespaceConv = genericDoc.getNamespace();
     String mIdConv = genericDoc.getId();
     Gift document = new Gift(mIdConv);
-    document.setNamespace(mNamespaceConv);
+    if (mNamespaceConv != null) {
+      document.setNamespace(mNamespaceConv);
+    }
     return document;
   }
 }

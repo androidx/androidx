@@ -17,7 +17,6 @@
 package androidx.credentials.providerevents.transfer
 
 import android.graphics.Bitmap
-import androidx.annotation.RestrictTo
 
 /**
  * Each export entry corresponds to an entry in the provider selector UI that the user can choose
@@ -25,11 +24,13 @@ import androidx.annotation.RestrictTo
  *
  * ExportEntry serves two purposes:
  * 1. Contain display data to be shown on the selector UI.
- * 2. The fields of the Entry can be used to match an incoming [ImportCredentialsRequest]. By
- *    default, supportedCredentialTypes fields will be used to match against the request.
+ * 2. Contain fields that can be used to match an incoming [ImportCredentialsRequest]. By default,
+ *    the `supportedCredentialTypes` field will be used to match against the request.
  *
- * @param id the secret Id that is used to identify the export request. This should be randomly
- *   generated and stored to verify that the request is coming from the user.
+ * @param id the secret id that is used to identify the export entry. This should be randomly
+ *   generated and stored. When the provider's credential transfer activity gets launched, the
+ *   provider should verify that the [ProviderImportCredentialsRequest] contains the pre-registered
+ *   id.
  * @param accountDisplayName the account display name of the entry
  * @param userDisplayName the user display name of the entry
  * @param icon the icon to display for this entry; this icon should be 32x32 and if not will be
@@ -37,12 +38,18 @@ import androidx.annotation.RestrictTo
  * @param supportedCredentialTypes the credential types that this entry supports. By default, this
  *   field will be used to filter whether the entry will be displayed for an incoming import
  *   request. The values include, but not limited to, the constants in [CredentialTypes]
+ * @throws IllegalArgumentException if [supportedCredentialTypes] is empty
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ExportEntry(
     public val id: String,
     public val accountDisplayName: CharSequence?,
     public val userDisplayName: CharSequence,
     public val icon: Bitmap,
     public val supportedCredentialTypes: Set<String>,
-)
+) {
+    init {
+        require(supportedCredentialTypes.isNotEmpty()) {
+            "supportedCredentialTypes must not be empty"
+        }
+    }
+}

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -37,19 +36,13 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.kotlinCoroutinesAndroid)
-            }
+        androidMain.dependencies {
+            api(libs.kotlinCoroutinesAndroid)
         }
     }
 }
@@ -59,5 +52,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Kotlin extensions for 'lifecycle' artifact"
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 

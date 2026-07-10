@@ -16,33 +16,37 @@
 
 package androidx.xr.glimmer.demos
 
-import androidx.xr.glimmer.samples.ButtonSampleUsage
 import androidx.xr.glimmer.samples.CardSampleUsage
 import androidx.xr.glimmer.samples.ColorsSample
-import androidx.xr.glimmer.samples.DepthLevelsSample
+import androidx.xr.glimmer.samples.DepthEffectLevelsSample
 import androidx.xr.glimmer.samples.IconSampleUsage
 import androidx.xr.glimmer.samples.ListItemSampleUsage
+import androidx.xr.glimmer.samples.OnIndirectPointerGestureSampleUsage
 import androidx.xr.glimmer.samples.ShapesSample
 import androidx.xr.glimmer.samples.SurfaceSampleUsage
 import androidx.xr.glimmer.samples.TitleChipSampleUsage
-import androidx.xr.glimmer.samples.TypographySample
+import androidx.xr.glimmer.samples.TypographyDefaultUsage
 
 val Demos =
     DemoCategory(
-        "Glimmer Demos",
+        "Jetpack Compose Glimmer Demos",
         listOf(
             ComposableDemo("Colors") { ColorsSample() },
-            ComposableDemo("Typography") { TypographySample() },
+            ComposableDemo("Typography") { TypographyDefaultUsage() },
             ComposableDemo("Shapes") { ShapesSample() },
-            ComposableDemo("Depth Levels") { DepthLevelsSample() },
+            ComposableDemo("DepthEffect Levels") { DepthEffectLevelsSample() },
             ComposableDemo("Surface") { SurfaceSampleUsage() },
             ComposableDemo("Icons") { IconSampleUsage() },
             ComposableDemo("Cards") { CardSampleUsage() },
-            ComposableDemo("Buttons") { ButtonSampleUsage() },
+            DemoCategory("Buttons", ButtonDemos),
             ComposableDemo("ListItems") { ListItemSampleUsage() },
             ComposableDemo("TitleChips") { TitleChipSampleUsage() },
             DemoCategory("Focus", FocusDemos),
-            DemoCategory("List", ListDemos),
+            DemoCategory("LazyLists", LazyListDemos),
+            DemoCategory("Stack", StackDemos),
+            DemoCategory("Pagers", PagerDemos),
+            DemoCategory("VoiceInputIndicator", VoiceInputIndicatorDemos),
+            ComposableDemo("Gesture") { OnIndirectPointerGestureSampleUsage() },
             ComposableDemo("Settings") { DemoSettings() },
         ),
     )

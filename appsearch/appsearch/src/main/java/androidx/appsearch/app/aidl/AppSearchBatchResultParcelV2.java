@@ -21,7 +21,6 @@ import android.os.ParcelFileDescriptor;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
-import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -32,7 +31,6 @@ import org.jspecify.annotations.NonNull;
  * @param <ValueType> The type of values in the batch result, such as {@link ParcelFileDescriptor}
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalAppSearchApi
 public final class AppSearchBatchResultParcelV2<KeyType, ValueType> {
     private final AppSearchBatchResult<KeyType, ValueType> mResult;
 

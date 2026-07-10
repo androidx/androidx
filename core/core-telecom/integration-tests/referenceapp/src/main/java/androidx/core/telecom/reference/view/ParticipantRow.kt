@@ -32,10 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.telecom.reference.model.ParticipantState
-import androidx.core.telecom.util.ExperimentalAppActions
 
 @Composable
 fun ParticipantRow(participant: ParticipantState) {
+    @Suppress("DEPRECATION") // This overload is deprecated in future versions of Material 3.
     ListItem(
         headlineContent = { Text(participant.name + if (participant.isSelf) " (You)" else "") },
         leadingContent = {
@@ -80,21 +80,18 @@ fun ParticipantRow(participant: ParticipantState) {
     )
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, name = "Participant Row Self")
 @Composable
 fun ParticipantRowPreview() {
     MaterialTheme { ParticipantRow(sampleSelf) }
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, name = "Participant Row Self")
 @Composable
 fun ParticipantRowAlicePreview() {
     MaterialTheme { ParticipantRow(sampleP1) }
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, name = "Participant Row Self")
 @Composable
 fun ParticipantBobPreview() {

@@ -47,7 +47,7 @@ class InternalApiUsageDetectorTest :
                         }
                     }
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -55,10 +55,10 @@ class InternalApiUsageDetectorTest :
         check(input, skipTestModes = arrayOf(TestMode.IMPORT_ALIAS))
             .expect(
                 """
-                    src/test.kt:2: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
-                    import org.gradle.api.internal.component.SoftwareComponentInternal
-                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    1 errors, 0 warnings
+                src/test.kt:2: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
+                import org.gradle.api.internal.component.SoftwareComponentInternal
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -70,13 +70,13 @@ class InternalApiUsageDetectorTest :
             .run()
             .expect(
                 """
-                    src/test.kt:2: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
-                    import org.gradle.api.internal.component.SoftwareComponentInternal
-                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    src/test.kt:4: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
-                    import org.gradle.api.internal.component.SoftwareComponentInternal as IMPORT_ALIAS_2_SOFTWARECOMPONENTINTERNAL
-                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    2 errors, 0 warnings
+                src/test.kt:2: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
+                import org.gradle.api.internal.component.SoftwareComponentInternal
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test.kt:4: Error: Avoid using internal Gradle APIs [InternalGradleApiUsage]
+                import org.gradle.api.internal.component.SoftwareComponentInternal as IMPORT_ALIAS_2_SOFTWARECOMPONENTINTERNAL
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -88,7 +88,7 @@ class InternalApiUsageDetectorTest :
             kotlin(
                 """
                 import com.android.build.gradle.internal.lint.VariantInputs
-            """
+                """
                     .trimIndent()
             )
 
@@ -111,7 +111,7 @@ class InternalApiUsageDetectorTest :
             kotlin(
                 """
                 import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
-            """
+                """
                     .trimIndent()
             )
 
@@ -141,7 +141,7 @@ class InternalApiUsageDetectorTest :
                     @get:Internal
                     val notInput: File
                 }
-            """
+                """
                     .trimIndent()
             )
         check(input).expectClean()
@@ -339,29 +339,29 @@ class InternalApiUsageDetectorTest :
         val qualifiedInput =
             kotlin(
                 """
-                    import org.gradle.api.component.SoftwareComponent
-                    fun getSoftwareComponent() : SoftwareComponent {
-                        return object : org.gradle.api.internal.component.SoftwareComponentInternal {
-                            override fun getUsages(): Set<out UsageContext> {
-                                TODO()
-                            }
+                import org.gradle.api.component.SoftwareComponent
+                fun getSoftwareComponent() : SoftwareComponent {
+                    return object : org.gradle.api.internal.component.SoftwareComponentInternal {
+                        override fun getUsages(): Set<out UsageContext> {
+                            TODO()
                         }
                     }
+                }
                 """
                     .trimIndent()
             )
         val importInput =
             kotlin(
                 """
-                    import org.gradle.api.component.SoftwareComponent
-                    import org.gradle.api.internal.component.SoftwareComponentInternal
-                    fun getSoftwareComponent() : SoftwareComponent {
-                        return object : SoftwareComponentInternal {
-                            override fun getUsages(): Set<out UsageContext> {
-                                TODO()
-                            }
+                import org.gradle.api.component.SoftwareComponent
+                import org.gradle.api.internal.component.SoftwareComponentInternal
+                fun getSoftwareComponent() : SoftwareComponent {
+                    return object : SoftwareComponentInternal {
+                        override fun getUsages(): Set<out UsageContext> {
+                            TODO()
                         }
                     }
+                }
                 """
                     .trimIndent()
             )
@@ -392,19 +392,19 @@ class InternalApiUsageDetectorTest :
         val qualifiedInput =
             kotlin(
                 """
-                    fun classReference() {
-                        org.gradle.api.internal.component.SoftwareComponentInternal::class.java
-                    }
+                fun classReference() {
+                    org.gradle.api.internal.component.SoftwareComponentInternal::class.java
+                }
                 """
                     .trimIndent()
             )
         val importInput =
             kotlin(
                 """
-                    import org.gradle.api.internal.component.SoftwareComponentInternal
-                    fun classReference() {
-                        SoftwareComponentInternal::class.java
-                    }
+                import org.gradle.api.internal.component.SoftwareComponentInternal
+                fun classReference() {
+                    SoftwareComponentInternal::class.java
+                }
                 """
                     .trimIndent()
             )
@@ -430,21 +430,21 @@ class InternalApiUsageDetectorTest :
         val qualifiedInput =
             kotlin(
                 """
-                    import org.gradle.api.component.SoftwareComponent
-                    fun castSoftwareComponent(sc: SoftwareComponent) {
-                        sc as org.gradle.api.internal.component.SoftwareComponentInternal
-                    }
+                import org.gradle.api.component.SoftwareComponent
+                fun castSoftwareComponent(sc: SoftwareComponent) {
+                    sc as org.gradle.api.internal.component.SoftwareComponentInternal
+                }
                 """
                     .trimIndent()
             )
         val importedInput =
             kotlin(
                 """
-                    import org.gradle.api.component.SoftwareComponent
-                    import org.gradle.api.internal.component.SoftwareComponentInternal
-                    fun castSoftwareComponent(sc: SoftwareComponent) {
-                        sc as SoftwareComponentInternal
-                    }
+                import org.gradle.api.component.SoftwareComponent
+                import org.gradle.api.internal.component.SoftwareComponentInternal
+                fun castSoftwareComponent(sc: SoftwareComponent) {
+                    sc as SoftwareComponentInternal
+                }
                 """
                     .trimIndent()
             )
@@ -470,29 +470,29 @@ class InternalApiUsageDetectorTest :
         val qualifiedInput =
             kotlin(
                 """
-                    import org.gradle.testkit.runner.GradleRunner
-                    fun catchException() {
-                        try {
-                            GradleRunner.create()
-                        } catch(e: org.gradle.process.internal.ExecException) {
-                            TODO()
-                        }
+                import org.gradle.testkit.runner.GradleRunner
+                fun catchException() {
+                    try {
+                        GradleRunner.create()
+                    } catch(e: org.gradle.process.internal.ExecException) {
+                        TODO()
                     }
+                }
                 """
                     .trimIndent()
             )
         val importInput =
             kotlin(
                 """
-                    import org.gradle.testkit.runner.GradleRunner
-                    import org.gradle.process.internal.ExecException
-                    fun catchException() {
-                        try {
-                            GradleRunner.create()
-                        } catch(e: ExecException) {
-                            TODO()
-                        }
+                import org.gradle.testkit.runner.GradleRunner
+                import org.gradle.process.internal.ExecException
+                fun catchException() {
+                    try {
+                        GradleRunner.create()
+                    } catch(e: ExecException) {
+                        TODO()
                     }
+                }
                 """
                     .trimIndent()
             )
@@ -518,17 +518,17 @@ class InternalApiUsageDetectorTest :
         val qualifiedInput =
             kotlin(
                 """
-                    @com.android.build.gradle.internal.tasks.BuildAnalyzer
-                    class AnnotatedQualified
+                @com.android.build.gradle.internal.tasks.BuildAnalyzer
+                class AnnotatedQualified
                 """
                     .trimIndent()
             )
         val importInput =
             kotlin(
                 """
-                    import com.android.build.gradle.internal.tasks.BuildAnalyzer
-                    @BuildAnalyzer
-                    class AnnotatedImport
+                import com.android.build.gradle.internal.tasks.BuildAnalyzer
+                @BuildAnalyzer
+                class AnnotatedImport
                 """
                     .trimIndent()
             )

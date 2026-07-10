@@ -48,13 +48,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,6 +88,16 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private static final int MSG_SHOW_NO_ROUTES = 3;
     private static final int SHOW_WIFI_HINT_DELAY_MS = 5000;
     private static final int SHOW_NO_ROUTES_DELAY_MS = 15000;
+
+    private static final AccessibilityDelegateCompat BUTTON_ACCESSIBILITY_DELEGATE =
+            new AccessibilityDelegateCompat() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(
+                        @NonNull View host, @NonNull AccessibilityNodeInfoCompat info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setClassName(Button.class.getName());
+                }
+            };
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -152,8 +166,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
      *
      * @return The selector, never null.
      */
-    @NonNull
-    public MediaRouteSelector getRouteSelector() {
+    public @NonNull MediaRouteSelector getRouteSelector() {
         return mSelector;
     }
 
@@ -208,7 +221,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
      * @param route The route to consider, never null.
      * @return True if the route should be included in the chooser dialog.
      */
-    public boolean onFilterRoute(@NonNull MediaRouter.RouteInfo route) {
+    public boolean onFilterRoute(MediaRouter.@NonNull RouteInfo route) {
         return !route.isDefaultOrBluetooth() && route.isEnabled()
                 && route.matchesSelector(mSelector);
     }
@@ -469,9 +482,8 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             return getItem(position).isEnabled();
         }
 
-        @NonNull
         @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View view = convertView;
             if (view == null) {
                 view = mInflater.inflate(R.layout.mr_chooser_list_item, parent, false);
@@ -495,6 +507,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
                 text2.setText("");
             }
             view.setEnabled(route.isEnabled());
+            ViewCompat.setAccessibilityDelegate(view, BUTTON_ACCESSIBILITY_DELEGATE);
 
             ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
             if (iconView != null) {
@@ -556,26 +569,26 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, MediaRouter.@NonNull RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
         public void onRouteRemoved(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
+                MediaRouter.@NonNull RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
         public void onRouteChanged(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
+                MediaRouter.@NonNull RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo selectedRoute, int reason,
-                @NonNull MediaRouter.RouteInfo requestedRoute) {
+                MediaRouter.@NonNull RouteInfo selectedRoute, int reason,
+                MediaRouter.@NonNull RouteInfo requestedRoute) {
             dismiss();
         }
     }

@@ -16,42 +16,29 @@
 
 package androidx.xr.arcore
 
-/** Result of a [Anchor.create] or [Anchor.load] call. */
-public sealed class AnchorCreateResult
+/** Result of an attempt to create an anchor. */
+public sealed class AnchorResult
 
 /**
- * Result of a successful [Anchor.create] or [Anchor.load] call.
+ * Result of a successful attempt to create an anchor.
  *
- * @property anchor the [Anchor] that was created.
+ * @property anchor the [Anchor] that was created
  */
-public class AnchorCreateSuccess(public val anchor: Anchor) : AnchorCreateResult()
+public class AnchorCreateSuccess(public val anchor: Anchor) : AnchorResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] or [Anchor.load] call. The resources allocated for
- * anchors has been exhausted.
+ * Result of an unsuccessful attempt to create an [Anchor].
+ *
+ * The resources allocated for anchors has been exhausted.
  */
-public class AnchorCreateResourcesExhausted() : AnchorCreateResult()
-
-/** Result of an unsuccessful [Anchor.create] call. Required tracking is not available. */
-public class AnchorCreateTrackingUnavailable() : AnchorCreateResult()
-
-/** Result of an unsuccessful [Anchor.load] call. The anchor was loaded from an invalid UUID. */
-public class AnchorLoadInvalidUuid() : AnchorCreateResult()
+public class AnchorCreateResourcesExhausted : AnchorResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] call. The anchor create call was made when the session
- * state was invalid.
+ * Result of an unsuccessful attempt to create an [Anchor].
+ *
+ * Required tracking is not available.
  */
-public class AnchorCreateIllegalState() : AnchorCreateResult()
+public class AnchorCreateTrackingUnavailable : AnchorResult()
 
-/**
- * Result of an unsuccessful [Anchor.create] call. The anchor was not created due to an
- * authorization error.
- */
-public class AnchorCreateNotAuthorized() : AnchorCreateResult()
-
-/**
- * Result of an unsuccessful [Anchor.create] call. The anchor was not created due to an unsupported
- * location.
- */
-public class AnchorCreateUnsupportedLocation() : AnchorCreateResult()
+// Prevent exhaustive when by consumers to allow for future extensions of [AnchorResult].
+private class AnchorResultHidden() : AnchorResult()

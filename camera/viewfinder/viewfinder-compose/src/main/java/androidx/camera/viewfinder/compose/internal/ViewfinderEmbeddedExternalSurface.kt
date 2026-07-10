@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture
 import android.util.Log
 import android.view.Surface
 import android.view.TextureView
+import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.impl.RefCounted
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 
 private const val TAG = "VfEmbeddedSurface"
@@ -38,10 +40,33 @@ private class ViewfinderEmbeddedExternalSurfaceHolder(private val surfaceTexture
     override val refCountedSurface: RefCounted<Surface> = RefCounted {
         it.release()
         surfaceTexture.release()
+        synchronized(listeners) { listeners.clear() }
     }
 
     var isDetached = false
         private set
+
+    private val listeners = mutableMapOf<FrameRenderedListener, Executor>()
+
+    override fun addFrameRenderedListener(executor: Executor, listener: FrameRenderedListener) {
+        synchronized(listeners) { listeners[listener] = executor }
+    }
+
+    override fun removeFrameRenderedListener(listener: FrameRenderedListener) {
+        synchronized(listeners) { listeners.remove(listener) }
+    }
+
+    fun dispatchSurfaceTextureUpdated(timestampNanos: Long) {
+        val currentListeners =
+            synchronized(listeners) {
+                if (listeners.isEmpty()) return
+                listeners.toList()
+            }
+        for (i in currentListeners.indices) {
+            val (listener, executor) = currentListeners[i]
+            executor.execute { listener.onFrameRendered(timestampNanos) }
+        }
+    }
 
     init {
         refCountedSurface.initialize(Surface(surfaceTexture))
@@ -117,8 +142,7 @@ private class ViewfinderEmbeddedExternalSurfaceState(scope: CoroutineScope) :
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        // onSurfaceTextureUpdated is called when the content of the SurfaceTexture
-        // has changed, which is not relevant to us since we are the producer here
+        viewfinderSurfaceHolder?.dispatchSurfaceTextureUpdated(surface.timestamp)
     }
 
     fun tryReattachViewfinderSurfaceHolder(textureView: TextureView) {

@@ -15,12 +15,15 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application>
-        <service android:name="androidx.datastore.testapp.twoWayIpc.TwoWayIpcService"
+        <service
+            android:name="androidx.datastore.testapp.twoWayIpc.TwoWayIpcService"
             android:enabled="true"
             android:exported="false"
             android:process=":TwoWayIpcService" />
-        <service android:name="androidx.datastore.testapp.twoWayIpc.TwoWayIpcService2"
+        <service
+            android:name="androidx.datastore.testapp.twoWayIpc.TwoWayIpcService2"
             android:enabled="true"
             android:exported="false"
             android:process=":TwoWayIpcService2" />

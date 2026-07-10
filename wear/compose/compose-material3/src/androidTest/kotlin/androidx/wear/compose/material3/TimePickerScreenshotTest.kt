@@ -26,7 +26,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -35,6 +36,7 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.time.LocalTime
 import java.util.Locale
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -44,7 +46,7 @@ import org.junit.runner.RunWith
 @RunWith(TestParameterInjector::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TimePickerScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -172,7 +174,9 @@ class TimePickerScreenshotTest {
             content = {
                 // Set locale to Arabic for correct pattern and AM/PM strings.
                 val arabicConfig =
-                    Configuration(LocalConfiguration.current).apply { setLocale(Locale("ar")) }
+                    Configuration(LocalConfiguration.current).apply {
+                        setLocale(Locale.forLanguageTag("ar"))
+                    }
                 CompositionLocalProvider(LocalConfiguration provides arabicConfig) {
                     TimePicker(
                         onTimePicked = {},
@@ -237,6 +241,32 @@ class TimePickerScreenshotTest {
             },
         )
 
+    @Test
+    fun timePicker_frenchCanadian_sanitized(@TestParameter screenSize: ScreenSize) =
+        rule.verifyTimePickerScreenshot(
+            testName = testName,
+            screenshotRule = screenshotRule,
+            screenSize = screenSize,
+            content = {
+                // This test case verifies that a complex pattern with quoted literals,
+                // like fr-CA ("HH 'h' mm 'min' ss 's'"), is correctly sanitized.
+                // We expect the literals to be removed and a clean HH:mm:ss format to be displayed.
+                val frenchCanadianConfig =
+                    Configuration(LocalConfiguration.current).apply {
+                        setLocale(Locale.forLanguageTag("fr-CA"))
+                    }
+                CompositionLocalProvider(LocalConfiguration provides frenchCanadianConfig) {
+                    TimePicker(
+                        onTimePicked = {},
+                        modifier = Modifier.testTag(TEST_TAG),
+                        timePickerType = TimePickerType.HoursMinutesSeconds24H,
+                        initialTime =
+                            LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 59),
+                    )
+                }
+            },
+        )
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.verifyTimePickerScreenshot(
         testName: TestName,
@@ -255,6 +285,6 @@ class TimePickerScreenshotTest {
         }
         rule.waitForIdle()
 
-        rule.verifyScreenshot(testName, screenshotRule, testTag = testTag)
+        rule.verifyScreenshot(testName, screenshotRule, testTagNode = onNodeWithTag(testTag))
     }
 }

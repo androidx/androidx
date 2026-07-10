@@ -40,7 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
@@ -58,6 +58,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,7 +67,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ScrollIndicatorTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -424,13 +425,6 @@ class ScrollIndicatorTest {
             indicatorState.sizeFraction - ScrollIndicatorDefaults.overscrollShrinkSizeFraction
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            // TODO(b/416503918): Overscroll is not triggered during the first touch. This behavior
-            //  was only observed in this test - in real use case it works as expected.
-            // Triggering the first touch as a workaround for this issue
-            down(center)
-            moveTo(Offset(center.x, center.y + 100))
-            up()
-
             down(center)
             moveTo(Offset(center.x, center.y + 2000))
             // We don't lift the finger as otherwise overscroll will be reset

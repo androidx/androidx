@@ -96,5 +96,10 @@ public class OnClickDelegateImpl implements OnClickDelegate {
                 return null;
             });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

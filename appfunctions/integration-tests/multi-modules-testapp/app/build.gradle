@@ -13,53 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.build.api.artifact.SingleArtifact
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
+
 android {
     namespace = "androidx.appfunctions.integration.testapp"
-    compileSdk = 36
+    compileSdk { version = release(37) }
     defaultConfig {
-        applicationId = "androidx.appfunctions.integration.testapp"
-        minSdk = 33
-        ksp {
-            arg("appfunctions:aggregateAppFunctions", "true")
-            arg("appfunctions:generateMetadataFromSchema", "true")
-        }
-    }
-    buildTypes {
-        // Release build is not used when running AndroidX Test. This is only used to
-        // manually examine the output APK.
-        release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
-        }
+        minSdk { version = release(33) }
     }
     // Prevent assets file from being compressed. This is for Uri access test.
     aaptOptions {
-        noCompress  += "txt"
+        noCompress += "txt"
+    }
+    buildTypes {
+        release {
+            optimization {
+                enable = true
+            }
+        }
     }
 }
 
 dependencies {
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation(project(":appfunctions:appfunctions"))
-    androidTestImplementation(project(":appfunctions:appfunctions-service"))
+    implementation(libs.guavaAndroid)
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":appfunctions:appfunctions"))
+    implementation(project(":appfunctions:integration-tests:multi-modules-testapp:shared-library"))
+    implementation(project(":appfunctions:integration-tests:shared-schema"))
+    implementation("androidx.appsearch:appsearch:1.1.0")
+    implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
+    implementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    compileOnly(project(":appfunctions:appfunctions-stubs"))
+    ksp(project(":appfunctions:appfunctions-compiler"))
+    compileOnly(project(":appfunctions:appfunctions-stubs"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation("androidx.appsearch:appsearch:1.1.0-rc01")
-    androidTestImplementation("androidx.appsearch:appsearch-platform-storage:1.1.0-rc01")
-    androidTestImplementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
-    androidTestImplementation(project(":appfunctions:integration-tests:multi-modules-testapp:shared-library"))
-   kspAndroidTest(project(":appfunctions:appfunctions-compiler"))
+}
+
+ksp {
+    arg("appfunctions:aggregateAppFunctions", "true")
+}
+
+// Define a configuration that can be consumed, as this project is a provider of test apks for
+// profile verification integration test.
+configurations {
+    apkAssets {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+            )
+        }
+    }
+}
+
+// Release apk variants are added as output artifacts to the apkAssets configuration.
+// The apkAssets configuration is consumed by profile-verification integration test and
+// artifacts are placed in the assets folder.
+androidComponents {
+    onVariants(selector().all().withBuildType("release"), { variant ->
+        artifacts {
+            apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
+        }
+    })
 }

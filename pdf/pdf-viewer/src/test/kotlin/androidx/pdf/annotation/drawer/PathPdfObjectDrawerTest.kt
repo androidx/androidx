@@ -20,7 +20,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Path
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -31,6 +32,7 @@ import org.robolectric.shadows.ShadowCanvas
 import org.robolectric.shadows.ShadowPath
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PathPdfObjectDrawerTest {
 
     private lateinit var canvas: Canvas
@@ -55,8 +57,8 @@ class PathPdfObjectDrawerTest {
     fun draw_validInputs_setsPaintPropertiesAndDrawsPath() {
         val pathInputs =
             listOf(
-                PathPdfObject.PathInput(x = 10f, y = 10f),
-                PathPdfObject.PathInput(x = 50f, y = 10f),
+                PathInput(x = 10f, y = 10f, PathInput.MOVE_TO),
+                PathInput(x = 50f, y = 10f, PathInput.LINE_TO),
             )
         val brushColor = Color.BLUE
         val brushWidth = 8f
@@ -101,7 +103,7 @@ class PathPdfObjectDrawerTest {
     fun createPath_singlePointInput_createsPathWithMoveTo() {
         val startX = 10f
         val startY = 20f
-        val inputPoint = PathPdfObject.PathInput(x = startX, y = startY)
+        val inputPoint = PathInput(x = startX, y = startY, PathInput.MOVE_TO)
         val pathObject = createPathPdfObject(inputs = listOf(inputPoint))
 
         val path = pathObject.createPath()
@@ -117,9 +119,9 @@ class PathPdfObjectDrawerTest {
     fun createPath_multiplePoints_chainsMoveToAndLineToOperations() {
         val inputPoints =
             listOf(
-                PathPdfObject.PathInput(x = 0f, y = 0f),
-                PathPdfObject.PathInput(x = 10f, y = 0f),
-                PathPdfObject.PathInput(x = 10f, y = 20f),
+                PathInput(x = 0f, y = 0f, PathInput.MOVE_TO),
+                PathInput(x = 10f, y = 0f, PathInput.LINE_TO),
+                PathInput(x = 10f, y = 20f, PathInput.LINE_TO),
             )
         val pathObject = createPathPdfObject(inputs = inputPoints)
 
@@ -144,7 +146,7 @@ class PathPdfObjectDrawerTest {
     private fun assertPathPoint(
         point: ShadowPath.Point,
         expectedType: ShadowPath.Point.Type,
-        expectedPoint: PathPdfObject.PathInput,
+        expectedPoint: PathInput,
     ) {
         assertThat(point.type).isEqualTo(expectedType)
         assertThat(point.x).isEqualTo(expectedPoint.x)
@@ -158,7 +160,7 @@ class PathPdfObjectDrawerTest {
         private fun createPathPdfObject(
             brushColor: Int = DEFAULT_BRUSH_COLOR,
             brushWidth: Float = DEFAULT_BRUSH_WIDTH,
-            inputs: List<PathPdfObject.PathInput>,
+            inputs: List<PathInput>,
         ): PathPdfObject {
             return PathPdfObject(brushColor = brushColor, brushWidth = brushWidth, inputs = inputs)
         }

@@ -19,9 +19,7 @@ package androidx.appsearch.cts.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,7 +54,6 @@ public class StorageInfoCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBuildStorageInfo_withBlob() {
         StorageInfo storageInfo =
                 new StorageInfo.Builder()
@@ -69,7 +66,6 @@ public class StorageInfoCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBuildStorageInfo_withBlobDefaults() {
         StorageInfo storageInfo = new StorageInfo.Builder().build();
 

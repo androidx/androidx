@@ -57,14 +57,14 @@ class EmployeeSubject(metadata: FailureMetadata = FailureMetadata(), actual: Emp
 
     fun isCeo() {
         requireNonNull(actual) { "Expected to be CEO, but was null" }
-        if (!actual!!.isCeo) {
+        if (!actual.isCeo) {
             failWithActual(simpleFact("expected to be CEO"))
         }
     }
 
     fun isNotCeo() {
         requireNonNull(actual) { "Expected to not be CEO, but was null" }
-        if (actual!!.isCeo) {
+        if (actual.isCeo) {
             failWithActual(simpleFact("expected to not be CEO"))
         }
     }

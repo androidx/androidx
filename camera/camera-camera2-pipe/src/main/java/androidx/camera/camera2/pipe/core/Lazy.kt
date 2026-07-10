@@ -84,3 +84,16 @@ internal inline fun <T> lazyOrEmptyList(
     blockName: String,
     crossinline block: () -> List<T>,
 ): Lazy<List<T>> = lazyOrEmptyList({ blockName }, block)
+
+/** Utility function for creating [Lazy] instances that may compute to null. */
+internal inline fun <T> lazyOrNull(
+    crossinline blockNameFn: () -> String,
+    crossinline block: () -> T?,
+): Lazy<T?> =
+    lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val blockName = blockNameFn()
+        Debug.trace(blockName) { block() }
+    }
+
+internal inline fun <T> lazyOrNull(blockName: String, crossinline block: () -> T?): Lazy<T?> =
+    lazyOrNull({ blockName }, block)

@@ -80,19 +80,31 @@ class OnBackPressedCallbackTest {
                     error("not implemented")
                 }
             }
-        var changedCount = 0
+        val allHasEnabledCallbacks = mutableListOf<Boolean>()
 
         repeat(times = 5) {
             val dispatcher =
                 OnBackPressedDispatcher(
                     fallbackOnBackPressed = null,
-                    onHasEnabledCallbacksChanged = { changedCount++ },
+                    onHasEnabledCallbacksChanged = { hasEnabledCallbacks ->
+                        allHasEnabledCallbacks += hasEnabledCallbacks
+                    },
                 )
+
+            // This first call to addCallback on each dispatcher triggers the lazy
+            // initialization and causes an "initial state" emission.
             dispatcher.addCallback(callback)
         }
 
+        // After the loop, we have 5 "initial state" emissions (one per dispatcher).
+        assertThat(allHasEnabledCallbacks)
+            .containsExactly(false, false, false, false, false)
+            .inOrder()
+        allHasEnabledCallbacks.clear()
+
         callback.isEnabled = true
 
-        assertThat(changedCount).isEqualTo(5)
+        // Enabling the shared callback notifies all 5 dispatchers, each emitting the new state.
+        assertThat(allHasEnabledCallbacks).containsExactly(true, true, true, true, true).inOrder()
     }
 }

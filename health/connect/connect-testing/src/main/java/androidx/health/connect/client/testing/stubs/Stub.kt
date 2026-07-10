@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("Stubs")
+
 package androidx.health.connect.client.testing.stubs
 
 /**
@@ -25,7 +27,7 @@ package androidx.health.connect.client.testing.stubs
  * - A value of type [R] is returned meaning that the request has succeeded and the value should be
  *   returned to the caller.
  * - An exception is thrown meaning that the request has failed and the error should be returned to
- *   the caller.
+ *   the caller.u
  * - Null (`null`) is returned meaning that the request has not been processed by this stub, in
  *   which case the client may call another stub or somehow fallback to a default behaviour.
  *

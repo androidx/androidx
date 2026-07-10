@@ -19,11 +19,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.widget.BaseGridView;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.Presenter;
 
@@ -107,6 +111,29 @@ public class CardPresenter extends Presenter {
             v.setMainImageDimensions(LayoutParams.WRAP_CONTENT,
                     getRowHeight(parent.getContext()));
         }
+        v.setClickable(true);
+        v.setOnHoverListener((view, event) -> {
+            BaseGridView gridView = null;
+            View child = view;
+            ViewParent p = child.getParent();
+            while (p != null) {
+                if (p instanceof BaseGridView) {
+                    gridView = (BaseGridView) p;
+                    break;
+                }
+                child = (View) p;
+                p = (ViewParent) child.getParent();
+            }
+            if (gridView == null) {
+                return false;
+            }
+            if (event.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
+                gridView.setSelectedPositionToUnalignedChild(child);
+            } else if (event.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
+                gridView.setSelectedPositionToAlignedChild();
+            }
+            return true;
+        });
         return new ViewHolder(v);
     }
 

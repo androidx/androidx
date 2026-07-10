@@ -217,7 +217,7 @@ public class PickerGroupState constructor(initiallySelectedIndex: Int = 0) {
  * @param onSelected Action triggered when the Picker is selected by clicking
  * @param readOnlyLabel A slot for providing a label, displayed above the selected option when the
  *   [Picker] is read-only. The label is overlaid with the currently selected option within a Box,
- *   so it is recommended that the label is given [Alignment.TopCenter].
+ *   so it is recommended that the label is given [androidx.compose.ui.Alignment.TopCenter].
  * @param option A block which describes the content. The integer parameter to the composable
  *   denotes the index of the option and boolean denotes whether the picker is selected or not.
  */

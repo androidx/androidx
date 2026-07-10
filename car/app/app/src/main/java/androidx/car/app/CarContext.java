@@ -46,7 +46,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.hardware.CarHardwareManager;
@@ -148,7 +147,7 @@ public class CarContext extends ContextWrapper {
     /**
      * Manages the media requests from 3p apps such as providing a media session token,
      */
-    @ExperimentalCarApi
+    @RequiresCarApi(8)
     public static final String MEDIA_PLAYBACK_SERVICE = "media_playback";
 
     /**
@@ -186,6 +185,7 @@ public class CarContext extends ContextWrapper {
     private final HostDispatcher mHostDispatcher;
     private final Lifecycle mLifecycle;
     private final ManagerCache mManagers = new ManagerCache();
+    private @Nullable VirtualDisplay mVirtualDisplay = null;
 
     /** API level, updated once host connection handshake is completed. */
     @CarAppApiLevel
@@ -609,6 +609,11 @@ public class CarContext extends ContextWrapper {
                                     rejected));
                         }
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 }.asBinder());
         extras.putStringArray(EXTRA_PERMISSIONS_KEY, permissions.toArray(new String[0]));
         Intent intent =
@@ -691,7 +696,7 @@ public class CarContext extends ContextWrapper {
         // update the configuration.
         if (getBaseContext() == null) {
             // Create the virtual display with the proper dimensions.
-            VirtualDisplay display =
+            mVirtualDisplay =
                     ((DisplayManager) requireNonNull(
                             context.getSystemService(Context.DISPLAY_SERVICE)))
                             .createVirtualDisplay(
@@ -704,15 +709,14 @@ public class CarContext extends ContextWrapper {
 
             attachBaseContext(
                     context
-                            .createDisplayContext(display.getDisplay())
+                            .createDisplayContext(mVirtualDisplay.getDisplay())
                             .createConfigurationContext(configuration));
         }
 
         onCarConfigurationChanged(configuration);
     }
 
-    @RestrictTo(LIBRARY_GROUP)
-    // Restrict to testing library
+    @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     ManagerCache getManagers() {
         return mManagers;
     }
@@ -752,6 +756,10 @@ public class CarContext extends ContextWrapper {
             @Override
             public void onDestroy(@NonNull LifecycleOwner owner) {
                 hostDispatcher.resetHosts();
+                if (mVirtualDisplay != null) {
+                    mVirtualDisplay.release();
+                    mVirtualDisplay = null;
+                }
                 owner.getLifecycle().removeObserver(this);
             }
         };

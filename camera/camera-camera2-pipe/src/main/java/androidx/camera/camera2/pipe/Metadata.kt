@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import kotlin.reflect.KClass
 
 /**
  * A map-like interface used to describe or interact with metadata from CameraPipe and Camera2.
@@ -34,18 +35,24 @@ public interface Metadata {
 
     /** Metadata keys provide values or controls that are provided or computed by CameraPipe. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class Key<T> private constructor(private val name: String) {
+    public class Key<T> private constructor(private val name: String, private val type: KClass<*>) {
         public companion object {
-            @JvmStatic internal val keys: MutableSet<String> = HashSet()
+            @JvmStatic internal val keys: MutableMap<String, Key<*>> = HashMap()
 
             /**
-             * This will create a new Key instance, and will check to see that the key has not been
-             * previously created somewhere else.
+             * This will create a new Key instance, or return a previously created Key instance if
+             * one already exists with the same name.
              */
-            public fun <T> create(name: String): Key<T> {
-                synchronized(keys) { check(keys.add(name)) { "$name is already defined!" } }
-                return Key(name)
-            }
+            public inline fun <reified T : Any> create(name: String): Key<T> =
+                create(name, T::class)
+
+            @Suppress("UNCHECKED_CAST")
+            public fun <T : Any> create(name: String, type: KClass<T>): Key<T> =
+                synchronized(keys) {
+                    val key = keys.getOrPut(name) { Key<T>(name, type) }
+                    check(key.type == type)
+                    key as Key<T>
+                }
         }
 
         override fun toString(): String {

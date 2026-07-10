@@ -51,7 +51,8 @@ public class StopWorkRunnable(
         Logger.get()
             .debug(
                 Logger.tagWithPrefix("StopWorkRunnable"),
-                "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped",
+                "StopWorkRunnable for ${token.id.workSpecId}; " +
+                    "Processor.stopWork = $isStopped, reason: $reason",
             )
     }
 }

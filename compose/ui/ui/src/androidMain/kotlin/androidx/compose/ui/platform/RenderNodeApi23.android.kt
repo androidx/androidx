@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.nativePaint
 
 /**
  * RenderNode on M-O devices, where RenderNode isn't officially supported. This class uses a hidden
@@ -261,7 +262,7 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         when (compositingStrategy) {
             CompositingStrategy.Offscreen -> {
                 setLayerType(View.LAYER_TYPE_HARDWARE)
-                setLayerPaint(layerPaint?.asFrameworkPaint())
+                setLayerPaint(layerPaint?.nativePaint)
                 setHasOverlappingRendering(true)
             }
             CompositingStrategy.ModulateAlpha -> {

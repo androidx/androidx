@@ -44,6 +44,7 @@ data class InCallItemUiState(
     val callIconData: IconData? = null,
     val isLocalCallSilenceEnabled: Boolean = false,
     val isLocallyMuted: Boolean = false,
+    val canUserUpdateSilence: Boolean = true,
     val isParticipantExtensionEnabled: Boolean = false,
     val isCallIconExtensionEnabled: Boolean = false,
 )

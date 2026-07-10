@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api(project(":xr:projected:projected"))
+
+    implementation(libs.junit)
+    implementation(libs.testCoreKtx)
+    implementation(libs.robolectric)
+    implementation(libs.mockitoCore4)
+    implementation(libs.mockitoKotlin4)
+    implementation("androidx.annotation:annotation:1.8.1")
+    implementation(project(":xr:projected:projected-binding"))
+    // Forcing this upgrade due to CVE-2026-0636. For more information, see b/504795306
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+}
+
+android {
+    compileSdk { version = release(36) }
+    namespace = "androidx.xr.projected.testing"
+}
+
+androidx {
+    name = "XR Projected Testing"
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
+    inceptionYear = "2026"
+    description = "Libraries to aid in unit testing Projected clients."
+    enableRobolectric()
+}

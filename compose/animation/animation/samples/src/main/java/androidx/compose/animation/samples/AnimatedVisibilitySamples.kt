@@ -19,16 +19,21 @@ package androidx.compose.animation.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.DeferredAnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.MutableTransform
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -48,6 +53,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.unveilIn
+import androidx.compose.animation.veilOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -93,7 +100,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.collect
 
 @Sampled
 @Composable
@@ -692,7 +698,22 @@ fun AnimateEnterExitPartialContent() {
 }
 
 @Sampled
-@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedVisibilityVeil() {
+    var visible by remember { mutableStateOf(true) }
+    Column(modifier = Modifier.background(Color.White)) {
+        Button(onClick = { visible = !visible }) { Text("Toggle") }
+        AnimatedVisibility(
+            visible = visible,
+            enter = unveilIn(initialColor = Color.White),
+            exit = veilOut(targetColor = Color.White),
+        ) {
+            Box(Modifier.fillMaxSize().padding(30.dp).background(Color.Blue)) { Text("Content") }
+        }
+    }
+}
+
+@Sampled
 @Composable
 fun ScaledEnterExit() {
     Column {
@@ -738,5 +759,41 @@ fun ScaledEnterExit() {
                     .background(color = Color.Red, shape = RoundedCornerShape(20.dp))
             )
         }
+    }
+}
+
+@OptIn(ExperimentalDeferredTransitionApi::class)
+@Sampled
+@Composable
+fun DeferredAnimatedVisibilitySample() {
+    // In a real app, these states would be driven by a gesture handler like PredictiveBackHandler
+    var visible by remember { mutableStateOf(true) }
+    var isBackGestureInProgress by remember { mutableStateOf(false) }
+    var swipeOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    val transitionState = remember { DeferredTransitionState(visible) }
+    val transition = rememberTransition(transitionState)
+    LaunchedEffect(isBackGestureInProgress, visible) {
+        if (isBackGestureInProgress) {
+            transitionState.defer(visible)
+        } else {
+            transitionState.animateTo(visible)
+        }
+    }
+
+    transition.DeferredAnimatedVisibility(
+        visible = { it },
+        mutableTransform =
+            MutableTransform { fullSize ->
+                if (isBackGestureInProgress) {
+                    val progressX = (swipeOffset.x.toFloat() / fullSize.width).coerceIn(0f, 1f)
+                    // Shrink the content down to 80% as the user swipes
+                    scale = 1f - (progressX * 0.2f)
+                    // Slide the content along the swipe
+                    offset = swipeOffset
+                }
+            },
+    ) {
+        Box(Modifier.size(200.dp).background(Color.Red))
     }
 }

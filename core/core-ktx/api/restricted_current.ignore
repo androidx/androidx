@@ -1,11 +1,31 @@
 // Baseline format: 1.0
-RemovedFromBytecode: androidx.core.content.ContextKt#getSystemService(android.content.Context):
-    Binary breaking change: method androidx.core.content.ContextKt.getSystemService(android.content.Context) has been removed from bytecode
-RemovedFromBytecode: androidx.core.text.SpannedStringKt#getSpans(android.text.Spanned, int, int):
-    Binary breaking change: method androidx.core.text.SpannedStringKt.getSpans(android.text.Spanned,int,int) has been removed from bytecode
-RemovedFromBytecode: androidx.core.view.ViewKt#updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit>):
-    Binary breaking change: method androidx.core.view.ViewKt.updateLayoutParams(android.view.View,kotlin.jvm.functions.Function1<T,kotlin.Unit>) has been removed from bytecode
-
-
-RemovedMethod: androidx.core.view.ViewKt#updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
-    Binary breaking change: Removed method androidx.core.view.ViewKt.updateLayoutParamsTyped(android.view.View,kotlin.jvm.functions.Function1<? super T,kotlin.Unit>)
+RemovedPackage: androidx.core.animation:
+    Binary breaking change: Removed package androidx.core.animation
+RemovedPackage: androidx.core.content:
+    Binary breaking change: Removed package androidx.core.content
+RemovedPackage: androidx.core.content.res:
+    Binary breaking change: Removed package androidx.core.content.res
+RemovedPackage: androidx.core.database:
+    Binary breaking change: Removed package androidx.core.database
+RemovedPackage: androidx.core.database.sqlite:
+    Binary breaking change: Removed package androidx.core.database.sqlite
+RemovedPackage: androidx.core.graphics:
+    Binary breaking change: Removed package androidx.core.graphics
+RemovedPackage: androidx.core.graphics.drawable:
+    Binary breaking change: Removed package androidx.core.graphics.drawable
+RemovedPackage: androidx.core.location:
+    Binary breaking change: Removed package androidx.core.location
+RemovedPackage: androidx.core.net:
+    Binary breaking change: Removed package androidx.core.net
+RemovedPackage: androidx.core.os:
+    Binary breaking change: Removed package androidx.core.os
+RemovedPackage: androidx.core.text:
+    Binary breaking change: Removed package androidx.core.text
+RemovedPackage: androidx.core.transition:
+    Binary breaking change: Removed package androidx.core.transition
+RemovedPackage: androidx.core.util:
+    Binary breaking change: Removed package androidx.core.util
+RemovedPackage: androidx.core.view:
+    Binary breaking change: Removed package androidx.core.view
+RemovedPackage: androidx.core.widget:
+    Binary breaking change: Removed package androidx.core.widget

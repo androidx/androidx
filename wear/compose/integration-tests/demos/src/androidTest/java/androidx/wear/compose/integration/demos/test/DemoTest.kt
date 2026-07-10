@@ -22,7 +22,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.espresso.Espresso
@@ -33,6 +33,7 @@ import androidx.wear.compose.integration.demos.WearComposeDemos
 import androidx.wear.compose.integration.demos.common.Demo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,8 @@ private val ignoredDemos =
 @RunWith(AndroidJUnit4::class)
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
-    @get:Rule val rule = createAndroidComposeRule<DemoActivity>()
+    @get:Rule
+    val rule = createAndroidComposeRule<DemoActivity>(effectContext = StandardTestDispatcher())
 
     @Test
     fun demoApp_builds() {

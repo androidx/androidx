@@ -26,18 +26,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.UiThread;
+import androidx.webkit.Navigation;
+import androidx.webkit.NavigationListener;
+import androidx.webkit.NavigationParameters;
 import androidx.webkit.PrerenderException;
 import androidx.webkit.PrerenderOperationCallback;
+import androidx.webkit.PrerenderParameters;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
-import androidx.webkit.WebNavigationClient;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
 
-import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
@@ -158,10 +160,10 @@ public class WebViewProviderAdapter {
     // https://issuetracker.google.com/issues/139770271.
     @SuppressLint("LambdaLast")
     public void setWebViewRenderProcessClient(@Nullable Executor executor,
-            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
-        InvocationHandler handler = webViewRenderProcessClient != null
+            @Nullable WebViewRenderProcessClient client) {
+        InvocationHandler handler = client != null
                 ? BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                        new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient))
+                        new WebViewRenderProcessClientAdapter(executor, client))
                 : null;
         mImpl.setWebViewRendererClient(handler);
     }
@@ -177,10 +179,8 @@ public class WebViewProviderAdapter {
      * Adapter method for {@link WebViewCompat#getProfile(WebView)}.
      */
     public @NonNull Profile getProfile() {
-        ProfileBoundaryInterface profile = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                ProfileBoundaryInterface.class, mImpl.getProfile());
-
-        return new ProfileImpl(profile);
+        return ProfileStoreImpl.getInstance()
+                .getOrCreateProfileFromBoundaryInterface(mImpl.getProfile());
     }
 
     /**
@@ -227,8 +227,12 @@ public class WebViewProviderAdapter {
      * Adapter method for
      * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
      * SpeculativeLoadingParameters, PrerenderOperationCallback)}.
+     *
+     * @deprecated Use
+     * {@link #prerenderUrlAsync(String, CancellationSignal, Executor, PrerenderParameters, PrerenderOperationCallback)} instead.
      */
     @Profile.ExperimentalUrlPrefetch
+    @Deprecated
     public void prerenderUrlAsync(
             @NonNull String url,
             @Nullable CancellationSignal cancellationSignal,
@@ -256,6 +260,49 @@ public class WebViewProviderAdapter {
     }
 
     /**
+     * Adapter method for
+     * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
+     * PrerenderParameters, PrerenderOperationCallback)}.
+     */
+    @Profile.ExperimentalUrlPrefetch
+    public void prerenderUrlAsync(
+            @NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
+            @NonNull PrerenderParameters params,
+            @NonNull PrerenderOperationCallback callback) {
+
+        InvocationHandler paramsBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new SpeculativeLoadingParametersAdapter(params));
+        ValueCallback<Void> activationCallback = (value) -> {
+            // value will always be null.
+            callback.onPrerenderActivated();
+        };
+        ValueCallback<Throwable> errorCallback = (throwable) -> {
+            callback.onError(new PrerenderException("Prerender operation failed", throwable));
+        };
+        mImpl.prerenderUrl(
+                url,
+                cancellationSignal,
+                callbackExecutor,
+                paramsBoundaryInterface,
+                activationCallback,
+                errorCallback);
+    }
+
+    /**
+     * @see WebViewCompat#navigate(WebView, String, NavigationParameters)
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public @NonNull Navigation navigate(@NonNull String url, @NonNull NavigationParameters params) {
+        return Navigation.forInvocationHandler(mImpl.navigate(
+                url,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new NavigationParametersAdapter(params))));
+    }
+
+    /**
      * Adapter method for {@link WebViewCompat#saveState(WebView, Bundle, int, boolean)}.
      */
     @UiThread
@@ -267,28 +314,74 @@ public class WebViewProviderAdapter {
     }
 
     /**
-     * Adapter method for {@link WebViewCompat#saveState(WebView, Bundle, int, boolean)}.
+     * Adapter method for
+     * {@link WebViewCompat#addNavigationListener(WebView, Executor, NavigationListener)}.
      */
     @UiThread
-    @WebNavigationClient.ExperimentalNavigationCallback
-    public void setWebNavigationClient(
-            @NonNull WebNavigationClient client) {
-        InvocationHandler clientBoundaryInterface =
+    public void addNavigationListener(@NonNull Executor executor,
+            @NonNull NavigationListener listener) {
+        InvocationHandler listenerBoundaryInterface =
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                        new WebNavigationClientAdapter(client));
-        mImpl.setWebViewNavigationClient(clientBoundaryInterface);
+                        new NavigationListenerAdapter(listener));
+        mImpl.addWebViewNavigationListener(executor, listenerBoundaryInterface);
     }
 
     /**
-     * Adapter method for {@link WebViewCompat#getWebN(WebView, Bundle, int, boolean)}.
+     * Adapter method for
+     * {@link WebViewCompat#removeNavigationListener(WebView, NavigationListener)}.
      */
     @UiThread
-    @WebNavigationClient.ExperimentalNavigationCallback
-    public @NonNull WebNavigationClient getWebNavigationClient() {
-        InvocationHandler client = mImpl.getWebViewNavigationClient();
-        if (client == null) return null;
-        return ((WebNavigationClientAdapter)
-                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(
-                        client)).getWebNavigationClient();
+    public void removeNavigationListener(@NonNull NavigationListener listener) {
+        InvocationHandler listenerBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new NavigationListenerAdapter(listener));
+        mImpl.removeWebViewNavigationListener(listenerBoundaryInterface);
     }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#getExecutionWorld(WebView, String)}.
+     */
+    public int getExecutionWorld(@NonNull String name) {
+        return mImpl.getJavaScriptWorld(name);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addJavaScriptOnEvent(WebView, String, int, Set, JavaScriptExecutionWorld)}.
+     */
+    public @NonNull ScriptHandlerImpl addJavaScriptOnEvent(
+            @NonNull String script,
+            int injectionEvent,
+            @NonNull String[] allowedOriginRules,
+            @NonNull String worldName) {
+        return ScriptHandlerImpl.toScriptHandler(
+                mImpl.addJavaScriptOnEvent(script, allowedOriginRules, injectionEvent, worldName));
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebMessageListener,
+     * JavaScriptExecutionWorld)}.
+     */
+    public void addWebMessageListener(
+            @NonNull String jsObjectName,
+            @NonNull String[] allowedOriginRules,
+            @NonNull String worldName,
+            WebViewCompat.@NonNull WebMessageListener listener) {
+        mImpl.addWebMessageListener(jsObjectName, allowedOriginRules,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebMessageListenerAdapter(listener)), worldName);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#removeWebMessageListener(WebView, String, JavaScriptExecutionWorld)}.
+     */
+    public void removeWebMessageListener(
+            @NonNull String jsObjectName,
+            @NonNull String worldName) {
+        mImpl.removeWebMessageListener(jsObjectName, worldName);
+    }
+
 }

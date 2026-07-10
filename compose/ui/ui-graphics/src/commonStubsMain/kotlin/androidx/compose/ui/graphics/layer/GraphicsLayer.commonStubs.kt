@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -79,4 +80,11 @@ actual class GraphicsLayer {
     actual var spotShadowColor: Color = implementedInJetBrainsFork()
 
     actual suspend fun toImageBitmap(): ImageBitmap = implementedInJetBrainsFork()
+
+    actual fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int,
+    ): Unit = implementedInJetBrainsFork()
 }

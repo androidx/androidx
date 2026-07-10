@@ -27,6 +27,7 @@ import com.google.common.truth.TruthJUnit.assume
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
@@ -148,7 +149,7 @@ class ViewfinderViewTest(private val implementationMode: ImplementationMode) {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun oldSurfaceRequestCancelled_whenNewSurfaceRequestSent() =
         runViewfinderTest(viewfinderInitiallyAttached = false) {
             val mainContext: CoroutineContext = Dispatchers.Main

@@ -48,11 +48,13 @@ public interface BoundDynamicType extends AutoCloseable {
      * Sets the visibility to all animations in this dynamic type. They can be triggered when
      * visible.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setAnimationVisibility(boolean visible);
 
     /** Returns the number of currently running animations in this dynamic type. */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
@@ -64,6 +66,7 @@ public interface BoundDynamicType extends AutoCloseable {
     void close();
 
     /** Returns the number of dynamic nodes that this dynamic type contains. */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
@@ -73,6 +76,7 @@ public interface BoundDynamicType extends AutoCloseable {
      * Returns the cost of dynamic nodes that this dynamic type contains. See {@link
      * DynamicDataNode#getCost()} for more details on node cost.
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
@@ -85,6 +89,7 @@ public interface BoundDynamicType extends AutoCloseable {
      *     layout. The list may be empty if there are no animations.
      *     <p>This method is intended for internal use by ui-tooling libraries
      */
+    @SuppressWarnings("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull List<DynamicTypeAnimator> getAnimations();
 }

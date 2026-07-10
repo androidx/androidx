@@ -25,14 +25,14 @@ import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata
  * Applies additional metadata about an element. This is meant to be used by libraries building
  * higher-level components. This can be used to track component metadata.
  */
-fun LayoutModifier.tag(tagData: ByteArray): LayoutModifier =
+public fun LayoutModifier.tag(tagData: ByteArray): LayoutModifier =
     this then BaseMetadataElement(tagData = tagData)
 
 /**
  * Applies additional metadata about an element. This is meant to be used by libraries building
  * higher-level components. This can be used to track component metadata.
  */
-fun LayoutModifier.tag(tag: String): LayoutModifier = tag(tag.toByteArray())
+public fun LayoutModifier.tag(tag: String): LayoutModifier = tag(tag.toByteArray())
 
 internal class BaseMetadataElement(val tagData: ByteArray) :
     BaseProtoLayoutModifiersElement<ElementMetadata.Builder> {

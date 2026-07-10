@@ -41,8 +41,22 @@ object FileMover {
             // Moves can fail when trying to move across mount points. This is especially true
             // for environments like FTL. In such cases, we fallback to trying to copy the file
             // instead.
-            Log.w(TAG, "Unable to move $this to $destination. Copying, instead.", exception)
-            copyTo(target = destination, overwrite = overwrite)
+            Log.w(TAG, "Unable to move $this to $destination. Attempting copy instead.", exception)
+            try {
+                // Sometimes copyTo can throw an exception as well. This typically happens in
+                // multi-user environments where the destination is not accessible to the
+                // shell user. We only want to use Shell.mv(...) in places when this is true because
+                // when Shell.mv(...) is used, it also changes ownership of the file across mount
+                // points.
+                copyTo(target = destination, overwrite = overwrite)
+            } catch (exception: IOException) {
+                Log.w(
+                    TAG,
+                    "Unable to copy $this to $destination. Using Shell.mv(...) instead.",
+                    exception,
+                )
+                Shell.mv(from = this.absolutePath, to = destination.absolutePath)
+            }
         }
     }
 }

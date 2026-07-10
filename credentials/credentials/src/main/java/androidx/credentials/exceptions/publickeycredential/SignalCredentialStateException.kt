@@ -32,7 +32,7 @@ abstract class SignalCredentialStateException
 @JvmOverloads
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val type: String,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val errorMessage: CharSequence? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) errorMessage: CharSequence? = null,
 ) : Exception(errorMessage?.toString()) {
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)

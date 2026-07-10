@@ -21,8 +21,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -47,7 +50,10 @@ class NestedListsActivity : ComponentActivity() {
 
         setContent {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.safeContent)
+                        .semantics { contentDescription = "IamLazy" }
             ) {
                 items(items) { ListRow(it) }
             }

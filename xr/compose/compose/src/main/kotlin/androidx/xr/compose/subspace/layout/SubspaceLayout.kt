@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.xr.compose.platform.LocalOpaqueEntity
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.SubspaceComposable
-import androidx.xr.compose.subspace.entityName
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCompositionLocalMap
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
@@ -34,23 +33,15 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.scene
 
 /**
  * [SubspaceLayout] is the main component for laying out leaf nodes with zero children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
- * Example:
- * ```kotlin
- * fun ExactSizeSpacer(size: IntVolumeSize) {
- *   SubspaceLayout(SubspaceModifier.testTag("exactSizeSpacer")) {
- *     _, _ -> layout(size.width, size.height, size.depth) {}
- *   }
- * }
- * ```
- *
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithoutContentSample
  * @param modifier SubspaceModifier to apply during layout.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
@@ -81,26 +72,17 @@ public inline fun SubspaceLayout(
  * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
  * zero or more layout children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
- * Example:
- * ```kotlin
- * fun MyLayout(
- *     modifier: SubspaceModifier = SubspaceModifier,
- *     content: @SubspaceComposable @Composable () -> Unit) {
- *   SubspaceLayout(content = content, modifier = modifier) {
- *     measurables, constraints ->
- *     val placeables = measurables.map { it.measure(constraints) }
- *     layout(constraints.maxWidth, constraints.maxHeight, constraints.maxDepth) {
- *       placeables.forEach { it.place(Pose.Identity) }
- *     }
- *   }
- * }
- * ```
- *
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithContentSample
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithCoreEntityNameSample
  * @param modifier SubspaceModifier to apply during layout
  * @param content the child composables to be laid out.
+ * @param coreEntityName A name for the underlying [androidx.xr.scenecore.Entity] that is created to
+ *   host the content of this layout. This name is used for debugging and identification purposes;
+ *   it will appear in scene graph inspectors, making it easier to correlate this composable with
+ *   its corresponding node in the 3D scene.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
 @Suppress("ComposableLambdaParameterPosition", "NOTHING_TO_INLINE")
@@ -109,6 +91,7 @@ public inline fun SubspaceLayout(
 public inline fun SubspaceLayout(
     crossinline content: @Composable @SubspaceComposable () -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
+    coreEntityName: String = "Entity",
     measurePolicy: SubspaceMeasurePolicy,
 ) {
     check(currentComposer.applier.current is ComposeSubspaceNode) {
@@ -116,20 +99,23 @@ public inline fun SubspaceLayout(
             "Subspace composition. Please ensure that this component is in a Subspace or " +
             " is a child of another SubspaceComposable."
     }
+
     val coreEntity = rememberOpaqueEntity {
-        GroupEntity.create(session = this, name = entityName("Entity"))
+        Entity.create(session = this, name = coreEntityName, parent = this.scene.activitySpace)
     }
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
-    ComposeNode<ComposeSubspaceNode, Applier<Any>>(
-        factory = ComposeSubspaceNode.Constructor,
-        update = {
-            set(compositionLocalMap, SetCompositionLocalMap)
-            set(measurePolicy, SetMeasurePolicy)
-            set(coreEntity, SetCoreEntity)
-            set(modifier, SetModifier)
-        },
-        content = { CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) { content() } },
-    )
+    CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
+        ComposeNode<ComposeSubspaceNode, Applier<Any>>(
+            factory = ComposeSubspaceNode.Constructor,
+            update = {
+                set(compositionLocalMap, SetCompositionLocalMap)
+                set(measurePolicy, SetMeasurePolicy)
+                set(coreEntity, SetCoreEntity)
+                set(modifier, SetModifier)
+            },
+            content = content,
+        )
+    }
 }
 
 /** Creates a [CoreGroupEntity] that is automatically disposed of when it leaves the composition. */
@@ -139,15 +125,15 @@ internal fun rememberOpaqueEntity(
     entityFactory: @DisallowComposableCalls Session.() -> Entity
 ): OpaqueEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    return remember { CoreGroupEntity(session.entityFactory()) }
+    return remember { CoreGroupEntity(session.scene.virtualPixelDensity, session.entityFactory()) }
 }
 
 /**
  * [SubspaceLayout] is the main core component for layout for "leaf" nodes. It can be used to
  * measure and position zero children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * @param modifier SubspaceModifier to apply during layout.
  * @param coreEntity SceneCore Entity being placed in this layout. This parameter is generally not
@@ -161,7 +147,7 @@ internal fun rememberOpaqueEntity(
 @Composable
 internal inline fun SubspaceLayout(
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
+    coreEntity: CoreEntity,
     measurePolicy: SubspaceMeasurePolicy,
 ) {
     check(currentComposer.applier.current is ComposeSubspaceNode) {
@@ -170,23 +156,25 @@ internal inline fun SubspaceLayout(
             " is a child of another SubspaceComposable."
     }
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
-    ComposeNode<ComposeSubspaceNode, Applier<Any>>(
-        factory = ComposeSubspaceNode.Constructor,
-        update = {
-            set(compositionLocalMap, SetCompositionLocalMap)
-            set(measurePolicy, SetMeasurePolicy)
-            set(coreEntity, SetCoreEntity)
-            set(modifier, SetModifier)
-        },
-    )
+    CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
+        ComposeNode<ComposeSubspaceNode, Applier<Any>>(
+            factory = ComposeSubspaceNode.Constructor,
+            update = {
+                set(compositionLocalMap, SetCompositionLocalMap)
+                set(measurePolicy, SetMeasurePolicy)
+                set(coreEntity, SetCoreEntity)
+                set(modifier, SetModifier)
+            },
+        )
+    }
 }
 
 /**
  * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
  * zero or more layout children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * @param modifier SubspaceModifier to apply during layout
  * @param coreEntity SceneCore Entity being placed in this layout. This parameter is generally not
@@ -202,32 +190,26 @@ internal inline fun SubspaceLayout(
 internal inline fun SubspaceLayout(
     crossinline content: @Composable @SubspaceComposable () -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
+    coreEntity: CoreEntity,
     measurePolicy: SubspaceMeasurePolicy,
 ) {
-
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val coreGroupEntity =
-        coreEntity
-            ?: remember {
-                CoreGroupEntity(GroupEntity.create(session, name = entityName("Entity")))
-            }
 
     check(currentComposer.applier.current is ComposeSubspaceNode) {
         "SubspaceComposable functions are expected to be used within the context of a " +
             "Subspace composition. Please ensure that this component is in a Subspace or " +
             " is a child of another SubspaceComposable."
     }
-
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
-    ComposeNode<ComposeSubspaceNode, Applier<Any>>(
-        factory = ComposeSubspaceNode.Constructor,
-        update = {
-            set(compositionLocalMap, SetCompositionLocalMap)
-            set(measurePolicy, SetMeasurePolicy)
-            set(coreGroupEntity, SetCoreEntity)
-            set(modifier, SetModifier)
-        },
-        content = { CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) { content() } },
-    )
+    CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
+        ComposeNode<ComposeSubspaceNode, Applier<Any>>(
+            factory = ComposeSubspaceNode.Constructor,
+            update = {
+                set(compositionLocalMap, SetCompositionLocalMap)
+                set(measurePolicy, SetMeasurePolicy)
+                set(coreEntity, SetCoreEntity)
+                set(modifier, SetModifier)
+            },
+            content = content,
+        )
+    }
 }

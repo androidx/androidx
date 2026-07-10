@@ -90,10 +90,10 @@ class DrawableLoadingDetectorTest {
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable() [UseCompatLoadingForDrawables]
-        getDrawable(android.R.drawable.ic_delete)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable() [UseCompatLoadingForDrawables]
+                        getDrawable(android.R.drawable.ic_delete)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )
@@ -129,10 +129,10 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
-        getResources().getDrawable(android.R.drawable.ic_delete)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
+                        getResources().getDrawable(android.R.drawable.ic_delete)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )
@@ -168,10 +168,10 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
-        getResources().getDrawable(android.R.drawable.ic_delete, getTheme())
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
+                        getResources().getDrawable(android.R.drawable.ic_delete, getTheme())
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )

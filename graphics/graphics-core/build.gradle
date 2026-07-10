@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,11 +27,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.core:core:1.8.0")
@@ -45,7 +42,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.graphics.core"
 
     defaultConfig {
@@ -61,7 +58,6 @@ android {
                                 "-Wl,--undefined-version"
             }
         }
-        consumerProguardFiles("proguard-rules.pro")
     }
     externalNativeBuild {
         cmake {
@@ -79,13 +75,9 @@ androidx {
     description = "Leverage graphics facilities across multiple Android platform releases"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":graphics:graphics-core:graphics-core-samples"))
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
+    additionalDeviceTestTags.add("graphics_core")
 }
 
-//TODO(b/407725443): Remove this block when CanvasBufferedRendererTests and CanvasFrontBufferedRendererTest pass on API Level 21
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
-    }
-}

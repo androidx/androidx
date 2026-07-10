@@ -82,7 +82,9 @@ value class Offset(val packedValue: Long) {
          *
          * This can be used to represent the origin of a coordinate space.
          */
-        @Stable val Zero = Offset(0x0L)
+        @Stable
+        val Zero
+            get() = Offset(0x0L)
 
         /**
          * An offset with infinite x and y components.
@@ -90,13 +92,17 @@ value class Offset(val packedValue: Long) {
          * See also [isFinite] to check whether both components are finite.
          */
         // This is included for completeness, because [Size.infinite] exists.
-        @Stable val Infinite = Offset(DualFloatInfinityBase)
+        @Stable
+        val Infinite
+            get() = Offset(DualFloatInfinityBase)
 
         /**
          * Represents an unspecified [Offset] value, usually a replacement for `null` when a
          * primitive value is desired.
          */
-        @Stable val Unspecified = Offset(UnspecifiedPackedFloats)
+        @Stable
+        val Unspecified
+            get() = Offset(UnspecifiedPackedFloats)
     }
 
     /**

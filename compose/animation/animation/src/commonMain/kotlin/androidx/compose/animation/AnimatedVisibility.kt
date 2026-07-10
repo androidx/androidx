@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalDeferredTransitionApi::class)
+
 package androidx.compose.animation
 
 import androidx.compose.animation.EnterExitState.PostExit
 import androidx.compose.animation.EnterExitState.PreEnter
 import androidx.compose.animation.EnterExitState.Visible
+import androidx.compose.animation.core.DeferredTransition
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
@@ -38,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -591,7 +597,82 @@ public fun <T> Transition<T>.AnimatedVisibility(
     enter: EnterTransition = fadeIn() + expandIn(),
     exit: ExitTransition = shrinkOut() + fadeOut(),
     content: @Composable() AnimatedVisibilityScope.() -> Unit,
-): Unit = AnimatedVisibilityImpl(this, visible, modifier, enter, exit, content = content)
+): Unit =
+    AnimatedVisibilityImpl(
+        transition = this,
+        visible = visible,
+        modifier = modifier,
+        enter = enter,
+        exit = exit,
+        mutableTransform = null,
+        content = content,
+    )
+
+/**
+ * [AnimatedVisibility] can be used to animate the appearance and disappearance of its content as
+ * the [Transition] state changes.
+ *
+ * [visible] defines whether the content should be visible based on transition state T.
+ *
+ * [modifier] modifier for the [Layout] created to contain the [content]
+ *
+ * [enter] EnterTransition(s) used for the appearing animation, fading in while expanding vertically
+ * by default
+ *
+ * [exit] ExitTransition(s) used for the disappearing animation, fading out while shrinking
+ * vertically by default
+ *
+ * [mutableTransform] A block to control the visual transformations during the deferred phase (e.g.,
+ * for predictive back gestures) before the main transition begins. This is only active if the
+ * [Transition] was created using [rememberTransition] with [DeferredTransitionState]. By default,
+ * this is `null`, meaning no manual transformations are applied. This phase starts when
+ * [DeferredTransitionState.defer] is called and ends when [DeferredTransitionState.animateTo] is
+ * called to start the automatic transition. During this phase, you can manually manipulate the
+ * content's transformations (like [TransformScope.alpha], [TransformScope.scale],
+ * [TransformScope.offset], and [TransformScope.veil]). Properties that are not manually set default
+ * to the transition's initial values during the deferred phase. Once the transition starts, the
+ * manually applied transformations are handed off to the configured [enter] and [exit] transitions.
+ * For exiting content, a "sustain unless specified" policy is applied: if an exit transition (e.g.
+ * `fadeOut`) is specified, the hand-off will animate towards the target value of that transition.
+ * However, if no exit transition is specified for a given property (e.g. `slideOut` is missing),
+ * that property will sustain its last manual value until the entire transition completes. While in
+ * the deferred phase, entering content remains in the [EnterExitState.PreEnter] state, and exiting
+ * content remains in the [EnterExitState.Visible] state.
+ *
+ * @sample androidx.compose.animation.samples.DeferredAnimatedVisibilitySample
+ *
+ * [content] Content to appear or disappear based on the visibility derived from the
+ * [Transition.targetState] and the provided [visible] lambda
+ *
+ * @sample androidx.compose.animation.samples.AddAnimatedVisibilityToGenericTransitionSample
+ * @see EnterTransition
+ * @see ExitTransition
+ * @see fadeIn
+ * @see expandIn
+ * @see fadeOut
+ * @see shrinkOut
+ * @see AnimatedVisibilityScope
+ */
+@ExperimentalDeferredTransitionApi
+@Composable
+public fun <T> DeferredTransition<T>.DeferredAnimatedVisibility(
+    visible: (T) -> Boolean,
+    modifier: Modifier = Modifier,
+    enter: EnterTransition = fadeIn() + expandIn(),
+    exit: ExitTransition = shrinkOut() + fadeOut(),
+    mutableTransform: MutableTransform? = null,
+    content: @Composable() AnimatedVisibilityScope.() -> Unit,
+) {
+    AnimatedVisibilityImpl(
+        transition = this,
+        visible = visible,
+        modifier = modifier,
+        enter = enter,
+        exit = exit,
+        mutableTransform = mutableTransform,
+        content = content,
+    )
+}
 
 /**
  * This is the scope for the content of [AnimatedVisibility]. In this scope, direct and indirect
@@ -657,8 +738,10 @@ public interface AnimatedVisibilityScope {
 }
 
 internal class AnimatedVisibilityScopeImpl
-internal constructor(transition: Transition<EnterExitState>) : AnimatedVisibilityScope {
-    override var transition = transition
+internal constructor(
+    override var transition: Transition<EnterExitState>,
+    internal val sharedMutableTransformState: SharedMutableTransformState,
+) : AnimatedVisibilityScope {
     internal val targetSize = mutableStateOf(IntSize.Zero)
 }
 
@@ -674,6 +757,7 @@ internal fun <T> AnimatedVisibilityImpl(
     modifier: Modifier,
     enter: EnterTransition,
     exit: ExitTransition,
+    mutableTransform: MutableTransform? = null,
     content: @Composable() AnimatedVisibilityScope.() -> Unit,
 ) {
     AnimatedEnterExitImpl(
@@ -693,6 +777,7 @@ internal fun <T> AnimatedVisibilityImpl(
         enter = enter,
         exit = exit,
         shouldDisposeBlock = { current, target -> current == target && target == PostExit },
+        mutableTransformData = mutableTransform,
         content = content,
     )
 }
@@ -712,11 +797,17 @@ internal fun <T> AnimatedEnterExitImpl(
     exit: ExitTransition,
     shouldDisposeBlock: (EnterExitState, EnterExitState) -> Boolean,
     onLookaheadMeasured: OnLookaheadMeasured? = null,
+    mutableTransformData: MutableTransform? = null,
+    forceVisible: Boolean = false,
     content: @Composable() AnimatedVisibilityScope.() -> Unit,
 ) {
+    val localPendingTargetState = transition.pendingTargetState
+
     if (
-        visible(transition.targetState) ||
+        forceVisible ||
+            visible(transition.targetState) ||
             visible(transition.currentState) ||
+            (localPendingTargetState != null && visible(localPendingTargetState)) ||
             transition.isSeeking ||
             transition.hasInitialValueAnimations
     ) {
@@ -724,6 +815,19 @@ internal fun <T> AnimatedEnterExitImpl(
             transition.createChildTransition(label = "EnterExitTransition") {
                 transition.targetEnterExit(visible, it)
             }
+
+        val sharedState = remember(transition) { SharedMutableTransformState() }
+        sharedState.mutableData = mutableTransformData
+        val activeMutableState = childTransition.trackActiveMutableState(sharedState)
+
+        // Hoist the active enter/exit tracking to this scope to survive the temporary disposal
+        // of the Layout and its modifiers when an exit transition finishes. If an interruption
+        // occurs (e.g. A -> B -> A) after the layout for A has been removed, the hoisted
+        // tracking preserves the original exit boundaries. Without this, the tracking would
+        // re-initialize with the new parameters (which could be ExitTransition.None in
+        // AnimatedContent), causing the animation to lose its start/end values and snap.
+        val activeEnter = childTransition.trackActiveEnter(enter, activeMutableState)
+        val activeExit = childTransition.trackActiveExit(exit, activeMutableState)
 
         val shouldDisposeBlockUpdated by rememberUpdatedState(shouldDisposeBlock)
 
@@ -747,13 +851,20 @@ internal fun <T> AnimatedEnterExitImpl(
             }
 
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
-            val scope = remember(transition) { AnimatedVisibilityScopeImpl(childTransition) }
+            val scope =
+                remember(transition) { AnimatedVisibilityScopeImpl(childTransition, sharedState) }
             Layout(
                 content = { scope.content() },
                 modifier =
                     modifier.then(
                         childTransition
-                            .createModifier(enter, exit, label = "Built-in")
+                            .createModifier(
+                                activeEnter,
+                                activeExit,
+                                trackActiveEnterExit = false,
+                                sharedMutableTransformState = activeMutableState,
+                                label = "Built-in",
+                            )
                             .then(
                                 if (onLookaheadMeasured != null) {
                                     Modifier.layout { measurable, constraints ->
@@ -844,18 +955,23 @@ private fun <T> Transition<T>.targetEnterExit(
             }
         } else {
             val hasBeenVisible = remember { mutableStateOf(false) }
-            if (visible(currentState)) {
+            val localPendingTargetState = pendingTargetState
+
+            if (
+                visible(currentState) ||
+                    (localPendingTargetState != null && visible(localPendingTargetState))
+            ) {
                 hasBeenVisible.value = true
             }
+
             if (visible(targetState)) {
                 EnterExitState.Visible
+            } else if (localPendingTargetState != null && visible(localPendingTargetState)) {
+                EnterExitState.PreEnter
+            } else if (hasBeenVisible.value) {
+                EnterExitState.PostExit
             } else {
-                // If never been visible, visible = false means PreEnter, otherwise PostExit
-                if (hasBeenVisible.value) {
-                    EnterExitState.PostExit
-                } else {
-                    EnterExitState.PreEnter
-                }
+                EnterExitState.PreEnter
             }
         }
     }

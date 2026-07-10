@@ -46,8 +46,8 @@ import java.util.List;
 public class MobileApplicationTest {
     @Test
     public void testBuilder() {
-        MobileApplication.Builder builder = new MobileApplication.Builder("appid",
-                "app-ns", "com.example.app", new byte[] {1, 2, 3});
+        MobileApplication.Builder builder = new MobileApplication.Builder("app-ns",
+                "appid", "com.example.app", new byte[] {1, 2, 3});
         builder.setDisplayName("display name");
         builder.setAlternateNames(Arrays.asList("alternate name 1", "alternate name 2"));
         builder.setIconUri(Uri.parse("android.resource://com.example.app/drawable/12345"));
@@ -55,8 +55,8 @@ public class MobileApplicationTest {
         builder.setClassName("com.example.app.MainActivity");
         MobileApplication mobileApplication = builder.build();
 
-        assertThat(mobileApplication.getId()).isEqualTo("appid");
         assertThat(mobileApplication.getNamespace()).isEqualTo("app-ns");
+        assertThat(mobileApplication.getId()).isEqualTo("appid");
         assertThat(mobileApplication.getPackageName()).isEqualTo("com.example.app");
         assertThat(mobileApplication.getDisplayName()).isEqualTo("display name");
         assertThat(mobileApplication.getAlternateNames())
@@ -79,7 +79,7 @@ public class MobileApplicationTest {
         long updatedTimestamp = 1234567890L;
         String className = "com.example.app.MainActivity";
         MobileApplication mobileApplication =
-                new MobileApplication.Builder(id, namespace, packageName, sha256Certificate)
+                new MobileApplication.Builder(namespace, id, packageName, sha256Certificate)
                         .setDisplayName(name)
                         .setAlternateNames(alternateNames)
                         .setIconUri(iconUri)
@@ -98,7 +98,7 @@ public class MobileApplicationTest {
 
     @Test
     public void testBuilder_immutableAfterBuilt() {
-        MobileApplication.Builder builder = new MobileApplication.Builder("appid", "apps-ns",
+        MobileApplication.Builder builder = new MobileApplication.Builder("apps-ns", "appid",
                 "com.example.app", new byte[] {1, 2, 3});
         builder.setDisplayName("display name");
         builder.setAlternateNames(Arrays.asList("alternate name 1", "alternate name 2"));
@@ -136,7 +136,7 @@ public class MobileApplicationTest {
         String packageName = "com.example.app";
 
         MobileApplication mobileApplication =
-                new MobileApplication.Builder(id, namespace, packageName, sha256Certificate)
+                new MobileApplication.Builder(namespace, id, packageName, sha256Certificate)
                         .setDisplayName(name)
                         .setAlternateNames(alternateNames)
                         .setIconUri(iconUri)

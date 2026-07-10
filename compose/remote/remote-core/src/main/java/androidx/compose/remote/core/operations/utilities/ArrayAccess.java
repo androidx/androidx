@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -22,6 +24,7 @@ import org.jspecify.annotations.Nullable;
  * array access will be collected in a map in the state TODO: refactor to DataAccess,
  * FloatArrayAccess, ListAccess, MapAccess
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ArrayAccess {
     /**
      * Get a value as a float for an index

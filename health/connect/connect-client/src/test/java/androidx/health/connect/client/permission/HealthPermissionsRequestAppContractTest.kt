@@ -18,7 +18,6 @@ package androidx.health.connect.client.permission
 
 import android.content.Context
 import android.content.Intent
-import androidx.health.connect.client.HealthConnectClient
 import androidx.health.platform.client.permission.Permission
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.service.HealthDataServiceConstants
@@ -84,7 +83,7 @@ class HealthPermissionsRequestAppContractTest {
 
         Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
         Truth.assertThat(intent.`package`)
-            .isEqualTo(HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
+            .isEqualTo(HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME)
     }
 
     @Test

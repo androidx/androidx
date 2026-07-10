@@ -44,10 +44,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ConstraintManager}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ConstraintManagerTest {
     @Rule
@@ -79,6 +81,11 @@ public class ConstraintManagerTest {
                     @Override
                     public boolean isAppDrivenRefreshEnabled() throws RemoteException {
                         return mMockConstraintHost.isAppDrivenRefreshEnabled();
+                    }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(hostStub.asBinder());

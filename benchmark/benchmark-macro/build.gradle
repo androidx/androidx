@@ -15,76 +15,79 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
+
 import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
+        minSdk { version = release(24) }
 
         // We don't care about perf from these correctness tests, so suppress
         // anything that may otherwise block these tests
         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
                 "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
     }
-    sourceSets {
-        main.assets.srcDirs += new File(
-                AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/trace_processor_shell"
-        )
-        androidTest.assets.srcDirs += new File(
-                AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/testdata"
-        )
+    namespace = "androidx.benchmark.macro"
+}
+
+androidComponents {
+    def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+
+    def testDataPath = new File(prebuiltsRoot, "androidx/traceprocessor/testdata")
+            .absolutePath
+
+    def perfettoBinaryPath = new File(prebuiltsRoot,
+            "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
+                    "${androidx.LibraryVersions.TRACING_PERFETTO}").absolutePath
+
+    onVariants(selector().all()) { variant ->
+        def androidTestAssets = (variant as HasAndroidTest).androidTest.sources.assets
+        androidTestAssets.addStaticSourceDirectory(testDataPath)
         // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:
         // - AAR is used when e.g. tooling downloads tracing-perfetto-binary AAR files from Maven
         // - APK is when an APK that contains tracing binaries is used
         //
         // Adding the AAR as a test asset below allows us to test the AAR scenario
-        androidTest.assets.srcDirs += new File(
-                AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
-                        "${androidx.LibraryVersions.TRACING_PERFETTO}"
-        )
+        androidTestAssets.addStaticSourceDirectory(perfettoBinaryPath)
     }
-
-    namespace = "androidx.benchmark.macro"
 }
 
 dependencies {
     api(project(":benchmark:benchmark-common"))
-    api(project(":test:uiautomator:uiautomator"))
+    api("androidx.test.uiautomator:uiautomator:2.4.0-beta02")
     api(libs.jspecify)
     api(libs.junit)
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
 
     implementation("androidx.core:core:1.9.0")
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
     implementation("androidx.tracing:tracing-ktx:1.1.0")
-    implementation("androidx.tracing:tracing-perfetto:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-binary:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
+    implementation("androidx.tracing:tracing-perfetto:1.0.1")
+    implementation("androidx.tracing:tracing-perfetto-binary:1.0.1")
+    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.1")
     implementation("androidx.test:core:1.5.0")
     implementation(libs.wireRuntime)
     implementation("androidx.test.ext:junit:1.2.1")
+    implementation libs.testRunner
 
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
+    androidTestImplementation(project(":tracing:tracing-wire"))
     androidTestImplementation(project(":tracing:tracing-perfetto"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
@@ -104,28 +107,30 @@ androidx {
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
         // Enable using experimental APIs from within same version group
-        freeCompilerArgs += [
+        it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
-        ]
+        )
     }
 }
 
-// Define a task dependency so the app is installed before we run macro benchmarks.
-afterEvaluate {
-    // `:benchmark:integration-tests:macrobenchmark-target:installRelease` is not in the compose
-    // build, so it may fail the compose build job.
-    def installTask = tasks.findByPath(
-            ":benchmark:integration-tests:macrobenchmark-target:installRelease")
-    if (installTask != null) {
-        tasks.getByPath(":benchmark:benchmark-macro:connectedReleaseAndroidTest")
-                .dependsOn(installTask)
+if (!androidx.isIsolatedProjectsEnabled()) { // b/481057703
+    // Define a task dependency so the app is installed before we run macro benchmarks.
+    afterEvaluate {
+        // `:benchmark:integration-tests:macrobenchmark-target:installRelease` is not in the compose
+        // build, so it may fail the compose build job.
+        def installTask = tasks.findByPath(
+                ":benchmark:integration-tests:macrobenchmark-target:installRelease")
+        if (installTask != null) {
+            tasks.getByPath(":benchmark:benchmark-macro:connectedReleaseAndroidTest")
+                    .dependsOn(installTask)
+        }
     }
 }
 

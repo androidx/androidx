@@ -35,11 +35,11 @@ class MetadataTagInsideApplicationTagDetectorTest :
 
         val expected =
             """
-AndroidManifest.xml:19: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
-        <meta-data android:name="name" android:value="value" />
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            AndroidManifest.xml:19: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
+                    <meta-data android:name="name" android:value="value" />
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

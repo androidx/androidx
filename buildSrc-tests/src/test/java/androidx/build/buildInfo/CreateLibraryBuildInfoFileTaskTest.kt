@@ -61,18 +61,63 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     @Test
+    fun buildInfoDependencies_includesAndroidXTestUiAutomator_andExcludesOtherAndroidXTestGroupsAndNonAndroidXGroups() {
+        var deps: List<ModuleDependency> =
+            listOf(
+                DefaultExternalModuleDependency("androidx.test.uiautomator", "artifact", "version")
+            )
+        deps
+            .asBuildInfoDependencies()
+            .single()
+            .check { it.groupId == "androidx.test.uiautomator" }
+            .check { it.artifactId == "artifact" }
+            .check { it.version == "version" }
+            .check { !it.isTipOfTree }
+
+        deps = listOf(DefaultExternalModuleDependency("androidx.test.ext", "artifact", "version"))
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+
+        deps =
+            listOf(
+                DefaultExternalModuleDependency(
+                    "androidx.test.integration-tests",
+                    "artifact",
+                    "version",
+                )
+            )
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+
+        deps =
+            listOf(
+                DefaultExternalModuleDependency("androidx.test.screenshot", "artifact", "version")
+            )
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+
+        deps =
+            listOf(DefaultExternalModuleDependency("androidx.databinding", "artifact", "version"))
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+
+        deps = listOf(DefaultExternalModuleDependency("androidx.media3", "artifact", "version"))
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+
+        deps = listOf(DefaultExternalModuleDependency("google.guava", "artifact", "version"))
+        assertThat(deps.asBuildInfoDependencies()).isEmpty()
+    }
+
+    @Test
     fun suffix() {
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane").check { it == "" }
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm").check { it == "Jvm" }
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm-linux-x64").check {
-            it == "JvmLinuxX64"
-        }
+        computeTaskSuffix(variantName = "cubane", isKmp = false).check { it == "" }
+        computeTaskSuffix(variantName = "kotlinMultiplatform", isKmp = true).check { it == "" }
+        computeTaskSuffix(variantName = "jvm", isKmp = true).check { it == "Jvm" }
+        computeTaskSuffix(variantName = "jvm-linux-x64", isKmp = true).check { it == "JvmLinuxX64" }
     }
 
     @Test
     fun buildInfoTaskCreatesSimpleFile() {
         setupBuildInfoProject()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -99,9 +144,84 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     @Test
+    fun buildInfoTaskCreatesSimpleFileWithAllDependencies() {
+        setupBuildInfoProjectWithAllDependencies()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
+
+        val buildInfoFile =
+            distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
+        assertThat(buildInfoFile.exists()).isTrue()
+
+        val buildInfo = parseBuildInfo(buildInfoFile)
+
+        assertThat(buildInfo.allDependencies.map { "${it.groupId}:${it.artifactId}" })
+            .containsExactly(
+                "androidx.activity:activity",
+                "androidx.annotation:annotation",
+                "androidx.annotation:annotation-experimental",
+                "androidx.appcompat:appcompat",
+                "androidx.appcompat:appcompat-resources",
+                "androidx.arch.core:core-common",
+                "androidx.arch.core:core-runtime",
+                "androidx.collection:collection",
+                "androidx.core:core",
+                "androidx.cursoradapter:cursoradapter",
+                "androidx.customview:customview",
+                "androidx.drawerlayout:drawerlayout",
+                "androidx.fragment:fragment",
+                "androidx.interpolator:interpolator",
+                "androidx.lifecycle:lifecycle-common",
+                "androidx.lifecycle:lifecycle-livedata",
+                "androidx.lifecycle:lifecycle-livedata-core",
+                "androidx.lifecycle:lifecycle-runtime",
+                "androidx.lifecycle:lifecycle-viewmodel",
+                "androidx.lifecycle:lifecycle-viewmodel-savedstate",
+                "androidx.loader:loader",
+                "androidx.savedstate:savedstate",
+                "androidx.tracing:tracing",
+                "androidx.vectordrawable:vectordrawable",
+                "androidx.vectordrawable:vectordrawable-animated",
+                "androidx.versionedparcelable:versionedparcelable",
+                "androidx.viewpager:viewpager",
+                "org.jetbrains:annotations",
+                "org.jetbrains.kotlin:kotlin-stdlib",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun buildInfoSelectsCorrectKmpVariant() {
+        setupBuildInfoProjectWithKmpDependency()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
+
+        val buildInfoFile =
+            distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
+        assertThat(buildInfoFile.exists()).isTrue()
+
+        val buildInfo = parseBuildInfo(buildInfoFile)
+
+        assertThat(buildInfo.allDependencies.map { "${it.groupId}:${it.artifactId}" })
+            .containsExactly(
+                "androidx.annotation:annotation",
+                "androidx.annotation:annotation-jvm",
+                "androidx.collection:collection",
+                "androidx.collection:collection-jvm",
+                "org.jetbrains:annotations",
+                "org.jetbrains.kotlin:kotlin-stdlib",
+            )
+            .inOrder()
+    }
+
+    @Test
     fun buildInfoTaskAddsTestModuleNames() {
         setupBuildInfoProject()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -115,7 +235,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoTaskWithSuffixSkipsTestModuleNames() {
         setupBuildInfoProjectForArtifactWithSuffix()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test-jvm_build_info.txt")
@@ -127,24 +249,106 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     @Test
+    fun buildInfoTaskPopulatesAllDependenciesForNativeTarget() {
+        setupBuildInfoProjectWithNativeTarget()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFilesLinuxX64", "--no-configuration-cache")
+            .build()
+
+        val buildInfoFile =
+            distDir.root.resolve("build-info/androidx.build_info_test_test-linuxx64_build_info.txt")
+        assertThat(buildInfoFile.exists()).isTrue()
+
+        val buildInfo = parseBuildInfo(buildInfoFile)
+
+        assertThat(buildInfo.allDependencies.map { "${it.groupId}:${it.artifactId}" })
+            .contains("androidx.collection:collection")
+    }
+
+    @Test
     fun hasApplePlatform_withAtLeastOnePlatformIdentifierTargetingAnApplePlatform_returnsTrue() {
         val platforms =
-            setOf(
-                PlatformIdentifier.ANDROID,
-                PlatformIdentifier.IOS_ARM_64,
-                PlatformIdentifier.JVM,
-            )
+            setOf(PlatformIdentifier.ANDROID, PlatformIdentifier.IOS_ARM_64, PlatformIdentifier.JVM)
         assertThat(hasApplePlatform(platforms)).isTrue()
     }
 
     @Test
     fun hasApplePlatform_withNoPlatformIdentifiersTargetingAnApplePlatform_returnsFalse() {
-        val platforms =
-            setOf(
-                PlatformIdentifier.ANDROID,
-                PlatformIdentifier.JVM,
-            )
+        val platforms = setOf(PlatformIdentifier.ANDROID, PlatformIdentifier.JVM)
         assertThat(hasApplePlatform(platforms)).isFalse()
+    }
+
+    @Test
+    fun computeBuildTarget_applePlatformThatCannotCrossCompile_returnsMacTarget() {
+        assertThat(computeBuildTarget(hasApplePlatform = true, crossCompilationEnabled = false))
+            .isEqualTo("androidx_multiplatform_mac")
+    }
+
+    @Test
+    fun computeBuildTarget_applePlatformThatCanCrossCompile_returnsAndroidxTarget() {
+        assertThat(computeBuildTarget(hasApplePlatform = true, crossCompilationEnabled = true))
+            .isEqualTo("androidx")
+    }
+
+    @Test
+    fun computeBuildTarget_noApplePlatform_returnsAndroidxTarget() {
+        assertThat(computeBuildTarget(hasApplePlatform = false, crossCompilationEnabled = false))
+            .isEqualTo("androidx")
+        assertThat(computeBuildTarget(hasApplePlatform = false, crossCompilationEnabled = true))
+            .isEqualTo("androidx")
+    }
+
+    private fun setupBuildInfoProjectWithNativeTarget() {
+        File(projectSetup.rootDir, "settings.gradle").writeText("rootProject.name = \"test\"")
+        projectSetup.buildFile.writeText(
+            """
+                import androidx.build.buildInfo.CreateLibraryBuildInfoFileTaskKt
+                plugins {
+                    id("org.jetbrains.kotlin.multiplatform")
+                    id("maven-publish")
+                }
+                ext {
+                    supportRootFolder = new File("${projectSetup.rootDir}")
+                }
+                ${projectSetup.repositories}
+                version = "0.0.1"
+                group = "androidx.build_info_test"
+                kotlin {
+                    linuxX64()
+                    sourceSets {
+                        linuxX64Main {
+                            dependencies {
+                                implementation("androidx.collection:collection:1.5.0")
+                            }
+                        }
+                    }
+                }
+                afterEvaluate {
+                    publishing {
+                        publications.withType(MavenPublication) {
+                            // This test is set up such that putting `it.artifactId` in a provider
+                            // directly means that the `MavenPublication` object no longer exists when
+                            // the provider is evaluated.
+                            def artifactId = it.artifactId
+                            CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                                project,
+                                it,
+                                null,
+                                project.provider { artifactId },
+                                project.provider { "fakeSha" },
+                                project.provider { false }, // shouldPublishDocs
+                                true, // isKmp
+                                project.provider { "androidx" },
+                                ["linuxx64"].toSet(),
+                                project.provider { [] },
+                                it.name,
+                            )
+                        }
+                    }
+                }
+            """
+                .trimIndent()
+        )
     }
 
     private fun setupBuildInfoProject() {
@@ -158,7 +362,6 @@ class CreateLibraryBuildInfoFileTaskTest {
                 plugins {
                     id("com.android.library")
                     id("maven-publish")
-                    id("kotlin-android")
                 }
                 ext {
                     supportRootFolder = new File("${projectSetup.rootDir}")
@@ -167,45 +370,179 @@ class CreateLibraryBuildInfoFileTaskTest {
                     .trimIndent(),
             suffix =
                 """
-            version = "0.0.1"
-            dependencies {
-                constraints {
-                    implementation("androidx.core:core-ktx:1.1.0")
+                version = "0.0.1"
+                dependencies {
+                    constraints {
+                        implementation("androidx.core:core-ktx:1.1.0")
+                    }
+                    implementation("androidx.core:core:1.1.0")
                 }
-                implementation("androidx.core:core:1.1.0")
-            }
-            android {
-                 namespace 'androidx.build_info'
-            }
-            group = "androidx.build_info_test"
-            afterEvaluate {
-                publishing {
-                    publications {
-                        maven(MavenPublication) {
-                            groupId = 'androidx.build_info_test'
-                            artifactId = 'test'
-                            version = '0.0.1'
-                            from(components.release)
+                android {
+                    namespace 'androidx.build_info'
+                    publishing {
+                        singleVariant('release') { }
+                    }
+                }
+                group = "androidx.build_info_test"
+                afterEvaluate {
+                    publishing {
+                        publications {
+                            maven(MavenPublication) {
+                                groupId = 'androidx.build_info_test'
+                                artifactId = 'test'
+                                version = '0.0.1'
+                                from(components.release)
+                            }
+                        }
+                        publications.withType(MavenPublication) {
+                            // This test is set up such that putting `it.artifactId` in a provider
+                            // directly means that the `MavenPublication` object no longer exists when
+                            // the provider is evaluated.
+                            def artifactId = it.artifactId
+                            CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                                project,
+                                it,
+                                null,
+                                project.provider { artifactId },
+                                project.provider { "fakeSha" },
+                                project.provider { false },
+                                false,
+                                project.provider { "androidx" },
+                                ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
+                                project.provider { ["test.xml"] },
+                                it.name,
+                            )
                         }
                     }
-                    publications.withType(MavenPublication) {
-                        CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
-                            project,
-                            it,
-                            null,
-                            it.artifactId,
-                            project.provider { "fakeSha" },
-                            false,
-                            false,
-                            "androidx",
-                            ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
-                            project.provider { ["test.xml"] },
-                        )
+                }
+                """
+                    .trimIndent(),
+        )
+    }
+
+    private fun setupBuildInfoProjectWithAllDependencies() {
+        File(projectSetup.rootDir, "settings.gradle").writeText("rootProject.name = \"test\"")
+        projectSetup.writeDefaultBuildGradle(
+            prefix =
+                """
+            import androidx.build.buildInfo.CreateLibraryBuildInfoFileTaskKt
+            plugins {
+                id("com.android.library")
+                id("maven-publish")
+            }
+            ext {
+                supportRootFolder = new File("${projectSetup.rootDir}")
+            }
+        """
+                    .trimIndent(),
+            suffix =
+                """
+                version = "0.0.1"
+                dependencies {
+                    constraints {
+                        implementation("androidx.core:core-ktx:1.1.0")
+                    }
+                    implementation("androidx.core:core:1.1.0")
+                    implementation("androidx.appcompat:appcompat:1.3.0")
+                }
+                android {
+                    namespace 'androidx.build_info'
+                    publishing {
+                        singleVariant('release') { }
                     }
                 }
+                group = "androidx.build_info_test"
+                afterEvaluate {
+                    publishing {
+                        publications {
+                            maven(MavenPublication) {
+                                groupId = 'androidx.build_info_test'
+                                artifactId = 'test'
+                                version = '0.0.1'
+                                from(components.release)
+                            }
+                        }
+                        publications.withType(MavenPublication) {
+                            def artifactId = it.artifactId
+                            CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                                project,
+                                it,
+                                null,
+                                project.provider { artifactId },
+                                project.provider { "fakeSha" },
+                                project.provider { false },
+                                false,
+                                project.provider { "androidx" },
+                                ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
+                                project.provider { ["test.xml"] },
+                                it.name
+                            )
+                        }
+                    }
+                }
+                """
+                    .trimIndent(),
+        )
+    }
+
+    private fun setupBuildInfoProjectWithKmpDependency() {
+        File(projectSetup.rootDir, "settings.gradle").writeText("rootProject.name = \"test\"")
+        projectSetup.writeDefaultBuildGradle(
+            prefix =
+                """
+            import androidx.build.buildInfo.CreateLibraryBuildInfoFileTaskKt
+            plugins {
+                id("com.android.library")
+                id("maven-publish")
+            }
+            ext {
+                supportRootFolder = new File("${projectSetup.rootDir}")
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
+            suffix =
+                """
+                version = "0.0.1"
+                dependencies {
+                    implementation("androidx.collection:collection:1.5.0")
+                }
+                android {
+                    namespace 'androidx.build_info'
+                    publishing {
+                        singleVariant('release') { }
+                    }
+                }
+                group = "androidx.build_info_test"
+                afterEvaluate {
+                    publishing {
+                        publications {
+                            maven(MavenPublication) {
+                                groupId = 'androidx.build_info_test'
+                                artifactId = 'test'
+                                version = '0.0.1'
+                                from(components.release)
+                            }
+                        }
+                        publications.withType(MavenPublication) {
+                            def artifactId = it.artifactId
+                            CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                                project,
+                                it,
+                                null,
+                                project.provider { artifactId },
+                                project.provider { "fakeSha" },
+                                project.provider { false },
+                                false,
+                                project.provider { "androidx" },
+                                [].toSet(),
+                                project.provider { [] },
+                                it.name
+                            )
+                        }
+                    }
+                }
+                """
+                    .trimIndent(),
         )
     }
 
@@ -218,7 +555,6 @@ class CreateLibraryBuildInfoFileTaskTest {
                 plugins {
                     id("com.android.library")
                     id("maven-publish")
-                    id("kotlin-android")
                 }
                 ext {
                     supportRootFolder = new File("${projectSetup.rootDir}")
@@ -227,45 +563,53 @@ class CreateLibraryBuildInfoFileTaskTest {
                     .trimIndent(),
             suffix =
                 """
-            version = "0.0.1"
-            dependencies {
-                constraints {
-                    implementation("androidx.core:core-ktx:1.1.0")
+                version = "0.0.1"
+                dependencies {
+                    constraints {
+                        implementation("androidx.core:core-ktx:1.1.0")
+                    }
+                    implementation("androidx.core:core:1.1.0")
                 }
-                implementation("androidx.core:core:1.1.0")
-            }
-            android {
-                 namespace 'androidx.build_info'
-            }
-            group = "androidx.build_info_test"
-            afterEvaluate {
-                publishing {
-                    publications {
-                        maven(MavenPublication) {
-                            groupId = 'androidx.build_info_test'
-                            artifactId = 'test-jvm'
-                            version = '0.0.1'
-                            from(components.release)
+                android {
+                    namespace 'androidx.build_info'
+                    publishing {
+                        singleVariant('release') { }
+                    }
+                }
+                group = "androidx.build_info_test"
+                afterEvaluate {
+                    publishing {
+                        publications {
+                            maven(MavenPublication) {
+                                groupId = 'androidx.build_info_test'
+                                artifactId = 'test-jvm'
+                                version = '0.0.1'
+                                from(components.release)
+                            }
+                        }
+                        publications.withType(MavenPublication) {
+                            // This test is set up such that putting `it.artifactId` in a provider
+                            // directly means that the `MavenPublication` object no longer exists when
+                            // the provider is evaluated.
+                            def artifactId = it.artifactId
+                            CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                                project,
+                                it,
+                                null,
+                                project.provider { artifactId },
+                                project.provider { "fakeSha" },
+                                project.provider { false }, // shouldPublishDocs
+                                true, // isKmp
+                                project.provider { "androidx" },
+                                ["android", "jvm"].toSet(),
+                                project.provider { ["test.xml"] },
+                                it.name,
+                            )
                         }
                     }
-                    publications.withType(MavenPublication) {
-                        CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
-                            project,
-                            it,
-                            null,
-                            it.artifactId,
-                            project.provider { "fakeSha" },
-                            false,
-                            false,
-                            "androidx",
-                            ["android", "jvm"].toSet(),
-                            project.provider { ["test.xml"] },
-                        )
-                    }
                 }
-            }
-            """
-                    .trimIndent()
+                """
+                    .trimIndent(),
         )
     }
 

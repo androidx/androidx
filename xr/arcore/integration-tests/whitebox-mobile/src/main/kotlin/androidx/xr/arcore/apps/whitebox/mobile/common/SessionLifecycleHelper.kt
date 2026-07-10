@@ -24,23 +24,26 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionConfigureConfigurationNotSupported
-import androidx.xr.runtime.SessionConfigureGooglePlayServicesLocationLibraryNotLinked
+import androidx.xr.runtime.SessionConfigureLibraryNotLinked
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateResult
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.SessionCreateTimedOut
+import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
+import kotlinx.coroutines.launch
 
-/**
- * Observer class to manage the lifecycle of the JXR Runtime Session based on the lifecycle owner
- * (activity).
- */
+/** Manages JXR Runtime Session lifecycle based on an Activity. */
 class SessionLifecycleHelper(
     val activity: ComponentActivity,
-    val config: Config = Config(),
+    val config: Config = Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build(),
     val onSessionAvailable: (Session) -> Unit = {},
     val onSessionCreateActionRequired: (SessionCreateResult) -> Unit = {},
 ) {
@@ -75,59 +78,71 @@ class SessionLifecycleHelper(
 
     private fun getRequiredPermissions(config: Config): List<String> {
         val permissions = mutableListOf(CAMERA)
-        if (config.planeTracking != Config.PlaneTrackingMode.DISABLED) {
+        if (config.planeTracking != PlaneTrackingMode.DISABLED) {
             permissions.add(ACCESS_COARSE_LOCATION)
         }
-        if (config.geospatial != Config.GeospatialMode.DISABLED) {
+        if (config.geospatial != GeospatialMode.DISABLED) {
             permissions.add(ACCESS_FINE_LOCATION)
         }
         return permissions
     }
 
     internal fun tryCreateSession() {
-        try {
-            when (val result = Session.create(activity)) {
-                is SessionCreateSuccess -> {
-                    session = result.session
-                    try {
-                        when (val configResult = session.configure(config)) {
-                            is SessionConfigureConfigurationNotSupported -> {
-                                showErrorMessage("Session configuration not supported.")
-                                activity.finish()
-                            }
+        activity.lifecycleScope.launch {
+            try {
+                when (val result = Session.create(context = activity)) {
+                    is SessionCreateSuccess -> {
+                        session = result.session
+                        try {
+                            when (val configResult = session.configure(config)) {
+                                is SessionConfigureLibraryNotLinked -> {
+                                    Log.e(
+                                        "JetpackXR",
+                                        "Library \"${configResult.libraryName}\" not linked.",
+                                    )
+                                }
 
-                            is SessionConfigureGooglePlayServicesLocationLibraryNotLinked -> {
-                                Log.e(
-                                    TAG,
-                                    "Google Play Services Location Library is not linked, this should not happen.",
-                                )
-                            }
+                                is SessionConfigureSuccess -> {
+                                    onSessionAvailable(session)
+                                }
 
-                            is SessionConfigureSuccess -> {
-                                onSessionAvailable(session)
+                                else -> {
+                                    showErrorMessage("Unexpected ${configResult::class.simpleName}")
+                                }
                             }
-
-                            else -> {
-                                showErrorMessage("Unexpected ${configResult::class.simpleName}")
-                            }
+                        } catch (e: SecurityException) {
+                            requestPermissionLauncher.launch(
+                                getRequiredPermissions(config).toTypedArray()
+                            )
+                        } catch (e: UnsupportedOperationException) {
+                            showErrorMessage("Session configuration not supported.")
+                            activity.finish()
                         }
-                    } catch (e: SecurityException) {
-                        requestPermissionLauncher.launch(
-                            getRequiredPermissions(config).toTypedArray()
-                        )
+                    }
+                    is SessionCreateApkRequired -> {
+                        onSessionCreateActionRequired(result)
+                    }
+
+                    is SessionCreateUnsupportedDevice -> {
+                        showErrorMessage("Session could not be created, device is Unsupported.")
+                        activity.finish()
+                    }
+                    is SessionCreateTimedOut -> {
+                        showErrorMessage("Time out")
+                        activity.finish()
+                    }
+                    is SessionCreateUnknownError -> {
+                        showErrorMessage(result.errorMessage)
+                        activity.finish()
+                    }
+                    else -> {
+                        showErrorMessage("Unexpected ${result::class.simpleName}")
+                        activity.finish()
                     }
                 }
-                is SessionCreateApkRequired -> {
-                    onSessionCreateActionRequired(result)
-                }
-
-                is SessionCreateUnsupportedDevice -> {
-                    showErrorMessage("Session could not be created, device is Unsupported.")
-                    activity.finish()
-                }
+            } catch (e: SecurityException) {
+                requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
             }
-        } catch (e: SecurityException) {
-            requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
         }
     }
 
@@ -136,7 +151,7 @@ class SessionLifecycleHelper(
     }
 
     private fun <F> showErrorMessage(error: F) {
-        Log.e(TAG, error.toString())
+        Log.e("JetpackXR", error.toString())
         Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
     }
 }

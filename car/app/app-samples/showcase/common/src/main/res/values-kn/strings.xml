@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ಸಂದೇಶವನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಲಾಗುತ್ತದೆ.\nಹೆಚ್ಚಿನ ಪಠ್ಯವನ್ನು ಎರಡನೇ ಸಾಲಿನಲ್ಲಿ ಸೇರಿಸಬಹುದು."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ಕಿರು ಸಂದೇಶ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೊ"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"ಸಂಕ್ಷಿಪ್ತ ಐಟಂ ಡೆಮೋ"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ AlphaJump ಸಕ್ರಿಯಗೊಳಿಸಿದ ಡೆಮೋ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ರೇಡಿಯೋ ಬಟನ್ ಸೆಕ್ಷನ್"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ಟಾಗಲ್ ಸೆಕ್ಷನ್"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ಬಹಳಷ್ಟು ಸಾಲುಗಳ ಸೆಕ್ಷನ್"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ಗ್ರಿಡ್ ಐಟಂ ವಿಭಾಗ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ವಿಭಾಗೀಯ ಐಟಂ ಪಟ್ಟಿ ಡೆಮೋ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ಪಟ್ಟಿ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ಪಟ್ಟಿ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ಪ್ರತಿ ಪಟ್ಟಿಯ ಅಡಿಯಲ್ಲಿ ಉಪಪಠ್ಯ"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ಚಿತ್ರ ಮತ್ತು ಕ್ರಿಯೆಗಳ ಡೆಮೋವನ್ನು ಕೊನೆಗೊಳಿಸಿ"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"ಚಿಪ್ ಡೆಮೋ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"ಪ್ರಗತಿ ಪಟ್ಟಿಯ ಡೆಮೋ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"ವಿಭಾಗದ ಹೆಡರ್ ಡೆಮೋ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದ ಡೆಮೋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ಪೇನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ಸ್ಥಳ ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಡೆಮೋ"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"ಸಂದೇಶದ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"ಪೇನ್ ಟ್ಯಾಬ್"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"ವಿಭಾಗೀಯ ಐಟಂ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"ಪಟ್ಟಿ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ಲಾಂಗ್ ಟ್ಯಾಬ್ ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಗ್ರಿಡ್ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ಹುಡುಕಾಟ ಟ್ಯಾಬ್"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ಸಾಲನ್ನು ಸಹ ಆಯ್ಕೆ ಮಾಡಬಹುದು"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ಸಾಲಿನ ಪ್ರಾಥಮಿಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ವಿಭಾಗೀಯ ಐಟಂ ಪಟ್ಟಿ ಡೆಮೋ"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ಪಟ್ಟಿ 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ಪಟ್ಟಿ 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ಪ್ರತಿ ಪಟ್ಟಿಯ ಅಡಿಯಲ್ಲಿ ಉಪಪಠ್ಯ"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"ಸಾಲಿನ ಕೊನೆಯ ಚಿತ್ರ ಮತ್ತು ಕ್ರಿಯೆಗಳ ಡೆಮೋ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ಖಾಲಿ ಪಟ್ಟಿಯ ಡೆಮೊ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ಪಟ್ಟಿ ಖಾಲಿಯಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ಕಂಟೆಂಟ್ ಡೆಮೋಗಳನ್ನು ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್‌‌ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ಗ್ರಿಡ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

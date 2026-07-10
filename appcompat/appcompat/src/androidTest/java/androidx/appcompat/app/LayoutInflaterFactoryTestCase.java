@@ -44,7 +44,6 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,12 +55,6 @@ public class LayoutInflaterFactoryTestCase {
     @Rule
     public final androidx.test.rule.ActivityTestRule<LayoutInflaterFactoryTestActivity> mTestRule =
             new androidx.test.rule.ActivityTestRule<>(LayoutInflaterFactoryTestActivity.class);
-
-    @Before
-    public void setup() {
-        // Needed for any vector tests below
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     @UiThreadTest
     @Test
@@ -79,7 +72,6 @@ public class LayoutInflaterFactoryTestCase {
         assertThemedContext(inflater.inflate(R.layout.layout_app_theme, null));
     }
 
-    // Propagation of themed context to children only works on API 11+.
     @UiThreadTest
     @Test
     @SmallTest

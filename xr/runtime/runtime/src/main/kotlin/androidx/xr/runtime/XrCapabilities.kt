@@ -1,0 +1,669 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.runtime
+
+import androidx.annotation.RestrictTo
+import androidx.xr.runtime.interfaces.DepthEstimationMode as InternalDepthEstimationMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode as InternalEyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode as InternalGeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode as InternalHandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode as InternalRenderingMode
+
+/** A device capability that determines how virtual content is added to the real world. */
+public class DisplayBlendMode private constructor(private val value: Int) {
+
+    public companion object {
+        /** Blending is not supported. */
+        @JvmField public val NO_DISPLAY: DisplayBlendMode = DisplayBlendMode(0)
+        /**
+         * Blends virtual content with the real world by adding pixel values for RGB components.
+         * Alpha is ignored. Black pixels will appear transparent.
+         */
+        @JvmField public val ADDITIVE: DisplayBlendMode = DisplayBlendMode(1)
+        /** Alpha-blends pixel values to blend virtual content with the real world. */
+        @JvmField public val ALPHA_BLEND: DisplayBlendMode = DisplayBlendMode(2)
+    }
+
+    /**
+     * Returns a string representation of [DisplayBlendMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "NO_DISPLAY"
+            1 -> "ADDITIVE"
+            2 -> "ALPHA_BLEND"
+            else -> "UNKNOWN($value)"
+        }
+}
+
+/** Contextual label describing the type of detected object. */
+public class AugmentedObjectCategory private constructor(private val value: Int) {
+    public companion object {
+        /** Category value indicating the tracked object is of unknown type. */
+        @JvmField public val UNKNOWN: AugmentedObjectCategory = AugmentedObjectCategory(0)
+        /** Category value indicating the tracked object is believed to be a keyboard. */
+        @JvmField public val KEYBOARD: AugmentedObjectCategory = AugmentedObjectCategory(1)
+        /** Category value indicating the tracked object is believed to be a mouse. */
+        @JvmField public val MOUSE: AugmentedObjectCategory = AugmentedObjectCategory(2)
+        /** Category value indicating the tracked object is believed to be a laptop. */
+        @JvmField public val LAPTOP: AugmentedObjectCategory = AugmentedObjectCategory(3)
+    }
+
+    /**
+     * Returns a string representation of [AugmentedObjectCategory] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "UNKNOWN"
+            1 -> "KEYBOARD"
+            2 -> "MOUSE"
+            3 -> "LAPTOP"
+            else -> "UNKNOWN($value)"
+        }
+}
+
+/** Feature that allows tracking of and provides information about scene planes. */
+public class PlaneTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Planes will not be tracked. */
+        @JvmField public val DISABLED: PlaneTrackingMode = PlaneTrackingMode(0)
+        /**
+         * Horizontal and vertical planes will be tracked. Note that setting this mode will consume
+         * additional runtime resources.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+         *   (OpenXR runtimes only)
+         * - [ACCESS_COARSE_LOCATION][android.Manifest.permission.ACCESS_COARSE_LOCATION] (Play
+         *   Services runtimes only)
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val HORIZONTAL_AND_VERTICAL: PlaneTrackingMode = PlaneTrackingMode(1)
+    }
+
+    /**
+     * Returns a string representation of [PlaneTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "HORIZONTAL_AND_VERTICAL"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows tracking of the user's hands and hand joints. */
+public class HandTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Hands will not be tracked. */
+        @JvmField public val DISABLED: HandTrackingMode = HandTrackingMode(0)
+        /**
+         * Both the left and right hands will be tracked. Note that setting this mode will consume
+         * additional runtime resources.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [HAND_TRACKING][androidx.xr.runtime.manifest.HAND_TRACKING]
+         */
+        @JvmField public val BOTH: HandTrackingMode = HandTrackingMode(1)
+    }
+
+    /**
+     * Returns a string representation of [HandTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "BOTH"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows tracking of the AR device. */
+public class DeviceTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /**
+         * The device pose will not be tracked. In this mode, [androidx.xr.arcore.RenderViewpoint]
+         * will not emit updates to [androidx.xr.arcore.RenderViewpoint.State.pose].
+         */
+        @JvmField public val DISABLED: DeviceTrackingMode = DeviceTrackingMode(0)
+        /**
+         * Tracks device pose and provides the last known 6DoF (rotation and translation) pose from
+         * the system. Note that there is generally a delay between the actual device pose and the
+         * pose provided by the system by the time of the update.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val SPATIAL: DeviceTrackingMode = DeviceTrackingMode(1)
+
+        /**
+         * Tracks device pose and provides the last known pose from the system. Note that there is
+         * generally a delay between the actual device pose and the pose provided by the system by
+         * the time of the update.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        // TODO: remove this once we've migrated all 1P apps.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Deprecated("Use SPATIAL instead.", replaceWith = ReplaceWith("SPATIAL"))
+        @JvmField
+        public val LAST_KNOWN: DeviceTrackingMode = SPATIAL
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
+        @JvmField
+        public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = SPATIAL
+
+        /**
+         * Tracks device pose with 3DoF (rotation only) and provides the last known pose from the
+         * system. Note that there is generally a delay between the actual device pose and the pose
+         * provided by the system by the time of the update.
+         *
+         * Supported runtimes:
+         * - Projected
+         */
+        @ExperimentalInertialTrackingApi
+        @JvmField
+        public val INERTIAL: DeviceTrackingMode = DeviceTrackingMode(2)
+
+        @OptIn(ExperimentalInertialTrackingApi::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Deprecated("Use INERTIAL instead.", ReplaceWith("INERTIAL"))
+        @JvmField
+        public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = INERTIAL
+    }
+
+    /**
+     * Returns a string representation of [DeviceTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "SPATIAL"
+            2 -> "INERTIAL"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows more accurate information about scene depth and meshes. */
+public class DepthEstimationMode private constructor(public val mode: Int) {
+    public companion object {
+        /** No information about scene depth will be provided. */
+        @JvmField public val DISABLED: DepthEstimationMode = DepthEstimationMode(0)
+
+        /**
+         * Depth estimation will be enabled with raw depth and confidence.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services (on supported devices)
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+         *   (OpenXR runtimes only)
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val RAW_ONLY: DepthEstimationMode = DepthEstimationMode(1)
+
+        /**
+         * Depth estimation will be enabled with smooth depth and confidence.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services (on supported devices)
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+         *   (OpenXR runtimes only)
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val SMOOTH_ONLY: DepthEstimationMode = DepthEstimationMode(2)
+
+        /**
+         * Depth estimation will be enabled with both raw and smooth depth and confidence. Note that
+         * setting this mode will consume additional runtime resources.
+         *
+         * Supported runtimes:
+         * - Play Services (on supported devices)
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val SMOOTH_AND_RAW: DepthEstimationMode = DepthEstimationMode(3)
+    }
+
+    /**
+     * Returns a string representation of [DepthEstimationMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "RAW_ONLY"
+            2 -> "SMOOTH_ONLY"
+            3 -> "SMOOTH_AND_RAW"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows anchors to be persisted through sessions. */
+public class AnchorPersistenceMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Anchors cannot be persisted. */
+        @JvmField public val DISABLED: AnchorPersistenceMode = AnchorPersistenceMode(0)
+        /**
+         * Anchors may be persisted and will be saved in the application's local storage.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions: None
+         */
+        @JvmField public val LOCAL: AnchorPersistenceMode = AnchorPersistenceMode(1)
+    }
+
+    /**
+     * Returns a string representation of [AnchorPersistenceMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "LOCAL"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/**
+ * Feature that allows tracking of human faces.
+ *
+ * Setting this feature to [FaceTrackingMode.BLEND_SHAPES] requires that the `FACE_TRACKING` Android
+ * permission is granted by the calling application.
+ */
+public class FaceTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Faces will not be tracked. */
+        @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
+
+        /**
+         * Blend shapes of the user's face will be tracked.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [FACE_TRACKING][androidx.xr.runtime.manifest.FACE_TRACKING]
+         */
+        @JvmField public val BLEND_SHAPES: FaceTrackingMode = FaceTrackingMode(1)
+
+        /**
+         * Face meshes will be tracked using the front-facing camera.
+         *
+         * Supported runtimes:
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA]
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmField
+        public val MESHES: FaceTrackingMode = FaceTrackingMode(2)
+    }
+
+    /**
+     * Returns a string representation of [FaceTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "BLEND_SHAPES"
+            2 -> "MESHES"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/**
+ * Feature that allows Geospatial localization and tracking. The Geospatial API uses a combination
+ * of Google's Visual Positioning System (VPS) and GPS to determine the geospatial pose.
+ *
+ * The Geospatial API is able to provide the best user experience when it is able to generate high
+ * accuracy poses. However, the Geospatial API can be used anywhere, as long as the device is able
+ * to determine its location, even if the available location information has low accuracy.
+ * - In areas with VPS coverage, the Geospatial API is able to generate high accuracy poses. This
+ *   can work even where GPS accuracy is low, such as dense urban environments. Under typical
+ *   conditions, VPS can be expected to provide positional accuracy typically better than 5 meters
+ *   and often around 1 meter, and a rotational accuracy of better than 5 degrees. Use
+ *   `Geospatial.checkVpsAvailability` to determine if a given location has VPS coverage.
+ * - In outdoor environments with few or no overhead obstructions, GPS may be sufficient to generate
+ *   high accuracy poses. GPS accuracy may be low in dense urban environments and indoors.
+ *
+ * Note that setting this mode will consume additional runtime resources.
+ */
+public class GeospatialMode private constructor(public val mode: Int) {
+    public companion object {
+        /**
+         * The Geospatial API is disabled. When GeospatialMode is disabled, current `Anchor` objects
+         * created from `Geospatial` will stop updating, and have their
+         * [androidx.xr.arcore.TrackingState] set to [androidx.xr.arcore.TrackingState.STOPPED].
+         */
+        @JvmField public val DISABLED: GeospatialMode = GeospatialMode(0)
+
+        /**
+         * The Geospatial API is enabled. `Geospatial` should enter the running state shortly after
+         * this mode is set.
+         *
+         * Using this mode requires your app do the following, depending on the Runtime:
+         *
+         * On mobile and projected devices:
+         * - Include the
+         *   [INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
+         *   permission to the app's AndroidManifest
+         * - Request and be granted the
+         *   [ACCESS_FINE_LOCATION permission](https://developer.android.com/training/location/permissions);
+         *   otherwise, [Session.configure] throws [SecurityException].
+         *
+         * On mobile devices:
+         * - Include the Google Play Services Location Library as a dependency for your app. See
+         *   [dependencies for Google Play services](https://developers.google.com/android/guides/setup#declare-dependencies)
+         *   for instructions on how to include this library in your app. If this library is not
+         *   linked, [Session.configure] returns [SessionConfigureLibraryNotLinked].
+         *
+         * Location is tracked only while the [Session] is resumed.
+         *
+         * On mobile devices, when the Geospatial API and the Depth API are enabled, output images
+         * from the Depth API will include terrain and building geometry when in a location with VPS
+         * coverage.
+         *
+         * Not all devices support GeospatialMode.SPATIAL, use
+         * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported] to check if the current device
+         * and selected camera support enabling this mode. These checks are done in the call to
+         * [Session.configure].
+         *
+         * Supported runtimes:
+         * - Play Services (on supported devices)
+         * - Projected
+         *
+         * Required permissions:
+         * - [INTERNET][android.Manifest.permission.INTERNET]
+         * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val SPATIAL: GeospatialMode = GeospatialMode(1)
+
+        @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
+        @JvmField
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public val VPS_AND_GPS: GeospatialMode = SPATIAL
+
+        /**
+         * Geospatial tracking mode that uses only inertial measurement unit (IMU) and GPS data for
+         * localization.
+         *
+         * This mode provides a lower-power alternative to visual positioning systems, allowing the
+         * camera to be disabled when high precision is not strictly required.
+         *
+         * To use this mode, the [Session] must first be configured with [GeospatialMode.SPATIAL]
+         * and [DeviceTrackingMode.SPATIAL]. Once initialized, the [Session] can be toggled via
+         * [Session.configure] to [GeospatialMode.INERTIAL] for power savings, and back to
+         * [GeospatialMode.SPATIAL] for the accuracy needed.
+         *
+         * Supported runtimes:
+         * - Projected
+         *
+         * Required permissions:
+         * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
+         */
+        @JvmField public val INERTIAL: GeospatialMode = GeospatialMode(2)
+    }
+
+    /**
+     * Returns a string representation of [GeospatialMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "SPATIAL"
+            2 -> "INERTIAL"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows tracking of the user's eyes. */
+public class EyeTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Eye tracking is disabled. */
+        @JvmField public val DISABLED: EyeTrackingMode = EyeTrackingMode(0)
+        /**
+         * Enables coarse eye tracking, providing general gaze direction without high precision.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [EYE_TRACKING_COARSE][androidx.xr.runtime.manifest.EYE_TRACKING_COARSE]
+         */
+        @JvmField public val COARSE_TRACKING: EyeTrackingMode = EyeTrackingMode(1)
+        /**
+         * Enables fine eye tracking, providing more precise gaze direction.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [EYE_TRACKING_FINE][androidx.xr.runtime.manifest.EYE_TRACKING_FINE]
+         */
+        @JvmField public val FINE_TRACKING: EyeTrackingMode = EyeTrackingMode(2)
+    }
+
+    /**
+     * Returns a string representation of [EyeTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "COARSE_TRACKING"
+            2 -> "FINE_TRACKING"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Declare whether the Session should use the world-facing or user-facing camera. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CameraFacingDirection private constructor(public val mode: Int) {
+    public companion object {
+        /**
+         * Use the world-facing camera. This is the default behavior across all devices.
+         *
+         * Supported runtimes:
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA]
+         */
+        @JvmField public val WORLD: CameraFacingDirection = CameraFacingDirection(0)
+
+        /**
+         * Use the user-facing camera.
+         *
+         * Supported runtimes:
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA]
+         */
+        @JvmField public val USER: CameraFacingDirection = CameraFacingDirection(1)
+    }
+
+    /**
+     * Returns a string representation of [CameraFacingDirection] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "WORLD"
+            1 -> "USER"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** Feature that allows tracking of and provides information about QR codes. */
+public class QrCodeTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** QR codes will not be tracked. */
+        @JvmField public val DISABLED: QrCodeTrackingMode = QrCodeTrackingMode(0)
+
+        /**
+         * Used for tracking moving QR codes. It has the highest accuracy, the lowest latency and
+         * the highest power consumption.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+         */
+        @JvmField public val DYNAMIC: QrCodeTrackingMode = QrCodeTrackingMode(1)
+
+        /**
+         * Used for tracking QR codes that are known to be static or semi-static. It has less power
+         * consumption in comparison to dynamic mode. If a static QR code is moving, it will be
+         * updated with a much higher latency.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+         */
+        @JvmField public val STATIC: QrCodeTrackingMode = QrCodeTrackingMode(2)
+    }
+
+    /**
+     * Returns a string representation of [QrCodeTrackingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "DYNAMIC"
+            2 -> "STATIC"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
+/** A device capability that determines what type of rendering is capable on an [XrDevice]. */
+public class RenderingMode private constructor(private val value: Int) {
+
+    public companion object {
+        /** The device supports monocular rendering. */
+        @JvmField public val MONO: RenderingMode = RenderingMode(0)
+        /** The device supports binocular (stereoscopic) rendering. */
+        @JvmField public val STEREO: RenderingMode = RenderingMode(1)
+    }
+
+    /**
+     * Returns a string representation of [RenderingMode] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String =
+        when (value) {
+            0 -> "MONO"
+            1 -> "STEREO"
+            else -> "UNKNOWN($value)"
+        }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun HandTrackingMode.toInternalHandTrackingMode(): InternalHandTrackingMode =
+    when (this) {
+        HandTrackingMode.DISABLED -> InternalHandTrackingMode.DISABLED
+        HandTrackingMode.BOTH -> InternalHandTrackingMode.BOTH
+        else -> throw IllegalStateException("Invalid HandTrackingMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun EyeTrackingMode.toInternalEyeTrackingMode(): InternalEyeTrackingMode =
+    when (this) {
+        EyeTrackingMode.DISABLED -> InternalEyeTrackingMode.DISABLED
+        EyeTrackingMode.COARSE_TRACKING -> InternalEyeTrackingMode.COARSE_TRACKING
+        EyeTrackingMode.FINE_TRACKING -> InternalEyeTrackingMode.FINE_TRACKING
+        else -> throw IllegalStateException("Invalid EyeTrackingMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun DepthEstimationMode.toInternalDepthEstimationMode(): InternalDepthEstimationMode =
+    when (this) {
+        DepthEstimationMode.DISABLED -> InternalDepthEstimationMode.DISABLED
+        DepthEstimationMode.RAW_ONLY -> InternalDepthEstimationMode.RAW_ONLY
+        DepthEstimationMode.SMOOTH_ONLY -> InternalDepthEstimationMode.SMOOTH_ONLY
+        DepthEstimationMode.SMOOTH_AND_RAW -> InternalDepthEstimationMode.SMOOTH_AND_RAW
+        else -> throw IllegalStateException("Invalid DepthEstimationMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun GeospatialMode.toInternalGeospatialMode(): InternalGeospatialMode =
+    when (this) {
+        GeospatialMode.DISABLED -> InternalGeospatialMode.DISABLED
+        GeospatialMode.SPATIAL -> InternalGeospatialMode.SPATIAL
+        GeospatialMode.INERTIAL -> InternalGeospatialMode.INERTIAL
+        else -> throw IllegalStateException("Invalid GeospatialMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RenderingMode.toInternalRenderingMode(): InternalRenderingMode =
+    when (this) {
+        RenderingMode.MONO -> InternalRenderingMode.MONO
+        RenderingMode.STEREO -> InternalRenderingMode.STEREO
+        else -> throw IllegalStateException("Invalid RenderingMode")
+    }

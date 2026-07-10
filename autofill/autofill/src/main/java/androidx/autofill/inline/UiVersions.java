@@ -100,6 +100,7 @@ public final class UiVersions {
          * Returns the style represented as a {@link Bundle} so it can be transported through IPC.
          *
          */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull Bundle getBundle();
 
@@ -107,6 +108,7 @@ public final class UiVersions {
          * Returns the {@link InlineUiVersion} the style corresponds to.
          *
          */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @InlineUiVersion
         @NonNull String getVersion();

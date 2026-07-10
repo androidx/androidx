@@ -16,14 +16,14 @@
 
 package androidx.navigationevent.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.HostDefaultKey
+import androidx.compose.runtime.ViewTreeHostDefaultKey
 import androidx.navigationevent.NavigationEventDispatcherOwner
-import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
+import androidx.navigationevent.R
 
-@Composable
-internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? {
-    // On Android, the NavigationEventDispatcherOwner is expected to be
-    // discoverable up the view hierarchy.
-    return LocalView.current.findViewTreeNavigationEventDispatcherOwner()
-}
+public actual val NavigationEventDispatcherOwnerHostDefaultKey:
+    HostDefaultKey<NavigationEventDispatcherOwner?> =
+    object : ViewTreeHostDefaultKey<NavigationEventDispatcherOwner?> {
+        override val tagKey: Int
+            get() = R.id.view_tree_navigation_event_dispatcher_owner
+    }

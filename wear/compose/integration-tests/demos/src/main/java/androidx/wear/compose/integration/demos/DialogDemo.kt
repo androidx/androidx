@@ -70,7 +70,7 @@ fun DialogPowerOff() {
                     onClick = { showDialog = false },
                     colors = ButtonDefaults.secondaryButtonColors(),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "No")
+                    DemoIcon(resourceId = R.drawable.icon_clear_24px, contentDescription = "No")
                 }
             },
             positiveButton = {
@@ -78,7 +78,7 @@ fun DialogPowerOff() {
                     onClick = { showDialog = false },
                     colors = ButtonDefaults.primaryButtonColors(),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Yes")
+                    DemoIcon(resourceId = R.drawable.icon_check_24px, contentDescription = "Yes")
                 }
             },
             scrollState = scrollState,
@@ -107,7 +107,7 @@ fun DialogAccessLocation() {
             scrollState = scrollState,
             icon = {
                 DemoIcon(
-                    resourceId = R.drawable.ic_baseline_location_on_24,
+                    resourceId = R.drawable.icon_baseline_location_on_24,
                     contentDescription = "Location",
                 )
             },
@@ -123,7 +123,7 @@ fun DialogAccessLocation() {
                     onClick = { showDialog = false },
                     colors = ButtonDefaults.secondaryButtonColors(),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "Cross")
+                    DemoIcon(resourceId = R.drawable.icon_clear_24px, contentDescription = "Cross")
                 }
             },
             positiveButton = {
@@ -131,7 +131,7 @@ fun DialogAccessLocation() {
                     onClick = { showDialog = false },
                     colors = ButtonDefaults.primaryButtonColors(),
                 ) {
-                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                    DemoIcon(resourceId = R.drawable.icon_check_24px, contentDescription = "Tick")
                 }
             },
         )
@@ -155,7 +155,7 @@ fun DialogBackground(background: Color) {
                 scrollState = scrollState,
                 icon = {
                     DemoIcon(
-                        resourceId = R.drawable.ic_baseline_location_on_24,
+                        resourceId = R.drawable.icon_baseline_location_on_24,
                         contentDescription = "Location",
                     )
                 },
@@ -172,7 +172,7 @@ fun DialogBackground(background: Color) {
                         colors = ButtonDefaults.secondaryButtonColors(),
                     ) {
                         DemoIcon(
-                            resourceId = R.drawable.ic_clear_24px,
+                            resourceId = R.drawable.icon_clear_24px,
                             contentDescription = "Cross",
                         )
                     }
@@ -182,7 +182,10 @@ fun DialogBackground(background: Color) {
                         onClick = { showDialog = false },
                         colors = ButtonDefaults.primaryButtonColors(),
                     ) {
-                        DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                        DemoIcon(
+                            resourceId = R.drawable.icon_check_24px,
+                            contentDescription = "Tick",
+                        )
                     }
                 },
             )
@@ -203,7 +206,10 @@ fun DialogGrantPermission() {
         Alert(
             scrollState = scrollState,
             icon = {
-                DemoIcon(resourceId = R.drawable.ic_baseline_error_24, contentDescription = "Error")
+                DemoIcon(
+                    resourceId = R.drawable.icon_baseline_error_24,
+                    contentDescription = "Error",
+                )
             },
             title = {
                 Text(
@@ -217,7 +223,7 @@ fun DialogGrantPermission() {
                 Chip(
                     icon = {
                         DemoIcon(
-                            resourceId = R.drawable.ic_baseline_settings_24,
+                            resourceId = R.drawable.icon_baseline_settings_24,
                             contentDescription = "Settings",
                         )
                     },
@@ -264,7 +270,10 @@ fun DialogLongChips() {
             item {
                 Chip(
                     icon = {
-                        DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                        DemoIcon(
+                            resourceId = R.drawable.icon_check_24px,
+                            contentDescription = "Tick",
+                        )
                     },
                     label = { Text("Allow access") },
                     onClick = { showDialog = false },
@@ -275,7 +284,7 @@ fun DialogLongChips() {
                 Chip(
                     icon = {
                         DemoIcon(
-                            resourceId = R.drawable.ic_clear_24px,
+                            resourceId = R.drawable.icon_clear_24px,
                             contentDescription = "Cross",
                         )
                     },
@@ -297,7 +306,7 @@ fun DialogSuccessConfirmation() {
             onTimeout = { showDialog = false },
             icon = {
                 DemoIcon(
-                    resourceId = R.drawable.ic_check_48px,
+                    resourceId = R.drawable.icon_check_48px,
                     size = 48.dp,
                     contentDescription = "Tick",
                 )

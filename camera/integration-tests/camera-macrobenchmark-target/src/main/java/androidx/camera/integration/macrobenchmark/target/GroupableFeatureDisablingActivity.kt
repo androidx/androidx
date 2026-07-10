@@ -23,7 +23,6 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -67,7 +66,6 @@ class GroupableFeatureDisablingActivity : ComponentActivity() {
         setContent { CameraScreen(intent.toCameraXConfig(), intent.toCameraSelector()) }
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Composable
     fun CameraScreen(cameraXConfig: CameraXConfig, cameraSelector: CameraSelector) {
         val context = LocalContext.current
@@ -113,7 +111,6 @@ class GroupableFeatureDisablingActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     fun CameraInfo.findUnsupportedFeatures(currentFeatures: Set<GroupableFeature>) {
         val unsupportedFeatures = mutableListOf<GroupableFeature>()
 
@@ -123,7 +120,7 @@ class GroupableFeatureDisablingActivity : ComponentActivity() {
             if (currentFeatures.contains(featureOption)) return@forEach
 
             if (
-                !isFeatureGroupSupported(
+                !isSessionConfigSupported(
                     SessionConfig(
                         useCases = listOf(preview, imageCapture, videoCapture),
                         requiredFeatureGroup = currentFeatures + featureOption,

@@ -64,7 +64,7 @@ import org.robolectric.shadows.ShadowApplication;
 
 /** Tests for {@link AppManager}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.activity" })
+@Config(instrumentedPackages = { "androidx.activity" }, sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 @CarProtocol
 public final class AppManagerTest {
@@ -138,6 +138,11 @@ public final class AppManagerTest {
                     public Bundleable openMicrophone(Bundleable openMicrophoneRequest)
                             throws RemoteException {
                         return mMockAppHost.openMicrophone(openMicrophoneRequest);
+                    }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());

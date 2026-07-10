@@ -11,3 +11,7 @@ GetterSetterNames: androidx.compose.material3.SheetState#getHasPartiallyExpanded
     Getter for boolean property `hasPartiallyExpandedState` is named `getHasPartiallyExpandedState` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.material3.SnackbarVisuals#withDismissAction:
     Invalid name for boolean property `withDismissAction`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+TypealiasDefinition: androidx.compose.material3.CalendarLocale:
+    Exposing typealiases as public API is discouraged.

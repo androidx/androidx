@@ -84,7 +84,8 @@ internal fun Class<out Any>.findMethod(
  * invoking the method whose FQN is set in the `tools:tilePreviewMethodFqn` attribute.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
+public class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
+    FrameLayout(context, attrs) {
 
     private val executor = ContextCompat.getMainExecutor(context)
 
@@ -134,13 +135,19 @@ class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayou
                 tile.state?.let { setState(it.keyToValueMapping) }
             }
         val layout = tile.tileTimeline?.getCurrentLayout() ?: return
+        val scope = tileRequest.scope
 
-        val resourcesRequest =
-            ResourcesRequest.Builder()
-                .setDeviceConfiguration(deviceParams)
-                .setVersion(tile.resourcesVersion)
-                .build()
-        val resources = tilePreview.onTileResourceRequest(resourcesRequest)
+        val resources =
+            if (scope.hasResources()) {
+                scope.collectResources()
+            } else {
+                val resourcesRequest =
+                    ResourcesRequest.Builder()
+                        .setDeviceConfiguration(deviceParams)
+                        .setVersion(tile.resourcesVersion)
+                        .build()
+                tilePreview.onTileResourceRequest(resourcesRequest)
+            }
 
         val inflateFuture = inflateAsync(layout, resources, this@TileServiceViewAdapter)
         inflateFuture.addListener(
@@ -153,7 +160,7 @@ class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayou
         )
     }
 
-    fun getAnimations(): List<DynamicTypeAnimator> {
+    public fun getAnimations(): List<DynamicTypeAnimator> {
         return tileRenderer.animations
     }
 

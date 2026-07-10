@@ -26,7 +26,6 @@ import android.widget.Button
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -43,6 +42,7 @@ import androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore
 import androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions
 import androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions
 import androidx.camera.testing.impl.FileUtil.writeTextToExternalFile
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
@@ -75,11 +75,6 @@ private const val INTENT_PREVIEW_VIEW_MODE = "preview_view_mode"
 private const val PREVIEW_VIEW_COMPATIBLE_MODE = "compatible"
 private const val PREVIEW_VIEW_PERFORMANCE_MODE = "performance"
 
-// Possible values for this intent key (case-insensitive): "camera2", "camera_pipe".
-private const val INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation"
-private const val CAMERA_IMPLEMENTATION_CAMERA2 = "camera2"
-private const val CAMERA_IMPLEMENTATION_CAMERA_PIPE = "camera_pipe"
-
 class StreamSharingActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
@@ -107,12 +102,16 @@ class StreamSharingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stream_sharing)
 
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            applyWindowInsetsListenerViewId = R.id.layout_camera,
+        )
+
         // Apply settings from intent.
         val bundle = intent.extras
         if (bundle != null) {
             parseScreenOrientationAndSetValueIfNeed(bundle)
             parseCameraSelector(bundle)
-            parseCameraImplementation(bundle)
             parsePreviewViewMode(bundle)
         }
 
@@ -162,15 +161,6 @@ class StreamSharingActivity : AppCompatActivity() {
         }
     }
 
-    private fun parseCameraImplementation(bundle: Bundle) {
-        val implementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION)
-        if (CAMERA_IMPLEMENTATION_CAMERA2.equals(implementation, true)) {
-            cameraXConfig = Camera2Config.defaultConfig()
-        } else if (CAMERA_IMPLEMENTATION_CAMERA_PIPE.equals(implementation, true)) {
-            cameraXConfig = CameraPipeConfig.defaultConfig()
-        }
-    }
-
     private fun parsePreviewViewMode(bundle: Bundle) {
         val mode = bundle.getString(INTENT_PREVIEW_VIEW_MODE)
         if (PREVIEW_VIEW_COMPATIBLE_MODE.equals(mode, true)) {
@@ -180,7 +170,6 @@ class StreamSharingActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NullAnnotationGroup")
     @OptIn(ExperimentalCameraProviderConfiguration::class)
     private fun configureCameraProvider() {
         ProcessCameraProvider.configureInstance(cameraXConfig)

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,16 +27,14 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    api(project(":xr:arcore:arcore"))
+    api(project(":xr:arcore:arcore-runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("com.google.ar:core:1.49.0")
+    implementation("com.google.ar:core:1.53.0")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
@@ -47,8 +44,8 @@ dependencies {
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.truth)
     testImplementation(project(":kruth:kruth"))
-    testImplementation(project(":xr:runtime:runtime"))
     testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation(project(":xr:arcore:arcore-testing"))
     testImplementation("androidx.appcompat:appcompat:1.2.0")
     testImplementation(libs.testRules)
 }
@@ -56,13 +53,13 @@ dependencies {
 android {
     namespace = "androidx.xr.arcore.playservices"
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
 }
 
 androidx {
-    name = "XR ARCore Play Services"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    name = "ARCore Play Services"
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "An implementation of the XR runtime using Google Play Services for AR."
     enableRobolectric()

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSharedTransitionApi::class)
-
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.ExperimentalLookaheadAnimationVisualDebugApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.samples.R
@@ -56,6 +54,8 @@ import androidx.compose.ui.unit.sp
 
 @Preview
 @Composable
+@OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 fun SharedElementDemos() {
     var selectedTab by remember { mutableIntStateOf(0) }
     val list =
@@ -66,8 +66,9 @@ fun SharedElementDemos() {
             "Container Transform" to { ContainerTransformDemo() },
             "Dynamically Enabled Shared Elements" to { DynamicallyEnableSharedElementsDemo() },
             "Shared Element\n Caller Managed Vis" to { SharedElementWithCallerManagedVisibility() },
-            "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
-            "AnimatedContent" to { SharedElementInAnimatedContentSample() },
+            "Fling Shared Elements" to { SharedElementWithFlingDemo() },
+            "FABInOverlay" to { SharedElementInAnimatedVisibilityWithFABRenderedInOverlay() },
+            "AnimatedContent" to { SharedElementInAnimatedContent() },
             "Text transform" to { TextSharedBoundsExperiments() },
             "Nav Shared Tool Bar" to { NavigationWithSharedToolBarDemo() },
             "Shared Element with Movable Content" to { SharedElementWithMovableContent() },
@@ -88,7 +89,7 @@ fun SharedElementDemos() {
                 }
             }
         }
-        list[selectedTab].second.invoke()
+        LookaheadAnimationVisualDebuggingToggle { list[selectedTab].second.invoke() }
     }
 }
 

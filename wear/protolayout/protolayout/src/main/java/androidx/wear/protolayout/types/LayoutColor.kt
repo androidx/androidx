@@ -36,29 +36,29 @@ import java.util.Objects
  *   be used.
  */
 @SuppressLint("ProtoLayoutMinSchema") // 1.2 Schema is used only when dynamicValue is not null
-class LayoutColor(
-    @ColorInt val staticArgb: Int,
-    @RequiresSchemaVersion(major = 1, minor = 200) val dynamicArgb: DynamicColor? = null,
+public class LayoutColor(
+    @ColorInt public val staticArgb: Int,
+    @RequiresSchemaVersion(major = 1, minor = 200) public val dynamicArgb: DynamicColor? = null,
 ) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val prop: ColorProp by lazy {
+    public val prop: ColorProp by lazy {
         ColorProp.Builder(staticArgb).apply { dynamicArgb?.let { setDynamicValue(it) } }.build()
     }
 
-    override fun equals(other: Any?) =
+    override fun equals(other: Any?): Boolean =
         this === other || (other is LayoutColor && prop == other.prop)
 
-    override fun hashCode() = Objects.hash(prop)
+    override fun hashCode(): Int = Objects.hash(prop)
 
-    override fun toString() = "LayoutColor(prop=$prop)"
+    override fun toString(): String = "LayoutColor(prop=$prop)"
 }
 
 /** Extension for creating a [LayoutColor] from an ARGB Color Int. */
-val Int.argb: LayoutColor
+public val Int.argb: LayoutColor
     @JvmName("createLayoutColor") get() = LayoutColor(this)
 
 /** Extension for creating a [LayoutColor] from an ARGB Color Long. */
-val Long.argb: LayoutColor
+public val Long.argb: LayoutColor
     @JvmName("createLayoutColor") get() = LayoutColor(this.toInt())
 
 /**
@@ -68,7 +68,8 @@ val Long.argb: LayoutColor
  */
 @JvmName("createLayoutColor")
 @RequiresSchemaVersion(major = 1, minor = 200)
-fun DynamicColor.asLayoutColor(@ColorInt staticArgb: Int) = LayoutColor(staticArgb, this)
+public fun DynamicColor.asLayoutColor(@ColorInt staticArgb: Int): LayoutColor =
+    LayoutColor(staticArgb, this)
 
 /**
  * Extension for creating a [LayoutColor] from a [DynamicColor]
@@ -77,4 +78,5 @@ fun DynamicColor.asLayoutColor(@ColorInt staticArgb: Int) = LayoutColor(staticAr
  */
 @JvmName("createLayoutColor")
 @RequiresSchemaVersion(major = 1, minor = 200)
-fun DynamicColor.asLayoutColor(@ColorInt staticArgb: Long) = LayoutColor(staticArgb.toInt(), this)
+public fun DynamicColor.asLayoutColor(@ColorInt staticArgb: Long): LayoutColor =
+    LayoutColor(staticArgb.toInt(), this)

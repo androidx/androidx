@@ -33,6 +33,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomSheet
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -44,12 +45,15 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scrim
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,12 +62,60 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Preview
+@Composable
+fun ManualModalBottomSheetSample() {
+    var showSheet by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(onClick = { showSheet = true }) { Text("Show Manual Sheet") }
+    }
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+
+    if (showSheet) {
+        Scrim("scrim", onClick = { showSheet = false })
+        BottomSheet(
+            modifier = Modifier,
+            state = sheetState,
+            onDismissRequest = { showSheet = false },
+        ) {
+            LazyColumn {
+                items(25) {
+                    ListItem(
+                        content = { Text("Item $it") },
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        },
+                        colors =
+                            ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            ),
+                    )
+                }
+            }
+        }
+    }
+    // Handle sheet animations
+    LaunchedEffect(showSheet) {
+        if (showSheet) {
+            sheetState.show()
+        } else {
+            sheetState.hide()
+        }
+    }
+}
 
 @Preview
 @Sampled
@@ -74,7 +126,12 @@ fun ModalBottomSheetSample() {
     var skipPartiallyExpanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val bottomSheetState =
-        rememberModalBottomSheetState(skipPartiallyExpanded = skipPartiallyExpanded)
+        rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues =
+                if (skipPartiallyExpanded) setOf(SheetValue.Hidden, SheetValue.Expanded)
+                else setOf(SheetValue.Hidden, SheetValue.PartiallyExpanded, SheetValue.Expanded),
+        )
 
     // App content
     Column(
@@ -134,7 +191,7 @@ fun ModalBottomSheetSample() {
             LazyColumn {
                 items(25) {
                     ListItem(
-                        headlineContent = { Text("Item $it") },
+                        content = { Text("Item $it") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,
@@ -170,7 +227,12 @@ fun SimpleBottomSheetScaffoldSample() {
                 }
                 Text("Sheet content")
                 Button(
-                    modifier = Modifier.padding(bottom = 64.dp),
+                    modifier =
+                        Modifier.padding(bottom = 64.dp).focusProperties {
+                            // Make sure the button is not keyboard focusable when it's offscreen.
+                            canFocus =
+                                scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                        },
                     onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } },
                 ) {
                     Text("Click to collapse sheet")
@@ -209,7 +271,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
             LazyColumn {
                 items(50) {
                     ListItem(
-                        headlineContent = { Text("Item $it") },
+                        content = { Text("Item $it") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,

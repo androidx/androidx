@@ -227,6 +227,18 @@ public class ServiceConnectionManager {
         }
     }
 
+    /**
+     * Updates the activity intent for the connected {@code rendererService}.
+     */
+    void updateActivityIntent(@NonNull Intent intent) {
+        mIntent = requireNonNull(intent);
+        if (isBound()) {
+            Log.d(LogTags.TAG, "updateActivityIntent: updating intent for "
+                    + mServiceComponentName);
+            updateIntent();
+        }
+    }
+
     /** Closes the connection to the connected {@code rendererService} if any. */
     void unbind() {
         if (mRendererService == null) {

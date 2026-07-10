@@ -3,10 +3,10 @@ package androidx.datastore.guava {
 
   public final class GuavaDataStore<T> {
     method public static <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore);
+    method public static <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, java.util.concurrent.Executor executor);
     method public static <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method public com.google.common.util.concurrent.ListenableFuture<T> getDataAsync();
-    method public com.google.common.util.concurrent.ListenableFuture<T> updateDataAsync(kotlin.jvm.functions.Function1<? super T,? extends T> transform);
-    method @RequiresApi(android.os.Build.VERSION_CODES.N) public com.google.common.util.concurrent.ListenableFuture<T> updateDataFunctionAsync(java.util.function.Function<T,T> transform);
+    method public com.google.common.util.concurrent.ListenableFuture<T> updateDataAsync(androidx.core.util.Function<T,T> dataTransform);
     field public static final androidx.datastore.guava.GuavaDataStore.Companion Companion;
   }
 
@@ -22,7 +22,9 @@ package androidx.datastore.guava {
 
   public static final class GuavaDataStore.Companion {
     method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore);
+    method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, java.util.concurrent.Executor executor);
     method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method @BytecodeOnly public static androidx.datastore.guava.GuavaDataStore! from$default(androidx.datastore.guava.GuavaDataStore.Companion!, androidx.datastore.core.DataStore!, kotlin.coroutines.CoroutineContext!, int, Object!);
   }
 
 }

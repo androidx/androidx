@@ -76,12 +76,23 @@
     <item
         android:id="@+id/view_port"
         android:checkable="true"
+        android:enabled="true"
         android:title="@string/disable_view_port"
         app:showAsAction="never" />
     <item
         android:id="@+id/torch_as_flash"
         android:checkable="true"
         android:title="@string/enable_torch_as_flash"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/auto_rotation"
+        android:checkable="true"
+        android:title="@string/enable_auto_rotation"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/tap_to_focus_ae_awb_lock"
+        android:checkable="true"
+        android:title="@string/tap_to_focus_ae_awb_lock"
         app:showAsAction="never" />
 
 </menu>

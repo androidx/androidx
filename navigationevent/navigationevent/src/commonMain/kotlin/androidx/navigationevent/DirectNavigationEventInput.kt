@@ -23,27 +23,67 @@ import androidx.annotation.MainThread
  * [NavigationEventInput], users can create instances of this class and use it directly.
  */
 public class DirectNavigationEventInput() : NavigationEventInput() {
-    /** Send "start" event to the connected dispatcher. */
+    /**
+     * Dispatch a back started event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
     @MainThread
-    public fun start(event: NavigationEvent) {
-        dispatchOnStarted(event)
+    public fun backStarted(event: NavigationEvent) {
+        dispatchOnBackStarted(event)
     }
 
-    /** Send "progress" event to the connected dispatcher. */
+    /**
+     * Dispatch a back progressed event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
     @MainThread
-    public fun progress(event: NavigationEvent) {
-        dispatchOnProgressed(event)
+    public fun backProgressed(event: NavigationEvent) {
+        dispatchOnBackProgressed(event)
     }
 
-    /** Send "complete" event to the connected dispatcher. */
+    /** Dispatch a back cancelled event with the connected dispatcher. */
     @MainThread
-    public fun complete() {
-        dispatchOnCompleted()
+    public fun backCancelled() {
+        dispatchOnBackCancelled()
     }
 
-    /** Send "cancel" event to the connected dispatcher. */
+    /** Dispatch a back completed event with the connected dispatcher. */
     @MainThread
-    public fun cancel() {
-        dispatchOnCancelled()
+    public fun backCompleted() {
+        dispatchOnBackCompleted()
+    }
+
+    /**
+     * Dispatch a forward started event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
+    @MainThread
+    public fun forwardStarted(event: NavigationEvent) {
+        dispatchOnForwardStarted(event)
+    }
+
+    /**
+     * Dispatch a forward progressed event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
+    @MainThread
+    public fun forwardProgressed(event: NavigationEvent) {
+        dispatchOnForwardProgressed(event)
+    }
+
+    /** Dispatch a forward cancelled event with the connected dispatcher. */
+    @MainThread
+    public fun forwardCancelled() {
+        dispatchOnForwardCancelled()
+    }
+
+    /** Dispatch a forward completed event with the connected dispatcher. */
+    @MainThread
+    public fun forwardCompleted() {
+        dispatchOnForwardCompleted()
     }
 }

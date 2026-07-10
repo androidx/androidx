@@ -41,6 +41,8 @@ public abstract class SubspaceModifierNodeElement<N : SubspaceModifier.Node> : S
      * Called when a modifier is applied to a layout whose inputs have changed from the previous
      * application. This function will have the current node instance passed in as a parameter, and
      * it is expected that the node will be brought up to date.
+     *
+     * @param node The node instance to be updated.
      */
     public abstract fun update(node: N)
 
@@ -54,6 +56,8 @@ public abstract class SubspaceModifierNodeElement<N : SubspaceModifier.Node> : S
      * Require equals() to be implemented. Using a data class is sufficient. Singletons may
      * implement this function with referential equality (`this === other`). Modifiers with no
      * inputs may implement this function by checking the type of the other object.
+     *
+     * @param other The object to compare this element against.
      */
     public abstract override fun equals(other: Any?): Boolean
 }

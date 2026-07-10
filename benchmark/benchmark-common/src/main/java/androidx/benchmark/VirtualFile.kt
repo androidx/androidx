@@ -22,7 +22,6 @@ import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.ShellFile.Companion.rootState
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.DataInputStream
@@ -118,13 +117,16 @@ sealed class VirtualFile {
         copyTo(otherVirtualFile).also { this.delete() }
     }
 
-    protected abstract fun executeCommand(block: (String) -> String): String
+    abstract fun executeCommand(block: (String) -> String): String
 
     fun md5sum(): String = executeCommand { "md5sum $it" }.substringBefore(" ")
 
     fun chmod(args: String) = executeCommand { "chmod $args $it" }
 
     fun ls(): List<String> = executeCommand { "ls -1 $it" }.lines().filter { it.isNotBlank() }
+
+    fun listFiles(): List<String> =
+        executeCommand { "ls -1tp $it" }.lines().filter { it.isNotBlank() && !it.endsWith("/") }
 
     abstract fun mkdir()
 
@@ -137,11 +139,6 @@ class UserFile(private val file: File) : VirtualFile() {
     companion object {
         fun inOutputsDir(name: String): UserFile {
             val file = File(Outputs.dirUsableByAppAndShell, name)
-            if (Outputs.forceFilesForShellAccessible) {
-                // script content must be readable by shell, and for some reason
-                // doesn't inherit shell readability from dirUsableByAppAndShell
-                file.setReadable(true, false)
-            }
             return UserFile(file)
         }
     }
@@ -226,7 +223,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
                 val (_, inDescriptor, errDescriptor) = uiAutomation.executeShellCommandRwe(cmd)
                 ParcelFileDescriptor.AutoCloseOutputStream(inDescriptor).use {
                     counterOs = CounterOutputStream(it)
-                    block(counterOs!!)
+                    block(counterOs)
                 }
                 checkErr(errDescriptor)
             }
@@ -235,7 +232,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
                 val (_, inDescriptor) = uiAutomation.executeShellCommandRw(cmd)
                 ParcelFileDescriptor.AutoCloseOutputStream(inDescriptor).use {
                     counterOs = CounterOutputStream(it)
-                    block(counterOs!!)
+                    block(counterOs)
                 }
             }
         }
@@ -305,23 +302,22 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
     }
 }
 
-private class CounterOutputStream(private val ostream: OutputStream) : OutputStream() {
-
+private class CounterOutputStream(private val output: OutputStream) : OutputStream() {
     private var _writtenBytes = 0L
     val writtenBytes: Long
         get() = _writtenBytes
 
     override fun write(b: Int) {
         _writtenBytes++
-        ostream.write(b)
+        output.write(b)
     }
 
     override fun close() {
-        ostream.close()
+        output.close()
     }
 
     override fun flush() {
-        ostream.flush()
+        output.flush()
     }
 }
 

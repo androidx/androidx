@@ -264,6 +264,35 @@ fun CurvedLetterSpacingSample() {
 
 @Sampled
 @Composable
+fun CurvedWarpingSample() {
+    val style =
+        CurvedTextStyle(
+            letterSpacing = 0.6.sp,
+            letterSpacingCounterClockwise = 1.4.sp,
+            color = Color.White,
+        )
+    Box {
+        CurvedLayout(modifier = Modifier.fillMaxSize()) {
+            basicCurvedText(
+                "No Warping",
+                style = style.copy(warpOffset = CurvedTextStyle.WarpOffset.None),
+            )
+        }
+        CurvedLayout(
+            modifier = Modifier.fillMaxSize(),
+            angularDirection = CurvedDirection.Angular.CounterClockwise,
+            anchor = 90f,
+        ) {
+            basicCurvedText(
+                "Standard Warping",
+                style.copy(warpOffset = CurvedTextStyle.WarpOffset.HalfOpticalHeight),
+            )
+        }
+    }
+}
+
+@Sampled
+@Composable
 fun CurvedSemanticsSample() {
     val style =
         CurvedTextStyle(

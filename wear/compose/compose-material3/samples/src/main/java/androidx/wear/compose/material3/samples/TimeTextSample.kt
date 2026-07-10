@@ -39,8 +39,7 @@ fun TimeTextClockOnly() {
 @Composable
 fun TimeTextWithStatus() {
     val style = TimeTextDefaults.timeTextStyle()
-    val primaryStyle =
-        TimeTextDefaults.timeTextStyle(color = MaterialTheme.colorScheme.primaryContainer)
+    val primaryStyle = TimeTextDefaults.timeTextStyle(color = MaterialTheme.colorScheme.primary)
     TimeText { time ->
         timeTextCurvedText("ETA 12:48", style = primaryStyle)
         timeTextSeparator(style)

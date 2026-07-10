@@ -145,6 +145,45 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructor_setConditionalToFalseByDefault() {
+        CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
+
+        assertThat(createPublicKeyCredentialRequest.isConditional()).isFalse();
+    }
+
+    @Test
+    public void constructor_setConditionalToTrue() {
+        boolean isConditionalExpected = true;
+        byte[] clientDataHash = "hash".getBytes();
+        String origin = "origin";
+
+        CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
+                new CreatePublicKeyCredentialRequest(
+                        TEST_REQUEST_JSON,
+                        clientDataHash,
+                        /*preferImmediatelyAvailableCredentials=*/ false,
+                        origin,
+                        /*isAutoSelectAllowed=*/ false,
+                        isConditionalExpected
+                );
+
+        assertThat(createPublicKeyCredentialRequest.isConditional()).isEqualTo(
+                isConditionalExpected);
+        assertThat(
+                createPublicKeyCredentialRequest.getCandidateQueryData().getBoolean(
+                        CreatePublicKeyCredentialRequest.BUNDLE_KEY_CONDITIONAL_CREATE
+                )
+        ).isTrue();
+        assertThat(
+                createPublicKeyCredentialRequest.getCredentialData().getBoolean(
+                        CreatePublicKeyCredentialRequest.BUNDLE_KEY_CONDITIONAL_CREATE
+                )
+        ).isTrue();
+    }
+
+
+    @Test
     public void getter_requestJson_success() {
         String testJsonExpected = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}";
         CreatePublicKeyCredentialRequest createPublicKeyCredentialReq =

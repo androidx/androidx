@@ -24,6 +24,7 @@ import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
@@ -222,13 +223,12 @@ internal class ThrottledCallbacks {
         val viewToWindowMatrix = viewToWindowMatrix
         globalChangeEntries?.linkedForEach { entry ->
             val node = entry.node.requireLayoutNode()
-            val offsetFromRoot = node.offsetFromRoot
-            val lastSize = node.lastSize
+            val offsetFromRoot = node.requireOwner().rectManager.getOffsetFromRectListFor(node)
 
             // For global change callbacks, we'll still need to update the Entry bounds
             entry.topLeft = offsetFromRoot.packedValue
             entry.bottomRight =
-                packXY(offsetFromRoot.x + lastSize.width, offsetFromRoot.y + lastSize.height)
+                packXY(offsetFromRoot.x + node.width, offsetFromRoot.y + node.height)
 
             fire(
                 entry = entry,
@@ -367,7 +367,7 @@ internal class ThrottledCallbacks {
     ): Long {
         var newMinDeadline = minDeadline
         if (entry.debounceMillis > 0 && entry.lastUninvokedFireMillis > 0) {
-            if (currentMillis - entry.lastUninvokedFireMillis > entry.debounceMillis) {
+            if (currentMillis - entry.lastUninvokedFireMillis >= entry.debounceMillis) {
                 entry.lastInvokeMillis = currentMillis
                 entry.lastUninvokedFireMillis = -1
                 val topLeft = entry.topLeft
@@ -436,8 +436,9 @@ internal class ThrottledCallbacks {
     private inline fun MutableIntObjectMap<Entry>.runFor(id: Int, block: (Entry) -> Unit) {
         var entry: Entry? = get(id)
         while (entry != null) {
+            val next = entry.next
             block(entry)
-            entry = entry.next
+            entry = next
         }
     }
 
@@ -460,6 +461,11 @@ internal class ThrottledCallbacks {
                 value.next = null
                 if (next != null) {
                     put(key, next)
+                } else {
+                    val layoutNode = value.node.node.requireLayoutNode()
+                    if (layoutNode.isAttached) {
+                        layoutNode.requireOwner().rectManager.unsetHasCallbacksFor(layoutNode)
+                    }
                 }
                 true
             }

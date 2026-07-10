@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
@@ -37,9 +38,8 @@ import java.util.List;
  *
  * <p>A search session is consist of a sequence of related search intents. See {@link
  * SearchIntentStats} for more details.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSessionStats extends BaseStats {
     private final @NonNull String mPackageName;
@@ -99,6 +99,25 @@ public final class SearchSessionStats extends BaseStats {
     /** Returns the list of {@link SearchIntentStats} in this search session. */
     public @NonNull List<SearchIntentStats> getSearchIntentsStats() {
         return mSearchIntentsStats;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("SearchSessionStats {\n")
+                .append(String.format("  packageName=%s,\n", mPackageName))
+                .append(String.format("  database=%s,\n", mDatabase))
+                .append("  searchIntentsStats=[\n");
+        for (int i = 0; i < mSearchIntentsStats.size(); i++) {
+            sb.append("    ").append(
+                    String.valueOf(mSearchIntentsStats.get(i)).replace("\n", "\n    ")).append(
+                    ",\n");
+        }
+        sb.append("  ],\n")
+                // Include BaseStats fields
+                .append(super.toString())
+                .append("}");
+        return sb.toString();
     }
 
     /** Builder for {@link SearchSessionStats}. */

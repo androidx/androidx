@@ -20,8 +20,8 @@ package androidx.car.app.model;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -36,9 +36,9 @@ import java.util.Objects;
  * A section within the {@code SectionedItemTemplate} that contains {@link GridItem}s - good for
  * showcase large artwork or images for every entry.
  */
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
+@RequiresCarApi(8)
 public final class GridSection extends Section<GridItem> {
     /** Defines possible sizes of the grid items within a grid section. */
     @IntDef(
@@ -152,7 +152,6 @@ public final class GridSection extends Section<GridItem> {
     }
 
     /** A builder that constructs {@link GridSection} instances. */
-    @ExperimentalCarApi
     public static final class Builder extends BaseBuilder<GridItem, Builder> {
         @ItemSize
         private int mItemSize = ITEM_SIZE_SMALL;

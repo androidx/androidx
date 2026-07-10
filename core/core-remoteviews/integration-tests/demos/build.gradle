@@ -18,11 +18,9 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":core:core-remoteviews"))
 }
 

@@ -22,7 +22,7 @@ limitations under the License.
         android:theme="@style/AppTheme">
         <activity
             android:name=".ConcurrentCameraActivity"
-            android:screenOrientation="sensorPortrait"
+            android:screenOrientation="sensor"
             android:exported="true"
             android:label="Concurrent Camera Test App"
             android:taskAffinity="androidx.camera.integration.core.ConcurrentCameraActivity">
@@ -41,17 +41,6 @@ limitations under the License.
 
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".CameraPipeActivity"
-            android:exported="true"
-            android:label="CameraPipe Core Test App"
-            android:taskAffinity="androidx.camera.integration.core.CameraPipeActivity"
-            android:theme="@android:style/Theme.Dialog">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity

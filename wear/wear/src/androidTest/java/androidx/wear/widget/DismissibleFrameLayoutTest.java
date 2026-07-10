@@ -41,6 +41,7 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.FrameLocationAvoidingEdges;
@@ -67,6 +68,7 @@ public class DismissibleFrameLayoutTest {
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454427971
     @Test
     public void testBackDismiss() {
         assumeNotCuttlefishWear();
@@ -87,6 +89,7 @@ public class DismissibleFrameLayoutTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454427971
     @Test
     public void testBackNotDismissIfDisabled() {
         assumeNotCuttlefishWear();
@@ -138,6 +141,7 @@ public class DismissibleFrameLayoutTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454427971
     @Test
     public void testDisableThenEnableBackDismiss() {
         assumeNotCuttlefishWear();
@@ -189,6 +193,7 @@ public class DismissibleFrameLayoutTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454427971
     @Test
     public void testBackDismissWithRecyclerView() {
         assumeNotCuttlefishWear();

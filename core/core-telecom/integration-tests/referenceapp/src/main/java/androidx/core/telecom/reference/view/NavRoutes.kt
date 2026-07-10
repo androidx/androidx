@@ -28,4 +28,6 @@ object NavRoutes {
     const val SETTINGS = "settings"
     /** Route for the In-Call screen displayed during an active call. */
     const val IN_CALL = "inCall"
+    /** Route for the Call Log screen. */
+    const val CALL_LOG = "call_log"
 }

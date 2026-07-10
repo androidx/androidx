@@ -91,6 +91,7 @@ internal open class ExtensionWindowBackendApi1(
                             // WM Extensions v1 addWindowLayoutInfoListener only
                             // supports Activities. Return empty WindowLayoutInfo if the
                             // provided Context is not an Activity.
+                            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor deprecated
                             consumer.accept(OEMWindowLayoutInfo(emptyList()))
                             return@registerLayoutChangeCallback
                         }

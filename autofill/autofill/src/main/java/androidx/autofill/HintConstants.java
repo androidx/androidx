@@ -741,4 +741,370 @@ public final class HintConstants {
      * hints.
      */
     public static final String AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE = "flightConfirmationCode";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport number.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_NUMBER}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_NUMBER = "passportNumber";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport issue country code.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_ISSUE_COUNTRY_CODE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_ISSUE_COUNTRY_CODE =
+            "passportIssueCountryCode";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport expiration date.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_EXPIRATION_DATE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_EXPIRATION_DATE = "passportExpirationDate";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport expiration year.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_EXPIRATION_YEAR}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_EXPIRATION_YEAR = "passportExpirationYear";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport expiration month.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_EXPIRATION_MONTH}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_EXPIRATION_MONTH = "passportExpirationMonth";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport expiration day.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_EXPIRATION_DAY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_EXPIRATION_DAY = "passportExpirationDay";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport issue date.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_ISSUE_DATE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_ISSUE_DATE = "passportIssueDate";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport issue year.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_ISSUE_YEAR}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_ISSUE_YEAR = "passportIssueYear";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport issue month.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_ISSUE_MONTH}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_ISSUE_MONTH = "passportIssueMonth";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport issue day.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_ISSUE_DAY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_ISSUE_DAY = "passportIssueDay";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport holder's full name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_HOLDER_NAME}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_HOLDER_NAME = "passportHolderName";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport holder's family name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_HOLDER_NAME_FAMILY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_HOLDER_NAME_FAMILY =
+            "passportHolderNameFamily";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport holder's given name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_HOLDER_NAME_GIVEN}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_HOLDER_NAME_GIVEN =
+            "passportHolderNameGiven";
+
+    /**
+     * Hint indicating that this view can be autofilled with a passport holder's middle name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_PASSPORT_HOLDER_NAME_MIDDLE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_PASSPORT_HOLDER_NAME_MIDDLE =
+            "passportHolderNameMiddle";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license number.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_NUMBER}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_NUMBER = "driverLicenseNumber";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue region name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_REGION_NAME}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_REGION_NAME =
+            "driverLicenseIssueRegionName";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue country code.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_COUNTRY_CODE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_COUNTRY_CODE =
+            "driverLicenseIssueCountryCode";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license expiration date.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_DATE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_DATE =
+            "driverLicenseExpirationDate";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license expiration year.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_YEAR}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_YEAR =
+            "driverLicenseExpirationYear";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license expiration month.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_MONTH}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_MONTH =
+            "driverLicenseExpirationMonth";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license expiration day.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_DAY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_EXPIRATION_DAY =
+            "driverLicenseExpirationDay";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue date.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_DATE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_DATE = "driverLicenseIssueDate";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue year.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_YEAR}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_YEAR = "driverLicenseIssueYear";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue month.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_MONTH}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_MONTH = "driverLicenseIssueMonth";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license issue day.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_DAY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_ISSUE_DAY = "driverLicenseIssueDay";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license holder's full name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME =
+            "driverLicenseHolderName";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license holder's
+     * first/given name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_GIVEN}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_GIVEN =
+            "driverLicenseHolderNameGiven";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license holder's
+     * last/family name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_FAMILY}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_FAMILY =
+            "driverLicenseHolderNameFamily";
+
+    /**
+     * Hint indicating that this view can be autofilled with a driver's license holder's
+     * middle name.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_MIDDLE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_DRIVER_LICENSE_HOLDER_NAME_MIDDLE =
+            "driverLicenseHolderNameMiddle";
+
 }

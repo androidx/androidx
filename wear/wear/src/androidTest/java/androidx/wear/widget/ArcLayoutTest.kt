@@ -729,7 +729,7 @@ class ArcLayoutTest(private val testHeight: Int) {
         // We setup the "mouse event display" view (on top, with a semi-transparent background)
         // and the views under test.
         val drawableSurface = DrawableSurface(context)
-        drawableSurface.background = ColorDrawable(0x40000000.toInt())
+        drawableSurface.background = ColorDrawable(0x40000000)
         val views = testViews + drawableSurface
 
         // Setup the click handlers

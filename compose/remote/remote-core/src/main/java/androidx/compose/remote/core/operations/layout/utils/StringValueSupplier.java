@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.layout.utils;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** Basic interface for a lambda (used for logging) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface StringValueSupplier {
     /**
      * returns a string value

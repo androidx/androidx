@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** The rotate the rendering command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixFromPath extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.MATRIX_FROM_PATH;
     private static final String CLASS_NAME = "MatrixFromPath";
@@ -78,7 +80,8 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
     @NonNull
     @Override
     public String toString() {
-        return "DrawTextOnPath ["
+        return CLASS_NAME
+                + " ["
                 + mPathId
                 + "] "
                 + Utils.floatToString(mFraction, mOutFraction)
@@ -96,9 +99,9 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
 
-        int pathId = buffer.readInt();
-        float percent = buffer.readFloat();
-        float vOffset = buffer.readFloat();
+        int pathId = buffer.readId();
+        float percent = buffer.readNanId();
+        float vOffset = buffer.readNanId();
         int flags = buffer.readInt();
         MatrixFromPath op = new MatrixFromPath(pathId, percent, vOffset, flags);
         operations.add(op);
@@ -111,7 +114,7 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      */
     @NonNull
     public static String name() {
-        return "DrawTextOnPath";
+        return CLASS_NAME;
     }
 
     /**
@@ -120,7 +123,7 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      * @return the opcode
      */
     public static int id() {
-        return Operations.DRAW_TEXT_ON_PATH;
+        return OP_CODE;
     }
 
     /**
@@ -147,12 +150,16 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(DocumentedOperation.INT, "pathId", "id of the path")
-                .field(DocumentedOperation.FLOAT, "xOffset", "x Shift of the text")
-                .field(DocumentedOperation.FLOAT, "yOffset", "y Shift of the text");
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_from_path")
+                .description("Set the matrix relative to a path position and tangent")
+                .field(DocumentedOperation.INT, "pathId", "The ID of the path")
+                .field(DocumentedOperation.FLOAT, "percent", "The position on the path [0..1]")
+                .field(DocumentedOperation.FLOAT, "vOffset", "Vertical offset from the path")
+                .field(DocumentedOperation.INT, "flags", "Flags for position/tangent")
+                .possibleValues("POSITION_MATRIX_FLAG", POSITION_MATRIX_FLAG)
+                .possibleValues("TANGENT_MATRIX_FLAG", TANGENT_MATRIX_FLAG);
     }
 
     @Override
@@ -167,6 +174,6 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
                 .addType(CLASS_NAME)
                 .add("pathId", mPathId)
                 .add("vOffset", mVOffset, mOutVOffset)
-                .add("hOffset", mFraction, mOutFraction);
+                .add("fraction", mFraction, mOutFraction);
     }
 }

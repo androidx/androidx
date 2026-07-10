@@ -137,6 +137,11 @@ class UnusedAppRestrictionsBackportServiceConnection implements ServiceConnectio
                             + "revocation setting from the backport");
                 }
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 }

@@ -26,7 +26,7 @@ import androidx.lifecycle.LifecycleOwner
  *
  * @see OnBackPressedDispatcher
  */
-interface OnBackPressedDispatcherOwner : LifecycleOwner {
+public interface OnBackPressedDispatcherOwner : LifecycleOwner {
     /** The [OnBackPressedDispatcher] that should handle the system back button. */
-    val onBackPressedDispatcher: OnBackPressedDispatcher
+    public val onBackPressedDispatcher: OnBackPressedDispatcher
 }

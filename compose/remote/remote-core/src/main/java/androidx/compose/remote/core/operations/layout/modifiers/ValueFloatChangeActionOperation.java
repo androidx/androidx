@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -35,6 +36,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Apply a value change on an float variable. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueFloatChangeActionOperation extends Operation implements ActionOperation {
     private static final int OP_CODE = Operations.VALUE_FLOAT_CHANGE_ACTION;
 
@@ -75,7 +77,9 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValue);
+    }
 
     @Override
     public void runAction(
@@ -107,8 +111,8 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
-        float value = buffer.readFloat();
+        int valueId = buffer.readId();
+        float value = buffer.readNanId();
         operations.add(new ValueFloatChangeActionOperation(valueId, value));
     }
 
@@ -118,12 +122,10 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ValueFloatChangeActionOperation")
-                .description(
-                        "ValueIntegerChange action. "
-                                + " This operation represents a value change for the given id")
-                .field(INT, "TARGET_VALUE_ID", "Value ID")
-                .field(FLOAT, "VALUE", "float value to be assigned to the target");
+        doc.operation("Actions & Events Operations", OP_CODE, "ValueFloatChangeActionOperation")
+                .description("Action that sets a new value for a float variable")
+                .field(INT, "targetValueId", "The ID of the float variable to update")
+                .field(FLOAT, "value", "The new float value to assign");
     }
 
     @Override

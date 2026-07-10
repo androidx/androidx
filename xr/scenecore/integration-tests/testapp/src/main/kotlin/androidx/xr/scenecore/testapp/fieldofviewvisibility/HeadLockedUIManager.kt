@@ -19,6 +19,10 @@ package androidx.xr.scenecore.testapp.fieldofviewvisibility
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.xr.arcore.ArDevice
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -28,7 +32,9 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import com.google.android.material.slider.Slider
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 /** Manage the Head Locked UI. */
 class HeadLockedUIManager(
@@ -37,6 +43,9 @@ class HeadLockedUIManager(
     headLockedPanelView: View,
 ) {
     private val mSession = session
+    private val mScene = session.scene
+    private val device: ArDevice = ArDevice.getInstance(session)
+
     private val mHeadLockedPanelView: View = headLockedPanelView
     private lateinit var mHeadLockedPanel: PanelEntity
     private val _mEnableHeadlockFlow = MutableStateFlow(true)
@@ -46,7 +55,7 @@ class HeadLockedUIManager(
             _mEnableHeadlockFlow.value = value
         }
 
-    private val _mUserForwardFlow = MutableStateFlow(Pose(Vector3(0f, 0.00f, -1.3f)))
+    private val _mUserForwardFlow = MutableStateFlow(Pose(Vector3(0f, 0.00f, -1.4f)))
     private var mUserForward: Pose
         get() = _mUserForwardFlow.value
         set(value) {
@@ -60,7 +69,7 @@ class HeadLockedUIManager(
             _sliderPositionAlphaFlow.value = value
         }
 
-    private val _modelIsEnabledFlow = MutableStateFlow(true)
+    private val _modelIsEnabledFlow = MutableStateFlow(false)
     private var modelIsEnabled: Boolean
         get() = _modelIsEnabledFlow.value
         set(value) {
@@ -75,6 +84,15 @@ class HeadLockedUIManager(
     init {
         updateUIState()
         createHeadLockedPanel()
+
+        activity.lifecycleScope.launch {
+            activity.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    updateHeadLockedPose()
+                    awaitFrame()
+                }
+            }
+        }
 
         sliderAlpha.addOnChangeListener { _, value, _ ->
             run {
@@ -98,7 +116,6 @@ class HeadLockedUIManager(
     }
 
     private fun createHeadLockedPanel() {
-        this.mHeadLockedPanelView.postOnAnimation(this::updateHeadLockedPose)
         this.mHeadLockedPanel =
             PanelEntity.create(
                 session = mSession,
@@ -106,8 +123,10 @@ class HeadLockedUIManager(
                 pixelDimensions = IntSize2d(800, 360),
                 name = "headLockedPanel",
                 pose = Pose(Vector3(0f, 0f, 0f)),
+                parent = mSession.scene.activitySpace,
             )
         this.mHeadLockedPanel.parent = mSession.scene.activitySpace
+        this.mHeadLockedPanel.setEnabled(false)
     }
 
     private fun updateUIState() {
@@ -118,16 +137,17 @@ class HeadLockedUIManager(
     }
 
     private fun updateHeadLockedPose() {
-        if (mSession.scene.spatialUser.head != null && this.mEnableHeadlock) {
+        if (this.mEnableHeadlock) {
+            val activitySpace = mSession.scene.activitySpace
             // Since the panel is parented by the activitySpace, we need to inverse its scale
             // so that the panel stays at a fixed size in the view even when ActivitySpace scales.
-            this.mHeadLockedPanel.setScale(
-                0.5f / mSession.scene.activitySpace.getScale(Space.REAL_WORLD)
-            )
-            mSession.scene.spatialUser.head
-                ?.transformPoseTo(mUserForward, mSession.scene.activitySpace)
-                ?.let { this.mHeadLockedPanel.setPose(it) }
+            // TODO - b/415320653: Remove Space.REAL_WORLD
+            @Suppress("DEPRECATION", "RestrictedApiAndroidX")
+            this.mHeadLockedPanel.setScale(0.5f / activitySpace.getScale(Space.REAL_WORLD))
+            mScene.perceptionSpace
+                .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+                .transformPoseTo(mUserForward, activitySpace)
+                .let { this.mHeadLockedPanel.setPose(it) }
         }
-        mHeadLockedPanelView.postOnAnimation(this::updateHeadLockedPose)
     }
 }

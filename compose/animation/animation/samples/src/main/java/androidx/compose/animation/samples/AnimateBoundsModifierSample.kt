@@ -18,7 +18,6 @@ package androidx.compose.animation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.BoundsTransform
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastForEach
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_animateOnContentChange() {
@@ -89,7 +87,6 @@ private fun AnimateBounds_animateOnContentChange() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_withLayoutModifier() {
@@ -176,7 +173,7 @@ private fun AnimateBounds_withLayoutModifier() {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_inFlowRowSample() {
@@ -218,7 +215,6 @@ private fun AnimateBounds_inFlowRowSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_usingKeyframes() {
@@ -275,7 +271,6 @@ private fun AnimateBounds_usingKeyframes() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_withMovableContent() {

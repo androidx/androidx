@@ -16,7 +16,8 @@
 
 package androidx.compose.ui.modifier
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.BackwardsCompatNode
 import androidx.compose.ui.node.LayoutNode
@@ -38,10 +39,23 @@ import androidx.compose.ui.node.visitSubtreeIf
  * Modifer.Node world.
  */
 internal class ModifierLocalManager(val owner: Owner) {
-    private val inserted = mutableVectorOf<BackwardsCompatNode>()
-    private val insertedLocal = mutableVectorOf<ModifierLocal<*>>()
-    private val removed = mutableVectorOf<LayoutNode>()
-    private val removedLocal = mutableVectorOf<ModifierLocal<*>>()
+    private var _inserted: MutableObjectList<BackwardsCompatNode>? = null
+    private val inserted: MutableObjectList<BackwardsCompatNode>
+        get() = _inserted ?: mutableObjectListOf<BackwardsCompatNode>().also { _inserted = it }
+
+    private var _insertedLocal: MutableObjectList<ModifierLocal<*>>? = null
+    private val insertedLocal: MutableObjectList<ModifierLocal<*>>
+        get() =
+            _insertedLocal ?: mutableObjectListOf<ModifierLocal<*>>().also { _insertedLocal = it }
+
+    private var _removed: MutableObjectList<LayoutNode>? = null
+    private val removed: MutableObjectList<LayoutNode>
+        get() = _removed ?: mutableObjectListOf<LayoutNode>().also { _removed = it }
+
+    private var _removedLocal: MutableObjectList<ModifierLocal<*>>? = null
+    private val removedLocal: MutableObjectList<ModifierLocal<*>>
+        get() = _removedLocal ?: mutableObjectListOf<ModifierLocal<*>>().also { _removedLocal = it }
+
     private var invalidated: Boolean = false
 
     fun invalidate() {
@@ -58,27 +72,32 @@ internal class ModifierLocalManager(val owner: Owner) {
         // both the rmoved node and the inserted one, so we store all of the consumers we want to
         // update in a set and call update on them at the end.
         val toUpdate = hashSetOf<BackwardsCompatNode>()
-        removed.forEachIndexed { i, layout ->
-            val key = removedLocal[i]
-            if (layout.nodes.head.isAttached) {
-                // if the layout is still attached, that means that this provider got removed and
-                // there's possible some consumers below it that need to be updated
-                invalidateConsumersOfNodeForKey(layout.nodes.head, key, toUpdate)
+        _removed?.let { removed ->
+            removed.forEachIndexed { i, layout ->
+                val key = removedLocal[i]
+                if (layout.nodes.head.isAttached) {
+                    // if the layout is still attached, that means that this provider got removed
+                    // and
+                    // there's possible some consumers below it that need to be updated
+                    invalidateConsumersOfNodeForKey(layout.nodes.head, key, toUpdate)
+                }
             }
+            removed.clear()
+            _removedLocal?.clear()
         }
-        removed.clear()
-        removedLocal.clear()
         // TODO(lmr): we could potentially opt for a more sophisticated strategy here where we
         //  start from the higher up nodes, and invalidate in a way where during traversal if we
         //  happen upon other inserted nodes we can remove them from the inserted set
-        inserted.forEachIndexed { i, node ->
-            val key = insertedLocal[i]
-            if (node.isAttached) {
-                invalidateConsumersOfNodeForKey(node, key, toUpdate)
+        _inserted?.let { inserted ->
+            inserted.forEachIndexed { i, node ->
+                val key = insertedLocal[i]
+                if (node.isAttached) {
+                    invalidateConsumersOfNodeForKey(node, key, toUpdate)
+                }
             }
+            inserted.clear()
+            _insertedLocal?.clear()
         }
-        inserted.clear()
-        insertedLocal.clear()
         toUpdate.forEach { it.updateModifierLocalConsumer() }
     }
 

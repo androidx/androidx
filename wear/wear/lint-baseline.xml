@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+<issues format="6" by="lint 9.0.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha03)" variant="all" version="9.0.0-alpha03">
 
     <issue
         id="CheckResult"
         message="The result of `onView` is not used"
-        errorLine1="        onView(allOf(withId(R.id.action_list), not(isDisplayed())));"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        onView(allOf(withId(androidx.wear.R.id.action_list), not(isDisplayed())));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/widget/drawer/WearableDrawerLayoutEspressoTest.java"/>
     </issue>
@@ -13,8 +13,44 @@
     <issue
         id="CheckResult"
         message="The result of `onView` is not used"
-        errorLine1="        onView(allOf(withId(R.id.action_list), not(isDisplayed())));"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        onView(allOf(withId(androidx.wear.R.id.action_list), not(isDisplayed())));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/drawer/WearableDrawerLayoutEspressoTest.java"/>
+    </issue>
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="                    uiController.loopMainThreadForAtLeast(timeUntilDesired);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/util/ArcSwipe.java"/>
+    </issue>
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="                    uiController.loopMainThreadForAtLeast(100); // at least 3 frames"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/util/AsyncViewActions.java"/>
+    </issue>
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="                    uiController.loopMainThreadForAtLeast(100); // at least 3 frames"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/drawer/WearableDrawerLayoutEspressoTest.java"/>
+    </issue>
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="                    uiController.loopMainThreadForAtLeast(100); // at least 3 frames"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/widget/drawer/WearableDrawerLayoutEspressoTest.java"/>
     </issue>

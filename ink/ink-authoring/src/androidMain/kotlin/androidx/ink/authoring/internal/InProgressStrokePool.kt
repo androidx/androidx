@@ -16,40 +16,116 @@
 
 package androidx.ink.authoring.internal
 
-import androidx.ink.strokes.InProgressStroke
+import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.MutableObjectIntMap
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.InProgressShape
+import androidx.ink.authoring.ShapeWorkflow
 
-internal interface InProgressStrokePool {
-    fun obtain(): InProgressStroke
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
+internal interface InProgressStrokePool<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, *>,
+> {
+    fun obtain(shapeSpec: ShapeSpecT): InProgressShapeT
 
-    fun recycle(inProgressStroke: InProgressStroke)
-
-    fun trimToSize(maxSize: Int)
-
-    companion object {
-        fun create(): InProgressStrokePool = InProgressStrokePoolImpl()
-    }
+    fun recycle(inProgressShape: InProgressShapeT)
 }
 
-private class InProgressStrokePoolImpl : InProgressStrokePool {
+@OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
+internal class InProgressStrokePoolImpl<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, *>,
+>(private val shapeWorkflow: ShapeWorkflow<ShapeSpecT, InProgressShapeT, *>) :
+    InProgressStrokePool<ShapeSpecT, InProgressShapeT> {
 
-    private val pool = mutableListOf<InProgressStroke>()
+    private val shapeTypeToRecyclingData =
+        MutableIntObjectMap<ShapeTypeRecyclingData<InProgressShapeT>>()
+    private val loanedShapesToShapeType = MutableObjectIntMap<InProgressShapeT>()
 
-    override fun obtain(): InProgressStroke = pool.removeFirstOrNull() ?: InProgressStroke()
+    @VisibleForTesting
+    internal fun recyclingDataForShapeType(shapeType: Int) = shapeTypeToRecyclingData[shapeType]
 
-    override fun recycle(inProgressStroke: InProgressStroke) {
-        // Will be started with the actual brush when this InProgressStroke is reused, but
-        // defensively
-        // clear its data for now. This does not deallocate the space for its data, so it's ready to
-        // be
-        // reused with minimal cost compared to allocating a new one.
-        inProgressStroke.clear()
-        pool.add(inProgressStroke)
+    override fun obtain(shapeSpec: ShapeSpecT): InProgressShapeT {
+        val shapeType = shapeWorkflow.getShapeType(shapeSpec)
+        val recyclingData =
+            shapeTypeToRecyclingData.getOrPut(shapeType) { ShapeTypeRecyclingData() }
+        val ips = recyclingData.obtainOrCreate { shapeWorkflow.create(shapeType) }
+        loanedShapesToShapeType[ips] = shapeType
+        return ips
     }
 
-    override fun trimToSize(maxSize: Int) {
-        require(maxSize >= 0)
-        if (pool.size <= maxSize) return
-        pool.subList(maxSize, pool.size).clear()
-        check(pool.size == maxSize)
+    override fun recycle(inProgressShape: InProgressShapeT) {
+        check(loanedShapesToShapeType.containsKey(inProgressShape)) {
+            "Trying to recycle shape that was not obtained: $inProgressShape"
+        }
+        val shapeType = loanedShapesToShapeType[inProgressShape]
+        val recyclingData =
+            checkNotNull(shapeTypeToRecyclingData[shapeType]) {
+                "Trying to recycle shape with unrecognized shape type: $shapeType"
+            }
+        inProgressShape.prepareToRecycle()
+        recyclingData.recycle(inProgressShape)
+    }
+
+    @VisibleForTesting
+    internal class ShapeTypeRecyclingData<InProgressShapeT> {
+        /**
+         * This will grow as needed to match the size of the biggest stroke cohort seen in the last
+         * N handoffs. A hard limit on the pool size wouldn't be appropriate as each app and each
+         * user will have different patterns, and different [InProgressStrokesRenderHelper]
+         * implementations can influence the number of instances needed at once. But trimming the
+         * size of this pool according to recent activity (see [recentCohortSizes]) ensures that an
+         * unusually large cohort won't force too much memory to be held for the rest of the inking
+         * session.
+         */
+        private val pool = mutableListOf<InProgressShapeT>()
+
+        internal val poolSize
+            get() = pool.size
+
+        /** Number of calls to [obtainOrCreate] minus number of calls to [recycle]. */
+        internal var currentlyObtainedShapeCount = 0
+            private set
+
+        /**
+         * The high water mark of [currentlyObtainedShapeCount], resets when
+         * [currentlyObtainedShapeCount] reaches 0.
+         */
+        private var currentCohortSize = 0
+
+        /**
+         * The N most recent values for how many [InProgressShapeT] instances have been needed at
+         * once. Start with all zeroes because so far none have been needed.
+         */
+        private val recentCohortSizes = IntArray(10)
+
+        /** The index in the [recentCohortSizes] circular buffer to update next. */
+        private var recentCohortSizesNextIndex = 0
+
+        inline fun obtainOrCreate(createBlock: () -> InProgressShapeT): InProgressShapeT =
+            (pool.removeFirstOrNull() ?: createBlock()).also {
+                currentlyObtainedShapeCount++
+                currentCohortSize++
+            }
+
+        fun recycle(inProgressShape: InProgressShapeT) {
+            pool.add(inProgressShape)
+            currentlyObtainedShapeCount--
+
+            if (currentlyObtainedShapeCount == 0) {
+                recentCohortSizes[recentCohortSizesNextIndex] = currentCohortSize
+                currentCohortSize = 0
+                recentCohortSizesNextIndex++
+                if (recentCohortSizesNextIndex >= recentCohortSizes.size) {
+                    recentCohortSizesNextIndex = 0
+                }
+                val newMaxPoolSize = recentCohortSizes.max()
+                if (pool.size <= newMaxPoolSize) return
+                pool.subList(newMaxPoolSize, pool.size).clear()
+                check(pool.size == newMaxPoolSize)
+            }
+        }
     }
 }

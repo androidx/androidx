@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListSubHeader
+import androidx.wear.compose.material3.LocalRippleConfiguration
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.RadioButton
@@ -84,12 +86,22 @@ fun CardDemo() {
     ScalingLazyDemo {
         item { ListHeader { Text("Card") } }
         item { CardSample() }
+        item { CardWithoutRippleEffectDemo() }
         item { NonClickableCardSample() }
         item { CardWithOnLongClickSample { showOnLongClickToast(context) } }
         item { CardWithNestedImageDemo() }
         item { CardWithMultipleImagesDemo() }
         item { VerticallyCenteredBaseCard() }
         item { CardFillContentSample() }
+    }
+}
+
+@Composable
+fun CardWithoutRippleEffectDemo() {
+    CompositionLocalProvider(LocalRippleConfiguration provides null) {
+        Card(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth()) { Text("Card without ripple effect") }
+        }
     }
 }
 

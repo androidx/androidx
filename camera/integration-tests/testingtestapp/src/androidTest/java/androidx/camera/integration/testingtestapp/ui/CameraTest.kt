@@ -18,12 +18,13 @@ package androidx.camera.integration.testingtestapp.ui
 
 import androidx.camera.integration.testingtestapp.R
 import androidx.camera.integration.testingtestapp.testing.HiltComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,7 +38,8 @@ class CameraTest {
     val cameraPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    @get:Rule(order = 2) var composeTestRule = createAndroidComposeRule<HiltComponentActivity>()
+    @get:Rule(order = 2)
+    var composeTestRule = createAndroidComposeRule<HiltComponentActivity>(StandardTestDispatcher())
 
     @Test
     fun test1() {

@@ -53,7 +53,7 @@ public interface InProgressStrokesFinishedListener {
      *
      * @param strokes The finished strokes, with map iteration order in the z-order that strokes
      *   were rendered in the [InProgressStrokesView], from back to front. This is the same order
-     *   that strokes were started with [startStroke].
+     *   that strokes were started with [InProgressStrokesView.startStroke].
      */
     public fun onStrokesFinished(strokes: Map<InProgressStrokeId, Stroke>) {}
 }

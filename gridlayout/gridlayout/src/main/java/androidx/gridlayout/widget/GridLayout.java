@@ -801,6 +801,10 @@ public class GridLayout extends ViewGroup {
         if (span.min != UNDEFINED && span.min < 0) {
             handleInvalidParams(groupName + " indices must be positive");
         }
+        // Limit the start index to prevent excessive array allocations and computations.
+        if (span.min != UNDEFINED && span.min > MAX_SIZE) {
+            handleInvalidParams(groupName + " indices must be less than or equal to " + MAX_SIZE);
+        }
         Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
         int count = axis.definedCount;
         if (count != UNDEFINED) {
@@ -1145,6 +1149,12 @@ public class GridLayout extends ViewGroup {
                 handleInvalidParams((horizontal ? "column" : "row") +
                         "Count must be greater than or equal to the maximum of all grid indices " +
                         "(and spans) defined in the LayoutParams of each child");
+            }
+            // Enforce a maximum bound for axis count limits.
+            if (count != UNDEFINED && count > MAX_SIZE) {
+                handleInvalidParams((horizontal ? "column" : "row")
+                        + "Count must be less than or equal to the maximum size ("
+                        + MAX_SIZE + ")");
             }
             this.definedCount = count;
         }
@@ -2412,6 +2422,10 @@ public class GridLayout extends ViewGroup {
 
         Spec(boolean startDefined, int start, int size, Alignment alignment, float weight) {
             this(startDefined, new Interval(start, start + size), alignment, weight);
+            if (startDefined && (start + size < start || start + size > MAX_SIZE)) {
+                handleInvalidParams("The sum of the start index and the span must not exceed "
+                        + MAX_SIZE);
+            }
         }
 
         public Alignment getAbsoluteAlignment(boolean horizontal) {

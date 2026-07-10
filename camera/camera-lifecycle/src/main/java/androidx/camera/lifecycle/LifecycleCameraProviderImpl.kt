@@ -21,8 +21,6 @@ import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn as JavaOptIn
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
@@ -36,7 +34,6 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.LegacySessionConfig
@@ -72,9 +69,8 @@ import java.util.Objects.requireNonNull
 import java.util.concurrent.Executor
 
 /** Implementation of the [LifecycleCameraProvider] interface. */
-@OptIn(ExperimentalSessionConfig::class)
 @JavaOptIn(ExperimentalCameraProviderConfiguration::class)
-internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
+internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPresenceListener {
     private val lock = Any()
     @VisibleForTesting
     @GuardedBy("lock")
@@ -90,7 +86,6 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
     @GuardedBy("mLock")
     private val cameraInfoMap: MutableMap<CameraIdentifier, AdapterCameraInfo> = HashMap()
     private val lifecycleCameraKeys = HashSet<LifecycleCameraRepository.Key>()
-    override var configImplType = CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN
 
     internal fun initAsync(
         context: Context,
@@ -104,11 +99,20 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             }
             cameraXConfig?.let { configure(it) }
             val cameraX = CameraX(context, cameraXConfigProvider)
-            configImplType = cameraX.configImplType
 
-            val initFuture =
+            val initFuture: ListenableFuture<Void> =
                 FutureChain.from(cameraXShutdownFuture)
                     .transformAsync({ cameraX.initializeFuture }, CameraXExecutors.directExecutor())
+                    .transform(
+                        { void: Void? ->
+                            this@LifecycleCameraProviderImpl.initInternal(
+                                cameraX,
+                                ContextUtil.getPersistentApplicationContext(context),
+                            )
+                            void
+                        },
+                        CameraXExecutors.directExecutor(),
+                    )
 
             cameraXInitializeFuture = initFuture
 
@@ -116,10 +120,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
                 initFuture,
                 object : FutureCallback<Void?> {
                     override fun onSuccess(void: Void?) {
-                        this@LifecycleCameraProviderImpl.initInternal(
-                            cameraX,
-                            ContextUtil.getApplicationContext(context),
-                        )
+                        // No-op. Success is now handled by the .transform() block.
                     }
 
                     override fun onFailure(t: Throwable) {
@@ -143,6 +144,10 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
         synchronized(lock) {
             cameraX = newCameraX
             context = newContext
+
+            cameraX
+                ?.cameraAvailabilityProvider
+                ?.addCameraPresenceListener(this, CameraXExecutors.mainThreadExecutor())
         }
     }
 
@@ -176,7 +181,13 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
         }
 
         val shutdownFuture =
-            if (isInitialized) cameraX!!.shutdown() else Futures.immediateFuture<Void>(null)
+            if (isInitialized) {
+                // Make sure to remove the listener before shutdown
+                cameraX!!.cameraAvailabilityProvider.removeCameraPresenceListener(this)
+                cameraX!!.shutdown()
+            } else {
+                Futures.immediateFuture<Void>(null)
+            }
 
         synchronized(lock) {
             if (clearConfigProvider) {
@@ -337,12 +348,8 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
     override fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera =
         trace("CX:bindToLifecycle-Concurrent") {
             if (singleCameraConfigs.size < 2) {
-                throw IllegalArgumentException("Concurrent camera needs two camera configs.")
-            }
-
-            if (singleCameraConfigs.size > 2) {
                 throw IllegalArgumentException(
-                    "Concurrent camera is only supporting two cameras at maximum."
+                    "Concurrent camera needs at least two camera configs."
                 )
             }
 
@@ -352,12 +359,17 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             val cameras: MutableList<Camera> = ArrayList()
             if (
                 firstCameraConfig.cameraSelector.lensFacing ==
-                    secondCameraConfig.cameraSelector.lensFacing
-            ) {
+                    secondCameraConfig.cameraSelector.lensFacing &&
+                    firstCameraConfig.cameraSelector.physicalCameraId != null &&
+                    secondCameraConfig.cameraSelector.physicalCameraId != null
+            ) { // Dual Selfie Mode
                 if (cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT) {
                     throw UnsupportedOperationException(
                         "Camera is already running, call unbindAll() before binding more cameras."
                     )
+                }
+                if (singleCameraConfigs.size > 2) {
+                    throw IllegalArgumentException("Dual selfie is only supporting two cameras.")
                 }
                 if (
                     firstCameraConfig.lifecycleOwner != secondCameraConfig.lifecycleOwner ||
@@ -400,6 +412,28 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
                     )
                 cameras.add(camera)
             } else {
+                val cameraInfosToBind =
+                    try {
+                        singleCameraConfigs.map { config -> getCameraInfo(config!!.cameraSelector) }
+                    } catch (e: IllegalArgumentException) {
+                        throw IllegalArgumentException(
+                            "Invalid camera selectors in camera configs.",
+                            e,
+                        )
+                    }
+
+                val isCombinationSupported =
+                    availableConcurrentCameraInfos.any { supportedCombination ->
+                        supportedCombination.size == cameraInfosToBind.size &&
+                            supportedCombination.toSet() == cameraInfosToBind.toSet()
+                    }
+
+                if (!isCombinationSupported) {
+                    throw IllegalArgumentException(
+                        "The camera configs do not match any supported concurrent camera combination."
+                    )
+                }
+
                 if (!context!!.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
                     throw UnsupportedOperationException(
                         "Concurrent camera is not supported on the device."
@@ -412,17 +446,6 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
                     )
                 }
 
-                val cameraInfosToBind: MutableList<CameraInfo> = ArrayList()
-                val firstCameraInfo: CameraInfo
-                val secondCameraInfo: CameraInfo
-                try {
-                    firstCameraInfo = getCameraInfo(firstCameraConfig.cameraSelector)
-                    secondCameraInfo = getCameraInfo(secondCameraConfig.cameraSelector)
-                } catch (_: IllegalArgumentException) {
-                    throw IllegalArgumentException("Invalid camera selectors in camera configs.")
-                }
-                cameraInfosToBind.add(firstCameraInfo)
-                cameraInfosToBind.add(secondCameraInfo)
                 if (
                     activeConcurrentCameraInfos.isNotEmpty() &&
                         cameraInfosToBind != activeConcurrentCameraInfos
@@ -510,7 +533,11 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
                         }
                         cameraInfos.add(cameraInfo)
                     }
-                    availableConcurrentCameraInfos.add(cameraInfos)
+
+                    // CameraX currently can only handle 2 cameras
+                    if (cameraInfos.size == 2) {
+                        availableConcurrentCameraInfos.add(cameraInfos)
+                    }
                 }
                 return@trace availableConcurrentCameraInfos
             }
@@ -593,29 +620,38 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
     ): Camera =
         trace("CX:bindToLifecycle-internal") {
             Threads.checkMainThread()
+
+            val (finalPrimaryCameraSelector, finalSecondaryCameraSelector) =
+                getSelectorsWithSessionFilter(
+                    sessionConfig,
+                    primaryCameraSelector,
+                    secondaryCameraSelector,
+                )
+
             // TODO(b/153096869): override UseCase's target rotation.
 
             // Get the LifecycleCamera if existed.
             val primaryCameraInternal =
-                primaryCameraSelector.select(cameraX!!.cameraRepository.cameras)
+                finalPrimaryCameraSelector.select(cameraX!!.cameraRepository.cameras)
             primaryCameraInternal.setPrimary(true)
-            val primaryAdapterCameraInfo = getCameraInfo(primaryCameraSelector) as AdapterCameraInfo
+            val primaryAdapterCameraInfo =
+                getCameraInfo(finalPrimaryCameraSelector) as AdapterCameraInfo
 
             var secondaryCameraInternal: CameraInternal? = null
             var secondaryAdapterCameraInfo: AdapterCameraInfo? = null
-            if (secondaryCameraSelector != null) {
+            if (finalSecondaryCameraSelector != null) {
                 secondaryCameraInternal =
-                    secondaryCameraSelector.select(cameraX!!.cameraRepository.cameras)
+                    finalSecondaryCameraSelector!!.select(cameraX!!.cameraRepository.cameras)
                 secondaryCameraInternal.setPrimary(false)
                 secondaryAdapterCameraInfo =
-                    getCameraInfo(secondaryCameraSelector) as AdapterCameraInfo
+                    getCameraInfo(finalSecondaryCameraSelector!!) as AdapterCameraInfo
             }
 
             // This identifier must be constructed identically to the one inside
             // CameraUseCaseAdapter
             // to ensure a correct lookup in the repository. It acts as the key.
             val cameraUseCaseAdapterId =
-                CameraIdentifier.fromAdapterInfos(
+                CameraIdentifier.Factory.fromAdapterInfos(
                     primaryAdapterCameraInfo,
                     secondaryAdapterCameraInfo,
                 )
@@ -664,6 +700,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
                                 primaryCompositionSettings,
                                 secondaryCompositionSettings,
                             ),
+                        cameraX!!.rotationProvider,
                     )
             }
 
@@ -684,6 +721,26 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             return@trace lifecycleCameraToBind
         }
 
+    private fun getSelectorsWithSessionFilter(
+        sessionConfig: SessionConfig,
+        primaryCameraSelector: CameraSelector,
+        secondaryCameraSelector: CameraSelector?,
+    ): Pair<CameraSelector, CameraSelector?> {
+        val sessionFilter =
+            sessionConfig.cameraFilter ?: return primaryCameraSelector to secondaryCameraSelector
+
+        val finalPrimary =
+            CameraSelector.Builder.fromSelector(primaryCameraSelector)
+                .addCameraFilter(sessionFilter)
+                .build()
+        val finalSecondary =
+            secondaryCameraSelector?.let {
+                CameraSelector.Builder.fromSelector(it).addCameraFilter(sessionFilter).build()
+            }
+
+        return finalPrimary to finalSecondary
+    }
+
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo =
         trace("CX:getCameraInfo") {
             val cameraInfoInternal =
@@ -691,7 +748,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             val cameraConfig = getCameraConfig(cameraSelector, cameraInfoInternal)
 
             val key =
-                CameraIdentifier.create(
+                CameraIdentifier.Factory.create(
                     cameraInfoInternal.cameraId,
                     null,
                     cameraConfig.compatibilityId,
@@ -708,13 +765,46 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             return@trace adapterCameraInfo!!
         }
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    override fun getCameraInfo(
+        cameraSelector: CameraSelector,
+        sessionConfig: SessionConfig,
+    ): CameraInfo {
+        return sessionConfig.cameraFilter?.let { sessionFilter ->
+            val finalCameraSelector =
+                CameraSelector.Builder.fromSelector(cameraSelector)
+                    .addCameraFilter(sessionFilter)
+                    .build()
+            getCameraInfo(finalCameraSelector)
+        } ?: getCameraInfo(cameraSelector)
+    }
+
     override fun addCameraPresenceListener(executor: Executor, listener: CameraPresenceListener) =
         cameraX!!.cameraAvailabilityProvider.addCameraPresenceListener(listener, executor)
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun removeCameraPresenceListener(listener: CameraPresenceListener) =
         cameraX!!.cameraAvailabilityProvider.removeCameraPresenceListener(listener)
+
+    @MainThread
+    override fun onCamerasAdded(addedCameraIds: Set<CameraIdentifier>) {
+        // No action needed for additions, as the map is populated on-demand.
+    }
+
+    @MainThread
+    override fun onCamerasRemoved(removedCameraIds: Set<CameraIdentifier>) {
+        Threads.checkMainThread()
+        synchronized(lock) {
+            for (removedId in removedCameraIds) {
+                // Find all keys in the map that match the removed camera's base ID set,
+                // regardless of compatibilityId, and remove them.
+                val keysToRemove =
+                    cameraInfoMap.keys.filter { key -> key.cameraIds == removedId.cameraIds }
+
+                for (key in keysToRemove) {
+                    cameraInfoMap.remove(key)
+                }
+            }
+        }
+    }
 
     private fun isVideoCapture(useCase: UseCase): Boolean =
         useCase.currentConfig.containsOption(UseCaseConfig.OPTION_CAPTURE_TYPE) &&

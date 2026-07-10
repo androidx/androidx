@@ -140,9 +140,11 @@ public final class NotificationManagerCompat {
      * {@link #getCurrentInterruptionFilter() Interruption filter} constant -
      *     Priority interruption filter - all notifications are suppressed except those that match
      *     the priority criteria. Some audio streams are muted. See
-     *     {@link Policy#priorityCallSenders}, {@link Policy#priorityCategories},
-     *     {@link Policy#priorityMessageSenders} to define or query this criteria. Users can
-     *     additionally specify packages that can bypass this interruption filter.
+     *     {@link android.app.NotificationManager.Policy#priorityCallSenders},
+     *     {@link android.app.NotificationManager.Policy#priorityCategories},
+     *     {@link android.app.NotificationManager.Policy#priorityMessageSenders} to define or query
+     *     this criteria. Users can additionally specify packages that can bypass this interruption
+     *     filter.
      */
     public static final int INTERRUPTION_FILTER_PRIORITY = 2;
 

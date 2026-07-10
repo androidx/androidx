@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -32,52 +31,44 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.compose.material3.adaptive.navigation3"
+        androidResources.enable = true
     }
+    jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":compose:material3:adaptive:adaptive-navigation"))
-                api(project(":navigation3:navigation3-ui"))
-            }
+        commonMain.dependencies {
+            api(project(":compose:material3:adaptive:adaptive-navigation"))
+            api("androidx.navigation3:navigation3-ui:1.0.0")
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.navigationevent:navigationevent-compose:1.0.1")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.activity:activity-compose:1.12.2")
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.activity:activity-compose:1.10.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:material3:material3"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:material3:material3"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":navigation3:navigation3-ui"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
     }
 }
 
 androidx {
     name = "Material Adaptive"
-    mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE_NAV3
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Compose Material Design Adaptive Library"
+    addGoldenImageAssets()
 }

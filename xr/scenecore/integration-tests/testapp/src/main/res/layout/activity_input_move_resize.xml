@@ -63,13 +63,15 @@
                 android:id="@+id/systemMovable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/system_movable_label" />
+                android:text="@string/system_movable_label"
+                android:visibility="gone" />
 
             <CheckBox
                 android:id="@+id/scaleInZ"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/scale_in_z_label" />
+                android:text="@string/scale_in_z_label"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -104,7 +106,8 @@
                 android:id="@+id/radioGroup1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <RadioButton
                     android:id="@+id/radioButton1"
@@ -124,6 +127,34 @@
                     android:layout_height="wrap_content"
                     android:text="@string/landscape_label" />
             </RadioGroup>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- CardView 3 (GLTF Switch) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardView2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/gltfMovableSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gltf_movable"
+                android:checked="true" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

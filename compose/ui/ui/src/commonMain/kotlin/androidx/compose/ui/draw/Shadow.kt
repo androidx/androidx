@@ -448,13 +448,21 @@ internal class BlockInnerShadowElement(val shape: Shape, val block: InnerShadowS
  * properties. This is useful for use cases where the shadow itself is animated and minimizing
  * recompositions is desired.
  */
-internal class BlockInnerShadowNode(private var shape: Shape, block: InnerShadowScope.() -> Unit) :
+internal class BlockInnerShadowNode(shape: Shape, block: InnerShadowScope.() -> Unit) :
     DrawModifierNode, Modifier.Node(), ObserverModifierNode, InnerShadowScope {
 
     private var densityObject: Density? = null
     private var targetShadow: Shadow? = null
     private var shadowPainter: InnerShadowPainter? = null
     private var blockRead = false
+
+    private var shape: Shape = shape
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidateShadow()
+            }
+        }
 
     private var block: InnerShadowScope.() -> Unit = block
         set(value) {
@@ -649,13 +657,22 @@ internal class BlockInnerShadowNode(private var shape: Shape, block: InnerShadow
  * properties and translation offset. This is useful for use cases where the shadow itself is
  * animated and minimizing recompositions is desired.
  */
-internal class BlockDropShadowNode(private var shape: Shape, block: DropShadowScope.() -> Unit) :
+internal class BlockDropShadowNode(shape: Shape, block: DropShadowScope.() -> Unit) :
     DrawModifierNode, Modifier.Node(), ObserverModifierNode, DropShadowScope {
 
     private var densityObject: Density? = null
     private var targetShadow: Shadow? = null
     private var shadowPainter: DropShadowPainter? = null
     private var blockRead = false
+
+    private var shape: Shape = shape
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidateShadow()
+            }
+        }
+
     private var block: DropShadowScope.() -> Unit = block
         set(value) {
             if (field !== value) {

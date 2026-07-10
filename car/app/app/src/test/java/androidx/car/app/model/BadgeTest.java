@@ -23,8 +23,10 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class BadgeTest {
     @Test
     public void build_withDotAndIcon() {

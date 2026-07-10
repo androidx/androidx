@@ -318,7 +318,7 @@ public abstract class LiveData<T> {
      *
      * @return the current value or null if {@link #isInitialized()} is false
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "GetterSetterNullability"})
     public @Nullable T getValue() {
         Object data = mData;
         if (data != NOT_SET) {

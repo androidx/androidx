@@ -90,6 +90,19 @@ public interface Muxer {
     public fun setLocation(latitude: Double, longitude: Double)
 
     /**
+     * Sets the capture frames per second (FPS).
+     *
+     * This value is embedded in the "com.android.capture.fps" metadata, which is used by Google
+     * Photos to identify the video as a slow-motion recording.
+     *
+     * This method must be called after [setOutput] but before [addTrack].
+     *
+     * @param captureFps The capture rate in frames per second. Must be a positive value.
+     * @throws IllegalArgumentException if the provided capture FPS is not positive.
+     */
+    @Throws(IllegalArgumentException::class) public fun setCaptureFps(captureFps: Int)
+
+    /**
      * Adds a track with the specified format and returns its index.
      *
      * This method must be called after [setOutput] but before [start]. Multiple tracks (e.g., for

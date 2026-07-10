@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.SpatialPointerComponent
-import androidx.xr.scenecore.internal.SpatialPointerIcon
-import androidx.xr.scenecore.internal.SpatialPointerIconType
+import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.SpatialPointerComponent
+import androidx.xr.scenecore.runtime.SpatialPointerIcon
+import androidx.xr.scenecore.runtime.SpatialPointerIconType
 
 /** Test-only implementation of [FakeSpatialPointerComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialPointerComponent : FakeComponent(), SpatialPointerComponent {
 
-    @SpatialPointerIconType private var spatialPointerIcon: Int = SpatialPointerIcon.TYPE_NONE
+    @SpatialPointerIconType override var spatialPointerIcon: Int = SpatialPointerIcon.TYPE_NONE
 
-    /** Sets the [androidx.xr.scenecore.internal.SpatialPointerIconType]. */
-    override fun setSpatialPointerIcon(@SpatialPointerIconType iconType: Int) {
-        spatialPointerIcon = iconType
+    override fun onAttach(entity: Entity): Boolean {
+        return (entity is FakePanelEntity)
     }
-
-    /**
-     * Returns the [androidx.xr.scenecore.internal.SpatialPointerIconType] set from
-     * [setSpatialPointerIcon] on this component.
-     */
-    @SpatialPointerIconType override fun getSpatialPointerIcon(): Int = spatialPointerIcon
 }

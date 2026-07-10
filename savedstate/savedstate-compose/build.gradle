@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -18,10 +17,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.savedstate.compose"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     desktop()
     mingwX64()
@@ -36,81 +31,55 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":savedstate:savedstate"))
-                api("androidx.compose.runtime:runtime:1.9.0")
-            }
+        commonMain.dependencies {
+            api(project(":savedstate:savedstate"))
+            api("androidx.compose.runtime:runtime:1.11.0")
         }
 
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-         androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.9.1")
-                implementation("androidx.core:core-ktx:1.13.1")
-            }
+         androidMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.core:core-ktx:1.13.1")
         }
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
         }
 
-        nonAndroidMain {
-            dependsOn(commonMain)
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
+        desktopTest.dependsOn(nonJvmTest)
+
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
+    }
+}
+
+dependencies {
+    constraints {
+        // Prevents runtime resolution failures. The reflection fallback for Compose 1.7.*
+        // was removed to eliminate brittle cross-package coupling. This constraint ensures
+        // the runtime provides the statically defined LocalLifecycleOwner.
+        androidMainImplementation("androidx.compose.ui:ui:1.8.0") {
+            because "Requires Compose 1.8+ to resolve LocalLifecycleOwner without reflection"
         }
 
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 1.3.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.savedstate:savedstate-compose:1.3.5") {
+            because "prevents symbols duplication"
         }
     }
 }

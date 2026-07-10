@@ -27,7 +27,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /** Unit tests for [SplitAttributesCalculatorParams] */
-@RunWith(RobolectricTestRunner::class) // Used for initializing Android instance (ex: Configuration)
+@RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(
+    sdk = [org.robolectric.annotation.Config.TARGET_SDK]
+) // Used for initializing Android instance (ex: Configuration)
 class SplitAttributesCalculatorParamsTest {
 
     @Test

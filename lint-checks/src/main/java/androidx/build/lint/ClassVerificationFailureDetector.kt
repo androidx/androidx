@@ -74,6 +74,7 @@ import org.jetbrains.kotlin.psi.KtReturnExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import org.jetbrains.kotlin.utils.exceptions.KotlinIllegalArgumentExceptionWithAttachments
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -130,10 +131,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         desc: String,
     ): ApiRequirement {
         val apiDatabase = apiDatabase ?: return NO_API_REQUIREMENT
-        val flagString = findFlagStringForElement(method)
-        if (flagString != null) return ApiFlagRequirement(flagString)
-
         val apiLevel = apiDatabase.getMethodVersions(owner, name, desc).min()
+        // Reduce false positives on flagged APIs by only looking at flags for platform APIs that
+        // were either definitely added in a preview SDK or don't have enough information to know
+        // for certain.
+        if (apiLevel == API_LEVEL_PREVIEW || apiLevel == API_LEVEL_UNKNOWN_OR_1) {
+            val flagString = findFlagStringForElement(method)
+            if (flagString != null) return ApiFlagRequirement(flagString)
+        }
         return if (apiLevel == API_LEVEL_UNKNOWN_OR_1) NO_API_REQUIREMENT
         else ApiLevelRequirement(apiLevel)
     }
@@ -156,7 +161,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
     private sealed interface ApiRequirement {
         val wrapperClassName: String
-        val wrapperClassAnnotation: String
+        val wrapperClassAnnotations: List<String>
         val stringForMessage: String
 
         operator fun compareTo(other: Int): Int
@@ -169,8 +174,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         override val wrapperClassName by lazy {
             "Flag${flagString.substringAfterLast('.').capitalizeAsciiOnly()}Impl"
         }
-        override val wrapperClassAnnotation by lazy {
-            "@$REQUIRES_ACONFIG_FLAG_ANNOTATION(\"$flagString\")"
+        override val wrapperClassAnnotations by lazy {
+            listOf(
+                "@RequiresApi(10000) // Required when calling pre-release APIs",
+                "@$REQUIRES_FLAG_ANNOTATION(\"$flagString\")",
+            )
         }
         override val stringForMessage by lazy { "guarded by Trunk Stable flag \"$flagString\"" }
 
@@ -185,8 +193,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
     private class ApiLevelRequirement(val apiLevel: Int) : ApiRequirement {
         override val wrapperClassName by lazy { "Api${apiLevel}Impl" }
-        override val wrapperClassAnnotation by lazy {
-            "@${REQUIRES_API_ANNOTATION.newName()}($apiLevel)"
+        override val wrapperClassAnnotations by lazy {
+            listOf("@${REQUIRES_API_ANNOTATION.newName()}($apiLevel)")
         }
         override val stringForMessage by lazy { "added in API level $apiLevel" }
 
@@ -262,7 +270,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (psi != null && psi.toUElement() != node) return
 
             // Get the expression type and expected type based on the expression's usage
-            val actualType = node.getExpressionType() ?: return
+            val actualType =
+                try {
+                    node.getExpressionType() ?: return
+                } catch (e: KotlinIllegalArgumentExceptionWithAttachments) {
+                    // b/483489537: fail with more detail about what went wrong.
+                    e.printStackTrace()
+                    val attachments = e.attachments.joinToString { it.displayText }
+                    throw IllegalStateException("${e.message}, attachments: $attachments", e)
+                }
             val actualTypeStr = actualType.canonicalText
             val actualTypeApi = getMinApiOfClass(actualTypeStr) ?: return
 
@@ -649,19 +665,19 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
         /**
          * Walks up the class hierarchy from the element to find if there is any `@RequiresApi` or
-         * `@RequiresAconfigFlag` annotation applicable to [requiredApi] API requirement.
+         * `@RequiresFlag` annotation applicable to [requiredApi] API requirement.
          */
         fun UElement.containedInClassWithApiRequirement(requiredApi: ApiRequirement): Boolean {
             var classUnderInspection: UClass? = this.getContainingUClass() ?: return false
 
             while (classUnderInspection != null) {
                 if (requiredApi is ApiFlagRequirement) {
-                    val potentialRequiresAconfigFlag =
+                    val potentialRequiresFlag =
                         ((classUnderInspection
-                                .getAnnotation(REQUIRES_ACONFIG_FLAG_ANNOTATION)
+                                .getAnnotation(REQUIRES_FLAG_ANNOTATION)
                                 ?.findAttributeValue(ATTR_VALUE) as? PsiLiteralValue)
                             ?.value as? String)
-                    if (requiredApi.flagString == potentialRequiresAconfigFlag) {
+                    if (requiredApi.flagString == potentialRequiresFlag) {
                         return true
                     }
                 }
@@ -961,7 +977,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     if (isKotlin) {
                         """
 
-                        ${api.wrapperClassAnnotation}
+${api.wrapperClassAnnotations.joinToString("\n").prependIndent("                        ")}
                         internal object $wrapperClassName {
 ${wrapperMethodBody.prependIndent("                            ")}
                         }
@@ -971,7 +987,7 @@ ${wrapperMethodBody.prependIndent("                            ")}
                     } else {
                         """
 
-                        ${api.wrapperClassAnnotation}
+${api.wrapperClassAnnotations.joinToString("\n").prependIndent("                        ")}
                         static class $wrapperClassName {
                             private $wrapperClassName() {
                                 // This class is not instantiable.
@@ -1429,9 +1445,10 @@ ${wrapperMethodBody.prependIndent("                            ")}
 
     companion object {
         const val API_LEVEL_UNKNOWN_OR_1 = -1
+        const val API_LEVEL_PREVIEW = 10000
 
         const val FLAGGED_API_ANNOTATION = "android.annotation.FlaggedApi"
-        const val REQUIRES_ACONFIG_FLAG_ANNOTATION = "androidx.annotation.RequiresAconfigFlag"
+        const val REQUIRES_FLAG_ANNOTATION = "androidx.annotation.RequiresFlag"
 
         private val NO_API_REQUIREMENT = ApiLevelRequirement(API_LEVEL_UNKNOWN_OR_1)
 

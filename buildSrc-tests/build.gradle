@@ -57,7 +57,6 @@ dependencies {
     api(libs.guavaAndroid)
     api(libs.kotlinGradlePluginApi)
     api(libs.kotlinNativeUtils)
-    api(libs.kotlinStdlib)
 
     implementation(project(":benchmark:benchmark-gradle-plugin"))
     implementation(project(":inspection:inspection-gradle-plugin"))
@@ -66,8 +65,6 @@ dependencies {
     implementation(project.ext.findGradleKotlinDsl())
     implementation(libs.kotlinGradlePluginAnnotations)
     implementation(libs.kotlinToolingCore)
-    implementation(libs.binaryCompatibilityValidator)
-    implementation(libs.jetbrainsBinaryCompatibilityValidator)
     implementation(libs.xmlApis)
 
     testImplementation(libs.checkmark)

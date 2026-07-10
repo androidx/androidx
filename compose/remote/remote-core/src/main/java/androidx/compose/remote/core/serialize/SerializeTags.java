@@ -15,6 +15,9 @@
  */
 package androidx.compose.remote.core.serialize;
 
+import androidx.annotation.RestrictTo;
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum SerializeTags {
     COMPONENT,
     LAYOUT_COMPONENT,

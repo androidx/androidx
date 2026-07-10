@@ -16,10 +16,15 @@
 
 package androidx.webkit.internal;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.WebView;
 
 import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewOutcomeReceiver;
 import androidx.webkit.WebViewStartUpConfig;
+import androidx.webkit.WebViewStartUpResult;
+import androidx.webkit.WebViewStartupException;
 
 import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.ProfileStoreBoundaryInterface;
@@ -140,7 +145,12 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                 ProfileStoreBoundaryInterface.class, mImpl.getProfileStore());
     }
 
+    /**
+     * @deprecated Use the {@link OutcomeReceiverCompat} version instead.
+     */
+    @SuppressWarnings("removal")
     @WebViewCompat.ExperimentalAsyncStartUp
+    @Deprecated
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,
@@ -149,6 +159,50 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new WebViewStartUpConfigAdapter(config)),
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                        new WebViewStartUpCallbackAdapter(callback)));
+                        new WebViewStartUpCallbackAdapter(result -> {
+                            // We want to ensure that the callback is run on the Android main
+                            // looper. The callee doesn't guarantee this. It's also desirable to
+                            // post it to make sure that we don't run the app's callback
+                            // synchronously from inside startChromiumLocked:
+                            // - This helps avoid making the blocking task longer.
+                            // - If the app's callback has a problem the stack trace will
+                            // hopefully make it clearer that it's not WebView's fault since
+                            // WebView code will not be in the stack trace.
+                            new Handler(Looper.getMainLooper()).post(
+                                    () -> callback.onSuccess(result));
+                        })));
+    }
+
+    @Override
+    public void startUpWebView(
+            @NonNull WebViewStartUpConfig config,
+            @NonNull WebViewOutcomeReceiver<WebViewStartUpResult,
+                    WebViewStartupException> callback) {
+        mImpl.startUpWebView(config::accept,
+                onSuccess -> {
+                    // We want to ensure that the callback is run on the Android main looper. The
+                    // callee doesn't guarantee this. It's also desirable to post it to make sure
+                    // that we don't run the app's callback synchronously from inside
+                    // startChromiumLocked:
+                    // - This helps avoid making the blocking task longer.
+                    // - If the app's callback has a problem the stack trace will hopefully make it
+                    // clearer that it's not WebView's fault since WebView code will not be in the
+                    // stack trace.
+                    WebViewStartupResultImpl result = new WebViewStartupResultImpl(onSuccess);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onResult(result));
+                },
+                onFailure -> {
+                    // We want to ensure that the callback is run on the Android main looper. The
+                    // callee doesn't guarantee this. It's also desirable to post it to make sure
+                    // that we don't run the app's callback synchronously from inside
+                    // startChromiumLocked:
+                    // - This helps avoid making the blocking task longer.
+                    // - If the app's callback has a problem the stack trace will hopefully make it
+                    // clearer that it's not WebView's fault since WebView code will not be in the
+                    // stack trace.
+                    WebViewStartupException exception =
+                            WebViewStartupExceptionBuilder.buildException(onFailure);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(exception));
+                });
     }
 }

@@ -17,6 +17,7 @@
 package androidx.compose.ui.tooling.animation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,4 +37,29 @@ import androidx.compose.runtime.setValue
  */
 class ToolingState<T>(default: T) : State<T> {
     override var value by mutableStateOf(default)
+}
+
+/**
+ * @param override [MutableState] that is part of compose animation and let tooling override
+ *   animation behavior. [override] value should be overridden with [state]. [override] is found as
+ *   part of the slotTree.
+ * @param state value to override [override] with.
+ */
+internal class ToolingOverride<T>(
+    val override: MutableState<State<T>?>,
+    val state: ToolingState<T>,
+) {
+
+    /**
+     * Override animation value with tooling value. This allows animation to be controlled from
+     * tooling.
+     */
+    fun overrideState() {
+        override.value = state
+    }
+
+    /** Clear [override] value. This allows animation to play without intervention from tooling. */
+    fun clearOverride() {
+        override.value = null
+    }
 }

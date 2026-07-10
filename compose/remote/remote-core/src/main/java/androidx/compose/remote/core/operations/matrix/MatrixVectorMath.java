@@ -15,8 +15,7 @@
  */
 package androidx.compose.remote.core.operations.matrix;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -36,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** this evaluates a matrix * vector and outputs a vector */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixVectorMath extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.MATRIX_VECTOR_MATH;
     private static final String CLASS_NAME = "MatrixVectorMath";
@@ -154,14 +154,14 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         short type = (short) buffer.readShort();
-        int matrixId = buffer.readInt();
+        int matrixId = buffer.readId();
         int lenOut = buffer.readInt();
         if (lenOut > 4 || lenOut < 1) {
             throw new IllegalArgumentException("Invalid Length " + lenOut + " corrupt buffer");
         }
         int[] out = new int[lenOut];
         for (int i = 0; i < out.length; i++) {
-            out[i] = buffer.readInt();
+            out[i] = buffer.readId();
         }
 
         int lenIn = buffer.readInt();
@@ -170,7 +170,7 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
         }
         float[] in = new float[lenIn];
         for (int i = 0; i < in.length; i++) {
-            in[i] = buffer.readFloat();
+            in[i] = buffer.readNanId();
         }
 
         operations.add(new MatrixVectorMath(type, out, matrixId, in));
@@ -182,14 +182,18 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "matrixId", "id of Matrix")
-                .field(DocumentedOperation.SHORT, "opType", "The type of op 0=multiply")
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Evaluates a matrix * vector and outputs a vector")
+                .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
+                .field(DocumentedOperation.SHORT, "opType", "The type of operation (0=multiply)")
                 .field(DocumentedOperation.INT, "outLength", "The length of the output vector")
-                .field(FLOAT, "value", "outLength", "32-bit float value")
+                .field(
+                        DocumentedOperation.INT_ARRAY,
+                        "outputs",
+                        "The IDs to write the output vector")
                 .field(DocumentedOperation.INT, "inLength", "The length of the input vector")
-                .field(FLOAT, "value", "inLength", "32-bit float value");
+                .field(DocumentedOperation.FLOAT_ARRAY, "inputs", "The input vector values");
     }
 
     @Override

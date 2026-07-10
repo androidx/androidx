@@ -112,6 +112,8 @@ public class ProtoLayoutDynamicDataPipeline {
     private final @NonNull
             DynamicTypePlatformDataProvider<Integer, PlatformEventSources.DynamicLayoutUpdateStatus>
             mLayoutUpdateStatusDataProvider;
+    private final @NonNull DynamicTypePlatformDataProvider<Boolean, DynamicBuilders.DynamicBool>
+            mAmbientModeStatusDataProvider;
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support. */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -183,6 +185,14 @@ public class ProtoLayoutDynamicDataPipeline {
         evaluatorConfigBuilder.addPlatformDataProvider(
                 mLayoutUpdateStatusDataProvider,
                 ImmutableSet.of(PlatformEventSources.Keys.LAYOUT_UPDATE_STATUS));
+
+        // Add an additional provider for ambient mode status.
+        mAmbientModeStatusDataProvider =
+                DynamicTypePlatformDataProvider.forDynamicBool(
+                        PlatformEventSources.Keys.AMBIENT_MODE_STATUS, false);
+        evaluatorConfigBuilder.addPlatformDataProvider(
+                mAmbientModeStatusDataProvider,
+                ImmutableSet.of(PlatformEventSources.Keys.AMBIENT_MODE_STATUS));
 
         // Time data.
         this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
@@ -358,29 +368,37 @@ public class ProtoLayoutDynamicDataPipeline {
                 for (Map.Entry<String, ExitTransition> animatingNode : animatingNodes.entrySet()) {
                     View associatedView = parentView.findViewWithTag(animatingNode.getKey());
                     if (associatedView != null) {
-                        AnimationSet animationSet =
-                                mExitAnimationInflator.apply(
-                                        checkNotNull(animatingNode.getValue()), associatedView);
-                        if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
-                            QuotaAwareAnimationSet quotaAwareAnimationSet =
-                                    new QuotaAwareAnimationSet(
-                                            animationSet,
-                                            mPipeline.mAnimationQuotaManager,
-                                            associatedView,
-                                            () -> {
-                                                if (wrappedOnEnd != null) {
-                                                    mExitAnimationsCounter--;
-                                                    if (mExitAnimationsCounter == 0) {
-                                                        mPipeline.mExitAnimations.clear();
-                                                        wrappedOnEnd.run();
+                        try {
+                            AnimationSet animationSet =
+                                    mExitAnimationInflator.apply(
+                                            checkNotNull(animatingNode.getValue()), associatedView);
+                            if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
+                                QuotaAwareAnimationSet quotaAwareAnimationSet =
+                                        new QuotaAwareAnimationSet(
+                                                animationSet,
+                                                mPipeline.mAnimationQuotaManager,
+                                                associatedView,
+                                                () -> {
+                                                    if (wrappedOnEnd != null) {
+                                                        mExitAnimationsCounter--;
+                                                        if (mExitAnimationsCounter == 0) {
+                                                            mPipeline.mExitAnimations.clear();
+                                                            wrappedOnEnd.run();
+                                                        }
                                                     }
-                                                }
-                                            });
-                            quotaAwareAnimationSet.tryStartAnimation(
-                                    () -> {
-                                        mExitAnimationsCounter++;
-                                        mPipeline.mExitAnimations.add(quotaAwareAnimationSet);
-                                    });
+                                                });
+                                quotaAwareAnimationSet.tryStartAnimation(
+                                        () -> {
+                                            mExitAnimationsCounter++;
+                                            mPipeline.mExitAnimations.add(quotaAwareAnimationSet);
+                                        });
+                            }
+                        } catch (RuntimeException e) {
+                            Log.e(
+                                    TAG,
+                                    "Failed to create exit animation for node "
+                                            + animatingNode.getKey(),
+                                    e);
                         }
                     }
                 }
@@ -525,18 +543,26 @@ public class ProtoLayoutDynamicDataPipeline {
             for (Map.Entry<String, EnterTransition> animatingNode : animatingNodes.entrySet()) {
                 View associatedView = parentView.findViewWithTag(animatingNode.getKey());
                 if (associatedView != null) {
-                    AnimationSet animationSet =
-                            mEnterAnimationInflator.apply(
-                                    checkNotNull(animatingNode.getValue()), associatedView);
+                    try {
+                        AnimationSet animationSet =
+                                mEnterAnimationInflator.apply(
+                                        checkNotNull(animatingNode.getValue()), associatedView);
 
-                    if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
-                        QuotaAwareAnimationSet quotaAwareAnimationSet =
-                                new QuotaAwareAnimationSet(
-                                        animationSet,
-                                        mPipeline.mAnimationQuotaManager,
-                                        associatedView);
-                        quotaAwareAnimationSet.tryStartAnimation(
-                                () -> mPipeline.mEnterAnimations.add(quotaAwareAnimationSet));
+                        if (animationSet != null && !animationSet.getAnimations().isEmpty()) {
+                            QuotaAwareAnimationSet quotaAwareAnimationSet =
+                                    new QuotaAwareAnimationSet(
+                                            animationSet,
+                                            mPipeline.mAnimationQuotaManager,
+                                            associatedView);
+                            quotaAwareAnimationSet.tryStartAnimation(
+                                    () -> mPipeline.mEnterAnimations.add(quotaAwareAnimationSet));
+                        }
+                    } catch (RuntimeException e) {
+                        Log.e(
+                                TAG,
+                                "Failed to create enter animation for node "
+                                        + animatingNode.getKey(),
+                                e);
                     }
                 }
             }
@@ -1102,6 +1128,13 @@ public class ProtoLayoutDynamicDataPipeline {
     public void setLayoutUpdateStatus(
             @PlatformEventSources.LayoutUpdateStatus int layoutUpdateStatus) {
         this.mLayoutUpdateStatusDataProvider.setValue(layoutUpdateStatus);
+    }
+
+    /** Sets the state of interactive vs ambient display update. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @UiThread
+    public void setAmbientModeStatus(boolean isInAmbientMode) {
+        this.mAmbientModeStatusDataProvider.setValue(isInAmbientMode);
     }
 
     /**

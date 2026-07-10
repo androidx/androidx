@@ -17,10 +17,13 @@
 package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeRuntimeFlags
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.ControlledComposition
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.tooling.CompositionObserver
@@ -32,89 +35,153 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
-@OptIn(InternalComposeApi::class, ExperimentalCoroutinesApi::class)
-fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {
-    withContext(TestMonotonicFrameClock(this)) {
-        // Start the recomposer
-        val recomposer = Recomposer(coroutineContext)
-        launch { recomposer.runRecomposeAndApplyChanges() }
-        testScheduler.runCurrent()
+enum class ComposerToUse {
+    Gap,
+    Link,
+    Both,
+}
 
-        // Create a test scope for the test using the test scope passed in by runTest
-        val scope =
-            object : CompositionTestScope, CoroutineScope by this@runTest {
-                var composed = false
-                override var composition: Composition? = null
+@OptIn(InternalComposeApi::class, ExperimentalCoroutinesApi::class, ExperimentalComposeApi::class)
+fun compositionTest(
+    composerToUse: ComposerToUse = ComposerToUse.Both,
+    clock: MonotonicFrameClock? = null,
+    block: suspend CompositionTestScope.() -> Unit,
+) = runTest {
+    suspend fun TestScope.runComposerTest() {
+        withContext(clock ?: TestMonotonicFrameClock(this)) {
+            // Start the recomposer
+            val recomposer = Recomposer(coroutineContext)
+            launch { recomposer.runRecomposeAndApplyChanges() }
+            testScheduler.runCurrent()
 
-                override lateinit var root: View
+            // Create a test scope for the test using the test scope passed in by runTest
+            val scope =
+                object : CompositionTestScope, CoroutineScope by this@runTest {
+                    var composed = false
+                    override var composition: Composition? = null
 
-                override val testCoroutineScheduler: TestCoroutineScheduler
-                    get() = this@runTest.testScheduler
+                    override lateinit var root: View
 
-                override fun compose(block: @Composable () -> Unit) {
-                    check(!composed) { "Compose should only be called once" }
-                    composed = true
-                    root = View().apply { name = "root" }
-                    val composition = Composition(ViewApplier(root), recomposer)
-                    this.composition = composition
-                    composition.setContent(block)
-                }
+                    override val testCoroutineScheduler: TestCoroutineScheduler
+                        get() = this@runTest.testScheduler
 
-                override fun hasPendingWork(): Boolean {
-                    return recomposer.hasPendingWork
-                }
-
-                @OptIn(ExperimentalComposeRuntimeApi::class)
-                override fun compose(
-                    observer: CompositionObserver,
-                    block: @Composable () -> Unit,
-                ): CompositionObserverHandle? {
-                    check(!composed) { "Compose should only be called once" }
-                    composed = true
-                    root = View().apply { name = "root" }
-                    val composition = Composition(ViewApplier(root), recomposer)
-                    val result = composition.setObserver(observer)
-                    this.composition = composition
-                    composition.setContent(block)
-                    return result
-                }
-
-                override fun advanceCount(ignorePendingWork: Boolean): Long {
-                    val changeCount = recomposer.changeCount
-                    Snapshot.sendApplyNotifications()
-                    if (recomposer.hasPendingWork) {
-                        advanceTimeBy(5_000)
-                        check(ignorePendingWork || !recomposer.hasPendingWork) {
-                            "Potentially infinite recomposition, still recomposing after advancing"
-                        }
+                    override fun compose(block: @Composable () -> Unit) {
+                        check(!composed) { "Compose should only be called once" }
+                        composed = true
+                        root = View().apply { name = "root" }
+                        val composition = Composition(ViewApplier(root), recomposer)
+                        this.composition = composition
+                        composition.setContent(block)
                     }
-                    return recomposer.changeCount - changeCount
+
+                    override fun hasPendingWork(): Boolean {
+                        return recomposer.hasPendingWork
+                    }
+
+                    @OptIn(ExperimentalComposeRuntimeApi::class)
+                    override fun compose(
+                        observer: CompositionObserver,
+                        block: @Composable () -> Unit,
+                    ): CompositionObserverHandle? {
+                        check(!composed) { "Compose should only be called once" }
+                        composed = true
+                        root = View().apply { name = "root" }
+                        val composition = Composition(ViewApplier(root), recomposer)
+                        val result = composition.setObserver(observer)
+                        this.composition = composition
+                        composition.setContent(block)
+                        return result
+                    }
+
+                    override fun advanceCount(ignorePendingWork: Boolean): Long {
+                        val changeCount = recomposer.changeCount
+                        Snapshot.sendApplyNotifications()
+                        if (recomposer.hasPendingWork) {
+                            advanceTimeBy(5_000)
+                            check(ignorePendingWork || !recomposer.hasPendingWork) {
+                                "Potentially infinite recomposition, still recomposing after advancing"
+                            }
+                        }
+                        return recomposer.changeCount - changeCount
+                    }
+
+                    override fun advanceTimeBy(amount: Long) = testScheduler.advanceTimeBy(amount)
+
+                    override fun advance(ignorePendingWork: Boolean) =
+                        advanceCount(ignorePendingWork) != 0L
+
+                    override fun verifyConsistent() {
+                        (composition as? ControlledComposition)?.verifyConsistent()
+                    }
+
+                    override var validator: (MockViewValidator.() -> Unit)? = null
                 }
+            scope.block()
 
-                override fun advanceTimeBy(amount: Long) = testScheduler.advanceTimeBy(amount)
-
-                override fun advance(ignorePendingWork: Boolean) =
-                    advanceCount(ignorePendingWork) != 0L
-
-                override fun verifyConsistent() {
-                    (composition as? ControlledComposition)?.verifyConsistent()
-                }
-
-                override var validator: (MockViewValidator.() -> Unit)? = null
+            try {
+                scope.composition?.dispose()
+            } catch (_: Throwable) {
+                // suppress
+            } finally {
+                scope.composition = null
+                recomposer.cancel()
+                recomposer.join()
             }
-        scope.block()
+        }
+    }
 
+    suspend fun TestScope.runTestWithComposer(composerToUse: ComposerToUse) {
+        val previousValue = ComposeRuntimeFlags.isLinkBufferComposerEnabled
+        ComposeRuntimeFlags.isLinkBufferComposerEnabled = composerToUse == ComposerToUse.Link
         try {
-            scope.composition?.dispose()
-        } catch (_: Throwable) {
-            // suppress
+            runComposerTest()
         } finally {
-            scope.composition = null
-            recomposer.cancel()
-            recomposer.join()
+            ComposeRuntimeFlags.isLinkBufferComposerEnabled = previousValue
+        }
+    }
+
+    // Wrappers so that the composer tested shows up in the stack trace if it fails
+
+    suspend fun TestScope.runGapComposerTest() {
+        runTestWithComposer(ComposerToUse.Gap)
+    }
+
+    suspend fun TestScope.runLinkComposerTest() {
+        runTestWithComposer(ComposerToUse.Link)
+    }
+
+    when (composerToUse) {
+        ComposerToUse.Gap -> runGapComposerTest()
+        ComposerToUse.Link -> runLinkComposerTest()
+        ComposerToUse.Both -> {
+            val gapError = runCatching { runGapComposerTest() }.exceptionOrNull()
+            val linkError = runCatching { runLinkComposerTest() }.exceptionOrNull()
+
+            if (gapError != null && linkError != null) {
+                throw AssertionError(
+                    """
+                    |Test failed under both composers.
+                    |GapComposer error: ${gapError.stackTraceToString()}
+                    |
+                    |LinkComposer error: ${linkError.stackTraceToString()}
+                """
+                        .trimMargin()
+                )
+            } else if (gapError != null) {
+                throw AssertionError(
+                    "Test failed under the GapComposer: ${gapError.message}",
+                    gapError,
+                )
+            } else if (linkError != null) {
+                throw AssertionError(
+                    "Test failed under the LinkComposer: ${linkError.message}",
+                    linkError,
+                )
+            }
         }
     }
 }
@@ -164,20 +231,16 @@ interface CompositionTestScope : CoroutineScope {
 }
 
 /** Create a mock view validator and validate the view. */
-fun CompositionTestScope.validate(block: MockViewValidator.() -> Unit) {
-    verifyConsistent()
+fun CompositionTestScope.validate(block: MockViewValidator.() -> Unit) =
     MockViewListValidator(root.children).validate(block).also { validator = block }
-}
 
 /** Revalidate using the last validator */
 fun CompositionTestScope.revalidate() = validate(validator ?: error("validate was not called"))
 
 /** Advance and expect changes */
 fun CompositionTestScope.expectChanges() {
-    verifyConsistent()
     val changes = advance()
     assertTrue(actual = changes, message = "Expected changes but none were found")
-    verifyConsistent()
 }
 
 /** Advance and expect no changes */

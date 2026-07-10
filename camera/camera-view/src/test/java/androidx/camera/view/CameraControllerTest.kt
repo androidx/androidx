@@ -38,15 +38,20 @@ import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
+import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
+import androidx.camera.core.SessionConfig
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.TorchState
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.fakes.FakeCamera
@@ -54,8 +59,14 @@ import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
+import androidx.camera.video.HighSpeedVideoSessionConfig
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoOutput
+import androidx.camera.video.internal.muxer.MediaMuxerImpl
+import androidx.camera.video.internal.muxer.MuxerFactory
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
@@ -69,9 +80,9 @@ import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -85,7 +96,8 @@ import org.robolectric.shadows.ShadowSystemClock
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(
-    instrumentedPackages = ["androidx.camera.view"] // required for shadow clock to work
+    sdk = [Config.ALL_SDKS],
+    instrumentedPackages = ["androidx.camera.view"], // required for shadow clock to work
 )
 class CameraControllerTest {
     companion object {
@@ -137,24 +149,28 @@ class CameraControllerTest {
     fun setEffects_unbindInvoked() {
         // Arrange.
         completeCameraInitialization()
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isFalse()
+        val originalUseCases = processCameraProviderWrapper.getBoundUseCases()
+        processCameraProviderWrapper.resetUnbindInvokedUseCases()
         // Act.
         controller.setEffects(
             setOf(FakeSurfaceEffect(directExecutor(), FakeSurfaceProcessor(directExecutor())))
         )
         // Assert.
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isTrue()
+        assertThat(processCameraProviderWrapper.getUnbindInvokedUseCases())
+            .containsAtLeastElementsIn(originalUseCases)
     }
 
     @Test
     fun clearEffects_unbindInvoked() {
         // Arrange.
         completeCameraInitialization()
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isFalse()
+        val originalUseCases = processCameraProviderWrapper.getBoundUseCases()
+        processCameraProviderWrapper.resetUnbindInvokedUseCases()
         // Act.
         controller.clearEffects()
         // Assert.
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isTrue()
+        assertThat(processCameraProviderWrapper.getUnbindInvokedUseCases())
+            .containsAtLeastElementsIn(originalUseCases)
     }
 
     @Test
@@ -520,15 +536,61 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    fun sensorRotationChanges_useCaseTargetRotationUpdated() {
+    fun setVideoCaptureMuxerFactory_setToRecorder() {
+        val muxerFactory = MuxerFactory { MediaMuxerImpl() }
+
+        controller.setVideoCaptureMuxerFactory(muxerFactory)
+
+        val recorder = controller.mVideoCapture.output
+        assertThat(recorder.muxerFactory).isSameInstanceAs(muxerFactory)
+    }
+
+    @UiThreadTest
+    @Test
+    fun getBoundSessionConfig_autoRotationEnabledIsTrue() {
+        // Arrange.
+        completeCameraInitialization()
+
         // Act.
-        controller.mDeviceRotationListener.onRotationChanged(Surface.ROTATION_180)
+        val sessionConfig = controller.getBoundSessionConfig()
 
         // Assert.
-        assertThat(controller.mImageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_180)
-        assertThat(controller.mImageCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
-        val videoConfig = controller.mVideoCapture.currentConfig as ImageOutputConfig
-        assertThat(videoConfig.targetRotation).isEqualTo(Surface.ROTATION_180)
+        assertThat(sessionConfig?.isAutoRotationEnabled).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun setAutoRotationEnabledToFalse_getBoundSessionConfig_autoRotationEnabledIsFalse() {
+        // Arrange.
+        completeCameraInitialization()
+
+        // Act.
+        controller.isAutoRotationEnabled = false
+        val sessionConfig = controller.getBoundSessionConfig()
+
+        // Assert.
+        assertThat(controller.isAutoRotationEnabled).isFalse()
+        assertThat(sessionConfig?.isAutoRotationEnabled).isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun setAutoRotationEnabled_dynamicallyUpdatesBoundSessionConfig() {
+        // Arrange.
+        completeCameraInitialization()
+        assertThat(controller.getBoundSessionConfig()?.isAutoRotationEnabled).isTrue()
+
+        // Act: Disable auto-rotation.
+        controller.isAutoRotationEnabled = false
+
+        // Assert: Bound SessionConfig is updated.
+        assertThat(controller.getBoundSessionConfig()?.isAutoRotationEnabled).isFalse()
+
+        // Act: Re-enable auto-rotation.
+        controller.isAutoRotationEnabled = true
+
+        // Assert: Bound SessionConfig is updated again.
+        assertThat(controller.getBoundSessionConfig()?.isAutoRotationEnabled).isTrue()
     }
 
     @UiThreadTest
@@ -1003,7 +1065,6 @@ class CameraControllerTest {
             .isEqualTo(TAP_TO_FOCUS_NOT_STARTED)
     }
 
-    @Ignore // b/425365173
     @Test
     fun setTapToFocusAutoCancelDuration_stateNeverResetsToNotStarted_whenDurationIsZero() {
         completeCameraInitialization()
@@ -1022,7 +1083,12 @@ class CameraControllerTest {
 
         // State is still the previous STARTED state
         shadowOf(getMainLooper()).idle()
-        assertThat(controller.tapToFocusInfoState.value?.focusState).isEqualTo(TAP_TO_FOCUS_STARTED)
+        // The tap-to-focus operation might be executed but the result is TAP_TO_FOCUS_NOT_FOCUSED.
+        // If the value is posted to the mTapToFocusInfoState before
+        // shadowOf(getMainLooper()).idle() is called, the focusState will be
+        // TAP_TO_FOCUS_NOT_FOCUSED.
+        assertThat(controller.tapToFocusInfoState.value?.focusState)
+            .isAnyOf(TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_NOT_FOCUSED)
     }
 
     @Test
@@ -1096,5 +1162,248 @@ class CameraControllerTest {
         // 2. Verify the content of the log.
         val lastLog = logs.last()
         assertThat(lastLog.throwable).isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun setSessionConfig_mustContainPreview() {
+        // Verify an exception is thrown when no Preview is included.
+        assertThrows(IllegalArgumentException::class.java) {
+            controller.setSessionConfig(
+                SessionConfig(ImageCapture.Builder().build()),
+                CameraSelector.DEFAULT_BACK_CAMERA,
+            )
+        }
+        // Verify okay result when Preview w/ PreviewView surface provider is included.
+        controller.setSessionConfig(
+            SessionConfig(
+                Preview.Builder().build().apply {
+                    surfaceProvider = PreviewView(context).surfaceProvider
+                }
+            ),
+            CameraSelector.DEFAULT_BACK_CAMERA,
+        )
+    }
+
+    @Test
+    fun setSessionConfig_videoCaptureMustContainRecorderOutput() {
+        val preview =
+            Preview.Builder().build().apply {
+                surfaceProvider = PreviewView(context).surfaceProvider
+            }
+        // Verify an exception is thrown when VideoCapture is not created with a Recorder.
+        assertThrows(IllegalArgumentException::class.java) {
+            controller.setSessionConfig(
+                SessionConfig(
+                    preview,
+                    VideoCapture.withOutput(
+                        object : VideoOutput {
+                            override fun onSurfaceRequested(request: SurfaceRequest) {}
+                        }
+                    ),
+                ),
+                CameraSelector.DEFAULT_BACK_CAMERA,
+            )
+        }
+        // Verify okay result when VideoCapture is created with a Recorder.
+        controller.setSessionConfig(
+            SessionConfig(preview, VideoCapture.withOutput(Recorder.Builder().build())),
+            CameraSelector.DEFAULT_BACK_CAMERA,
+        )
+    }
+
+    @Test
+    fun setSessionConfig_enabledUseCasesCorrectlyUpdated() {
+        val preview =
+            Preview.Builder().build().apply {
+                surfaceProvider = PreviewView(context).surfaceProvider
+            }
+        val imageCapture = ImageCapture.Builder().build()
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val sessionConfig = SessionConfig(preview, imageCapture, videoCapture)
+        controller.setSessionConfig(sessionConfig, CameraSelector.DEFAULT_BACK_CAMERA)
+
+        // Checks that preview, imageCapture and videoCapture instances are the same instances set
+        // via session config
+        assertThat(controller.mPreview).isSameInstanceAs(preview)
+        assertThat(controller.isImageCaptureEnabled).isTrue()
+        assertThat(controller.mImageCapture).isSameInstanceAs(imageCapture)
+        assertThat(controller.isVideoCaptureEnabled).isTrue()
+        assertThat(controller.mVideoCapture).isSameInstanceAs(videoCapture)
+
+        // Checks that ImageAnalysis is not enabled
+        assertThat(controller.isImageAnalysisEnabled).isFalse()
+    }
+
+    @Test
+    fun throwException_whenHighSpeedVideoSessionConfigIsSet() {
+        assertThrows(IllegalArgumentException::class.java) {
+            controller.setSessionConfig(
+                HighSpeedVideoSessionConfig(VideoCapture.withOutput(Recorder.Builder().build())),
+                CameraSelector.DEFAULT_BACK_CAMERA,
+            )
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setEnabledUseCases() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.setEnabledUseCases(CameraController.IMAGE_CAPTURE)
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun throwException_whenSessionConfigExists_setPreviewTargetSize() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.previewTargetSize = CameraController.OutputSize(SizeUtil.RESOLUTION_1080P)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setPreviewResolutionSelector() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.previewResolutionSelector = ResolutionSelector.Builder().build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setPreviewDynamicRange() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.previewDynamicRange = DynamicRange.SDR
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageCaptureMode() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageCaptureMode = ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun throwException_whenSessionConfigExists_setImageCaptureTargetSize() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageCaptureTargetSize =
+                CameraController.OutputSize(SizeUtil.RESOLUTION_1080P)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageCaptureResolutionSelector() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageCaptureResolutionSelector = ResolutionSelector.Builder().build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageCaptureIoExecutor() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageCaptureIoExecutor = CameraXExecutors.ioExecutor()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisAnalyzer() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.setImageAnalysisAnalyzer(directExecutor()) {}
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_clearImageAnalysisAnalyzer() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.clearImageAnalysisAnalyzer()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisBackpressureStrategy() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisBackpressureStrategy = ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisImageQueueDepth() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisImageQueueDepth = 1
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun throwException_whenSessionConfigExists_setImageAnalysisTargetSize() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisTargetSize =
+                CameraController.OutputSize(SizeUtil.RESOLUTION_1080P)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisResolutionSelector() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisResolutionSelector = ResolutionSelector.Builder().build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisBackgroundExecutor() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisBackgroundExecutor = directExecutor()
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setImageAnalysisOutputImageFormat() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.imageAnalysisOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_NV21
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureQualitySelector() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.videoCaptureQualitySelector = QualitySelector.from(Quality.FHD)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureMirrorMode() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.videoCaptureMirrorMode = MirrorMode.MIRROR_MODE_ON
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureDynamicRange() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.videoCaptureDynamicRange = DynamicRange.SDR
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureTargetFrameRate() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.videoCaptureTargetFrameRate = Range.create(30, 30)
+        }
+    }
+
+    @Test
+    fun throwException_whenSessionConfigExists_setVideoCaptureMuxerFactory() {
+        functionCallCausesException_whenSessionConfigExists {
+            controller.setVideoCaptureMuxerFactory { MediaMuxerImpl() }
+        }
+    }
+
+    fun functionCallCausesException_whenSessionConfigExists(function: () -> Unit) {
+        val sessionConfig =
+            SessionConfig(
+                Preview.Builder().build().apply {
+                    surfaceProvider = PreviewView(context).surfaceProvider
+                }
+            )
+        controller.setSessionConfig(sessionConfig, CameraSelector.DEFAULT_BACK_CAMERA)
+        assertThrows(IllegalStateException::class.java) { function.invoke() }
     }
 }

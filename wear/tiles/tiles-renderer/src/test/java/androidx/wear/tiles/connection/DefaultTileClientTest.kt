@@ -61,7 +61,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
-@Config(manifest = Config.NONE)
+@org.robolectric.annotation.Config(
+    manifest = Config.NONE,
+    sdk = [org.robolectric.annotation.Config.TARGET_SDK],
+)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(TilesTestRunner::class)
 public class DefaultTileClientTest {

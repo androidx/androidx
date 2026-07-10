@@ -33,8 +33,10 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
 import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
+import androidx.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.scrollingContainer
+import androidx.compose.foundation.lazy.layout.rememberLazyLayoutBringIntoViewSpec
+import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -105,6 +107,11 @@ internal fun LazyGrid(
             if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
         )
 
+    val bringIntoViewSpec =
+        rememberLazyLayoutBringIntoViewSpec(reverseLayout, isVertical = isVertical) {
+            state.layoutInfoState.value.stickingItemsCombinedSize
+        }
+
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
 
     val beyondBoundsModifier =
@@ -132,16 +139,16 @@ internal fun LazyGrid(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .then(state.itemAnimator.modifier)
-                .scrollingContainer(
+                .lazyLayoutItemAnimator(state.itemAnimator)
+                .scrollableArea(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
                     reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.internalInteractionSource,
-                    useLocalOverscrollFactory = false,
                     overscrollEffect = overscrollEffect,
+                    bringIntoViewSpec = bringIntoViewSpec,
                 ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
@@ -445,11 +452,11 @@ private fun CacheWindowLogic.keepAroundItems(
             val lastVisibleItemIndex = visibleItemsList.last().lineIndex(orientation)
             // we must send a message in case of changing directions for items
             // that were keep around and become prefetch forward
-            for (line in prefetchWindowStartLine..<firstVisibleItemIndex) {
+            for (line in perLaneCacheWindowStartIndex[0]..<firstVisibleItemIndex) {
                 measuredLineProvider.keepAround(line)
             }
 
-            for (line in (lastVisibleItemIndex + 1)..prefetchWindowEndLine) {
+            for (line in (lastVisibleItemIndex + 1)..perLaneCacheWindowEndItemIndex[0]) {
                 measuredLineProvider.keepAround(line)
             }
         }

@@ -1,0 +1,25 @@
+// Baseline format: 1.0
+AddedMethod: androidx.wear.phone.interactions.authentication.CodeVerifier#CodeVerifier(int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.wear.phone.interactions.authentication.CodeVerifier(int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.CodeChallenge#getValue():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.CodeChallenge.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.CodeVerifier#getValue():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.CodeVerifier.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.OAuthRequest#getPackageName():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.OAuthRequest.getPackageName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.OAuthRequest#getRedirectUrl():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.OAuthRequest.getRedirectUrl() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.OAuthRequest#getRequestUrl():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.OAuthRequest.getRequestUrl() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.OAuthResponse#getErrorCode():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.OAuthResponse.getErrorCode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.OAuthResponse#getResponseUrl():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.OAuthResponse.getResponseUrl() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.authentication.RemoteAuthClient#getAvailabilityStatus():
+    Source breaking change: method androidx.wear.phone.interactions.authentication.RemoteAuthClient.getAvailabilityStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.notifications.BridgingConfig#getExcludedTags():
+    Source breaking change: method androidx.wear.phone.interactions.notifications.BridgingConfig.getExcludedTags() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.phone.interactions.notifications.BridgingConfig#isBridgingEnabled():
+    Source breaking change: method androidx.wear.phone.interactions.notifications.BridgingConfig.isBridgingEnabled() can no longer be resolved from Kotlin source

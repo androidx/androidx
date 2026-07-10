@@ -40,6 +40,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(WearPhoneInteractionsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument // Stop Robolectric instrumenting this class due to it being in package "android".
 class PhoneTypeHelperTest {
     private val bluetoothModeUri =

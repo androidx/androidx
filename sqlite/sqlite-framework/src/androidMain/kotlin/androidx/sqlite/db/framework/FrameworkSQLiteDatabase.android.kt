@@ -338,7 +338,7 @@ internal class FrameworkSQLiteDatabase(private val delegate: SQLiteDatabase) :
         private val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
 
         private val getThreadSessionMethod by
-            lazy(LazyThreadSafetyMode.NONE) {
+            lazy(LazyThreadSafetyMode.PUBLICATION) {
                 try {
                     SQLiteDatabase::class.java.getDeclaredMethod("getThreadSession").apply {
                         isAccessible = true
@@ -349,7 +349,7 @@ internal class FrameworkSQLiteDatabase(private val delegate: SQLiteDatabase) :
             }
 
         private val beginTransactionMethod by
-            lazy(LazyThreadSafetyMode.NONE) {
+            lazy(LazyThreadSafetyMode.PUBLICATION) {
                 try {
                     getThreadSessionMethod
                         ?.returnType

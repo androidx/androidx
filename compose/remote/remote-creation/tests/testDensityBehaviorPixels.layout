@@ -1,0 +1,33 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: 1
+        x: 0.0
+        y: 0.0
+        width: 200.0
+        height: 200.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - {type: PaddingModifierOperation, left: 100.0, top: 100.0, right: 100.0,
+            bottom: 100.0}
+        paddingLeft: 100.0
+        paddingRight: 100.0
+        paddingTop: 100.0
+        paddingBottom: 100.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER

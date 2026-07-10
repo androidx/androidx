@@ -16,7 +16,6 @@
 
 package androidx.camera.core.featuregroup.impl.resolver
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
@@ -30,7 +29,6 @@ public sealed interface FeatureGroupResolutionResult {
     public data class Supported(val resolvedFeatureGroup: ResolvedFeatureGroup) :
         FeatureGroupResolutionResult
 
-    @OptIn(ExperimentalSessionConfig::class)
     public data class UseCaseMissing(
         val requiredUseCases: String,
         val featureRequiring: GroupableFeature,

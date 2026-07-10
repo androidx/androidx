@@ -40,12 +40,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.security.InvalidParameterException;
 
 /** Tests for {@link CarPendingIntent}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarPendingIntentTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();

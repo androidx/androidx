@@ -35,6 +35,8 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
@@ -57,7 +59,6 @@ import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.test.R
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.launch
 
 data class ExtensionUiState(
@@ -67,13 +68,12 @@ data class ExtensionUiState(
     val callIconUiState: CallIconExtensionUiState?,
 )
 
-@OptIn(ExperimentalAppActions::class)
 class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
     override val values =
         sequenceOf(
             ExtensionUiState(
                 MeetingSummaryUiState("John Smith", 1),
-                LocalCallSilenceExtensionUiState(true, {}, null),
+                LocalCallSilenceExtensionUiState(true, true, {}, null),
                 ParticipantExtensionUiState(
                     isRaiseHandSupported = true,
                     isKickParticipantSupported = true,
@@ -100,7 +100,6 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
         )
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
 @Composable
 fun ExtensionsContent(
@@ -140,9 +139,13 @@ fun ExtensionsContent(
                     }
                 }
             }
+
             Column(modifier = Modifier.weight(1f).padding(6.dp)) {
                 Text("Local Call Silence")
-                if (extensionUiState.localCallSilenceUiState == null) {
+
+                val lcsData = extensionUiState.localCallSilenceUiState
+
+                if (lcsData == null) {
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(6.dp),
                         text = "<Local Call Silence is NOT supported>",
@@ -153,39 +156,59 @@ fun ExtensionsContent(
                         modifier = Modifier.fillMaxWidth().padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        // We always show the button, but we control its 'enabled' state
+                        // based on canUserUpdateSilence.
                         OutlinedIconButton(
+                            enabled = lcsData.canUserUpdateSilence,
                             onClick = {
                                 scope.launch {
-                                    val lcsData = extensionUiState.localCallSilenceUiState
                                     val isSilenced = !lcsData.isLocallySilenced
                                     val res =
                                         lcsData.extension?.requestLocalCallSilenceUpdate(isSilenced)
                                     if (res == CallControlResult.Success()) {
-                                        // update the InCallService UI
                                         lcsData.onInCallServiceUiUpdate(isSilenced)
                                     }
                                 }
-                            }
+                            },
                         ) {
-                            if (extensionUiState.localCallSilenceUiState.isLocallySilenced) {
+                            // Determine tint: Standard color if enabled, faded if disabled
+                            val iconTint =
+                                if (lcsData.canUserUpdateSilence) {
+                                    LocalContentColor.current
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                }
+
+                            if (lcsData.isLocallySilenced) {
                                 Icon(
                                     modifier = Modifier.size(48.dp),
                                     painter = painterResource(R.drawable.mic_off_24px),
                                     contentDescription = "call is locally silenced",
+                                    tint = iconTint,
                                 )
                             } else {
                                 Icon(
                                     modifier = Modifier.size(48.dp),
                                     painter = painterResource(R.drawable.mic),
                                     contentDescription = "call mic is hot",
+                                    tint = iconTint,
                                 )
                             }
+                        }
+
+                        // If space is tight (like on a watch), you might remove this part.
+                        if (!lcsData.canUserUpdateSilence) {
+                            Spacer(Modifier.padding(horizontal = 4.dp))
+                            Text(
+                                text = "(Locked)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
                         }
                     }
                 }
             }
         }
-
         HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
         Column(modifier = Modifier.weight(1f).padding(6.dp)) {
             Text("Participants")

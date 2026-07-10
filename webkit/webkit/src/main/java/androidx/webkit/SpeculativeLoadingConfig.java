@@ -21,10 +21,12 @@ import androidx.annotation.IntRange;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Represents a configuration for speculative loading in a {@link Profile} instance. This should
- * be set using {@link Profile#setSpeculativeLoadingConfig(SpeculativeLoadingConfig)}
+ * @deprecated use {@link Profile#setMaxPrerenders(int)},
+ * {@link PrefetchCache#setMaxPrefetches(int)} and
+ * {@link PrefetchCache#setPrefetchTtlSeconds(int)} instead.
  */
 @Profile.ExperimentalUrlPrefetch
+@Deprecated
 public class SpeculativeLoadingConfig {
 
     private final int mPrefetchTTLSeconds;

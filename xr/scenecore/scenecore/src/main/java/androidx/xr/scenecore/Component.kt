@@ -16,28 +16,53 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-
 /** A Component adds functionality or behaviors to an [Entity]. */
-public interface Component {
+public abstract class Component internal constructor() {
+    /**
+     * Handles the component attachment logic. For internal framework use only.
+     *
+     * This method serves as the exclusive entry point for the [Entity] system to initiate the
+     * attachment process. Its default implementation calls the protected [onAttach] method.
+     *
+     * @param entity The [Entity] to which this component is being attached.
+     * @return The result of the underlying [onAttach] call.
+     */
+    internal fun handleAttachInternal(entity: Entity): Boolean {
+        return onAttach(entity)
+    }
 
     /**
-     * Called by an [Entity] when it attempts to add this Component to itself.
+     * Handles the component detachment logic; for internal framework use only.
      *
-     * This method is restricted because it is only called from [Entity.addComponent].
+     * This method serves as the exclusive entry point for the [Entity] system to initiate the
+     * detachment process. Its default implementation calls the protected [onDetach] method.
      *
-     * @param entity Entity to which this Component was attached.
-     * @return True if the Component was attached to the given Entity. False if the Entity did not
-     *   support having this Component attached.
+     * @param entity The [Entity] from which this component is being detached.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public fun onAttach(entity: Entity): Boolean
+    internal fun handleDetachInternal(entity: Entity) {
+        onDetach(entity)
+    }
 
     /**
-     * Called by an [Entity] when it attempts to detach this Component from itself.
+     * Called by the framework when this component is being added to an [Entity].
      *
-     * This method is restricted because it is only called from [Entity.removeComponent].
+     * This method is triggered when [Entity.addComponent] is invoked. Implementations should
+     * override this method to perform setup logic or to validate if the component is compatible
+     * with the provided [entity].
      *
-     * @param entity Entity from which this Component was detached.
+     * @param entity The [Entity] to which this component is being attached.
+     * @return `true` if the component was successfully attached; `false` if the [entity] does not
+     *   support this component or if attachment failed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public fun onDetach(entity: Entity)
+    protected abstract fun onAttach(entity: Entity): Boolean
+
+    /**
+     * Called by the framework when this component is being removed from an [Entity].
+     *
+     * This method is triggered when [Entity.removeComponent] is invoked. Implementations should
+     * override this method to release resources or undo any changes made during [onAttach].
+     *
+     * @param entity The [Entity] from which this component is being detached.
+     */
+    protected abstract fun onDetach(entity: Entity)
 }

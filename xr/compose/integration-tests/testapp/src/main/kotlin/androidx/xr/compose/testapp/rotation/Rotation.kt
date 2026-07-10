@@ -27,22 +27,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.SpatialSpacer
+import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.R
@@ -50,7 +53,6 @@ import androidx.xr.compose.testapp.ui.components.CommonTestPanel
 import androidx.xr.compose.testapp.ui.components.DigitalClock
 import androidx.xr.compose.testapp.ui.components.initializePanelRotationData
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
-import androidx.xr.compose.testapp.ui.theme.Purple80
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.math.Vector3
 
@@ -66,7 +68,7 @@ class Rotation : ComponentActivity() {
                     val (rotation, axisAngle) = initializePanelRotationData()
                     SpatialColumn {
                         SpatialPanelLayout(rotation, axisAngle)
-                        SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
+                        SpatialSpacer(modifier = SubspaceModifier.height(20.dp))
                         InfoPanel(rotation, axisAngle)
                     }
                 }
@@ -75,6 +77,7 @@ class Rotation : ComponentActivity() {
     }
 
     @Composable
+    @SubspaceComposable
     private fun SpatialPanelLayout(rotation: Float, axisAngle: Vector3) {
         SpatialColumn {
             SpatialRow {
@@ -85,7 +88,9 @@ class Rotation : ComponentActivity() {
                 }
 
                 SpatialColumn {
-                    SpatialRow(modifier = SubspaceModifier.rotate(axisAngle, rotation)) {
+                    SpatialRow(
+                        modifier = SubspaceModifier.rotate(axisAngle, rotation).offset(z = 1.dp)
+                    ) {
                         PanelWithClock("left")
                         PanelWithClock("middle")
                         PanelWithClock("right")
@@ -98,28 +103,42 @@ class Rotation : ComponentActivity() {
     }
 
     @Composable
-    private fun PanelWithClock(text: String) {
-        SpatialPanel(modifier = SubspaceModifier.width(240.dp).height(120.dp)) {
-            Column(modifier = Modifier) {
-                Text(text, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                DigitalClock().CreateDigitalClock()
-            }
+    private fun ClockColumnWithLabel(label: String) {
+        Column(
+            modifier =
+                Modifier.background(color = MaterialTheme.colorScheme.primary).padding(top = 10.dp)
+        ) {
+            Text(
+                text = label,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+            DigitalClock()
         }
     }
 
     @Composable
+    @SubspaceComposable
+    private fun PanelWithClock(label: String) {
+        SpatialPanel(modifier = SubspaceModifier.width(240.dp).height(180.dp)) {
+            ClockColumnWithLabel(label)
+        }
+    }
+
+    @Composable
+    @SubspaceComposable
     private fun RotatingPanelWithClock(axisAngle: Vector3, rotation: Float) {
         SpatialPanel(
-            modifier = SubspaceModifier.width(240.dp).height(240.dp).rotate(axisAngle, rotation)
+            modifier = SubspaceModifier.width(240.dp).height(180.dp).rotate(axisAngle, rotation)
         ) {
-            Column {
-                Text("Standalone", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                DigitalClock().CreateDigitalClock()
-            }
+            ClockColumnWithLabel("Standalone")
         }
     }
 
     @Composable
+    @SubspaceComposable
     private fun InfoPanel(rotation: Float, axisAngle: Vector3) {
         CommonTestPanel(
             size = DpVolumeSize(640.dp, 480.dp, 0.dp),
@@ -129,7 +148,10 @@ class Rotation : ComponentActivity() {
             onClickRecreate = { this@Rotation.recreate() },
         ) { padding ->
             Column(
-                modifier = Modifier.background(color = Purple80).padding(padding).fillMaxSize(),
+                modifier =
+                    Modifier.background(color = MaterialTheme.colorScheme.secondary)
+                        .padding(padding)
+                        .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -141,7 +163,7 @@ class Rotation : ComponentActivity() {
                     Text(
                         text = "Rotation: $rotation,\nAxis Angle: $axisAngle",
                         textAlign = TextAlign.Center,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         style = TextStyle(fontSize = 26.sp, lineHeight = 42.sp),
                     )
                 }

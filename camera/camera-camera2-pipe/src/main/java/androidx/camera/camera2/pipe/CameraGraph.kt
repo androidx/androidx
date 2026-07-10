@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
@@ -38,7 +39,12 @@ import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.map
 
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -85,6 +91,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
         val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val defaultListeners: List<Request.Listener> = listOf(),
+        val graphStateListeners: List<GraphStateListener> = emptyList(),
         val requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val cameraBackendId: CameraBackendId? = null,
         val customCameraBackend: CameraBackendFactory? = null,
@@ -93,7 +100,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         val sessionColorSpace: CameraColorSpace? = null,
         // TODO: Internal error handling. May be better at the CameraPipe level.
     ) {
-        internal var sharedCameraIds: List<CameraId> = emptyList()
+        internal var concurrentCameraGraphs: ConcurrentCameraGraphs? = null
 
         init {
             check(cameraBackendId == null || customCameraBackend == null) {
@@ -102,9 +109,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         }
     }
 
-    public class ConcurrentConfig(graphConfigs: List<Config>) {
-        public val graphConfigs: List<Config>
-
+    public class ConcurrentConfig(public val graphConfigs: List<Config>) {
         init {
             check(graphConfigs.size >= 2) {
                 "Cannot create ConcurrentGraphConfig without 2 or more CameraGraph.Config(s)"
@@ -118,13 +123,6 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
             check(distinctCameraIds.size == graphConfigs.size) {
                 "Each CameraGraph.Config must have a distinct camera id!"
             }
-
-            this.graphConfigs =
-                graphConfigs.map { config ->
-                    config.apply {
-                        sharedCameraIds = distinctCameraIds.filter { it != config.camera }
-                    }
-                }
         }
     }
 
@@ -245,7 +243,8 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          * - Device(s): Depends on the situation and the use case.
          * - API levels: All
          */
-        val closeCaptureSessionOnDisconnect: Boolean = false,
+        val closeCaptureSessionOnDisconnect: Boolean =
+            Camera2Quirks.shouldCloseCaptureSessionOnDisconnect(),
 
         /**
          * Flag to close the camera device when the CameraGraph is closed. This is needed on devices
@@ -360,9 +359,19 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Session : CameraControls3A, AutoCloseable {
         /**
+         * The currently configured repeating request. If there's no active repeating request, the
+         * method would return null.
+         *
+         * Setting this value to null will attempt to call stopRepeating on the Camera.
+         */
+        public var repeatingRequest: Request?
+
+        /**
          * Causes the CameraGraph to start or update the current repeating request with the provided
          * [Request] object. The [Request] object may be cached, and may be used for other
-         * interactions with the camera (such as updating 3A, or issuing 3A triggers).
+         * interactions with the camera (such as updating 3A, or issuing 3A triggers). Note that
+         * parameter values set in the request here would override the ones in [Parameters] but
+         * would be overwritten by the ones in [Config.requiredParameters].
          */
         public fun startRepeating(request: Request)
 
@@ -587,6 +596,11 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      */
     public val parameters: Parameters
 
+    /*
+     * This enables setting listeners directly. The listeners would receive callbacks similar to ones added in a [Request]. For detailed usage see [Listeners].
+     */
+    public val listeners: RequestListeners
+
     /** The [StreamGraph] for this camera graph instance. */
     public val streams: StreamGraph
 
@@ -595,6 +609,12 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      * including when a camera graph is stopped, starting or started.
      */
     public val graphState: StateFlow<GraphState>
+
+    /** Conflated flow of the most recent [FrameNumber]s emitted by this CameraGraph. */
+    public val latestFrameNumber: Flow<FrameNumber>
+
+    /** Conflated flow of the most recent [FrameInfo] instances emitted by this CameraGraph. */
+    public val latestFrameInfo: Flow<FrameInfo>
 
     /**
      * This is a hint an app can give to a camera graph to indicate whether the camera is being used
@@ -769,6 +789,114 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
         scope: CoroutineScope,
         action: suspend CoroutineScope.(TSession) -> T,
     ): Deferred<T>
+
+    public companion object {
+        /**
+         * Subscribe to the latest values of a combined set of [CaptureResult.Key]s and
+         * [Metadata.Key]s.
+         *
+         * At least one of [resultKeys] or [metadataKeys] must be non-empty, otherwise
+         * [IllegalArgumentException] is thrown.
+         *
+         * The [listener] will be invoked synchronously on the calling thread (the camera callback
+         * thread). Ensure the callback executes quickly to avoid blocking internal camera
+         * processing.
+         *
+         * The callback is triggered only when the resolved value of any tracked key changes, or
+         * when a key transitions between being present and absent.
+         *
+         * Because the aggregator uses a sliding window to reconcile values across partial and total
+         * capture results, the returned parameters in [LatestFrameMetadata] may be skewed (i.e.,
+         * values for different keys may originate from different frame numbers).
+         * - If you require frame-aligned parameters (e.g., matching a specific image for
+         *   post-processing), use `latestFrameMetadata` or register a frame listener.
+         * - If you require the lowest possible latency for camera state changes (e.g., drawing
+         *   active AF/AE indicator regions on a viewfinder overlay), use this subscription
+         *   function.
+         */
+        /**
+         * Returns a [Flow] emitting the latest aggregated parameters for the requested set of
+         * [CaptureResult.Key]s and [Metadata.Key]s.
+         *
+         * Emits new values on the camera callback thread. Flow collections should map to a
+         * different dispatcher if performing heavy operations.
+         *
+         * Emits only when the resolved value of any tracked key changes, or when a key transitions
+         * between being present and absent.
+         *
+         * The flow is always conflated (slow consumers will drop intermediate updates to receive
+         * the most recent state).
+         * - Use frame-aligned listener versions (e.g. `latestFrameMetadata`) if values must align
+         *   perfectly to a single frame.
+         * - Use this Flow if low-latency updates are preferred (e.g. tracking viewfinder overlays).
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun CameraGraphBase<*>.subscribeToLatestFrameResults(
+            captureResultKeys: Set<CaptureResult.Key<*>> = emptySet(),
+            metadataKeys: Set<Metadata.Key<*>> = emptySet(),
+            filter: ((RequestMetadata) -> Boolean)? = null,
+        ): Flow<LatestFrameMetadata> {
+            return callbackFlow {
+                    val listener =
+                        RequestListeners.createLatestFrameMetadataListener(
+                            captureResultKeys = captureResultKeys,
+                            metadataKeys = metadataKeys,
+                            filter = filter,
+                            listener = { trySend(it) },
+                        )
+                    listeners.add(listener)
+                    awaitClose { listeners.remove(listener) }
+                }
+                .conflate()
+        }
+
+        /**
+         * Returns a [Flow] emitting the latest value of a single [CaptureResult.Key].
+         *
+         * Emits new values on the camera callback thread.
+         *
+         * Emits only when the resolved value changes, or when it transitions between being present
+         * and absent.
+         *
+         * The flow is always conflated.
+         * - Use frame-aligned listener versions if values must align perfectly to a single frame.
+         * - Use this Flow if low-latency updates are preferred.
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun <T> CameraGraphBase<*>.subscribeToLatestFrameResult(
+            captureResultKey: CaptureResult.Key<T>,
+            filter: ((RequestMetadata) -> Boolean)? = null,
+        ): Flow<T?> =
+            subscribeToLatestFrameResults(
+                    captureResultKeys = setOf(captureResultKey),
+                    filter = filter,
+                )
+                .map { it[captureResultKey] }
+
+        /**
+         * Returns a [Flow] emitting the latest value of a single [Metadata.Key].
+         *
+         * Emits new values on the camera callback thread.
+         *
+         * Emits only when the resolved value changes, or when it transitions between being present
+         * and absent.
+         *
+         * The flow is always conflated.
+         * - Use frame-aligned listener versions if values must align perfectly to a single frame.
+         * - Use this Flow if low-latency updates are preferred.
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun <T> CameraGraphBase<*>.subscribeToLatestFrameResult(
+            metadataKey: Metadata.Key<T>,
+            filter: ((RequestMetadata) -> Boolean)? = null,
+        ): Flow<T?> =
+            subscribeToLatestFrameResults(metadataKeys = setOf(metadataKey), filter = filter).map {
+                it[metadataKey]
+            }
+    }
 }
 
 /**

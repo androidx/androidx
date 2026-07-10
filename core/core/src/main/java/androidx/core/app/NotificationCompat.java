@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 import static java.util.Objects.requireNonNull;
@@ -46,6 +47,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.text.Annotation;
+import android.text.ParcelableSpan;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -81,10 +84,17 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.InstantSource;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Helper for accessing features in {@link android.app.Notification}.
@@ -568,6 +578,8 @@ public class NotificationCompat {
     @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
 
+    private static final String EXTRA_MESSAGING_PERSON = "android.messagingUser";
+
     /**
      * {@link #getExtras extras} key: a {@link String} to be displayed as the title to a
      * conversation represented by a {@link MessagingStyle}.
@@ -727,7 +739,7 @@ public class NotificationCompat {
     public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
 
     /**
-     * {@link #extras} key: an arraylist of {@link android.app.Notification.ProgressStyle.Segment}
+     * {@link Notification#extras} key: an arraylist of {@link android.app.Notification.ProgressStyle.Segment}
      * bundles provided by a
      * {@link android.app.Notification.ProgressStyle} notification as supplied to
      * {@link ProgressStyle#setProgressSegments}
@@ -738,7 +750,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_SEGMENTS = "android.progressSegments";
 
     /**
-     * {@link #extras} key: an arraylist of {@link ProgressStyle.Point}
+     * {@link Notification#extras} key: an arraylist of {@link ProgressStyle.Point}
      * bundles provided by a
      * {@link android.app.Notification.ProgressStyle} notification as supplied to
      * {@link ProgressStyle#setProgressPoints}
@@ -749,7 +761,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_POINTS = "android.progressPoints";
 
     /**
-     * {@link #extras} key: whether the progress bar should be styled by its progress as
+     * {@link Notification#extras} key: whether the progress bar should be styled by its progress as
      * supplied to {@link ProgressStyle#setStyledByProgress}.
      * This extra is a boolean.
      */
@@ -757,7 +769,7 @@ public class NotificationCompat {
     public static final String EXTRA_STYLED_BY_PROGRESS = "android.styledByProgress";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown as progress bar progress tracker icon in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressTrackerIcon(IconCompat)}.
      */
@@ -765,7 +777,7 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_TRACKER_ICON = "android.progressTrackerIcon";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown at the beginning of the progress bar in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressStartIcon(IconCompat)}.
      */
@@ -773,12 +785,19 @@ public class NotificationCompat {
     public static final String EXTRA_PROGRESS_START_ICON = "android.progressStartIcon";
 
     /**
-     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * {@link Notification#extras} key: this is an {@link IconCompat} of an image to be
      * shown at the end of the progress bar in {@link ProgressStyle}, supplied to
      *{@link ProgressStyle#setProgressEndIcon(IconCompat)}.
      */
     @SuppressLint("ActionValue")
     public static final String EXTRA_PROGRESS_END_ICON = "android.progressEndIcon";
+
+    /**
+     * {@link Notification#extras} key: requests that the notification card show the
+     * {@link Notification#getSmallIcon() small icon} instead of the launcher app icon.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PREFER_SMALL_ICON = "android.app.preferSmallIcon";
 
     /**
      * Value of {@link Notification#color} equal to 0 (also known as
@@ -1050,6 +1069,81 @@ public class NotificationCompat {
      */
     public static final int FOREGROUND_SERVICE_DEFERRED =
             Notification.FOREGROUND_SERVICE_DEFERRED;
+
+    /**
+     * This is the default value for semantic style, signaling no particular semantics. An
+     * {@link Annotation} with this style has no effect.
+     */
+    public static final int SEMANTIC_STYLE_UNSPECIFIED = 0;
+
+    /**
+     * This value is used to annotate an element as indicating information that should stand out
+     * from other content, but which doesn’t fall on a scale or hierarchy. This can be thought of
+     * as a more neutral value that may be used in cases where the element is intended to stand
+     * out against elements with the other semantic styles -- for example if a {@link ProgressStyle}
+     * bar uses semantic style to color segments, this style would be appropriate for segments where
+     * the semantic hierarchy is unhelpful to the user.
+     *
+     * <p>Info is generally represented to users by styling the element with a color (like blue)
+     * that is clearly distinct from the colors used for other styles.
+     */
+    public static final int SEMANTIC_STYLE_INFO = 1;
+
+    /**
+     * This value is used to annotate an element as indicating safety, non-urgency, timeliness,
+     * or another “mild” value on the semantic hierarchy.
+     *
+     * <p>Safety is generally represented to users by styling the element with a green color.
+     */
+    public static final int SEMANTIC_STYLE_SAFE = 2;
+
+    /**
+     * This value is used to annotate an element as indicating caution, moderate urgency, tardiness,
+     * or another “intermediate” value on the semantic hierarchy.
+     *
+     * <p>Caution is generally represented to users by styling the element with a yellow or
+     * orange color.
+     */
+    public static final int SEMANTIC_STYLE_CAUTION = 3;
+
+    /**
+     * This value is used to annotate an element as indicating danger, extreme urgency or
+     * lateness, or another “extreme” value on the semantic hierarchy.
+     *
+     * <p>Danger is generally represented to users by styling the element with a red color.
+     */
+    public static final int SEMANTIC_STYLE_DANGER = 4;
+
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @IntDef(value = {
+            SEMANTIC_STYLE_UNSPECIFIED,
+            SEMANTIC_STYLE_INFO,
+            SEMANTIC_STYLE_SAFE,
+            SEMANTIC_STYLE_CAUTION,
+            SEMANTIC_STYLE_DANGER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SemanticStyle {}
+
+    private static final String ANNOTATION_SEMANTIC_STYLE_KEY =
+            "android.app.notification.semanticStyle"; // Same as in android.app.Notification
+
+    /**
+     * Constructs an {@link ParcelableSpan} that can be used to span text in a {@link Spanned}
+     * {@link CharSequence} in some Notification text fields, and which may then be converted into
+     * styling of that section of text in order to indicate the semantic style. Since Notifications
+     * may strip styling, even for semantic styles, it’s important that stripping these styles
+     * should not distort the meaning of the text.
+     *
+     * <p>Semantic style will only be applied to text appearance in notifications that are eligible
+     * (e.g. {@link Notification#FLAG_PROMOTED_ONGOING promoted} notifications).
+     *
+     * @see android.text.Spannable#setSpan(Object, int, int, int)
+     */
+    @NonNull
+    public static ParcelableSpan createSemanticStyleAnnotation(@SemanticStyle int semanticStyle) {
+        return new Annotation(ANNOTATION_SEMANTIC_STYLE_KEY, String.valueOf(semanticStyle));
+    }
 
     /**
      * Builder class for {@link NotificationCompat} objects.  Allows easier control over
@@ -1451,7 +1545,8 @@ public class NotificationCompat {
         }
 
         /**
-         * If {@code true}, silences this instance of the notification, regardless of the sounds or
+         * If {@code true}, silences this instance of the notification and prevents the
+         * notification from peeking on screen, regardless of the importance, sounds, or
          * vibrations set on the notification or notification channel. If {@code false}, then the
          * normal sound and vibration logic applies. Defaults to {@code false}.
          */
@@ -1567,6 +1662,27 @@ public class NotificationCompat {
          * Sets a very short string summarizing the most critical information contained in the
          * notification. Suggested max length is 7 characters, and there is no guarantee how much or
          * how little of this text will be shown.
+         *
+         * <p>This field is designed exclusively for the compact representation (hereafter "chip")
+         * shown when the notification is {@link Notification#FLAG_PROMOTED_ONGOING promoted
+         * ongoing}.
+         * <ul>
+         *     <li>A chip's content may not be shown in certain states or if it cannot fit.
+         *     <li>Short critical text will always be the highest precedence content for a chip.
+         *     <li>Setting this to {@code ""} will ensure the chip has no content; {@code null}
+         *     (the default) will fall back to the other options.
+         *     <li>A {@link MetricStyle}'s critical metric, if supported by the platform, is the
+         *     next option for the chip's content.
+         *     <li>A time (from {@link Notification#when}) is the final source of content for the
+         *     chip.
+         *     <ul>
+         *         <li>If {@link #setUsesChronometer(boolean)} is {@code true}, the chip content
+         *         will be a chronometer, if that is positive (based on
+         *         {@link #setChronometerCountDown(boolean)}).
+         *         <li>If {@link #setShowWhen(boolean)} is true, the chip content will be the time
+         *         remaining until {@link Notification#when}, if positive.
+         *     </ul>
+         * </ul>
          */
         @NonNull
         public Builder setShortCriticalText(@Nullable String shortCriticalText) {
@@ -2107,6 +2223,7 @@ public class NotificationCompat {
          *
          * @see Notification#extras
          */
+        @SuppressWarnings("GetterSetterNullability")
         public @NonNull Bundle getExtras() {
             if (mExtras == null) {
                 mExtras = new Bundle();
@@ -2615,6 +2732,25 @@ public class NotificationCompat {
             return new NotificationCompatBuilder(this).build();
         }
 
+        /**
+         * Convert the CharSequence to a string and meke it is safe to put into a bundle.
+         */
+        private static String safeCharSequenceToString(CharSequence cs) {
+            if (cs == null) return null;
+            return safeString(cs.toString());
+        }
+
+        /**
+         * Make sure this String is safe to put into a bundle.
+         */
+        private static String safeString(String str) {
+            if (str == null) return str;
+            if (str.length() > MAX_CHARSEQUENCE_LENGTH) {
+                str = str.substring(0, MAX_CHARSEQUENCE_LENGTH);
+            }
+            return str;
+        }
+
         protected static @Nullable CharSequence limitCharSequenceLength(@Nullable CharSequence cs) {
             if (cs == null) return cs;
             if (cs.length() > MAX_CHARSEQUENCE_LENGTH) {
@@ -2878,7 +3014,6 @@ public class NotificationCompat {
                     return new ProgressStyle();
                 }
             }
-
             if (Build.VERSION.SDK_INT >= 24) {
                 if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
                     return new MessagingStyle();
@@ -2888,9 +3023,17 @@ public class NotificationCompat {
                     return new DecoratedCustomViewStyle();
                 }
             }
+            if (Build.VERSION.SDK_INT >= 37) {
+                if (platformTemplateClass.equals(Notification.MetricStyle.class.getName())) {
+                    return new MetricStyle();
+                }
+            }
+
             return null;
         }
 
+        @SuppressLint("NewApi") // MetricStyle is RequiresApi(37) so that clients know it's not
+        // supported before that SDK_INT, but the Compat style can be deserialized just fine.
         static @Nullable Style constructCompatStyleByName(@Nullable String templateClass) {
             if (templateClass != null) {
                 switch (templateClass) {
@@ -2908,11 +3051,15 @@ public class NotificationCompat {
                         return new CallStyle();
                     case ProgressStyle.TEMPLATE_CLASS_NAME:
                         return new ProgressStyle();
+                    case MetricStyle.TEMPLATE_CLASS_NAME:
+                        return new MetricStyle();
                 }
             }
             return null;
         }
 
+        @SuppressLint("NewApi") // MetricStyle is RequiresApi(37) so that clients know it's not
+        // supported before that SDK_INT, but the Compat style can be deserialized just fine.
         static @Nullable Style constructCompatStyleForBundle(@NonNull Bundle extras) {
             // If the compat template name provided in the bundle can be resolved to a class, use
             // that style class.
@@ -2938,6 +3085,8 @@ public class NotificationCompat {
             } else if (extras.containsKey(EXTRA_PROGRESS_SEGMENTS)
                     || extras.containsKey(EXTRA_PROGRESS_POINTS)) {
                 return new ProgressStyle();
+            } else if (extras.containsKey(MetricStyle.EXTRA_METRICS)) {
+                return new MetricStyle();
             }
             // If individual extras do not help identify the style, use the framework style name.
             return constructCompatStyleByPlatformName(extras.getString(EXTRA_TEMPLATE));
@@ -3998,23 +4147,31 @@ public class NotificationCompat {
         @Override
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
-            extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
-            extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
+            // On SDK >= 28, the framework handles MessagingStyle natively and performs image
+            // resizing on framework Person and Message objects. We omit writing duplicate compat
+            // extras here to prevent overwriting the images that were already resized by the
+            // framework with our unresized compat copies. The framework-populated and resized
+            // extras (e.g., EXTRA_MESSAGING_PERSON and EXTRA_MESSAGES) are fully sufficient and
+            // will be used during restoration.
+            if (Build.VERSION.SDK_INT < 28) {
+                extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
+                extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
 
-            extras.putCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE, mConversationTitle);
-            if (mConversationTitle != null && mIsGroupConversation) {
-                extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
-            }
-            if (!mMessages.isEmpty()) {
-                extras.putParcelableArray(EXTRA_MESSAGES,
-                        Message.getBundleArrayForMessages(mMessages));
-            }
-            if (!mHistoricMessages.isEmpty()) {
-                extras.putParcelableArray(EXTRA_HISTORIC_MESSAGES,
-                        Message.getBundleArrayForMessages(mHistoricMessages));
-            }
-            if (mIsGroupConversation != null) {
-                extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+                extras.putCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE, mConversationTitle);
+                if (mConversationTitle != null && mIsGroupConversation) {
+                    extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
+                }
+                if (!mMessages.isEmpty()) {
+                    extras.putParcelableArray(EXTRA_MESSAGES,
+                            Message.getBundleArrayForMessages(mMessages));
+                }
+                if (!mHistoricMessages.isEmpty()) {
+                    extras.putParcelableArray(EXTRA_HISTORIC_MESSAGES,
+                            Message.getBundleArrayForMessages(mHistoricMessages));
+                }
+                if (mIsGroupConversation != null) {
+                    extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+                }
             }
         }
 
@@ -4027,7 +4184,16 @@ public class NotificationCompat {
             super.restoreFromCompatExtras(extras);
             mMessages.clear();
             // Call to #restore requires that there either be a display name OR a user.
-            if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+            // Try to restore mUser from the framework's EXTRA_MESSAGING_PERSON first on API 28+,
+            // as it will contain the resized avatar if the framework performed downscaling.
+            // Otherwise, fall back to the compat extras.
+            Person restoredUser = null;
+            if (Build.VERSION.SDK_INT >= 28 && extras.containsKey(EXTRA_MESSAGING_PERSON)) {
+                restoredUser = Api28Impl.getUserPerson(extras, EXTRA_MESSAGING_PERSON);
+            }
+            if (restoredUser != null) {
+                mUser = restoredUser;
+            } else if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
                 // New path simply unpacks Person, but checks if there's a valid name.
                 mUser = Person.fromBundle(extras.getBundle(EXTRA_MESSAGING_STYLE_USER));
             } else {
@@ -4321,6 +4487,9 @@ public class NotificationCompat {
                 if (getDataMimeType() != null) {
                     Api24Impl.setData(frameworkMessage, getDataMimeType(), getDataUri());
                 }
+                if (Build.VERSION.SDK_INT >= 28 && mExtras != null) {
+                    Api28Impl.setExtras(frameworkMessage, mExtras);
+                }
                 return frameworkMessage;
             }
 
@@ -4365,6 +4534,10 @@ public class NotificationCompat {
 
                 static Parcelable castToParcelable(android.app.Person person) {
                     return person;
+                }
+
+                static void setExtras(Notification.MessagingStyle.Message message, Bundle extras) {
+                    message.getExtras().putAll(extras);
                 }
             }
         }
@@ -4427,6 +4600,14 @@ public class NotificationCompat {
             static Notification.MessagingStyle setGroupConversation(
                     Notification.MessagingStyle messagingStyle, boolean isGroupConversation) {
                 return messagingStyle.setGroupConversation(isGroupConversation);
+            }
+
+            @SuppressWarnings("deprecation")
+            static Person getUserPerson(Bundle extras, String key) {
+                Parcelable p = extras.getParcelable(key);
+                return p instanceof android.app.Person
+                        ? Person.fromAndroidPerson((android.app.Person) p)
+                        : null;
             }
         }
     }
@@ -5036,6 +5217,1239 @@ public class NotificationCompat {
     }
 
     /**
+     * A notification style which shows up to 3 metrics when expanded. Metrics usually represent
+     * quantities that change over time, such as fitness information collected by a tracker, timers,
+     * weather information, etc.
+     *
+     * <p>To use this style with your Notification, feed it to
+     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * <pre class="prettyprint">
+     * Notification notif = new NotificationCompat.Builder(context)
+     *   .setStyle(new MetricStyle()
+     *       .addMetric(new Metric(new Metric.FixedInt(1979), "Steps"))
+     *       .addMetric(new Metric(
+     *           Metric.TimeDifference.forStopwatch(startTime, FORMAT_CHRONOMETER_AUTOMATIC),
+     *           "Time elapsed")))
+     * </pre>
+     *
+     * <p>A MetricStyle must contain at least one {@link Metric} object to be valid; an invalid
+     * style will be rejected when {@link Builder#build()} is called.
+     *
+     * <p>If a notification with this style is {@link Notification#FLAG_PROMOTED_ONGOING promoted
+     * ongoing}, then one of its metrics might be displayed in the status bar chip.
+     *
+     * <p>Note that this style doesn't display the large icon set via
+     * {@link Builder#setLargeIcon(Icon)}.
+     *
+     * <p>This style is only supported in devices with {@link Build.VERSION_CODES#CINNAMON_BUN} or
+     * greater. If used on a device with a lower {@code SDK_INT} then the notification will be
+     * displayed with the standard appearance (i.e. showing content text, but <em>not</em>
+     * metrics).
+     */
+    @RequiresApi(26)
+    public static final class MetricStyle extends Style {
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$MetricStyle";
+
+        /**
+         * Extras key: an arraylist of {@link Metric} bundles provided by a {@link MetricStyle}
+         * notification (as supplied to {@link MetricStyle#addMetric} and related methods.
+         */
+        private static final String EXTRA_METRICS = "android.metrics";
+
+        /**
+         * Extras key: an int pointing to an index in {@link #EXTRA_METRICS}.
+         */
+        private static final String EXTRA_METRICS_CRITICAL_INDEX = "android.metrics.criticalIndex";
+
+        /**
+         * Special value for {@link #setCriticalMetric(int)} to indicate that none of the metrics
+         * should be considered the "most important" one.
+         */
+        public static final int METRIC_INDEX_NONE = -1;
+
+        /* Index of the default critical metric (the first one). */
+        private static final int CRITICAL_METRIC_DEFAULT = 0;
+
+        private final List<Metric> mMetrics = new ArrayList<>();
+        private int mCriticalMetric = CRITICAL_METRIC_DEFAULT;
+
+        /**
+         * Constructs a new instance of {@link MetricStyle}. Use {@link #addMetric(Metric)}
+         * to populate it.
+         *
+         * <p>This style is only supported in devices with
+         * {@link Build.VERSION_CODES#CINNAMON_BUN} or greater. If used on a device with a lower
+         * {@code SDK_INT} then the notification will be displayed with the standard appearance
+         * (i.e. showing content text, but <em>not</em> metrics).
+         *
+         */
+        @RequiresApi(37)
+        public MetricStyle() {
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected @NonNull String getClassName() {
+            return TEMPLATE_CLASS_NAME;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof MetricStyle)) return false;
+            MetricStyle that = (MetricStyle) obj;
+            if (this == that) return true;
+            return Objects.equals(this.mMetrics, that.mMetrics)
+                    && this.mCriticalMetric == that.mCriticalMetric;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mMetrics, mCriticalMetric);
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "MetricStyle{"
+                    + "mMetrics=" + mMetrics
+                    + ", mCriticalMetric=" + mCriticalMetric
+                    + "}";
+        }
+
+        /** Adds a {@link Metric} to this {@link MetricStyle}. */
+        @NonNull
+        public MetricStyle addMetric(@NonNull Metric metric) {
+            mMetrics.add(requireNonNull(metric));
+            return this;
+        }
+
+        /**
+         * Sets the list of {@link Metric} instances for this {@link MetricStyle}, replacing
+         * whatever was added before.
+         */
+        @NonNull
+        public MetricStyle setMetrics(@NonNull List<Metric> metrics) {
+            mMetrics.clear();
+            for (Metric metric : metrics) {
+                mMetrics.add(requireNonNull(metric));
+            }
+            return this;
+        }
+
+        /**
+         * Returns an immutable view of the list of {@link Metric} instances in this
+         * {@link MetricStyle}.
+         */
+        @NonNull
+        public List<Metric> getMetrics() {
+            return Collections.unmodifiableList(mMetrics);
+        }
+
+        /**
+         * Indicates which of the metrics is considered the "most important". This may be used when
+         * the notification is displayed in other surfaces (such as a status bar chip).
+         *
+         * @param index either the index (0-based) of an item in {@link #getMetrics()}, or
+         *              {@link #METRIC_INDEX_NONE} to indicate no {@link Metric} should be used
+         *              for this purpose
+         */
+        @NonNull
+        public MetricStyle setCriticalMetric(int index) {
+            mCriticalMetric = index;
+            return this;
+        }
+
+        /**
+         * Returns which, if any, of the metrics is considered the "most important", or {@code null}
+         * if none are. This may be used when the notification is displayed in other surfaces (such
+         * as a status bar chip).
+         *
+         * <p>By default, unless {@link #setCriticalMetric(int)} has been set, the first metric in
+         * the list is considered the critical one.
+         */
+        @Nullable
+        public Metric getCriticalMetric() {
+            if (mCriticalMetric >= 0 && mCriticalMetric < mMetrics.size()) {
+                return mMetrics.get(mCriticalMetric);
+            } else {
+                return null;
+            }
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            validate();
+            if (Build.VERSION.SDK_INT >= 37) {
+                final Notification.Builder builder1 = builder.getBuilder();
+                builder1.setStyle(Api37Impl.toPlatformStyle(this));
+            }
+        }
+
+        private void validate() {
+            if (mMetrics.isEmpty()) {
+                throw new IllegalArgumentException("A MetricStyle must have at least one Metric");
+            }
+        }
+
+        @RequiresApi(37)
+        private static final class Api37Impl {
+            private Api37Impl() {}
+
+            private static Notification.Style toPlatformStyle(@NonNull MetricStyle style) {
+                Notification.MetricStyle platformStyle = new Notification.MetricStyle();
+                for (Metric metric : style.getMetrics()) {
+                    platformStyle.addMetric(toPlatformMetric(metric));
+                }
+                platformStyle.setCriticalMetric(
+                        style.getMetrics().indexOf(style.getCriticalMetric()));
+                return platformStyle;
+            }
+
+            private static Notification.@NonNull Metric toPlatformMetric(@NonNull Metric metric) {
+                return new Notification.Metric(
+                        toPlatformMetricValue(metric.getValue()),
+                        metric.getLabel(),
+                        metric.getSemanticStyle());
+            }
+
+            @SuppressLint({"WrongConstant"})
+            private static Notification.Metric.@NonNull MetricValue toPlatformMetricValue(
+                    Metric.@NonNull MetricValue metricValue) {
+                if (metricValue instanceof Metric.TimeDifference) {
+                    Metric.TimeDifference td = (Metric.TimeDifference) metricValue;
+                    if (td.getZeroTime() != null) {
+                        return td.isTimer()
+                                ? Notification.Metric.TimeDifference.forTimer(
+                                        td.getZeroTime(), td.getFormat())
+                                : Notification.Metric.TimeDifference.forStopwatch(
+                                        td.getZeroTime(), td.getFormat());
+                    } else if (td.getZeroElapsedRealtime() != null) {
+                        return td.isTimer()
+                                ? Notification.Metric.TimeDifference.forTimer(
+                                        td.getZeroElapsedRealtime(), td.getFormat())
+                                : Notification.Metric.TimeDifference.forStopwatch(
+                                        td.getZeroElapsedRealtime(), td.getFormat());
+
+                    } else if (td.getPausedDuration() != null) {
+                        return td.isTimer()
+                                ? Notification.Metric.TimeDifference.forPausedTimer(
+                                        td.getPausedDuration(), td.getFormat())
+                                : Notification.Metric.TimeDifference.forPausedStopwatch(
+                                        td.getPausedDuration(), td.getFormat());
+                    } else {
+                        throw new IllegalArgumentException("Unexpected TimeDifference: " + td);
+                    }
+                } else if (metricValue instanceof Metric.FixedDate) {
+                    Metric.FixedDate fixedDate = (Metric.FixedDate) metricValue;
+                    return new Notification.Metric.FixedDate(
+                            fixedDate.getValue(), fixedDate.getFormat());
+                } else if (metricValue instanceof Metric.FixedFloat) {
+                    Metric.FixedFloat fixedFloat = (Metric.FixedFloat) metricValue;
+                    return new Notification.Metric.FixedFloat(
+                            fixedFloat.getValue(), fixedFloat.getUnit(),
+                            fixedFloat.getMinFractionDigits(), fixedFloat.getMaxFractionDigits());
+                } else if (metricValue instanceof Metric.FixedInt) {
+                    Metric.FixedInt fixedInt = (Metric.FixedInt) metricValue;
+                    return new Notification.Metric.FixedInt(
+                            fixedInt.getValue(), fixedInt.getUnit());
+                } else if (metricValue instanceof Metric.FixedText) {
+                    Metric.FixedText fixedText = (Metric.FixedText) metricValue;
+                    return new Notification.Metric.FixedText(
+                            fixedText.getValue(), fixedText.getUnit());
+                } else if (metricValue instanceof Metric.FixedTime) {
+                    Metric.FixedTime fixedTime = (Metric.FixedTime) metricValue;
+                    return new Notification.Metric.FixedTime(fixedTime.getValue());
+                } else {
+                    throw new IllegalArgumentException("Unexpected MetricValue: " + metricValue);
+                }
+            }
+        }
+
+        @Override
+        public void addCompatExtras(@NonNull Bundle extras) {
+            super.addCompatExtras(extras);
+            if (Build.VERSION.SDK_INT >= 37) {
+                return; // No changes to MetricStyle since its introduction.
+            }
+
+            final ArrayList<Bundle> bundles = new ArrayList<>();
+            for (Metric metric : mMetrics) {
+                bundles.add(Metric.toBundle(metric));
+            }
+            extras.putParcelableArrayList(EXTRA_METRICS, bundles);
+            extras.putInt(EXTRA_METRICS_CRITICAL_INDEX, mCriticalMetric);
+        }
+
+        @Override
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
+            mMetrics.clear();
+            ArrayList<Bundle> bundles = BundleCompat.getParcelableArrayList(extras, EXTRA_METRICS,
+                    Bundle.class);
+            if (bundles != null) {
+                for (Bundle bundle : bundles) {
+                    if (bundle != null) {
+                        Metric metric = Metric.fromBundle(bundle);
+                        if (metric != null) {
+                            addMetric(metric);
+                        }
+                    }
+                }
+            }
+
+            mCriticalMetric = extras.getInt(EXTRA_METRICS_CRITICAL_INDEX, CRITICAL_METRIC_DEFAULT);
+        }
+
+        @Override
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_METRICS);
+            extras.remove(EXTRA_METRICS_CRITICAL_INDEX);
+        }
+    }
+
+    /**
+     * A metric, used with {@link MetricStyle}, and which has a value and a label.
+     */
+    @RequiresApi(26) // For java.time in TimeDifference / FixedDate / FixedTime
+    public static final class Metric {
+
+        private static final String KEY_VALUE = "value";
+        private static final String KEY_LABEL = "label";
+        private static final String KEY_SEMANTIC_STYLE = "semanticStyle";
+
+        private final MetricValue mValue;
+        private final String mLabel;
+        private final @SemanticStyle int mSemanticStyle;
+
+        /**
+         * Creates a Metric with the specified value and label.
+         *
+         * @param value one of the subclasses of {@link MetricValue}, such as {@link FixedInt}
+         * @param label metric label -- should be 10 characters or fewer
+         */
+        public Metric(@NonNull MetricValue value, @NonNull CharSequence label) {
+            this(value, label, SEMANTIC_STYLE_UNSPECIFIED);
+        }
+
+        /**
+         * Creates a Metric with the specified value, label, and semantic style.
+         *
+         * @param value one of the subclasses of {@link MetricValue}, such as {@link FixedInt}
+         * @param label metric label -- should be 10 characters or fewer
+         * @param semanticStyle semantic style applied to the metric. When the notification
+         *                      {@link Notification#FLAG_PROMOTED_ONGOING is promoted} the metric
+         *                      value will be displayed (e.g. colored) according to this style.
+         */
+        public Metric(@NonNull MetricValue value, @NonNull CharSequence label,
+                @SemanticStyle int semanticStyle) {
+            mValue = requireNonNull(value);
+            mLabel = Builder.safeCharSequenceToString(requireNonNull(label));
+            checkArgument(!mLabel.isBlank(), "Metric label is required");
+            mSemanticStyle = semanticStyle;
+        }
+
+        @Nullable
+        private static Metric fromBundle(Bundle bundle) {
+            Bundle valueBundle = bundle.getBundle(KEY_VALUE);
+            if (valueBundle == null) {
+                return null;
+            }
+            MetricValue value = MetricValue.fromBundle(valueBundle);
+            if (value == null) {
+                return null;
+            }
+            String label = bundle.getString(KEY_LABEL);
+            int semanticStyle = bundle.getInt(KEY_SEMANTIC_STYLE, SEMANTIC_STYLE_UNSPECIFIED);
+            return new Metric(value, label, semanticStyle);
+        }
+
+        @NonNull
+        private static Bundle toBundle(Metric metric) {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(KEY_VALUE, MetricValue.toBundle(metric.mValue));
+            bundle.putString(KEY_LABEL, metric.mLabel);
+            bundle.putInt(KEY_SEMANTIC_STYLE, metric.mSemanticStyle);
+            return bundle;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Metric)) return false;
+            Metric that = (Metric) obj;
+            if (this == that) return true;
+            return Objects.equals(this.mValue, that.mValue)
+                    && Objects.equals(this.mLabel, that.mLabel)
+                    && this.mSemanticStyle == that.mSemanticStyle;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mValue, mLabel, mSemanticStyle);
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Metric{"
+                    + "mValue=" + mValue
+                    + ", mLabel=" + mLabel
+                    + ", mSemanticStyle=" + mSemanticStyle
+                    + "}";
+        }
+
+        /** A value for the metric. */
+        @NonNull
+        public MetricValue getValue() {
+            return mValue;
+        }
+
+        /**
+         * A label for the metric.
+         *
+         * <p>The space allocated to this will depend on the number of metrics on the
+         * notification, but it's recommended to keep this to 10 characters or fewer.
+         */
+        @NonNull
+        public CharSequence getLabel() {
+            return mLabel;
+        }
+
+        /**
+         * Applies semantics to the metric. When the notification
+         * {@link Notification#FLAG_PROMOTED_ONGOING is promoted} the metric value will be
+         * displayed (e.g. colored) according to this style.
+         */
+        @SemanticStyle
+        public int getSemanticStyle() {
+            return mSemanticStyle;
+        }
+
+        /**
+         * A superclass for the various value types used by the {@link Metric} class.
+         */
+        public abstract static class MetricValue {
+
+            private static final String KEY_TYPE = "_type";
+            private static final int TYPE_TIME_DIFFERENCE = 1;
+            private static final int TYPE_FIXED_DATE = 2;
+            private static final int TYPE_FIXED_TIME = 3;
+            private static final int TYPE_FIXED_INT = 4;
+            private static final int TYPE_FIXED_FLOAT = 5;
+            private static final int TYPE_FIXED_TEXT = 6;
+
+            // Restrict inheritance to inner classes of Notification.
+            private MetricValue() { }
+
+            @Nullable
+            private static MetricValue fromBundle(Bundle bundle) {
+                int type = bundle.getInt(KEY_TYPE);
+                switch (type) {
+                    case TYPE_TIME_DIFFERENCE : return TimeDifference.fromBundle(bundle);
+                    case TYPE_FIXED_DATE : return FixedDate.fromBundle(bundle);
+                    case TYPE_FIXED_TIME : return FixedTime.fromBundle(bundle);
+                    case TYPE_FIXED_INT : return FixedInt.fromBundle(bundle);
+                    case TYPE_FIXED_FLOAT : return FixedFloat.fromBundle(bundle);
+                    case TYPE_FIXED_TEXT : return FixedText.fromBundle(bundle);
+                    default : return null;
+                }
+            }
+
+            @NonNull
+            private static Bundle toBundle(MetricValue value) {
+                Bundle bundle = new Bundle();
+                if (value instanceof TimeDifference) {
+                    bundle.putInt(KEY_TYPE, TYPE_TIME_DIFFERENCE);
+                } else if (value instanceof FixedDate) {
+                    bundle.putInt(KEY_TYPE, TYPE_FIXED_DATE);
+                } else if (value instanceof FixedTime) {
+                    bundle.putInt(KEY_TYPE, TYPE_FIXED_TIME);
+                } else if (value instanceof FixedInt) {
+                    bundle.putInt(KEY_TYPE, TYPE_FIXED_INT);
+                } else if (value instanceof FixedFloat) {
+                    bundle.putInt(KEY_TYPE, TYPE_FIXED_FLOAT);
+                } else if (value instanceof FixedText) {
+                    bundle.putInt(KEY_TYPE, TYPE_FIXED_TEXT);
+                } else {
+                    throw new AssertionError("Impossible MetricValue subclass: " + value);
+                }
+                value.toBundle(bundle);
+                return bundle;
+            }
+
+            abstract void toBundle(Bundle bundle);
+        }
+
+        /**
+         * This represents a timer, a stopwatch, or a countdown to an event.
+         *
+         * <p>When representing a <em>running</em> timer (or stopwatch, etc), this value specifies
+         * a reference instant for when that timer will hit zero (or the stopwatch was at zero,
+         * respectively), called the "zero time". In this case the time displayed is defined as the
+         * difference between the "zero time" and the current time, meaning it will show a
+         * live-updated timer.
+         *
+         * <p>The zero time can be specified as an {@link Instant} (in which case it corresponds
+         * to a "real-world" point in time, from {@link InstantSource#system}), or as milliseconds
+         * since boot (from {@link SystemClock#elapsedRealtime()}). The latter might be suitable
+         * when the timer is tied to an {@link android.app.AlarmManager#ELAPSED_REALTIME} alarm in
+         * {@link android.app.AlarmManager}.
+         *
+         * <p>When representing a <em>paused</em> timer (or stopwatch, etc), this value specifies
+         * the duration as a fixed value.
+         *
+         * <p>This value can also specify its formatting, whether as a "chronometer" (e.g. 43:21)
+         * or an adaptive time (e.g. 1h 43m).
+         */
+        public static final class TimeDifference extends MetricValue {
+
+            /** Formatting option: adaptive (e.g. 1h 5m; 15m; 1m 30s; 5s). */
+            public static final int FORMAT_ADAPTIVE = 1;
+
+            /** Formatting option: chronometer-style, (e.g. two hours = "2:00:00"). */
+            public static final int FORMAT_CHRONOMETER = 2;
+
+            @RestrictTo(LIBRARY_GROUP_PREFIX)
+            @IntDef(value = {
+                    FORMAT_ADAPTIVE,
+                    FORMAT_CHRONOMETER
+            })
+            @Retention(RetentionPolicy.SOURCE)
+            public @interface Format {}
+
+            private static final String KEY_ZERO_TIME = "zeroTime";
+            private static final String KEY_ZERO_ELAPSED_REALTIME = "zeroElapsedRealtime";
+            private static final String KEY_PAUSED_DURATION = "pausedDuration";
+            private static final String KEY_COUNT_DOWN = "countDown";
+            private static final String KEY_FORMAT = "format";
+
+            // One of these three will be present.
+            @Nullable private final Instant mZeroTime;
+            @Nullable private final Long mZeroElapsedRealtime;
+            @Nullable private final Duration mPausedDuration;
+            private final boolean mCountDown;
+            private final @Format int mFormat;
+
+            /**
+             * Creates a "running timer" metric, which will show a countdown to {@code endTime}.
+             *
+             * @param endTime instant at which the timer reaches zero
+             * @param format formatting option
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forTimer(@NonNull Instant endTime, @Format int format) {
+                return new TimeDifference(requireNonNull(endTime),
+                        /* zeroElapsedRealtime= */ null, /* pausedDuration= */ null,
+                        /* countDown= */ true, format);
+            }
+
+            /**
+             * Creates a "running timer" metric, which will show a countdown to {@code endTime},
+             * specified in the {@link SystemClock#elapsedRealtime()} frame of reference.
+             *
+             * @param endTime elapsed realtime at which the timer reaches zero
+             * @param format formatting option
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forTimer(long endTime, @Format int format) {
+                return new TimeDifference(/* zeroTime= */ null, endTime,
+                        /* pausedDuration= */ null, /* countDown= */ true, format);
+            }
+
+            /**
+             * Creates a "running stopwatch" metric, which will show the time elapsed since
+             * {@code startTime}.
+             *
+             * @param startTime instant at which the stopwatch started
+             * @param format formatting option
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forStopwatch(@NonNull Instant startTime,
+                    @Format int format) {
+                return new TimeDifference(requireNonNull(startTime),
+                        /* zeroElapsedRealtime= */ null, /* pausedDuration= */ null,
+                        /* countDown= */ false, format);
+            }
+
+            /**
+             * Creates a "running stopwatch" metric, which will show the time elapsed since
+             * {@code startTime}, specified in the {@link SystemClock#elapsedRealtime()} frame of
+             * reference.
+             *
+             * @param startTime elapsed realtime at which the stopwatch started
+             * @param format formatting option
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forStopwatch(long startTime, @Format int format) {
+                return new TimeDifference(/* zeroTime= */ null, startTime,
+                        /* pausedDuration= */ null, /* countDown= */ false, format);
+            }
+
+            /**
+             * Creates a "paused timer" metric, showing the {@code remainingTime}.
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forPausedTimer(@NonNull Duration remainingTime,
+                    @Format int format) {
+                return new TimeDifference(/* zeroTime= */ null, /* zeroElapsedRealtime= */ null,
+                        requireNonNull(remainingTime), /* countDown= */ true, format);
+            }
+
+            /**
+             * Creates a "paused stopwatch" metric, showing the {@code elapsedTime}.
+             */
+            @NonNull
+            @RequiresApi(37)
+            public static TimeDifference forPausedStopwatch(@NonNull Duration elapsedTime,
+                    @Format int format) {
+                return new TimeDifference(/* zeroTime= */ null, /* zeroElapsedRealtime= */ null,
+                        requireNonNull(elapsedTime), /* countDown= */ false, format);
+            }
+
+            private TimeDifference(@Nullable Instant zeroTime, @Nullable Long zeroElapsedRealtime,
+                    @Nullable Duration pausedDuration, boolean countDown, @Format int format) {
+                checkArgument((zeroTime != null ? 1 : 0) + (zeroElapsedRealtime != null ? 1 : 0)
+                                + (pausedDuration != null ? 1 : 0) == 1,
+                        "Exactly one of zeroTime, zeroElapsedRealtime, or pausedDuration must be "
+                                + "present; received %s,%s,%s",
+                        zeroTime, zeroElapsedRealtime, pausedDuration);
+                checkArgument(format >= FORMAT_ADAPTIVE && format <= FORMAT_CHRONOMETER,
+                        "Invalid format: %s", format);
+                mZeroTime = zeroTime;
+                mZeroElapsedRealtime = zeroElapsedRealtime;
+                mPausedDuration = pausedDuration;
+                mCountDown = countDown;
+                mFormat = format;
+            }
+
+            @Nullable
+            private static TimeDifference fromBundle(Bundle bundle) {
+                Instant zeroTime = bundle.containsKey(KEY_ZERO_TIME)
+                        ? Instant.ofEpochMilli(bundle.getLong(KEY_ZERO_TIME)) : null;
+                Long zeroElapsedRealtime = bundle.containsKey(KEY_ZERO_ELAPSED_REALTIME)
+                        ? bundle.getLong(KEY_ZERO_ELAPSED_REALTIME) : null;
+                Duration pausedDuration = bundle.containsKey(KEY_PAUSED_DURATION)
+                        ? Duration.ofMillis(bundle.getLong(KEY_PAUSED_DURATION)) : null;
+                if (zeroTime != null || zeroElapsedRealtime != null || pausedDuration != null) {
+                    return new TimeDifference(zeroTime, zeroElapsedRealtime, pausedDuration,
+                            bundle.getBoolean(KEY_COUNT_DOWN),
+                            bundle.getInt(KEY_FORMAT));
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                if (mZeroTime != null) {
+                    bundle.putLong(KEY_ZERO_TIME, mZeroTime.toEpochMilli());
+                } else if (mZeroElapsedRealtime != null) {
+                    bundle.putLong(KEY_ZERO_ELAPSED_REALTIME, mZeroElapsedRealtime);
+                } else if (mPausedDuration != null) {
+                    bundle.putLong(KEY_PAUSED_DURATION, mPausedDuration.toMillis());
+                }
+                bundle.putBoolean(KEY_COUNT_DOWN, mCountDown);
+                bundle.putInt(KEY_FORMAT, mFormat);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof TimeDifference)) return false;
+                TimeDifference that = (TimeDifference) obj;
+                if (this == that) return true;
+                return Objects.equals(this.mZeroTime, that.mZeroTime)
+                        && Objects.equals(this.mZeroElapsedRealtime, that.mZeroElapsedRealtime)
+                        && Objects.equals(this.mPausedDuration, that.mPausedDuration)
+                        && this.mCountDown == that.mCountDown
+                        && this.mFormat == that.mFormat;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mZeroTime, mZeroElapsedRealtime, mPausedDuration, mCountDown,
+                        mFormat);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                StringBuilder sb = new StringBuilder("TimeDifference{");
+                if (mZeroTime != null) {
+                    sb.append("mZeroTime=").append(mZeroTime);
+                } else if (mZeroElapsedRealtime != null) {
+                    sb.append("mZeroElapsedRealtime=").append(mZeroElapsedRealtime);
+                } else if (mPausedDuration != null) {
+                    sb.append("mPausedDuration=").append(mPausedDuration);
+                }
+                sb.append(", mCountDown=").append(mCountDown)
+                        .append(", mFormat=").append(mFormat)
+                        .append("}");
+                return sb.toString();
+            }
+
+            /**
+             * The {@link Instant} at which the time difference is zero. Only valid for an
+             * {@link Instant}-based {@link TimeDifference}.
+             *
+             * <ul>
+             *     <li>For a running timer this is the {@code endTime} supplied to
+             *     {@link #forTimer(Instant, int)}.
+             *     <li>For a running stopwatch this is the {@code startTime} supplied to
+             *     {@link #forStopwatch(Instant, int)}.
+             *     <li>For running timers or stopwatches based on elapsed realtime (as well as
+             *     paused timers and stopwatches), this is {@code null}.
+             * </ul>
+             */
+            @Nullable public Instant getZeroTime() {
+                return mZeroTime;
+            }
+
+            /**
+             * The elapsed realtime at which the time difference is zero. Only valid for an
+             * {@link SystemClock#elapsedRealtime()}-based {@link TimeDifference}.
+             *
+             * <ul>
+             *     <li>For a running timer this is the {@code endTime} supplied to
+             *     {@link #forTimer(long, int)}.
+             *     <li>For a running stopwatch this is the {@code startTime} supplied to
+             *     {@link #forStopwatch(long, int)}.
+             *     <li>For running timers or stopwatches based on {@link Instant} (as well as
+             *     paused timers and stopwatches), this is {@code null}.
+             * </ul>
+             */
+            @SuppressWarnings("AutoBoxing")
+            @Nullable public Long getZeroElapsedRealtime() {
+                return mZeroElapsedRealtime;
+            }
+
+            /**
+             * The fixed time difference, for a paused timer or stopwatch.
+             *
+             * <ul>
+             *     <li>For a paused timer this is the {@code remainingTime} supplied to
+             *     {@link #forPausedTimer}.
+             *     <li>For a paused stopwatch this is the {@code elapsedTime} supplied to
+             *     {@link #forPausedStopwatch}.
+             *     <li>For running timers or stopwatches this is {@code null}.
+             * </ul>
+             */
+            @Nullable public Duration getPausedDuration() {
+                return mPausedDuration;
+            }
+
+            /**
+             * Whether this {@link TimeDifference} value represents a stopwatch -- when running,
+             * it counts up from {@link #getZeroTime()} (or {@link #getZeroElapsedRealtime()}).
+             */
+            public boolean isStopwatch() {
+                return !mCountDown;
+            }
+
+            /**
+             * Whether this {@link TimeDifference} value represents a timer -- when running,
+             * it counts down to {@link #getZeroTime()} (or {@link #getZeroElapsedRealtime()}).
+             */
+            public boolean isTimer() {
+                return mCountDown;
+            }
+
+            /** Formatting option for the timer/stopwatch. */
+            @Format
+            public int getFormat() {
+                return mFormat;
+            }
+        }
+
+        /** A metric value for showing a date. */
+        public static final class FixedDate extends MetricValue {
+
+            /**
+             * Formatting option. The system will decide how to format the date, and whether to omit
+             * any pieces, depending on available space, the relationship between the
+             * {@link LocalDate} and the current date, etc.
+             */
+            public static final int FORMAT_AUTOMATIC = 0;
+
+            /**
+             * Formatting option. The date will be shown in a longer format, e.g. "Aug 13 2025"
+             * (according to the device's locale).
+             */
+            public static final int FORMAT_LONG_DATE = 1;
+
+            /**
+             * Formatting option. The date will be shown in a shorter format, e.g. "13/8/25"
+             * (according to the device's locale).
+             */
+            public static final int FORMAT_SHORT_DATE = 2;
+
+            @RestrictTo(LIBRARY_GROUP_PREFIX)
+            @IntDef(value = {
+                    FORMAT_AUTOMATIC,
+                    FORMAT_LONG_DATE,
+                    FORMAT_SHORT_DATE,
+            })
+            @Retention(RetentionPolicy.SOURCE)
+            public @interface Format {}
+
+            private static final String KEY_VALUE = "value";
+            private static final String KEY_FORMAT = "format";
+
+            private final LocalDate mValue;
+            private final @Format int mFormat;
+
+            /**
+             * Creates a {@link FixedDate} where the {@link LocalDate} will be displayed with
+             * {@link #FORMAT_AUTOMATIC}.
+             */
+            public FixedDate(@NonNull LocalDate value) {
+                this(value, FORMAT_AUTOMATIC);
+            }
+
+            /**
+             * Creates a {@link FixedDate} where the {@link LocalDate} will be displayed in the
+             * specified formatting option.
+             */
+            public FixedDate(@NonNull LocalDate value, @Format int format) {
+                mValue = requireNonNull(value);
+                checkArgument(format >= FORMAT_AUTOMATIC && format <= FORMAT_SHORT_DATE,
+                        "Invalid format: %s", format);
+                mFormat = format;
+            }
+
+            @Nullable
+            private static FixedDate fromBundle(Bundle bundle) {
+                LocalDate value = bundle.containsKey(KEY_VALUE)
+                        ? LocalDate.ofEpochDay(bundle.getLong(KEY_VALUE)) : null;
+                if (value != null) {
+                    int format = bundle.getInt(KEY_FORMAT, FORMAT_AUTOMATIC);
+                    return new FixedDate(value, format);
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                bundle.putLong(KEY_VALUE, mValue.toEpochDay());
+                bundle.putInt(KEY_FORMAT, mFormat);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof FixedDate)) return false;
+                FixedDate that = (FixedDate) obj;
+                if (this == that) return true;
+                return Objects.equals(this.mValue, that.mValue)
+                        && this.mFormat == that.mFormat;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mValue, mFormat);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return getClass().getSimpleName() + "{"
+                        + "mValue=" + mValue
+                        + ", mFormat=" + mFormat
+                        + "}";
+            }
+
+            /** The {@link LocalDate} value. */
+            public @NonNull LocalDate getValue() {
+                return mValue;
+            }
+
+            /** The formatting option for the {@link LocalDate} value. */
+            public @Format int getFormat() {
+                return mFormat;
+            }
+        }
+
+        /**
+         * A metric value for showing a clock time.
+         *
+         * <p>Only hour and minutes will be displayed (according to the user's preference for 12-
+         * or 24- hour time, e.g. 14:30 or 2:30 PM); seconds and lower are truncated.
+         *
+         * <p>The time should be in a user-understandable timezone (most likely the device's own,
+         * unless it's clear from context that it would be different, such as a flight's arrival
+         * time on a different city).
+         */
+        public static final class FixedTime extends MetricValue {
+
+            private static final String KEY_VALUE = "value";
+
+            private final LocalTime mValue;
+
+            /**
+             * Creates a {@link FixedTime} with the specified {@link LocalTime}.
+             */
+            public FixedTime(@NonNull LocalTime value) {
+                mValue = requireNonNull(value).truncatedTo(ChronoUnit.SECONDS);
+            }
+
+            @Nullable
+            private static FixedTime fromBundle(Bundle bundle) {
+                LocalTime value = bundle.containsKey(KEY_VALUE)
+                        ? LocalTime.ofSecondOfDay(bundle.getLong(KEY_VALUE)) : null;
+                if (value != null) {
+                    return new FixedTime(value);
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                bundle.putLong(KEY_VALUE, mValue.toSecondOfDay());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof FixedTime)) return false;
+                FixedTime that = (FixedTime) obj;
+                if (this == that) return true;
+                return Objects.equals(this.mValue, that.mValue);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mValue);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return getClass().getSimpleName() + "{"
+                        + "mValue=" + mValue
+                        + "}";
+            }
+
+            /** The {@link LocalTime} value. */
+            public @NonNull LocalTime getValue() {
+                return mValue;
+            }
+        }
+
+        /** Metric corresponding to an integer value. */
+        public static final class FixedInt extends MetricValue {
+
+            private static final String KEY_VALUE = "value";
+            private static final String KEY_UNIT = "unit";
+
+            private final int mValue;
+            private final String mUnit;
+
+            /**
+             * Creates a {@link FixedInt} instance with the specified integer value, and no unit
+             * text.
+             */
+            public FixedInt(int value) {
+                this(value, /* unit= */ null);
+            }
+
+            /**
+             * Creates a {@link FixedInt} instance with the specified integer value.
+             *
+             * @param value integer value
+             * @param unit optional unit for the value. Limit this to a few characters.
+             */
+            public FixedInt(int value, @Nullable CharSequence unit) {
+                mValue = value;
+                mUnit = Builder.safeCharSequenceToString(unit);
+            }
+
+            @NonNull
+            private static FixedInt fromBundle(Bundle bundle) {
+                return new FixedInt(bundle.getInt(KEY_VALUE), bundle.getString(KEY_UNIT));
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                bundle.putInt(KEY_VALUE, mValue);
+                bundle.putString(KEY_UNIT, mUnit);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof FixedInt)) return false;
+                FixedInt that = (FixedInt) obj;
+                if (this == that) return true;
+                return this.mValue == that.mValue
+                        && Objects.equals(this.mUnit, that.mUnit);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mValue, mUnit);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return getClass().getSimpleName() + "{"
+                        + "mValue=" + mValue
+                        + ", mUnit=" + mUnit
+                        + "}";
+            }
+
+            /** The integer value. */
+            public int getValue() {
+                return mValue;
+            }
+
+            /**
+             * A unit for the value.
+             *
+             * <p>This may not be shown to the user in all views.
+             *
+             * <p>The space allocated to this will be limited. It's recommended to limit
+             * this to just a few characters.
+             */
+            @Nullable
+            public CharSequence getUnit() {
+                return mUnit;
+            }
+        }
+
+        /** Metric corresponding to a floating point value. */
+        public static final class FixedFloat extends MetricValue {
+
+            private static final int LOWER_BOUND_FRACTION_DIGITS = 0;
+            private static final int UPPER_BOUND_FRACTION_DIGITS = 6;
+            private static final int DEFAULT_MIN_FRACTION_DIGITS = 0;
+            private static final int DEFAULT_MAX_FRACTION_DIGITS = 2;
+
+            private static final String KEY_VALUE = "value";
+            private static final String KEY_UNIT = "unit";
+            private static final String KEY_MIN_FRACTION_DIGITS = "minDigits";
+            private static final String KEY_MAX_FRACTION_DIGITS = "maxDigits";
+
+            private final float mValue;
+            private final String mUnit;
+            private final int mMinFractionDigits;
+            private final int mMaxFractionDigits;
+
+            /**
+             * Creates a {@link FixedFloat} instance with no unit and 0 minimum and 3 maximum
+             * fractional digits.
+             */
+            public FixedFloat(float value) {
+                this(value, /* unit= */ null);
+            }
+
+            /**
+             * Creates a {@link FixedFloat} instance with 0 minimum and 2 maximum fractional digits.
+             *
+             * @param value numeric value
+             * @param unit optional unit for the value. Limit this to a few characters.
+             */
+            public FixedFloat(float value, @Nullable CharSequence unit) {
+                this(value, unit, DEFAULT_MIN_FRACTION_DIGITS, DEFAULT_MAX_FRACTION_DIGITS);
+            }
+
+            /**
+             * Creates a {@link FixedFloat} instance.
+             *
+             * @param value numeric value
+             * @param unit optional unit for the value. Limit this to a few characters.
+             * @param minFractionDigits minimum number of factional digits to display (0-6)
+             * @param maxFractionDigits maximum number of factional digits to display (0-6 and
+             *                          &gt;= {@code minFractionDigits})
+             * @throws IllegalArgumentException if {@code minFractionDigits} or {@code
+             *     maxFractionDigits} do not respect the specified constraints
+             */
+            public FixedFloat(float value, @Nullable CharSequence unit,
+                    @IntRange(from = LOWER_BOUND_FRACTION_DIGITS, to =
+                            UPPER_BOUND_FRACTION_DIGITS) int minFractionDigits,
+                    @IntRange(from = LOWER_BOUND_FRACTION_DIGITS, to =
+                            UPPER_BOUND_FRACTION_DIGITS) int maxFractionDigits) {
+                mValue = value;
+                mUnit = Builder.safeCharSequenceToString(unit);
+
+                checkArgument(minFractionDigits >= LOWER_BOUND_FRACTION_DIGITS
+                                && minFractionDigits <= UPPER_BOUND_FRACTION_DIGITS,
+                        "Invalid minFractionDigits: %s", minFractionDigits);
+                checkArgument(maxFractionDigits >= LOWER_BOUND_FRACTION_DIGITS
+                                && maxFractionDigits <= UPPER_BOUND_FRACTION_DIGITS,
+                        "Invalid maxFractionDigits: %s", maxFractionDigits);
+                checkArgument(minFractionDigits <= maxFractionDigits,
+                        "Invalid minFractionDigits/maxFractionDigits: %s/%s",
+                        minFractionDigits, maxFractionDigits);
+                mMinFractionDigits = minFractionDigits;
+                mMaxFractionDigits = maxFractionDigits;
+            }
+
+            @NonNull
+            private static FixedFloat fromBundle(Bundle bundle) {
+                return new FixedFloat(
+                        bundle.getFloat(KEY_VALUE),
+                        bundle.getString(KEY_UNIT),
+                        bundle.getInt(KEY_MIN_FRACTION_DIGITS, DEFAULT_MIN_FRACTION_DIGITS),
+                        bundle.getInt(KEY_MAX_FRACTION_DIGITS, DEFAULT_MAX_FRACTION_DIGITS));
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                bundle.putFloat(KEY_VALUE, mValue);
+                bundle.putString(KEY_UNIT, mUnit);
+                bundle.putInt(KEY_MIN_FRACTION_DIGITS, mMinFractionDigits);
+                bundle.putInt(KEY_MAX_FRACTION_DIGITS, mMaxFractionDigits);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof FixedFloat)) return false;
+                FixedFloat that = (FixedFloat) obj;
+                if (this == that) return true;
+                return this.mValue == that.mValue
+                        && Objects.equals(this.mUnit, that.mUnit)
+                        && this.mMinFractionDigits == that.mMinFractionDigits
+                        && this.mMaxFractionDigits == that.mMaxFractionDigits;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mValue, mUnit, mMinFractionDigits, mMaxFractionDigits);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return getClass().getSimpleName() + "{"
+                        + "mValue=" + mValue
+                        + ", mUnit=" + mUnit
+                        + ", mMinFractionDigits=" + mMinFractionDigits
+                        + ", mMaxFractionDigits=" + mMaxFractionDigits
+                        + "}";
+            }
+
+            /** The fractional value. */
+            public float getValue() {
+                return mValue;
+            }
+
+            /**
+             * The unit of measurement for the value, if required.
+             *
+             * <p>This may not be shown to the user in all views.
+             *
+             * <p>The space allocated to this will be limited. It's recommended to limit this to
+             * just a few characters.
+             */
+            @Nullable
+            public CharSequence getUnit() {
+                return mUnit;
+            }
+
+            /** Minimum number of fractional digits to display. */
+            @IntRange(from = LOWER_BOUND_FRACTION_DIGITS, to = UPPER_BOUND_FRACTION_DIGITS)
+            public int getMinFractionDigits() {
+                return mMinFractionDigits;
+            }
+
+            /** Maximum number of fractional digits to display. */
+            @IntRange(from = LOWER_BOUND_FRACTION_DIGITS, to = UPPER_BOUND_FRACTION_DIGITS)
+            public int getMaxFractionDigits() {
+                return mMaxFractionDigits;
+            }
+        }
+
+        /** Metric corresponding to a text value. */
+        public static final class FixedText extends MetricValue {
+
+            private static final String KEY_VALUE = "value";
+            private static final String KEY_UNIT = "unit";
+
+            private final String mValue;
+            private final String mUnit;
+
+            /**
+             * Creates a {@link FixedText} instance with the specified text.
+             */
+            public FixedText(@NonNull CharSequence value) {
+                this(value, null);
+            }
+
+            /**
+             * Creates a {@link FixedText} instance with the specified text.
+             *
+             * @param value text value
+             * @param unit optional unit for the value. Limit this to a few characters.
+             */
+            public FixedText(@NonNull CharSequence value, @Nullable CharSequence unit) {
+                mValue = Builder.safeCharSequenceToString(requireNonNull(value));
+                mUnit = Builder.safeCharSequenceToString(unit);
+            }
+
+            @NonNull
+            private static FixedText fromBundle(Bundle bundle) {
+                return new FixedText(
+                        bundle.getString(KEY_VALUE, ""),
+                        bundle.getString(KEY_UNIT));
+            }
+
+            @Override
+            void toBundle(Bundle bundle) {
+                bundle.putString(KEY_VALUE, mValue);
+                bundle.putString(KEY_UNIT, mUnit);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof FixedText)) return false;
+                FixedText that = (FixedText) obj;
+                if (this == that) return true;
+                return Objects.equals(this.mValue, that.mValue)
+                        && Objects.equals(this.mUnit, that.mUnit);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mValue, mUnit);
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return getClass().getSimpleName() + "{"
+                        + "mValue=" + mValue
+                        + ", mUnit=" + mUnit
+                        + "}";
+            }
+
+            /** The text value. */
+            @NonNull
+            public CharSequence getValue() {
+                return mValue;
+            }
+
+            /**
+             * A unit for the value.
+             *
+             * <p>This may not be shown to the user in all views.
+             *
+             * <p>The space allocated to this will be limited. It's recommended to limit
+             * this to just a few characters.
+             */
+            @Nullable
+            public CharSequence getUnit() {
+                return mUnit;
+            }
+        }
+    }
+
+    /**
      * Helper class for generating large-format notifications that include a list of (up to 5) strings.
      *
      * <br>
@@ -5044,12 +6458,12 @@ public class NotificationCompat {
      * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
-     * Notification notification = new Notification.Builder()
+     * Notification notification = new NotificationCompat.Builder()
      *     .setContentTitle(&quot;5 New mails from &quot; + sender.toString())
      *     .setContentText(subject)
      *     .setSmallIcon(R.drawable.new_mail)
      *     .setLargeIcon(aBitmap)
-     *     .setStyle(new Notification.InboxStyle()
+     *     .setStyle(new NotificationCompat.InboxStyle()
      *         .addLine(str1)
      *         .addLine(str2)
      *         .setContentTitle(&quot;&quot;)
@@ -5188,6 +6602,7 @@ public class NotificationCompat {
         private static final String KEY_ELEMENT_COLOR = "colorInt";
         private static final String KEY_SEGMENT_LENGTH = "length";
         private static final String KEY_POINT_POSITION = "position";
+        private static final String KEY_ELEMENT_SEMANTIC_STYLE = "semanticStyle";
 
         private static final String TEMPLATE_CLASS_NAME =
                 "androidx.core.app.NotificationCompat$ProgressStyle";
@@ -5527,8 +6942,13 @@ public class NotificationCompat {
                 }
                 Api36Impl.setProgressTrackerIcon(progressStyle, trackerIcon);
 
-                Api36Impl.setProgressPoints(progressStyle, mProgressPoints);
-                Api36Impl.setProgressSegments(progressStyle, mProgressSegments);
+                if (Build.VERSION.SDK_INT >= 37) {
+                    Api37Impl.setProgressPoints(progressStyle, mProgressPoints);
+                    Api37Impl.setProgressSegments(progressStyle, mProgressSegments);
+                } else {
+                    Api36Impl.setProgressPoints(progressStyle, mProgressPoints);
+                    Api36Impl.setProgressSegments(progressStyle, mProgressSegments);
+                }
 
                 builder1.setStyle(progressStyle);
             } else {
@@ -5545,12 +6965,17 @@ public class NotificationCompat {
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
 
-            if (Build.VERSION.SDK_INT < 36) {
-                extras.putParcelableArrayList(EXTRA_PROGRESS_SEGMENTS,
+            if (Build.VERSION.SDK_INT <= 36) {
+                // ProgressStyle segments and points are supported by the platform on SDK 36,
+                // but new properties were added to them on SDK 37, so we need to include their
+                // compat versions on, 36 too.
+                extras.putParcelableArrayList(
+                        EXTRA_PROGRESS_SEGMENTS,
                         getProgressSegmentsAsBundleList(mProgressSegments));
                 extras.putParcelableArrayList(EXTRA_PROGRESS_POINTS,
                         getProgressPointsAsBundleList(mProgressPoints));
-
+            }
+            if (Build.VERSION.SDK_INT < 36) {
                 extras.putInt(EXTRA_PROGRESS, mProgress);
                 extras.putBoolean(EXTRA_PROGRESS_INDETERMINATE, mIndeterminate);
                 extras.putInt(EXTRA_PROGRESS_MAX, getProgressMax());
@@ -5646,8 +7071,10 @@ public class NotificationCompat {
                     final int id = segmentBundle.getInt(KEY_ELEMENT_ID);
                     final int color = segmentBundle.getInt(KEY_ELEMENT_COLOR,
                             Notification.COLOR_DEFAULT);
+                    final @SemanticStyle int semanticStyle = segmentBundle.getInt(
+                            KEY_ELEMENT_SEMANTIC_STYLE, SEMANTIC_STYLE_UNSPECIFIED);
                     final Segment segment = new Segment(length)
-                            .setId(id).setColor(color);
+                            .setId(id).setColor(color).setSemanticStyle(semanticStyle);
 
                     segments.add(segment);
                 }
@@ -5670,6 +7097,7 @@ public class NotificationCompat {
                     bundle.putInt(KEY_POINT_POSITION, point.getPosition());
                     bundle.putInt(KEY_ELEMENT_ID, point.getId());
                     bundle.putInt(KEY_ELEMENT_COLOR, point.getColor());
+                    bundle.putInt(KEY_ELEMENT_SEMANTIC_STYLE, point.getSemanticStyle());
 
                     points.add(bundle);
                 }
@@ -5692,7 +7120,10 @@ public class NotificationCompat {
                     final int id = pointBundle.getInt(KEY_ELEMENT_ID);
                     final int color = pointBundle.getInt(KEY_ELEMENT_COLOR,
                             Notification.COLOR_DEFAULT);
-                    final Point point = new Point(position).setId(id).setColor(color);
+                    final @SemanticStyle int semanticStyle = pointBundle.getInt(
+                            KEY_ELEMENT_SEMANTIC_STYLE, SEMANTIC_STYLE_UNSPECIFIED);
+                    final Point point = new Point(position)
+                            .setId(id).setColor(color).setSemanticStyle(semanticStyle);
                     points.add(point);
                 }
             }
@@ -5714,6 +7145,7 @@ public class NotificationCompat {
                     bundle.putInt(KEY_SEGMENT_LENGTH, segment.getLength());
                     bundle.putInt(KEY_ELEMENT_ID, segment.getId());
                     bundle.putInt(KEY_ELEMENT_COLOR, segment.getColor());
+                    bundle.putInt(KEY_ELEMENT_SEMANTIC_STYLE, segment.getSemanticStyle());
 
                     segments.add(bundle);
                 }
@@ -5733,6 +7165,7 @@ public class NotificationCompat {
             private int mId = 0;
             @ColorInt
             private int mColor = NotificationCompat.COLOR_DEFAULT;
+            private @SemanticStyle int mSemanticStyle = SEMANTIC_STYLE_UNSPECIFIED;
 
             /**
              * Create a segment with a non-zero length.
@@ -5789,6 +7222,29 @@ public class NotificationCompat {
                 mColor = color;
                 return this;
             }
+
+            /**
+             * Returns the semantics applied to the Segment. When the notification
+             * {@link Notification#FLAG_PROMOTED_ONGOING is promoted} this value is used to style
+             * (e.g. color) the segment.
+             */
+            @SemanticStyle
+            public int getSemanticStyle() {
+                return mSemanticStyle;
+            }
+
+            /**
+             * Applies semantics to the Segment. When the notification
+             * {@link Notification#FLAG_PROMOTED_ONGOING is promoted} this value is used to style
+             * (e.g. color) the segment.
+             *
+             * <p>If an app specifies <em>both</em> color and semantic style, the color overrides
+             * the style.
+             */
+            public @NonNull Segment setSemanticStyle(@SemanticStyle int semanticStyle) {
+                mSemanticStyle = semanticStyle;
+                return this;
+            }
         }
 
         /**
@@ -5803,12 +7259,12 @@ public class NotificationCompat {
             private int mId = 0;
             @ColorInt
             private int mColor = NotificationCompat.COLOR_DEFAULT;
+            private @SemanticStyle int mSemanticStyle = SEMANTIC_STYLE_UNSPECIFIED;
 
             /**
              * Create a point element.
              * The position of this point on the progress bar
              * relative to {@link ProgressStyle#getProgressMax}
-             * @param position
              * See {@link #getPosition}
              */
             public Point(@IntRange(from = 1) int position) {
@@ -5843,7 +7299,7 @@ public class NotificationCompat {
             }
 
             /**
-             * Returns the color of this Segment.
+             * Returns the color of this Point.
              *
              * @see #setColor
              * @see #COLOR_DEFAULT for the default visual behavior when it is not set.
@@ -5854,10 +7310,33 @@ public class NotificationCompat {
             }
 
             /**
-             * Optional color of this Segment
+             * Optional color of this Point.
              */
             public @NonNull Point setColor(@ColorInt int color) {
                 mColor = color;
+                return this;
+            }
+
+            /**
+             * Returns the semantics applied to the Point. When the notification
+             * {@link Notification#FLAG_PROMOTED_ONGOING is promoted} this value is used to style
+             * (e.g. color) the point.
+             */
+            @SemanticStyle
+            public int getSemanticStyle() {
+                return mSemanticStyle;
+            }
+
+            /**
+             * Applies semantics to the Point. When the notification
+             * {@link Notification#FLAG_PROMOTED_ONGOING is promoted} this value is used to style
+             * (e.g. color) the point.
+             *
+             * <p>If an app specifies <em>both</em> color and semantic style, the color overrides
+             * the style.
+             */
+            public @NonNull Point setSemanticStyle(@SemanticStyle int semanticStyle) {
+                mSemanticStyle = semanticStyle;
                 return this;
             }
         }
@@ -5921,11 +7400,15 @@ public class NotificationCompat {
                     Notification.ProgressStyle progressStyle,
                     @NonNull List<Point> progressPoints) {
                 for (Point point : progressPoints) {
-                    progressStyle.addProgressPoint(
-                            new Notification.ProgressStyle.Point(point.getPosition())
-                                    .setColor(point.getColor())
-                                    .setId(point.getId()));
+                    progressStyle.addProgressPoint(toPlatformPoint(point));
                 }
+            }
+
+            static Notification.ProgressStyle.Point toPlatformPoint(
+                    NotificationCompat.ProgressStyle.Point point) {
+                return new Notification.ProgressStyle.Point(point.getPosition())
+                        .setColor(point.getColor())
+                        .setId(point.getId());
             }
 
             @RequiresApi(36)
@@ -5933,12 +7416,46 @@ public class NotificationCompat {
                     Notification.ProgressStyle progressStyle,
                     @NonNull List<Segment> progressSegments) {
                 for (Segment segment : progressSegments) {
-                    progressStyle.addProgressSegment(
-                            new Notification.ProgressStyle.Segment(segment.getLength())
-                                    .setColor(segment.getColor())
-                                    .setId(segment.getId()));
+                    progressStyle.addProgressSegment(toPlatformSegment(segment));
                 }
+            }
 
+            static Notification.ProgressStyle.Segment toPlatformSegment(
+                    NotificationCompat.ProgressStyle.Segment segment) {
+                return new Notification.ProgressStyle.Segment(segment.getLength())
+                        .setColor(segment.getColor())
+                        .setId(segment.getId());
+            }
+        }
+
+        @RequiresApi(37)
+        private static final class Api37Impl {
+            static void setProgressPoints(
+                    Notification.ProgressStyle progressStyle,
+                    @NonNull List<Point> progressPoints) {
+                for (Point point : progressPoints) {
+                    progressStyle.addProgressPoint(toPlatformPoint(point));
+                }
+            }
+
+            static Notification.ProgressStyle.Point toPlatformPoint(
+                    NotificationCompat.ProgressStyle.Point point) {
+                return NotificationCompat.ProgressStyle.Api36Impl.toPlatformPoint(point)
+                        .setSemanticStyle(point.getSemanticStyle());
+            }
+
+            static void setProgressSegments(
+                    Notification.ProgressStyle progressStyle,
+                    @NonNull List<Segment> progressSegments) {
+                for (Segment segment : progressSegments) {
+                    progressStyle.addProgressSegment(toPlatformSegment(segment));
+                }
+            }
+
+            static Notification.ProgressStyle.Segment toPlatformSegment(
+                    NotificationCompat.ProgressStyle.Segment segment) {
+                return NotificationCompat.ProgressStyle.Api36Impl.toPlatformSegment(segment)
+                        .setSemanticStyle(segment.getSemanticStyle());
             }
         }
     }
@@ -6290,10 +7807,79 @@ public class NotificationCompat {
          */
         public static final int SEMANTIC_ACTION_CALL = 10;
 
+        // Note: SEMANTIC_ACTION values 11 & 12 are @SystemApi in platform.
+
+        /**
+         * {@code SemanticAction}: Start (or continue previously paused) content associated with the
+         * notification. This could mean starting media playback, resuming a paused timer, etc.
+         */
+        public static final int SEMANTIC_ACTION_PLAY = 13;
+
+        /**
+         * {@code SemanticAction}: Pause the content associated with the notification. This could
+         * mean pausing media playback, pausing a running timer, etc.
+         */
+        public static final int SEMANTIC_ACTION_PAUSE = 14;
+
+        /**
+         * {@code SemanticAction}: Stop the content associated with the notification. This could
+         * mean stopping media playback, resetting a timer, etc. It is implied that a follow-up
+         * {@link #SEMANTIC_ACTION_PLAY} would restart from the beginning, or may not be offered at
+         * all.
+         */
+        public static final int SEMANTIC_ACTION_STOP = 15;
+
         static final String EXTRA_SHOWS_USER_INTERFACE =
                 "android.support.action.showsUserInterface";
 
         static final String EXTRA_SEMANTIC_ACTION = "android.support.action.semanticAction";
+
+        /**
+         * The action’s visual emphasis is generally the default, or may be automatically
+         * determined by the system based on context.
+         */
+        public static final int EMPHASIS_AUTO = 0;
+
+        /**
+         * The action’s visual emphasis may indicate that this action is more important than others.
+         */
+        public static final int EMPHASIS_PRIMARY = 1;
+
+        /**
+         * The action’s visual emphasis may indicate that this action is less important than others.
+         */
+        public static final int EMPHASIS_SECONDARY = 2;
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @IntDef(value = {
+                EMPHASIS_AUTO,
+                EMPHASIS_PRIMARY,
+                EMPHASIS_SECONDARY
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface Emphasis {}
+
+        /** The action can be presented with the best form for the content and context. */
+        public static final int STYLE_AUTO = 0;
+
+        /** The action is best represented by only the text (its {@link #title}). */
+        public static final int STYLE_TEXT_ONLY = 1;
+
+        /** The action is best represented by a combo of the icon and text. */
+        public static final int STYLE_ICON_AND_TEXT = 2;
+
+        /** The action is best represented by only its icon. */
+        public static final int STYLE_ICON_ONLY = 3;
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @IntDef(value = {
+                STYLE_AUTO,
+                STYLE_TEXT_ONLY,
+                STYLE_ICON_AND_TEXT,
+                STYLE_ICON_ONLY
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface Style {}
 
         final Bundle mExtras;
         private @Nullable IconCompat mIcon;
@@ -6316,6 +7902,9 @@ public class NotificationCompat {
 
         private final @SemanticAction int mSemanticAction;
         private final boolean mIsContextual;
+
+        private final @Emphasis int mEmphasisHint;
+        private final @Style int mStyleHint;
 
         /**
          * Small icon representing the action.
@@ -6347,17 +7936,20 @@ public class NotificationCompat {
         public Action(@Nullable IconCompat icon, @Nullable CharSequence title,
                 @Nullable PendingIntent intent) {
             this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true,
-                    false /* isContextual */, false /* authRequired */);
+                    /* isContextual= */ false, EMPHASIS_AUTO, STYLE_AUTO,
+                    /* requireAuth= */ false);
         }
 
         Action(int icon, @Nullable CharSequence title, @Nullable PendingIntent intent,
                 @Nullable Bundle extras, RemoteInput @Nullable [] remoteInputs,
                 RemoteInput @Nullable [] dataOnlyRemoteInputs, boolean allowGeneratedReplies,
                 @SemanticAction int semanticAction, boolean showsUserInterface,
-                boolean isContextual, boolean requireAuth) {
+                boolean isContextual, @Emphasis int emphasisHint, @Style int styleHint,
+                boolean requireAuth) {
             this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title,
                     intent, extras, remoteInputs, dataOnlyRemoteInputs, allowGeneratedReplies,
-                    semanticAction, showsUserInterface, isContextual, requireAuth);
+                    semanticAction, showsUserInterface, isContextual, emphasisHint, styleHint,
+                    requireAuth);
         }
 
         // Package private access to avoid adding a SyntheticAccessor for the Action.Builder class.
@@ -6367,7 +7959,8 @@ public class NotificationCompat {
                 RemoteInput @Nullable [] remoteInputs,
                 RemoteInput @Nullable [] dataOnlyRemoteInputs, boolean allowGeneratedReplies,
                 @SemanticAction int semanticAction, boolean showsUserInterface,
-                boolean isContextual, boolean requireAuth) {
+                boolean isContextual, @Emphasis int emphasisHint, @Style int styleHint,
+                boolean requireAuth) {
             this.mIcon = icon;
             if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
                 this.icon = icon.getResId();
@@ -6381,6 +7974,8 @@ public class NotificationCompat {
             this.mSemanticAction = semanticAction;
             this.mShowsUserInterface = showsUserInterface;
             this.mIsContextual = isContextual;
+            this.mEmphasisHint = emphasisHint;
+            this.mStyleHint = styleHint;
             this.mAuthenticationRequired = requireAuth;
         }
 
@@ -6490,6 +8085,21 @@ public class NotificationCompat {
         }
 
         /**
+         * Returns the app’s hint about the importance of this action relative to others in this
+         * notification.
+         */
+        @Emphasis
+        public int getEmphasisHint() {
+            return mEmphasisHint;
+        }
+
+        /** Returns the app’s hint about the preferred visual style of this action. */
+        @Style
+        public int getStyleHint() {
+            return mStyleHint;
+        }
+
+        /**
          * Builder class for {@link Action} objects.
          */
         public static final class Builder {
@@ -6502,6 +8112,8 @@ public class NotificationCompat {
             private @SemanticAction int mSemanticAction;
             private boolean mShowsUserInterface = true;
             private boolean mIsContextual;
+            private @Emphasis int mEmphasisHint;
+            private @Style int mStyleHint;
             private boolean mAuthenticationRequired;
 
             /**
@@ -6537,6 +8149,10 @@ public class NotificationCompat {
                 }
                 if (Build.VERSION.SDK_INT >= 31) {
                     builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
+                }
+                if (Build.VERSION.SDK_INT >= 37) {
+                    builder.setStyleHint(Api37Impl.getStyleHint(action));
+                    builder.setEmphasisHint(Api37Impl.getEmphasisHint(action));
                 }
                 builder.addExtras(action.getExtras());
                 return builder;
@@ -6683,6 +8299,28 @@ public class NotificationCompat {
             }
 
             /**
+             * Sets a hint about the importance of this action relative to others in this
+             * notification. This may be used for {@link Notification#FLAG_PROMOTED_ONGOING
+             * promoted ongoing} notifications, and is not binding on standard notifications.
+             */
+            @NonNull
+            public Builder setEmphasisHint(@Emphasis int emphasis) {
+                mEmphasisHint = emphasis;
+                return this;
+            }
+
+            /**
+             * Sets a preferred visual style of this action. This may be used for
+             * {@link Notification#FLAG_PROMOTED_ONGOING promoted ongoing} notifications, and is
+             * not binding on standard notifications.
+             */
+            @NonNull
+            public Builder setStyleHint(@Style int style) {
+                mStyleHint = style;
+                return this;
+            }
+
+            /**
              * From API 31, sets whether the OS should only send this action's {@link PendingIntent}
              * on an unlocked device.
              *
@@ -6758,7 +8396,8 @@ public class NotificationCompat {
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
-                        mShowsUserInterface, mIsContextual, mAuthenticationRequired);
+                        mShowsUserInterface, mIsContextual, mEmphasisHint, mStyleHint,
+                        mAuthenticationRequired);
             }
 
             /**
@@ -6817,8 +8456,24 @@ public class NotificationCompat {
                 }
             }
 
-        }
+            /**
+             * A class for wrapping calls to {@link Notification.Action} methods which were added in
+             * API 37; these calls must be wrapped to avoid performance issues. See the
+             * UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(37)
+            static class Api37Impl {
+                private Api37Impl() {}
 
+                static int getEmphasisHint(Notification.Action action) {
+                    return action.getEmphasisHint();
+                }
+
+                static int getStyleHint(Notification.Action action) {
+                    return action.getStyleHint();
+                }
+            }
+        }
 
         /**
          * Extender interface for use with {@link Builder#extend}. Extenders may be used to add
@@ -7111,7 +8766,10 @@ public class NotificationCompat {
                 SEMANTIC_ACTION_UNMUTE,
                 SEMANTIC_ACTION_THUMBS_UP,
                 SEMANTIC_ACTION_THUMBS_DOWN,
-                SEMANTIC_ACTION_CALL
+                SEMANTIC_ACTION_CALL,
+                SEMANTIC_ACTION_PLAY,
+                SEMANTIC_ACTION_PAUSE,
+                SEMANTIC_ACTION_STOP
         })
         @Retention(RetentionPolicy.SOURCE)
         public @interface SemanticAction {}
@@ -8598,7 +10256,6 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_TV_EXTENDER = "android.tv.EXTENSIONS";
 
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         private static final String EXTRA_FLAGS = "flags";
 
         static final String EXTRA_CONTENT_INTENT = "content_intent";
@@ -8763,6 +10420,107 @@ public class NotificationCompat {
          */
         public boolean isSuppressShowOverApps() {
             return mSuppressShowOverApps;
+        }
+    }
+
+    /**
+     * Helper class to add projection-specific extensions to a notification.
+     * This class is used to specify metadata that is specific to notifications
+     * that may be displayed on a Projected device.
+     *
+     * <p>To create a notification with Projected extensions:
+     * <ol>
+     * <li>Create a {@link NotificationCompat.Builder} for the notification.
+     * <li>Create an {@code ProjectedExtender}.
+     * <li>Set projection-specific properties using the {@code set} methods on the
+     * {@code ProjectedExtender}.
+     * <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to
+     * the notification.
+     * </ol>
+     *
+     * <pre class="prettyprint">
+     * NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+     *     .setContentTitle("Example Title")
+     *     .setContentText("Example Text")
+     *     .setSmallIcon(R.drawable.ic_notification);
+     *
+     * ProjectedExtender projectedExtender = new ProjectedExtender()
+     *     .setContentIntent(projectedTapIntent);
+     *
+     * builder.extend(projectedExtender);
+     * notificationManager.notify(NOTIFICATION_ID, builder.build());
+     * </pre>
+     */
+    public static final class ProjectedExtender implements Extender {
+        static final String EXTRA_PROJECTED_EXTENDER = "android.projected.EXTENSIONS";
+        static final String KEY_CONTENT_INTENT = "content_intent";
+
+        private PendingIntent mContentIntent;
+
+        /**
+         * Create a {@link ProjectedExtender} with default options.
+         */
+        public ProjectedExtender() {
+        }
+
+        /**
+         * Creates an {@link ProjectedExtender} from the extensions in a
+         * {@link Notification}.
+         *
+         * @param notification the notification to extract extensions from.
+         */
+        public ProjectedExtender(@NonNull Notification notification) {
+            Bundle extras = getExtras(notification);
+            Bundle projectedBundle = extras == null
+                    ? null : extras.getBundle(EXTRA_PROJECTED_EXTENDER);
+            if (projectedBundle != null) {
+                mContentIntent = BundleCompat.getParcelable(projectedBundle, KEY_CONTENT_INTENT,
+                        PendingIntent.class);
+            }
+        }
+
+        /**
+         * Sets the {@link PendingIntent} to be opened on the Projected device when the
+         * notification is tapped on the that device. This is distinct from the notification's
+         * main {@link Notification#contentIntent}, which is typically fired when the notification
+         * is tapped on the host device (e.g., the phone).
+         *
+         * @param intent the {@link PendingIntent} to fire on tap
+         * @return this {@code ProjectedExtender} object for chaining
+         */
+        public @NonNull ProjectedExtender setContentIntent(@Nullable PendingIntent intent) {
+            mContentIntent = intent;
+            return this;
+        }
+
+        /**
+         * Returns the {@link PendingIntent} to be fired when the notification is
+         * tapped on the Projected device.
+         *
+         * @return the {@link PendingIntent} to fire on tap, or null if not set
+         */
+        @Nullable
+        public PendingIntent getContentIntent() {
+            return mContentIntent;
+        }
+
+        /**
+         * Applies the Project extensions to the notification builder. This method is
+         * called by the {@link NotificationCompat.Builder#extend} method and should not
+         * be called directly.
+         *
+         * @param builder the notification builder to extend
+         * @return the modified notification builder
+         */
+        @Override
+        public NotificationCompat.@NonNull Builder extend(
+                NotificationCompat.@NonNull Builder builder) {
+            Bundle projectedBundle = new Bundle();
+            if (mContentIntent != null) {
+                projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
+            }
+            builder.getExtras().putBundle(EXTRA_PROJECTED_EXTENDER, projectedBundle);
+            return builder;
         }
     }
 
@@ -9467,20 +11225,32 @@ public class NotificationCompat {
         final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? Api29Impl.isContextual(action)
                 : false;
 
+        final @Action.Style int styleHint;
+        final @Action.Emphasis int emphasisHint;
+        if (Build.VERSION.SDK_INT >= 37) {
+            emphasisHint = Action.Builder.Api37Impl.getEmphasisHint(action);
+            styleHint = Action.Builder.Api37Impl.getStyleHint(action);
+        } else {
+            emphasisHint = Action.EMPHASIS_AUTO;
+            styleHint = Action.STYLE_AUTO;
+        }
+
         final boolean authRequired =
-                Build.VERSION.SDK_INT >= 31 ? Api31Impl.isAuthenticationRequired(action) : false;
+                Build.VERSION.SDK_INT >= 31
+                        ? Action.Builder.Api31Impl.isAuthenticationRequired(action)
+                        : false;
 
         if (action.getIcon() == null && action.icon != 0) {
             return new Action(action.icon, action.title, action.actionIntent,
                     action.getExtras(), remoteInputs, null,
                     allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
-                    authRequired);
+                    emphasisHint, styleHint, authRequired);
         }
         IconCompat icon = action.getIcon() == null ? null
                 : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
         return new Action(icon, action.title, action.actionIntent, action.getExtras(),
                 remoteInputs, null, allowGeneratedReplies, semanticAction,
-                showsUserInterface, isContextual, authRequired);
+                showsUserInterface, isContextual, emphasisHint, styleHint, authRequired);
     }
 
     /** Returns the invisible actions contained within the given notification. */
@@ -9927,21 +11697,6 @@ public class NotificationCompat {
         static Notification.BubbleMetadata getBubbleMetadata(Notification notification) {
             return notification.getBubbleMetadata();
         }
-    }
-
-    /**
-     * A class for wrapping calls to {@link Notification} methods which
-     * were added in API 31; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(31)
-    static class Api31Impl {
-        private Api31Impl() { }
-
-        static boolean isAuthenticationRequired(Notification.Action action) {
-            return action.isAuthenticationRequired();
-        }
-
     }
 
     /**

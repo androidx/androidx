@@ -42,9 +42,19 @@ internal class AndroidAutofill(
     val autofillTree: @Suppress("Deprecation") AutofillTree,
 ) : @Suppress("Deprecation") Autofill {
 
-    val autofillManager =
-        view.context.getSystemService(AutofillManager::class.java)
-            ?: error("Autofill service could not be located.")
+    private var _autofillManager: AutofillManager? = null
+    val autofillManager: AutofillManager
+        get() {
+            var value = _autofillManager
+            if (value == null) {
+                value =
+                    view.context.getSystemService(AutofillManager::class.java)
+                        ?: error("Could not locate AutofillManager from context")
+                _autofillManager = value
+            }
+            return value
+        }
+
     var rootAutofillId: AutofillId
 
     init {

@@ -15,8 +15,9 @@
   limitations under the License.
   -->
 
-<set xmlns:android="http://schemas.android.com/apk/res/android">
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <translate android:fromXDelta="100%"
         android:toXDelta="0%"
-        android:duration="@integer/config_navAnimTime"/>
+        android:duration="@integer/config_navAnimTime"
+        tools:ignore="PrivateResource"/>
 </set>

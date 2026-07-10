@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.extensions.CallExtensionScope
 import androidx.core.telecom.extensions.CallExtensionScopeImpl
 import androidx.core.telecom.extensions.CallExtensions
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
@@ -98,7 +97,6 @@ public open class InCallServiceCompat : InCallService(), LifecycleOwner, CallExt
      * @param init The scope used to initialize and manage extensions in the scope of the Call.
      * @see CallExtensions.connectExtensions
      */
-    @ExperimentalAppActions
     override suspend fun connectExtensions(call: Call, init: CallExtensionScope.() -> Unit) {
         // Attach this to the scope of the InCallService so it does not outlive its lifecycle
         // Use a supervisor job to ensure that any exceptions that are encountered here do not kill

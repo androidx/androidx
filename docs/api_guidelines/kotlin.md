@@ -42,17 +42,26 @@ on a library with target language version 1.9, the client will be forced to use
 #### Annotations on new Java APIs
 
 All new Java APIs should be annotated either `@Nullable` or `@NonNull` for all
-reference parameters and reference return types.
+types in reference parameters and reference return types.
 
 ```java
-    @Nullable
-    public Object someNewApi(@NonNull Thing arg1, @Nullable List<WhatsIt> arg2) {
+    public @Nullable Object someNewApi(@NonNull Thing arg1, @Nullable List<@NonNull WhatsIt> arg2) {
         if(/** something **/) {
             return someObject;
         } else {
             return null;
     }
 ```
+
+AndroidX uses [JSpecify nullability annotations](https://jspecify.dev/), which
+are type-use. This means they can be applied to type arguments (like in the
+example above with `@Nullable List<@NonNull WhatsIt>`) and to array component
+types.
+
+When annotating arrays, a leading annotation applies to the component type,
+while an annotation between the component type and `[]` applies to the array
+type. For instance, `@Nullable String @NonNull []` is a non-null array of
+nullable `String`s.
 
 #### Adding annotations to existing Java APIs
 
@@ -223,11 +232,29 @@ val message = when (command) {
 }
 ```
 
+How can we prevent this issue?
+
+To prevent exhaustive when expressions and allow for future extension of a
+sealed hierarchy, add a private subtype. This forces clients to include an else
+branch in their when expressions, making their code compatible with newly added
+subtypes in the future.
+
+```kotlin
+sealed interface Payment {
+    data class CreditCard(val number: String, val expiryDate: String) : Payment
+    data object Cash : Payment
+
+    // Prevents exhaustive `when` usage for Kotlin consumers, making it safe
+    // to add new types in the future
+    private object Hidden : Payment
+}
+```
+
 #### Non-exhaustive alternatives to `enum class`
 
-Kotlin's `@JvmInline value class` with a `private constructor` can be used to
-create type-safe sets of non-exhaustive constants as of Kotlin 1.5. Compose's
-`BlendMode` uses the following pattern:
+For APIs with no Java clients, Kotlin's `@JvmInline value class` with a `private
+constructor` can be used to create type-safe sets of non-exhaustive constants as
+of Kotlin 1.5. Compose's `BlendMode` uses the following pattern:
 
 ```kotlin {.good}
 @JvmInline

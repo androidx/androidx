@@ -37,6 +37,37 @@ class EntryProviderTest {
     }
 
     @Test
+    fun entryProvider_properlyCreatesMetadata() {
+        val provider = entryProvider {
+            entry("first", "first", metadata = { mapOf("feature1" to 1) }) {}
+        }
+
+        val entry1 = provider.invoke("first")
+
+        assertThat(entry1.metadata["feature1"]).isEqualTo(1)
+    }
+
+    @Test
+    fun entryProvider_getKeyArgsFromMetadataWithObject() {
+        val provider = entryProvider {
+            entry(MyKey("testArg"), "first", metadata = { mapOf("arg1" to it.name) }) {}
+        }
+
+        val entry1 = provider.invoke(MyKey("testArg"))
+
+        assertThat(entry1.metadata["arg1"]).isEqualTo("testArg")
+    }
+
+    @Test
+    fun entryProvider_getKeyArgsFromMetadataWithClass() {
+        val provider = entryProvider { entry<MyKey>(metadata = { mapOf("arg1" to it.name) }) {} }
+
+        val entry1 = provider.invoke(MyKey("testArg"))
+
+        assertThat(entry1.metadata["arg1"]).isEqualTo("testArg")
+    }
+
+    @Test
     fun entryProvider_withDuplicatedInitializers_throwsException() {
         try {
             entryProvider {
@@ -61,4 +92,57 @@ class EntryProviderTest {
             assertThat(e).hasMessageThat().isEqualTo("Unknown screen something")
         }
     }
+
+    @Test
+    fun entryProvider_nestedMetadataWithLambda() {
+        // makes the lambda value stateful so that it is re-evaluated like in Android
+        val value = "First"
+        val provider = entryProvider {
+            entry<First>(metadata = { metadata { put(TestNavMetadataKey) { value } } }) {}
+        }
+
+        val entry1 = provider.invoke(First)
+        val metadata1 = entry1.metadata
+
+        val entry2 = provider.invoke(First)
+        val metadata2 = entry2.metadata
+
+        assertThat(entry1).isEqualTo(entry2)
+        assertThat(metadata1).isEqualTo(metadata2)
+    }
+
+    @Test
+    @Suppress("UNCHECKED_CAST")
+    fun entryProvider_nestedMetadataWithLambda_dynamicLambdaReturnValue() {
+        // makes the lambda value stateful so that it is re-evaluated like in Android
+        var lambdaReturnValue = "start"
+        val provider = entryProvider {
+            entry<First>(
+                metadata = { metadata { put(TestNavMetadataKey) { lambdaReturnValue } } }
+            ) {}
+        }
+
+        val entry1 = provider.invoke(First)
+        val metadata1 = entry1.metadata
+        val value1 = (metadata1.entries.first().value as () -> String).invoke()
+
+        lambdaReturnValue = "end"
+
+        val entry2 = provider.invoke(First)
+        val metadata2 = entry2.metadata
+        val value2 = (metadata2.entries.first().value as () -> String).invoke()
+
+        assertThat(value1).isEqualTo("start")
+        assertThat(value2).isEqualTo("end")
+        assertThat(entry1).isEqualTo(entry2)
+        assertThat(metadata1).isEqualTo(metadata2)
+    }
 }
+
+private object TestNavMetadataKey : NavMetadataKey<() -> String>
+
+object First
+
+object Second
+
+data class MyKey(val name: String)

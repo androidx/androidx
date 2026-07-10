@@ -44,13 +44,6 @@ public final class AndroidUtil {
     }
 
     /**
-     * Checks if the current device is emulator with API 21.
-     */
-    public static boolean isEmulatorAndAPI21() {
-        return Build.VERSION.SDK_INT == 21 && isEmulator();
-    }
-
-    /**
      * Checks if the current device is emulator with specific API level.
      */
     public static boolean isEmulator(int apiLevel) {

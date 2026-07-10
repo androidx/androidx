@@ -756,6 +756,34 @@ class SnapshotStateObserverTestsCommon {
         assertEquals(2, changes)
     }
 
+    // regression test for b/435655844
+    @Test
+    fun derivedStateReentrant() = runSimpleTest { observer, state ->
+        val initialRead = mutableStateOf(true)
+        // This cursed setup invalidates this derived state while it is inside apply observer
+        // Initially this reads both `state` and `initialRead` states.
+        //
+        // During invalidation, we are incrementing the `state.value` while iterating over derived
+        // states that have dependency on `initialRead`. `state.value` is incremented during that
+        // iteration causing re-entrant apply observer with states that technically don't read
+        // `initialRead` anymore. Note that it is technically possible to cause the same issue
+        // with writing states from different threads as well.
+        val derivedStates =
+            Array(3) {
+                derivedStateOf {
+                    if (state.value >= 2) return@derivedStateOf
+                    if (initialRead.value) return@derivedStateOf
+                    if (state.value < 2) {
+                        state.value++
+                    }
+                }
+            }
+
+        observer.observeReads(Unit, {}) { derivedStates.forEach { it.value } }
+
+        initialRead.value = false
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {

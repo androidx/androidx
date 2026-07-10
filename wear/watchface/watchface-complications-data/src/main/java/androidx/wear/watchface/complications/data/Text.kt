@@ -77,10 +77,12 @@ public interface ComplicationText {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getTimeDependentText(): WireTimeDependentText
 
     /** Converts this value to [WireComplicationText] object used for serialization. */
+    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationText(): WireComplicationText
 
@@ -106,25 +108,25 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
     ComplicationText {
     private val delegate = DelegatingComplicationText(delegate)
 
-    override fun getTextAt(resources: Resources, instant: Instant) =
+    override fun getTextAt(resources: Resources, instant: Instant): CharSequence =
         delegate.getTextAt(resources, instant)
 
-    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean =
         delegate.returnsSameText(firstInstant, secondInstant)
 
     override fun getNextChangeTime(afterInstant: Instant): Instant =
         delegate.getNextChangeTime(afterInstant)
 
-    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+    override fun isAlwaysEmpty(): Boolean = delegate.isAlwaysEmpty()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun getTimeDependentText() = delegate.getTimeDependentText()
+    override fun getTimeDependentText(): WireTimeDependentText = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toWireComplicationText() = delegate.toWireComplicationText()
+    override fun toWireComplicationText(): WireComplicationText = delegate.toWireComplicationText()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -141,7 +143,7 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
         return delegate.hashCode()
     }
 
-    override fun toString() = delegate.toString()
+    override fun toString(): String = delegate.toString()
 
     /**
      * A builder for [PlainComplicationText].
@@ -262,22 +264,22 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
             (getTimeDependentText() as TimeDifferenceText).minimumUnit
         else null
 
-    override fun getTextAt(resources: Resources, instant: Instant) =
+    override fun getTextAt(resources: Resources, instant: Instant): CharSequence =
         delegate.getTextAt(resources, instant)
 
-    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean =
         delegate.returnsSameText(firstInstant, secondInstant)
 
     override fun getNextChangeTime(afterInstant: Instant): Instant =
         delegate.getNextChangeTime(afterInstant)
 
-    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+    override fun isAlwaysEmpty(): Boolean = delegate.isAlwaysEmpty()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun getTimeDependentText() = delegate.getTimeDependentText()
+    override fun getTimeDependentText(): WireTimeDependentText = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toWireComplicationText() = delegate.toWireComplicationText()
+    override fun toWireComplicationText(): WireComplicationText = delegate.toWireComplicationText()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -294,7 +296,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
         return delegate.hashCode()
     }
 
-    override fun toString() = delegate.toString()
+    override fun toString(): String = delegate.toString()
 
     /**
      * Builder for [ComplicationText] representing a time difference.
@@ -411,22 +413,22 @@ public class TimeFormatComplicationText internal constructor(delegate: WireCompl
     ComplicationText by DelegatingComplicationText(delegate) {
     private val delegate = DelegatingComplicationText(delegate)
 
-    override fun getTextAt(resources: Resources, instant: Instant) =
+    override fun getTextAt(resources: Resources, instant: Instant): CharSequence =
         delegate.getTextAt(resources, instant)
 
-    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean =
         delegate.returnsSameText(firstInstant, secondInstant)
 
     override fun getNextChangeTime(afterInstant: Instant): Instant =
         delegate.getNextChangeTime(afterInstant)
 
-    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+    override fun isAlwaysEmpty(): Boolean = delegate.isAlwaysEmpty()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun getTimeDependentText() = delegate.getTimeDependentText()
+    override fun getTimeDependentText(): WireTimeDependentText = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toWireComplicationText() = delegate.toWireComplicationText()
+    override fun toWireComplicationText(): WireComplicationText = delegate.toWireComplicationText()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -443,7 +445,7 @@ public class TimeFormatComplicationText internal constructor(delegate: WireCompl
         return delegate.hashCode()
     }
 
-    override fun toString() = delegate.toString()
+    override fun toString(): String = delegate.toString()
 
     /**
      * A builder for [TimeFormatComplicationText].
@@ -688,25 +690,25 @@ public class DynamicComplicationText(
     private val delegate =
         DelegatingComplicationText(WireComplicationText(fallbackValue, dynamicValue))
 
-    override fun getTextAt(resources: Resources, instant: Instant) =
+    override fun getTextAt(resources: Resources, instant: Instant): CharSequence =
         delegate.getTextAt(resources, instant)
 
-    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean =
         delegate.returnsSameText(firstInstant, secondInstant)
 
     override fun getNextChangeTime(afterInstant: Instant): Instant =
         delegate.getNextChangeTime(afterInstant)
 
-    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+    override fun isAlwaysEmpty(): Boolean = delegate.isAlwaysEmpty()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    override fun getTimeDependentText() = delegate.getTimeDependentText()
+    override fun getTimeDependentText(): WireTimeDependentText = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toWireComplicationText() = delegate.toWireComplicationText()
+    override fun toWireComplicationText(): WireComplicationText = delegate.toWireComplicationText()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -719,7 +721,7 @@ public class DynamicComplicationText(
         return true
     }
 
-    override fun hashCode() = delegate.hashCode()
+    override fun hashCode(): Int = delegate.hashCode()
 
-    override fun toString() = delegate.toString()
+    override fun toString(): String = delegate.toString()
 }

@@ -15,16 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
@@ -33,6 +32,9 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.testing"
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
     desktop()
     mac()
@@ -47,84 +49,27 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":lifecycle:lifecycle-runtime"))
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidDeviceTest.dependencies {
+            implementation(libs.truth)
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.kotlinCoroutinesTest)
-            }
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-        }
-
-        nativeTest {
-            dependsOn(commonTest)
-        }
-
-        webMain {
-            dependsOn(commonMain)
-        }
-
-        webTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        webTest.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
     }
 }

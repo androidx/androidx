@@ -16,6 +16,7 @@
 package androidx.work.impl.constraints.trackers
 
 import android.content.Context
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.work.impl.constraints.NetworkState
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -36,8 +37,10 @@ constructor(
         BatteryNotLowTracker(context.applicationContext, taskExecutor),
 
     /** The tracker used to track network state changes. */
-    public val networkStateTracker: ConstraintTracker<NetworkState> =
-        NetworkStateTracker(context.applicationContext, taskExecutor),
+    public val networkStateTracker: ConstraintTracker<NetworkState>? =
+        if (Build.VERSION.SDK_INT < 28)
+            NetworkStateTracker(context.applicationContext, taskExecutor)
+        else null,
 
     /** The tracker used to track if device storage is okay or low. */
     public val storageNotLowTracker: ConstraintTracker<Boolean> =

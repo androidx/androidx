@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.ParentCapturingModifierNodeElement
 import androidx.compose.foundation.lazy.list.PlacementComparator
 import androidx.compose.foundation.lazy.list.TrackPlacedElement
 import androidx.compose.runtime.CompositionLocalProvider
@@ -36,8 +37,6 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -157,9 +156,9 @@ class LazyGridBeyondBoundsTest {
                 if (addItems) {
                     item {
                         Box(
-                            Modifier.modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
+                            Modifier.then(
+                                ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
+                            )
                         )
                     }
                 }
@@ -193,9 +192,9 @@ class LazyGridBeyondBoundsTest {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
                 item {
                     Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
+                        Modifier.size(10.toDp())
+                            .trackPlaced(5)
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                     )
                 }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
@@ -243,9 +242,9 @@ class LazyGridBeyondBoundsTest {
                 items(11) { index -> Box(Modifier.size(itemSizeDp).trackPlaced(index)) }
                 item {
                     Box(
-                        Modifier.size(itemSizeDp).trackPlaced(11).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
+                        Modifier.size(itemSizeDp)
+                            .trackPlaced(11)
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                     )
                 }
                 items(10) { index -> Box(Modifier.size(itemSizeDp).trackPlaced(index + 12)) }
@@ -288,9 +287,9 @@ class LazyGridBeyondBoundsTest {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
                 item {
                     Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
+                        Modifier.size(10.toDp())
+                            .trackPlaced(5)
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                     )
                 }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
@@ -339,9 +338,7 @@ class LazyGridBeyondBoundsTest {
                 item {
                     Box(
                         Modifier.size(10.toDp())
-                            .modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                             .trackPlaced(5)
                     )
                 }
@@ -387,9 +384,9 @@ class LazyGridBeyondBoundsTest {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
                 item {
                     Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
+                        Modifier.size(10.toDp())
+                            .trackPlaced(5)
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                     )
                 }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
@@ -463,9 +460,7 @@ class LazyGridBeyondBoundsTest {
                 item {
                     Box(
                         Modifier.size(10.toDp())
-                            .modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
+                            .then(ParentCapturingModifierNodeElement { beyondBoundsLayout = it })
                             .trackPlaced(5)
                     )
                 }

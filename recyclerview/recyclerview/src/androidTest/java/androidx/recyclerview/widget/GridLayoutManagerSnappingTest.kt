@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-internal class GridLayoutManagerSnappingTest(
+public class GridLayoutManagerSnappingTest(
     val mConfig: Config,
     private val mReverseScroll: Boolean,
     private val mApplyPadding: Boolean,

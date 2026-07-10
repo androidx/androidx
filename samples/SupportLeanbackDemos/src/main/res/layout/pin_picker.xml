@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <androidx.leanback.widget.picker.PinPicker
@@ -30,5 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="@dimen/lb_browse_padding_bottom"/>
+        android:layout_marginBottom="@dimen/lb_browse_padding_bottom"
+        tools:ignore="PrivateResource"/>
 </FrameLayout>

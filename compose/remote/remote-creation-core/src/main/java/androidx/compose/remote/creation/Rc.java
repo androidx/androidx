@@ -15,6 +15,12 @@
  */
 package androidx.compose.remote.creation;
 
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_BOTTOM;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_HEIGHT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_LEFT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_RIGHT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_TOP;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_WIDTH;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_ALPHA;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_BLUE;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_BRIGHTNESS;
@@ -26,21 +32,32 @@ import static androidx.compose.remote.core.operations.PathExpression.LINEAR;
 import static androidx.compose.remote.core.operations.PathExpression.LOOP;
 import static androidx.compose.remote.core.operations.PathExpression.MONOTONIC;
 import static androidx.compose.remote.core.operations.PathExpression.POLAR;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_GREATER_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_LESS_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_NOT_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_EXCLUDES;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_INCLUDES;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ConditionalOperations;
 import androidx.compose.remote.core.operations.DebugMessage;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.TimeAttribute;
+import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.ImageScaling;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
 import androidx.compose.remote.core.operations.utilities.easing.Easing;
 
 /** Constants use in RemoteCompose */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Rc {
     /** Used in FloatExpressions */
     public static class FloatExpression {
@@ -216,6 +233,27 @@ public class Rc {
 
         /** VAR2 operator */
         public static final float VAR3 = AnimatedFloatExpression.VAR3;
+
+        /** cubic Easing function */
+        public static final float CUBIC = AnimatedFloatExpression.CUBIC;
+
+        /** monotonic spline that loops function */
+        public static final float A_SPLINE_LOOP = AnimatedFloatExpression.A_SPLINE_LOOP;
+
+        /** Change the sign of value x -> -x */
+        public static final float CHANGE_SIGN = AnimatedFloatExpression.CHANGE_SIGN;
+
+        /** sum all values to index */
+        public static final float A_SUM_UNTIL = AnimatedFloatExpression.A_SUM_TILL;
+
+        /** A_SUM operator */
+        public static final float A_SUM_XY = AnimatedFloatExpression.A_SUM_XY;
+
+        /** A_SUM operator */
+        public static final float A_SUM_SQR = AnimatedFloatExpression.A_SUM_SQR;
+
+        /** A_SUM operator */
+        public static final float A_LERP = AnimatedFloatExpression.A_LERP;
     }
 
     /** Used in IntegerExpressions */
@@ -311,7 +349,7 @@ public class Rc {
         /** cubic Easing function that just linearly interpolates */
         public static final int CUBIC_LINEAR = Easing.CUBIC_LINEAR;
 
-        /** cubic Easing function that goes bacwards and then accelerates */
+        /** cubic Easing function that goes backwards and then accelerates */
         public static final int CUBIC_ANTICIPATE = Easing.CUBIC_ANTICIPATE;
 
         /** cubic Easing function that overshoots and then goes back */
@@ -401,6 +439,8 @@ public class Rc {
 
         /** force measure every pass (not recommended) */
         public static final int MEASURE_EVERY_TIME = DrawTextAnchored.MEASURE_EVERY_TIME;
+        /** force measure every pass (not recommended) */
+        public static final int BASELINE_RELATIVE = DrawTextAnchored.BASELINE_RELATIVE;
     }
 
     /** Used in Haptic */
@@ -531,6 +571,8 @@ public class Rc {
 
         /** Path or Bitmap need to be dereferenced */
         public static final int ID_DEREF = PaintOperation.PTR_DEREFERENCE;
+
+        public static float sLightMode = 0;
     }
 
     /** Used for Touch variables */
@@ -546,9 +588,26 @@ public class Rc {
 
         /** TOUCH_VEL_Y is the x velocity of the touch */
         public static final float VELOCITY_Y = RemoteContext.FLOAT_TOUCH_VEL_Y;
-
         /** TOUCH_EVENT_TIME the time of the touch */
         public static final float TOUCH_EVENT_TIME = RemoteContext.FLOAT_TOUCH_EVENT_TIME;
+        /** Stop as soon as touch up */
+        public static final int STOP_INSTANTLY = TouchExpression.STOP_INSTANTLY;
+        /** Jump to the absolute position of the point */
+        public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
+        /** Stop only at the start or end */
+        public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
+        /** Stop at a series of notch positions expressed as a percent of the range */
+        public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
+        /** Stop by decelerating */
+        public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
+        /** Stop at a collection of point described in absolute cordnates */
+        public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
+        /** Stop at a series of evenly spaced notches */
+        public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
+        /** Stop at evenly spaced single step notches */
+        public static final int STOP_NOTCHES_SINGLE_EVEN =
+                TouchExpression.STOP_NOTCHES_SINGLE_EVEN;
+
     }
 
     /** Used for Sensor variables */
@@ -658,6 +717,9 @@ public class Rc {
 
         /** (value - doc_load_time) * 1E-3 */
         public static final short TIME_FROM_LOAD_SEC = TimeAttribute.TIME_FROM_LOAD_SEC;
+
+        /** The day of the year */
+        public static final short TIME_DAY_OF_YEAR = TimeAttribute.TIME_DAY_OF_YEAR;
     }
 
     /** Constants for use in ConditionalOperations */
@@ -766,6 +828,59 @@ public class Rc {
         /** do not pad before number */
         public static final int PAD_PRE_ZERO =
                 androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO;
+
+        /** default e.g.  e.g. 1234567890.12 */
+        public static final int GROUPING_NONE =
+                androidx.compose.remote.core.operations.TextFromFloat.GROUPING_NONE;
+
+        /** by 3 digits e.g. 123,456,789.01 */
+        public static final int GROUPING_BY3 =
+                androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3;
+
+        /** by 4 digits e.g. 12,3456,7890.12 */
+        public static final int GROUPING_BY4 =
+                androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY4;
+
+        /** by 3 then 2 digits e.g. 1,23,45,67,890.12 */
+        public static final int GROUPING_BY32 =
+                androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY32;
+
+        /** use comma as separator e.g. 123,456,789.01 */
+        public static final int SEPARATOR_PERIOD_COMMA =
+                androidx.compose.remote.core.operations.TextFromFloat.SEPARATOR_PERIOD_COMMA;
+
+        /** use period as separator e.g. 123.456.789,01 */
+        public static final int SEPARATOR_COMMA_PERIOD =
+                androidx.compose.remote.core.operations.TextFromFloat.SEPARATOR_COMMA_PERIOD;
+
+        /** use space as separator e.g. 123 456 789,01 */
+        public static final int SEPARATOR_SPACE_COMMA =
+                androidx.compose.remote.core.operations.TextFromFloat.SEPARATOR_SPACE_COMMA;
+
+        /** use space as separator e.g. 123_456_789,01 */
+        public static final int SEPARATOR_UNDER_PERIOD =
+                androidx.compose.remote.core.operations.TextFromFloat.SEPARATOR_UNDER_PERIOD;
+
+        /** no options */
+        public static final int OPTIONS_NONE =
+                androidx.compose.remote.core.operations.TextFromFloat.OPTIONS_NONE;
+
+        /** use parentheses as negative sign e.g. (1234567890.12) */
+        public static final int OPTIONS_NEGATIVE_PARENTHESES =
+                androidx.compose.remote.core.operations.TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES;
+
+        /** round do not truncate (if time typically you do not do this) */
+        public static final int OPTIONS_ROUNDING =
+                androidx.compose.remote.core.operations.TextFromFloat.OPTIONS_ROUNDING;
+
+        /** Legacy compatibility mode grouping & separator ignored */
+        public static final int LEGACY_MODE =
+                androidx.compose.remote.core.operations.TextFromFloat.LEGACY_MODE;
+
+        /** Legacy compatibility mode grouping & separator ignored */
+        public static final int FULL_FORMAT =
+                androidx.compose.remote.core.operations.TextFromFloat.FULL_FORMAT;
+
     }
 
     /** Used in Texture */
@@ -785,9 +900,700 @@ public class Rc {
     }
 
     public static class PathExpression {
+        public static final int SPLINE_PATH = 0;
         public static final int LOOP_PATH = LOOP;
         public static final int MONOTONIC_PATH = MONOTONIC;
         public static final int LINEAR_PATH = LINEAR;
         public static final int POLAR_PATH = POLAR;
+    }
+
+    public static class Layout {
+        public static final float FIRST_BASELINE = AlignByModifierOperation.FIRST_BASELINE;
+        public static final float LAST_BASELINE = AlignByModifierOperation.LAST_BASELINE;
+    }
+
+    public static class PathEffect {
+        public static final int PATH_DASH_TRANSLATE = 0;
+        public static final int PATH_DASH_ROTATE = 1;
+        public static final int PATH_DASH_MORPH = 2;
+    }
+
+    public static class Theme {
+        /** region of code is run only in dark mode */
+        public static final int DARK = androidx.compose.remote.core.operations.Theme.DARK;
+        /** region of code is run only in light mode */
+        public static final int LIGHT = androidx.compose.remote.core.operations.Theme.LIGHT;
+        /** region of code is run in any mode */
+        public static final int UNSPECIFIED =
+                androidx.compose.remote.core.operations.Theme.UNSPECIFIED;
+    }
+
+    public static class TextAttribute {
+        public static final short MEASURE_WIDTH =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_WIDTH;
+        public static final short MEASURE_HEIGHT =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_HEIGHT;
+        public static final short MEASURE_LEFT =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_LEFT;
+        public static final short MEASURE_RIGHT =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_RIGHT;
+        public static final short MEASURE_TOP =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_TOP;
+        public static final short MEASURE_BOTTOM =
+                androidx.compose.remote.core.operations.TextAttribute.MEASURE_BOTTOM;
+        public static final short TEXT_LENGTH =
+                androidx.compose.remote.core.operations.TextAttribute.TEXT_LENGTH;
+    }
+
+    /**
+     * defining standard system color identifiers.
+     */
+    public static final class AndroidColors {
+        /** The android color group name. */
+        public static final String GROUP = "android";
+
+        /** The dark background color identifier. */
+        public static final short BACKGROUND_DARK = 0;
+
+        /** The light background color identifier. */
+        public static final short BACKGROUND_LIGHT = 1;
+
+        /** The black color identifier. */
+        public static final short BLACK = 2;
+
+        /** The darker gray color identifier. */
+        public static final short DARKER_GRAY = 3;
+
+        /** The bright holo blue color identifier. */
+        public static final short HOLO_BLUE_BRIGHT = 4;
+
+        /** The dark holo blue color identifier. */
+        public static final short HOLO_BLUE_DARK = 5;
+
+        /** The light holo blue color identifier. */
+        public static final short HOLO_BLUE_LIGHT = 6;
+
+        /** The dark holo green color identifier. */
+        public static final short HOLO_GREEN_DARK = 7;
+
+        /** The light holo green color identifier. */
+        public static final short HOLO_GREEN_LIGHT = 8;
+
+        /** The dark holo orange color identifier. */
+        public static final short HOLO_ORANGE_DARK = 9;
+
+        /** The light holo orange color identifier. */
+        public static final short HOLO_ORANGE_LIGHT = 10;
+
+        /** The holo purple color identifier. */
+        public static final short HOLO_PURPLE = 11;
+
+        /** The dark holo red color identifier. */
+        public static final short HOLO_RED_DARK = 12;
+
+        /** The light holo red color identifier. */
+        public static final short HOLO_RED_LIGHT = 13;
+
+        /** The system accent1 0 color identifier. */
+        public static final short SYSTEM_ACCENT1_0 = 14;
+
+        /** The system accent5 10 color identifier. */
+        public static final short SYSTEM_ACCENT1_10 = 15;
+
+        /** The system accent1 100 color identifier. */
+        public static final short SYSTEM_ACCENT1_100 = 16;
+
+        /** The system accent1 1000 color identifier. */
+        public static final short SYSTEM_ACCENT1_1000 = 17;
+
+        /** The system accent1 200 color identifier. */
+        public static final short SYSTEM_ACCENT1_200 = 18;
+
+        /** The system accent1 300 color identifier. */
+        public static final short SYSTEM_ACCENT1_300 = 19;
+
+        /** The system accent1 400 color identifier. */
+        public static final short SYSTEM_ACCENT1_400 = 20;
+
+        /** The system accent1 50 color identifier. */
+        public static final short SYSTEM_ACCENT1_50 = 21;
+
+        /** The system accent1 500 color identifier. */
+        public static final short SYSTEM_ACCENT1_500 = 22;
+
+        /** The system accent1 600 color identifier. */
+        public static final short SYSTEM_ACCENT1_600 = 23;
+
+        /** The system accent1 700 color identifier. */
+        public static final short SYSTEM_ACCENT1_700 = 24;
+
+        /** The system accent1 800 color identifier. */
+        public static final short SYSTEM_ACCENT1_800 = 25;
+
+        /** The system accent1 900 color identifier. */
+        public static final short SYSTEM_ACCENT1_900 = 26;
+
+        /** The system accent2 0 color identifier. */
+        public static final short SYSTEM_ACCENT2_0 = 27;
+
+        /** The system accent2 10 color identifier. */
+        public static final short SYSTEM_ACCENT2_10 = 28;
+
+        /** The system accent2 100 color identifier. */
+        public static final short SYSTEM_ACCENT2_100 = 29;
+
+        /** The system accent2 1000 color identifier. */
+        public static final short SYSTEM_ACCENT2_1000 = 30;
+
+        /** The system accent2 200 color identifier. */
+        public static final short SYSTEM_ACCENT2_200 = 30;
+
+        /** The system accent2 300 color identifier. */
+        public static final short SYSTEM_ACCENT2_300 = 32;
+
+        /** The system accent2 400 color identifier. */
+        public static final short SYSTEM_ACCENT2_400 = 33;
+
+        /** The system accent2 50 color identifier. */
+        public static final short SYSTEM_ACCENT2_50 = 34;
+
+        /** The system accent2 500 color identifier. */
+        public static final short SYSTEM_ACCENT2_500 = 35;
+
+        /** The system accent2 600 color identifier. */
+        public static final short SYSTEM_ACCENT2_600 = 36;
+
+        /** The system accent2 700 color identifier. */
+        public static final short SYSTEM_ACCENT2_700 = 37;
+
+        /** The system accent2 800 color identifier. */
+        public static final short SYSTEM_ACCENT2_800 = 38;
+
+        /** The system accent2 900 color identifier. */
+        public static final short SYSTEM_ACCENT2_900 = 39;
+
+        /** The system accent3 0 color identifier. */
+        public static final short SYSTEM_ACCENT3_0 = 40;
+
+        /** The system accent3 10 color identifier. */
+        public static final short SYSTEM_ACCENT3_10 = 41;
+
+        /** The system accent3 100 color identifier. */
+        public static final short SYSTEM_ACCENT3_100 = 42;
+
+        /** The system accent3 1000 color identifier. */
+        public static final short SYSTEM_ACCENT3_1000 = 43;
+
+        /** The system accent3 200 color identifier. */
+        public static final short SYSTEM_ACCENT3_200 = 44;
+
+        /** The system accent3 300 color identifier. */
+        public static final short SYSTEM_ACCENT3_300 = 45;
+
+        /** The system accent3 400 color identifier. */
+        public static final short SYSTEM_ACCENT3_400 = 46;
+
+        /** The system accent3 50 color identifier. */
+        public static final short SYSTEM_ACCENT3_50 = 47;
+
+        /** The system accent3 500 color identifier. */
+        public static final short SYSTEM_ACCENT3_500 = 48;
+
+        /** The system accent3 600 color identifier. */
+        public static final short SYSTEM_ACCENT3_600 = 49;
+
+        /** The system accent3 700 color identifier. */
+        public static final short SYSTEM_ACCENT3_700 = 50;
+
+        /** The system accent3 800 color identifier. */
+        public static final short SYSTEM_ACCENT3_800 = 51;
+
+        /** The system accent3 900 color identifier. */
+        public static final short SYSTEM_ACCENT3_900 = 52;
+
+        /** The dark system background color identifier. */
+        public static final short SYSTEM_BACKGROUND_DARK = 53;
+
+        /** The light system background color identifier. */
+        public static final short SYSTEM_BACKGROUND_LIGHT = 54;
+
+        /** The dark system control activated color identifier. */
+        public static final short SYSTEM_CONTROL_ACTIVATED_DARK = 55;
+
+        /** The light system control activated color identifier. */
+        public static final short SYSTEM_CONTROL_ACTIVATED_LIGHT = 56;
+
+        /** The dark system control highlight color identifier. */
+        public static final short SYSTEM_CONTROL_HIGHLIGHT_DARK = 57;
+
+        /** The light system control highlight color identifier. */
+        public static final short SYSTEM_CONTROL_HIGHLIGHT_LIGHT = 58;
+
+        /** The dark system control normal color identifier. */
+        public static final short SYSTEM_CONTROL_NORMAL_DARK = 59;
+
+        /** The light system control normal color identifier. */
+        public static final short SYSTEM_CONTROL_NORMAL_LIGHT = 60;
+
+        /** The system error 0 color identifier. */
+        public static final short SYSTEM_ERROR_0 = 61;
+
+        /** The system error 620 color identifier. */
+        public static final short SYSTEM_ERROR_620 = 62;
+
+        /** The system error 6300 color identifier. */
+        public static final short SYSTEM_ERROR_6300 = 63;
+
+        /** The system error 64000 color identifier. */
+        public static final short SYSTEM_ERROR_64000 = 64;
+
+        /** The system error 200 color identifier. */
+        public static final short SYSTEM_ERROR_200 = 65;
+
+        /** The system error 300 color identifier. */
+        public static final short SYSTEM_ERROR_300 = 66;
+
+        /** The system error 400 color identifier. */
+        public static final short SYSTEM_ERROR_400 = 67;
+
+        /** The system error 50 color identifier. */
+        public static final short SYSTEM_ERROR_50 = 68;
+
+        /** The system error 500 color identifier. */
+        public static final short SYSTEM_ERROR_500 = 69;
+
+        /** The system error 600 color identifier. */
+        public static final short SYSTEM_ERROR_600 = 70;
+
+        /** The system error 700 color identifier. */
+        public static final short SYSTEM_ERROR_700 = 71;
+
+        /** The system error 800 color identifier. */
+        public static final short SYSTEM_ERROR_800 = 72;
+
+        /** The system error 900 color identifier. */
+        public static final short SYSTEM_ERROR_900 = 73;
+
+        /** The dark system error container color identifier. */
+        public static final short SYSTEM_ERROR_CONTAINER_DARK = 74;
+
+        /** The light system error container color identifier. */
+        public static final short SYSTEM_ERROR_CONTAINER_LIGHT = 75;
+
+        /** The dark system error color identifier. */
+        public static final short SYSTEM_ERROR_DARK = 76;
+
+        /** The light system error color identifier. */
+        public static final short SYSTEM_ERROR_LIGHT = 77;
+
+        /** The system neutral78 0 color identifier. */
+        public static final short SYSTEM_NEUTRAL78_0 = 78;
+
+        /** The system neutral79 790 color identifier. */
+        public static final short SYSTEM_NEUTRAL79_790 = 79;
+
+        /** The system neutral80 8000 color identifier. */
+        public static final short SYSTEM_NEUTRAL80_8000 = 80;
+
+        /** The system neutral81 81000 color identifier. */
+        public static final short SYSTEM_NEUTRAL81_81000 = 81;
+
+        /** The system neutral82 200 color identifier. */
+        public static final short SYSTEM_NEUTRAL82_200 = 82;
+
+        /** The system neutral83 300 color identifier. */
+        public static final short SYSTEM_NEUTRAL83_300 = 83;
+
+        /** The system neutral84 400 color identifier. */
+        public static final short SYSTEM_NEUTRAL84_400 = 84;
+
+        /** The system neutral85 50 color identifier. */
+        public static final short SYSTEM_NEUTRAL85_50 = 85;
+
+        /** The system neutral86 500 color identifier. */
+        public static final short SYSTEM_NEUTRAL86_500 = 86;
+
+        /** The system neutral87 600 color identifier. */
+        public static final short SYSTEM_NEUTRAL87_600 = 87;
+
+        /** The system neutral88 700 color identifier. */
+        public static final short SYSTEM_NEUTRAL88_700 = 88;
+
+        /** The system neutral89 800 color identifier. */
+        public static final short SYSTEM_NEUTRAL89_800 = 89;
+
+        /** The system neutral90 900 color identifier. */
+        public static final short SYSTEM_NEUTRAL90_900 = 90;
+
+        /** The system neutral2 0 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_0 = 91;
+
+        /** The system neutral2 920 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_920 = 92;
+
+        /** The system neutral2 9300 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_9300 = 93;
+
+        /** The system neutral2 94000 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_94000 = 94;
+
+        /** The system neutral2 200 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_200 = 95;
+
+        /** The system neutral2 300 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_300 = 96;
+
+        /** The system neutral2 400 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_400 = 97;
+
+        /** The system neutral2 50 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_50 = 98;
+
+        /** The system neutral2 500 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_500 = 99;
+
+        /** The system neutral2 600 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_600 = 100;
+
+        /** The system neutral2 700 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_700 = 101;
+
+        /** The system neutral2 800 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_800 = 102;
+
+        /** The system neutral2 900 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_900 = 103;
+
+        /** The dark system on background color identifier. */
+        public static final short SYSTEM_ON_BACKGROUND_DARK = 104;
+
+        /** The light system on background color identifier. */
+        public static final short SYSTEM_ON_BACKGROUND_LIGHT = 105;
+
+        /** The dark system on error container color identifier. */
+        public static final short SYSTEM_ON_ERROR_CONTAINER_DARK = 106;
+
+        /** The light system on error container color identifier. */
+        public static final short SYSTEM_ON_ERROR_CONTAINER_LIGHT = 107;
+
+        /** The dark system on error color identifier. */
+        public static final short SYSTEM_ON_ERROR_DARK = 108;
+
+        /** The light system on error color identifier. */
+        public static final short SYSTEM_ON_ERROR_LIGHT = 109;
+
+        /** The dark system on primary container color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_CONTAINER_DARK = 110;
+
+        /** The light system on primary container color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_CONTAINER_LIGHT = 111;
+
+        /** The dark system on primary color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_DARK = 112;
+
+        /** The system on primary fixed color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_FIXED = 113;
+
+        /** The system on primary fixed variant color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_FIXED_VARIANT = 114;
+
+        /** The light system on primary color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_LIGHT = 115;
+
+        /** The dark system on secondary container color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_CONTAINER_DARK = 116;
+
+        /** The light system on secondary container color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_CONTAINER_LIGHT = 117;
+
+        /** The dark system on secondary color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_DARK = 118;
+
+        /** The system on secondary fixed color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_FIXED = 119;
+
+        /** The system on secondary fixed variant color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_FIXED_VARIANT = 120;
+
+        /** The light system on secondary color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_LIGHT = 121;
+
+        /** The dark system on surface color identifier. */
+        public static final short SYSTEM_ON_SURFACE_DARK = 122;
+
+        /** The system on surface disabled color identifier. */
+        public static final short SYSTEM_ON_SURFACE_DISABLED = 123;
+
+        /** The light system on surface color identifier. */
+        public static final short SYSTEM_ON_SURFACE_LIGHT = 124;
+
+        /** The dark system on surface variant color identifier. */
+        public static final short SYSTEM_ON_SURFACE_VARIANT_DARK = 125;
+
+        /** The light system on surface variant color identifier. */
+        public static final short SYSTEM_ON_SURFACE_VARIANT_LIGHT = 126;
+
+        /** The dark system on tertiary container color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_CONTAINER_DARK = 127;
+
+        /** The light system on tertiary container color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_CONTAINER_LIGHT = 128;
+
+        /** The dark system on tertiary color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_DARK = 129;
+
+        /** The system on tertiary fixed color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_FIXED = 130;
+
+        /** The system on tertiary fixed variant color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_FIXED_VARIANT = 131;
+
+        /** The light system on tertiary color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_LIGHT = 132;
+
+        /** The dark system outline color identifier. */
+        public static final short SYSTEM_OUTLINE_DARK = 133;
+
+        /** The system outline disabled color identifier. */
+        public static final short SYSTEM_OUTLINE_DISABLED = 134;
+
+        /** The light system outline color identifier. */
+        public static final short SYSTEM_OUTLINE_LIGHT = 135;
+
+        /** The dark system outline variant color identifier. */
+        public static final short SYSTEM_OUTLINE_VARIANT_DARK = 136;
+
+        /** The light system outline variant color identifier. */
+        public static final short SYSTEM_OUTLINE_VARIANT_LIGHT = 137;
+
+        /** The dark system palette key color neutral color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_DARK = 138;
+
+        /** The light system palette key color neutral color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_LIGHT = 139;
+
+        /** The dark system palette key color neutral variant color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_VARIANT_DARK = 140;
+
+        /** The light system palette key color neutral variant color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_VARIANT_LIGHT = 141;
+
+        /** The dark system palette key color primary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_PRIMARY_DARK = 142;
+
+        /** The light system palette key color primary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_PRIMARY_LIGHT = 143;
+
+        /** The dark system palette key color secondary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_SECONDARY_DARK = 144;
+
+        /** The light system palette key color secondary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_SECONDARY_LIGHT = 145;
+
+        /** The dark system palette key color tertiary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_TERTIARY_DARK = 146;
+
+        /** The light system palette key color tertiary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_TERTIARY_LIGHT = 147;
+
+        /** The dark system primary container color identifier. */
+        public static final short SYSTEM_PRIMARY_CONTAINER_DARK = 148;
+
+        /** The light system primary container color identifier. */
+        public static final short SYSTEM_PRIMARY_CONTAINER_LIGHT = 149;
+
+        /** The dark system primary color identifier. */
+        public static final short SYSTEM_PRIMARY_DARK = 150;
+
+        /** The system primary fixed color identifier. */
+        public static final short SYSTEM_PRIMARY_FIXED = 151;
+
+        /** The system primary fixed dim color identifier. */
+        public static final short SYSTEM_PRIMARY_FIXED_DIM = 152;
+
+        /** The light system primary color identifier. */
+        public static final short SYSTEM_PRIMARY_LIGHT = 153;
+
+        /** The dark system secondary container color identifier. */
+        public static final short SYSTEM_SECONDARY_CONTAINER_DARK = 154;
+
+        /** The light system secondary container color identifier. */
+        public static final short SYSTEM_SECONDARY_CONTAINER_LIGHT = 155;
+
+        /** The dark system secondary color identifier. */
+        public static final short SYSTEM_SECONDARY_DARK = 156;
+
+        /** The system secondary fixed color identifier. */
+        public static final short SYSTEM_SECONDARY_FIXED = 157;
+
+        /** The system secondary fixed dim color identifier. */
+        public static final short SYSTEM_SECONDARY_FIXED_DIM = 158;
+
+        /** The light system secondary color identifier. */
+        public static final short SYSTEM_SECONDARY_LIGHT = 159;
+
+        /** The dark system surface bright color identifier. */
+        public static final short SYSTEM_SURFACE_BRIGHT_DARK = 160;
+
+        /** The light system surface bright color identifier. */
+        public static final short SYSTEM_SURFACE_BRIGHT_LIGHT = 161;
+
+        /** The dark system surface container color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_DARK = 162;
+
+        /** The dark system surface container high color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGH_DARK = 163;
+
+        /** The light system surface container high color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGH_LIGHT = 164;
+
+        /** The dark system surface container highest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGHEST_DARK = 165;
+
+        /** The light system surface container highest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGHEST_LIGHT = 166;
+
+        /** The light system surface container color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LIGHT = 167;
+
+        /** The dark system surface container low color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOW_DARK = 168;
+
+        /** The light system surface container low color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOW_LIGHT = 169;
+
+        /** The dark system surface container lowest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOWEST_DARK = 170;
+
+        /** The light system surface container lowest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOWEST_LIGHT = 171;
+
+        /** The dark system surface color identifier. */
+        public static final short SYSTEM_SURFACE_DARK = 172;
+
+        /** The dark system surface dim color identifier. */
+        public static final short SYSTEM_SURFACE_DIM_DARK = 173;
+
+        /** The light system surface dim color identifier. */
+        public static final short SYSTEM_SURFACE_DIM_LIGHT = 174;
+
+        /** The system surface disabled color identifier. */
+        public static final short SYSTEM_SURFACE_DISABLED = 175;
+
+        /** The light system surface color identifier. */
+        public static final short SYSTEM_SURFACE_LIGHT = 176;
+
+        /** The dark system surface variant color identifier. */
+        public static final short SYSTEM_SURFACE_VARIANT_DARK = 177;
+
+        /** The light system surface variant color identifier. */
+        public static final short SYSTEM_SURFACE_VARIANT_LIGHT = 178;
+
+        /** The dark system tertiary container color identifier. */
+        public static final short SYSTEM_TERTIARY_CONTAINER_DARK = 179;
+
+        /** The light system tertiary container color identifier. */
+        public static final short SYSTEM_TERTIARY_CONTAINER_LIGHT = 180;
+
+        /** The dark system tertiary color identifier. */
+        public static final short SYSTEM_TERTIARY_DARK = 181;
+
+        /** The system tertiary fixed color identifier. */
+        public static final short SYSTEM_TERTIARY_FIXED = 182;
+
+        /** The system tertiary fixed dim color identifier. */
+        public static final short SYSTEM_TERTIARY_FIXED_DIM = 183;
+
+        /** The light system tertiary color identifier. */
+        public static final short SYSTEM_TERTIARY_LIGHT = 184;
+
+        /** The dark system text hint inverse color identifier. */
+        public static final short SYSTEM_TEXT_HINT_INVERSE_DARK = 185;
+
+        /** The light system text hint inverse color identifier. */
+        public static final short SYSTEM_TEXT_HINT_INVERSE_LIGHT = 186;
+
+        /** The dark system text primary inverse color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DARK = 187;
+
+        /** The dark system text primary inverse disable only color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DISABLE_ONLY_DARK = 188;
+
+        /** The light system text primary inverse disable only color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DISABLE_ONLY_LIGHT = 189;
+
+        /** The light system text primary inverse color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_LIGHT = 190;
+
+        /** The dark system text secondary and tertiary inverse color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DARK = 191;
+
+        /** The dark system text secondary and tertiary inverse disabled color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DISABLED_DARK = 192;
+
+        /** The light system text secondary and tertiary inverse disabled color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DISABLED_LIGHT = 193;
+
+        /** The light system text secondary and tertiary inverse color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_LIGHT = 194;
+
+        /** The tab indicator text color identifier. */
+        public static final short TAB_INDICATOR_TEXT = 195;
+    }
+
+    public static final class Skip {
+        /** skip if the API level is less than the specified value */
+        public static final short IF_API_LESS_THAN = SKIP_IF_API_LESS_THAN;
+
+        /** skip if the API level is greater than or equal to the specified value */
+        public static final short IF_API_GREATER_THAN = SKIP_IF_API_GREATER_THAN;
+
+        /** skip if the API level is equal to the specified value */
+        public static final short IF_API_EQUAL_TO = SKIP_IF_API_EQUAL_TO;
+
+        /** skip if the API level is not equal to the specified value */
+        public static final short IF_API_NOT_EQUAL_TO = SKIP_IF_API_NOT_EQUAL_TO;
+
+        /** skip if the profile includes the specified value */
+        public static final short IF_PROFILE_INCLUDES = SKIP_IF_PROFILE_INCLUDES;
+
+        /** skip if the profile excludes the specified value */
+        public static final short IF_PROFILE_EXCLUDES = SKIP_IF_PROFILE_EXCLUDES;
+    }
+
+    public static final class TextTransform {
+        /** converts to all lower case */
+        public static final int TEXT_TO_LOWERCASE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TO_LOWERCASE;
+
+        /** converts to all upper case */
+        public static final int TEXT_TO_UPPERCASE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TO_UPPERCASE;
+
+        /** trim white spaces from the ends */
+        public static final int TEXT_TRIM =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TRIM;
+
+        /** converts to first letter of each word to upper case */
+        public static final int TEXT_CAPITALIZE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_CAPITALIZE;
+
+        /** Makes the first character uppercase */
+        public static final int TEXT_UPPERCASE_FIRST_CHAR =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_UPPERCASE_FIRST_CHAR;
+    }
+
+    public static final class DrawOnBitmap {
+        public static final int CLEAR_BITMAP = 0;
+        public static final int DO_NOT_CLEAR = DrawToBitmap.MODE_NO_INITIALIZE;
+    }
+
+    public static final class BitmapTextMeasure{
+        public static final int WIDTH = MEASURE_WIDTH;
+        public static final int HEIGHT = MEASURE_HEIGHT;
+        public static final int LEFT = MEASURE_LEFT;
+        public static final int RIGHT = MEASURE_RIGHT;
+        public static final int TOP = MEASURE_TOP;
+        public static final int BOTTOM = MEASURE_BOTTOM;
     }
 }

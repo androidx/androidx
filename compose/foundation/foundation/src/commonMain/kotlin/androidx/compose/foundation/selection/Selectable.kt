@@ -17,8 +17,6 @@
 package androidx.compose.foundation.selection
 
 import androidx.compose.foundation.ClickableNode
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
@@ -144,51 +142,17 @@ fun Modifier.selectable(
     interactionSource: MutableInteractionSource? = null,
     onClick: () -> Unit,
 ): Modifier {
-    @OptIn(ExperimentalFoundationApi::class)
-    return if (ComposeFoundationFlags.isNonComposedClickableEnabled) {
-        this.then(
-            SelectableElement(
-                selected = selected,
-                interactionSource = interactionSource,
-                indicationNodeFactory = null,
-                useLocalIndication = true,
-                enabled = enabled,
-                role = role,
-                onClick = onClick,
-            )
+    return this.then(
+        SelectableElement(
+            selected = selected,
+            interactionSource = interactionSource,
+            indicationNodeFactory = null,
+            useLocalIndication = true,
+            enabled = enabled,
+            role = role,
+            onClick = onClick,
         )
-    } else
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "selectable"
-                    properties["selected"] = selected
-                    properties["enabled"] = enabled
-                    properties["role"] = role
-                    properties["onClick"] = onClick
-                }
-        ) {
-            val localIndication = LocalIndication.current
-            val intSource =
-                interactionSource
-                    ?: if (localIndication is IndicationNodeFactory) {
-                        // We can fast path here as it will be created inside clickable lazily
-                        null
-                    } else {
-                        // We need an interaction source to pass between the indication modifier and
-                        // clickable, so
-                        // by creating here we avoid another composed down the line
-                        remember { MutableInteractionSource() }
-                    }
-            Modifier.selectable(
-                selected = selected,
-                interactionSource = intSource,
-                indication = localIndication,
-                enabled = enabled,
-                role = role,
-                onClick = onClick,
-            )
-        }
+    )
 }
 
 /**

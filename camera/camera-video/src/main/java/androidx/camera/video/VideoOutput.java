@@ -54,7 +54,27 @@ public interface VideoOutput {
         /** The video frame producer is active but is not producing frames. */
         ACTIVE_NON_STREAMING,
         /** The video frame producer is inactive. */
-        INACTIVE
+        INACTIVE,
+        /** The video frame producer is undergoing configuration. */
+        CONFIGURING
+    }
+
+    /**
+     * Validates that the output configuration is compatible with the device.
+     *
+     * <p>This method is called during the UseCase binding process. It allows the output to
+     * perform a "fail-fast" check against the device capabilities before the binding completes.
+     *
+     * <p>By throwing an {@link IllegalArgumentException} here, the output can veto the binding
+     * process if the requested configuration (e.g., an unsupported MIME type) cannot be
+     * fulfilled by the device.
+     *
+     * @throws IllegalArgumentException if the current output configuration is incompatible
+     * with the device.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default void onValidateConfig() throws IllegalArgumentException {
+        // No-op by default
     }
 
     /**
@@ -162,5 +182,23 @@ public interface VideoOutput {
     default @NonNull VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo,
             int sessionType) {
         return VideoCapabilities.EMPTY;
+    }
+
+    /**
+     * Returns the {@link EncoderProfilesResolver} of the {@link VideoOutput}.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default @NonNull EncoderProfilesResolver getEncoderProfilesResolver(
+            @NonNull CameraInfo cameraInfo, int sessionType) {
+        return EncoderProfilesResolver.EMPTY;
+    }
+
+    /**
+     * Returns whether the (or any) {@link QualitySelector} set to the {@link VideoOutput} is the
+     * default one.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default boolean isQualitySelectorDefault() {
+        return true;
     }
 }

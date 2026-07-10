@@ -1,0 +1,85 @@
+
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+    jvm()
+    androidLibrary {
+        namespace = "androidx.datastore.tink"
+    }
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":datastore:datastore-core"))
+            }
+        }
+        jvmMain {
+            dependencies {
+                api(libs.tink)
+            }
+        }
+        androidMain {
+            dependencies {
+                // Do not replace this dependency with libs.tink and move this to commonMain as
+                // users using a different version of tinkAndroid will have name collisions.
+                api(libs.tinkAndroid)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.okio)
+            }
+        }
+
+        androidDeviceTest {
+            dependencies {
+                implementation(libs.testRunner)
+            }
+        }
+    }
+}
+
+androidx {
+    name = "datastore:datastore-tink"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2026"
+    description = "Encryption support for datastore by integrating with the Tink library"
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
+}

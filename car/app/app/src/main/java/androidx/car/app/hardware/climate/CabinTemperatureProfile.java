@@ -21,7 +21,7 @@ import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_GLOBAL;
 import android.util.Pair;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +37,7 @@ import java.util.Set;
  * ClimateProfileRequest#FEATURE_CABIN_TEMPERATURE} feature such as supported min/max values and
  * increments for the feature.
  */
-@ExperimentalCarApi
+@RequiresCarApi(5)
 public final class CabinTemperatureProfile {
 
     @VisibleForTesting

@@ -21,12 +21,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 /**
- * The Glimmer type scale includes a range of contrasting styles that support the needs of your
- * product and its content.
+ * The Jetpack Compose Glimmer type scale includes a range of contrasting styles that support the
+ * needs of your product and its content.
+ *
+ * It is recommended to use `createGoogleSansFlexTypography()` from
+ * `androidx.xr.glimmer:glimmer-google-fonts` to create your [Typography] instance.
  *
  * @property titleLarge titleLarge is the largest title, and is typically reserved for emphasized
  *   text that is shorter in length.
@@ -40,6 +42,8 @@ import androidx.compose.ui.unit.sp
  *   writing as it works well for small text sizes.
  * @property bodySmall bodySmall is the smallest body, and is typically used for long-form writing
  *   as it works well for small text sizes.
+ * @property caption caption is the smallest text style, and should be used sparingly for use-cases
+ *   where text is not essential to the user experience.
  */
 @Immutable
 public class Typography
@@ -50,10 +54,11 @@ private constructor(
     public val bodyLarge: TextStyle,
     public val bodyMedium: TextStyle,
     public val bodySmall: TextStyle,
+    public val caption: TextStyle,
 ) {
 
     /**
-     * Creates a Glimmer type scale.
+     * Creates a Jetpack Compose Glimmer type scale.
      *
      * @param defaultFontFamily the default [FontFamily] to be used for [TextStyle]s provided in
      *   this constructor. This default will be used if the [FontFamily] on the [TextStyle] is
@@ -70,15 +75,18 @@ private constructor(
      *   writing as it works well for small text sizes.
      * @param bodySmall bodySmall is the smallest body, and is typically used for long-form writing
      *   as it works well for small text sizes.
+     * @param caption caption is the smallest text style, and should be used sparingly for use-cases
+     *   where it is not essential to the user experience.
      */
     public constructor(
         defaultFontFamily: FontFamily? = null,
-        titleLarge: TextStyle = TitleLarge,
-        titleMedium: TextStyle = TitleMedium,
-        titleSmall: TextStyle = TitleSmall,
-        bodyLarge: TextStyle = BodyLarge,
-        bodyMedium: TextStyle = BodyMedium,
-        bodySmall: TextStyle = BodySmall,
+        titleLarge: TextStyle = TypographyDefaults.TitleLarge,
+        titleMedium: TextStyle = TypographyDefaults.TitleMedium,
+        titleSmall: TextStyle = TypographyDefaults.TitleSmall,
+        bodyLarge: TextStyle = TypographyDefaults.BodyLarge,
+        bodyMedium: TextStyle = TypographyDefaults.BodyMedium,
+        bodySmall: TextStyle = TypographyDefaults.BodySmall,
+        caption: TextStyle = TypographyDefaults.Caption,
     ) : this(
         titleLarge = titleLarge.withDefaultFontFamily(defaultFontFamily),
         titleMedium = titleMedium.withDefaultFontFamily(defaultFontFamily),
@@ -86,6 +94,7 @@ private constructor(
         bodyLarge = bodyLarge.withDefaultFontFamily(defaultFontFamily),
         bodyMedium = bodyMedium.withDefaultFontFamily(defaultFontFamily),
         bodySmall = bodySmall.withDefaultFontFamily(defaultFontFamily),
+        caption = caption.withDefaultFontFamily(defaultFontFamily),
     )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
@@ -96,6 +105,7 @@ private constructor(
         bodyLarge: TextStyle = this.bodyLarge,
         bodyMedium: TextStyle = this.bodyMedium,
         bodySmall: TextStyle = this.bodySmall,
+        caption: TextStyle = this.caption,
     ): Typography =
         Typography(
             titleLarge = titleLarge,
@@ -104,6 +114,7 @@ private constructor(
             bodyLarge = bodyLarge,
             bodyMedium = bodyMedium,
             bodySmall = bodySmall,
+            caption = caption,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -116,6 +127,7 @@ private constructor(
         if (bodyLarge != other.bodyLarge) return false
         if (bodyMedium != other.bodyMedium) return false
         if (bodySmall != other.bodySmall) return false
+        if (caption != other.caption) return false
 
         return true
     }
@@ -127,72 +139,95 @@ private constructor(
         result = 31 * result + bodyLarge.hashCode()
         result = 31 * result + bodyMedium.hashCode()
         result = 31 * result + bodySmall.hashCode()
+        result = 31 * result + caption.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Typography(titleLarge=$titleLarge, titleMedium=$titleMedium, titleSmall=$titleSmall, bodyLarge=$bodyLarge, bodyMedium=$bodyMedium, bodySmall=$bodySmall)"
+        return "Typography(titleLarge=$titleLarge, titleMedium=$titleMedium, titleSmall=$titleSmall, bodyLarge=$bodyLarge, bodyMedium=$bodyMedium, bodySmall=$bodySmall, caption=$caption)"
     }
 }
 
-private val DefaultLineHeightStyle =
+/** Contains the default style values used by [Typography]. */
+public object TypographyDefaults {
+
+    /** Default [TextStyle] for [Typography.titleLarge]. */
+    public val TitleLarge: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(750),
+            fontSize = 30.sp,
+            lineHeight = 36.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.titleMedium]. */
+    public val TitleMedium: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(750),
+            fontSize = 24.sp,
+            lineHeight = 28.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.titleSmall]. */
+    public val TitleSmall: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(750),
+            fontSize = 20.sp,
+            lineHeight = 28.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.bodyLarge]. */
+    public val BodyLarge: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(520),
+            fontSize = 30.sp,
+            lineHeight = 36.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.bodyMedium]. */
+    public val BodyMedium: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(520),
+            fontSize = 24.sp,
+            lineHeight = 36.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.bodySmall]. */
+    public val BodySmall: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(520),
+            fontSize = 20.sp,
+            lineHeight = 28.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+
+    /** Default [TextStyle] for [Typography.caption]. */
+    public val Caption: TextStyle =
+        TextStyle.Default.copy(
+            fontWeight = FontWeight(650),
+            fontSize = 18.sp,
+            lineHeight = 24.sp,
+            letterSpacing = DefaultLetterSpacing,
+            lineHeightStyle = DefaultLineHeightStyle,
+        )
+}
+
+private val DefaultLetterSpacing = 0.sp
+
+private val DefaultLineHeightStyle: LineHeightStyle =
     LineHeightStyle(
         alignment = LineHeightStyle.Alignment.Proportional,
         trim = LineHeightStyle.Trim.FirstLineTop,
-    )
-
-private val TitleLarge =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight(750),
-        fontSize = 32.sp,
-        lineHeight = 38.sp,
-        letterSpacing = 0.05.em,
-        lineHeightStyle = DefaultLineHeightStyle,
-    )
-
-private val TitleMedium =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight(750),
-        fontSize = 28.sp,
-        lineHeight = 32.sp,
-        letterSpacing = 0.0525.em,
-        lineHeightStyle = DefaultLineHeightStyle,
-    )
-
-private val TitleSmall =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight(750),
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        letterSpacing = 0.0525.em,
-        lineHeightStyle = DefaultLineHeightStyle,
-    )
-
-private val BodyLarge =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight.W600,
-        fontSize = 32.sp,
-        lineHeight = 38.sp,
-        letterSpacing = 0.05.em,
-        lineHeightStyle = DefaultLineHeightStyle,
-    )
-
-private val BodyMedium =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight.W600,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
-        letterSpacing = 0.0425.em,
-        lineHeightStyle = DefaultLineHeightStyle,
-    )
-
-private val BodySmall =
-    TextStyle.Default.copy(
-        fontWeight = FontWeight.W600,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        letterSpacing = 0.0525.em,
-        lineHeightStyle = DefaultLineHeightStyle,
     )
 
 /**

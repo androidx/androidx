@@ -217,13 +217,15 @@ class CallNotificationManager(
                     callState != CallState.DISCONNECTED && callState != CallState.UNKNOWN
                 )
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Show on lock screen
-                .setSilent(true) // We handle sound/vibration elsewhere (Telecom or app logic)
-                .setFullScreenIntent(contentPendingIntent, true)
+                .setSilent(false) // allow sound/vibration AND display as heads up alert
 
         val callStyle: NotificationCompat.CallStyle? =
             when (callState) {
                 CallState.RINGING -> {
-                    builder.setUsesChronometer(false) // No timer when ringing
+                    builder
+                        .setUsesChronometer(false) // No timer when ringing
+                        .setShowWhen(false)
+                        .setFullScreenIntent(contentPendingIntent, true)
                     NotificationCompat.CallStyle.forIncomingCall(
                         callerPerson,
                         createDeclinePendingIntent(callId, notificationId),
@@ -232,6 +234,7 @@ class CallNotificationManager(
                 }
                 CallState.DIALING -> {
                     builder.setUsesChronometer(false) // No timer when dialing
+                    builder.setShowWhen(false)
                     // Use forOutgoingCall style for dialing state
                     NotificationCompat.CallStyle.forOngoingCall(
                         callerPerson,
@@ -255,6 +258,7 @@ class CallNotificationManager(
                 }
                 CallState.INACTIVE -> { // e.g. On Hold
                     builder.setUsesChronometer(false) // No timer when on hold
+                    builder.setShowWhen(false)
                     // You might want different actions for hold state? For now, just Hangup.
                     NotificationCompat.CallStyle.forOngoingCall(
                         callerPerson,

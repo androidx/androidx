@@ -17,9 +17,11 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -32,15 +34,25 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation convert int index of a list to text */
-public class TextLookupInt extends Operation implements VariableSupport, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TextLookupInt extends Operation
+        implements VariableSupport, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_LOOKUP_INT;
-    private static final String CLASS_NAME = "TextFromINT";
+    private static final String CLASS_NAME = "TextLookupInt";
     public int mTextId;
     public int mDataSetId;
     public int mOutIndex;
     public int mIndex;
 
-    public static final int MAX_STRING_SIZE = 4000;
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextLookupInt(int textId, int dataSetId, int indexId) {
         this.mTextId = textId;
@@ -72,6 +84,7 @@ public class TextLookupInt extends Operation implements VariableSupport, Seriali
     @Override
     public void registerListening(@NonNull RemoteContext context) {
         context.listensTo(mIndex, this);
+        context.listensTo(mDataSetId, this);
     }
 
     /**
@@ -115,10 +128,10 @@ public class TextLookupInt extends Operation implements VariableSupport, Seriali
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int dataSetId = buffer.readInt();
-        int indexId = buffer.readInt();
-        operations.add(new TextLookupInt(textId, dataSetId, indexId));
+        int id = buffer.declareId();
+        int listId = buffer.readId();
+        int indexId = buffer.readId();
+        operations.add(new TextLookupInt(id, listId, indexId));
     }
 
     /**
@@ -127,11 +140,11 @@ public class TextLookupInt extends Operation implements VariableSupport, Seriali
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Look up an array and turn into a text object")
-                .field(DocumentedOperation.INT, "textId", "id of the text generated")
-                .field(INT, "dataSetId", "id to the array/list to turn int a string")
-                .field(INT, "index", "index of the element to return");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Look up a string from a collection via an integer index variable")
+                .field(DocumentedOperation.INT, "textId", "The ID of the resulting text")
+                .field(INT, "dataSetId", "The ID of the string collection")
+                .field(INT, "indexId", "The ID of the integer index variable");
     }
 
     @Override

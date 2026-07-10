@@ -59,6 +59,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CarConnectionTypeLiveData}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarConnectionTypeLiveDataTest {
     @Rule

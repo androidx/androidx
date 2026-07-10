@@ -16,39 +16,39 @@
 
 package androidx.ink.authoring.internal
 
-import android.graphics.Matrix as AndroidMatrix
-import android.util.Log
+import android.graphics.Matrix
 import android.view.MotionEvent
+import androidx.annotation.AnyThread
 import androidx.annotation.CheckResult
 import androidx.annotation.Size
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
+import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressStrokeId
+import androidx.ink.authoring.ShapeWorkflow
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.authoring.latency.LatencyDataPool
-import androidx.ink.brush.Brush
-import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableBox
 import androidx.ink.strokes.ImmutableStrokeInputBatch
-import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
 import androidx.test.espresso.idling.CountingIdlingResource
-import java.util.Random
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Accepts [MotionEvent] inputs for in-progress strokes, processes them into meshes, and draws them
  * to screen with as little latency as possible. This coordinates the majority of logic for the
- * public-facing [InProgressStrokesView].
+ * public-facing [androidx.ink.authoring.InProgressStrokesView].
  *
  * A term used throughout this and related classes is a "cohort" of strokes. It refers to a group of
  * strokes that are in progress simultaneously, and due to how low latency rendering works, **must**
@@ -60,9 +60,15 @@ import java.util.concurrent.atomic.AtomicBoolean
  * synchronization depends on HWUI frames while user inputs may happen multiple times per HWUI frame
  * without a guaranteed order.
  */
-@OptIn(ExperimentalLatencyDataApi::class)
-internal class InProgressStrokesManager(
-    private val inProgressStrokesRenderHelper: InProgressStrokesRenderHelper,
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
+internal class InProgressStrokesManager<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
+    CompletedShapeT : Any,
+>(
+    private val inProgressStrokesRenderHelper:
+        InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT>,
+    private val shapeWorkflow: ShapeWorkflow<ShapeSpecT, InProgressShapeT, CompletedShapeT>,
     /** A lambda to run a [Runnable] on the next animation frame. */
     private val postOnAnimation: (Runnable) -> Unit,
     /** A lambda to run a [Runnable] on the next run loop of the UI thread. */
@@ -78,16 +84,24 @@ internal class InProgressStrokesManager(
      * Injectable for testing only.
      */
     private val getSystemElapsedTimeNanos: () -> Long = System::nanoTime,
-    /** For getting instances of [InProgressStroke]. Injectable for testing only. */
-    inProgressStrokePool: InProgressStrokePool = InProgressStrokePool.create(),
+    /** For getting instances of in-progress shapes. Injectable for testing only. */
+    inProgressStrokePool: InProgressStrokePool<ShapeSpecT, InProgressShapeT> =
+        InProgressStrokePoolImpl(shapeWorkflow),
+) : InProgressStrokesRenderHelper.Callback<CompletedShapeT> {
+
     /**
-     * Allows tests to replace [CountDownLatch.await] with something that yields rather than blocks.
+     * Hook for controlling the timing of callbacks in tests that need to happen at the same time as
+     * [flush] is in progress on the UI thread. If set, this will have `countDown` called on it when
+     * [flush] is in progress on the UI thread.
      */
-    private val blockingAwait: (CountDownLatch, Long, TimeUnit) -> Boolean =
-        { latch, timeout, timeoutUnit ->
-            latch.await(timeout, timeoutUnit)
-        },
-) : InProgressStrokesRenderHelper.Callback {
+    @VisibleForTesting internal var countDownWhenFlushInProgressTestLatch: CountDownLatch? = null
+
+    /**
+     * Hook for controlling the timing of callbacks in tests that need to happen at the same time as
+     * [flush] is in progress on the UI thread. If set, this will be awaited during
+     * [pauseStrokeCohortHandoffs].
+     */
+    @VisibleForTesting internal var awaitAfterStartOfHandoffTestLatch: CountDownLatch? = null
 
     /**
      * The transform matrix to convert input (MotionEvent) coordinates into coordinates of this view
@@ -95,11 +109,11 @@ internal class InProgressStrokesManager(
      * overlays the view from which MotionEvents are being forwarded. This should only be set from
      * the UI thread.
      */
-    var motionEventToViewTransform: AndroidMatrix = AndroidMatrix()
-        get() = AndroidMatrix(field)
+    var motionEventToViewTransform = Matrix()
+        get() = Matrix(field)
         set(value) {
             field.set(value)
-            queueInputToRenderThread(MotionEventToViewTransformAction(AndroidMatrix(value)))
+            queueActionToRenderThread(MotionEventToViewTransformAction(Matrix(value)))
         }
 
     /**
@@ -112,7 +126,7 @@ internal class InProgressStrokesManager(
      */
     var inProgressStrokeCounter: CountingIdlingResource? = null
 
-    internal interface Listener {
+    internal fun interface Listener<CompletedShapeT : Any> {
         /**
          * Called when there are no longer any in-progress strokes. All strokes that were in
          * progress simultaneously will be delivered in the same callback. This callback will
@@ -126,10 +140,10 @@ internal class InProgressStrokesManager(
          * where the stroke is drawn twice and translucent strokes appear more opaque than they
          * should.
          *
-         * @param strokes The finished strokes, with map iteration order in stroke z-order from back
-         *   to front.
+         * @param strokes The finished strokes, with iteration order in stroke z-order from back to
+         *   front.
          */
-        @UiThread fun onAllStrokesFinished(strokes: Map<InProgressStrokeId, FinishedStroke>)
+        @UiThread fun onAllStrokesFinished(strokes: List<FinishedStroke<CompletedShapeT>>)
     }
 
     /**
@@ -149,12 +163,6 @@ internal class InProgressStrokesManager(
             val currentCohort = mutableMapOf<InProgressStrokeId, UiStrokeState>()
 
             /**
-             * Runs [onEndOfStrokeCohortCheck] at most once per frame, even if this is passed to
-             * [postOnAnimation] more than once during that frame.
-             */
-            val checkEndOfStrokeCohortOnce = AtMostOnceAfterSetUp(::onEndOfStrokeCohortCheck)
-
-            /**
              * Minimum delay from when the user finishes a stroke (via [finishStroke]) until
              * rendering is handed off to the client's dry layer. This only applies when
              * [InProgressStrokesRenderHelper.supportsDebounce] is true, which currently is only for
@@ -162,13 +170,11 @@ internal class InProgressStrokesManager(
              *
              * Consider moving debouncing logic into [CanvasInProgressStrokesRenderHelperV29] and
              * not making it configurable by developers, e.g. by making use of
-             * [setPauseStrokeCohortHandoffs].
+             * [pauseStrokeCohortHandoffs].
              */
             var cohortHandoffDebounceDurationMs = 0L
 
             var cohortHandoffAsap = false
-
-            var cohortHandoffPaused = false
 
             /**
              * The timestamp, in the same time base as [getSystemElapsedTimeNanos], when a stroke
@@ -178,75 +184,54 @@ internal class InProgressStrokesManager(
              */
             var lastStrokeInputCompletedSystemElapsedTimeMillis = Long.MIN_VALUE
 
-            val queueAnimationFrameActionOnce = AtMostOnceAfterSetUp(::queueAnimationFrameAction)
-
             /** To notify when strokes have been completed. Owned by the UI thread. */
-            val listeners = mutableSetOf<Listener>()
+            val listeners = mutableSetOf<Listener<CompletedShapeT>>()
         }
         @UiThread
         get() {
+            assertOnUiThread()
             return field
         }
+
+    /**
+     * Runnable for calling [handOffLatencyDataToClient] on the UI thread, cached to avoid per-draw
+     * allocation of a method reference.
+     */
+    val handOffLatencyDataToClientRunnable = Runnable { handOffLatencyDataToClient() }
 
     /** The state that is accessed just by the render thread. */
     private val renderThreadState =
         object {
-
-            /** Generates seed values for new in-progress strokes. */
-            val noiseSeedGenerator = Random()
+            /**
+             * Runs [queueAnimationFrameAction] at most once per frame, even if this is passed to
+             * [postOnAnimation] more than once during that frame.
+             */
+            val queueAnimationFrameActionOnce = AtMostOnceAfterSetUp(::queueAnimationFrameAction)
 
             /**
              * Strokes that are being drawn by this class, with map iteration order in stroke
-             * z-order from back to front. This includes the contents of [generatedStrokes].
+             * z-order from back to front.
              */
-            val toDrawStrokes = mutableMapOf<InProgressStrokeId, RenderThreadStrokeState>()
+            val toDrawStrokes =
+                mutableMapOf<
+                    InProgressStrokeId,
+                    RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>,
+                >()
+
+            /** Whether a stroke was finished or canceled this draw. */
+            var maybeCompletedCohortThisDraw = false
 
             /**
-             * Strokes in [toDrawStrokes] whose inputs are finished, but which still need further
-             * calls to [updateShape] (e.g. due to time-since behaviors) before they will be fully
-             * dry.
-             */
-            val dryingStrokes = mutableSetOf<InProgressStrokeId>()
-
-            /**
-             * Strokes that have been fully generated, but not yet passed to the UI thread for
-             * client handoff.
-             */
-            val generatedStrokes = mutableMapOf<InProgressStrokeId, FinishedStroke>()
-
-            /**
-             * Strokes that have been canceled, thus should not be drawn or passed to the UI thread
-             * for client handoff.
-             */
-            val canceledStrokes = mutableSetOf<InProgressStrokeId>()
-
-            /**
-             * Contains instances of [InProgressStroke] that are not currently in use (does not
+             * Contains instances of in-progress shapes that are not currently in use (does not
              * belong to [toDrawStrokes]) and are ready to be used in a new stroke. This is to reuse
              * memory that has already been allocated to improve performance after the first few
              * strokes, and to minimize memory fragmentation that can affect the health of the app's
-             * process over time. This will grow as needed to match the size of the biggest stroke
-             * cohort seen in the last N handoffs. A hard limit on the pool size wouldn't be
-             * appropriate as each app and each user will have different patterns, and the value of
-             * [setHandoffDebounceDurationMs] will influence the number of [InProgressStroke]
-             * instances needed at once. But trimming the size of this pool according to recent
-             * activity (see [recentCohortSizes]) ensures that an unusually large cohort won't force
-             * too much memory to be held for the rest of the inking session.
+             * process over time
              */
             val inProgressStrokePool = inProgressStrokePool
 
             /**
-             * The N most recent values for how many [InProgressStroke] instances have been needed
-             * at once. Start with all zeroes because so far none have been needed.
-             */
-            val recentCohortSizes = IntArray(10)
-
-            /** The index in the [recentCohortSizes] circular buffer to update next. */
-            var recentCohortSizesNextIndex = 0
-
-            /**
-             * [LatencyData]s for the [InputAction]s that were processed in the latest call to
-             * [onDraw].
+             * [LatencyData]s for the [Action]s that were processed in the latest call to [onDraw].
              */
             val latencyDatas: ArrayDeque<LatencyData> =
                 ArrayDeque<LatencyData>(initialCapacity = 30)
@@ -255,18 +240,18 @@ internal class InProgressStrokesManager(
              * The render thread's copy of LowLatencyView.motionEventToViewTransform. This is a copy
              * for thread safety.
              */
-            val motionEventToViewTransform = AndroidMatrix()
+            val motionEventToViewTransform = Matrix()
 
             /**
              * Allocated once and reused on each draw to hold the result of a matrix multiplication.
              */
-            val strokeToViewTransform = AndroidMatrix()
+            val strokeToViewTransform = Matrix()
 
             /**
              * Pre-allocated list to contain actions that have been handled but need further
              * processing. Used locally only in [onDraw].
              */
-            val handledActions = arrayListOf<InputAction>()
+            val handledActions = arrayListOf<Action>()
 
             /**
              * Allocated once and reused multiple times per draw to hold updated areas of strokes.
@@ -288,19 +273,26 @@ internal class InProgressStrokesManager(
     /** The state that is accessed by more than one thread. Be careful here! */
     private val threadSharedState =
         object {
+            val cohortHandoffPaused = AtomicBoolean(false)
+
+            /**
+             * Runs [onEndOfStrokeCohortCheck] at most once per frame, even if this is passed to
+             * [postOnAnimation] more than once during that frame.
+             */
+            val checkEndOfStrokeCohortOnce = AtMostOnceAfterSetUp(::onEndOfStrokeCohortCheck)
+
             /**
              * Finished strokes that have just been generated. Produced on the render thread and
              * consumed on the UI thread.
              */
-            val finishedStrokes =
-                ConcurrentLinkedQueue<Map.Entry<InProgressStrokeId, FinishedStroke>>()
+            val finishedStrokes = ConcurrentLinkedQueue<FinishedStroke<CompletedShapeT>>()
 
             /**
-             * Used to hand off input events across threads. This is added to from the UI thread
-             * when new inputs are given via the public functions, and consumed from the render
-             * thread when the contents of that event need to be rendered.
+             * Used to hand off input events and other render thread actions across threads. This is
+             * added to from the UI thread when inputs are received or other actions are queued, and
+             * consumed from the render thread on the next draw.
              */
-            val inputActions = ConcurrentLinkedQueue<InputAction>()
+            val actions = ConcurrentLinkedQueue<Action>()
 
             /**
              * Reuse input objects so they don't need to be constantly allocated for each input.
@@ -308,7 +300,7 @@ internal class InProgressStrokesManager(
              * and consumed from the UI thread when [addToStroke] wants to reuse and fill in an
              * [AddAction].
              */
-            val addActionPool = ConcurrentLinkedQueue<AddAction>()
+            val addActionPool = AddActionPool()
             val strokeInputPool = StrokeInputPool()
 
             /**
@@ -319,20 +311,34 @@ internal class InProgressStrokesManager(
              */
             val finishedLatencyDatas = ConcurrentLinkedQueue<LatencyData>()
 
-            val pauseInputs = AtomicBoolean(false)
+            /**
+             * Whether a handoff is currently in progress. If this is true, requested draws should
+             * be deferred until the handoff is complete, and in-progress draws will stop processing
+             * actions before StartCohortAction. [flush] will set this to true and start drawing the
+             * new cohort immediately even if the graphical behavior for that is not ideal.
+             */
+            val newCohortStartAwaitingHandoff = AtomicBoolean(false)
+
+            /**
+             * Some implementations of [InProgressStrokesRenderHelper] allow starting on the next
+             * stroke cohort before they are ready to do another subsequent handoff. In that case,
+             * they call [pauseStrokeCohortHandoffs] on handoff and [resumeStrokeCohortHandoffs]
+             * when they are ready to start the next handoff.
+             */
+            val allowHandoffs = HandoffPause()
 
             val currentlyHandlingActions = AtomicBoolean(false)
         }
 
     /** Add a listener for when strokes have been completed. Must be called on the UI thread. */
     @UiThread
-    fun addListener(listener: Listener) {
+    fun addListener(listener: Listener<CompletedShapeT>) {
         uiThreadState.listeners.add(listener)
     }
 
     /** Remove a listener for when strokes have been completed. Must be called on the UI thread. */
     @UiThread
-    fun removeListener(listener: Listener) {
+    fun removeListener(listener: Listener<CompletedShapeT>) {
         uiThreadState.listeners.remove(listener)
     }
 
@@ -340,7 +346,9 @@ internal class InProgressStrokesManager(
      * Start building a stroke with the [event] data for [pointerId].
      *
      * @param event The first [MotionEvent] as part of a Stroke's input data, typically an
-     *   ACTION_DOWN.
+     *   ACTION_DOWN. This should be obtained from [android.view.View.OnTouchListener] or a similar
+     *   API. If the input data is synthetic, prefer to use the version of [startStroke] that
+     *   accepts a [StrokeInput].
      * @param pointerId The index of the relevant pointer in the [event].
      * @param motionEventToWorldTransform The matrix that transforms [event] coordinates into the
      *   client app's "world" coordinates, which typically is defined by how a client app's document
@@ -350,7 +358,7 @@ internal class InProgressStrokesManager(
      *   something other than world coordinates. Defaults to the identity matrix, in which case the
      *   stroke coordinate space is the same as world coordinate space. This matrix must be
      *   invertible.
-     * @param brush Brush specification for the stroke being started.
+     * @param shapeSpec Specification for the shape being started.
      * @param strokeUnitLengthCm The physical distance that the pointer must travel in order to
      *   produce an input motion of one stroke unit for this particular stroke, in centimeters.
      * @return The Stroke ID of the stroke being built, later used to identify which stroke is being
@@ -361,9 +369,9 @@ internal class InProgressStrokesManager(
     fun startStroke(
         event: MotionEvent,
         pointerId: Int,
-        motionEventToWorldTransform: AndroidMatrix,
-        strokeToWorldTransform: AndroidMatrix,
-        brush: Brush,
+        motionEventToWorldTransform: Matrix,
+        strokeToWorldTransform: Matrix,
+        shapeSpec: ShapeSpecT,
         strokeUnitLengthCm: Float,
     ): InProgressStrokeId {
         val receivedActionTimeNanos = getSystemElapsedTimeNanos()
@@ -371,7 +379,7 @@ internal class InProgressStrokesManager(
         require(pointerIndex >= 0) { "Pointer id $pointerId is not present in event." }
         // Set up this stroke's matrix to be used to transform MotionEvent -> stroke coordinates.
         val motionEventToStrokeTransform =
-            AndroidMatrix().also {
+            Matrix().also {
                 // Compute (world -> stroke) = (stroke -> world)^-1
                 require(strokeToWorldTransform.invert(it)) {
                     "strokeToWorldTransform must be invertible, but was $strokeToWorldTransform"
@@ -394,7 +402,7 @@ internal class InProgressStrokesManager(
                     event.eventTime,
                     strokeUnitLengthCm,
                 ),
-            brush = brush,
+            shapeSpec = shapeSpec,
             startTimeMillis = event.eventTime,
             inputsFromMotionEvents = true,
             strokeId = strokeId,
@@ -413,25 +421,23 @@ internal class InProgressStrokesManager(
      * Start building a stroke with the provided [input].
      *
      * @param input The first input in a stroke.
-     * @param brush Brush specification for the stroke being started.
-     * @param startTimeMillis Start time of the stroke, used to determine the relative timing of
-     *   later additions of the stroke.
-     * @param strokeToViewTransform The [AndroidMatrix] that converts stroke coordinates as provided
-     *   in [input] into the coordinate space of this view for rendering.
+     * @param shapeSpec Specification for the shape being started.
+     * @param strokeToViewTransform The [Matrix] that converts stroke coordinates as provided in
+     *   [input] into the coordinate space of this view for rendering.
      * @return The Stroke ID of the stroke being built, later used to identify which stroke is being
      *   added to, finished, or canceled.
      */
     @UiThread
     fun startStroke(
         input: StrokeInput,
-        brush: Brush,
-        strokeToViewTransform: AndroidMatrix,
+        shapeSpec: ShapeSpecT,
+        strokeToViewTransform: Matrix,
     ): InProgressStrokeId {
         // The start time here isn't really relevant unless this override of startStroke is combined
         // with the MotionEvent override of addToStroke or finishStroke.
         return startStrokeInternal(
             input = input,
-            brush = brush,
+            shapeSpec = shapeSpec,
             startTimeMillis = getSystemElapsedTimeNanos() / 1_000_000L,
             inputsFromMotionEvents = false,
             // Although a MotionEvent isn't used to start the stroke, the inputToStrokeTransform is
@@ -439,7 +445,7 @@ internal class InProgressStrokesManager(
             // as
             // motionEventToStrokeTransform is used for all rendering.
             inputToStrokeTransform =
-                AndroidMatrix().apply {
+                Matrix().apply {
                     // Compute (view -> stroke) = (stroke -> view)^-1
                     set(strokeToViewTransform)
                     invert(this)
@@ -452,11 +458,11 @@ internal class InProgressStrokesManager(
     @UiThread
     private fun startStrokeInternal(
         input: StrokeInput,
-        brush: Brush,
+        shapeSpec: ShapeSpecT,
         startTimeMillis: Long,
         inputsFromMotionEvents: Boolean,
         strokeId: InProgressStrokeId = InProgressStrokeId.create(),
-        inputToStrokeTransform: AndroidMatrix = AndroidMatrix(),
+        inputToStrokeTransform: Matrix = Matrix(),
         // TODO: b/364655356 - Add support for collecting LatencyData in the
         // StrokeInput[Batch]-based
         // API.
@@ -475,11 +481,11 @@ internal class InProgressStrokesManager(
                 input,
                 strokeId,
                 inputToStrokeTransform,
-                brush,
+                shapeSpec,
                 latencyData,
                 startTimeMillis,
             )
-        queueInputToRenderThread(startAction)
+        queueActionToRenderThread(startAction)
         return startAction.strokeId
     }
 
@@ -490,7 +496,7 @@ internal class InProgressStrokesManager(
             is UiStrokeState.Started -> state
             is UiStrokeState.Canceled -> error("Stroke with ID $strokeId was already canceled.")
             is UiStrokeState.InputCompleted,
-            is UiStrokeState.Finished -> error("Stroke with ID $strokeId is already finished.")
+            is UiStrokeState.Finished<*> -> error("Stroke with ID $strokeId is already finished.")
             null -> error("Stroke with ID $strokeId was not found.")
         }
 
@@ -520,9 +526,7 @@ internal class InProgressStrokesManager(
         val pointerIndex = event.findPointerIndex(pointerId)
         require(pointerIndex >= 0) { "Pointer id $pointerId is not present in event." }
         val addAction =
-            (threadSharedState.addActionPool.poll() ?: AddAction()).apply {
-                check(realInputs.isEmpty())
-                check(realInputLatencyDatas.isEmpty())
+            threadSharedState.addActionPool.obtain().apply {
                 threadSharedState.strokeInputPool.obtainAllHistoryForMotionEvent(
                     event = event,
                     pointerIndex = pointerIndex,
@@ -545,7 +549,7 @@ internal class InProgressStrokesManager(
                 }
                 check(predictedInputs.isEmpty())
                 check(predictedInputLatencyDatas.isEmpty())
-                if (prediction != null) {
+                if (prediction != null && !realInputs.isEmpty()) {
                     // The real and predicted MotionEvents don't necessarily align pointers by their
                     // index,
                     // but rather their ID. And there isn't always necessarily a prediction for
@@ -561,6 +565,22 @@ internal class InProgressStrokesManager(
                             motionEventToStrokeTransform = strokeState.motionEventToStrokeTransform,
                             strokeStartTimeMillis = strokeState.startEventTimeMillis,
                             strokeUnitLengthCm = strokeState.strokeUnitLengthCm,
+                            // We can't necessarily rely on the predicted MotionEvent to have the
+                            // same InputDevice
+                            // metadata as real inputs, so use the real MotionEvent to determine
+                            // which of the
+                            // optional fields should be present or absent. Predicted MotionEvents
+                            // should have the
+                            // optional fields set according to the real MotionEvents used for
+                            // prediction, but
+                            // the presence or absence of the optional fields can't be determined
+                            // from the return
+                            // values themselves as the return value when absent (0) is within the
+                            // valid range for
+                            // pressure/tilt/orientation.
+                            forceHasPressure = realInputs.hasPressure(),
+                            forceHasTilt = realInputs.hasTilt(),
+                            forceHasOrientation = realInputs.hasOrientation(),
                             outBatch = predictedInputs,
                         )
                         // TODO b/306361370 - Generate LatencyData only for those inputs that pass
@@ -601,11 +621,7 @@ internal class InProgressStrokesManager(
             "Stroke ID $strokeId was started with a MotionEvent but added to with a StrokeInputBatch"
         }
         val addAction =
-            (threadSharedState.addActionPool.poll() ?: AddAction()).apply {
-                check(realInputs.isEmpty())
-                check(realInputLatencyDatas.isEmpty())
-                check(predictedInputs.isEmpty())
-                check(predictedInputLatencyDatas.isEmpty())
+            threadSharedState.addActionPool.obtain().apply {
                 runCatching { realInputs.add(inputs) }
                 runCatching { predictedInputs.add(prediction) }
                 this.strokeId = strokeId
@@ -617,10 +633,10 @@ internal class InProgressStrokesManager(
     private fun queueAddActionIfNonEmpty(addAction: AddAction) {
         // If both real and predicted input batches have no valid inputs, return early.
         if (addAction.realInputs.isEmpty() && addAction.predictedInputs.isEmpty()) {
-            threadSharedState.addActionPool.offer(addAction)
+            threadSharedState.addActionPool.recycle(addAction)
             return
         }
-        queueInputToRenderThread(addAction)
+        queueActionToRenderThread(addAction)
     }
 
     /**
@@ -687,13 +703,13 @@ internal class InProgressStrokesManager(
         input: StrokeInput?,
         strokeId: InProgressStrokeId,
         endTimeMs: Long,
-        forceFullGeneration: Boolean = false,
+        forceCompletion: Boolean = false,
         latencyData: LatencyData? = null,
     ) {
-        val strokeState = assertStrokeInStartedState(strokeId)
+        assertStrokeInStartedState(strokeId)
         uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis = endTimeMs
         uiThreadState.currentCohort[strokeId] = UiStrokeState.InputCompleted
-        queueInputToRenderThread(FinishAction(input, strokeId, forceFullGeneration, latencyData))
+        queueActionToRenderThread(FinishAction(input, strokeId, forceCompletion, latencyData))
     }
 
     /**
@@ -719,7 +735,7 @@ internal class InProgressStrokesManager(
                     receivedActionTimeNanos,
                 ),
             )
-        queueInputToRenderThread(cancelAction)
+        queueActionToRenderThread(cancelAction)
     }
 
     /** Cancel all in-progress strokes. */
@@ -750,38 +766,35 @@ internal class InProgressStrokesManager(
     @UiThread
     private fun claimStrokesToHandOff(): ClaimStrokesToHandOffResult {
         // First, make sure that any finished (input complete and fully generated) strokes that the
-        // render thread is done with are added to strokesAwaitingEndOfCohort.
+        // render thread is done with are marked as finished in the current cohort.
         while (threadSharedState.finishedStrokes.isNotEmpty()) {
-            // finishedStrokes was just confirmed to not be empty, so polling it should never return
-            // null.
-            // This wouldn't necessarily be true in all multithreaded scenarios, but for
-            // finishedStrokes,
-            // items are only ever removed from it by the UI thread, and the render thread only ever
-            // adds
-            // items to it, so there is not another thread that could have come in and removed items
-            // between isEmpty and poll.
-            val (strokeId, finishedStroke) = checkNotNull(threadSharedState.finishedStrokes.poll())
-            val strokeState = uiThreadState.currentCohort[strokeId]
-            if (strokeState is UiStrokeState.InputCompleted) {
-                uiThreadState.currentCohort[strokeId] = UiStrokeState.Finished(finishedStroke)
+            val finishedStroke =
+                checkNotNull(threadSharedState.finishedStrokes.poll()) {
+                    "finishedStrokes should only be polled on the UI thread, so it should not be empty here."
+                }
+            if (
+                uiThreadState.currentCohort[finishedStroke.strokeId] is UiStrokeState.InputCompleted
+            ) {
+                uiThreadState.currentCohort[finishedStroke.strokeId] =
+                    UiStrokeState.Finished(finishedStroke)
             }
         }
 
         // Check that all strokes currently being rendered are either canceled or finished (input
         // complete and fully generated) and ready to be handed off.
-        val handingOff = mutableMapOf<InProgressStrokeId, FinishedStroke>()
-        for ((strokeId, strokeState) in uiThreadState.currentCohort) {
+        var someStrokesAreFinished = false
+        for (strokeState in uiThreadState.currentCohort.values) {
             when (strokeState) {
                 is UiStrokeState.Started,
                 is UiStrokeState.InputCompleted -> return StillInProgress
                 is UiStrokeState.Canceled -> continue
-                is UiStrokeState.Finished -> handingOff[strokeId] = strokeState.finishedStroke
+                is UiStrokeState.Finished<*> -> someStrokesAreFinished = true
             }
         }
-        if (handingOff.isEmpty()) {
+        if (!someStrokesAreFinished) {
             return NoneInProgressOrFinished
         }
-        if (uiThreadState.cohortHandoffPaused) {
+        if (threadSharedState.allowHandoffs.isPaused()) {
             return NoneInProgressButHandoffsPaused
         }
         if (
@@ -793,21 +806,32 @@ internal class InProgressStrokesManager(
         ) {
             return NoneInProgressButDebouncing
         }
-        uiThreadState.currentCohort.clear()
-        return Finished(handingOff)
+
+        return Finished(
+                buildList {
+                    for (strokeState in uiThreadState.currentCohort.values) {
+                        if (strokeState is UiStrokeState.Finished<*>) {
+                            @Suppress("UNCHECKED_CAST")
+                            add(
+                                (strokeState as UiStrokeState.Finished<CompletedShapeT>)
+                                    .finishedStroke
+                            )
+                        }
+                    }
+                }
+            )
+            .also { uiThreadState.currentCohort.clear() }
     }
 
     @UiThread
     private fun onEndOfStrokeCohortCheck() {
-        val claimStrokesToHandOffResult = claimStrokesToHandOff()
-        if (claimStrokesToHandOffResult !is Finished) {
-            if (claimStrokesToHandOffResult is NoneInProgressButDebouncing) {
-                potentialEndOfStrokeCohort()
-            }
-            return
+        when (val result = claimStrokesToHandOff()) {
+            is Finished<*> ->
+                @Suppress("UNCHECKED_CAST")
+                handOffFinishedStrokes((result as Finished<CompletedShapeT>).finishedCohort)
+            is NoneInProgressButDebouncing -> potentialEndOfStrokeCohort()
+            else -> {}
         }
-
-        handOffFinishedStrokes(claimStrokesToHandOffResult.finishedStrokes)
     }
 
     @UiThread
@@ -822,8 +846,8 @@ internal class InProgressStrokesManager(
     /**
      * Request that the value passed to [setHandoffDebounceDurationMs] be temporarily ignored to
      * hand off rendering to the client's dry layer via
-     * [InProgressStrokesFinishedListener.onStrokesFinished]. Afterwards, handoff debouncing will
-     * resume as normal.
+     * [androidx.ink.authoring.InProgressStrokesFinishedListener.onStrokesFinished]. Afterwards,
+     * handoff debouncing will resume as normal.
      *
      * This API is experimental for now, as one approach to address start-of-stroke latency for fast
      * subsequent strokes.
@@ -834,20 +858,24 @@ internal class InProgressStrokesManager(
         potentialEndOfStrokeCohort()
     }
 
+    internal fun canSynchronouslyWaitForFlush(): Boolean =
+        inProgressStrokesRenderHelper.canSynchronouslyWaitForFlush
+
     /**
      * Make a best effort to finish or cancel all in-progress strokes, and if appropriate, execute
      * [Listener.onAllStrokesFinished] synchronously. This must be called on the UI thread, and
      * blocks it, so this should only be used in synchronous shutdown scenarios.
      *
-     * @return `true` if and only if the flush completed successfully. Note that not all
-     *   configurations support flushing, and flushing is best effort, so this is not guaranteed to
-     *   return `true`.
+     * @param timeout the maximum time to wait for the flush to complete.
+     * @param timeoutUnit the unit of time for the timeout.
+     * @param cancelAllInProgress if true, cancel all in-progress strokes. Otherwise, finish them.
+     * @return Whether the flush completed. Flushing is best effort, and finishing in-progress
+     *   shapes synchronously is not supported for all Android versions, so this is not guaranteed
+     *   to return `true`. Note that all strokes will be canceled or finished regardless of the
+     *   return value.
      */
     @UiThread
     fun flush(timeout: Long, timeoutUnit: TimeUnit, cancelAllInProgress: Boolean): Boolean {
-        if (!inProgressStrokesRenderHelper.supportsFlush) {
-            return false
-        }
         // cancelStroke/finishStroke will modify uiThreadState.currentCohort, so make a copy to
         // avoid
         // a ConcurrentModificationException.
@@ -860,28 +888,64 @@ internal class InProgressStrokesManager(
                 finishStrokeInternal(
                     input = null,
                     strokeId = id,
-                    forceFullGeneration = true,
+                    forceCompletion = true,
                     endTimeMs = getSystemElapsedTimeNanos() / 1_000_000,
                 )
             }
         }
+
+        // Test-only hook to allow waiting for flush to be in progress on the UI thread when set.
+        countDownWhenFlushInProgressTestLatch?.countDown()
+
+        val startTimeNanos = getSystemElapsedTimeNanos()
         if (
-            threadSharedState.inputActions.isNotEmpty() ||
-                threadSharedState.currentlyHandlingActions.get()
+            inProgressStrokesRenderHelper.canSynchronouslyWaitForFlush &&
+                (threadSharedState.actions.isNotEmpty() ||
+                    threadSharedState.currentlyHandlingActions.get())
         ) {
-            threadSharedState.pauseInputs.set(false)
+            // Barrel through starting to process the next cohort, even if it would have otherwise
+            // waited
+            // for HWUI handoff to complete, and queue a flush action to the render thread.
+            threadSharedState.newCohortStartAwaitingHandoff.set(false)
             val flushAction = FlushAction()
-            queueInputToRenderThread(flushAction)
-            blockingAwait(flushAction.flushCompleted, timeout, timeoutUnit)
+            queueActionToRenderThread(flushAction)
+            // Wait for all previous actions to be processed.
+            flushAction.flushCompleted.await(timeout, timeoutUnit)
         }
+
+        // If waiting won't help or a handoff is definitely not needed, skip the wait.
+        if (
+            inProgressStrokesRenderHelper.canSynchronouslyWaitForFlush &&
+                !uiThreadState.currentCohort.values.all { it is UiStrokeState.Canceled }
+        ) {
+            // If the InProgressStrokesRenderHelper has ordered us to wait for it to prepare for new
+            // handoffs (e.g. while clearing a newly inactive buffer in the background), wait the
+            // rest
+            // of the timeout (if any remains) for that to complete.
+            val timeElapsedNanos = getSystemElapsedTimeNanos() - startTimeNanos
+            if (
+                !threadSharedState.allowHandoffs.awaitResume(
+                    timeoutUnit.toNanos(timeout) - timeElapsedNanos,
+                    TimeUnit.NANOSECONDS,
+                )
+            ) {
+                // Handoffs are needed but still not possible.
+                return false
+            }
+        }
+        // At this point, if we've successfully awaited the unpause, no one else can start another
+        // handoff with us blocking the UI thread. If we timed out, we probably won't be able to
+        // finish
+        // the flush synchronously, but try in case a handoff is not needed or things complete just
+        // in time.
         uiThreadState.cohortHandoffAsap = true
-        uiThreadState.cohortHandoffPaused = false
         // It's unlikely that the result would be anything other than Finished, but it's possible
         // with
         // a short enough timeout.
-        return when (val claimStrokesToHandOffResult = claimStrokesToHandOff()) {
-            is Finished -> {
-                handOffFinishedStrokes(claimStrokesToHandOffResult.finishedStrokes)
+        return when (val result = claimStrokesToHandOff()) {
+            is Finished<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                handOffFinishedStrokes((result as Finished<CompletedShapeT>).finishedCohort)
                 true
             }
             // None left in progress, so the flush completed successfully, but nothing to hand off.
@@ -893,70 +957,72 @@ internal class InProgressStrokesManager(
 
     @UiThread
     fun sync(timeout: Long, timeoutUnit: TimeUnit) {
-        if (!inProgressStrokesRenderHelper.supportsFlush) {
+        if (!inProgressStrokesRenderHelper.canSynchronouslyWaitForFlush) {
             return
         }
         val syncAction = SyncAction()
-        queueInputToRenderThread(syncAction)
-        blockingAwait(syncAction.syncCompleted, timeout, timeoutUnit)
+        queueActionToRenderThread(syncAction)
+        syncAction.syncCompleted.await(timeout, timeoutUnit)
     }
 
     @UiThread
-    override fun setPauseStrokeCohortHandoffs(paused: Boolean) {
-        val oldPaused = uiThreadState.cohortHandoffPaused
-        uiThreadState.cohortHandoffPaused = paused
-        if (oldPaused && !paused) {
+    override fun pauseStrokeCohortHandoffs() {
+        assertOnUiThread()
+        threadSharedState.allowHandoffs.pause()
+    }
+
+    @AnyThread
+    override fun resumeStrokeCohortHandoffs() {
+        if (threadSharedState.allowHandoffs.resume()) {
             potentialEndOfStrokeCohort()
         }
     }
 
     @UiThread
-    override fun onStrokeCohortHandoffToHwui(
-        strokeCohort: Map<InProgressStrokeId, FinishedStroke>
-    ) {
+    override fun onStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>) {
         for (listener in uiThreadState.listeners) {
-            listener.onAllStrokesFinished(strokeCohort)
+            listener.onAllStrokesFinished(cohort)
         }
-        inProgressStrokeCounter?.let { counter ->
-            repeat(strokeCohort.size) { counter.decrement() }
-        }
+        inProgressStrokeCounter?.let { counter -> repeat(cohort.size) { counter.decrement() } }
     }
 
     @UiThread
     override fun onStrokeCohortHandoffToHwuiComplete() {
-        threadSharedState.pauseInputs.set(false)
+        threadSharedState.newCohortStartAwaitingHandoff.set(false)
         inProgressStrokesRenderHelper.requestDraw()
     }
 
     /**
-     * Queue the [inputAction] to the render thread, then request a frontbuffer redraw. Frontbuffer
-     * redraws consume all queued input actions.
+     * Queue the [action] to the render thread, then request a frontbuffer redraw. Frontbuffer
+     * redraws consume all queued actions.
      */
     @UiThread
-    private fun queueInputToRenderThread(input: InputAction) {
-        threadSharedState.inputActions.offer(input)
-        if (!threadSharedState.pauseInputs.get()) {
+    private fun queueActionToRenderThread(action: Action) {
+        threadSharedState.actions.offer(action)
+        if (!threadSharedState.newCohortStartAwaitingHandoff.get()) {
             inProgressStrokesRenderHelper.requestDraw()
         }
     }
 
     @WorkerThread
-    private fun handleAction(action: InputAction, systemElapsedTimeNanos: Long) {
+    private fun handleAction(action: Action, systemElapsedTimeNanos: Long) {
         assertOnRenderThread()
         when (action) {
-            is StartAction -> handleStartStroke(action, systemElapsedTimeNanos)
+            is StartAction<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                handleStartStroke(action as StartAction<ShapeSpecT>, systemElapsedTimeNanos)
+            }
             is AddAction -> handleAddToStroke(action)
             is FinishAction -> handleFinishStroke(action, systemElapsedTimeNanos)
             is CancelAction -> handleCancelStroke(action)
-            is MotionEventToViewTransformAction -> handleMotionEventToViewTransformAction(action)
-            is ClearAction -> handleClear()
-            is FlushAction -> handleFlushAction(action)
+            is MotionEventToViewTransformAction -> handleMotionEventToViewTransform(action)
+            is StartCohortAction -> handleStartCohort()
+            is FlushAction -> handleFlush(action)
             // Nothing to do before drawing for [AnimationFrameAction]. Similar to [AddAction],
             // rather
             // than updating the shape immediately, we wait to update the shape until we have
             // handled all
-            // the actions in threadSharedState.inputActions. This is being done to reduce that
-            // amount of
+            // the actions in threadSharedState.actions. This is being done to reduce that amount of
             // updateShape calls in case there are input points arriving around the same time as
             // animation
             // frame actions.
@@ -966,105 +1032,53 @@ internal class InProgressStrokesManager(
     }
 
     @WorkerThread
-    private fun handleActionAfterDraw(action: InputAction) {
+    private fun handleActionAfterDraw(action: Action) {
         assertOnRenderThread()
         when (action) {
-            is FinishAction -> handleFinishStrokeAfterDraw()
             is AnimationFrameAction -> handleAnimationFrameAfterDraw()
             is CancelAction -> handleCancelStrokeAfterDraw(action)
-            is SyncAction -> handleSyncActionAfterDraw(action)
+            is SyncAction -> handleSyncAfterDraw(action)
             // Nothing to do after drawing for the other actions.
             else -> {}
         }
     }
 
-    /**
-     * Enqueue the [realInputs] and [predictedInputs] to the [stroke].
-     *
-     * If the inputs are invalid, log a warning and return.
-     *
-     * TODO(b/378506113): Throw an exception instead of logging a warning.
-     */
-    private fun enqueueInputs(
-        stroke: InProgressStroke,
-        realInputs: StrokeInputBatch,
-        predictedInputs: StrokeInputBatch,
+    private fun RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>.updateShape(
+        systemElapsedTimeNanos: Long,
+        forceCompletion: Boolean = false,
     ) {
-        try {
-            stroke.enqueueInputs(realInputs, predictedInputs)
-        } catch (e: RuntimeException) {
-            Log.w(
-                InProgressStrokesManager::class.simpleName,
-                "Error during InProgressStroke.enqueueInputs",
-                e,
-            )
+        val systemElapsedTimeMillis = systemElapsedTimeNanos / 1_000_000L
+        inProgressShape.update(shapeDurationMillis = systemElapsedTimeMillis - startEventTimeMillis)
+        if (forceCompletion) {
+            inProgressShape.forceCompletion()
         }
-    }
-
-    /**
-     * Update the shape of the [stroke] using the elapsed time since the stroke started.
-     *
-     * If the update fails, log a warning and return.
-     *
-     * TODO(b/306361370): Throw here once input is more sanitized.
-     */
-    private fun RenderThreadStrokeState.updateShape(systemElapsedTimeNanos: Long) {
-        runCatching {
-                inProgressStroke.updateShape(
-                    systemElapsedTimeNanos / 1_000_000L - startEventTimeMillis
-                )
-            }
-            .exceptionOrNull()
-            ?.let {
-                Log.w(
-                    InProgressStrokesManager::class.simpleName,
-                    "Error during InProgressStroke.updateShape",
-                    it,
-                )
-            }
     }
 
     /** Handle an action that was initiated by [startStroke]. */
     @WorkerThread
-    private fun handleStartStroke(action: StartAction, systemElapsedTimeNanos: Long) {
+    private fun handleStartStroke(action: StartAction<ShapeSpecT>, systemElapsedTimeNanos: Long) {
         assertOnRenderThread()
         val strokeToMotionEventTransform =
-            AndroidMatrix().apply { action.motionEventToStrokeTransform.invert(this) }
-        val strokeState = run {
-            val stroke = renderThreadState.inProgressStrokePool.obtain()
-            val seed = renderThreadState.noiseSeedGenerator.nextInt()
-            @OptIn(ExperimentalInkCustomBrushApi::class)
-            stroke.start(action.brush, noiseSeed = seed)
-            enqueueInputs(
-                stroke,
-                MutableStrokeInputBatch().apply { runCatching { add(action.strokeInput) } },
-                ImmutableStrokeInputBatch.EMPTY,
-            )
+            Matrix().apply { action.motionEventToStrokeTransform.invert(this) }
+        val shapeSpec = action.shapeSpec
+        val inProgressShape = renderThreadState.inProgressStrokePool.obtain(shapeSpec)
+        val strokeState =
             RenderThreadStrokeState(
-                    inProgressStroke = stroke,
-                    strokeToMotionEventTransform = strokeToMotionEventTransform,
-                    startEventTimeMillis = action.startEventTimeMillis,
-                    textureAnimationDurationMillis =
-                        action.brush.family.computeTextureAnimationDurationMillis(),
-                    lastDrawnSystemElapsedTimeMillis = Long.MIN_VALUE,
-                )
-                .apply {
-                    // Use the current time rather than action.startEventTimeMillis, because some
-                    // time may
-                    // have elapsed as part of input processing and the current time will be more
-                    // accurate for
-                    // shape generation and animation effects.
-                    updateShape(systemElapsedTimeNanos)
-                }
-        }
+                inProgressShape = inProgressShape,
+                strokeToMotionEventTransform = strokeToMotionEventTransform,
+                startEventTimeMillis = action.startEventTimeMillis,
+            )
+        inProgressShape.start(shapeSpec, action.startEventTimeMillis)
+        inProgressShape.enqueueInputs(
+            MutableStrokeInputBatch().apply { runCatching { add(action.strokeInput) } },
+            ImmutableStrokeInputBatch.EMPTY,
+        )
+        // Use the current time rather than action.startEventTimeMillis, because some time may
+        // have elapsed as part of input processing and the current time will be more accurate for
+        // shape generation and animation effects.
+        strokeState.updateShape(systemElapsedTimeNanos)
         threadSharedState.strokeInputPool.recycle(action.strokeInput)
         renderThreadState.toDrawStrokes[action.strokeId] = strokeState
-        if (
-            strokeState.inProgressStroke.changesWithTime() ||
-                strokeState.textureAnimationDurationMillis != null
-        ) {
-            postToUiThread(::scheduleAnimationFrameAction)
-        }
         action.latencyData?.let { renderThreadState.latencyDatas.add(it) }
     }
 
@@ -1074,30 +1088,38 @@ internal class InProgressStrokesManager(
         assertOnRenderThread()
         val strokeState = renderThreadState.toDrawStrokes[action.strokeId]
         checkNotNull(strokeState) { "Stroke state with ID ${action.strokeId} was not found." }
-        check(!renderThreadState.generatedStrokes.contains(action.strokeId)) {
+        check(strokeState.status is RenderThreadStrokeState.Started) {
             "Stroke with ID ${action.strokeId} was already finished."
         }
-        check(!renderThreadState.canceledStrokes.contains(action.strokeId)) {
+        check(!strokeState.inProgressShape.isCanceled()) {
             "Stroke with ID ${action.strokeId} was canceled."
         }
-        strokeState.inProgressStroke.apply {
-            enqueueInputs(this, action.realInputs, action.predictedInputs)
-            // Rather than updating the shape immediately, we enqueue the inputs and wait to update
-            // the
-            // shape until we have handled all the inputs in threadSharedState.inputActions. This is
-            // being done to reduce that amount of updateShape calls.
-        }
+        strokeState.inProgressShape.enqueueInputs(action.realInputs, action.predictedInputs)
 
-        // Recycle the AddAction.
-        action.realInputs.clear()
-        action.predictedInputs.clear()
-        while (!action.realInputLatencyDatas.isEmpty()) {
-            renderThreadState.latencyDatas.add(action.realInputLatencyDatas.removeFirst())
+        renderThreadState.latencyDatas.addAll(action.realInputLatencyDatas)
+        renderThreadState.latencyDatas.addAll(action.predictedInputLatencyDatas)
+        threadSharedState.addActionPool.recycle(action)
+    }
+
+    @WorkerThread
+    private fun maybeDryStroke(
+        strokeId: InProgressStrokeId,
+        strokeState: RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>,
+    ) {
+        val completedShape = strokeState.inProgressShape.getCompletedShape()
+        if (completedShape == null) {
+            strokeState.status = RenderThreadStrokeState.Drying
+        } else {
+            strokeState.status = RenderThreadStrokeState.AwaitingHandoff
+            threadSharedState.finishedStrokes.add(
+                FinishedStroke(
+                    strokeId = strokeId,
+                    stroke = completedShape,
+                    strokeToViewTransform = Matrix(renderThreadState.strokeToViewTransform),
+                )
+            )
+            renderThreadState.maybeCompletedCohortThisDraw = true
         }
-        while (!action.predictedInputLatencyDatas.isEmpty()) {
-            renderThreadState.latencyDatas.add(action.predictedInputLatencyDatas.removeFirst())
-        }
-        threadSharedState.addActionPool.offer(action)
     }
 
     /** Handle an action that was initiated by [finishStroke]. */
@@ -1106,43 +1128,30 @@ internal class InProgressStrokesManager(
         assertOnRenderThread()
         val strokeState = renderThreadState.toDrawStrokes[action.strokeId]
         checkNotNull(strokeState) { "Stroke state with ID ${action.strokeId} was not found." }
-        check(!renderThreadState.generatedStrokes.contains(action.strokeId)) {
+        check(strokeState.status is RenderThreadStrokeState.Started) {
             "Stroke with ID ${action.strokeId} was already finished."
         }
-        check(!renderThreadState.canceledStrokes.contains(action.strokeId)) {
+        check(!strokeState.inProgressShape.isCanceled()) {
             "Stroke with ID ${action.strokeId} was canceled."
         }
+        val inProgressShape = strokeState.inProgressShape
+        check(!inProgressShape.isCanceled()) { "Stroke with ID ${action.strokeId} was canceled." }
         fillStrokeToViewTransform(strokeState)
-        val copiedStrokeToViewTransform =
-            AndroidMatrix().apply { set(renderThreadState.strokeToViewTransform) }
         // Save the stroke to be handed off.
         if (action.strokeInput != null) {
-            enqueueInputs(
-                strokeState.inProgressStroke,
+            inProgressShape.enqueueInputs(
                 MutableStrokeInputBatch().apply { runCatching { add(action.strokeInput) } },
                 ImmutableStrokeInputBatch.EMPTY,
             )
         }
+        // InProgressShape contract specifies that `finishInput` is called between the last
+        // `enqueueInputs` and before the subsequent `update`.
+        inProgressShape.finishInput()
         // We update the finished stroke immediately after enqueueing because we know we are not
         // going
         // to be receiving any other inputs.
-        strokeState.updateShape(
-            if (action.forceFullGeneration) Long.MAX_VALUE else systemElapsedTimeNanos
-        )
-        strokeState.inProgressStroke.finishInput()
-        if (strokeState.inProgressStroke.isUpdateNeeded()) {
-            renderThreadState.dryingStrokes.add(action.strokeId)
-            postToUiThread(::scheduleAnimationFrameAction)
-        } else {
-            renderThreadState.generatedStrokes[action.strokeId] =
-                FinishedStroke(
-                    stroke = strokeState.inProgressStroke.toImmutable(),
-                    copiedStrokeToViewTransform,
-                )
-            if (strokeState.textureAnimationDurationMillis != null) {
-                postToUiThread(::scheduleAnimationFrameAction)
-            }
-        }
+        strokeState.updateShape(systemElapsedTimeNanos, forceCompletion = action.forceCompletion)
+        maybeDryStroke(action.strokeId, strokeState)
         if (action.strokeInput != null) {
             threadSharedState.strokeInputPool.recycle(action.strokeInput)
         }
@@ -1151,87 +1160,39 @@ internal class InProgressStrokesManager(
         // drawing.
     }
 
-    @WorkerThread
-    private fun handleFinishStrokeAfterDraw() {
-        moveGeneratedStrokesToFinishedStrokes()
-    }
-
-    /**
-     * Arranges to queue an [AnimationFrameAction] on the next animation frame. If this is called
-     * multiple times between animation frames, only one [AnimationFrameAction] will be queued.
-     */
-    @UiThread
-    private fun scheduleAnimationFrameAction() {
-        postOnAnimation(uiThreadState.queueAnimationFrameActionOnce.setUp())
-    }
-
     /**
      * Queues an [AnimationFrameAction] to the render thread. This is the implementation for
-     * [uiThreadState.queueAnimationFrameActionOnce]; use that instead of calling this directly.
+     * `queueAnimationFrameActionOnce` in [renderThreadState]; use that instead of calling this
+     * directly.
      */
     @UiThread
     private fun queueAnimationFrameAction() {
-        queueInputToRenderThread(AnimationFrameAction)
+        queueActionToRenderThread(AnimationFrameAction)
     }
 
     @WorkerThread
     private fun handleAnimationFrameAfterDraw() {
         for ((strokeId, strokeState) in renderThreadState.toDrawStrokes) {
-            if (
-                renderThreadState.dryingStrokes.contains(strokeId) &&
-                    !strokeState.inProgressStroke.isUpdateNeeded()
-            ) {
-                // The stroke is now fully dry - remove it from [dryingStrokes] and mark it
-                // finished.
-                renderThreadState.dryingStrokes.remove(strokeId)
-                fillStrokeToViewTransform(strokeState)
-                val copiedStrokeToViewTransform =
-                    AndroidMatrix().apply { set(renderThreadState.strokeToViewTransform) }
-                renderThreadState.generatedStrokes[strokeId] =
-                    FinishedStroke(
-                        stroke = strokeState.inProgressStroke.toImmutable(),
-                        copiedStrokeToViewTransform,
-                    )
+            if (strokeState.status is RenderThreadStrokeState.Drying) {
+                maybeDryStroke(strokeId, strokeState)
             }
         }
-        if (
-            renderThreadState.toDrawStrokes.values.any {
-                it.inProgressStroke.changesWithTime() || it.textureAnimationDurationMillis != null
-            }
-        ) {
-            postToUiThread(::scheduleAnimationFrameAction)
-        }
-        moveGeneratedStrokesToFinishedStrokes()
-    }
-
-    /**
-     * Moves ownership of the generated strokes from the render thread to the UI thread, and
-     * notifies the UI thread of the potential end of this stroke cohort, but keeps the in-progress
-     * version of those strokes in [toDrawStrokes] so they can continue to be drawn as wet strokes
-     * until the UI thread actually ends this stroke cohort.
-     */
-    @WorkerThread
-    private fun moveGeneratedStrokesToFinishedStrokes() {
-        threadSharedState.finishedStrokes.addAll(renderThreadState.generatedStrokes.asIterable())
-        renderThreadState.generatedStrokes.clear()
-        postToUiThread(::potentialEndOfStrokeCohort)
     }
 
     /** Handle an action that was initiated by [cancelStroke]. */
     @WorkerThread
     private fun handleCancelStroke(action: CancelAction) {
         assertOnRenderThread()
-        checkNotNull(renderThreadState.toDrawStrokes[action.strokeId]) {
-            "Stroke state with ID ${action.strokeId} was not found."
+        val strokeState =
+            checkNotNull(renderThreadState.toDrawStrokes[action.strokeId]) {
+                "Stroke state with ID ${action.strokeId} was not found."
+            }
+        check(strokeState.status is RenderThreadStrokeState.Started) {
+            "Stroke with ID ${action.strokeId} was already finished."
         }
-        // Mark the stroke as canceled just for the draw step so it can be cleared, and then forget
-        // about it entirely in handleCancelStrokeAfterDraw.
-        renderThreadState.canceledStrokes.add(action.strokeId)
-        // If it was already finished but not yet handed off, can still cancel it.
-        renderThreadState.generatedStrokes.remove(action.strokeId)
+        strokeState.inProgressShape.cancel()
         // Don't save the stroke to be handed off as in handleFinishStroke.
         renderThreadState.latencyDatas.add(action.latencyData)
-        // Clean up state and possibly send callbacks after drawing.
     }
 
     @WorkerThread
@@ -1239,69 +1200,45 @@ internal class InProgressStrokesManager(
         // Remove its state since we won't be adding to it anymore and it no longer should be drawn.
         val removedStrokeState = renderThreadState.toDrawStrokes.remove(action.strokeId)
         if (removedStrokeState != null) {
-            renderThreadState.inProgressStrokePool.recycle(removedStrokeState.inProgressStroke)
+            renderThreadState.inProgressStrokePool.recycle(removedStrokeState.inProgressShape)
         }
-
         inProgressStrokeCounter?.decrement()
-
-        postToUiThread(::potentialEndOfStrokeCohort)
+        renderThreadState.maybeCompletedCohortThisDraw = true
     }
 
-    @UiThread
+    @AnyThread
     private fun potentialEndOfStrokeCohort() {
         // This may be the end of the current cohort of strokes, but wait until all inputs have been
         // processed in a HWUI frame (in onAnimation) to ensure that any strokes that are present in
         // the
         // same frame are considered part of the same cohort.
-        postOnAnimation(uiThreadState.checkEndOfStrokeCohortOnce.setUp())
+        postOnAnimation(threadSharedState.checkEndOfStrokeCohortOnce.setUp())
     }
 
     /** Handle an action that was initiated by setting [motionEventToViewTransform]. */
     @WorkerThread
-    private fun handleMotionEventToViewTransformAction(action: MotionEventToViewTransformAction) {
+    private fun handleMotionEventToViewTransform(action: MotionEventToViewTransformAction) {
         assertOnRenderThread()
         renderThreadState.motionEventToViewTransform.set(action.motionEventToViewTransform)
     }
 
     @WorkerThread
-    private fun handleClear() {
+    private fun handleStartCohort() {
         assertOnRenderThread()
-        val cohortSize = renderThreadState.toDrawStrokes.size
-        // Recycle instances of InProgressStroke.
         for (strokeState in renderThreadState.toDrawStrokes.values) {
-            renderThreadState.inProgressStrokePool.recycle(strokeState.inProgressStroke)
+            renderThreadState.inProgressStrokePool.recycle(strokeState.inProgressShape)
         }
-
-        // Clear state.
         renderThreadState.toDrawStrokes.clear()
-        renderThreadState.generatedStrokes.clear()
-        renderThreadState.canceledStrokes.clear()
-        if (inProgressStrokesRenderHelper.contentsPreservedBetweenDraws) {
-            inProgressStrokesRenderHelper.clear()
-        }
-
-        // Make sure we're holding onto a reasonable number of InProgressStroke instances, as
-        // determined
-        // by recent data on how many are needed simultaneously based on app and user behavior.
-        renderThreadState.recentCohortSizes[renderThreadState.recentCohortSizesNextIndex] =
-            cohortSize
-        renderThreadState.recentCohortSizesNextIndex++
-        if (
-            renderThreadState.recentCohortSizesNextIndex >= renderThreadState.recentCohortSizes.size
-        ) {
-            renderThreadState.recentCohortSizesNextIndex = 0
-        }
-        val maxRecentCohortSize = renderThreadState.recentCohortSizes.max()
-        renderThreadState.inProgressStrokePool.trimToSize(maxRecentCohortSize)
+        inProgressStrokesRenderHelper.startCohort()
     }
 
     @WorkerThread
-    private fun handleFlushAction(action: FlushAction) {
+    private fun handleFlush(action: FlushAction) {
         action.flushCompleted.countDown()
     }
 
     @WorkerThread
-    private fun handleSyncActionAfterDraw(action: SyncAction) {
+    private fun handleSyncAfterDraw(action: SyncAction) {
         action.syncCompleted.countDown()
     }
 
@@ -1310,8 +1247,11 @@ internal class InProgressStrokesManager(
     override fun onDraw() {
         assertOnRenderThread()
         check(renderThreadState.handledActions.isEmpty())
-        // Skip drawing until input is unpaused.
-        if (threadSharedState.pauseInputs.get()) return
+        // When handoffInProgress is true, we are in the middle of handing off the last stroke
+        // cohort
+        // and there's no point in continuing with draws until the call to
+        // onStrokeCohortHandoffToHwuiComplete.
+        if (threadSharedState.newCohortStartAwaitingHandoff.get()) return
         threadSharedState.currentlyHandlingActions.set(true)
         // Consider using the next frame time from Choreographer instead of the current time to
         // better
@@ -1327,34 +1267,35 @@ internal class InProgressStrokesManager(
         // Process all available events in case any were added when the front buffer was not
         // available
         // (before onAttachedToWindow).
-        while (threadSharedState.inputActions.isNotEmpty()) {
-            val nextInputAction = threadSharedState.inputActions.poll()
-            // Even though the isNotEmpty check and the poll are not synchronized with one another
-            // and in
-            // a fully multi-threaded scenario it would be possible for the poll to be null after
-            // checking
-            // isNotEmpty, in our use case the render thread is the only one removing items from
-            // this
-            // queue so there should be no way for the queue to be empty by the time we poll it.
-            checkNotNull(nextInputAction) {
-                "requestRender was called without adding input action."
+        while (threadSharedState.actions.isNotEmpty()) {
+            // Double-check because the handoff can start from the UI thread while we're in the
+            // middle
+            // of a draw. Handoff shouldn't happen while any strokes are in progress, but other
+            // actions
+            // could have already been queued. In that case, we really don't want to jump the gun on
+            // preparing to start the next cohort.
+            if (
+                threadSharedState.actions.peek() is StartCohortAction &&
+                    threadSharedState.newCohortStartAwaitingHandoff.get()
+            ) {
+                break
             }
-            handleAction(nextInputAction, systemElapsedTimeNanos)
-            renderThreadState.handledActions.add(nextInputAction)
+            val action = threadSharedState.actions.poll()
+            checkNotNull(action) { "Actions should only be removed by onDraw." }
+            handleAction(action, systemElapsedTimeNanos)
+            renderThreadState.handledActions.add(action)
         }
         for (strokeState in renderThreadState.toDrawStrokes.values) {
-            val inProgressStroke = strokeState.inProgressStroke
-            if (inProgressStroke.isUpdateNeeded()) {
-                strokeState.updateShape(systemElapsedTimeNanos)
-            }
+            // TODO(b/486162363) - This calls update every time. So it misses opportunities to check
+            // if
+            // an update is really necessary and not call update, but it also avoids doing duplicate
+            // work
+            // if update itself does that, which it arguably should.
+            strokeState.updateShape(systemElapsedTimeNanos)
         }
         if (inProgressStrokesRenderHelper.contentsPreservedBetweenDraws) {
-            for ((strokeIdToScissor, strokeStateToScissor) in renderThreadState.toDrawStrokes) {
-                fillUpdatedStrokeRegion(
-                    strokeIdToScissor,
-                    strokeStateToScissor,
-                    systemElapsedTimeNanos,
-                )
+            for (strokeStateToScissor in renderThreadState.toDrawStrokes.values) {
+                strokeStateToScissor.fillUpdatedStrokeRegion()
                 val updatedRegionBox = renderThreadState.updatedRegion.box
                 if (updatedRegionBox != null) {
                     renderThreadState.scratchRect.populateFrom(updatedRegionBox)
@@ -1372,10 +1313,7 @@ internal class InProgressStrokesManager(
                     // rectangle where B was previously drawn and only draw A in that space - but
                     // that part of
                     // B needs to be filled in again.
-                    drawAllStrokesInModifiedRegion(
-                        renderThreadState.scratchRect,
-                        systemElapsedTimeNanos,
-                    )
+                    drawAllStrokesInModifiedRegion(renderThreadState.scratchRect)
                 }
             }
         } else {
@@ -1392,33 +1330,44 @@ internal class InProgressStrokesManager(
                 Float.NEGATIVE_INFINITY,
                 Float.POSITIVE_INFINITY,
             )
-            drawAllStrokesInModifiedRegion(renderThreadState.scratchRect, systemElapsedTimeNanos)
+            drawAllStrokesInModifiedRegion(renderThreadState.scratchRect)
         }
     }
 
-    private fun drawAllStrokesInModifiedRegion(
-        modifiedRegion: MutableBox,
-        systemElapsedTimeNanos: Long,
-    ) {
+    private fun drawAllStrokesInModifiedRegion(modifiedRegion: MutableBox) {
         inProgressStrokesRenderHelper.prepareToDrawInModifiedRegion(modifiedRegion)
         // Iteration over MutableMap is guaranteed to be in insertion order, which results in proper
         // z-order for drawing.
-        for ((strokeIdToDraw, strokeStateToDraw) in renderThreadState.toDrawStrokes) {
+        for (strokeStateToDraw in renderThreadState.toDrawStrokes.values) {
             // renderThreadState.strokeStates still contains any canceled strokes so that the space
-            // they occupied can be cleared, but don't draw them again here. The canceled strokes
-            // will
-            // be removed from renderThreadState.strokeStates after drawing is finished.
-            if (renderThreadState.canceledStrokes.contains(strokeIdToDraw)) continue
-            drawStrokeState(strokeStateToDraw, systemElapsedTimeNanos)
+            // they occupied (as reported by InProgressShape.getUpdatedRegion after calling
+            // [InProgressShape.cancel]) is cleared and redrawn with other non-canceled strokes.
+            // This
+            // conditional `continue` prevents canceled strokes from being drawn here. The canceled
+            // strokes will be removed from renderThreadState.strokeStates after drawing is
+            // finished.
+            if (strokeStateToDraw.inProgressShape.isCanceled()) continue
+            drawStrokeState(strokeStateToDraw)
         }
         inProgressStrokesRenderHelper.afterDrawInModifiedRegion()
     }
 
     @WorkerThread
     override fun onDrawComplete() {
-        renderThreadState.handledActions.forEach(this::handleActionAfterDraw)
+        for (action in renderThreadState.handledActions) {
+            handleActionAfterDraw(action)
+        }
         renderThreadState.handledActions.clear()
         threadSharedState.currentlyHandlingActions.set(false)
+        if (renderThreadState.maybeCompletedCohortThisDraw) {
+            if (renderThreadState.toDrawStrokes.values.all { it.isAwaitingHandoff() }) {
+                potentialEndOfStrokeCohort()
+            }
+            renderThreadState.maybeCompletedCohortThisDraw = false
+        }
+        if (renderThreadState.toDrawStrokes.values.any { it.needsAnimationFrame() }) {
+            postOnAnimation(renderThreadState.queueAnimationFrameActionOnce.setUp())
+        }
     }
 
     @WorkerThread
@@ -1440,11 +1389,12 @@ internal class InProgressStrokesManager(
     override fun handOffAllLatencyData() {
         threadSharedState.finishedLatencyDatas.addAll(renderThreadState.latencyDatas)
         renderThreadState.latencyDatas.clear()
-        postToUiThread(::handOffLatencyDataToClient)
+        postToUiThread(handOffLatencyDataToClientRunnable)
     }
 
     @UiThread
     private fun handOffLatencyDataToClient() {
+        assertOnUiThread()
         while (!threadSharedState.finishedLatencyDatas.isEmpty()) {
             threadSharedState.finishedLatencyDatas.poll()?.let {
                 try {
@@ -1459,65 +1409,34 @@ internal class InProgressStrokesManager(
     }
 
     /**
-     * Fill [renderThreadState.updatedRegion] with the region that has been updated and must be
-     * redrawn, in stroke coordinates. Return `true` if and only if there is actually a region to be
-     * updated.
+     * Fill `updatedRegion` of a [RenderThreadStrokeState] with the region that has been updated and
+     * must be redrawn, in stroke coordinates. Return `true` if and only if there is actually a
+     * region to be updated.
      */
     @WorkerThread
-    private fun fillUpdatedStrokeRegion(
-        strokeId: InProgressStrokeId,
-        strokeState: RenderThreadStrokeState,
-        systemElapsedTimeNanos: Long,
-    ) {
-        if (
-            renderThreadState.canceledStrokes.contains(strokeId) ||
-                (strokeState.textureAnimationDurationMillis != null &&
-                    systemElapsedTimeNanos / 1_000_000 !=
-                        strokeState.lastDrawnSystemElapsedTimeMillis)
-        ) {
-            // Update this timestamp here rather than in drawStrokeState, because the latter may be
-            // called
-            // multiple times per update if there are multiple in-progress strokes.
-            strokeState.lastDrawnSystemElapsedTimeMillis = systemElapsedTimeNanos / 1_000_000
-            // Redraw the entire space occupied by the stroke. This is necessary for each canceled
-            // stroke
-            // to clear it, and for each texture-animated stroke whose appearance has changed.
-            renderThreadState.updatedRegion.reset()
-            for (coatIndex in 0 until strokeState.inProgressStroke.getBrushCoatCount()) {
-                strokeState.inProgressStroke.populateMeshBounds(
-                    coatIndex,
-                    renderThreadState.scratchEnvelope,
-                )
-                renderThreadState.updatedRegion.add(renderThreadState.scratchEnvelope)
-            }
-        } else {
-            strokeState.inProgressStroke.populateUpdatedRegion(renderThreadState.updatedRegion)
-            strokeState.inProgressStroke.resetUpdatedRegion()
-        }
+    private fun RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>
+        .fillUpdatedStrokeRegion() {
+        renderThreadState.updatedRegion.populateFrom(inProgressShape.getUpdatedRegion())
+        inProgressShape.resetUpdatedRegion()
     }
 
     /** Draw a live stroke. */
     @WorkerThread
     private fun drawStrokeState(
-        strokeState: RenderThreadStrokeState,
-        systemElapsedTimeNanos: Long,
+        strokeState: RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>
     ) {
         fillStrokeToViewTransform(strokeState)
         inProgressStrokesRenderHelper.drawInModifiedRegion(
-            strokeState.inProgressStroke,
+            strokeState.inProgressShape,
             renderThreadState.strokeToViewTransform,
-            if (strokeState.textureAnimationDurationMillis != null) {
-                val systemElapsedTimeMillis: Long = systemElapsedTimeNanos / 1_000_000
-                systemElapsedTimeMillis / strokeState.textureAnimationDurationMillis.toFloat()
-            } else {
-                0f
-            },
         )
     }
 
     /** Calculate and update strokeToViewTransform by combining other transform matrices. */
     @WorkerThread
-    private fun fillStrokeToViewTransform(strokeState: RenderThreadStrokeState) {
+    private fun fillStrokeToViewTransform(
+        strokeState: RenderThreadStrokeState<ShapeSpecT, InProgressShapeT, CompletedShapeT>
+    ) {
         renderThreadState.strokeToViewTransform.set(strokeState.strokeToMotionEventTransform)
         renderThreadState.strokeToViewTransform.postConcat(
             renderThreadState.motionEventToViewTransform
@@ -1526,9 +1445,7 @@ internal class InProgressStrokesManager(
 
     /** Throws an error if not currently executing on the render thread. */
     @WorkerThread
-    private fun assertOnRenderThread() {
-        inProgressStrokesRenderHelper.assertOnRenderThread()
-    }
+    private fun assertOnRenderThread() = inProgressStrokesRenderHelper.assertOnRenderThread()
 
     /**
      * Hands off a cohort of finished strokes to HWUI.
@@ -1537,96 +1454,154 @@ internal class InProgressStrokesManager(
      *   back to front.
      */
     @UiThread
-    private fun handOffFinishedStrokes(finishedStrokes: Map<InProgressStrokeId, FinishedStroke>) {
-        uiThreadState.cohortHandoffAsap = false
-        uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis = Long.MIN_VALUE
-
-        threadSharedState.pauseInputs.set(true)
-        // Queue a clear action to take place as soon as inputs are unpaused, to be sure the clear
-        // happens before any inputs for the new cohort.
-        queueInputToRenderThread(ClearAction)
-        inProgressStrokesRenderHelper.requestStrokeCohortHandoffToHwui(finishedStrokes)
-    }
-
-    @OptIn(ExperimentalInkCustomBrushApi::class)
-    private fun BrushFamily.computeTextureAnimationDurationMillis(): Long? {
-        for (coat in this.coats) {
-            for (layer in coat.paint.textureLayers) {
-                if (layer.animationFrames > 1) {
-                    return layer.animationDurationMillis
+    private fun handOffFinishedStrokes(finishedStrokes: List<FinishedStroke<CompletedShapeT>>) {
+        // Test-only hook to allow blocking the render thread immediately after stroke cohort
+        // handoffs
+        // are paused.
+        awaitAfterStartOfHandoffTestLatch?.apply {
+            inProgressStrokesRenderHelper.executeOnRenderThread {
+                check(await(10, TimeUnit.SECONDS)) {
+                    "Timed out waiting for awaitAfterStartOfHandoffTestLatch"
                 }
             }
         }
-        return null
+
+        uiThreadState.cohortHandoffAsap = false
+        uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis = Long.MIN_VALUE
+
+        threadSharedState.newCohortStartAwaitingHandoff.set(true)
+        // Queue an action to happen before any inputs on the new cohort.
+        queueActionToRenderThread(StartCohortAction)
+        inProgressStrokesRenderHelper.requestStrokeCohortHandoffToHwui(finishedStrokes)
+    }
+
+    private class HandoffPause {
+        private val gate = AtomicReference<CountDownLatch?>(null)
+
+        /** Returns whether handoffs are currently paused. */
+        @AnyThread fun isPaused() = gate.get() != null
+
+        /** Pause handoffs, doing nothing if already paused. */
+        @UiThread
+        fun pause() {
+            // Only pause on the UI thread so we can't get paused again after awaiting unpause
+            // during
+            // flush. Since we might pause on initialization and resume might be preempted, make
+            // pausing
+            // idempotent.
+            assertOnUiThread()
+            // Would be slightly more efficient to use getAndUpdate:
+            // gate.getAndUpdate { it ?: CountDownLatch(1) }
+            // Because that only allocates if it needs to. Can't until our minSdk is 24 (currently
+            // 23).
+            gate.compareAndSet(null, CountDownLatch(1))
+        }
+
+        /** Resumes handoffs if paused. Returns whether handoffs were resumed. */
+        @AnyThread
+        fun resume(): Boolean {
+            val latch = gate.getAndSet(null)
+            if (latch == null) {
+                return false
+            }
+            latch.countDown()
+            return true
+        }
+
+        /**
+         * Waits for the next resume if paused. Returns whether handoffs were resumed within the
+         * given timeout or weren't paused in the first place.
+         */
+        @UiThread
+        fun awaitResume(timeout: Long, unit: TimeUnit): Boolean {
+            // Only await unpause on the UI thread during flush because we can't be paused again
+            // while
+            // that completes synchronously.
+            assertOnUiThread()
+            return gate.get()?.await(timeout, unit) ?: true
+        }
     }
 
     /** An input event that can go in the (future) event queue to hand off across threads. */
-    private sealed interface InputAction
+    private sealed interface Action
 
     /** Represents the data passed to [startStroke]. */
-    private data class StartAction(
+    private class StartAction<ShapeSpecT>(
         val strokeInput: StrokeInput,
         val strokeId: InProgressStrokeId,
-        val motionEventToStrokeTransform: AndroidMatrix,
-        val brush: Brush,
+        val motionEventToStrokeTransform: Matrix,
+        val shapeSpec: ShapeSpecT,
         val latencyData: LatencyData?,
         val startEventTimeMillis: Long,
-    ) : InputAction
+    ) : Action
 
     /**
      * Represents the data passed to [addToStroke]. This is meant to be overwritten for recycling
      * purposes, so it is not immutable like the less frequent start/finish actions.
      */
-    private data class AddAction(
+    private class AddAction(
         val realInputs: MutableStrokeInputBatch = MutableStrokeInputBatch(),
         val predictedInputs: MutableStrokeInputBatch = MutableStrokeInputBatch(),
         var strokeId: InProgressStrokeId = InProgressStrokeId.create(),
         val realInputLatencyDatas: ArrayDeque<LatencyData> = ArrayDeque(initialCapacity = 15),
         val predictedInputLatencyDatas: ArrayDeque<LatencyData> = ArrayDeque(initialCapacity = 15),
-    ) : InputAction
+    ) : Action {
+        fun reset() {
+            realInputs.clear()
+            predictedInputs.clear()
+            realInputLatencyDatas.clear()
+            predictedInputLatencyDatas.clear()
+        }
+    }
+
+    private class AddActionPool {
+        private val pool = ConcurrentLinkedQueue<AddAction>()
+
+        fun obtain(): AddAction {
+            return pool.poll() ?: AddAction()
+        }
+
+        fun recycle(action: AddAction) {
+            action.reset()
+            pool.offer(action)
+        }
+    }
 
     /** Represents the data passed to [finishStroke]. */
-    private data class FinishAction(
+    private class FinishAction(
         val strokeInput: StrokeInput?,
         val strokeId: InProgressStrokeId,
         /**
-         * This forces [InProgressStroke.updateShape] to be called with an effectively infinite
-         * timestamp to ensure that time-based brush effects that can continue after input is
-         * completed are forced to terminate.
+         * Used by [flush] to accelerate time-based behaviors of shapes. See
+         * [androidx.ink.authoring.InProgressShape.update] for more details.
          */
-        val forceFullGeneration: Boolean,
+        val forceCompletion: Boolean,
         val latencyData: LatencyData?,
-    ) : InputAction
+    ) : Action
 
     /**
-     * Indicates that it's time to update the shape and/or appearance of
-     * [renderThreadState.dryingStrokes] and those where
-     * [RenderThreadStrokeState.hasTextureAnimation] is true.
+     * Indicates that it's time to update the shape and/or appearance of drying or animated strokes.
      */
-    private object AnimationFrameAction : InputAction
+    private object AnimationFrameAction : Action
 
     /** Represents the data passed to [cancelStroke]. */
-    private data class CancelAction(
-        val strokeId: InProgressStrokeId,
-        val latencyData: LatencyData,
-    ) : InputAction
+    private class CancelAction(val strokeId: InProgressStrokeId, val latencyData: LatencyData) :
+        Action
 
     /** Represents an update to [motionEventToViewTransform]. */
-    private data class MotionEventToViewTransformAction(
-        val motionEventToViewTransform: AndroidMatrix
-    ) : InputAction
+    private class MotionEventToViewTransformAction(val motionEventToViewTransform: Matrix) : Action
 
     /**
      * Represents a request to clear the data of a stroke cohort being handed off by
      * [onEndOfStrokeCohortCheck].
      */
-    private object ClearAction : InputAction
+    private object StartCohortAction : Action
 
     /**
      * Represents a request to synchronize across threads, so that the UI thread can block on this
      * operation in the action queue being reached and handled by the render thread.
      */
-    private class FlushAction : InputAction {
+    private class FlushAction : Action {
         val flushCompleted = CountDownLatch(1)
     }
 
@@ -1634,7 +1609,7 @@ internal class InProgressStrokesManager(
      * Represents a request to synchronize across threads, so that the UI thread can block on this
      * operation in the action queue being reached and handled by the render thread.
      */
-    private class SyncAction : InputAction {
+    private class SyncAction : Action {
         val syncCompleted = CountDownLatch(1)
     }
 
@@ -1662,7 +1637,7 @@ internal class InProgressStrokesManager(
 
     /**
      * A result of [claimStrokesToHandOff] that indicates that no strokes are currently in progress,
-     * but [setPauseStrokeCohortHandoffs] is currently preventing handoff.
+     * but [pauseStrokeCohortHandoffs] is currently preventing handoff.
      */
     private object NoneInProgressButHandoffsPaused : ClaimStrokesToHandOffResult
 
@@ -1670,41 +1645,60 @@ internal class InProgressStrokesManager(
      * A result of [claimStrokesToHandOff] that indicates that no strokes are currently in progress,
      * and nothing else is preventing handoff of the provided strokes.
      *
-     * @param finishedStrokes The finished strokes (which cannot be empty), with map iteration order
+     * @param finishedCohort The finished strokes (which cannot be empty), with map iteration order
      *   in stroke z-order, from back to front.
      */
-    private data class Finished(
-        @Size(min = 1) val finishedStrokes: Map<InProgressStrokeId, FinishedStroke>
+    private class Finished<CompletedShapeT : Any>(
+        @Size(min = 1) val finishedCohort: List<FinishedStroke<CompletedShapeT>>
     ) : ClaimStrokesToHandOffResult {
         init {
-            require(finishedStrokes.isNotEmpty())
+            require(finishedCohort.isNotEmpty())
         }
     }
 
     /** Holds the state for a given stroke, as needed by the render thread. */
-    private class RenderThreadStrokeState(
-        val inProgressStroke: InProgressStroke,
-        val strokeToMotionEventTransform: AndroidMatrix,
+    private class RenderThreadStrokeState<
+        ShapeSpecT : Any,
+        InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
+        CompletedShapeT : Any,
+    >(
+        val inProgressShape: InProgressShapeT,
+        val strokeToMotionEventTransform: Matrix,
         val startEventTimeMillis: Long,
-        /** Non-null if this stroke has texture animation. */
-        val textureAnimationDurationMillis: Long?,
-        /** The last time that content was drawn into this stroke's modified region. */
-        var lastDrawnSystemElapsedTimeMillis: Long,
-    )
+        var status: Status = RenderThreadStrokeState.Started,
+    ) {
+
+        fun needsAnimationFrame() = status is Drying || inProgressShape.changesWithTime()
+
+        fun isAwaitingHandoff() = status is AwaitingHandoff
+
+        /** Stage of progress of a stroke on the render thread. */
+        sealed interface Status
+
+        /** Stroke has been started but not finished. */
+        object Started : Status
+
+        /** Stroke input has been finished but the final shape is not yet available. */
+        object Drying : Status
+
+        /** Stroke is done and still being drawn before it's handed off. */
+        object AwaitingHandoff : Status
+    }
 
     /**
      * Holds the state for a given stroke in the current cohort, as needed by the UI thread. New
-     * strokes start out in the [Started] state, then move to [InputCompleted] once [finishStroke]
-     * is called, or to [Canceled] if [cancelStroke] is called first. Strokes in the
-     * [InputCompleted] state move to [Finished] once the stroke has been fully generated by the
-     * render thread. Once all strokes in the cohort are either [Canceled] or [Finished], the cohort
-     * can be handed off.
+     * strokes start out in the [UiStrokeState.Started] state, then move to
+     * [UiStrokeState.InputCompleted] once [finishStroke] is called, or to [UiStrokeState.Canceled]
+     * if [cancelStroke] is called first. Strokes in the [UiStrokeState.InputCompleted] state move
+     * to [UiStrokeState.Finished] once the stroke has been fully generated by the render thread.
+     * Once all strokes in the cohort are either [UiStrokeState.Canceled] or
+     * [UiStrokeState.Finished], the cohort can be handed off.
      */
     private sealed interface UiStrokeState {
 
         /** UI thread state for a stroke that has been started, but not yet finished or canceled. */
         class Started(
-            val motionEventToStrokeTransform: AndroidMatrix,
+            val motionEventToStrokeTransform: Matrix,
             val startEventTimeMillis: Long,
             val inputsFromMotionEvents: Boolean,
             val strokeUnitLengthCm: Float,
@@ -1723,6 +1717,7 @@ internal class InProgressStrokesManager(
          * UI thread state for a stroke that has been finished and fully generated, and is ready to
          * be handed off.
          */
-        class Finished(val finishedStroke: FinishedStroke) : UiStrokeState
+        class Finished<CompletedShapeT : Any>(val finishedStroke: FinishedStroke<CompletedShapeT>) :
+            UiStrokeState
     }
 }

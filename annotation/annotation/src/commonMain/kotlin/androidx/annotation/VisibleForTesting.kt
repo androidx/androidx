@@ -37,7 +37,7 @@ public annotation class VisibleForTesting(
      * The visibility the annotated element would have if it did not need to be made visible for
      * testing.
      */
-    @ProductionVisibility val otherwise: Int = PRIVATE
+    @param:ProductionVisibility val otherwise: Int = PRIVATE
 ) {
     public companion object {
         /** The annotated element would have `private` visibility. */

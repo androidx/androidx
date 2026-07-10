@@ -47,17 +47,17 @@ class BanConcurrentHashMapTest :
                         return new ConcurrentHashMap<>();
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/ConcurrentHashMapImportJava.java:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-import java.util.concurrent.ConcurrentHashMap;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/ConcurrentHashMapImportJava.java:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+            import java.util.concurrent.ConcurrentHashMap;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         // Skip FULLY_QUALIFIED mode -- this test specifically deals with importing the class, and
@@ -81,20 +81,20 @@ import java.util.concurrent.ConcurrentHashMap;
                         return new java.util.concurrent.ConcurrentHashMap<>();
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/ConcurrentHashMapUsageJava.java:5: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-    private final Map<?, ?> mMap = new java.util.concurrent.ConcurrentHashMap<>();
-                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-        return new java.util.concurrent.ConcurrentHashMap<>();
-                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/ConcurrentHashMapUsageJava.java:5: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+                private final Map<?, ?> mMap = new java.util.concurrent.ConcurrentHashMap<>();
+                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+                    return new java.util.concurrent.ConcurrentHashMap<>();
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -117,17 +117,17 @@ src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMa
                         return ConcurrentHashMap()
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/ConcurrentHashMapImportKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-import java.util.concurrent.ConcurrentHashMap
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/ConcurrentHashMapImportKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+            import java.util.concurrent.ConcurrentHashMap
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint()
@@ -155,20 +155,20 @@ import java.util.concurrent.ConcurrentHashMap
                         return java.util.concurrent.ConcurrentHashMap()
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/ConcurrentHashMapUsageKotlin.kt:4: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-    private val mMap: Map<*, *> = java.util.concurrent.ConcurrentHashMap<Any, Any>()
-                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-        return java.util.concurrent.ConcurrentHashMap()
-               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/ConcurrentHashMapUsageKotlin.kt:4: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+                private val mMap: Map<*, *> = java.util.concurrent.ConcurrentHashMap<Any, Any>()
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+                    return java.util.concurrent.ConcurrentHashMap()
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint().files(*stubs, input).run().expect(expected)
@@ -191,17 +191,17 @@ src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMa
                         return NewClassName()
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/ConcurrentHashMapUsageAliasKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
-import java.util.concurrent.ConcurrentHashMap as NewClassName
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/ConcurrentHashMapUsageAliasKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+            import java.util.concurrent.ConcurrentHashMap as NewClassName
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint()

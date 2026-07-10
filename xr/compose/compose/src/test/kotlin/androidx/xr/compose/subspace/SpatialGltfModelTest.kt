@@ -1,0 +1,1254 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:Suppress("DEPRECATION")
+
+package androidx.xr.compose.subspace
+
+import android.annotation.TargetApi
+import android.net.Uri
+import android.os.Build
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.SpatialGltfModelStatus.Failed
+import androidx.xr.compose.subspace.SpatialGltfModelStatus.Loaded
+import androidx.xr.compose.subspace.SpatialGltfModelStatus.Loading
+import androidx.xr.compose.subspace.draw.alpha
+import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.fillMaxSize
+import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.requiredSizeIn
+import androidx.xr.compose.subspace.layout.size
+import androidx.xr.compose.subspace.layout.sizeIn
+import androidx.xr.compose.subspace.semantics.testTag
+import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.assertDepthIsEqualTo
+import androidx.xr.compose.testing.assertHeightIsEqualTo
+import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
+import androidx.xr.compose.testing.assertPositionIsEqualTo
+import androidx.xr.compose.testing.assertWidthIsEqualTo
+import androidx.xr.compose.testing.configureFakeSession
+import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.compose.testing.session
+import androidx.xr.compose.unit.DpVolumeSize
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GltfEntity
+import androidx.xr.scenecore.runtime.GltfModelResource
+import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.FakeGltfEntity
+import androidx.xr.scenecore.testing.FakeGltfModelNodeFeature
+import com.google.common.truth.Truth.assertThat
+import java.nio.file.Paths
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlinx.coroutines.CompletableDeferred
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+@TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+class SpatialGltfModelTest {
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
+
+    // --- Test Cases ---
+
+    // 1. Model Loading and Source Types
+    @Test
+    fun spatialModel_fromPath_loadsAndRenders() {
+        // Verify that a model is successfully loaded and rendered when using
+        // `SpatialModelSource.fromPath` with a valid asset path.
+
+        val loadedAssets = mutableListOf<String>()
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        loadedAssets.add(assetName)
+                        return it.loadGltfByAssetName(assetName)
+                    }
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        )
+                )
+            }
+        }
+
+        assertThat(loadedAssets).containsExactly("asset.glb")
+    }
+
+    @Test
+    fun spatialModel_fromUri_loadsAndRenders() {
+        // Verify that a model is successfully loaded and rendered when using
+        // `SpatialModelSource.fromUri`.
+
+        val loadedAssets = mutableListOf<String>()
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        loadedAssets.add(assetName)
+                        return it.loadGltfByAssetName(assetName)
+                    }
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source =
+                                SpatialGltfModelSource.fromUri(
+                                    Uri.parse("http://test.com/asset.glb")
+                                )
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(loadedAssets).containsExactly("http://test.com/asset.glb")
+    }
+
+    @Test
+    fun spatialModel_fromResource_attemptsToLoad() {
+        // Verify that a model attempts to load when using `SpatialGltfModelSource.fromResource`.
+        // We mock the rendering runtime to fail for the resource URI to simulate a failure.
+        lateinit var state: SpatialGltfModelState
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        if (assetName.startsWith("android.resource://")) {
+                            throw IllegalStateException("Resource not found")
+                        }
+                        return it.loadGltfByAssetName(assetName)
+                    }
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                state =
+                    rememberSpatialGltfModelState(
+                        source =
+                            SpatialGltfModelSource.fromResource(composeTestRule.activity, 12345)
+                    )
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        assertIs<Failed>(state.status)
+    }
+
+    @Test
+    fun spatialModel_invalidSource_handlesError() {
+        // Test the behavior when the `SpatialModelSource` points to a non-existent or corrupt file.
+        // The composable should handle the loading failure gracefully.
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        throw IllegalStateException()
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromUri(Uri.parse("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertDoesNotExist()
+    }
+
+    @Test
+    fun spatialModel_sourceChanged_reloadsModel() {
+        // When the `source` parameter of the `SpatialModel` composable changes, verify that the old
+        // model is disposed of and the new model is loaded.
+
+        val disposedAssets = mutableListOf<GltfModelResource>()
+        val createdAssets = mutableMapOf<String, GltfModelResource>()
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        val result = it.loadGltfByAssetName(assetName)
+                        createdAssets[assetName] = result
+                        return result
+                    }
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
+                        }
+                    }
+                }
+            }
+        )
+
+        val uri = mutableStateOf("asset.glb")
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromUri(Uri.parse(uri.value))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(createdAssets).hasSize(1)
+        assertThat(createdAssets).containsKey("asset.glb")
+        assertThat(disposedAssets).isEmpty()
+
+        uri.value = "second_asset.glb"
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(createdAssets).hasSize(2)
+        assertThat(createdAssets).containsKey("second_asset.glb")
+        assertThat(disposedAssets).containsExactly(createdAssets["asset.glb"])
+    }
+
+    @Test
+    fun spatialModel_sourceChanged_fromValidToInvalid() {
+        // When the `source` parameter of the `SpatialModel` composable changes from a valid asset
+        // to an invalid one, verify that the old model is disposed of and the composable is removed
+        // from the layout.
+
+        val disposedAssets = mutableListOf<GltfModelResource>()
+        val createdAssets = mutableMapOf<String, GltfModelResource>()
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        if (assetName == "invalid.glb") {
+                            throw IllegalStateException()
+                        }
+
+                        val asset = it.loadGltfByAssetName(assetName)
+                        createdAssets[assetName] = asset
+                        return asset
+                    }
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
+                        }
+                    }
+                }
+            }
+        )
+
+        var sourcePath by mutableStateOf("valid.glb")
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get(sourcePath))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(createdAssets).hasSize(1)
+        assertThat(createdAssets).containsKey("valid.glb")
+        assertThat(disposedAssets).isEmpty()
+
+        // Change to a source that will fail to load
+        sourcePath = "invalid.glb"
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertDoesNotExist()
+        assertThat(createdAssets).hasSize(1)
+        assertThat(disposedAssets).containsExactly(createdAssets["valid.glb"])
+    }
+
+    @Test
+    fun spatialModel_sourceChanged_fromInvalidToValid() {
+        // When the `source` parameter of the `SpatialModel` composable changes from an invalid
+        // asset to a valid one, verify that the composable is initially not part of the layout but
+        // then become part of the layout and loads the valid asset.
+
+        val disposedAssets = mutableListOf<GltfModelResource>()
+        val createdAssets = mutableMapOf<String, GltfModelResource>()
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        if (assetName == "invalid.glb") {
+                            throw IllegalStateException()
+                        }
+
+                        val asset = it.loadGltfByAssetName(assetName)
+                        createdAssets[assetName] = asset
+                        return asset
+                    }
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
+                        }
+                    }
+                }
+            }
+        )
+
+        var state by
+            mutableStateOf(
+                SpatialGltfModelState(
+                    source = SpatialGltfModelSource.fromPath(Paths.get("invalid.glb"))
+                )
+            )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertDoesNotExist()
+        assertThat(createdAssets).hasSize(0)
+        val status = state.status
+        assertIs<Failed>(status)
+        assertIs<IllegalStateException>(status.exception)
+
+        // Change to a source that will load successfully
+        state =
+            SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("valid.glb")))
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(createdAssets).hasSize(1)
+        assertThat(createdAssets).containsKey("valid.glb")
+        assertThat(disposedAssets).isEmpty()
+        assertIs<Loaded>(state.status)
+    }
+
+    // 2. Layout and Sizing
+    @Test
+    fun spatialModel_noModifier_takesIntrinsicSize() {
+        // When no `content` or size `SubspaceModifier` is provided, assert that the
+        // `SpatialModel`'s layout size matches the intrinsic bounding box of the loaded 3D asset.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        // The glTF size is 1m x 1m x 1m and 2000 dp per meter the size should be 2000.dp x 2000.dp
+        // x 2000.dp
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(2000.dp)
+            .assertHeightIsEqualTo(2000.dp)
+            .assertDepthIsEqualTo(2000.dp)
+    }
+
+    @Test
+    fun spatialModel_noModifier_remeasuresAfterModelLoads() {
+        // When no `content` or size `SubspaceModifier` is provided, assert that the
+        // `SpatialModel`'s layout size is initially zero but then matches the intrinsic bounding
+        // box of the 3D asset after it loads.
+
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        completableDeferred.await()
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        // The model hasn't loaded yet so the size is initially 0.dp x 0.dp x 0.dp
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(0.dp)
+            .assertHeightIsEqualTo(0.dp)
+            .assertDepthIsEqualTo(0.dp)
+
+        completableDeferred.complete(object : GltfModelResource {})
+
+        // The glTF size is 1m x 1m x 1m and 2000 dp per meter the size should be 2000.dp x 2000.dp
+        // x 2000.dp
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(2000.dp)
+            .assertHeightIsEqualTo(2000.dp)
+            .assertDepthIsEqualTo(2000.dp)
+    }
+
+    @Test
+    fun spatialModel_withExplicitSizeModifier_scalesModelToFit() {
+        // Apply `SubspaceModifier.size()` to the `SpatialModel`. Verify that the layout's size
+        // matches the modifier and that the rendered model is scaled up or down to fit within those
+        // bounds.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp),
+                )
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(200.dp)
+            .assertDepthIsEqualTo(200.dp)
+
+        // The glTF size is 1m x 1m x 1m so the scale should be 0.1f to fit 2000.dp (at 2000 dp per
+        // meter) into the 200.dp space.
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
+    }
+
+    @Test
+    fun spatialModel_withFillMaxSize_fillsAvailableSpace() {
+        // Use `SubspaceModifier.fillMaxSize()` and assert that the `SpatialModel` expands to fill
+        // the constraints provided by its parent.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialBox(SubspaceModifier.size(200.dp)) {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                            ),
+                        modifier = SubspaceModifier.testTag("model").fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        // The glTF size is 1m x 1m x 1m
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(200.dp)
+            .assertDepthIsEqualTo(200.dp)
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
+    }
+
+    @Test
+    fun spatialModel_withNonUniformSizeModifier_scalesToFitMostConstrainingDimension() {
+        // A non-uniform model (2m x 1m x 1m) in a non-uniform space (300dp x 400dp x 200dp).
+        // The model should scale to fit the most constraining dimension.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val gltfEntity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by gltfEntity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromCenterAndHalfExtents(
+                                    center = Vector3.Zero,
+                                    // Intrinsic size: 2m wide, 1m tall, 1m deep
+                                    halfExtents =
+                                        FloatSize3d(width = 1f, height = 0.5f, depth = 0.5f),
+                                )
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            // Layout size: 300dp wide, 400dp tall, 200dp deep
+                            .size(DpVolumeSize(width = 300.dp, height = 400.dp, depth = 200.dp)),
+                )
+            }
+        }
+
+        // The layout size must match the modifier exactly.
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(300.dp)
+            .assertHeightIsEqualTo(400.dp)
+            .assertDepthIsEqualTo(200.dp)
+
+        // Intrinsic size is 4000dp x 2000dp x 2000dp (2m x 1m x 1m).
+        // Layout size is 300dp x 400dp x 200dp.
+        // Scale ratios:
+        // Width:  300 / 4000 = 0.075
+        // Height: 400 / 2000 = 0.2
+        // Depth:  200 / 2000 = 0.1
+        // The width is the most constraining dimension, so the scale should be 0.075.
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.075f)
+    }
+
+    @Test
+    fun spatialModel_inConstrainedSpace_scalesAndReportsCorrectSize() {
+        // A tall model (1m x 2m x 1m) placed in a cubic space (1m x 1m x 1m) should scale down by
+        // 0.5 to fit the height. Its resulting layout size should be 0.5m x 1m x 0.5m, not the 1m x
+        // 1m x 1m of the parent.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val gltfEntity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by gltfEntity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromCenterAndHalfExtents(
+                                    center = Vector3.Zero,
+                                    halfExtents =
+                                        FloatSize3d(width = 0.5f, height = 1f, depth = 0.5f),
+                                )
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                // Parent provides the constraints
+                SpatialBox(SubspaceModifier.size(2000.dp)) {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                            ),
+                        // The model itself has no size modifier, so it should wrap its content.
+                        modifier = SubspaceModifier.testTag("model"),
+                    )
+                }
+            }
+        }
+
+        // The model's intrinsic size is 2000dp x 4000dp x 2000dp (1m x 2m x 1m).
+        // The available space is 2000dp x 2000dp x 2000dp (1m x 1m x 1m).
+        // Height is the most constraining dimension, so the scale factor is 2000 / 4000 = 0.5.
+        // The final layout size should be the intrinsic size multiplied by the scale factor.
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(1000.dp) // 2000dp * 0.5
+            .assertHeightIsEqualTo(2000.dp) // 4000dp * 0.5
+            .assertDepthIsEqualTo(1000.dp) // 2000dp * 0.5
+
+        // The scale of the entity itself should be the calculated scale factor.
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.5f)
+    }
+
+    @Test
+    fun spatialModel_withSizeModifier_scalesToFitDepthWhenMostConstraining() {
+        // A non-uniform model (1m x 1m x 2m) in a non-uniform space.
+        // The model should scale to fit the depth, as it is the most constraining dimension.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val gltfEntity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by gltfEntity {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromCenterAndHalfExtents(
+                                    center = Vector3.Zero,
+                                    // Intrinsic size: 1m wide, 1m tall, 2m deep
+                                    halfExtents =
+                                        FloatSize3d(width = 0.5f, height = 0.5f, depth = 1f),
+                                )
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            // Layout size: 400dp wide, 300dp tall, 200dp deep
+                            .size(DpVolumeSize(width = 400.dp, height = 300.dp, depth = 200.dp)),
+                )
+            }
+        }
+
+        // The layout size must match the modifier exactly.
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(400.dp)
+            .assertHeightIsEqualTo(300.dp)
+            .assertDepthIsEqualTo(200.dp)
+
+        // Intrinsic size is 2000dp x 2000dp x 4000dp.
+        // Layout size is 400dp x 300dp x 200dp.
+        // Scale ratios:
+        // Width:  400 / 2000 = 0.2
+        // Height: 300 / 2000 = 0.15
+        // Depth:  200 / 4000 = 0.05
+        // The depth is the most constraining dimension, so the scale should be 0.05.
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.05f)
+    }
+
+    @Test
+    fun spatialModel_withZeroIntrinsicSize_takesMinConstraintSize() {
+        // A model that has a zero intrinsic size should use the min constraints as its layout size.
+
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        return object :
+                            GltfEntity by it.createGltfEntity(pose, loadedGltf, parentEntity) {
+                            override val gltfModelBoundingBox: BoundingBox =
+                                BoundingBox.fromCenterAndHalfExtents(
+                                    center = Vector3.Zero,
+                                    halfExtents = FloatSize3d(),
+                                )
+                        }
+                    }
+                }
+            },
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                // Provide non-zero min constraints
+                SpatialBox(
+                    modifier =
+                        SubspaceModifier.sizeIn(
+                            minWidth = 10.dp,
+                            minHeight = 20.dp,
+                            minDepth = 30.dp,
+                        ),
+                    propagateMinConstraints = true,
+                ) {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                            ),
+                        modifier = SubspaceModifier.testTag("model"),
+                    )
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(10.dp)
+            .assertHeightIsEqualTo(20.dp)
+            .assertDepthIsEqualTo(30.dp)
+    }
+
+    // 3. State Management (SpatialModelState)
+    @Test
+    fun state_isSpatialModelReady_isTrueAfterLoad() {
+        // Pass a `SpatialModelState` and assert that `isSpatialModelReady.value` is `false`
+        // initially and becomes `true` after the model has finished loading.
+
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
+        val state =
+            SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        completableDeferred.await()
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertIs<Loading>(state.status)
+
+        completableDeferred.complete(object : GltfModelResource {}) // simulate loading the glTF
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertIs<Loaded>(state.status)
+    }
+
+    @Test
+    fun state_isSpatialModelReady_isFalseAfterSourceChanges() {
+        // Pass a `SpatialModelState` and assert that `isSpatialModelReady.value` is `false`
+        // initially and becomes `true` after the model has finished loading.
+
+        val assets =
+            mapOf(
+                "first_asset.glb" to CompletableDeferred<GltfModelResource>(),
+                "second_asset.glb" to CompletableDeferred(),
+            )
+        var state by
+            mutableStateOf(
+                SpatialGltfModelState(
+                    source = SpatialGltfModelSource.fromPath(Paths.get("first_asset.glb"))
+                )
+            )
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        assertNotNull(assets[assetName]).await()
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertIs<Loading>(state.status)
+
+        assets["first_asset.glb"]?.complete(
+            object : GltfModelResource {}
+        ) // simulate loading the glTF
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertIs<Loaded>(state.status)
+
+        state =
+            SpatialGltfModelState(
+                source = SpatialGltfModelSource.fromPath(Paths.get("second_asset.glb"))
+            )
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertIs<Loading>(state.status)
+    }
+
+    // 4. Composition and Lifecycle
+    @Test
+    fun spatialModel_onEnterComposition_entityIsCreated() {
+        // Assert that when `SpatialModel` enters the composition, a corresponding `GltfModelEntity`
+        // is created in the scene graph.
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("model.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                )
+            }
+        }
+
+        val entity =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        val gltfEntities =
+            checkNotNull(
+                composeTestRule.session?.scene?.getEntitiesOfType(GltfModelEntity::class.java)
+            )
+        assertThat(gltfEntities).hasSize(1)
+        assertThat(entity).isEqualTo(gltfEntities[0])
+    }
+
+    @Test
+    fun spatialModel_onLeaveComposition_entityIsDisposed() {
+        // When the `SpatialModel` is removed from the composition (e.g., via conditional
+        // rendering), assert that its underlying `GltfModelEntity` is properly disposed of and
+        // removed from the scene.
+
+        var isInComposition by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                if (isInComposition) {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("model.glb"))
+                            ),
+                        modifier = SubspaceModifier.testTag("model"),
+                    )
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        assertThat(composeTestRule.session?.scene?.getEntitiesOfType(GltfModelEntity::class.java))
+            .hasSize(1)
+
+        isInComposition = false
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertDoesNotExist()
+        assertNull(
+            composeTestRule.session
+                ?.scene
+                ?.getEntitiesOfType(GltfModelEntity::class.java)
+                ?.firstOrNull()
+                ?.parent
+        )
+    }
+
+    @Test
+    fun spatialModel_recomposition_retainsState() {
+        // Trigger recomposition of the `SpatialModel`'s parent and verify that the model and its
+        // state (e.g., `isSpatialModelReady`) are preserved without being reloaded.
+
+        var parentSize by mutableStateOf(200.dp)
+        val state =
+            SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("model.glb")))
+
+        // Before we load the glTF, make sure that the initial state is false
+        assertIs<Loading>(state.status)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialBox(SubspaceModifier.size(parentSize)) {
+                    SpatialGltfModel(modifier = SubspaceModifier.testTag("model"), state = state)
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        val entityBeforeRecomposition =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        assertIs<Loaded>(state.status)
+
+        parentSize = 250.dp
+
+        assertIs<Loaded>(state.status)
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        val entityAfterRecomposition =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        assertIs<Loaded>(state.status)
+        assertThat(entityBeforeRecomposition).isSameInstanceAs(entityAfterRecomposition)
+    }
+
+    // 5. Modifiers and Integration
+    @Test
+    fun spatialModel_withOffsetModifier_isPositionedCorrectly() {
+        // Apply `SubspaceModifier.offset()` and assert that the `SpatialModel` is placed at the
+        // correct offset relative to its parent.
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model").offset(x = 50.dp, y = 30.dp, z = 25.dp),
+                )
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertPositionIsEqualTo(expectedX = 50.dp, expectedY = 30.dp, expectedZ = 25.dp)
+    }
+
+    @Test
+    fun spatialModel_withAlphaModifier_changesOpacity() {
+        // Apply `SubspaceModifier.alpha()` and verify that the underlying `CoreModelEntity`'s alpha
+        // property is updated.
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").alpha(0.5f),
+                )
+            }
+        }
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("model")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(0.5f)
+    }
+
+    @Test
+    fun spatialModel_withContent_composesContent() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model"),
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("child")) {}
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
+        composeTestRule.onSubspaceNodeWithTag("child").assertExists()
+    }
+
+    @Test
+    fun state_nodes_arePopulatedAfterLoad() {
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
+        val state =
+            SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
+
+        val fakeRtNode = FakeGltfModelNodeFeature(name = "TestNode")
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = { runtime ->
+                object : RenderingRuntime by runtime {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        completableDeferred.await()
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        return object : FakeGltfEntity() {
+                            override val nodes = listOf(fakeRtNode)
+                        }
+                    }
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        assertThat(state.nodes).isEmpty()
+
+        completableDeferred.complete(object : GltfModelResource {})
+        composeTestRule.waitForIdle()
+
+        assertThat(state.nodes).hasSize(1)
+        assertThat(state.nodes.first().name).isEqualTo("TestNode")
+    }
+
+    @Test
+    fun spatialModel_withContent_centersContentByDefault() {
+
+        composeTestRule.setContent {
+            Subspace {
+                // Create a model with a fixed size of 200.dp
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp),
+                ) {
+                    // Place a smaller child (50.dp) inside it
+                    SpatialPanel(modifier = SubspaceModifier.testTag("child").size(50.dp)) {}
+                }
+            }
+        }
+
+        // Since the parent (model) is at the root (0,0,0) and the child is centered
+        // by default, the child's center should also be at (0,0,0).
+        composeTestRule
+            .onSubspaceNodeWithTag("child")
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
+    }
+}

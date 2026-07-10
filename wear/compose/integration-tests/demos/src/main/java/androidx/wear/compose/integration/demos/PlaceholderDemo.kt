@@ -141,7 +141,10 @@ fun PlaceholderChips() {
             }
             item {
                 var label by remember { mutableStateOf("") }
-                ChipWithOverlaidPlaceholder(label = label, icon = R.drawable.ic_accessibility_24px)
+                ChipWithOverlaidPlaceholder(
+                    label = label,
+                    icon = R.drawable.icon_accessibility_24px,
+                )
                 LaunchedEffect(resetCount) {
                     label = ""
                     delay(3000)
@@ -150,7 +153,10 @@ fun PlaceholderChips() {
             }
             item {
                 var label by remember { mutableStateOf("") }
-                ChipWithOverlaidPlaceholder(label = label, icon = R.drawable.ic_accessibility_24px)
+                ChipWithOverlaidPlaceholder(
+                    label = label,
+                    icon = R.drawable.icon_accessibility_24px,
+                )
                 LaunchedEffect(resetCount) {
                     label = ""
                     delay(3000)
@@ -195,7 +201,7 @@ fun PlaceholderChips() {
                 var secondaryLabel by remember { mutableStateOf("") }
                 ChipWithOverlaidPlaceholder(
                     label = label,
-                    icon = R.drawable.ic_accessibility_24px,
+                    icon = R.drawable.icon_accessibility_24px,
                     secondaryLabel = secondaryLabel,
                 )
                 LaunchedEffect(resetCount) {
@@ -210,7 +216,7 @@ fun PlaceholderChips() {
                 var label by remember { mutableStateOf("") }
                 ChipWithOverlaidPlaceholder(
                     label = label,
-                    icon = R.drawable.ic_accessibility_24px,
+                    icon = R.drawable.icon_accessibility_24px,
                     colors =
                         ChipDefaults.chipColors(
                             backgroundColor = MaterialTheme.colors.surface,
@@ -228,7 +234,7 @@ fun PlaceholderChips() {
                 var secondaryLabel by remember { mutableStateOf("") }
                 ChipWithOverlaidPlaceholder(
                     label = label,
-                    icon = R.drawable.ic_accessibility_24px,
+                    icon = R.drawable.icon_accessibility_24px,
                     secondaryLabel = secondaryLabel,
                     colors = ChipDefaults.chipColors(backgroundColor = AlternatePrimaryColor2),
                 )
@@ -245,7 +251,7 @@ fun PlaceholderChips() {
                 var secondaryLabel by remember { mutableStateOf("") }
                 ChipWithOverlaidPlaceholder(
                     label = label,
-                    icon = R.drawable.ic_accessibility_24px,
+                    icon = R.drawable.icon_accessibility_24px,
                     secondaryLabel = secondaryLabel,
                 )
                 LaunchedEffect(resetCount) {

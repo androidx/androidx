@@ -612,10 +612,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 500)
     public interface AngularDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull AngularDimension toAngularDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1219,10 +1221,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface ContainerDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull ContainerDimension toContainerDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1261,10 +1265,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface ImageDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull ImageDimension toImageDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1303,10 +1309,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface SpacerDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull SpacerDimension toSpacerDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1345,10 +1353,12 @@ public final class DimensionBuilders {
     @ExperimentalProtoLayoutExtensionApi
     public interface ExtensionDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull ExtensionDimension toExtensionDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1491,10 +1501,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 400)
     public interface PivotDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull PivotDimension toPivotDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 
@@ -1531,10 +1543,12 @@ public final class DimensionBuilders {
     @RequiresSchemaVersion(major = 1, minor = 500)
     public interface OffsetDimension {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         DimensionProto.@NonNull OffsetDimension toOffsetDimensionProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

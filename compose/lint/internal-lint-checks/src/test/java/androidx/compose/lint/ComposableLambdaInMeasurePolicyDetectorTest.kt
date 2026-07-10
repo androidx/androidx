@@ -64,10 +64,10 @@ class ComposableLambdaInMeasurePolicyDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
-                        val result = subcompose(0) { ComposableFunction { element() } }
-                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 error
+                src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
+                                        val result = subcompose(0) { ComposableFunction { element() } }
+                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 error
                 """
                     .trimIndent()
             )
@@ -109,10 +109,10 @@ src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measur
             .run()
             .expect(
                 """
-src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
-                        val result = subcompose(0) {
-                                                   ^
-1 error
+                src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
+                                        val result = subcompose(0) {
+                                                                   ^
+                1 error
                 """
                     .trimIndent()
             )
@@ -150,10 +150,10 @@ src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measur
             .run()
             .expect(
                 """
-src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
-                        val subcomposeContent: @Composable () -> Unit = { ComposableFunction { element() } }
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 error
+                src/test/test.kt:14: Error: Creating a subcompose content lambda inside a measure policy [ComposableLambdaInMeasurePolicy]
+                                        val subcomposeContent: @Composable () -> Unit = { ComposableFunction { element() } }
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 error
                 """
                     .trimIndent()
             )

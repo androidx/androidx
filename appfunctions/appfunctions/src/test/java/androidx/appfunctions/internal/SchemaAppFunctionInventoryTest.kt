@@ -34,6 +34,9 @@ class SchemaAppFunctionInventoryTest {
             object : SchemaAppFunctionInventory() {
                 override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
                     get() = emptyMap()
+
+                override val componentsMetadata: AppFunctionComponentsMetadata
+                    get() = AppFunctionComponentsMetadata()
             }
 
         assertThat(schemaInventory.schemaFunctionsMap[schemaMetadata]).isNull()
@@ -53,13 +56,15 @@ class SchemaAppFunctionInventoryTest {
                     AppFunctionResponseMetadata(
                         AppFunctionReferenceTypeMetadata("test", isNullable = false)
                     ),
-                components = AppFunctionComponentsMetadata(emptyMap()),
                 description = "Creates a new note.",
             )
         val schemaInventory =
             object : SchemaAppFunctionInventory() {
                 override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
                     get() = mapOf("createNote" to functionMetadata)
+
+                override val componentsMetadata: AppFunctionComponentsMetadata
+                    get() = AppFunctionComponentsMetadata()
             }
 
         assertThat(schemaInventory.schemaFunctionsMap[schemaMetadata]).isEqualTo(functionMetadata)
@@ -79,13 +84,15 @@ class SchemaAppFunctionInventoryTest {
                     AppFunctionResponseMetadata(
                         AppFunctionReferenceTypeMetadata("test", isNullable = false)
                     ),
-                components = AppFunctionComponentsMetadata(emptyMap()),
                 description = "Creates a new note.",
             )
         val schemaInventory =
             object : SchemaAppFunctionInventory() {
                 override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
                     get() = mapOf("createNote" to functionMetadata)
+
+                override val componentsMetadata: AppFunctionComponentsMetadata
+                    get() = AppFunctionComponentsMetadata()
             }
 
         assertThat(

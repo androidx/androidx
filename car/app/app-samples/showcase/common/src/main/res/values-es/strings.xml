@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"El mensaje va aquí.\nMás texto en la segunda línea."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo de plantilla de mensaje corto"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo de plantilla de elemento con secciones"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo de elemento condensado"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo de AlphaJump de elemento con secciones habilitado"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sección de botón de selección"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Mostrar u ocultar sección"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Sección con muchas filas"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sección de elementos de la cuadrícula"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo de una lista de elementos seccionada"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto debajo de cada lista"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Finalizar demo de imágenes y acciones"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Demo de chip"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostración de la barra de progreso"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demo de encabezado de sección"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo de la sección de contenido destacado"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo de plantilla de panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo de plantilla de la lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Ver lugares"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Demo de plantilla de pestañas"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Pestaña de mensajes"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Pestaña de panel"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Pestaña de elemento con secciones"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Pestaña de lista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Pestaña de cuadrícula con título largo"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Pestaña de búsqueda"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"También se puede seleccionar la fila"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Se ha seleccionado la acción secundaria"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Se ha seleccionado la acción principal de la fila"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo de una lista de elementos seccionada"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto debajo de cada lista"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demostración de imagen y acciones al final de la fila"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demostración de lista vacía"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"La lista está vacía"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Otras demos de plantillas"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa con demos de contenido"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa con demo de plantilla de mensaje"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa con demo de plantilla de cuadrícula"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

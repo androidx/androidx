@@ -1,0 +1,73 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore.testing
+
+import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory as InternalFactory
+import androidx.xr.runtime.interfaces.Feature
+import androidx.xr.runtime.internal.PerceptionRuntimeFactory
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+
+// TODO b/500091606 Remove when no longer used in G3
+/**
+ * Factory for creating a [FakePerceptionRuntime] for testing purposes.
+ *
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated(
+    "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
+)
+public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
+    public companion object {
+        /** Will be passed to the [FakePerceptionRuntime] constructor during testing. */
+        @JvmStatic
+        @get:JvmName("hasCreatePermission")
+        public var hasCreatePermission: Boolean = true
+
+        internal var createNewFakeRuntime: Boolean = false
+    }
+
+    override val requirements: Set<Feature> = emptySet()
+
+    // TODO b/438853896 - migrate all tests to use the coroutine context
+    @Suppress("DEPRECATION")
+    public fun createRuntime(context: Context): PerceptionRuntime =
+        createRuntime(context, CoroutineScope(EmptyCoroutineContext))
+
+    /**
+     * Creates a [FakePerceptionRuntime] instance for testing purposes.
+     *
+     * @param context the host [Context]
+     * @param coroutineScope the [CoroutineContext] for the runtime to use during testing
+     */
+    @Suppress("DEPRECATION")
+    override fun createRuntime(
+        context: Context,
+        coroutineScope: CoroutineScope,
+    ): PerceptionRuntime =
+        if (createNewFakeRuntime) {
+            InternalFactory().createRuntime(context, coroutineScope)
+        } else {
+            FakePerceptionRuntime(FakePerceptionManager(), hasCreatePermission)
+        }
+}

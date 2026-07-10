@@ -50,6 +50,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.ContextAwareHelper;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -125,7 +128,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
         ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner,
-        ActivityResultCaller {
+        ActivityResultCaller, ContextAware {
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
@@ -300,6 +303,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     LifecycleRegistry mLifecycleRegistry;
 
+    final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
+
     // This is initialized in performCreateView and unavailable outside of the
     // onCreateView/onDestroyView lifecycle
     @Nullable FragmentViewLifecycleOwner mViewLifecycleOwner;
@@ -311,6 +316,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @LayoutRes
     private int mContentLayoutId;
+
+    private final FragmentTracer mTracer = new FragmentTracer(this);
 
     private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
@@ -331,6 +338,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
                     : null;
             mSavedStateRegistryController.performRestore(savedStateRegistryState);
+        }
+    };
+
+    private final OnPreAttachedListener mContextAwareAttachListener = new OnPreAttachedListener() {
+        @Override
+        void onPreAttached() {
+            mContextAwareHelper.dispatchOnContextAvailable(mHost.getContext());
         }
     };
 
@@ -624,6 +638,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (!mOnPreAttachedListeners.contains(mSavedStateAttachListener)) {
             registerOnPreAttachListener(mSavedStateAttachListener);
         }
+        if (!mOnPreAttachedListeners.contains(mContextAwareAttachListener)) {
+            registerOnPreAttachListener(mContextAwareAttachListener);
+        }
     }
 
     /**
@@ -692,13 +709,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mSavedViewState = null;
         }
         mCalled = false;
-        onViewStateRestored(savedInstanceState);
+        mTracer.trace("Fragment#onViewStateRestored",
+                () -> onViewStateRestored(savedInstanceState));
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onViewStateRestored()");
         }
         if (mView != null) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_CREATE)", () ->
+                    mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE));
         }
     }
 
@@ -3019,7 +3038,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.attachController(mHost, createFragmentContainer(), this);
         mState = ATTACHED;
         mCalled = false;
-        onAttach(mHost.getContext());
+        mTracer.trace("Fragment#onAttach", () -> onAttach(mHost.getContext()));
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onAttach()");
@@ -3043,13 +3062,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             }
         });
-        onCreate(savedInstanceState);
+        mTracer.trace("Fragment#onCreate", () -> onCreate(savedInstanceState));
         mIsCreated = true;
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onCreate()");
         }
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_CREATE)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE));
     }
 
     void performCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -3063,7 +3083,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
                     mSavedViewRegistryState = null;
                 });
-        mView = onCreateView(inflater, container, savedInstanceState);
+        mTracer.trace("Fragment#onCreateView", () ->
+                mView = onCreateView(inflater, container, savedInstanceState));
         if (mView != null) {
             // Initialize the view lifecycle
             mViewLifecycleOwner.initialize();
@@ -3091,12 +3112,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performViewCreated() {
         // since calling super.onViewCreated() is not required, we do not need to set and check the
         // `mCalled` flag
-        Bundle savedInstanceState = null;
+        final Bundle savedInstanceState;
         if (mSavedFragmentState != null) {
             savedInstanceState = mSavedFragmentState.getBundle(
                     FragmentStateManager.SAVED_INSTANCE_STATE_KEY);
+        } else {
+            savedInstanceState = null;
         }
-        onViewCreated(mView, savedInstanceState);
+        mTracer.trace("Fragment#onViewCreated",
+                () -> onViewCreated(mView, savedInstanceState));
         mChildFragmentManager.dispatchViewCreated();
     }
 
@@ -3105,7 +3129,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.noteStateNotSaved();
         mState = AWAITING_EXIT_EFFECTS;
         mCalled = false;
-        onActivityCreated(savedInstanceState);
+        mTracer.trace("Fragment#onActivityCreated",
+                () -> onActivityCreated(savedInstanceState));
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onActivityCreated()");
@@ -3136,14 +3161,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.execPendingActions(true);
         mState = STARTED;
         mCalled = false;
-        onStart();
+        mTracer.trace("Fragment#onStart", this::onStart);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onStart()");
         }
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_START)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START));
         if (mView != null) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_START)", () ->
+                    mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START));
         }
         mChildFragmentManager.dispatchStart();
     }
@@ -3154,14 +3181,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.execPendingActions(true);
         mState = RESUMED;
         mCalled = false;
-        onResume();
+        mTracer.trace("Fragment#onResume", this::onResume);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onResume()");
         }
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_RESUME)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME));
         if (mView != null) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_RESUME)", () ->
+                    mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME));
         }
         mChildFragmentManager.dispatchResume();
     }
@@ -3262,19 +3291,21 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performSaveInstanceState(Bundle outState) {
-        onSaveInstanceState(outState);
+        mTracer.trace("Fragment#onSaveInstanceState", () -> onSaveInstanceState(outState));
     }
 
     @SuppressWarnings("ConstantConditions")
     void performPause() {
         mChildFragmentManager.dispatchPause();
         if (mView != null) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_PAUSE)",
+                    () -> mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE));
         }
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_PAUSE)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE));
         mState = AWAITING_ENTER_EFFECTS;
         mCalled = false;
-        onPause();
+        mTracer.trace("Fragment#onPause", this::onPause);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onPause()");
@@ -3285,12 +3316,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performStop() {
         mChildFragmentManager.dispatchStop();
         if (mView != null) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_STOP)",
+                    () -> mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP));
         }
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_STOP)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP));
         mState = ACTIVITY_CREATED;
         mCalled = false;
-        onStop();
+        mTracer.trace("Fragment#onStop", this::onStop);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onStop()");
@@ -3302,11 +3335,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchDestroyView();
         if (mView != null && mViewLifecycleOwner.getLifecycle().getCurrentState()
                         .isAtLeast(Lifecycle.State.CREATED)) {
-            mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+            mTracer.trace("FragmentViewLifecycle#handleLifecycleEvent(ON_DESTROY)",
+                    () -> mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY));
         }
         mState = CREATED;
         mCalled = false;
-        onDestroyView();
+        mTracer.trace("Fragment#onDestroyView", this::onDestroyView);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onDestroyView()");
@@ -3321,11 +3355,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performDestroy() {
         mChildFragmentManager.dispatchDestroy();
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        mTracer.trace("FragmentLifecycle#handleLifecycleEvent(ON_DESTROY)",
+                () -> mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY));
         mState = ATTACHED;
         mCalled = false;
         mIsCreated = false;
-        onDestroy();
+        mTracer.trace("Fragment#onDestroy", this::onDestroy);
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onDestroy()");
@@ -3335,7 +3370,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performDetach() {
         mState = INITIALIZING;
         mCalled = false;
-        onDetach();
+        mTracer.trace("Fragment#onDetach", this::onDetach);
         mLayoutInflater = null;
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
@@ -3606,6 +3641,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @NonNull String generateActivityResultKey() {
         return "fragment_" + mWho + "_rq#" + mNextLocalRequestCode.getAndIncrement();
+    }
+
+    @Nullable
+    @Override
+    public Context peekAvailableContext() {
+        return mContextAwareHelper.peekAvailableContext();
+    }
+
+    @Override
+    public void addOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.addOnContextAvailableListener(listener);
+    }
+
+    @Override
+    public void removeOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.removeOnContextAvailableListener(listener);
     }
 
     /**

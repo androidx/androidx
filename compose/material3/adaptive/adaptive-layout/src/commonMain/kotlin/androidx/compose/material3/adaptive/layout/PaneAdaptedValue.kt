@@ -41,7 +41,7 @@ sealed interface PaneAdaptedValue {
      *   will be put under.
      */
     @Immutable
-    class Reflowed(val reflowUnder: PaneScaffoldRole) : PaneAdaptedValue {
+    class Reflowed(internal val reflowUnder: PaneScaffoldRole) : PaneAdaptedValue {
         override fun toString() = "PaneAdaptedValue[Reflowed to $reflowUnder]"
 
         override fun equals(other: Any?): Boolean {
@@ -63,11 +63,29 @@ sealed interface PaneAdaptedValue {
      *   element in the window. See [Alignment] for more information.
      * @param scrim the scrim to show when the levitated pane is shown to block user interaction
      *   with the underlying layout and emphasize the levitated pane; by default it will be `null`
-     *   and no scrim will show.
+     *   and no scrim will show; to display a scrim, we recommend to use [LevitatedPaneScrim] as a
+     *   default implementation.
+     * @param dragToResizeState the optional state to enable the levitated pane to be resizable by
+     *   dragging; it will be used to store and control current dragging; see
+     *   [rememberDragToResizeState] for more details about how to implement the drag-to-resize
+     *   behavior.
      */
     @Immutable
-    class Levitated(val alignment: Alignment, val scrim: (@Composable () -> Unit)? = null) :
-        PaneAdaptedValue {
+    class Levitated(
+        internal val alignment: Alignment,
+        internal val scrim: (@Composable () -> Unit)? = null,
+        internal val dragToResizeState: DragToResizeState? = null,
+    ) : PaneAdaptedValue {
+
+        @Deprecated(
+            message = "Keep the old constructor for binary compatibility",
+            level = DeprecationLevel.HIDDEN,
+        )
+        constructor(
+            alignment: Alignment,
+            scrim: (@Composable () -> Unit)? = null,
+        ) : this(alignment, scrim, null)
+
         override fun toString() = "PaneAdaptedValue[Levitated with $alignment and scrim=$scrim]"
 
         override fun equals(other: Any?): Boolean {
@@ -75,12 +93,14 @@ sealed interface PaneAdaptedValue {
             if (other !is Levitated) return false
             if (alignment != other.alignment) return false
             if (scrim !== other.scrim) return false
+            if (dragToResizeState !== other.dragToResizeState) return false
             return true
         }
 
         override fun hashCode(): Int {
             var result = alignment.hashCode()
             result = 31 * result + scrim.hashCode()
+            result = 31 * result + dragToResizeState.hashCode()
             return result
         }
     }

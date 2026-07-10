@@ -65,23 +65,13 @@ class ActionBarBackgroundDrawable extends Drawable {
     public void getOutline(@NonNull Outline outline) {
         if (mContainer.mIsSplit) {
             if (mContainer.mSplitBackground != null) {
-                Api21Impl.getOutline(mContainer.mBackground, outline);
+                mContainer.mBackground.getOutline(outline);
             }
         } else {
             // ignore the stacked background for shadow casting
             if (mContainer.mBackground != null) {
-                Api21Impl.getOutline(mContainer.mBackground, outline);
+                mContainer.mBackground.getOutline(outline);
             }
-        }
-    }
-
-    private static class Api21Impl {
-        private Api21Impl() {
-            // Non-instantiable.
-        }
-
-        public static void getOutline(Drawable drawable, Outline outline) {
-            drawable.getOutline(outline);
         }
     }
 }

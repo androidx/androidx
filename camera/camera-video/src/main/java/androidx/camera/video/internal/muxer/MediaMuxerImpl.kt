@@ -25,6 +25,9 @@ import androidx.camera.video.internal.compat.Api26Impl
 import androidx.camera.video.internal.muxer.Muxer.Companion.MUXER_FORMAT_3GPP
 import androidx.camera.video.internal.muxer.Muxer.Companion.MUXER_FORMAT_MPEG_4
 import androidx.camera.video.internal.muxer.Muxer.Companion.MUXER_FORMAT_WEBM
+import androidx.camera.video.internal.utils.MediaFormatExt.KEY_TIMELAPSE_ENABLED
+import androidx.camera.video.internal.utils.MediaFormatExt.KEY_TIMELAPSE_FPS
+import androidx.camera.video.internal.utils.MediaFormatExt.isVideo
 import androidx.camera.video.internal.workaround.CorrectNegativeLatLongForMediaMuxer
 import java.nio.ByteBuffer
 
@@ -41,6 +44,7 @@ public class MediaMuxerImpl : Muxer {
 
     private var mediaMuxer: MediaMuxer? = null
     private var state: State = State.IDLE
+    private var captureFps: Int = 0
 
     override fun setOutput(path: String, @Muxer.Format format: Int) {
         check(state == State.IDLE) { "Muxer is not idle. Current state: $state" }
@@ -76,8 +80,34 @@ public class MediaMuxerImpl : Muxer {
         mediaMuxer!!.setLocation(geoLocation.first.toFloat(), geoLocation.second.toFloat())
     }
 
+    /**
+     * Sets the capture frames per second (FPS).
+     *
+     * On devices running Android 11 (API 30) or higher, this value is embedded in the
+     * "com.android.capture.fps" metadata, which is used by Google Photos to correctly identify the
+     * video as a slow-motion recording. For API levels below 30, this method is a no-op.
+     *
+     * This method must be called after [setOutput] but before [addTrack].
+     *
+     * @param captureFps The capture rate in frames per second. Must be a positive value.
+     * @throws IllegalArgumentException if the provided capture FPS is not positive.
+     */
+    override fun setCaptureFps(captureFps: Int) {
+        check(state == State.CONFIGURED) { "Muxer is not configured. Current state: $state" }
+        check(captureFps > 0) { "captureFps must be positive" }
+        this.captureFps = captureFps
+    }
+
     override fun addTrack(format: MediaFormat): Int {
         check(state == State.CONFIGURED) { "Muxer is not configured. Current state: $state" }
+        if (format.isVideo() && captureFps > 0) {
+            // Starting with API 30, MediaMuxer converts the "time-lapse-fps" parameter
+            // (i.e. PARAMETER_KEY_TIMELAPSE_FPS) into the "com.android.capture.fps" video metadata.
+            // This ensures that Photos can correctly identify the video as a slow-motion recording.
+            // See MediaMuxer.cpp for more details.
+            format.setInteger(KEY_TIMELAPSE_ENABLED, 1)
+            format.setInteger(KEY_TIMELAPSE_FPS, captureFps)
+        }
         return wrapMuxerException { mediaMuxer!!.addTrack(format) }
     }
 

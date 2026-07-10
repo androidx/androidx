@@ -21,6 +21,7 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -107,6 +108,89 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
 @@ -7 +7
 -     state.value = 42
 +     state.intValue = 42
+            """
+            )
+    }
+
+    @Ignore // b/487302018
+    @Test
+    fun testCompoundAssignAutoboxingProperty() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                    package androidx.compose.runtime.lint.test
+
+                    import androidx.compose.runtime.mutableIntStateOf
+
+                    fun valueAssignment() {
+                        val state = mutableIntStateOf(0)
+                        state.value += 42
+                    }
+                """
+                    )
+                    .indented(),
+                AutoboxingStateValuePropertyStub,
+                MinimalSnapshotStateStub,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/lint/test/test.kt:7: Warning: Assigning value will cause an autoboxing operation. Use intValue to avoid unnecessary allocations. [AutoboxingStateValueProperty]
+    state.value += 42
+          ~~~~~
+0 errors, 1 warnings
+            """
+            )
+            .expectFixDiffs(
+                """
+Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `intValue`:
+@@ -7 +7
+-     state.value += 42
++     state.intValue += 42
+            """
+            )
+    }
+
+    @Ignore // b/487302018
+    @Test
+    fun testCompoundAssignAutoboxingPropertyInExtensionReceiver() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                    package androidx.compose.runtime.lint.test
+
+                    import androidx.compose.runtime.mutableIntStateOf
+
+                    class StateWrapper {
+                        val state = mutableIntStateOf(0)
+                    }
+
+                    fun StateWrapper.valueAssignment() {
+                        state.value += 42
+                    }
+                """
+                    )
+                    .indented(),
+                AutoboxingStateValuePropertyStub,
+                MinimalSnapshotStateStub,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/lint/test/StateWrapper.kt:10: Warning: Assigning value will cause an autoboxing operation. Use intValue to avoid unnecessary allocations. [AutoboxingStateValueProperty]
+    state.value += 42
+          ~~~~~
+0 errors, 1 warnings
+            """
+            )
+            .expectFixDiffs(
+                """
+Fix for src/androidx/compose/runtime/lint/test/StateWrapper.kt line 10: Replace with `intValue`:
+@@ -10 +10
+-     state.value += 42
++     state.intValue += 42
             """
             )
     }

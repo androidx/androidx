@@ -35,9 +35,9 @@ internal inline fun rsqrt(x: Float): Float {
 /**
  * Clamps a value.
  *
- * @param x the value to clamp.
- * @param min the minimum value.
- * @param max the maximum value.
+ * @param x the value to clamp
+ * @param min the minimum value
+ * @param max the maximum value
  */
 public fun clamp(x: Float, min: Float, max: Float): Float {
     val result = min(max, max(min, x))
@@ -47,17 +47,25 @@ public fun clamp(x: Float, min: Float, max: Float): Float {
 /**
  * Linearly interpolates between two values.
  *
- * @param a the start value.
- * @param b the end value.
- * @param t the ratio between the two floats.
- * @return the interpolated value between [a] and [b].
+ * @param a the start value
+ * @param b the end value
+ * @param t the ratio between the two floats
+ * @return the interpolated value between [a] and [b]
  */
 public fun lerp(a: Float, b: Float, t: Float): Float {
     return a * (1.0f - t) + b * t
 }
 
-/** Converts [angleInRadians] from radians to degrees. */
+/**
+ * Converts [angleInRadians] from radians to degrees.
+ *
+ * @param angleInRadians the angle in radians
+ */
 public fun toDegrees(angleInRadians: Float): Float = angleInRadians * DEGREES_PER_RADIAN
 
-/** Converts [angleInDegrees] from degrees to radians. */
+/**
+ * Converts [angleInDegrees] from degrees to radians.
+ *
+ * @param angleInDegrees the angle in degrees
+ */
 public fun toRadians(angleInDegrees: Float): Float = angleInDegrees * RADIANS_PER_DEGREE

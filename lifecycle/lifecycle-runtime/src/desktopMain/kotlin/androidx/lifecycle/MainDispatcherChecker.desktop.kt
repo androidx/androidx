@@ -18,6 +18,7 @@ package androidx.lifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
+@Suppress("KmpSignatureClash") // also defined in native
 internal object MainDispatcherChecker {
     private var isMainDispatcherAvailable: Boolean = true
     @Volatile private var mainDispatcherThread: Thread? = null

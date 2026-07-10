@@ -178,10 +178,13 @@ public final class ImageAnalysisConfig
     /**
      * Retrieves the format of the image that is fed as input.
      *
-     * <p>This should always be YUV_420_888 for ImageAnalysis.
+     * <p>This should always be YUV_420_888 for ImageAnalysis, unless the output image format
+     * is set to PRIVATE.
      */
     @Override
     public int getInputFormat() {
-        return ImageFormat.YUV_420_888;
+        return getOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                == ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE
+                ? ImageFormat.PRIVATE : ImageFormat.YUV_420_888;
     }
 }

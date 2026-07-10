@@ -21,7 +21,6 @@ package androidx.compose.ui.platform
 import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ComposeUiFlags.isNestedScrollInteropIntegerPropagationEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -169,12 +168,7 @@ private fun Float.extractIntegerPixels(): Int = this.roundToInt()
 
 // Compose coordinate system is the opposite of view's system
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun composeToViewOffset(offset: Float): Int =
-    if (isNestedScrollInteropIntegerPropagationEnabled) {
-        offset.extractIntegerPixels() * -1
-    } else {
-        offset.ceilAwayFromZero().toInt() * -1
-    }
+internal fun composeToViewOffset(offset: Float): Int = offset.extractIntegerPixels() * -1
 
 // Compose scrolling sign system is the opposite of view's system
 private fun Int.reverseAxis(): Float = this * -1f
@@ -194,25 +188,17 @@ private fun toOffset(dx: Int, dy: Int, consumed: IntArray, available: Offset): O
      * that the overflow was also consumed if something else was consumed.
      */
     val overflowX =
-        if (isNestedScrollInteropIntegerPropagationEnabled) {
-            if (consumed[0].absoluteValue == 0) {
-                0f
-            } else {
-                available.x - dx.reverseAxis()
-            }
-        } else {
+        if (consumed[0].absoluteValue == 0) {
             0f
+        } else {
+            available.x - dx.reverseAxis()
         }
 
     val overflowY =
-        if (isNestedScrollInteropIntegerPropagationEnabled) {
-            if (consumed[1].absoluteValue == 0) {
-                0f
-            } else {
-                available.y - dy.reverseAxis()
-            }
-        } else {
+        if (consumed[1].absoluteValue == 0) {
             0f
+        } else {
+            available.y - dy.reverseAxis()
         }
 
     val offsetX =

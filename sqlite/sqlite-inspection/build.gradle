@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,7 +26,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.inspection")
 }
 
@@ -37,7 +35,6 @@ dependencies {
     compileOnly(project(":inspection:inspection"))
 
     androidTestImplementation(project(":inspection:inspection-testing"))
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.truth)
@@ -57,10 +54,13 @@ androidx {
 android {
     defaultConfig {
         // studio pipeline works only starting with Android O
-        minSdk = 26
-    }
-    sourceSets {
-        main.resources.srcDirs += "src/main/proto"
+        minSdk { version = release(26) }
     }
     namespace = "androidx.sqlite.inspection"
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.resources.addStaticSourceDirectory("src/main/proto")
+    }
 }

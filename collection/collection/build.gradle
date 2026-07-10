@@ -15,18 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -51,34 +47,21 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
 
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinTest)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
 
-        nonJsMain {
-            dependsOn(commonMain)
+        jvmMain.dependencies {
+            api(libs.jspecify)
         }
 
-        nonJsTest {
-            dependsOn(commonTest)
-        }
-
-        jvmMain {
-            dependsOn(nonJsMain)
-        }
-
+        nonJsTest {}.dependsOn(commonTest)
         jvmTest {
             dependsOn(nonJsTest)
             dependencies {
@@ -88,85 +71,22 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmMain {
-            dependsOn(commonMain)
-        }
+        create("unixMain").dependsOn(nativeMain)
+        appleMain.dependsOn(unixMain)
+        linuxMain.dependsOn(unixMain)
 
-        nativeMain {
-            dependsOn(nonJsMain)
-            dependsOn(nonJvmMain)
-        }
+        nativeTest.dependsOn(nonJsTest)
+        wasmJsTest.dependsOn(nonJsTest)
+    }
+}
 
-        nativeTest {
-            dependsOn(nonJsTest)
-        }
-
-        unixMain {
-            dependsOn(nativeMain)
-        }
-
-        darwinMain {
-            dependsOn(unixMain)
-        }
-
-        linuxMain {
-            dependsOn(unixMain)
-        }
-
-        mingwMain {
-            dependsOn(nativeMain)
-        }
-
-        webMain {
-            dependsOn(nonJvmMain)
-        }
-
-        webTest {
-            dependsOn(commonTest)
-        }
-
-        wasmJsMain {
-            dependsOn(nonJsMain)
-            dependsOn(webMain)
-        }
-
-        wasmJsTest {
-            dependsOn(nonJsTest)
-            dependsOn(webTest)
-        }
-
-        jsMain {
-            dependsOn(webMain)
-        }
-
-        jsTest {
-            dependsOn(webTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    if (target.konanTarget.family.appleFamily) {
-                        dependsOn(darwinMain)
-                    } else if (target.konanTarget.family == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else if (target.konanTarget.family == Family.MINGW) {
-                        dependsOn(mingwMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
-                }
-
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
-            }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
+dependencies {
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with Compose Multiplatform 1.8.0, "collection-internal" published as empty
+        // artifact with dependency to this androidx module.
+        commonMainImplementation("org.jetbrains.compose.collection-internal:collection:1.8.0") {
+            because "prevents symbols duplication"
         }
     }
 }
@@ -176,6 +96,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Standalone efficient collections."
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

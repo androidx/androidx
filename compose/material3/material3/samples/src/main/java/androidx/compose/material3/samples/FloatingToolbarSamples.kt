@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
@@ -40,7 +42,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AppBarColumn
 import androidx.compose.material3.AppBarRow
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingToolbarDefaults
@@ -52,9 +54,14 @@ import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.VerticalFloatingToolbar
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,12 +70,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -77,6 +90,45 @@ fun ExpandableHorizontalFloatingToolbarSample() {
     Scaffold(
         content = { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
+                // The toolbar should receive focus before the screen content, so place it first.
+                // Make sure to set its zIndex so it's above the screen content visually.
+                HorizontalFloatingToolbar(
+                    modifier =
+                        Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset).zIndex(1f),
+                    expanded = expanded,
+                    leadingContent = { LeadingContent() },
+                    trailingContent = { TrailingContent() },
+                    content = {
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) {
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
+                        }
+                    },
+                )
                 LazyColumn(
                     // Apply a floatingToolbarVerticalNestedScroll Modifier toggle the expanded
                     // state of the HorizontalFloatingToolbar.
@@ -99,26 +151,12 @@ fun ExpandableHorizontalFloatingToolbarSample() {
                         )
                     }
                 }
-                HorizontalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset),
-                    expanded = expanded,
-                    leadingContent = { LeadingContent() },
-                    trailingContent = { TrailingContent() },
-                    content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                        }
-                    },
-                )
             }
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -126,43 +164,15 @@ fun OverflowingHorizontalFloatingToolbarSample() {
     Scaffold(
         content = { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
-                LazyColumn(
-                    state = rememberLazyListState(),
-                    contentPadding = innerPadding,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    val list = (0..75).map { it.toString() }
-                    items(count = list.size) {
-                        Text(
-                            text = list[it],
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        )
-                    }
-                }
+                // The toolbar should receive focus before the screen content, so place it first.
+                // Make sure to set its zIndex so it's above the screen content visually.
                 HorizontalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset),
+                    modifier =
+                        Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset).zIndex(1f),
                     expanded = true,
                     leadingContent = { LeadingContent() },
                     trailingContent = {
-                        AppBarRow(
-                            overflowIndicator = { menuState ->
-                                IconButton(
-                                    onClick = {
-                                        if (menuState.isExpanded) {
-                                            menuState.dismiss()
-                                        } else {
-                                            menuState.show()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "Localized description",
-                                    )
-                                }
-                            }
-                        ) {
+                        AppBarRow {
                             clickableItem(
                                 onClick = { /* doSomething() */ },
                                 icon = {
@@ -216,20 +226,56 @@ fun OverflowingHorizontalFloatingToolbarSample() {
                         }
                     },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    contentPadding = innerPadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(count = list.size) {
+                        Text(
+                            text = list[it],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        )
+                    }
+                }
             }
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -240,6 +286,46 @@ fun ScrollableHorizontalFloatingToolbarSample() {
         modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
         content = { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
+                // The toolbar should receive focus before the screen content, so place it first.
+                // Make sure to set its zIndex so it's above the screen content visually.
+                HorizontalFloatingToolbar(
+                    modifier =
+                        Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset).zIndex(1f),
+                    expanded = true,
+                    leadingContent = { LeadingContent() },
+                    trailingContent = { TrailingContent() },
+                    content = {
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) {
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
+                        }
+                    },
+                    scrollBehavior = exitAlwaysScrollBehavior,
+                )
                 LazyColumn(
                     state = rememberLazyListState(),
                     contentPadding = innerPadding,
@@ -254,27 +340,12 @@ fun ScrollableHorizontalFloatingToolbarSample() {
                         )
                     }
                 }
-                HorizontalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset),
-                    expanded = true,
-                    leadingContent = { LeadingContent() },
-                    trailingContent = { TrailingContent() },
-                    content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                        }
-                    },
-                    scrollBehavior = exitAlwaysScrollBehavior,
-                )
             }
         },
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -283,6 +354,45 @@ fun ExpandableVerticalFloatingToolbarSample() {
     Scaffold(
         content = { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
+                // The toolbar should receive focus before the screen content for a11y, so place it
+                // first. Make sure to set its zIndex so it's above the screen content visually.
+                VerticalFloatingToolbar(
+                    modifier =
+                        Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset).zIndex(1f),
+                    expanded = expanded,
+                    leadingContent = { LeadingContent() },
+                    trailingContent = { TrailingContent() },
+                    content = {
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) {
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
+                        }
+                    },
+                )
                 LazyColumn(
                     // Apply a floatingToolbarVerticalNestedScroll Modifier toggle the expanded
                     // state of the HorizontalFloatingToolbar.
@@ -305,26 +415,12 @@ fun ExpandableVerticalFloatingToolbarSample() {
                         )
                     }
                 }
-                VerticalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
-                    expanded = expanded,
-                    leadingContent = { LeadingContent() },
-                    trailingContent = { TrailingContent() },
-                    content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                        }
-                    },
-                )
             }
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -332,43 +428,15 @@ fun OverflowingVerticalFloatingToolbarSample() {
     Scaffold(
         content = { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
-                LazyColumn(
-                    state = rememberLazyListState(),
-                    contentPadding = innerPadding,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    val list = (0..75).map { it.toString() }
-                    items(count = list.size) {
-                        Text(
-                            text = list[it],
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        )
-                    }
-                }
+                // The toolbar should receive focus before the screen content for a11y, so place it
+                // first. Make sure to set its zIndex so it's above the screen content visually.
                 VerticalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
+                    modifier =
+                        Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset).zIndex(1f),
                     expanded = true,
                     leadingContent = { LeadingContent() },
                     trailingContent = {
-                        AppBarColumn(
-                            overflowIndicator = { menuState ->
-                                IconButton(
-                                    onClick = {
-                                        if (menuState.isExpanded) {
-                                            menuState.dismiss()
-                                        } else {
-                                            menuState.show()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "Localized description",
-                                    )
-                                }
-                            }
-                        ) {
+                        AppBarColumn {
                             clickableItem(
                                 onClick = { /* doSomething() */ },
                                 icon = {
@@ -422,30 +490,36 @@ fun OverflowingVerticalFloatingToolbarSample() {
                         }
                     },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Preview
-@Sampled
-@Composable
-fun ScrollableVerticalFloatingToolbarSample() {
-    val exitAlwaysScrollBehavior =
-        FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = End)
-    Scaffold(
-        modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
-        content = { innerPadding ->
-            Box(Modifier.padding(innerPadding)) {
                 LazyColumn(
                     state = rememberLazyListState(),
                     contentPadding = innerPadding,
@@ -460,27 +534,82 @@ fun ScrollableVerticalFloatingToolbarSample() {
                         )
                     }
                 }
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun ScrollableVerticalFloatingToolbarSample() {
+    val exitAlwaysScrollBehavior =
+        FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = End)
+    Scaffold(
+        modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
+        content = { innerPadding ->
+            Box(Modifier.padding(innerPadding)) {
+                // The toolbar should receive focus before the screen content for a11y, so place it
+                // first. Make sure to set its zIndex so it's above the screen content visually.
                 VerticalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
+                    modifier =
+                        Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset).zIndex(1f),
                     expanded = true,
                     leadingContent = { LeadingContent() },
                     trailingContent = { TrailingContent() },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            //  where tooltip text is not announced by a11y screen
+                                            //  readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = "Localized description"
+                                        }
+                                ) {
+                                    Text("Localized description")
+                                }
+                            },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                     scrollBehavior = exitAlwaysScrollBehavior,
                 )
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    contentPadding = innerPadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(count = list.size) {
+                        Text(
+                            text = list[it],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        )
+                    }
+                }
             }
         },
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -489,6 +618,169 @@ fun HorizontalFloatingToolbarWithFabSample() {
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     Scaffold { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
+            // The toolbar should receive focus before the screen content for a11y, so place it
+            // first. Make sure to set its zIndex so it's above the screen content visually.
+            HorizontalFloatingToolbar(
+                expanded = expanded,
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
+                    }
+                },
+                modifier =
+                    Modifier.align(Alignment.BottomEnd)
+                        .offset(x = -ScreenOffset, y = -ScreenOffset)
+                        .zIndex(1f),
+                colors = vibrantColors,
+                content = {
+                    // Make sure the buttons are not focusable if they are not visible, so that
+                    // keyboard focus doesn't go to an invisible element on the screen.
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                },
+            )
             Column(
                 Modifier.fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -503,40 +795,11 @@ fun HorizontalFloatingToolbarWithFabSample() {
             ) {
                 Text(text = remember { LoremIpsum().values.first() })
             }
-            HorizontalFloatingToolbar(
-                expanded = expanded,
-                floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
-                    ) {
-                        Icon(Icons.Filled.Add, "Localized description")
-                    }
-                },
-                modifier =
-                    Modifier.align(Alignment.BottomEnd)
-                        .offset(x = -ScreenOffset, y = -ScreenOffset),
-                colors = vibrantColors,
-                content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
-                    }
-                },
-            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -546,6 +809,156 @@ fun CenteredHorizontalFloatingToolbarWithFabSample() {
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     Scaffold(modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior)) { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
+            // The toolbar should receive focus before the screen content for a11y, so place it
+            // first. Make sure to set its zIndex so it's above the screen content visually.
+            HorizontalFloatingToolbar(
+                // Always expanded as the toolbar is bottom-centered. We will use a
+                // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
+                expanded = true,
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
+                    }
+                },
+                modifier =
+                    Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset).zIndex(1f),
+                colors = vibrantColors,
+                scrollBehavior = exitAlwaysScrollBehavior,
+                content = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                },
+            )
             Column(
                 Modifier.fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -553,41 +966,11 @@ fun CenteredHorizontalFloatingToolbarWithFabSample() {
             ) {
                 Text(text = remember { LoremIpsum().values.first() })
             }
-            HorizontalFloatingToolbar(
-                // Always expanded as the toolbar is bottom-centered. We will use a
-                // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
-                expanded = true,
-                floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
-                    ) {
-                        Icon(Icons.Filled.Add, "Localized description")
-                    }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter).offset(y = -ScreenOffset),
-                colors = vibrantColors,
-                scrollBehavior = exitAlwaysScrollBehavior,
-                content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
-                    }
-                },
-            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -596,6 +979,169 @@ fun VerticalFloatingToolbarWithFabSample() {
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     Scaffold { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
+            // The toolbar should receive focus before the screen content for a11y, so place it
+            // first. Make sure to set its zIndex so it's above the screen content visually.
+            VerticalFloatingToolbar(
+                expanded = expanded,
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
+                    }
+                },
+                modifier =
+                    Modifier.align(Alignment.BottomEnd)
+                        .offset(x = -ScreenOffset, y = -ScreenOffset)
+                        .zIndex(1f),
+                colors = vibrantColors,
+                content = {
+                    // Make sure the buttons are not focusable if they are not visible, so that
+                    // keyboard focus doesn't go to an invisible element on the screen.
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                },
+            )
             Column(
                 Modifier.fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -612,40 +1158,11 @@ fun VerticalFloatingToolbarWithFabSample() {
             ) {
                 Text(text = remember { LoremIpsum().values.first() })
             }
-            VerticalFloatingToolbar(
-                expanded = expanded,
-                floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
-                    ) {
-                        Icon(Icons.Filled.Add, "Localized description")
-                    }
-                },
-                modifier =
-                    Modifier.align(Alignment.BottomEnd)
-                        .offset(x = -ScreenOffset, y = -ScreenOffset),
-                colors = vibrantColors,
-                content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
-                    }
-                },
-            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -655,6 +1172,130 @@ fun CenteredVerticalFloatingToolbarWithFabSample() {
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     Scaffold(modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior)) { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
+            // The toolbar should receive focus before the screen content for a11y, so place it
+            // first. Make sure to set its zIndex so it's above the screen content visually.
+            VerticalFloatingToolbar(
+                // Always expanded as the toolbar is right-centered. We will use a
+                // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
+                expanded = true,
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
+                    }
+                },
+                modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset).zIndex(1f),
+                colors = vibrantColors,
+                scrollBehavior = exitAlwaysScrollBehavior,
+                content = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
+                    }
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                    }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
+                    }
+                },
+            )
             Column(
                 Modifier.fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -662,41 +1303,11 @@ fun CenteredVerticalFloatingToolbarWithFabSample() {
             ) {
                 Text(text = remember { LoremIpsum().values.first() })
             }
-            VerticalFloatingToolbar(
-                // Always expanded as the toolbar is right-centered. We will use a
-                // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
-                expanded = true,
-                floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
-                    ) {
-                        Icon(Icons.Filled.Add, "Localized description")
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
-                colors = vibrantColors,
-                scrollBehavior = exitAlwaysScrollBehavior,
-                content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
-                    }
-                },
-            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -708,26 +1319,157 @@ fun HorizontalFloatingToolbarAsScaffoldFabSample() {
             HorizontalFloatingToolbar(
                 expanded = expanded,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { expanded = !expanded }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 colors = vibrantColors,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                    // Make sure the buttons are not focusable if they are not visible, so that
+                    // keyboard focus doesn't go to an invisible element on the screen.
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //  tooltip text is not announced by a11y screen readers is
+                                        //  resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Localized description"
+                                    }
+                            ) {
+                                Text("Localized description")
+                            }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -758,22 +1500,100 @@ fun HorizontalFloatingToolbarAsScaffoldFabSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LeadingContent() {
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Check, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Check, contentDescription = "Localized description")
+        }
     }
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TrailingContent() {
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Download, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Download, contentDescription = "Localized description")
+        }
     }
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+            ) {
+                Text("Localized description")
+            }
+        },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+        }
     }
 }

@@ -1,0 +1,90 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.vo
+
+import androidx.room3.compiler.processing.XConstructorElement
+import androidx.room3.compiler.processing.XElement
+import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.util.md5Hex
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+
+@RunWith(JUnit4::class)
+class DatabaseTest {
+
+    @Test
+    fun indexLegacyHash() {
+        val database =
+            Database(
+                element = mock(XTypeElement::class.java),
+                type = mock(XType::class.java),
+                entities =
+                    listOf(
+                        Entity(
+                            mock(XTypeElement::class.java),
+                            tableName = "TheTable",
+                            type = mock(XType::class.java),
+                            properties = emptyList(),
+                            embeddedProperties = emptyList(),
+                            primaryKey =
+                                PrimaryKey(
+                                    declaredIn = mock(XElement::class.java),
+                                    properties = Properties(),
+                                    autoGenerateId = false,
+                                    algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
+                                ),
+                            indices =
+                                listOf(
+                                    Index(
+                                        name = "leIndex",
+                                        unique = false,
+                                        properties = Properties(),
+                                        orders = emptyList(),
+                                    ),
+                                    Index(
+                                        name = "leIndex2",
+                                        unique = true,
+                                        properties = Properties(),
+                                        orders = emptyList(),
+                                    ),
+                                ),
+                            foreignKeys = emptyList(),
+                            constructor =
+                                Constructor(mock(XConstructorElement::class.java), emptyList()),
+                            shadowTableName = null,
+                        )
+                    ),
+                views = emptyList(),
+                daoFunctions = emptyList(),
+                version = 1,
+                exportSchema = false,
+                enableForeignKeys = false,
+                constructorObject = null,
+            )
+
+        val expectedLegacyHash =
+            ("CREATE TABLE IF NOT EXISTS `TheTable` ()¯\\_(ツ)_/¯" +
+                    "CREATE  INDEX `leIndex` ON `TheTable` ()¯\\_(ツ)_/¯" +
+                    "CREATE UNIQUE INDEX `leIndex2` ON `TheTable` ()")
+                .md5Hex()
+        assertEquals(expectedLegacyHash, database.legacyIdentityHash)
+    }
+}

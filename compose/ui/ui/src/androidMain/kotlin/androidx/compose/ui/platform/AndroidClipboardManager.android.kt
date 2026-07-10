@@ -50,15 +50,20 @@ private const val PLAIN_TEXT_LABEL = "plain text"
 
 /** Android implementation for [ClipboardManager]. */
 @Suppress("DEPRECATION")
-internal class AndroidClipboardManager
-internal constructor(private val clipboardManager: android.content.ClipboardManager) :
+internal class AndroidClipboardManager internal constructor(private val context: Context) :
     ClipboardManager {
-
-    internal constructor(
-        context: Context
-    ) : this(
-        context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-    )
+    private var _clipboardManager: android.content.ClipboardManager? = null
+    private val clipboardManager: android.content.ClipboardManager
+        get() {
+            var clipboardManager = _clipboardManager
+            if (clipboardManager == null) {
+                clipboardManager =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE)
+                        as android.content.ClipboardManager
+                _clipboardManager = clipboardManager
+            }
+            return clipboardManager
+        }
 
     override fun setText(annotatedString: AnnotatedString) {
         clipboardManager.setPrimaryClip(
@@ -120,6 +125,11 @@ actual class ClipMetadata(val clipDescription: ClipDescription)
 
 fun ClipDescription.toClipMetadata(): ClipMetadata = ClipMetadata(this)
 
+@Deprecated(
+    message = "Use android.content.ClipboardManager directly instead",
+    replaceWith = ReplaceWith("android.content.ClipboardManager"),
+)
+@Suppress("TypealiasDefinition")
 actual typealias NativeClipboard = android.content.ClipboardManager
 
 @RequiresApi(28)
@@ -477,18 +487,7 @@ internal class DecodeHelper(string: String) {
     }
 
     private fun decodeTextDecoration(): TextDecoration {
-        val mask = decodeInt()
-        val hasLineThrough = mask and TextDecoration.LineThrough.mask != 0
-        val hasUnderline = mask and TextDecoration.Underline.mask != 0
-        return if (hasLineThrough && hasUnderline) {
-            TextDecoration.combine(listOf(TextDecoration.LineThrough, TextDecoration.Underline))
-        } else if (hasLineThrough) {
-            TextDecoration.LineThrough
-        } else if (hasUnderline) {
-            TextDecoration.Underline
-        } else {
-            TextDecoration.None
-        }
+        return TextDecoration.valueOf(decodeInt())
     }
 
     private fun decodeShadow(): Shadow {

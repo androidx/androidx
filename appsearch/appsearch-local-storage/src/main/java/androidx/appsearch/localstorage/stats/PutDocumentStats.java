@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
@@ -27,9 +28,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * A class for holding detailed stats to log for each individual document put by a
  * {@link androidx.appsearch.app.AppSearchSession#putAsync} call.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class PutDocumentStats extends BaseStats {
     private final @NonNull String mPackageName;
@@ -204,6 +204,52 @@ public final class PutDocumentStats extends BaseStats {
     /** Returns time used to index all embeddings in the document, in milliseconds. */
     public int getEmbeddingIndexLatencyMillis() {
         return mEmbeddingIndexLatencyMillis;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "PutDocumentStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  generateDocumentProtoLatencyMillis=%d,\n"
+                        + "  rewriteDocumentTypesLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreLatencyMillis=%d,\n"
+                        + "  nativeIndexLatencyMillis=%d,\n"
+                        + "  nativeIndexMergeLatencyMillis=%d,\n"
+                        + "  nativeDocumentSizeBytes=%d,\n"
+                        + "  nativeNumTokensIndexed=%d,\n"
+                        + "  nativeTermIndexLatencyMillis=%d,\n"
+                        + "  nativeIntegerIndexLatencyMillis=%d,\n"
+                        + "  nativeQualifiedIdJoinIndexLatencyMillis=%d,\n"
+                        + "  nativeLiteIndexSortLatencyMillis=%d,\n"
+                        + "  metadataTermIndexLatencyMillis=%d,\n"
+                        + "  embeddingIndexLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mGenerateDocumentProtoLatencyMillis,
+                mRewriteDocumentTypesLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDocumentStoreLatencyMillis,
+                mNativeIndexLatencyMillis,
+                mNativeIndexMergeLatencyMillis,
+                mNativeDocumentSizeBytes,
+                mNativeNumTokensIndexed,
+                mNativeTermIndexLatencyMillis,
+                mNativeIntegerIndexLatencyMillis,
+                mNativeQualifiedIdJoinIndexLatencyMillis,
+                mNativeLiteIndexSortLatencyMillis,
+                mMetadataTermIndexLatencyMillis,
+                mEmbeddingIndexLatencyMillis);
     }
 
     /** Builder for {@link PutDocumentStats}. */

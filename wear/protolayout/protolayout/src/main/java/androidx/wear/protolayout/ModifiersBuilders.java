@@ -1776,7 +1776,8 @@ public final class ModifiersBuilders {
         /**
          * Gets the horizontal location of the point around which the element is rotated and scaled.
          * With type {@link DpProp}, it is the offset from the element center; otherwise with type
-         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box width.
+         * {@link androidx.wear.protolayout.DimensionBuilders.BoundingBoxRatio}, it is the location
+         * proportional to the bounding box width.
          */
         public @NonNull PivotDimension getPivotX() {
             if (mImpl.hasPivotX()) {
@@ -1789,7 +1790,8 @@ public final class ModifiersBuilders {
         /**
          * Gets the vertical location of the point around which the element is rotated and scaled.
          * With type {@link DpProp}, it is the offset from the element center; otherwise with type
-         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box height.
+         * {@link androidx.wear.protolayout.DimensionBuilders.BoundingBoxRatio}, it is the location
+         * proportional to the bounding box height.
          */
         public @NonNull PivotDimension getPivotY() {
             if (mImpl.hasPivotY()) {
@@ -1914,8 +1916,9 @@ public final class ModifiersBuilders {
             /**
              * Sets the horizontal location of the point around which the element is rotated and
              * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
-             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
-             * box width. Dynamic value is supported. If not set, defaults to the element center.
+             * with type {@link androidx.wear.protolayout.DimensionBuilders.BoundingBoxRatio}, it is
+             * the location proportional to the bounding box width. Dynamic value is supported. If
+             * not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             public @NonNull Builder setPivotX(@NonNull PivotDimension pivotX) {
@@ -1928,8 +1931,9 @@ public final class ModifiersBuilders {
             /**
              * Sets the vertical location of the point around which the element is rotated and
              * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
-             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
-             * box height. Dynamic value is supported. If not set, defaults to the element center.
+             * with type {@link androidx.wear.protolayout.DimensionBuilders.BoundingBoxRatio}, it is
+             * the location proportional to the bounding box height. Dynamic value is supported. If
+             * not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             public @NonNull Builder setPivotY(@NonNull PivotDimension pivotY) {
@@ -3066,10 +3070,12 @@ public final class ModifiersBuilders {
     @ProtoLayoutExperimental
     public interface SlideBound {
         /** Get the protocol buffer representation of this object. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         ModifiersProto.@NonNull SlideBound toSlideBoundProto();
 
         /** Get the fingerprint for this object or null if unknown. */
+        @SuppressWarnings("HiddenAbstractMethodInInterface")
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable Fingerprint getFingerprint();
 

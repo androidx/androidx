@@ -18,35 +18,19 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.util.lerp
 
 /**
- * The amount by which the text is shifted up or down from current the baseline.
+ * Shifts the text baseline vertically (up or down).
  *
- * @param multiplier shift the baseline by multiplier * (baseline - ascent)
- * @constructor
+ * @param multiplier multiplier to shift the baseline (distance = multiplier * (baseline - ascent)).
  * @sample androidx.compose.ui.text.samples.BaselineShiftSample
  * @sample androidx.compose.ui.text.samples.BaselineShiftAnnotatedStringSample
  */
 @Immutable
 @kotlin.jvm.JvmInline
 value class BaselineShift(val multiplier: Float) {
-    /**
-     * Returns this [BaselineShift] if it is specified or [default] if it is
-     * [BaselineShift.Unspecified].
-     */
-    inline fun takeOrElse(default: () -> BaselineShift): BaselineShift {
-        return if (multiplier.isNaN()) default() else this
-    }
-
-    /**
-     * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
-     *
-     * @see BaselineShift.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = !multiplier.isNaN()
-
     companion object {
         /** Default baseline shift for superscript. */
         @Stable val Superscript = BaselineShift(0.5f)
@@ -57,9 +41,32 @@ value class BaselineShift(val multiplier: Float) {
         /** Constant for no baseline shift. */
         @Stable val None = BaselineShift(0.0f)
 
-        /** Constant for an unset baseline shift. */
+        /** Represents an unset [BaselineShift] value. */
         @Stable val Unspecified = BaselineShift(Float.NaN)
     }
+}
+
+/**
+ * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
+ *
+ * @see BaselineShift.Unspecified
+ */
+inline val BaselineShift.isSpecified: Boolean
+    get() = !multiplier.isNaN()
+
+/**
+ * Returns `true` if this baseline shift is applicable (i.e. not [BaselineShift.None], not
+ * [BaselineShift.Unspecified], and is a finite number).
+ */
+internal inline val BaselineShift.isApplicable: Boolean
+    get() = multiplier.isFinite() && multiplier != 0f
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun BaselineShift.takeOrElse(block: () -> BaselineShift): BaselineShift {
+    return if (multiplier.isNaN()) block() else this
 }
 
 /** Linearly interpolate two [BaselineShift]s. */

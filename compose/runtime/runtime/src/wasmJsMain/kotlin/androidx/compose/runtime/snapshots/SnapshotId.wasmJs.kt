@@ -20,6 +20,7 @@ package androidx.compose.runtime.snapshots
 
 import androidx.collection.mutableLongListOf
 
+@Suppress("TypealiasDefinition")
 public actual typealias SnapshotId = Long
 
 internal actual const val SnapshotIdZero: SnapshotId = 0L
@@ -47,6 +48,7 @@ public actual inline fun SnapshotId.toInt(): Int = this.toInt()
 
 public actual inline fun SnapshotId.toLong(): Long = this
 
+@Suppress("TypealiasDefinition")
 public actual typealias SnapshotIdArray = LongArray
 
 internal actual fun snapshotIdArrayWithCapacity(capacity: Int): SnapshotIdArray =

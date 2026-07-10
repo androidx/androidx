@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
  * Chat boxes animating elevation and size
  *
  */
+@Suppress("DEPRECATION")
 @Composable
 @SubspaceComposable
 fun SequentialAnimationExample(modifier: SubspaceModifier = SubspaceModifier) {

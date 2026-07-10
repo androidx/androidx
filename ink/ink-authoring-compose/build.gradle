@@ -25,61 +25,59 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.ink.authoring.compose"
-        compileSdk = 35
+        compileSdk { version = release(35) }
         androidResources.enable = true
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
+        androidMain.dependencies {
+            api(project(":ink:ink-authoring"))
+            api(project(":ink:ink-brush"))
+            api(project(":ink:ink-strokes"))
 
-        androidMain {
-            dependencies {
-                api(project(":ink:ink-authoring"))
-                api(project(":ink:ink-brush"))
-                api(project(":ink:ink-strokes"))
+            implementation(project(":ink:ink-nativeloader"))
+            implementation(project(":ink:ink-rendering"))
 
-                implementation("androidx.compose.ui:ui:1.9.0-rc01")
-                implementation("androidx.input:input-motionprediction:1.0.0-beta05")
+            implementation("androidx.compose.ui:ui:1.9.0")
+            implementation("androidx.input:input-motionprediction:1.0.0")
 
-                implementation("androidx.annotation:annotation:1.8.0")
-                implementation("androidx.compose.foundation:foundation:1.6.8")
-                implementation("androidx.compose.foundation:foundation-layout:1.6.8")
-                implementation("androidx.compose.runtime:runtime:1.6.8")
-                implementation("androidx.compose.ui:ui-graphics:1.6.8")
-                implementation("androidx.compose.ui:ui-util:1.6.8")
-            }
+            implementation("androidx.annotation:annotation:1.8.0")
+            implementation("androidx.compose.foundation:foundation:1.6.8")
+            implementation("androidx.compose.foundation:foundation-layout:1.6.8")
+            implementation("androidx.compose.runtime:runtime:1.6.8")
+            implementation("androidx.compose.ui:ui-graphics:1.6.8")
+            implementation("androidx.compose.ui:ui-util:1.6.8")
         }
 
-        androidInstrumentedTest {
-            dependencies {
-                implementation(project(":ink:ink-brush"))
-                implementation(project(":ink:ink-strokes"))
+        androidDeviceTest.dependencies {
+            implementation(project(":ink:ink-brush"))
+            implementation(project(":ink:ink-strokes"))
 
-                implementation("androidx.activity:activity:1.9.3")
-                implementation("androidx.activity:activity-compose:1.9.3")
-                implementation("androidx.core:core:1.16.0")
-                implementation("androidx.core:core-ktx:1.16.0")
-                implementation("androidx.compose.foundation:foundation:1.6.8")
-                implementation("androidx.compose.foundation:foundation-layout:1.6.8")
-                implementation("androidx.compose.runtime:runtime:1.6.8")
-                implementation("androidx.compose.ui:ui:1.6.8")
-                implementation("androidx.compose.ui:ui-graphics:1.6.8")
-                implementation("androidx.compose.ui:ui-geometry:1.6.8")
-                implementation("androidx.compose.ui:ui-util:1.6.8")
+            implementation("androidx.activity:activity:1.9.3")
+            implementation("androidx.activity:activity-compose:1.9.3")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.core:core-ktx:1.16.0")
+            implementation("androidx.compose.foundation:foundation:1.6.8")
+            implementation("androidx.compose.foundation:foundation-layout:1.6.8")
+            implementation("androidx.compose.runtime:runtime:1.6.8")
+            implementation("androidx.compose.ui:ui:1.6.8")
+            implementation("androidx.compose.ui:ui-graphics:1.6.8")
+            implementation("androidx.compose.ui:ui-geometry:1.6.8")
+            implementation("androidx.compose.ui:ui-util:1.6.8")
 
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.truth)
-                implementation(project(":test:screenshot:screenshot"))
-            }
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.mockitoCore4)
+            implementation(libs.mockitoKotlin4)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.truth)
+            implementation(project(":test:screenshot:screenshot"))
         }
     }
 }

@@ -21,16 +21,17 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
+import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -56,11 +57,7 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     @get:Rule
@@ -69,9 +66,6 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
             CameraUtil.PreTestCameraIdList(cameraXConfig)
         )
 
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var cameraSelector: CameraSelector
@@ -97,7 +91,10 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector)
     }
 
-    suspend fun verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector: CameraSelector) {
+    suspend fun verifyCaptureRequestTagContainsAnalyticsPrefix(
+        cameraSelector: CameraSelector,
+        sessionConfigProvider: (UseCase) -> SessionConfig = { SessionConfig.Builder(it).build() },
+    ) {
         val captureRequestTagDeferred = CompletableDeferred<Any?>()
         val preview =
             Preview.Builder()
@@ -122,7 +119,8 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         withContext(Dispatchers.Main) {
             preview.surfaceProvider =
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
+            val sessionConfig = sessionConfigProvider.invoke(preview)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
         }
 
         assertThat(withTimeoutOrNull(3000) { captureRequestTagDeferred.await() }.toString())
@@ -134,8 +132,8 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         val extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider).await()
         assumeTrue(extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT))
 
-        val extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(cameraSelector, ExtensionMode.NIGHT)
-        verifyCaptureRequestTagContainsAnalyticsPrefix(extensionCameraSelector)
+        verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector) { useCase ->
+            ExtensionSessionConfig(ExtensionMode.NIGHT, extensionsManager, useCase)
+        }
     }
 }

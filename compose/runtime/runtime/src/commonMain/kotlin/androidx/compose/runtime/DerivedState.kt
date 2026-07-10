@@ -149,7 +149,19 @@ private class DerivedSnapshotState<T>(
                                 // read
                                 // that way we can be sure derived states in deps were recalculated,
                                 // and are updated to the last values
-                                stateObject.current(snapshot)
+                                val record = stateObject.current(snapshot)
+
+                                // The state record might remain the same while the immediate
+                                // dependencies change. In that case, we need to update the hash to
+                                // re-read the dependencies.
+                                record.dependencies.forEachKey { dependency ->
+                                    // Important: using identity hash code of the state instance
+                                    // instead of the state record here to avoid changes in hash
+                                    // when the value changes.
+                                    hash = 31 * hash + identityHashCode(dependency)
+                                }
+
+                                record
                             } else {
                                 current(stateObject.firstStateRecord, snapshot)
                             }
@@ -172,7 +184,7 @@ private class DerivedSnapshotState<T>(
      *
      * @return latest state record for the derived state.
      */
-    fun current(snapshot: Snapshot): StateRecord =
+    fun current(snapshot: Snapshot): ResultRecord<*> =
         currentRecord(current(first, snapshot), snapshot, false, calculation)
 
     private fun currentRecord(
@@ -293,7 +305,7 @@ private class DerivedSnapshotState<T>(
         }
 
     override fun toString(): String =
-        first.withCurrent { "DerivedState(value=${displayValue()})@${hashCode()}" }
+        first.withCurrent(this) { "DerivedState(value=${displayValue()})@${hashCode()}" }
 
     /**
      * A function used by the debugger to display the value of the current value of the mutable
@@ -303,13 +315,13 @@ private class DerivedSnapshotState<T>(
     val debuggerDisplayValue: T?
         @JvmName("getDebuggerDisplayValue")
         get() =
-            first.withCurrent {
+            first.withCurrent(this) {
                 @Suppress("UNCHECKED_CAST")
                 if (it.isValid(this, Snapshot.current)) it.result as T else null
             }
 
     private fun displayValue(): String {
-        first.withCurrent {
+        first.withCurrent(this) {
             if (it.isValid(this, Snapshot.current)) {
                 return it.result.toString()
             }

@@ -29,12 +29,15 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface PdfDocumentRenderer : AutoCloseable {
     /**
-     * Indicates whether the PDF document is linearized.
+     * The linearization status of the PDF document.
      *
-     * A linearized PDF allows for faster initial display of the first page, as it optimizes the
-     * file structure for progressive loading.
+     * This value indicates whether the document is optimized for incremental loading over a network
+     * where the value indicates:
+     * - 0: NOT_LINEARIZED
+     * - 1: LINEARIZED
+     * - 2: UNKNOWN STATUS.
      */
-    public val isLinearized: Boolean
+    public val linearizationStatus: Int
 
     /** The total number of pages in the PDF document. */
     public val pageCount: Int

@@ -17,7 +17,7 @@
 package androidx.xr.arcore.playservices
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.TrackingState
+import androidx.xr.arcore.runtime.TrackingState
 import com.google.ar.core.Anchor as ARCore1xAnchor
 import com.google.ar.core.Pose as ARCore1xPose
 import com.google.ar.core.TrackingState as ARCore1xTrackingState

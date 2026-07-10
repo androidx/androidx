@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
 
     <issue
         id="NewApi"
@@ -35,6 +35,166 @@
         errorLine2="                                 ~">
         <location
             file="src/main/java/androidx/window/demo/embedding/SplitImeActivityPlaceholder.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/current_state` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="        android:text=&quot;@string/current_state&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_display_features_no_config_change.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/legend` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="            android:text=&quot;@string/legend&quot; />"
+        errorLine2="                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_display_features_no_config_change.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@color/colorFeatureFold` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="                android:foreground=&quot;@color/colorFeatureFold&quot; />"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_display_features_no_config_change.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/fold` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="                android:text=&quot;@string/fold&quot; />"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_display_features_no_config_change.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorPrimary` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorPrimary&quot;>#6200EE&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorPrimaryDark` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorPrimaryDark&quot;>#3700B3&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorAccent` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorAccent&quot;>#03DAC5&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorFeatureFold` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorFeatureFold&quot;>#7700FF00&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorSplitContentBackground` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorSplitContentBackground&quot;>#3B6BDB4C&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@color/colorSplitControlsBackground` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;color name=&quot;colorSplitControlsBackground&quot;>#475ABFF3&lt;/color>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@color/colorAccent` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="            window:embeddingDividerColor=&quot;@color/colorAccent&quot;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/xml/main_split_config.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@color/colorAccent` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="            window:embeddingDividerColor=&quot;@color/colorAccent&quot;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/xml/main_split_config.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@menu/picture_in_picture_menu` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name.">
+        <location
+            file="src/main/res/menu/picture_in_picture_menu.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@color/colorSplitContentBackground` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="    android:background=&quot;@color/colorSplitContentBackground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_layout_content.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@color/colorSplitControlsBackground` is marked as private in androidx.window.window-demos:demo-common:unspecified"
+        errorLine1="    android:background=&quot;@color/colorSplitControlsBackground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_layout_control.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/fold` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;fold&quot;>Fold&lt;/string>"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/res/values/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/legend` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;legend&quot;>Legend:&lt;/string>"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/display_features_config_change` which is marked as private in androidx.window.window-demos:demo-common:unspecified. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;display_features_config_change&quot;>Display features handle config change&lt;/string>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"/>
     </issue>
 
 </issues>

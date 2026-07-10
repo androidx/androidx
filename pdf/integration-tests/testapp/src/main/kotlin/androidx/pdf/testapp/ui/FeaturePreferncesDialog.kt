@@ -41,24 +41,30 @@ internal typealias BooleanProperty = KMutableProperty0<Boolean>
  *
  * @param context The context used to create the dialog and access resources.
  */
-internal class FeaturePreferencesDialog(private val context: Context) {
+internal class FeaturePreferencesDialog(
+    private val context: Context,
+    private val listener: FeatureFlagListener? = null,
+) {
 
     private val featureSwitches: List<FeatureFlagConfig> by lazy {
         listOf(
             FeatureFlagConfig(
-                R.id.switch_external_hardware_interaction,
-                PdfFeatureFlags::isExternalHardwareInteractionEnabled,
-                context.getString(R.string.external_input),
-            ),
-            FeatureFlagConfig(
-                R.id.switch_smart_action_menu,
-                PdfFeatureFlags::isSmartActionMenuComponentEnabled,
-                context.getString(R.string.smart_action_menu),
-            ),
-            FeatureFlagConfig(
                 R.id.custom_link_handling_switch,
                 PdfFeatureFlags::isCustomLinkHandlingEnabled,
+                FeatureFlagNames.CUSTOM_LINK_HANDLING,
                 context.getString(R.string.custom_link),
+            ),
+            FeatureFlagConfig(
+                R.id.thumbnail_preview_switch,
+                PdfFeatureFlags::isThumbnailPreviewEnabled,
+                FeatureFlagNames.THUMBNAIL_PREVIEW,
+                context.getString(R.string.thumbnail_preview),
+            ),
+            FeatureFlagConfig(
+                R.id.form_filling_switch,
+                PdfFeatureFlags::isFormFillingEnabled,
+                FeatureFlagNames.FORM_FILLING,
+                context.getString(R.string.enable_form_filling),
             ),
         )
     }
@@ -72,7 +78,10 @@ internal class FeaturePreferencesDialog(private val context: Context) {
         featureSwitches.forEach { config ->
             config.switchView =
                 settingsDialogView.findViewById<SwitchCompat>(config.viewId).apply {
-                    setOnCheckedChangeListener { _, isChecked -> config.property.set(isChecked) }
+                    setOnCheckedChangeListener { _, isChecked ->
+                        config.property.set(isChecked)
+                        listener?.onFeatureFlagUpdated(config.flagName, isChecked)
+                    }
                     text = config.text
                 }
         }
@@ -101,7 +110,18 @@ internal class FeaturePreferencesDialog(private val context: Context) {
 private data class FeatureFlagConfig(
     @IdRes val viewId: Int,
     val property: BooleanProperty,
+    val flagName: String,
     val text: String,
 ) {
     lateinit var switchView: SwitchCompat
+}
+
+interface FeatureFlagListener {
+    fun onFeatureFlagUpdated(flagName: String, enabled: Boolean)
+}
+
+object FeatureFlagNames {
+    const val CUSTOM_LINK_HANDLING: String = "CUSTOM_LINK_HANDLING"
+    const val THUMBNAIL_PREVIEW: String = "THUMBNAIL_PREVIEW"
+    const val FORM_FILLING: String = "FORM_FILLING"
 }

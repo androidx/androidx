@@ -16,32 +16,41 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.internal.PointSourceParams as RtPointSourceParams
+import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 
 /**
  * Configures a sound source to be spatialized at a 3D location.
  *
- * Positional sound sources are defined by PointSourceParams with an associated [Entity]. The
- * position and orientation of the Entity dictates where the PointSourceParams is rendered in 3D
- * space. For more information, see
+ * For more information, see
  * [Add positional audio to your app][https://developer.android.com/develop/xr/jetpack-xr-sdk/add-spatial-audio#add-positional].
  */
 // TODO: b/430650745 - reevaluate the usefulness of this class prior to the beta release
-public class PointSourceParams(internal val entity: Entity) {
+// TODO: b/426001209 - add additional parameters to PointSourceParams
+public class PointSourceParams
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var rtPointSourceParams: RtPointSourceParams
+) {
+    public constructor() : this(RtPointSourceParams())
 
-    init {
-        (entity as BaseEntity<*>).checkNotDisposed()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PointSourceParams
+
+        return rtPointSourceParams == other.rtPointSourceParams
     }
 
-    internal val rtPointSourceParams: RtPointSourceParams
-        get() {
-            (entity as BaseEntity<*>).checkNotDisposed()
-            return RtPointSourceParams(entity.rtEntity!!)
-        }
+    override fun hashCode(): Int {
+        return rtPointSourceParams.hashCode()
+    }
 }
 
-internal fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
-    val jxrEntity = session.scene.getEntityForRtEntity(entity)
-    return jxrEntity?.let { PointSourceParams(it) }
+/** Extension function that converts a [RtPointSourceParams] to a [PointSourceParams]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
+    return PointSourceParams(this)
 }

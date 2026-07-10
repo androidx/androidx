@@ -215,8 +215,16 @@ public final class TrustedWebActivityServiceConnectionPool {
         Intent scopeResolutionIntent = new Intent();
         scopeResolutionIntent.setData(scope);
         scopeResolutionIntent.setAction(Intent.ACTION_VIEW);
+
+        // According to the documentation, the flag we want to use below is MATCH_DEFAULT_ONLY.
+        // This would match all the browsers installed on the user's system whose intent handler
+        // contains the category Intent.CATEGORY_DEFAULT. However, >= Android M the behavior of
+        // the PackageManager changed to only return the default browser unless the MATCH_ALL is
+        // passed (this is specific to querying browsers - if you query for any other type of
+        // package, MATCH_DEFAULT_ONLY will work as documented). This flag did not exist on Android
+        // versions before M, so we only use it in that case.
         List<ResolveInfo> candidateActivities = appContext.getPackageManager()
-                .queryIntentActivities(scopeResolutionIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                .queryIntentActivities(scopeResolutionIntent, PackageManager.MATCH_ALL);
 
         // Choose the first of the installed packages that is verified.
         String resolvedPackage = null;

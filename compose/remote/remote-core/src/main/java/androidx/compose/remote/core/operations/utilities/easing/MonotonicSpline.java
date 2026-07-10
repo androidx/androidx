@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** This performs a spline interpolation in multiple dimensions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MonotonicSpline {
     private static final String TAG = "MonotonicCurveFit";
     private float[] mT;

@@ -21,6 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
@@ -72,20 +76,22 @@ import androidx.wear.compose.foundation.pager.VerticalPager
  *   content with a call to [hierarchicalFocusGroup], marking only the current page as active.
  */
 public fun Modifier.hierarchicalFocusGroup(active: Boolean): Modifier {
-    return this.then(
-        HierarchicalFocusCoordinatorModifierElement(
-            active = active,
-            activeFocus = false,
-            onFocusChanged = null,
+    return this.onPreviewKeyEvent { keyEvent -> shouldSwallowFocusGroupKeyEvent(active, keyEvent) }
+        .then(
+            HierarchicalFocusCoordinatorModifierElement(
+                active = active,
+                activeFocus = false,
+                onFocusChanged = null,
+            )
         )
-    )
 }
 
 /**
  * This Modifier is used in conjunction with [hierarchicalFocusGroup] and will request focus on the
  * following focusable element when needed (i.e. this needs to be before that element in the
- * Modifier chain). The focusable element is usually a [Modifier.rotaryScrollable] (or, in some
- * rarer cases a [Modifier.focusable] or [Modifier.focusTarget])
+ * Modifier chain). The focusable element is usually a
+ * [androidx.wear.compose.foundation.rotary.rotaryScrollable] (or, in some rarer cases a
+ * [androidx.compose.foundation.focusable] or [androidx.compose.ui.focus.focusTarget])
  *
  * Multiple [requestFocusOnHierarchyActive] Modifiers shouldn't be siblings, in those cases they
  * need to surround each with a [hierarchicalFocusGroup], and at most one of them should have active
@@ -106,6 +112,17 @@ public fun Modifier.requestFocusOnHierarchyActive(): Modifier =
             onFocusChanged = null,
         )
     )
+
+/**
+ * Helper to determine whether an active focus group should intercept and swallow low-power
+ * synthetic key events (e.g., from "petc") to prevent unintended focus change.
+ */
+internal fun shouldSwallowFocusGroupKeyEvent(active: Boolean, keyEvent: KeyEvent): Boolean {
+    if (active && keyEvent.isDpadKey()) {
+        return keyEvent.nativeKeyEvent.device?.name?.equals("petc", ignoreCase = true) == true
+    }
+    return false
+}
 
 private const val HFCTraversalKey = "HFCTraversalKey"
 
@@ -274,5 +291,16 @@ private class HierarchicalFocusCoordinatorModifierNode(
             mutableListOf()
         private val changedNodes: MutableList<HierarchicalFocusCoordinatorModifierNode> =
             mutableListOf()
+    }
+}
+
+private fun androidx.compose.ui.input.key.KeyEvent.isDpadKey(): Boolean {
+    return when (this.key) {
+        Key.DirectionUp,
+        Key.DirectionDown,
+        Key.DirectionLeft,
+        Key.DirectionRight,
+        Key.DirectionCenter -> true
+        else -> false
     }
 }

@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -32,13 +31,12 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
-    androidTestImplementation(project(":leanback:leanback"))
     androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
     androidTestImplementation(libs.constraintLayout)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.leanback.tab"
 }
 
@@ -48,6 +46,4 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK_TAB
     inceptionYear = "2020"
     description = "This library adds top tab navigation component to be used in TV"
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

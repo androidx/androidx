@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Message goes here.\nMore text on second line."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Short Message Template Demo"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Sectioned Item Template Demo"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Condensed Item Demo"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Sectioned Item AlphaJump enabled Demo"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Radio Button Section"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Toggle Section"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Lots of Rows Section"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Grid Item Section"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Sectioned Item List Demo"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"List 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"List 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext under each list"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"End Image and Actions Demo"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Chip Demo"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Progress Bar Demo"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Section Header Demo"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Spotlight Section Demo"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pane Template Demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Place List Template Demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browse Places"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Tab Template Demo"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Message Tab"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Pane Tab"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Sectioned Item Tab"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"List Tab"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid Tab with Long Tab Title"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Search Tab"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"The row can also be selected"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Secondary Action is selected"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Row primary action is selected"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Sectioned Item List Demo"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"List 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"List 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext under each list"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Row End Image And Actions Demo"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Empty List Demo"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"The list is empty"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Misc Templates Demos"</string>
@@ -375,4 +384,5 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Map With Content Demos"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Map With Message Template Demo"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Map With Grid Template Demo"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Banner Demo"</string>
 </resources>

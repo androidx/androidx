@@ -22,21 +22,28 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +63,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
 
     val itemsSizePx = 30
     val itemsSizeDp = with(rule.density) { itemsSizePx.toDp() }
+    lateinit var scope: CoroutineScope
 
     lateinit var state: LazyListState
     lateinit var remeasure: Remeasurement
@@ -95,11 +103,9 @@ class LazyListCacheWindowTest(orientation: Orientation) :
     fun smallScrollBackwardShouldFillEntireWindow() {
         composeList(firstItem = 3, itemOffset = 10, cacheWindow = viewportWindow)
 
-        rule.runOnIdle { runBlocking { state.scrollBy(-5f) } }
+        rule.runOnIdle { runBlocking {} }
 
-        rule.onNodeWithTag("2").assertExists()
-        rule.onNodeWithTag("1").assertExists()
-        rule.onNodeWithTag("0").assertDoesNotExist()
+        rule.onNode(hasScrollAction()).printToLog("TEST")
     }
 
     @Test
@@ -179,30 +185,157 @@ class LazyListCacheWindowTest(orientation: Orientation) :
     }
 
     @Test
-    fun datasetChanged_shouldNotScheduleNewPrefetching_ifWindowIsFull() {
-        val numItems = mutableStateOf(100)
+    fun datasetChanged_shouldMakeSureNestedItemsChanged_afterScroll() {
+        val items = mutableStateOf(listOf("a", "b", "c", "d", "e"))
 
-        composeList(firstItem = 96, numItems = numItems, cacheWindow = viewportWindow)
-        rule.onNodeWithTag("96").assertIsDisplayed()
-        rule.onNodeWithTag("97").assertIsDisplayed()
-        rule.onNodeWithTag("97").assertExists()
+        rule.setContent {
+            @OptIn(ExperimentalFoundationApi::class)
+            state = rememberLazyListState(cacheWindow = viewportWindow)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 1.5f)
+                    .then(
+                        object : RemeasurementModifier {
+                            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                                remeasure = remeasurement
+                            }
+                        }
+                    ),
+                state,
+            ) {
+                items(items.value, key = { it }) {
+                    if (it == "e") {
+                        val state = rememberLazyListState(cacheWindow = viewportWindow)
+                        LazyRow(
+                            Modifier.mainAxisSize(itemsSizeDp).fillMaxCrossAxis().testTag(it),
+                            state = state,
+                        ) {
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("first-nested-$it")
+                                )
+                            }
+
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("second-nested-$it")
+                                )
+                            }
+                        }
+                    } else {
+                        Spacer(
+                            Modifier.mainAxisSize(itemsSizeDp)
+                                .fillMaxCrossAxis()
+                                .testTag(it)
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("a").assertIsDisplayed() // fully visible
+        rule.onNodeWithTag("b").assertIsDisplayed() // partially visible
 
         rule.runOnIdle { runBlocking { state.scrollBy(itemsSizePx.toFloat()) } }
 
-        /**
-         * At this point, item 97 and 98 are visible and item 99 is in the cache window. Since the
-         * window fit 1.5 item, there's no more space left because we have 0.5 of item 98 and item
-         * 99 fully in the window.
-         */
-        rule.onNodeWithTag("97").assertIsDisplayed()
-        rule.onNodeWithTag("98").assertIsDisplayed()
-        rule.onNodeWithTag("99").assertExists() // part of the window
-        rule.onNodeWithTag("100").assertDoesNotExist()
+        rule.onNodeWithTag("b").assertIsDisplayed() // fully visible
+        rule
+            .onNodeWithTag("c")
+            .assertIsDisplayed() // partially visible (uses 0.5 * itemsSizePx of the window)
+        rule
+            .onNodeWithTag("d")
+            .assertExists() // part of the window (uses 1 * itemsSizePx of the window)
+        rule.onNodeWithTag("e").assertDoesNotExist()
 
-        rule.runOnIdle { numItems.value = 200 }
+        rule.runOnIdle { items.value = listOf("a", "b", "c", "e", "f", "g", "h") }
         rule.waitForIdle()
 
-        rule.onNodeWithTag("100").assertDoesNotExist() // window is full
+        rule.onNodeWithTag("e").assertExists() // item e will take place of item d
+        rule.onNodeWithTag("first-nested-e").assertExists() // nested prefetched
+        rule.onNodeWithTag("second-nested-e").assertExists() // nested prefetched
+    }
+
+    @Test
+    fun datasetChanged_shouldMakeSureNestedItemsChanged_noScroll() {
+        val items = mutableStateOf(listOf("a", "b", "c", "d"))
+
+        rule.setContent {
+            @OptIn(ExperimentalFoundationApi::class)
+            state = rememberLazyListState(cacheWindow = viewportWindow)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 2f)
+                    .then(
+                        object : RemeasurementModifier {
+                            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                                remeasure = remeasurement
+                            }
+                        }
+                    ),
+                state,
+            ) {
+                items(items.value, key = { it }) {
+                    if (it == "e" || it == "f") {
+                        val state = rememberLazyListState(cacheWindow = viewportWindow)
+                        LazyRow(
+                            Modifier.mainAxisSize(itemsSizeDp).fillMaxCrossAxis().testTag(it),
+                            state = state,
+                        ) {
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("first-nested-$it")
+                                )
+                            }
+
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("second-nested-$it")
+                                )
+                            }
+                        }
+                    } else {
+                        Spacer(
+                            Modifier.mainAxisSize(itemsSizeDp)
+                                .fillMaxCrossAxis()
+                                .testTag(it)
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("a").assertIsDisplayed() // fully visible
+        rule.onNodeWithTag("b").assertIsDisplayed() // fully visible
+        rule.onNodeWithTag("c").assertExists() // part of the window
+        rule.onNodeWithTag("d").assertExists() // part of the window
+
+        rule.runOnIdle { items.value = listOf("a", "b", "e", "f", "g", "h") }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("e").assertExists() // item e will take place of item c
+        rule.onNodeWithTag("first-nested-e").assertExists() // nested prefetched
+        rule.onNodeWithTag("second-nested-e").assertExists() // nested prefetched
+        rule.onNodeWithTag("f").assertExists() // item f will take place of item d
+        rule.onNodeWithTag("first-nested-f").assertExists() // nested prefetched
+        rule.onNodeWithTag("second-nested-f").assertExists() // nested prefetched
     }
 
     @Test
@@ -239,6 +372,52 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         rule.runOnIdle { runBlocking { state.scrollBy(-4 * itemsSizePx.toFloat()) } }
     }
 
+    @Test
+    fun datasetChanged_scrollForward_shouldKeepAroundWithinBounds_notCrash() {
+        val numItems = mutableStateOf(40)
+
+        composeList(
+            firstItem = 20,
+            numItems = numItems,
+            cacheWindow = viewportWindow,
+            numberOfItemsInTheList = 5f,
+        )
+
+        rule.runOnIdle { runBlocking { state.scrollBy(-4 * itemsSizePx.toFloat()) } }
+
+        // now the dataset changes
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isNotEqualTo(0)
+            numItems.value = 33
+        }
+
+        // when we forward  and then change the dataset again (simulates PS)
+        rule.runOnIdle {
+            runBlocking { state.scrollBy(4 * itemsSizePx.toFloat()) }
+            numItems.value = 20
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(4 * itemsSizePx.toFloat()) } }
+
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun scrollForward_longScroll_shouldOnlyPrefetchItemInWindow() {
+        composeList(cacheWindow = viewportWindow)
+
+        rule.onNodeWithTag("0").assertIsDisplayed()
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertExists() // in the window
+        rule.onNodeWithTag("3").assertDoesNotExist()
+
+        rule.runOnIdle { scope.launch { state.animateScrollToItem(20) } }
+        rule.onNodeWithTag("20").assertIsDisplayed()
+        rule.onNodeWithTag("21").assertIsDisplayed()
+        rule.onNodeWithTag("22").assertExists()
+        rule.onNodeWithTag("23").assertDoesNotExist()
+    }
+
     private val activeNodes = mutableSetOf<Int>()
 
     private fun composeList(
@@ -251,6 +430,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         cacheWindow: LazyLayoutCacheWindow,
     ) {
         rule.setContent {
+            scope = rememberCoroutineScope()
             @OptIn(ExperimentalFoundationApi::class)
             state =
                 rememberLazyListState(

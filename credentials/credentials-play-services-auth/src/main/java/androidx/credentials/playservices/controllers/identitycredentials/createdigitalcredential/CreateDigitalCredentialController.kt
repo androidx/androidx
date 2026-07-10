@@ -24,7 +24,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateDigitalCredentialRequest
 import androidx.credentials.CredentialManagerCallback
@@ -40,12 +39,12 @@ import androidx.credentials.provider.PendingIntentHandler
 import com.google.android.gms.identitycredentials.CreateCredentialRequest
 import com.google.android.gms.identitycredentials.CreateCredentialResponse
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the CreateCredential flow with play services. */
 @OptIn(ExperimentalDigitalCredentialApi::class)
-@RequiresApi(23)
-internal class CreateDigitalCredentialController(private val context: Context) :
+internal class CreateDigitalCredentialController(context: Context) :
     CredentialProviderController<
         CreateDigitalCredentialRequest,
         CreateCredentialRequest,
@@ -53,6 +52,8 @@ internal class CreateDigitalCredentialController(private val context: Context) :
         androidx.credentials.CreateCredentialResponse,
         CreateCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -75,28 +76,38 @@ internal class CreateDigitalCredentialController(private val context: Context) :
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             createCredentialExceptionTypeToException,
                         executor,
-                        callback,
+                        currentCallback,
                         cancellationSignal,
                     )
                 ) {
-                    return
-                } else {
                     handleResponse(
                         resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
                         resultCode,
                         resultData.getParcelable(RESULT_DATA_TAG),
+                        currentCallback,
                     )
                 }
+                callback = emptyCallback()
             }
         }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(
+        uniqueRequestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+        callback:
+            CredentialManagerCallback<
+                androidx.credentials.CreateCredentialResponse,
+                CreateCredentialException,
+            >,
+    ) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.w(
                 TAG,
@@ -109,7 +120,7 @@ internal class CreateDigitalCredentialController(private val context: Context) :
             maybeReportErrorResultCodeCreate(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e -> this.executor.execute { this.callback.onError(e) } },
+                { e -> this.executor.execute { callback.onError(e) } },
                 cancellationSignal,
             )
         ) {
@@ -119,9 +130,7 @@ internal class CreateDigitalCredentialController(private val context: Context) :
         if (data == null) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
                 this.executor.execute {
-                    this.callback.onError(
-                        CreateCredentialUnknownException("No provider data returned.")
-                    )
+                    callback.onError(CreateCredentialUnknownException("No provider data returned."))
                 }
             }
         } else {
@@ -134,7 +143,7 @@ internal class CreateDigitalCredentialController(private val context: Context) :
                 val providerException = PendingIntentHandler.retrieveCreateCredentialException(data)
                 cancelOrCallbackExceptionOrResult(cancellationSignal) {
                     this.executor.execute {
-                        this.callback.onError(
+                        callback.onError(
                             providerException
                                 ?: CreateCredentialUnknownException(
                                     "Unexpected configuration error"
@@ -144,7 +153,7 @@ internal class CreateDigitalCredentialController(private val context: Context) :
                 }
             } else {
                 cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                    this.executor.execute { this.callback.onResult(response) }
+                    this.executor.execute { callback.onResult(response) }
                 }
             }
         }
@@ -167,6 +176,7 @@ internal class CreateDigitalCredentialController(private val context: Context) :
             return
         }
 
+        val context = contextReference.get() ?: return
         val convertedRequest = this.convertRequestToPlayServices(request)
         IdentityCredentialManager.getClient(context)
             .createCredential(convertedRequest)

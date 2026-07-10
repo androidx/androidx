@@ -17,12 +17,14 @@
 package androidx.leanback.media;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.leanback.testutils.PollingCheck;
@@ -44,6 +46,7 @@ public class MediaPlayerGlueTest {
      */
     @Test
     public void mediaPlayer() {
+        assumeFalse("Test fails on cuttlefish b/465864210", Build.MODEL.contains("Cuttlefish"));
         // create a MediaPlayerGlue with updatePeriod = 100ms
         final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final MediaPlayerGlue[] result = new MediaPlayerGlue[1];

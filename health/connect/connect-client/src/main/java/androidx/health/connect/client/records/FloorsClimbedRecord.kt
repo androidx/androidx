@@ -37,10 +37,10 @@ public class FloorsClimbedRecord(
      * See b/400965398 for more context.
      */
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.toPlatformRecord()
         } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             requireNonNegative(value = floors, name = "floors")
             floors.requireNotMore(other = 1000_000.0, name = "floors")
         }

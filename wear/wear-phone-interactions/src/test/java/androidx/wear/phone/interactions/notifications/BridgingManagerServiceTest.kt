@@ -33,6 +33,7 @@ import org.robolectric.shadows.ShadowPackageManager
 
 /** Unit tests for [BridgingManagerService] and [BridgingManagerServiceImpl] classes. */
 @RunWith(WearPhoneInteractionsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument // Needed because it is defined in the "android" package.
 class BridgingManagerServiceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()

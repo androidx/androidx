@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -34,45 +33,39 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    wasmJs()
+    js()
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-                api(libs.kotlinStdlibCommon)
-                api(libs.kotlinTestCommon)
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
-                api(libs.okio)
-            }
+        commonMain.dependencies {
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-core-okio"))
+            api(libs.kotlinTest)
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinCoroutinesTest)
+            api(libs.okio)
         }
-        nativeMain {
-            dependsOn(commonMain)
+
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
         }
+
+        create("nonWebCommonMain").dependsOn(commonMain)
+        create("nonWebCommonTest").dependsOn(commonTest)
+        nativeMain.dependsOn(nonWebCommonMain)
+
         jvmMain {
+            dependsOn(nonWebCommonMain)
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
             }
         }
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinTest)
-            }
-        }
+
         jvmTest {
-            dependsOn(commonTest)
+            dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.kotlinTest)
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
             }
         }
     }

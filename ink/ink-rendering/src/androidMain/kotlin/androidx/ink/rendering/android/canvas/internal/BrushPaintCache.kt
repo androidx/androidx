@@ -26,26 +26,33 @@ import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.BrushPaint.StampingTexture
+import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
-import androidx.ink.geometry.Angle
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.StrokeInput
 import java.util.WeakHashMap
 
 /**
  * Helper class for obtaining [Paint] from [BrushPaint].
  *
- * @param paintFlags Used to set [Paint.flags] for all [Paint] objects it creates.
+ * @param additionalPaintFlags Used to set [Paint.flags] for all [Paint] objects it creates.
  * @param applyColorFilterToTexture If true, the [BrushPaint] and the provided color are used to
  *   configure [Paint.colorFilter] to apply a color to the paint's shader. This should generally be
  *   set when using an API that expects a color to be uniformly applied by the Paint, instead of
  *   providing per-vertex-modified colors to the draw call.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
+@OptIn(InkInternalOnlyApi::class)
 internal class BrushPaintCache(
     val textureStore: TextureBitmapStore,
+    /**
+     * Flags that are set on the [Paint] in addition to the defaults enable by this class (currently
+     * [Paint.FILTER_BITMAP_FLAG]). Note that default does not match the behavior of the no-argument
+     * [Paint] constructor, which also sets [Paint.ANTI_ALIAS_FLAG] starting at Android S).
+     */
     val additionalPaintFlags: Int = 0,
     val applyColorFilterToTexture: Boolean = false,
 ) {
@@ -55,7 +62,7 @@ internal class BrushPaintCache(
 
     /** Used to construct and update a shader, holding on to data that's needed for later update. */
     private inner class ShaderHelper(
-        private val textureLayers: List<BrushPaint.TextureLayer>,
+        private val textureLayers: List<TextureLayer>,
         private val bitmaps: List<Bitmap?>,
         private val bitmapShaders: List<Shader?>,
     ) {
@@ -130,9 +137,9 @@ internal class BrushPaintCache(
                         if (strokeToGraphicsObjectTransform != null) {
                             it.preConcat(strokeToGraphicsObjectTransform)
                         }
-                        when (textureLayer.mapping) {
+                        when (textureLayer) {
                             // For tiling textures, we must end up in graphics object space.
-                            BrushPaint.TextureMapping.TILING -> {
+                            is TilingTexture -> {
                                 // This code assembles the chain of transforms backwards from stroke
                                 // space.
                                 //
@@ -140,11 +147,11 @@ internal class BrushPaintCache(
                                 // specified by the
                                 // [TextureLayer].
                                 when (textureLayer.origin) {
-                                    BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN -> {}
-                                    BrushPaint.TextureOrigin.FIRST_STROKE_INPUT -> {
+                                    TilingTexture.Origin.STROKE_SPACE_ORIGIN -> {}
+                                    TilingTexture.Origin.FIRST_STROKE_INPUT -> {
                                         it.preTranslate(firstInput.x, firstInput.y)
                                     }
-                                    BrushPaint.TextureOrigin.LAST_STROKE_INPUT -> {
+                                    TilingTexture.Origin.LAST_STROKE_INPUT -> {
                                         it.preTranslate(lastInput.x, lastInput.y)
                                     }
                                 }
@@ -157,13 +164,9 @@ internal class BrushPaintCache(
                                 // Compute (SizeUnit -> stroke) = (stroke -> stroke) * (SizeUnit ->
                                 // stroke)
                                 when (textureLayer.sizeUnit) {
-                                    BrushPaint.TextureSizeUnit.BRUSH_SIZE ->
+                                    TextureLayer.SizeUnit.BRUSH_SIZE ->
                                         it.preScale(brushSize, brushSize)
-                                    BrushPaint.TextureSizeUnit.STROKE_SIZE -> {
-                                        // TODO: b/336835642 - Implement BrushPaintCache support for
-                                        // TextureSizeUnit.STROKE_SIZE.
-                                    }
-                                    BrushPaint.TextureSizeUnit.STROKE_COORDINATES -> {
+                                    TextureLayer.SizeUnit.STROKE_COORDINATES -> {
                                         // Nothing to do, since stroke space and SizeUnit space are
                                         // identical.
                                     }
@@ -176,26 +179,25 @@ internal class BrushPaintCache(
                                 //
                                 // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
                                 it.preScale(textureLayer.sizeX, textureLayer.sizeY)
+
+                                // The texture rotation is specified as being around the center of
+                                // the first
+                                // repetition, so include a pivot point of 50% in both axes in
+                                // texture UV space.
+                                it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
+
+                                // The texture offset is specified as fractions of the texture size;
+                                // in other words,
+                                // it should be applied within texture UV space.
+                                it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
                             }
-                            // For winding textures, we must end up in surface UV space (which is
-                            // different from
-                            // texture UV space).
-                            BrushPaint.TextureMapping.WINDING -> {
-                                // TODO: b/373649509 - Take origin, sizeUnit, and size into account.
-                                // TODO: b/373649230 - Take animation progress and texture atlas
-                                // into account.
-                            }
+                            // For stamping textures, we must end up in surface UV space. The shader
+                            // will apply
+                            // animation parameters as needed to calculate texture UV from that (see
+                            // `calculateStampingTextureUv()` in
+                            // `sksl_vertex_shader_helper_functions.h`).
+                            is StampingTexture -> {}
                         }
-
-                        // The texture rotation is specified as being around the center of the first
-                        // repetition,
-                        // so include a pivot point of 50% in both axes in texture UV space.
-                        it.preRotate(Angle.radiansToDegrees(textureLayer.rotation), 0.5f, 0.5f)
-
-                        // The texture offset is specified as fractions of the texture size; in
-                        // other words, it
-                        // should be applied within texture UV space.
-                        it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
 
                         // To get to texture UV space, we first need to scale from the coordinate
                         // space where
@@ -232,14 +234,14 @@ internal class BrushPaintCache(
             // In [CanvasMeshRenderer], when we call [Canvas.drawMesh] with the last texture layer's
             // blend
             // mode, that method treats the mesh color as the DST, and the shader texture as the SRC
-            // (which matches how we've specified the meaning of [BrushPaint.BlendMode]). Here, we
+            // (which matches how we've specified the meaning of [TextureLayer.BlendMode]). Here, we
             // are
             // using a color filter to emulate that behavior for the sake of [CanvasPathRenderer],
             // but the
             // color filter treats [paintColor] as the SRC, and the path texture as the DST.  So we
             // need
             // to use [toReversePorterDuffMode] here so as to swap SRC and DST from what the
-            // [BrushPaint.BlendMode] says.
+            // [TextureLayer.BlendMode] says.
             val colorBlendMode = lastTextureLayer.blendMode.toReversePorterDuffMode()
             paint.colorFilter = PorterDuffColorFilter(paintColor.toArgb(), colorBlendMode)
             colorFilterColor = paintColor
@@ -255,9 +257,11 @@ internal class BrushPaintCache(
                 // and
                 // the behavior depends on this flag otherwise. Starting at Android Q, this flag is
                 // set by
-                // default. So setting it results in consistent behavior for Android P and for <= O
-                // when
-                // hardware acceleration is not available.
+                // default by either Paint() or Paint(flags). So setting it results in consistent
+                // behavior
+                // for Android P and for <= O when hardware acceleration is not available. Note that
+                // Paint()
+                // but not Paint(flags) also sets ANTI_ALIAS_FLAG starting at Android S.
                 isFilterBitmap = true
             }
         val textureLayers = brushPaint.textureLayers
@@ -265,11 +269,26 @@ internal class BrushPaintCache(
             // Early exit for efficiency.
             return PaintCacheData(paint)
         }
-        val bitmaps = textureLayers.map { textureStore[it.clientTextureId] }
+        val bitmaps =
+            textureLayers.map {
+                when (it) {
+                    is TilingTexture -> textureStore[it.clientTextureId]
+                    is StampingTexture -> textureStore[it.clientTextureId]
+                    else -> null
+                }
+            }
         val bitmapShaders =
             textureLayers.zip(bitmaps) { layer, bitmap ->
                 if (bitmap == null) return@zip null
-                BitmapShader(bitmap, layer.wrapX.toShaderTileMode(), layer.wrapY.toShaderTileMode())
+                when (layer) {
+                    is TilingTexture ->
+                        BitmapShader(
+                            bitmap,
+                            layer.wrapX.toShaderTileMode(),
+                            layer.wrapY.toShaderTileMode(),
+                        )
+                    else -> BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+                }
             }
         // Each layer is combined with the result of combining all of the previous layers, using the
         // immediately previous layer's blend mode. (Effectively, ComposeShader acts as the non-leaf
@@ -336,14 +355,15 @@ internal class BrushPaintCache(
 
     /**
      * Obtains a [Paint] for the [BrushPaint] from the cache, creating it if necessary and updating
-     * its local transform. If [BrushPaint.TextureLayer.colorTextureId] can't be resolved to a
-     * bitmap for any layer, that layer is ignored.
+     * its local transform. If a [TextureLayer] can't be resolved to a bitmap for any layer (e.g.
+     * according to [TilingTexture.clientTextureId] or [StampingTexture.clientTextureId]), that
+     * layer is ignored.
      *
      * @param brushPaint Used to configure [Paint.shader].
      * @param paintColor Used to set [Paint.color].
-     * @param brushSize Used for supporting [BrushPaint.TextureSizeUnit.BRUSH_SIZE].
-     * @param firstInput Used for supporting [BrushPaint.TextureOrigin.FIRST_STROKE_INPUT].
-     * @param lastInput Used for supporting [BrushPaint.TextureOrigin.LAST_STROKE_INPUT].
+     * @param brushSize Used for supporting [TextureLayer.SizeUnit.BRUSH_SIZE].
+     * @param firstInput Used for supporting [TilingTexture.Origin.FIRST_STROKE_INPUT].
+     * @param lastInput Used for supporting [TilingTexture.Origin.LAST_STROKE_INPUT].
      * @param strokeToGraphicsObjectTransform Indicates that the graphics object that the resulting
      *   [Paint] will be drawn with is in a different coordinate space than stroke space. Setting
      *   this properly allows textures to still be rendered as expected with relationship to stroke
@@ -382,11 +402,10 @@ internal class BrushPaintCache(
     }
 }
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
-internal fun BrushPaint.TextureWrap.toShaderTileMode(): Shader.TileMode =
+internal fun TextureLayer.Wrap.toShaderTileMode(): Shader.TileMode =
     when (this) {
-        BrushPaint.TextureWrap.REPEAT -> Shader.TileMode.REPEAT
-        BrushPaint.TextureWrap.MIRROR -> Shader.TileMode.MIRROR
-        BrushPaint.TextureWrap.CLAMP -> Shader.TileMode.CLAMP
+        TextureLayer.Wrap.REPEAT -> Shader.TileMode.REPEAT
+        TextureLayer.Wrap.MIRROR -> Shader.TileMode.MIRROR
+        TextureLayer.Wrap.CLAMP -> Shader.TileMode.CLAMP
         else -> Shader.TileMode.REPEAT
     }

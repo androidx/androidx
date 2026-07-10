@@ -372,15 +372,22 @@ internal object StackSamplingSimpleperf : Profiler() {
 
     @RequiresApi(29)
     override fun stop() {
-        session!!.stopRecording()
+        Log.d(TAG, "Stopping profiling session")
+        session?.stopRecording()
         securityPerfHarden.resetIfOverridden()
     }
 
     @RequiresApi(29)
     fun convertBeforeSync() {
+        val session = session
+        if (session != null && session.state != ProfileSession.State.STOPPED) {
+            val exception =
+                RuntimeException("ProfileSession is not in STOPPED state (${session.state}).")
+            Log.w(TAG, "Unexpected ProfileSession state", exception)
+        }
+        Log.d(TAG, "Converting SimplePerf output to proto format")
         Outputs.writeFile(fileName = outputRelativePath!!) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
-            session = null
         }
     }
 

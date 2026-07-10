@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -35,23 +34,24 @@ dependencies {
 
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.core:core:1.7.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(project(":wear:protolayout:protolayout-proto"))
     implementation(project(":wear:protolayout:protolayout-expression"))
 
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.guavaAndroid)
+    testImplementation("org.robolectric:annotations:4.15")
+    testImplementation("org.robolectric:shadows-framework:4.15")
 }
 
 android {
     namespace = "androidx.wear.protolayout.expression.pipeline"
 
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
 }
 

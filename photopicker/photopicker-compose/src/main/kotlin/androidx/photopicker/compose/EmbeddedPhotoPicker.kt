@@ -24,6 +24,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerProvider
 import android.widget.photopicker.EmbeddedPhotoPickerProviderFactory
 import android.widget.photopicker.EmbeddedPhotoPickerSession
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +55,7 @@ internal val DEFAULT_FEATURE_INFO = EmbeddedPhotoPickerFeatureInfo.Builder().bui
  *   when a session is started.
  */
 @Composable
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @ExperimentalPhotoPickerComposeApi
 public fun EmbeddedPhotoPicker(
@@ -120,8 +122,7 @@ public fun EmbeddedPhotoPicker(
         }
 
     // Wait until the state object is ready before starting the LaunchedEffect
-    // val isReady by state.isReady
-    if (state.isReady) {
+    if (state.isReadyToRunSession) {
         LaunchedEffect(
             // Restart this launched effect if the provider or state object changes
             state,

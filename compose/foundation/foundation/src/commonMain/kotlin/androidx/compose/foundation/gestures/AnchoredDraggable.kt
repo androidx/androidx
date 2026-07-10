@@ -27,6 +27,8 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ComposeFoundationFlags.isAnchoredDraggableTargetValueCalculationFixEnabled
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.OverscrollEffect
@@ -53,7 +55,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireLayoutDirection
@@ -349,7 +351,7 @@ private class AnchoredDraggableElement<T>(
 
 private class AnchoredDraggableNode<T>(
     private var state: AnchoredDraggableState<T>,
-    private var orientation: Orientation,
+    orientation: Orientation,
     enabled: Boolean,
     private var reverseDirection: Boolean?,
     interactionSource: MutableInteractionSource?,
@@ -361,7 +363,7 @@ private class AnchoredDraggableNode<T>(
         canDrag = AlwaysDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = orientation,
+        orientation = orientation,
     ) {
 
     lateinit var resolvedFlingBehavior: FlingBehavior
@@ -511,7 +513,7 @@ private class AnchoredDraggableNode<T>(
             enabled = enabled,
             interactionSource = interactionSource,
             shouldResetPointerInputHandling = resetPointerInputHandling,
-            orientationLock = orientation,
+            orientation = orientation,
         )
     }
 
@@ -536,7 +538,7 @@ private class AnchoredDraggableNode<T>(
     private fun Offset.reverseIfNeeded() = if (isReverseDirection) this * -1f else this * 1f
 }
 
-private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
+private val AlwaysDrag: (PointerType) -> Boolean = { true }
 
 /**
  * Structure that represents the anchors of a [AnchoredDraggableState].
@@ -566,10 +568,13 @@ interface DraggableAnchors<T> {
     fun hasPositionFor(anchor: T): Boolean
 
     /**
-     * Find the closest anchor value to the [position].
+     * Find the closest anchor value to the [position]. If there are multiple anchors at the same
+     * offset, it is up to the implementation which will be returned. When using the
+     * [DraggableAnchors] factory function, this will be the last anchor of the candidates at this
+     * offset.
      *
      * @param position The position to start searching from
-     * @return The closest anchor or null if the anchors are empty
+     * @return The closest anchor or null if the anchors are empty.
      */
     fun closestAnchor(position: Float): T?
 
@@ -863,14 +868,40 @@ class AnchoredDraggableState<T>(initialValue: T) {
      * The target value. This is the closest value to the current offset. If no interactions like
      * animations or drags are in progress, this will be the current value.
      */
-    val targetValue: T by derivedStateOf {
-        dragTarget
-            ?: run {
-                val currentOffset = offset
-                if (!currentOffset.isNaN()) {
-                    anchors.closestAnchor(offset) ?: currentValue
-                } else currentValue
+    val targetValue: T by derivedStateOf { dragTarget ?: calculateTargetValue(offset) }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun calculateTargetValue(currentOffset: Float): T =
+        if (isAnchoredDraggableTargetValueCalculationFixEnabled) {
+            calculateTargetValueWithFix(currentOffset)
+        } else {
+            if (!currentOffset.isNaN()) {
+                anchors.closestAnchor(currentOffset) ?: currentValue
+            } else currentValue
+        }
+
+    private fun calculateTargetValueWithFix(currentOffset: Float): T {
+        return if (!currentOffset.isNaN()) {
+            // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
+            // already equal to the currentValue's offset, this anchor gets priority.
+            val currentValueOffset = anchors.positionOf(currentValue)
+            // But... there is a very disgusting special case. anchoredDrag allows mutation to
+            // non-existent anchors to allow mutation ahead of anticipated anchor updates.
+            // Consider this sequence:
+            // 1. anchors = { A at 0f; C at 100f }
+            // 2. anchoredDrag(targetValue = B) { ... } -> currentValue, settledValue = B
+            // 3. updateAnchors({ A at 0f; B at 50f; C at 100f }). newTarget = f(oldTarget)
+            // In this scenario, it is very important that currentValue, settledValue and
+            // targetValue allow being moved to a non-existent state as they are often used to
+            // derive the new target based on the new anchors.
+            // currentValueOffset would be NaN here as it doesn't exist in the anchors. If that's
+            // the case, we disgustingly allow the offset to be NaN and fall back to currentValue.
+            if (currentValueOffset.isNaN() || currentOffset == currentValueOffset) {
+                currentValue
+            } else {
+                anchors.closestAnchor(currentOffset) ?: currentValue
             }
+        } else currentValue
     }
 
     /**
@@ -1723,7 +1754,7 @@ internal fun <T> anchoredDraggableFlingBehavior(
             AnchoredDraggableLayoutInfoProvider(
                 state = state,
                 positionalThreshold = positionalThreshold,
-                velocityThreshold = { with(density) { 125.dp.toPx() } },
+                velocityThreshold = { with(density) { AnchoredDraggableMinFlingVelocity.toPx() } },
             ),
     )
 

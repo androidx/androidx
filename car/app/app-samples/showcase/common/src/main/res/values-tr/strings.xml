@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Mesaj buraya gelir.\nİkinci satırda daha fazla metin bulunur."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Kısa Mesaj Şablonu Demosu"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Bölümlere Ayrılmış Öğe Şablonu Demosu"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Daraltılmış Öğe Demosu"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Bölümlere ayrılmış öğe AlphaJump etkin demosu"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Radyo Düğmesi Bölümü"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Bölümü Aç/Kapat"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Çok Satırlı Bölüm"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Tablo Öğesi Bölümü"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Bölümlere Ayrılmış Öğe Listesi Demosu"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Her listenin altında alt metin"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Görüntü ve işlemler demosunu sonlandır"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Çip Demosu"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"İlerleme Çubuğu Demosu"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Bölüm Başlığı Demosu"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Öne Çıkanlar Bölümü Demosu"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bölme Şablonu Demosu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Yer Listesi Şablonu Demosu"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Yerlere Göz At"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Sekme Şablonu Demosu"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Mesaj Sekmesi"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Bölme Sekmesi"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Bölümlere Ayrılmış Öğe Sekmesi"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Liste Sekmesi"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Uzun Sekme Başlıklı Izgara Sekmesi"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Arama Sekmesi"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Satır da seçilebilir"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"İkincil işlem seçildi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Satırdaki birincil işlem seçildi"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Bölümlere Ayrılmış Öğe Listesi Demosu"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Her listenin altında alt metin"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Satırdaki Son Resim ve İşlemler Demosu"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boş Liste Demosu"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Liste boş"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Çeşitli Şablon Demoları"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"İçerik Bulunan Harita Demoları"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj Şablonu İçeren Harita Demosu"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Izgara Şablonu İçeren Harita Demosu"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

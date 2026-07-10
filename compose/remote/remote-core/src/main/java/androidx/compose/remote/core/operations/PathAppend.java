@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -27,6 +28,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -36,11 +38,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A path append operation.
- * Works with PathCreate.
- * TODO implement winding rule
- */
+/** A path append operation. Works with PathCreate. TODO implement winding rule */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathAppend extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.PATH_ADD;
     private static final String CLASS_NAME = "PathAppend";
@@ -49,7 +48,8 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
     float[] mFloatPath;
     float[] mOutputPath;
 
-    PathAppend(int instanceId, float[] floatPath) {
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public PathAppend(int instanceId, float[] floatPath) {
         mInstanceId = instanceId;
         mFloatPath = floatPath;
         mOutputPath = Arrays.copyOf(mFloatPath, mFloatPath.length);
@@ -159,17 +159,34 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     * @param operations the list of operations that will be added to mapping context for remapping
+     *     IDs
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int len = buffer.readInt();
         if (len > MAX_PATH_BUFFER) {
             throw new RuntimeException("path too long");
         }
         float[] data = new float[len];
         for (int i = 0; i < data.length; i++) {
-            data[i] = buffer.readFloat();
+            float v = buffer.peekInt(); // Peek as int to check NaN-ness
+            if (Float.isNaN(Float.intBitsToFloat((int) v))) {
+                float fv = buffer.readFloat();
+                int vid = Utils.idFromNan(fv);
+                if (vid > RESET) {
+                    // Manual remapping
+                    if (buffer instanceof LoomWireBuffer) {
+                        data[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fv);
+                    } else {
+                        data[i] = fv;
+                    }
+                } else {
+                    data[i] = fv;
+                }
+            } else {
+                data[i] = buffer.readFloat();
+            }
         }
         operations.add(new PathAppend(id, data));
     }
@@ -180,11 +197,12 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Append to a Path")
-                .field(DocumentedOperation.INT, "id", "id string")
-                .field(INT, "length", "id string")
-                .field(FLOAT_ARRAY, "pathData", "length", "path encoded as floats");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_append")
+                .description("Append segments to an existing dynamic path")
+                .field(DocumentedOperation.INT, "id", "The ID of the path to append to")
+                .field(INT, "length", "The number of elements in the path data")
+                .field(FLOAT_ARRAY, "pathData", "The sequence of commands and coordinates");
     }
 
     @Override
@@ -210,7 +228,7 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
                 out[i + data.length] = mOutputPath[i];
             }
         } else {
-            System.out.println(">>>>>>>>>>> DATA IS NULL");
+            System.out.println("[" + mInstanceId + "] DATA IS NULL");
         }
         context.loadPathData(mInstanceId, 0, out);
     }

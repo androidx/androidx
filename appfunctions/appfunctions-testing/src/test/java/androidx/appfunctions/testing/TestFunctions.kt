@@ -19,10 +19,10 @@ package androidx.appfunctions.testing
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import java.time.LocalDateTime
 
 @AppFunctionSerializable data class DateTime(val localDateTime: LocalDateTime)

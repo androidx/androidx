@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.aggregate.AggregationResult
@@ -35,6 +36,7 @@ import androidx.health.connect.client.impl.platform.records.SDK_TO_PLATFORM_RECO
 import androidx.health.connect.client.impl.platform.records.SDK_TO_PLATFORM_RECORD_CLASS_EXT_13
 import androidx.health.connect.client.impl.platform.records.SDK_TO_PLATFORM_RECORD_CLASS_EXT_15
 import androidx.health.connect.client.impl.platform.records.SDK_TO_PLATFORM_RECORD_CLASS_EXT_16
+import androidx.health.connect.client.matchmaking.MatchmakingRequest
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.readRecord
 import androidx.health.connect.client.records.FhirResource.Companion.FHIR_RESOURCE_TYPE_IMMUNIZATION
@@ -85,7 +87,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalPersonalHealthRecordApi::class)
+@OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
@@ -201,6 +203,7 @@ class HealthConnectClientUpsideDownImplTest {
                 HealthConnectFeatures.FEATURE_PLANNED_EXERCISE,
                 HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION,
                 HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY,
+                HealthConnectFeatures.FEATURE_MATCHMAKING,
             )
 
         for (feature in features) {
@@ -227,7 +230,11 @@ class HealthConnectClientUpsideDownImplTest {
     fun getFeatureStatus_belowUExt15_noneIsAvailable() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 15)
 
-        val features = listOf(HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION)
+        val features =
+            listOf(
+                HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION,
+                HealthConnectFeatures.FEATURE_MATCHMAKING,
+            )
 
         for (feature in features) {
             assertThat(healthConnectClient.features.getFeatureStatus(feature))
@@ -252,11 +259,34 @@ class HealthConnectClientUpsideDownImplTest {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 16)
 
         val features = listOf(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY)
-
         for (feature in features) {
             assertThat(healthConnectClient.features.getFeatureStatus(feature))
                 .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
         }
+    }
+
+    @Test
+    fun getFeatureStatus_matchmaking_available() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        assertThat(
+                healthConnectClient.features.getFeatureStatus(
+                    HealthConnectFeatures.FEATURE_MATCHMAKING
+                )
+            )
+            .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_AVAILABLE)
+    }
+
+    @Test
+    fun getFeatureStatus_matchmaking_unavailable() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 22)
+
+        assertThat(
+                healthConnectClient.features.getFeatureStatus(
+                    HealthConnectFeatures.FEATURE_MATCHMAKING
+                )
+            )
+            .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
     }
 
     @Test
@@ -1330,6 +1360,62 @@ class HealthConnectClientUpsideDownImplTest {
         val medicalResources =
             healthConnectClient.readMedicalResources(insertResponse.map { it.id })
         assertThat(medicalResources).isEmpty()
+    }
+
+    @Test
+    fun checkIfMatchmakingIsPossible_returnsResult() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val response =
+            healthConnectClient.checkIfMatchmakingIsPossible(
+                MatchmakingRequest(
+                    recordTypes = setOf(StepsRecord::class),
+                    includedDataSources = setOf(DataOrigin("com.example.app")),
+                )
+            )
+        assertThat(response).isNotNull()
+    }
+
+    @Test
+    fun createMatchmakingIntent_returnsValidIntent() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val intent =
+            healthConnectClient.createMatchmakingIntent(
+                MatchmakingRequest(recordTypes = setOf(StepsRecord::class))
+            )
+        assertThat(intent).isNotNull()
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_MATCHMAKING)
+    }
+
+    @Test
+    fun createMatchmakingIntent_withIncludedDataSources_returnsValidIntent() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val intent =
+            healthConnectClient.createMatchmakingIntent(
+                MatchmakingRequest(
+                    recordTypes = setOf(StepsRecord::class),
+                    includedDataSources = setOf(DataOrigin("com.example.included")),
+                )
+            )
+        assertThat(intent).isNotNull()
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_MATCHMAKING)
+    }
+
+    @Test
+    fun createMatchmakingIntent_withExcludedDataSources_returnsValidIntent() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val intent =
+            healthConnectClient.createMatchmakingIntent(
+                MatchmakingRequest(
+                    recordTypes = setOf(StepsRecord::class),
+                    excludedDataSources = setOf(DataOrigin("com.example.excluded")),
+                )
+            )
+        assertThat(intent).isNotNull()
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_MATCHMAKING)
     }
 
     private val Int.seconds: Duration

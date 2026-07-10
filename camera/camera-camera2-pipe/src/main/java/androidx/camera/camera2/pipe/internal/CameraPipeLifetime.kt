@@ -17,9 +17,15 @@
 package androidx.camera.camera2.pipe.internal
 
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.config.CameraPipeJob
 import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * CameraPipeLifetime is an internal class designed to facilitate CameraPipe shutdown. It does so in
@@ -32,7 +38,9 @@ import javax.inject.Singleton
  * [addShutdownAction] to register their respective shutdown action and type.
  */
 @Singleton
-internal class CameraPipeLifetime @Inject constructor() {
+internal class CameraPipeLifetime
+@Inject
+constructor(@CameraPipeJob private val cameraPipeJob: Job) {
     private val cameraLock = Any()
     @GuardedBy("cameraLock") private var isCameraShutdown = false
     @GuardedBy("cameraLock") private val cameraShutdownActions = mutableListOf<Runnable>()
@@ -96,6 +104,7 @@ internal class CameraPipeLifetime @Inject constructor() {
 
     private fun shutdownCamera() =
         synchronized(cameraLock) {
+            Log.debug { "Shutting down cameras..." }
             for (shutdownAction in cameraShutdownActions) {
                 shutdownAction.run()
             }
@@ -103,13 +112,21 @@ internal class CameraPipeLifetime @Inject constructor() {
 
     private fun shutdownScope() =
         synchronized(scopeLock) {
+            Log.debug { "Shutting down scopes..." }
             for (shutdownAction in scopeShutdownActions) {
                 shutdownAction.run()
+            }
+            runBlocking {
+                withTimeoutOrNull(CAMERA_PIPE_JOB_CANCEL_TIMEOUT) {
+                    Log.debug { "Cancelling CameraPipe root Job..." }
+                    cameraPipeJob.cancelAndJoin()
+                }
             }
         }
 
     private fun shutdownThread() =
         synchronized(threadLock) {
+            Log.debug { "Shutting down threads..." }
             for (shutdownAction in threadShutdownActions) {
                 shutdownAction.run()
             }
@@ -119,5 +136,9 @@ internal class CameraPipeLifetime @Inject constructor() {
         CAMERA,
         SCOPE,
         THREAD,
+    }
+
+    companion object {
+        private val CAMERA_PIPE_JOB_CANCEL_TIMEOUT = 3.seconds
     }
 }

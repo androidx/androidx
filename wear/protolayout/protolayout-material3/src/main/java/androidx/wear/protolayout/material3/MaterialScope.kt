@@ -70,7 +70,7 @@ public open class MaterialScope
 internal constructor(
     public val context: Context,
     public val deviceConfiguration: DeviceParameters,
-    public val protoLayoutScope: ProtoLayoutScope?,
+    private val _protoLayoutScope: ProtoLayoutScope?,
     internal val allowDynamicTheme: Boolean,
     internal val theme: MaterialTheme,
     internal val defaultTextElementStyle: TextElementStyle,
@@ -85,6 +85,36 @@ internal constructor(
 
     /** Shapes theme used within this scope and its components. */
     public val shapes: Shapes = theme.shapes
+
+    /**
+     * Checks whether [ProtoLayoutScope] exists in this [MaterialScope].
+     *
+     * It is guaranteed that exists when the [MaterialScope] is created with
+     * [materialScopeWithResources].
+     */
+    @get:JvmName("hasProtoLayoutScope")
+    public val hasProtoLayoutScope: Boolean = _protoLayoutScope != null
+
+    /**
+     * The [ProtoLayoutScope] for the Tile service, that is responsible for handling internal
+     * details of ProtoLayout layouts and Tiles and can be used to create image resources with
+     * automatic resources registration.
+     *
+     * This field can safely be used when [MaterialScope] is created with
+     * [materialScopeWithResources].
+     *
+     * @throws IllegalArgumentException When the [ProtoLayoutScope] within this [MaterialScope] is
+     *   null, which can happen if [materialScope] is used to create it. It is guaranteed that this
+     *   method will return value and not throw when [MaterialScope] is created with
+     *   [materialScopeWithResources]. In other cases, presence of [ProtoLayoutScope] can be checked
+     *   with [hasProtoLayoutScope].
+     */
+    // TODO: b/445117978 - Link M3TS when available in AndroidX.
+    public val protoLayoutScope: ProtoLayoutScope
+        get() {
+            requireNotNull(_protoLayoutScope)
+            return _protoLayoutScope
+        }
 
     internal fun withStyle(
         defaultTextElementStyle: TextElementStyle = this.defaultTextElementStyle,
@@ -106,7 +136,7 @@ internal constructor(
                 defaultAvatarImageStyle = defaultAvatarImageStyle,
                 layoutSlotsPresence = layoutSlotsPresence,
                 defaultProgressIndicatorStyle = defaultProgressIndicatorStyle,
-                protoLayoutScope = protoLayoutScope,
+                _protoLayoutScope = _protoLayoutScope,
             )
             .layout()
 
@@ -130,7 +160,7 @@ internal constructor(
                 defaultAvatarImageStyle = defaultAvatarImageStyle,
                 layoutSlotsPresence = layoutSlotsPresence,
                 defaultProgressIndicatorStyle = defaultProgressIndicatorStyle,
-                protoLayoutScope = protoLayoutScope,
+                _protoLayoutScope = _protoLayoutScope,
             )
             .margins()
 }
@@ -221,7 +251,8 @@ public fun materialScopeFromLayout(
         .layout()
 
 /** Creates default [MaterialScope] from the given parameters and with proper default values. */
-internal fun createMaterialScope(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public fun createMaterialScope(
     context: Context,
     deviceConfiguration: DeviceParameters,
     allowDynamicTheme: Boolean,
@@ -231,7 +262,7 @@ internal fun createMaterialScope(
     MaterialScope(
         context = context,
         deviceConfiguration = deviceConfiguration,
-        protoLayoutScope = protoLayoutScope,
+        _protoLayoutScope = protoLayoutScope,
         allowDynamicTheme = allowDynamicTheme,
         theme =
             MaterialTheme(

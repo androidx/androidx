@@ -17,7 +17,6 @@
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl
@@ -37,11 +36,6 @@ public actual class ViewModelProvider private constructor(private val impl: View
     public actual interface Factory {
         public actual fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
             ViewModelProviders.unsupportedCreateViewModel()
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual open class OnRequeryFactory {
-        public actual open fun onRequery(viewModel: ViewModel) {}
     }
 
     public actual companion object {

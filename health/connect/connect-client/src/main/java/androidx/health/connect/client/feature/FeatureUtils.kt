@@ -20,11 +20,14 @@ package androidx.health.connect.client.feature
 
 import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.ExperimentalMatchmakingApi
+import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_MATCHMAKING
 import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_PERSONAL_HEALTH_RECORD
 import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_STATUS_AVAILABLE
 import kotlin.reflect.KClass
 
 internal const val FEATURE_CONSTANT_NAME_PHR = "FEATURE_PERSONAL_HEALTH_RECORD"
+internal const val FEATURE_CONSTANT_NAME_MATCHMAKING = "FEATURE_MATCHMAKING"
 
 @OptIn(ExperimentalPersonalHealthRecordApi::class)
 internal fun isPersonalHealthRecordFeatureAvailableInPlatform(): Boolean {
@@ -32,6 +35,15 @@ internal fun isPersonalHealthRecordFeatureAvailableInPlatform(): Boolean {
         return false
     }
     return HealthConnectFeaturesPlatformImpl.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) ==
+        FEATURE_STATUS_AVAILABLE
+}
+
+@OptIn(ExperimentalMatchmakingApi::class)
+internal fun isMatchmakingFeatureAvailableInPlatform(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        return false
+    }
+    return HealthConnectFeaturesPlatformImpl.getFeatureStatus(FEATURE_MATCHMAKING) ==
         FEATURE_STATUS_AVAILABLE
 }
 
@@ -88,5 +100,61 @@ internal suspend fun <T> withPhrFeatureCheckSuspend(apiName: String, block: susp
         return block()
     } else {
         throw createExceptionDueToFeatureUnavailable(FEATURE_CONSTANT_NAME_PHR, apiName)
+    }
+}
+
+/**
+ * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
+ * throwing an [UnsupportedOperationException] pointing to `apiName`.
+ */
+internal fun <T> withMatchmakingFeatureCheck(kClass: KClass<*>, block: () -> T): T =
+    withMatchmakingFeatureCheck("${kClass.simpleName}", block)
+
+/**
+ * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
+ * throwing an [UnsupportedOperationException] pointing to `apiName`.
+ */
+internal fun <T> withMatchmakingFeatureCheck(
+    kClass: KClass<*>,
+    methodName: String,
+    block: () -> T,
+): T = withMatchmakingFeatureCheck("${kClass.simpleName}#$methodName", block)
+
+/**
+ * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
+ * throwing an [UnsupportedOperationException] pointing to `apiName`.
+ */
+internal fun <T> withMatchmakingFeatureCheck(apiName: String, block: () -> T): T {
+    if (isMatchmakingFeatureAvailableInPlatform()) {
+        return block()
+    } else {
+        throw createExceptionDueToFeatureUnavailable(FEATURE_CONSTANT_NAME_MATCHMAKING, apiName)
+    }
+}
+
+/**
+ * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
+ * throwing an [UnsupportedOperationException] pointing to `apiName`.
+ */
+internal suspend fun <T> withMatchmakingFeatureCheckSuspend(
+    kClass: KClass<*>,
+    methodName: String,
+    block: suspend () -> T,
+): T {
+    return withMatchmakingFeatureCheckSuspend("${kClass.simpleName}#$methodName", block)
+}
+
+/**
+ * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
+ * throwing an [UnsupportedOperationException] pointing to `apiName`.
+ */
+internal suspend fun <T> withMatchmakingFeatureCheckSuspend(
+    apiName: String,
+    block: suspend () -> T,
+): T {
+    if (isMatchmakingFeatureAvailableInPlatform()) {
+        return block()
+    } else {
+        throw createExceptionDueToFeatureUnavailable(FEATURE_CONSTANT_NAME_MATCHMAKING, apiName)
     }
 }

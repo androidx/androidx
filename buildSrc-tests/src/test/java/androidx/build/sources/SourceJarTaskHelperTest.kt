@@ -20,9 +20,11 @@ import androidx.build.multiplatformExtension
 import com.google.common.truth.Truth
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.junit.Ignore
 import org.junit.Test
 
 class SourceJarTaskHelperTest {
+    @Ignore // https://github.com/gradle/gradle/issues/34713
     @Test
     fun generateMetadata() {
         val project = ProjectBuilder.builder().build()
@@ -45,18 +47,18 @@ class SourceJarTaskHelperTest {
                             mapOf(
                                 "name" to "commonMain",
                                 "dependencies" to emptyList<String>(),
-                                "analysisPlatform" to "common"
+                                "analysisPlatform" to "common",
                             ),
                             mapOf(
                                 "name" to "extraMain",
                                 "dependencies" to listOf("commonMain"),
-                                "analysisPlatform" to "jvm"
+                                "analysisPlatform" to "jvm",
                             ),
                             mapOf(
                                 "name" to "jvmMain",
                                 "dependencies" to listOf("commonMain", "extraMain"),
-                                "analysisPlatform" to "jvm"
-                            )
+                                "analysisPlatform" to "jvm",
+                            ),
                         )
                 )
             )

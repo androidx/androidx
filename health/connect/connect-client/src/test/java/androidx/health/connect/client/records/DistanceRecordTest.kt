@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,6 +25,7 @@ import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class DistanceRecordTest {
@@ -52,11 +54,26 @@ class DistanceRecordTest {
             )
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             DistanceRecord(
                 startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                distance = 10.meters,
+            )
+        }
+    }
+
+    @Test
+    fun startTimeAfterEndTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            DistanceRecord(
+                startTime = Instant.ofEpochMilli(1235L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,

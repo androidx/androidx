@@ -41,12 +41,12 @@ public abstract class CompositionContext internal constructor() {
     internal abstract val collectingParameterInformation: Boolean
     internal abstract val collectingSourceInformation: Boolean
     internal abstract val collectingCallByInformation: Boolean
+    internal abstract val stackTraceEnabled: Boolean
     internal open val observerHolder: CompositionObserverHolder?
         get() = null
 
     /** The [CoroutineContext] with which effects for the composition will be executed in. */
     public abstract val effectCoroutineContext: CoroutineContext
-    internal abstract val recomposeCoroutineContext: CoroutineContext
 
     /** Associated composition if one exists. */
     internal abstract val composition: Composition?

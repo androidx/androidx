@@ -20,7 +20,6 @@ package androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -43,7 +42,6 @@ public class MapWithGridTemplateDemoScreen extends Screen {
         super(carContext);
     }
 
-    @ExperimentalCarApi
     @RequiresCarApi(7)
     @Override
     public @NonNull Template onGetTemplate() {
@@ -92,7 +90,7 @@ public class MapWithGridTemplateDemoScreen extends Screen {
     private GridItem createGridItem() {
         return new GridItem.Builder()
                 .setImage(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                        R.drawable.ic_fastfood_white_48dp)).build())
+                        R.drawable.ic_fastfood_white_48dp)).build(), GridItem.IMAGE_TYPE_ICON)
                 .setTitle("Primary")
                 .setText("Secondary")
                 .setOnClickListener(() -> CarToast.makeText(

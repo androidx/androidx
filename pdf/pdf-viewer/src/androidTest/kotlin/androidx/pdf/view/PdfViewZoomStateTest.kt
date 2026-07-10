@@ -81,7 +81,7 @@ class PdfViewZoomStateTest {
     }
 
     @Test
-    fun testGetDefaultZoom_fitWidth() = runTest {
+    fun testGetFitToWidthZoom_fitWidth() = runTest {
         val fakePdfDocument = FakePdfDocument(List(20) { Point(PAGE_WIDTH, PAGE_HEIGHT) })
 
         setupPdfView(fakePdfDocument)
@@ -91,7 +91,7 @@ class PdfViewZoomStateTest {
             val pdfView = activity.findViewById<PdfView>(PDF_VIEW_ID)
             pdfView.zoom = 2.0f
             val expectedZoom = 1.0f
-            val actualZoom = pdfView.getDefaultZoom()
+            val actualZoom = pdfView.getFitToWidthZoom()
             assertThat(actualZoom).isWithin(0.01f).of(expectedZoom)
         }
     }

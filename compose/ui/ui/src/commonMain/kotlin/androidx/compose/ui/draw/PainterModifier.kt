@@ -142,8 +142,8 @@ private data class PainterElement(
  *
  * IMPORTANT NOTE: This class sets [androidx.compose.ui.Modifier.Node.shouldAutoInvalidate] to false
  * which means it MUST invalidate both draw and the layout. It invalidates both in the
- * [PainterElement.update] method through [LayoutModifierNode.invalidateLayer] (invalidates draw)
- * and [LayoutModifierNode.invalidateLayout] (invalidates layout).
+ * [PainterElement.update] method through [androidx.compose.ui.node.invalidateLayer] (invalidates
+ * draw) and [LayoutModifierNode.invalidateLayout] (invalidates layout).
  */
 private class PainterNode(
     var painter: Painter,

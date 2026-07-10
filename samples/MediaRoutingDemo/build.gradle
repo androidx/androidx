@@ -1,12 +1,12 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
 }
 
@@ -17,7 +17,9 @@ dependencies {
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":concurrent:concurrent-futures"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
+    implementation(project(":compose:material3:material3"))
 
+    implementation(libs.androidx.activity.compose)
     implementation(libs.material)
     implementation(libs.guava)
 }
@@ -25,11 +27,14 @@ dependencies {
 android {
     buildTypes {
         release {
-            minifyEnabled = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
-    compileSdk = 35
+    compileSdk {
+        version = release(37)
+    }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

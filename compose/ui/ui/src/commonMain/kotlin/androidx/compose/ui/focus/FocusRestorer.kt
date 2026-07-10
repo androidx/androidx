@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
@@ -31,16 +32,22 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import androidx.compose.ui.platform.InspectorInfo
 
-private const val PrevFocusedChild = "previouslyFocusedChildHash"
+private const val PrevFocusedChild = "pfc"
 
 internal fun FocusTargetNode.saveFocusedChild(): Boolean {
     if (!focusState.hasFocus) return false
-    visitChildren(Nodes.FocusTarget) {
-        if (it.focusState.hasFocus) {
-            previouslyFocusedChildHash = it.requireLayoutNode().compositeKeyHash
-            currentValueOf(LocalSaveableStateRegistry)?.registerProvider(PrevFocusedChild) {
-                previouslyFocusedChildHash
-            }
+    visitChildren(Nodes.FocusTarget) { child ->
+        if (child.focusState.hasFocus) {
+            val previouslyFocusedChildHash = child.requireLayoutNode().compositeKeyHash
+            this.previouslyFocusedChildHash = previouslyFocusedChildHash
+            val saveableStateRegistry = currentValueOf(LocalSaveableStateRegistry)
+            this.focusRestorationEntry?.unregister()
+            this.focusRestorationEntry =
+                saveableStateRegistry?.registerProvider(
+                    PrevFocusedChild + requireLayoutNode().compositeKeyHash
+                ) {
+                    previouslyFocusedChildHash
+                }
             return true
         }
     }
@@ -48,19 +55,36 @@ internal fun FocusTargetNode.saveFocusedChild(): Boolean {
 }
 
 internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
-    if (previouslyFocusedChildHash == 0) {
+    // If we haven't gone through a save/restore cycle, the previously focused child hash
+    // will still be valid. Otherwise, try to restore it from the registry
+    if (previouslyFocusedChildHash == null) {
         val savableStateRegistry = currentValueOf(LocalSaveableStateRegistry)
-        savableStateRegistry?.consumeRestored(PrevFocusedChild)?.let {
-            previouslyFocusedChildHash = it as Int
-        }
+        savableStateRegistry
+            ?.consumeRestored(PrevFocusedChild + requireLayoutNode().compositeKeyHash)
+            ?.let { previouslyFocusedChildHash = it as Int }
     }
-    if (previouslyFocusedChildHash == 0) return false
-    visitChildren(Nodes.FocusTarget) {
+    // If we still don't have a hash, there is nothing to restore
+    if (previouslyFocusedChildHash == null) return false
+    visitChildren(Nodes.FocusTarget) { child ->
         // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
-        if (
-            it.isAttached && it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isFocusRestorationEnabled) {
+            if (
+                child.isAttached &&
+                    child.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
+            ) {
+                return child.requestFocus()
+            }
+        } else if (
+            child.isAttached &&
+                child.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
         ) {
-            return it.restoreFocusedChild() || it.requestFocus()
+            return child.restoreFocusedChild() ||
+                // When requestFocus fails, it attempts to grant focus to one of its children.
+                // We don't want to send focus to the children when restoreFocusedChild() fails,
+                // since it has its own fallback logic. So we call requestFocus only if this
+                // focus target is itself focusable.
+                child.fetchFocusProperties().canFocus && child.requestFocus()
         }
     }
     return false
@@ -103,8 +127,12 @@ internal class FocusRestorerNode(var fallback: FocusRequester) :
     FocusPropertiesModifierNode,
     FocusRequesterModifierNode,
     Modifier.Node() {
-
-    private val onExit: FocusEnterExitScope.() -> Unit = { saveFocusedChild() }
+    @OptIn(ExperimentalComposeUiApi::class)
+    private val onExit: FocusEnterExitScope.() -> Unit = {
+        if (!ComposeUiFlags.isFocusRestorationEnabled) {
+            saveFocusedChild()
+        }
+    }
 
     private val onEnter: FocusEnterExitScope.() -> Unit = {
         // Restoring the focused child involved calling requestFocus() and will automatically cancel

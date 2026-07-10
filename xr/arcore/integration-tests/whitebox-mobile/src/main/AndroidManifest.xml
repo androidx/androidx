@@ -24,7 +24,6 @@
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <application android:label="ARCore Whitebox" android:taskAffinity="">
-    <!--suppress MetadataTagInsideApplicationTag-->
     <meta-data android:name="com.google.ar.core" android:value="required" />
     <activity
         android:name=".MainActivity"
@@ -36,22 +35,27 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".anchors.AnchorsActivity"
+        android:name=".anchorsplaneshittest.AnchorsPlanesHitTestActivity"
         android:exported="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>
     <activity
-        android:name=".planes.PlanesActivity"
-        android:exported="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-    </activity>
-    <activity
-        android:name=".hittest.HitTestActivity"
-        android:exported="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-    </activity>
-        <activity
         android:name=".geospatial.GeospatialActivity"
+        android:exported="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+    </activity>
+    <activity
+        android:name=".depth.DepthActivity"
+        android:exported="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+    </activity>
+    <activity
+        android:name=".facemeshing.FaceMeshActivity"
+        android:exported="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+    </activity>
+    <activity
+        android:name=".inertial.InertialTrackingActivity"
         android:exported="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>

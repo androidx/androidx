@@ -48,7 +48,7 @@ class DrawableContainerCompatTest {
         assertTrue(container.calledSetTintList)
     }
 
-    internal class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
+    private class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
         constructor() : super(null, null, null)
 
         constructor(orig: DrawableContainerCompat.DrawableContainerState?) : super(orig, null, null)
@@ -62,7 +62,7 @@ class DrawableContainerCompatTest {
         }
     }
 
-    internal class MyDrawableContainer : DrawableContainerCompat() {
+    private class MyDrawableContainer : DrawableContainerCompat() {
         var calledSetTintList = false
 
         init {

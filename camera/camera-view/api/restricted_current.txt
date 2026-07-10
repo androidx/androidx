@@ -31,12 +31,14 @@ package androidx.camera.view {
     method @MainThread public android.util.Range<java.lang.Integer!> getVideoCaptureTargetFrameRate();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
+    method @MainThread public boolean isAutoRotationEnabled();
     method @MainThread public boolean isImageAnalysisEnabled();
     method @MainThread public boolean isImageCaptureEnabled();
     method @MainThread public boolean isPinchToZoomEnabled();
     method @MainThread public boolean isRecording();
     method @MainThread public boolean isTapToFocusEnabled();
     method @MainThread public boolean isVideoCaptureEnabled();
+    method @MainThread public void setAutoRotationEnabled(boolean);
     method @MainThread public void setCameraSelector(androidx.camera.core.CameraSelector);
     method @MainThread public void setEffects(java.util.Set<androidx.camera.core.CameraEffect!>);
     method @MainThread public void setEnabledUseCases(int);
@@ -56,6 +58,7 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
     method @Deprecated @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setSessionConfig(androidx.camera.core.SessionConfig, androidx.camera.core.CameraSelector);
     method @MainThread public void setTapToFocusAutoCancelDuration(@IntRange(from=0) long, java.util.concurrent.TimeUnit);
     method @MainThread public void setTapToFocusEnabled(boolean);
     method @MainThread public void setVideoCaptureDynamicRange(androidx.camera.core.DynamicRange);
@@ -158,15 +161,15 @@ package androidx.camera.view {
 
   public final class TapToFocusInfo {
     ctor public TapToFocusInfo(int focusState, android.graphics.PointF? tapPoint);
-    method public int getFocusState();
-    method public android.graphics.PointF? getTapPoint();
+    method @InaccessibleFromKotlin public int getFocusState();
+    method @InaccessibleFromKotlin public android.graphics.PointF? getTapPoint();
     property public int focusState;
     property public android.graphics.PointF? tapPoint;
   }
 
 }
 
-package androidx.camera.view.transform {
+package @SuppressCompatibility androidx.camera.view.transform {
 
   @SuppressCompatibility public final class CoordinateTransform {
     ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);

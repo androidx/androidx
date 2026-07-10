@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.paint;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Interface to a paint object For more details see Android Paint */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PaintChanges {
 
     // MASK to be set/cleared
@@ -36,114 +39,52 @@ public interface PaintChanges {
     int CLEAR_COLOR_FILTER = 1 << (PaintBundle.COLOR_FILTER - 1);
     int VALID_BITS = 0x1FFF; // only the first 13 bit are valid now
 
-    /**
-     * Set the size of text
-     *
-     * @param size
-     */
+    /** Set the size of text */
     void setTextSize(float size);
 
-    /**
-     * Set the width of lines
-     *
-     * @param width
-     */
+    /** Set the width of lines */
     void setStrokeWidth(float width);
 
-    /**
-     * Set the color to use
-     *
-     * @param color
-     */
+    /** Set the color to use */
     void setColor(int color);
 
-    /**
-     * Set the Stroke Cap
-     *
-     * @param cap
-     */
+    /** Set the Stroke Cap */
     void setStrokeCap(int cap);
 
-    /**
-     * Set the Stroke style FILL and/or STROKE
-     *
-     * @param style
-     */
+    /** Set the Stroke style FILL and/or STROKE */
     void setStyle(int style);
 
-    /**
-     * Set the id of the shader to use
-     *
-     * @param shader
-     */
+    /** Set the id of the shader to use */
     void setShader(int shader);
 
-    /**
-     * Set the way image is interpolated
-     *
-     * @param quality
-     */
+    /** Set the way image is interpolated */
     void setImageFilterQuality(int quality);
 
-    /**
-     * Set the alpha to draw under
-     *
-     * @param a
-     */
+    /** Set the alpha to draw under */
     void setAlpha(float a);
 
-    /**
-     * Set the Stroke Miter
-     *
-     * @param miter
-     */
+    /** Set the Stroke Miter */
     void setStrokeMiter(float miter);
 
-    /**
-     * Set the Stroke Join
-     *
-     * @param join
-     */
+    /** Set the Stroke Join */
     void setStrokeJoin(int join);
 
-    /**
-     * Should bitmaps be interpolated
-     *
-     * @param filter
-     */
+    /** Should bitmaps be interpolated */
     void setFilterBitmap(boolean filter);
 
-    /**
-     * Set the blend mode can be porterduff + others
-     *
-     * @param mode
-     */
+    /** Set the blend mode can be porterduff + others */
     void setBlendMode(int mode);
 
-    /**
-     * Set the AntiAlias. Typically true Set to off when you need pixilated look (e.g. QR codes)
-     *
-     * @param aa
-     */
+    /** Set the AntiAlias. Typically true Set to off when you need pixilated look (e.g. QR codes) */
     void setAntiAlias(boolean aa);
 
-    /**
-     * Clear some sub set of the settings
-     *
-     * @param mask
-     */
+    /** Clear some sub set of the settings */
     void clear(long mask);
 
     /**
      * Set a linear gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming
-     * @param startX
-     * @param startY
-     * @param endX
-     * @param endY
-     * @param tileMode
      */
     void setLinearGradient(
             int @NonNull [] colorsArray,
@@ -157,12 +98,7 @@ public interface PaintChanges {
     /**
      * Set a radial gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming
-     * @param centerX
-     * @param centerY
-     * @param radius
-     * @param tileMode
      */
     void setRadialGradient(
             int @NonNull [] colorsArray,
@@ -175,10 +111,7 @@ public interface PaintChanges {
     /**
      * Set a sweep gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming to either "positions" or "stops"
-     * @param centerX
-     * @param centerY
      */
     void setSweepGradient(
             int @NonNull [] colorsArray,
@@ -186,12 +119,7 @@ public interface PaintChanges {
             float centerX,
             float centerY);
 
-    /**
-     * Set Color filter mod
-     *
-     * @param color
-     * @param mode
-     */
+    /** Set Color filter mod */
     void setColorFilter(int color, int mode);
 
     /**
@@ -202,6 +130,15 @@ public interface PaintChanges {
      * @param italic if the font is italic
      */
     void setTypeFace(int fontType, int weight, boolean italic);
+
+    /**
+     * Set TypeFace to be used as a fallback if the primary font is not available
+     *
+     * @param fontType the type of font 0,1,or 2
+     * @param weight the weight of the font
+     * @param italic if the font is italic
+     */
+    void setFallbackTypeFace(int fontType, int weight, boolean italic);
 
     /**
      * Set the shader matrix
@@ -236,4 +173,11 @@ public interface PaintChanges {
      */
     void setTextureShader(
             int bitmapId, short tileX, short tileY, short filterMode, short maxAnisotropy);
+
+    /**
+     * Set the path effect
+     *
+     * @param pathEffect the path effect to be used
+     */
+    void setPathEffect(float @Nullable [] pathEffect);
 }

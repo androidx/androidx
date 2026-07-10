@@ -57,23 +57,23 @@ class PrivateConstructorForUtilityClassDetectorTest :
                         static void method() { }
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/PrivateConstructorForUtilityClassJava.java:9: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
-    static class DefaultInnerClass {
-                 ~~~~~~~~~~~~~~~~~
-src/androidx/PrivateConstructorForUtilityClassJava.java:14: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
-    protected static class ProtectedInnerClass {
-                           ~~~~~~~~~~~~~~~~~~~
-src/androidx/PrivateConstructorForUtilityClassJava.java:19: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
-    public static class PublicInnerClass {
-                        ~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
-        """
+            src/androidx/PrivateConstructorForUtilityClassJava.java:9: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+                static class DefaultInnerClass {
+                             ~~~~~~~~~~~~~~~~~
+            src/androidx/PrivateConstructorForUtilityClassJava.java:14: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+                protected static class ProtectedInnerClass {
+                                       ~~~~~~~~~~~~~~~~~~~
+            src/androidx/PrivateConstructorForUtilityClassJava.java:19: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+                public static class PublicInnerClass {
+                                    ~~~~~~~~~~~~~~~~
+            3 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)

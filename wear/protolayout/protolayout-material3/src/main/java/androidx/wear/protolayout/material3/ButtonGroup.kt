@@ -58,6 +58,12 @@ import androidx.wear.protolayout.material3.ButtonGroupDefaults.METADATA_TAG
  * Note that, having more than 2 rows in a Column could lead to too small height of elements that
  * aren't in line with minimum tap target.
  *
+ * See
+ * [common-layouts/tiles](https://developer.android.com/design/ui/wear/guides/foundations/common-layouts/tiles)
+ * and
+ * [bestpractices](https://developer.android.com/design/ui/wear/guides/surfaces/tiles/bestpractices)
+ * for more visuals and design recommendations.
+ *
  * @param width The width of this button group
  * @param height The height of this button group
  * @param spacing The amount of spacing between buttons
@@ -66,7 +72,6 @@ import androidx.wear.protolayout.material3.ButtonGroupDefaults.METADATA_TAG
  * @sample androidx.wear.protolayout.material3.samples.dataCardSample
  * @sample androidx.wear.protolayout.material3.samples.oneSlotButtonsSample
  */
-// TODO: b/346958146 - Link visuals once they are available.
 public fun MaterialScope.buttonGroup(
     width: ContainerDimension = expand(),
     height: ContainerDimension = expand(),

@@ -16,7 +16,6 @@
 
 package androidx.aab
 
-import androidx.aab.cli.VERBOSE
 import java.io.InputStream
 
 /**
@@ -64,24 +63,16 @@ data class AppMetadataPropsInfo(
             )
         }
 
-        val CSV_TITLES_META_INF =
-            listOfNotNull(
-                "appMetadataPropsLegacy_agpVersion",
-                if (VERBOSE) "appMetadataPropsLegacy_version" else null,
-            )
-        val CSV_TITLES_BUNDLE =
-            listOfNotNull(
-                "appMetadataProps_agpVersion",
-                if (VERBOSE) "appMetadataProps_version" else null,
+        private fun columnsWithPrefix(prefix: String) =
+            listOf(
+                CsvColumn<AppMetadataPropsInfo?>(
+                    "appMetadataProps${prefix}_agpVersion",
+                    description = "AGP version info from app-metadata.properties",
+                    calculate = { it?.androidGradlePluginVersion.toString() },
+                )
             )
 
-        fun AppMetadataPropsInfo?.csvEntries(): List<String> {
-            return listOf(this?.androidGradlePluginVersion.toString()) +
-                if (VERBOSE) {
-                    listOf(this?.appMetadataVersion.toString())
-                } else {
-                    emptyList()
-                }
-        }
+        val CSV_COLUMNS_META_INF = columnsWithPrefix("Legacy")
+        val CSV_COLUMNS_BUNDLE = columnsWithPrefix("")
     }
 }

@@ -23,18 +23,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
 
 @Composable
+@SubspaceComposable
 fun FixedSizeFullSpaceLayout(
     title: String,
     modifier: SubspaceModifier = SubspaceModifier.width(1200.dp).height(600.dp),
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable @UiComposable ColumnScope.() -> Unit,
 ) {
     SpatialPanel(modifier) {
         Box(

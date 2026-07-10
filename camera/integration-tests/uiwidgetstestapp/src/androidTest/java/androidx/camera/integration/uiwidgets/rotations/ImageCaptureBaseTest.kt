@@ -22,14 +22,13 @@ import android.os.Build
 import android.os.Environment
 import android.view.View
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -40,9 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.Closeable
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
@@ -60,36 +57,10 @@ import org.junit.Rule
  * - Wait for the image capture callback
  * - Verify the picture's rotation or resolution
  */
-abstract class ImageCaptureBaseTest<A : CameraActivity>(
-    cameraXConfig: String = CameraActivity.CAMERA2_IMPLEMENTATION_OPTION
-) {
+abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
-        )
-
-    @get:Rule
-    val useCameraRule =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            testCameraRule,
-            CameraUtil.PreTestCameraIdList(
-                if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            ),
-        )
-
-    @get:Rule
-    val cameraActivityRules: GrantPermissionRule =
-        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
-
-    protected lateinit var device: UiDevice
-
-    protected fun setUp(lensFacing: Int) {
+    val requireForegroundRule = RequireForegroundRule {
         // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
         //  related to the attached bug.
         assumeFalse(
@@ -102,30 +73,38 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         )
 
         CoreAppTestUtil.assumeCompatibleDevice()
+    }
+
+    @get:Rule
+    val useCameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            testCameraRule,
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig()),
+        )
+
+    @get:Rule
+    val cameraActivityRules: GrantPermissionRule =
+        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
+
+    protected lateinit var device: UiDevice
+
+    protected fun setUp(lensFacing: Int) {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-
-        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
-        // call this earlier before launching the test activity.
-        device.setOrientationNatural()
-
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
         // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
         assumeTrue("Failed to create pictures directory", createPicturesFolder())
-    }
 
-    protected fun tearDown(): Unit = runBlocking {
-        withContext(Dispatchers.Main) {
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        requireForegroundRule.deferCleanup {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
-        if (::device.isInitialized) {
-            device.unfreezeRotation()
-        }
+    }
+
+    protected fun tearDown(): Unit = runBlocking {
+        // No-op for now.
     }
 
     @Suppress("DEPRECATION")
@@ -140,11 +119,9 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
     protected inline fun <reified A : CameraActivity> verifyRotation(
         lensFacing: Int,
         captureMode: Int,
-        cameraXConfig: String = CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
         rotate: ActivityScenario<A>.() -> Unit,
     ) {
-        val activityScenario: ActivityScenario<A> =
-            launchActivity(lensFacing, captureMode, cameraXConfig)
+        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, captureMode)
         activityScenario.useAndCatchFinallyException { scenario ->
 
             // Wait until the camera is set up and analysis starts receiving frames
@@ -211,14 +188,11 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
     protected inline fun <reified A : CameraActivity> launchActivity(
         lensFacing: Int,
         captureMode: Int,
-        cameraXConfig: String,
     ): ActivityScenario<A> {
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), A::class.java).apply {
                 putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
                 putExtra(CameraActivity.KEY_IMAGE_CAPTURE_MODE, captureMode)
-                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
-                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
         return ActivityScenario.launch<A>(intent)
     }
@@ -286,13 +260,6 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 CameraSelector.LENS_FACING_BACK,
                 CameraSelector.LENS_FACING_FRONT,
                 CameraSelector.LENS_FACING_EXTERNAL,
-            )
-
-        @JvmStatic
-        protected val cameraXConfigList =
-            arrayOf(
-                CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
             )
 
         @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera

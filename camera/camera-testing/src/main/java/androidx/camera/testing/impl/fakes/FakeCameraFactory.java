@@ -72,6 +72,8 @@ public final class FakeCameraFactory implements CameraFactory, CameraFactory.Int
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
 
+    private boolean mShouldThrowOnInterrogate = false;
+
     public FakeCameraFactory() {
         mAvailableCamerasSelector = null;
     }
@@ -184,9 +186,19 @@ public final class FakeCameraFactory implements CameraFactory, CameraFactory.Int
         return mCachedCameraIds;
     }
 
+    public void setShouldThrowOnInterrogate(boolean shouldThrow) {
+        mShouldThrowOnInterrogate = shouldThrow;
+    }
+
     @NonNull
     @Override
     public List<String> getAvailableCameraIds(@NonNull List<String> cameraIds) {
+        if (mShouldThrowOnInterrogate) {
+            // Reset the flag after use to avoid affecting subsequent tests.
+            mShouldThrowOnInterrogate = false;
+            throw new IllegalStateException("Test Exception from Interrogator");
+        }
+
         if (mAvailableCamerasSelector == null) {
             // No selector, just return the input list but ensure cameras exist in our map.
             List<String> existingIds = new ArrayList<>();
@@ -271,7 +283,7 @@ public final class FakeCameraFactory implements CameraFactory, CameraFactory.Int
         Set<String> availableIds = getAvailableCameraIds();
         List<CameraIdentifier> identifiers = new ArrayList<>();
         for (String id : availableIds) {
-            identifiers.add(CameraIdentifier.create(id));
+            identifiers.add(CameraIdentifier.Factory.create(id));
         }
 
         // This check is needed because setCameraPresenceSource can overwrite our observable.

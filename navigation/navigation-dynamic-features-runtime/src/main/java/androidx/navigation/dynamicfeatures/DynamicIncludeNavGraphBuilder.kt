@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("NOTHING_TO_INLINE", "FacadeClassJvmName")
 
 package androidx.navigation.dynamicfeatures
 

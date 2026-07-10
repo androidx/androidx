@@ -1,8 +1,8 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.collection.ArraySet#ArraySet(E[]) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `E[]`
+    Method parameter should be Collection<E> (or subclass) instead of raw array; was `E[]`
 ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
 GetterSetterNames: androidx.collection.SparseArrayCompat#getIsEmpty():

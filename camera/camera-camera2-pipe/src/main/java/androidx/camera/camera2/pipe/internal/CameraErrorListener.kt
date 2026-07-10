@@ -31,3 +31,7 @@ public interface CameraErrorListener {
         willAttemptRetry: Boolean = false,
     )
 }
+
+public interface CriticalCameraErrorListener {
+    public fun onCriticalCameraError(cameraId: CameraId)
+}

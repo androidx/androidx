@@ -31,7 +31,12 @@ interface LocalServiceBinder {
     /** the state of active calls on this device */
     val callDataUpdates: StateFlow<List<CallData>>
 
-    fun addCall(callAttributes: CallAttributesCompat, notificationId: Int)
+    fun addCall(
+        callAttributes: CallAttributesCompat,
+        notificationId: Int,
+        isInitiallyMuted: Boolean,
+        canUserUpdateSilence: Boolean,
+    )
 
     fun setCallActive(callId: String)
 
@@ -44,6 +49,8 @@ interface LocalServiceBinder {
     fun toggleGlobalMute(isMuted: Boolean)
 
     fun toggleLocalCallSilence(callId: String, isMuted: Boolean)
+
+    fun toggleCanUserUpdateSilence(callId: String, canUserUpdateSilence: Boolean)
 
     fun addParticipant(callId: String)
 

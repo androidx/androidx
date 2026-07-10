@@ -15,7 +15,6 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-sdk android:minSdkVersion="36"/>
     <application
         android:label="Vertical Text Demo">
         <activity android:name=".VerticalTextSampleActivity" android:exported="true">

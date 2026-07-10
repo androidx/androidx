@@ -21,8 +21,6 @@ import static androidx.camera.video.internal.audio.AudioUtils.sizeToFrameCount;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.GuardedBy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -32,12 +30,13 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -56,12 +55,11 @@ public class BufferedAudioStream implements AudioStream {
     private static final String TAG = "BufferedAudioStream";
     private static final int DEFAULT_BUFFER_SIZE_IN_FRAME = 1024;
     private static final int DEFAULT_QUEUE_SIZE = 500;
-    private static final int DATA_WAITING_TIME_MILLIS = 1;
+    private static final int DATA_WAITING_TIME_MILLIS = 100;
 
     private final AtomicBoolean mIsStarted = new AtomicBoolean(false);
     private final AtomicBoolean mIsReleased = new AtomicBoolean(false);
-    @GuardedBy("mLock")
-    private final Queue<AudioData> mAudioDataQueue = new ConcurrentLinkedQueue<>();
+    private final BlockingQueue<AudioData> mAudioDataQueue = new LinkedBlockingQueue<>();
     private final Executor mProducerExecutor = CameraXExecutors.newSequentialExecutor(
             CameraXExecutors.audioExecutor());
     private final Object mLock = new Object();
@@ -129,9 +127,9 @@ public class BufferedAudioStream implements AudioStream {
         mProducerExecutor.execute(() -> {
             mIsCollectingAudioData.set(false);
             mAudioStream.stop();
+            mAudioDataQueue.clear();
             synchronized (mLock) {
                 mAudioDataNotFullyRead = null;
-                mAudioDataQueue.clear();
             }
         });
     }
@@ -145,14 +143,13 @@ public class BufferedAudioStream implements AudioStream {
         mProducerExecutor.execute(() -> {
             mIsCollectingAudioData.set(false);
             mAudioStream.release();
+            mAudioDataQueue.clear();
             synchronized (mLock) {
                 mAudioDataNotFullyRead = null;
-                mAudioDataQueue.clear();
             }
         });
     }
 
-    @SuppressLint("BanThreadSleep")
     @Override
     public @NonNull PacketInfo read(@NonNull ByteBuffer byteBuffer) {
         checkNotReleasedOrThrow();
@@ -161,40 +158,38 @@ public class BufferedAudioStream implements AudioStream {
         // Match collection buffer size and read buffer size to improve read efficiency.
         updateCollectionBufferSizeAsync(byteBuffer.remaining());
 
-        // Block the thread till the audio data is actually read.
-        boolean isWaitingForData;
-        PacketInfo packetInfo = PacketInfo.of(0, 0);
-        do {
-            synchronized (mLock) {
-                AudioData audioData = mAudioDataNotFullyRead;
-                mAudioDataNotFullyRead = null;
-                if (audioData == null) {
-                    audioData = mAudioDataQueue.poll();
-                }
+        AudioData audioData;
+        synchronized (mLock) {
+            audioData = mAudioDataNotFullyRead;
+            mAudioDataNotFullyRead = null;
+        }
 
-                if (audioData != null) {
-                    packetInfo = audioData.read(byteBuffer);
-
-                    if (audioData.getRemainingBufferSizeInBytes() > 0) {
-                        mAudioDataNotFullyRead = audioData;
-                    }
-                }
-            }
-
-            // Wait for data collection if no data to read and the audio stream is still running.
-            isWaitingForData =
-                    packetInfo.getSizeInBytes() <= 0 && mIsStarted.get() && !mIsReleased.get();
-
-            // Sleep to prevent busy accessing to variables.
-            if (isWaitingForData) {
+        if (audioData == null) {
+            while (mIsStarted.get() && !mIsReleased.get()) {
                 try {
-                    Thread.sleep(DATA_WAITING_TIME_MILLIS);
+                    audioData = mAudioDataQueue.poll(DATA_WAITING_TIME_MILLIS,
+                            TimeUnit.MILLISECONDS);
+                    if (audioData != null) {
+                        break;
+                    }
                 } catch (InterruptedException e) {
                     Logger.w(TAG, "Interruption while waiting for audio data", e);
-                    break;
+                    return PacketInfo.of(0, 0);
                 }
             }
-        } while (isWaitingForData);
+        }
+
+        if (audioData == null) {
+            return PacketInfo.of(0, 0);
+        }
+
+        PacketInfo packetInfo = audioData.read(byteBuffer);
+
+        if (audioData.getRemainingBufferSizeInBytes() > 0) {
+            synchronized (mLock) {
+                mAudioDataNotFullyRead = audioData;
+            }
+        }
 
         return packetInfo;
     }
@@ -256,15 +251,14 @@ public class BufferedAudioStream implements AudioStream {
         AudioData audioData = new AudioData(byteBuffer, packetInfo, mBytesPerFrame, mSampleRate);
 
         // Push audio data to the queue.
-        int queueMaxSize = mQueueMaxSize;
-        synchronized (mLock) {
-            mAudioDataQueue.offer(audioData);
+        if (!mAudioDataQueue.offer(audioData)) {
+            Logger.w(TAG, "Failed to offer audio data to queue.");
+        }
 
-            // Pop audio data when the queue size exceeds the limit.
-            while (mAudioDataQueue.size() > queueMaxSize) {
-                mAudioDataQueue.poll();
-                Logger.w(TAG, "Drop audio data due to full of queue.");
-            }
+        // Pop audio data when the queue size exceeds the limit.
+        while (mAudioDataQueue.size() > mQueueMaxSize) {
+            mAudioDataQueue.poll();
+            Logger.w(TAG, "Drop audio data due to full of queue.");
         }
 
         // Start next data collection.

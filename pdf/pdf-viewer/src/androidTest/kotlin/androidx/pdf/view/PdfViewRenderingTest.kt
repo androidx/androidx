@@ -23,6 +23,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -60,6 +61,7 @@ class PdfViewRenderingTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun testPageRendering_renderNewPagesOnScroll() = runTest {
         // Layout at 500x1000, and expect to render pages [0, 4] at 500x200
         val pdfDocument = FakePdfDocument(List(10) { Point(500, 200) })

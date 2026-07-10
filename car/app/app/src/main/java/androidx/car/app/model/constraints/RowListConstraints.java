@@ -23,9 +23,12 @@ import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Banner;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
@@ -168,12 +171,15 @@ public final class RowListConstraints {
         validateRows(pane.getRows());
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private void validateRows(List<? extends Item> rows) {
         for (Item rowObj : rows) {
             if (rowObj instanceof Row) {
                 mRowConstraints.validateOrThrow((Row) rowObj);
             } else if (rowObj instanceof ConversationItem) {
                 // ExperimentalCarApi -- unrestricted for now
+            } else if (rowObj instanceof Banner) {
+                // Needed for the search template
             } else {
                 throw new IllegalArgumentException(String.format(
                         "Unsupported item type: %s",

@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,12 +86,19 @@ import kotlin.math.sqrt
  *
  * The [EdgeButton] has a special shape designed for the bottom of the screen, as it almost follows
  * the screen's curvature, so it should be allowed to take the full width and touch the bottom of
- * the screen. It has 4 standard sizes, taking 1 line of text for the extra small, 2 for small and
- * medium, and 3 for the large. See the standard values on [ButtonDefaults], and specify it using
- * the buttonSize parameter. Optionally, a single icon can be used instead of the text.
+ * the screen.
  *
  * This button represents the most important action on the screen, and must take the whole width of
  * the screen as well as being anchored to the screen bottom.
+ *
+ * When used with a list, such as [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] or
+ * [androidx.wear.compose.foundation.lazy.ScalingLazyColumn], it is recommended to pass [EdgeButton]
+ * into the [ScreenScaffold]'s edgeButton slot, which grows and shrinks to take the available space
+ * after the scrollable content.
+ *
+ * [EdgeButton] has 4 standard sizes, taking 1 line of text for the extra small, 2 for small and
+ * medium, and 3 for the large. See the standard values on [ButtonDefaults], and specify it using
+ * the buttonSize parameter. Optionally, a single icon can be used instead of the text.
  *
  * [EdgeButton] takes the [ButtonDefaults.buttonColors] color scheme by default, with colored
  * background, contrasting content color and no border. This is a high-emphasis button for the
@@ -103,13 +111,19 @@ import kotlin.math.sqrt
  *
  * Edge button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * Example of an [EdgeButton]:
+ * Example of an [EdgeButton] placed at the bottom of the screen:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeButtonSample
  *
- * For a sample integrating with ScalingLazyColumn, see:
+ * Example of an EdgeButton with [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] and
+ * [ScreenScaffold]:
  *
- * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
+ * @sample androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldWithTLCEdgeButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button. When animating the button to appear/
  *   disappear from the screen, a Modifier.height can be used to change the height of the component,
@@ -165,108 +179,116 @@ public fun EdgeButton(
     val contentFadeStartPx = with(LocalDensity.current) { CONTENT_FADE_START_DP.toPx() }
     val contentFadeEndPx = with(LocalDensity.current) { CONTENT_FADE_END_DP.toPx() }
 
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier =
-            modifier
-                .padding(vertical = EdgeButtonVerticalPadding)
-                .layout { measurable, constraints ->
-                    // Compute the actual size of the button, and save it for later.
-                    // We take the max width available, and the height is determined by the
-                    // buttonSize coerced to the constraints at this point.
-                    // We behave similar to .fillMaxWidth().height(buttonSize)
-                    val buttonWidthPx =
-                        if (constraints.hasBoundedWidth) {
-                            constraints.maxWidth
-                        } else {
-                            screenWidthDp.roundToPx()
-                        }
-                    val buttonHeightPx = with(density) { preferredHeight.roundToPx() }
-                    val size =
-                        IntSize(
-                            buttonWidthPx,
-                            buttonHeightPx.coerceIn(constraints.minHeight, constraints.maxHeight),
-                        )
+    val contentColor = colors.contentColor(enabled = enabled)
 
-                    val placeable =
-                        measurable.measure(
-                            Constraints(size.width, size.width, size.height, size.height)
-                        )
-                    layout(size.width, size.height) { placeable.place(0, 0) }
-                }
-                .graphicsLayer {
-                    // Container fades when button height goes from 18dp to 0dp
-                    alpha =
-                        easing
-                            .transform(
-                                (size.height - containerFadeEndPx) /
-                                    ((containerFadeStartPx - containerFadeEndPx))
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier =
+                modifier
+                    .padding(vertical = EdgeButtonVerticalPadding)
+                    .layout { measurable, constraints ->
+                        // Compute the actual size of the button, and save it for later.
+                        // We take the max width available, and the height is determined by the
+                        // buttonSize coerced to the constraints at this point.
+                        // We behave similar to .fillMaxWidth().height(buttonSize)
+                        val buttonWidthPx =
+                            if (constraints.hasBoundedWidth) {
+                                constraints.maxWidth
+                            } else {
+                                screenWidthDp.roundToPx()
+                            }
+                        val buttonHeightPx = with(density) { preferredHeight.roundToPx() }
+                        val size =
+                            IntSize(
+                                buttonWidthPx,
+                                buttonHeightPx.coerceIn(
+                                    constraints.minHeight,
+                                    constraints.maxHeight,
+                                ),
                             )
-                            .coerceIn(0f, 1f)
-                }
-                .then(
-                    // BorderModifier
-                    if (border != null) Modifier.border(border = border, shape = shape)
-                    else Modifier
-                )
-                .clip(shape = shape)
-                .paint(
-                    painter = ColorPainter(colors.containerColor(enabled = enabled)),
-                    contentScale = ContentScale.Crop,
-                )
-                .graphicsLayer {
-                    // Compose the content in an offscreen layer, so we can apply the gradient mask
-                    // to it.
-                    compositingStrategy = CompositingStrategy.Offscreen
-                }
-                .drawWithContent {
-                    val alpha =
-                        easing
-                            .transform(
-                                (size.height - contentFadeEndPx) /
-                                    ((contentFadeStartPx - contentFadeEndPx))
-                            )
-                            .coerceIn(0f, 1f)
 
-                    drawContent()
-                    // Draw the gradient.
-                    // We use the max dimension (width) as a proxy for screen size.
-                    val r = size.maxDimension / 2f
-                    val center = Offset(r, size.height - r)
-                    drawRect(
-                        Brush.radialGradient(
-                            0.875f to Color.White.copy(alpha),
-                            1.0f to Color.Transparent,
-                            center = center,
-                            radius = r,
-                        ),
-                        blendMode = BlendMode.Modulate,
+                        val placeable =
+                            measurable.measure(
+                                Constraints(size.width, size.width, size.height, size.height)
+                            )
+                        layout(size.width, size.height) { placeable.place(0, 0) }
+                    }
+                    .graphicsLayer {
+                        // Container fades when button height goes from 18dp to 0dp
+                        alpha =
+                            easing
+                                .transform(
+                                    (size.height - containerFadeEndPx) /
+                                        ((containerFadeStartPx - containerFadeEndPx))
+                                )
+                                .coerceIn(0f, 1f)
+                    }
+                    .then(
+                        // BorderModifier
+                        if (border != null) Modifier.border(border = border, shape = shape)
+                        else Modifier
                     )
-                }
-                .clickable(
-                    enabled = enabled,
-                    onClick = onClick,
-                    role = Role.Button,
-                    indication = ripple(),
-                    interactionSource = interactionSource,
-                )
-                .sizeAndOffset(containerShapeHelper)
-                .scaleAndAlignContent(buttonSize)
-                // Limit the content size to the expected width for the button size.
-                .requiredSizeIn(maxWidth = contentShapeHelper.contentWidthDp()),
-        content =
-            provideScopeContent(
-                colors.contentColor(enabled = enabled),
-                MaterialTheme.typography.labelMedium.copy(textMotion = TextMotion.Animated),
-                textConfiguration =
-                    TextConfiguration(
-                        TextAlign.Center,
-                        TextOverflow.Ellipsis,
-                        maxLines = buttonSize.maxLines(),
-                    ),
-                content,
-            ),
-    )
+                    .clip(shape = shape)
+                    .paint(
+                        painter = ColorPainter(colors.containerColor(enabled = enabled)),
+                        contentScale = ContentScale.Crop,
+                    )
+                    .graphicsLayer {
+                        // Compose the content in an offscreen layer, so we can apply the gradient
+                        // mask
+                        // to it.
+                        compositingStrategy = CompositingStrategy.Offscreen
+                    }
+                    .drawWithContent {
+                        val alpha =
+                            easing
+                                .transform(
+                                    (size.height - contentFadeEndPx) /
+                                        ((contentFadeStartPx - contentFadeEndPx))
+                                )
+                                .coerceIn(0f, 1f)
+
+                        drawContent()
+                        // Draw the gradient.
+                        // We use the max dimension (width) as a proxy for screen size.
+                        val r = size.maxDimension / 2f
+                        val center = Offset(r, size.height - r)
+                        drawRect(
+                            Brush.radialGradient(
+                                0.875f to Color.White.copy(alpha),
+                                1.0f to Color.Transparent,
+                                center = center,
+                                radius = r,
+                            ),
+                            blendMode = BlendMode.Modulate,
+                        )
+                    }
+                    .clickable(
+                        enabled = enabled,
+                        onClick = onClick,
+                        role = Role.Button,
+                        indication = ripple(),
+                        interactionSource = interactionSource,
+                    )
+                    .sizeAndOffset(containerShapeHelper)
+                    .scaleAndAlignContent(buttonSize)
+                    // Limit the content size to the expected width for the button size.
+                    .requiredSizeIn(maxWidth = contentShapeHelper.contentWidthDp()),
+            content =
+                provideScopeContent(
+                    contentColor,
+                    MaterialTheme.typography.labelMedium.copy(textMotion = TextMotion.Animated),
+                    textConfiguration =
+                        TextConfiguration(
+                            TextAlign.Center,
+                            TextOverflow.Ellipsis,
+                            maxLines = buttonSize.maxLines(),
+                        ),
+                    content,
+                ),
+        )
+    }
 }
 
 /**

@@ -18,11 +18,10 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import android.graphics.ImageFormat;
 
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -39,13 +38,13 @@ public final class ImageProxyDownsamplerTest {
     private static final int HEIGHT = 8;
 
     private static ImageProxy createYuv420Image(int uvPixelStride) {
-        ImageProxy image = mock(ImageProxy.class);
+        FakeImageProxy image = new FakeImageProxy(new FakeImageInfo());
         ImageProxy.PlaneProxy[] planes = new ImageProxy.PlaneProxy[3];
 
-        when(image.getWidth()).thenReturn(WIDTH);
-        when(image.getHeight()).thenReturn(HEIGHT);
-        when(image.getFormat()).thenReturn(ImageFormat.YUV_420_888);
-        when(image.getPlanes()).thenReturn(planes);
+        image.setWidth(WIDTH);
+        image.setHeight(HEIGHT);
+        image.setFormat(ImageFormat.YUV_420_888);
+        image.setPlanes(planes);
 
         planes[0] =
                 createPlaneWithRampPattern(WIDTH, HEIGHT, /*pixelStride=*/ 1, /*initialValue=*/ 0);

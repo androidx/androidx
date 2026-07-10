@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.glance.preview:
+    Removed package androidx.glance.preview from compatibility checked API surface

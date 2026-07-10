@@ -17,8 +17,10 @@
 package androidx.wear.watchfacepush.test
 
 import android.content.Context
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import androidx.wear.watchfacepush.*
 import androidx.wear.watchfacepush.WatchFacePushManager.IsWatchFaceActiveException
@@ -33,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class IsWatchFaceActiveTest {
     private var context: Context = ApplicationProvider.getApplicationContext()
     private var wfp = WatchFacePushManagerFactory.createWatchFacePushManager(context)

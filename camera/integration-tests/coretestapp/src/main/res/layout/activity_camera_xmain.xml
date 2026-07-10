@@ -162,72 +162,68 @@ limitations under the License.
         app:layout_constraintTop_toBottomOf="@id/video_persistent"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <ToggleButton
-        android:id="@+id/VideoToggle"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_buttons_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:textOn="@string/toggle_video_on"
-        android:textOff="@string/toggle_video_off"
-        android:checked="false"
-        android:background="@drawable/usecase_toggle_bg_selector"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ToggleButton
-        android:id="@+id/PhotoToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:textOn="@string/toggle_photo_on"
-        android:textOff="@string/toggle_photo_off"
-        android:checked="true"
-        android:background="@drawable/usecase_toggle_bg_selector"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.333"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
-        />
+        <ToggleButton
+            android:id="@+id/VideoToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/usecase_toggle_bg_selector"
+            android:checked="false"
+            android:scaleType="fitXY"
+            android:textOff="@string/toggle_video_off"
+            android:textOn="@string/toggle_video_on"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0" />
 
-    <ToggleButton
-        android:id="@+id/AnalysisToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:textOn="@string/toggle_analysis_on"
-        android:textOff="@string/toggle_analysis_off"
-        android:checked="true"
-        android:background="@drawable/usecase_toggle_bg_selector"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
-        />
+        <ToggleButton
+            android:id="@+id/PhotoToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/usecase_toggle_bg_selector"
+            android:checked="true"
+            android:scaleType="fitXY"
+            android:textOff="@string/toggle_photo_off"
+            android:textOn="@string/toggle_photo_on"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.333"/>
 
-    <ToggleButton
-        android:id="@+id/PreviewToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:textOn="@string/toggle_preview_on"
-        android:textOff="@string/toggle_preview_off"
-        android:checked="true"
-        android:background="@drawable/usecase_toggle_bg_selector"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
-        />
+        <ToggleButton
+            android:id="@+id/AnalysisToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/usecase_toggle_bg_selector"
+            android:checked="true"
+            android:scaleType="fitXY"
+            android:textOff="@string/toggle_analysis_off"
+            android:textOn="@string/toggle_analysis_on"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.666"/>
+
+        <ToggleButton
+            android:id="@+id/PreviewToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/usecase_toggle_bg_selector"
+            android:checked="true"
+            android:scaleType="fitXY"
+            android:textOff="@string/toggle_preview_off"
+            android:textOn="@string/toggle_preview_on"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/direction_toggle"
@@ -240,7 +236,7 @@ limitations under the License.
         android:src="@drawable/ic_camera_switch"
         android:translationZ="1dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ImageButton
         android:id="@+id/iterate_camera_toggle"
@@ -253,7 +249,7 @@ limitations under the License.
         android:src="@drawable/ic_camera_switch_v2"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/direction_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ImageButton
         android:id="@+id/flash_toggle"
@@ -266,7 +262,7 @@ limitations under the License.
         android:src="@drawable/ic_flash_off"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/iterate_camera_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ImageButton
         android:id="@+id/torch_toggle"
@@ -293,7 +289,7 @@ limitations under the License.
         android:textSize="11dp"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/flash_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ToggleButton
         android:id="@+id/zsl_toggle"
@@ -307,7 +303,7 @@ limitations under the License.
         android:textSize="11dp"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/preview_stabilization"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <Button
         android:id="@+id/plus_ev_toggle"
@@ -321,7 +317,7 @@ limitations under the License.
         android:textSize="10sp"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/capture_quality"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <Button
         android:id="@+id/dec_ev_toggle"
@@ -335,7 +331,7 @@ limitations under the License.
         android:textSize="10sp"
         android:translationZ="1dp"
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ToggleButton
         android:id="@+id/preview_stabilization"
@@ -348,8 +344,8 @@ limitations under the License.
         android:textOn="@string/toggle_preview_stabilization_on"
         android:textSize="11dp"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toRightOf="@+id/dec_ev_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintLeft_toRightOf="@id/dec_ev_toggle"
+        app:layout_constraintTop_toBottomOf="@id/top_buttons_layout" />
 
     <ToggleButton
         android:id="@+id/low_light_boost"

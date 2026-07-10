@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"ඇඟිලි සලකුණු සත්‍යාපන සංවාදය"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ඇඟිලි සලකුණු සංවේදකය ස්පර්ශ කරන්න"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"හඳුනා නොගන්නා ලදී"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ඇඟිලි සලකුණු දෘඪාංගය ලද නොහැකිය."</string>

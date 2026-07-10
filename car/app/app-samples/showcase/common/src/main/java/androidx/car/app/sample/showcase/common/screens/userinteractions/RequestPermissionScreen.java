@@ -190,6 +190,13 @@ public class RequestPermissionScreen extends Screen {
                 continue;
             }
 
+            if (!isPermissionSupportedBySdk(permission)) {
+                Log.d(
+                        TAG, String.format(Locale.US,
+                                "Permission ignored (not supported by SDK): %s", permission));
+                continue;
+            }
+
             Log.d(TAG, String.format(Locale.US, "Found missing permission: %s", permission));
             missingPermissions.add(permission);
         }
@@ -210,6 +217,22 @@ public class RequestPermissionScreen extends Screen {
         }
 
         // Permission already granted
+        return true;
+    }
+
+    /**
+     * Checks if a permission is supported by the current Android SDK version by querying the
+     * PackageManager.
+     */
+    private boolean isPermissionSupportedBySdk(String permission) {
+        try {
+            getCarContext().getPackageManager().getPermissionInfo(permission, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            // Permission is not supported by the SDK
+            return false;
+        }
+
+        // Permission is supported by the SDK
         return true;
     }
 

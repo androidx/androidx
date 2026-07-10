@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -70,47 +69,29 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.8.1")
-                api(project(":sqlite:sqlite"))
+        configureEach {
+            if (!it.name.contains("android") && !it.name.contains("common") ) {
+                // For usage of C interop APIs
+                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
+                languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             }
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api(project(":sqlite:sqlite"))
         }
-        androidMain {
-            dependsOn(commonMain)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
-        }
-        nativeMain {
-            dependsOn(commonMain)
-            // For usage of C interop APIs
-            // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
-            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
-        }
-        nativeTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.kotlinTestJunit)
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 def main = target.compilations["main"]
-                main.defaultSourceSet {
-                    dependsOn(nativeMain)
-                    // Aligns dependants of nativeMain to have same language settings.
-                    languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
-                }
                 main.cinterops {
                     sqlite3 { cInteropSettings ->
                         includeDirs(configurations.sqliteSources.incoming.files)
@@ -122,9 +103,6 @@ androidXMultiplatform {
                 }
 
                 def test = target.compilations["test"]
-                test.defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
                 if (target.konanTarget.family == Family.LINUX) {
                     // For tests in Linux host, statically include androidx's compiled SQLite
                     // via a generated C interop definition
@@ -150,5 +128,17 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "The implementation of SQLite library using the framework code."
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
+}
+
+// b/446711395
+// IDE Sync only error:
+// Reason: Task ':sqlite:sqlite-framework:linuxArm64TestCinterop-sqliteSharedArchiveKlib' uses this output of task ':sqlite:sqlite-framework:cinteropTestSqliteSharedArchiveLinuxArm64'
+// without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+tasks.withType(Zip).configureEach {
+    if (name == "linuxX64TestCinterop-sqliteSharedArchiveKlib") {
+        mustRunAfter(tasks.named("cinteropTestSqliteSharedArchiveLinuxX64"))
+    }
+    if (name == "linuxArm64TestCinterop-sqliteSharedArchiveKlib") {
+        mustRunAfter(tasks.named("cinteropTestSqliteSharedArchiveLinuxArm64"))
+    }
 }

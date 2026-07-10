@@ -16,12 +16,7 @@
 
 package androidx.aab
 
-import androidx.aab.AppMetadataPropsInfo.Companion.csvEntries
-import androidx.aab.DexInfo.Companion.csvEntries
-import androidx.aab.MappingFileInfo.Companion.csvEntries
-import androidx.aab.ProfInfo.Companion.csvEntries
-import androidx.aab.R8JsonFileInfo.Companion.csvEntries
-import androidx.aab.SoInfo.Companion.csvEntries
+import androidx.aab.DexInfo.Companion.toDexInfo
 import com.android.tools.build.libraries.metadata.AppDependencies
 import java.io.File
 import java.io.FileInputStream
@@ -48,26 +43,26 @@ data class BundleInfo(
     val appMetadataPropsInfoMetaInf: AppMetadataPropsInfo?,
     val appMetadataPropsInfoBundleMetadata: AppMetadataPropsInfo?,
 ) {
-    fun csvEntries(): List<String> =
-        listOf(path.substringAfterLast(File.separatorChar)) +
-            profileInfo.csvEntries() +
-            dexInfo.csvEntries() +
-            soInfo.csvEntries() +
-            mappingFileInfo.csvEntries() +
-            r8JsonFileInfo.csvEntries() +
-            appMetadataPropsInfoBundleMetadata.csvEntries() +
-            appMetadataPropsInfoMetaInf.csvEntries()
-
     companion object {
-        val CSV_TITLES =
-            listOf("filename") +
-                ProfInfo.CSV_TITLES +
-                DexInfo.CSV_TITLES +
-                SoInfo.CSV_TITLES +
-                MappingFileInfo.CSV_TITLES +
-                R8JsonFileInfo.CSV_TITLES +
-                AppMetadataPropsInfo.CSV_TITLES_BUNDLE +
-                AppMetadataPropsInfo.CSV_TITLES_META_INF
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<BundleInfo>(
+                    "filename",
+                    description = "Filename when tool was run",
+                    calculate = { it.path.substringAfterLast(File.separatorChar) },
+                )
+            ) +
+                ProfInfo.CSV_COLUMNS.mapAll { it.profileInfo } +
+                DexInfo.CSV_COLUMNS.mapAll { it.dexInfo } +
+                SoInfo.CSV_COLUMNS.mapAll { it.soInfo } +
+                MappingFileInfo.CSV_COLUMNS.mapAll { it.mappingFileInfo } +
+                R8JsonFileInfo.CSV_COLUMNS.mapAll { it.r8JsonFileInfo } +
+                AppMetadataPropsInfo.CSV_COLUMNS_META_INF.mapAll {
+                    it.appMetadataPropsInfoMetaInf
+                } +
+                AppMetadataPropsInfo.CSV_COLUMNS_BUNDLE.mapAll {
+                    it.appMetadataPropsInfoBundleMetadata
+                }
 
         // TODO: Move to wrapper object
         const val DEPENDENCIES_PB_LOCATION =
@@ -78,8 +73,9 @@ data class BundleInfo(
         }
 
         fun from(path: String, inputStream: InputStream): BundleInfo {
-            val dexInfo = mutableListOf<DexInfo>()
+            val deferredDexFiles = mutableListOf<DexInfo.DeferredDexFile>()
             val soInfo = mutableListOf<SoInfo>()
+            val xmlStrings = mutableSetOf<String>()
             val dotVersionFiles = mutableMapOf<String, String>()
             var mappingFileInfo: MappingFileInfo? = null
             var r8MetadataFileInfo: R8JsonFileInfo? = null
@@ -93,7 +89,13 @@ data class BundleInfo(
                 while (entry != null) {
                     when {
                         entry.name.contains("/dex/classes") && entry.name.endsWith(".dex") -> {
-                            dexInfo.add(DexInfo.from(entry.name, entry.compressedSize, zis))
+                            deferredDexFiles.add(
+                                DexInfo.DeferredDexFile(
+                                    entryName = entry.name,
+                                    compressedSize = entry.compressedSize,
+                                    bytes = zis.readAllBytes(),
+                                )
+                            )
                         }
 
                         entry.name == ProfInfo.BUNDLE_LOCATION -> {
@@ -137,6 +139,15 @@ data class BundleInfo(
                         entry.name.endsWith(".so") -> {
                             soInfo.add(SoInfo(bundlePath = entry.name, size = zis.countBytes()))
                         }
+
+                        entry.name.endsWith(".xml") -> {
+                            try {
+                                XmlInfo.collectStringsFromBundleResourceFile(zis, xmlStrings)
+                            } catch (_: Exception) {
+                                // Silently ignore unparseable .xml files - it's likely plaintext, and not driving
+                                // inflation / reflection
+                            }
+                        }
                     }
                     entry = zis.nextEntry
                 }
@@ -145,7 +156,7 @@ data class BundleInfo(
             return BundleInfo(
                 path = path,
                 profileInfo = profileInfo,
-                dexInfo = dexInfo,
+                dexInfo = deferredDexFiles.toDexInfo(xmlStrings),
                 soInfo = soInfo,
                 mappingFileInfo = mappingFileInfo,
                 r8JsonFileInfo = r8MetadataFileInfo,

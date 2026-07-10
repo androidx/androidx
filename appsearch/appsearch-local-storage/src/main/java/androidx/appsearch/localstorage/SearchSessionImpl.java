@@ -37,6 +37,7 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalPutDocumentResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.Migrator;
@@ -55,7 +56,6 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -124,6 +124,7 @@ class SearchSessionImpl implements AppSearchSession {
     }
 
     @Override
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public @NonNull ListenableFuture<SetSchemaResponse> setSchemaAsync(
             @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
@@ -142,12 +143,15 @@ class SearchSessionImpl implements AppSearchSession {
 
             List<InternalVisibilityConfig> visibilityConfigs =
                     InternalVisibilityConfig.toInternalVisibilityConfigs(request);
+            Map<String, Set<String>> accountPropertyPaths =
+                    request.getSchemasWipeoutAccountPropertyPaths();
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
             if (migrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
                         visibilityConfigs,
+                        accountPropertyPaths,
                         firstSetSchemaStatsBuilder);
 
                 long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
@@ -189,7 +193,9 @@ class SearchSessionImpl implements AppSearchSession {
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
-                        visibilityConfigs, firstSetSchemaStatsBuilder);
+                        visibilityConfigs,
+                        accountPropertyPaths,
+                        firstSetSchemaStatsBuilder);
                 if (firstSetSchemaStatsBuilder != null) {
                     firstSetSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
@@ -210,6 +216,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
                     visibilityConfigs,
+                    accountPropertyPaths,
                     /*forceOverride=*/false,
                     request.getVersion(),
                     firstSetSchemaStatsBuilder,
@@ -224,8 +231,10 @@ class SearchSessionImpl implements AppSearchSession {
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
             long queryAndTransformLatencyStartMillis = SystemClock.elapsedRealtime();
-            SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
-                    internalSetSchemaResponse, activeMigrators.keySet());
+            if (!request.isForceOverride()) {
+                SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
+                        internalSetSchemaResponse, activeMigrators.keySet());
+            }
 
             try (AppSearchMigrationHelper migrationHelper = new AppSearchMigrationHelper(
                     mAppSearchImpl, mPackageName, mDatabaseName, request.getSchemas(), mLogger)) {
@@ -250,6 +259,7 @@ class SearchSessionImpl implements AppSearchSession {
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
                             visibilityConfigs,
+                            accountPropertyPaths,
                             /*forceOverride=*/ true,
                             request.getVersion(),
                             secondSetSchemaStatsBuilder,
@@ -372,7 +382,7 @@ class SearchSessionImpl implements AppSearchSession {
         List<GenericDocument> takenActions = request.getTakenActionGenericDocuments();
 
         ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
-            AppSearchBatchResult.Builder<String, Void> resultBuilder =
+            AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
 
             // Normal documents.
@@ -406,7 +416,7 @@ class SearchSessionImpl implements AppSearchSession {
             // method is called documented in the method description.
             dispatchChangeNotifications();
 
-            return resultBuilder.build();
+            return resultBuilder.build().toVoidBatchResult();
         });
 
         // The existing documents with same ID will be deleted, so there may be some resources that
@@ -610,62 +620,40 @@ class SearchSessionImpl implements AppSearchSession {
                 removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
             }
 
-            if (Flags.enableRemoveByIdUsesQuery()
-                    && mFeatures.isFeatureSupported(Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS)) {
-                if (request.getIds().isEmpty()) {
-                    Log.w(TAG, "Request to delete items in namespace " + request.getNamespace()
-                            + " specified no ids!");
-                    return resultBuilder.build();
-                }
-                try {
-                    Map<String, Set<String>> deletedIds = new ArrayMap<>();
-                    SearchSpec searchSpec =
-                            new SearchSpec.Builder()
-                                    .addFilterDocumentIds(request.getIds())
-                                    .addFilterNamespaces(request.getNamespace())
-                                    .addFilterPackageNames(mPackageName)
-                                    .build();
-                    mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, /* queryExpression= */
-                            "",
-                            searchSpec, deletedIds, removeStatsBuilder,
-                            /* callStatsBuilder= */null);
-                    Set<String> deletionSet = deletedIds.get(request.getNamespace());
-                    for (String id : request.getIds()) {
-                        if (deletionSet != null && deletionSet.contains(id)) {
-                            resultBuilder.setSuccess(id, /*value=*/null);
-                        } else {
-                            resultBuilder.setResult(id, AppSearchResult.newFailedResult(
-                                    AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/null));
-                        }
-                    }
-                } catch (Throwable t) {
-                    AppSearchResult<Void> failure = throwableToFailedResult(t);
-                    for (String id : request.getIds()) {
-                        resultBuilder.setResult(id, failure);
-                    }
-                } finally {
-                    if (mLogger != null) {
-                        mLogger.logStats(removeStatsBuilder.build());
-                    }
-                }
-            } else {
+            if (request.getIds().isEmpty()) {
+                Log.w(TAG, "Request to delete items in namespace " + request.getNamespace()
+                        + " specified no ids!");
+                return resultBuilder.build();
+            }
+            try {
+                Map<String, Set<String>> deletedIds = new ArrayMap<>();
+                SearchSpec searchSpec =
+                        new SearchSpec.Builder()
+                                .addFilterDocumentIds(request.getIds())
+                                .addFilterNamespaces(request.getNamespace())
+                                .addFilterPackageNames(mPackageName)
+                                .build();
+                mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, /* queryExpression= */
+                        "",
+                        searchSpec, deletedIds, removeStatsBuilder,
+                        /* callStatsBuilder= */null);
+                Set<String> deletionSet = deletedIds.get(request.getNamespace());
                 for (String id : request.getIds()) {
-                    if (mLogger != null) {
-                        removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
-                    }
-                    try {
-                        mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(),
-                                id,
-                                removeStatsBuilder,
-                                /*callStatsBuilder=*/null);
+                    if (deletionSet != null && deletionSet.contains(id)) {
                         resultBuilder.setSuccess(id, /*value=*/null);
-                    } catch (Throwable t) {
-                        resultBuilder.setResult(id, throwableToFailedResult(t));
-                    } finally {
-                        if (mLogger != null) {
-                            mLogger.logStats(removeStatsBuilder.build());
-                        }
+                    } else {
+                        resultBuilder.setResult(id, AppSearchResult.newFailedResult(
+                                AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/null));
                     }
+                }
+            } catch (Throwable t) {
+                AppSearchResult<Void> failure = throwableToFailedResult(t);
+                for (String id : request.getIds()) {
+                    resultBuilder.setResult(id, failure);
+                }
+            } finally {
+                if (mLogger != null) {
+                    mLogger.logStats(removeStatsBuilder.build());
                 }
             }
 
@@ -775,6 +763,7 @@ class SearchSessionImpl implements AppSearchSession {
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
             @NonNull List<InternalVisibilityConfig> visibilityConfigs,
+            @NonNull Map<String, Set<String>> accountPropertyPaths,
             SetSchemaStats.@Nullable Builder setSchemaStatsBuilder)
             throws AppSearchException {
         if (setSchemaStatsBuilder != null) {
@@ -785,6 +774,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
                 visibilityConfigs,
+                accountPropertyPaths,
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder,

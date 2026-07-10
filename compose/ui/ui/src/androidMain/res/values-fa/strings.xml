@@ -25,7 +25,7 @@
     <string name="not_selected" msgid="6610465462668679431">"انتخاب‌نشده"</string>
     <string name="template_percent" msgid="5946805113151406391">"<xliff:g id="PERCENTAGE">%1$d</xliff:g> درصد."</string>
     <string name="in_progress" msgid="6827826412747255547">"درحال انجام"</string>
-    <string name="tab" msgid="1672349317127674378">"برگه"</string>
+    <string name="tab" msgid="1672349317127674378">"زبانه"</string>
     <string name="navigation_menu" msgid="542007171693138492">"منوی پیمایش"</string>
     <string name="dropdown_menu" msgid="1890207353314751437">"منوی کرکره‌ای"</string>
     <string name="close_drawer" msgid="406453423630273620">"بستن منوی پیمایش"</string>
@@ -36,5 +36,5 @@
     <string name="range_start" msgid="7097486360902471446">"شروع محدوده"</string>
     <string name="range_end" msgid="5941395253238309765">"پایان محدوده"</string>
     <string name="snackbar_pane_title" msgid="2792228137354697160">"هشدار"</string>
-    <string name="autofill" msgid="9020470552698189270">"تکمیل خودکار"</string>
+    <string name="androidx_compose_ui_autofill" msgid="1150566100598813236">"تکمیل خودکار"</string>
 </resources>

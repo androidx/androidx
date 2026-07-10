@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -31,7 +30,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(37) }
         namespace = "androidx.compose.testutils"
         androidResources.enable = true
     }
@@ -40,8 +39,8 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
                 implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:ui:ui-graphics"))
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -62,43 +61,13 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.truth)
+            implementation(project(":compose:material:material"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(project(":compose:material:material"))
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.truth)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
         }
     }
 }

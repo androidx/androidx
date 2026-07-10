@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 
+@Suppress("KotlinRunTestResultUnused") // b/516887415
 @OptIn(ExperimentalCoroutinesApi::class)
 class TestPagerTest {
 

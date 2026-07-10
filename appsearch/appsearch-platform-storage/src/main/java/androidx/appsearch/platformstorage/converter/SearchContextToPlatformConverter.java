@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.core.util.Preconditions;
 
@@ -29,8 +30,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Translates a Jetpack {@link androidx.appsearch.platformstorage.PlatformStorage.SearchContext}
  * into a platform {@link android.app.appsearch.AppSearchManager.SearchContext}.
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class SearchContextToPlatformConverter {

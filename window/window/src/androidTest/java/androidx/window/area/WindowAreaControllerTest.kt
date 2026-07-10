@@ -17,9 +17,9 @@
 package androidx.window.area
 
 import android.app.Activity
-import android.os.Binder
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.util.Consumer
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastWindowExtensionVersion
 import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
@@ -27,8 +27,6 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -77,22 +75,26 @@ class WindowAreaControllerTest {
     companion object {
         val testController =
             object : WindowAreaController() {
-                override val windowAreaInfos: Flow<List<WindowAreaInfo>>
-                    get() = flowOf(listOf())
-
-                override fun transferActivityToWindowArea(
-                    token: Binder,
-                    activity: Activity,
+                override fun addWindowAreasListener(
                     executor: Executor,
-                    windowAreaSessionCallback: WindowAreaSessionCallback,
+                    listener: Consumer<List<WindowArea>>,
                 ) {
-                    windowAreaSessionCallback.onSessionEnded(
-                        IllegalStateException("There are no WindowAreas")
-                    )
+                    listener.accept(listOf())
+                }
+
+                override fun removeWindowAreasListener(listener: Consumer<List<WindowArea>>) {
+                    return
+                }
+
+                override fun transferToWindowArea(
+                    windowAreaToken: WindowAreaToken?,
+                    activity: Activity,
+                ) {
+                    throw IllegalStateException("There are no WindowAreas")
                 }
 
                 override fun presentContentOnWindowArea(
-                    token: Binder,
+                    windowAreaToken: WindowAreaToken,
                     activity: Activity,
                     executor: Executor,
                     windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
@@ -100,6 +102,12 @@ class WindowAreaControllerTest {
                     windowAreaPresentationSessionCallback.onSessionEnded(
                         IllegalStateException("There are no WindowAreas")
                     )
+                }
+
+                override fun getActivePresentationSession(
+                    windowAreaToken: WindowAreaToken
+                ): WindowAreaSessionPresenter {
+                    throw IllegalArgumentException("There is no active session")
                 }
             }
     }

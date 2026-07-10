@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation
 
-/** @see android.net.Uri */
+/** see [android.net.Uri](https://developer.android.com/reference/android/net/Uri) */
 public expect abstract class NavUri {
     public abstract fun getFragment(): String?
 

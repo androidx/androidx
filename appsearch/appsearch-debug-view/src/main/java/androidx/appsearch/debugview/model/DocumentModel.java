@@ -19,6 +19,7 @@ package androidx.appsearch.debugview.model;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.core.util.Preconditions;
@@ -40,9 +41,8 @@ import java.util.concurrent.ExecutorService;
  * Document ViewModel for displaying a {@link GenericDocument} object.
  *
  * <p>Instances of the ViewModel are created by {@link DocumentModelFactory}.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentModel extends ViewModel {
     private static final String TAG = "AppSearchDocumentModel";

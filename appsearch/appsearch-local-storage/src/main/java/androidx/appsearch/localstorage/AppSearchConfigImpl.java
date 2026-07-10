@@ -121,18 +121,8 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
-    public boolean getLiteIndexSortAtIndexing() {
-        return mIcingOptionsConfig.getLiteIndexSortAtIndexing();
-    }
-
-    @Override
     public int getLiteIndexSortSize() {
         return mIcingOptionsConfig.getLiteIndexSortSize();
-    }
-
-    @Override
-    public boolean getUseNewQualifiedIdJoinIndex() {
-        return mIcingOptionsConfig.getUseNewQualifiedIdJoinIndex();
     }
 
     @Override
@@ -199,5 +189,25 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     @Override
     public int getCompressionThresholdBytes() {
         return mIcingOptionsConfig.getCompressionThresholdBytes();
+    }
+
+    @Override
+    public int getEmbeddingIndexNumShards() {
+        return mIcingOptionsConfig.getEmbeddingIndexNumShards();
+    }
+
+    @Override
+    public boolean enableRepeatedFieldJoins() {
+        return mIcingOptionsConfig.enableRepeatedFieldJoins();
+    }
+
+    @Override
+    public boolean enableIcingBackgroundTaskScheduler() {
+        return mIcingOptionsConfig.enableIcingBackgroundTaskScheduler();
+    }
+
+    @Override
+    public long getExpiredDocumentPurgingThresholdMillis() {
+        return mIcingOptionsConfig.getExpiredDocumentPurgingThresholdMillis();
     }
 }

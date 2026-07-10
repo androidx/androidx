@@ -85,22 +85,35 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     // We also check if the previous active node is an ancestor of the new active node, in which
     // case we don't need to clear focus from it.
     var shouldClearFocusFromPreviousActiveNode = true
+
+    val commonAncestorTargetNodes = mutableVectorOf<FocusTargetNode>()
     val ancestorTargetNodes = mutableVectorOf<FocusTargetNode>()
     visitAncestors(Nodes.FocusTarget) {
         val removed = previousAncestorTargetNodes?.remove(it)
-        if (removed == null || !removed) {
+        // If the currently visited node was in the previousAncestorTargetNodes, then it is a
+        // common ancestor of both the new focus and the previous focus. Otherwise, it is newly
+        // an active parent
+        if (removed == true) {
+            commonAncestorTargetNodes.add(it)
+        } else {
             ancestorTargetNodes.add(it)
         }
         if (it === previousActiveNode) shouldClearFocusFromPreviousActiveNode = false
     }
 
     if (shouldClearFocusFromPreviousActiveNode) {
-        if (previousActiveNode?.clearFocus(refreshFocusEvents = true) == false) {
+        if (previousActiveNode?.prepareToClearFocus(refreshFocusEvents = true) == false) {
             return false // Don't grant focus if clearing focus from the previous node was rejected
         }
     }
 
     grantFocus()
+
+    // We've granted focus to the new node, so now we can actually dispatch the direct focus
+    // loss and gain callback
+    if (shouldClearFocusFromPreviousActiveNode) {
+        previousActiveNode?.dispatchFocusCallbacks(Active, Inactive)
+    }
 
     // Notify ancestor target nodes of the previous active node that are no longer ActiveParent
     // The ancestors are traversed in the reversed order to dispatch events top->down
@@ -140,6 +153,18 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     if (focusOwner.activeFocusTargetNode !== this) {
         // The focus request was redirected or cancelled in a previous focus change callback
         return false
+    }
+
+    // Now that we are sure that the focus request succeeded, we save the focused path.
+    @OptIn(ExperimentalComposeUiApi::class)
+    if (ComposeUiFlags.isFocusRestorationEnabled) {
+        run saveFocus@{
+            val closestCommonAncestor = commonAncestorTargetNodes.lastOrNull()
+            visitAncestors(Nodes.FocusTarget) {
+                it.saveFocusedChild()
+                if (it === closestCommonAncestor) return@saveFocus
+            }
+        }
     }
 
     @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
@@ -191,30 +216,27 @@ internal fun FocusTargetNode.freeFocus() =
     }
 
 /**
- * This function clears focus from this node.
+ * This function prepares to clear focus from this node by clearing any intermediate parent focus,
+ * if clearing focus is allowed.
  *
  * Note: This function should only be called by a parent [focus node][FocusTargetNode] to clear
  * focus from one of its child [focus node][FocusTargetNode]s. It does not change the state of the
  * parent.
+ *
+ * @return `true` if the focus can be cleared from this node.
  */
-internal fun FocusTargetNode.clearFocus(
+internal fun FocusTargetNode.prepareToClearFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean,
 ): Boolean =
     when (focusState) {
-        Active -> {
-            requireOwner().focusOwner.activeFocusTargetNode = null
-            if (refreshFocusEvents) {
-                dispatchFocusCallbacks(previousState = Active, newState = Inactive)
-            }
-            true
-        }
+        Active -> true
         /**
-         * If the node is [ActiveParent], we need to clear focus from the [Active] descendant first,
-         * before clearing focus from this node.
+         * If the node is [ActiveParent], we need to prepare clearing focus from any potential
+         * [ActiveParent] descendants as well.
          */
         ActiveParent ->
-            if (clearChildFocus(forced, refreshFocusEvents)) {
+            if (prepareToClearChildFocus(forced, refreshFocusEvents)) {
                 if (refreshFocusEvents) {
                     dispatchFocusCallbacks(previousState = ActiveParent, newState = Inactive)
                 }
@@ -225,12 +247,6 @@ internal fun FocusTargetNode.clearFocus(
 
         /** If the node is [Captured], deny requests to clear focus, except for a forced clear. */
         Captured -> {
-            if (forced) {
-                requireOwner().focusOwner.activeFocusTargetNode = null
-                if (refreshFocusEvents) {
-                    dispatchFocusCallbacks(previousState = Captured, newState = Inactive)
-                }
-            }
             forced
         }
         /** Nothing to do if the node is not focused. */
@@ -260,11 +276,17 @@ private fun FocusTargetNode.grantFocus(): Boolean {
     return true
 }
 
-/** This function clears any focus from the focused child. */
-private fun FocusTargetNode.clearChildFocus(
+/**
+ * This function prepares to clear focus from the children of this node by clearing any intermediate
+ * parent focus, if clearing focus is allowed.
+ *
+ * @return `true` if the focus can be cleared from this node.
+ * @see prepareToClearFocus
+ */
+private fun FocusTargetNode.prepareToClearChildFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean = true,
-): Boolean = activeChild?.clearFocus(forced, refreshFocusEvents) ?: true
+): Boolean = activeChild?.prepareToClearFocus(forced, refreshFocusEvents) ?: true
 
 private fun FocusTargetNode.requestOwnerFocus(
     focusDirection: FocusDirection? = null,

@@ -17,11 +17,9 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":startup:startup-runtime"))
     implementation(project(":work:work-runtime-ktx"))
 
@@ -35,6 +33,6 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.startup.first_library"
 }

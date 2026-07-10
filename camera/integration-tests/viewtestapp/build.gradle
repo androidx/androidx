@@ -19,33 +19,21 @@ import androidx.build.ApkCopyHelperKt
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
         applicationId = "androidx.camera.integration.view"
     }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
-    }
-
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro")
+            optimization {
+                enable = true
+            }
         }
     }
-
     namespace = "androidx.camera.integration.view"
 }
 
@@ -55,7 +43,6 @@ dependencies {
 
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-mlkit-vision"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
@@ -64,7 +51,7 @@ dependencies {
     implementation(project(":camera:camera-effects"))
     implementation(project(":camera:media3:media3-effect"))
     implementation(libs.guavaAndroid)
-    implementation("androidx.exifinterface:exifinterface:1.3.2")
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation(libs.mlkitBarcode)
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
@@ -83,6 +70,9 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.foundation:foundation:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation(project(":camera:camera-compose"))
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.media3Common)
     implementation(libs.media3Effect)
 
@@ -94,11 +84,11 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
@@ -131,3 +121,5 @@ dependencies {
 
 // Publish the APK to dist/apk for testing.
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
+androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630

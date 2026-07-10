@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -29,15 +28,13 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(libs.kotlinStdlib)
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.12.1")
     implementation("androidx.compose.animation:animation:1.7.5")
     implementation("androidx.compose.foundation:foundation:1.7.5")
     implementation("androidx.compose.foundation:foundation-layout:1.7.5")
@@ -50,7 +47,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation(libs.kotlinSerializationCore)
-    implementation("androidx.savedstate:savedstate-ktx:1.4.0-alpha02")
     implementation(project(":navigation3:navigation3-runtime"))
 
 }
@@ -60,10 +56,9 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2025"
     description = "Contains the sample code for Navigation"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(37) }
     namespace = "androidx.navigation3.runtime.samples"
 }

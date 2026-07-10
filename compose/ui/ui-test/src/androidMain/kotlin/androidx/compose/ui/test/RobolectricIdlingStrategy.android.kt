@@ -49,9 +49,8 @@ internal val HasRobolectricFingerprint
 internal class RobolectricIdlingStrategy(
     private val composeRootRegistry: ComposeRootRegistry,
     private val composeIdlingResource: ComposeIdlingResource,
+    private val idlingResourceRegistry: IdlingResourceRegistry,
 ) : IdlingStrategy {
-    override val canSynchronizeOnUiThread: Boolean = true
-
     /*
      * On Robolectric, Espresso.onIdle() needs to be called from the main thread; so use
      * Dispatchers.Main. Use `.immediate` in case we're already on the main thread.
@@ -66,27 +65,51 @@ internal class RobolectricIdlingStrategy(
             // Use Java's clock, Android's clock is mocked
             val start = System.currentTimeMillis()
             var iteration = 0
+            // Draining the Espresso message queue might trigger Compose state changes,
+            // and fast-forwarding Compose might post new tasks back to the Espresso queue.
+            // To ensure the system has truly stabilized, we require two consecutive passes
+            // where absolutely no work is requested or performed.
+            var isIdle = false
             do {
                 // Check if we hit the timeout
                 if (System.currentTimeMillis() - start >= timeoutMillis) {
-                    throw AppNotIdleException.create(
-                        emptyList(),
-                        "Compose did not get idle after $iteration attempts in " +
-                            "${policy.idleTimeout} ${policy.idleTimeoutUnit}. " +
-                            "Please check your measure/layout lambdas, they may be " +
-                            "causing an infinite composition loop. Or set Espresso's " +
-                            "master idling policy if you require a longer timeout.",
-                    )
+                    val diagnosticInfo = idlingResourceRegistry.getDiagnosticMessageIfBusy()
+                    val errorMessage = buildString {
+                        appendLine(
+                            "Compose did not get idle after $iteration attempts in ${policy.idleTimeout} ${policy.idleTimeoutUnit}."
+                        )
+
+                        if (!diagnosticInfo.isNullOrEmpty()) {
+                            appendLine()
+                            appendLine(diagnosticInfo)
+                        }
+
+                        appendLine()
+                        appendLine(
+                            "1. Check your measure/layout lambdas for infinite composition loops."
+                        )
+                        appendLine(
+                            "2. Verify that the 'busy' resources listed above are not deadlocked."
+                        )
+                        appendLine(
+                            "3. Increase Espresso's master idling policy if a longer timeout is required."
+                        )
+                    }
+
+                    throw AppNotIdleException.create(emptyList(), errorMessage)
                 }
                 iteration++
+                // Track state from the previous iteration
+                val wasIdle = isIdle
                 // Run Espresso.onIdle() to drain the main message queue
                 runEspressoOnIdle()
                 // Check if we need a measure/layout pass
                 requestLayoutIfNeeded()
-                // Let ComposeIdlingResource fast-forward compositions
-                val isIdle = composeIdlingResource.isIdleNow
-                // Repeat while not idle
-            } while (!isIdle)
+                // Evaluate idleness for both compose and registered resources
+                isIdle = composeIdlingResource.isIdleNow && idlingResourceRegistry.isIdleNow
+                // Loop continues if we are currently busy, or if we just became idle
+                // and need one more pass to confirm (wasIdle == false).
+            } while (!isIdle || !wasIdle)
         }
     }
 

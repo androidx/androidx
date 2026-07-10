@@ -48,57 +48,57 @@ class ImplicitCastVerificationFailureDetectorTest :
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                public class UnsafeImplicitCastAsMethodArgumentJava {
-                    @RequiresApi(24)
-                    public void setBuilder(Notification.MessagingStyle style,
-                            Notification.Builder builder) {
-                        Api16Impl.setBuilder(style, builder);
-                    }
-
-                    @RequiresApi(16)
-                    static class Api16Impl {
-                        private Api16Impl() {}
-                        @DoNotInline
-                        static void setBuilder(Notification.Style style,
+                    public class UnsafeImplicitCastAsMethodArgumentJava {
+                        @RequiresApi(24)
+                        public void setBuilder(Notification.MessagingStyle style,
                                 Notification.Builder builder) {
-                            style.setBuilder(builder);
+                            Api16Impl.setBuilder(style, builder);
+                        }
+
+                        @RequiresApi(16)
+                        static class Api16Impl {
+                            private Api16Impl() {}
+                            @DoNotInline
+                            static void setBuilder(Notification.Style style,
+                                    Notification.Builder builder) {
+                                style.setBuilder(builder);
+                            }
                         }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.DoNotInline
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.DoNotInline
+                    import androidx.annotation.RequiresApi
 
-                class UnsafeImplicitCastAsMethodArgumentKotlin {
-                    @RequiresApi(24)
-                    fun setBuilder(style: Notification.MessagingStyle,
-                            builder: Notification.Builder) {
-                        Api16Impl.setBuilder(style, builder);
-                    }
+                    class UnsafeImplicitCastAsMethodArgumentKotlin {
+                        @RequiresApi(24)
+                        fun setBuilder(style: Notification.MessagingStyle,
+                                builder: Notification.Builder) {
+                            Api16Impl.setBuilder(style, builder);
+                        }
 
-                    @RequiresApi(16)
-                    private object Api16Impl {
-                        @JvmStatic
-                        @DoNotInline
-                        fun setBuilder(style: Notification.Style, builder: Notification.Builder) {
-                            style.setBuilder(builder)
+                        @RequiresApi(16)
+                        private object Api16Impl {
+                            @JvmStatic
+                            @DoNotInline
+                            fun setBuilder(style: Notification.Style, builder: Notification.Builder) {
+                                style.setBuilder(builder)
+                            }
                         }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -145,66 +145,66 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Presentation;
-                import android.util.Log;
-                import android.view.WindowManager;
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Presentation;
+                    import android.util.Log;
+                    import android.view.WindowManager;
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                public class UnsafeImplicitCastInCatchBlockJava {
-                    @RequiresApi(17)
-                    public void tryShowPresentation(Presentation presentation) {
-                        try {
-                            Api17Impl.show(presentation);
-                        } catch (WindowManager.InvalidDisplayException e) {
-                            Log.w("Error", "Couldn't show presentation!", e);
+                    public class UnsafeImplicitCastInCatchBlockJava {
+                        @RequiresApi(17)
+                        public void tryShowPresentation(Presentation presentation) {
+                            try {
+                                Api17Impl.show(presentation);
+                            } catch (WindowManager.InvalidDisplayException e) {
+                                Log.w("Error", "Couldn't show presentation!", e);
+                            }
+                        }
+
+                        @RequiresApi(17)
+                        static class Api17Impl {
+                            private Api16Impl() {}
+                            @DoNotInline
+                            static void show(Presentation presentation) {
+                                presentation.show();
+                            }
                         }
                     }
-
-                    @RequiresApi(17)
-                    static class Api17Impl {
-                        private Api16Impl() {}
-                        @DoNotInline
-                        static void show(Presentation presentation) {
-                            presentation.show();
-                        }
-                    }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Presentation
-                import android.util.Log
-                import android.view.WindowManager
-                import androidx.annotation.DoNotInline
-                import androidx.annotation.RequiresApi
+                    import android.app.Presentation
+                    import android.util.Log
+                    import android.view.WindowManager
+                    import androidx.annotation.DoNotInline
+                    import androidx.annotation.RequiresApi
 
-                class UnsafeImplicitCastInCatchBlockKotlin {
-                    @RequiresApi(17)
-                    fun tryShowPresentation(presentation: Presentation) {
-                        try {
-                            Api17Impl.show(presentation)
-                        } catch (e: WindowManager.InvalidDisplayException) {
-                            Log.w("Error", "Couldn't show presentation!", e)
+                    class UnsafeImplicitCastInCatchBlockKotlin {
+                        @RequiresApi(17)
+                        fun tryShowPresentation(presentation: Presentation) {
+                            try {
+                                Api17Impl.show(presentation)
+                            } catch (e: WindowManager.InvalidDisplayException) {
+                                Log.w("Error", "Couldn't show presentation!", e)
+                            }
+                        }
+
+                        @RequiresApi(17)
+                        private object Api17Impl {
+                            @JvmStatic
+                            @DoNotInline
+                            fun show(presentation: Presentation) {
+                                presentation.show()
+                            }
                         }
                     }
-
-                    @RequiresApi(17)
-                    private object Api17Impl {
-                        @JvmStatic
-                        @DoNotInline
-                        fun show(presentation: Presentation) {
-                            presentation.show()
-                        }
-                    }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -246,38 +246,38 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.RequiresApi;
 
-                public class UnsafeImplicitCastInAssignmentJava {
-                    Notification.Style style;
+                    public class UnsafeImplicitCastInAssignmentJava {
+                        Notification.Style style;
 
-                    @RequiresApi(24)
-                    public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
-                        style = messagingStyle;
+                        @RequiresApi(24)
+                        public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
+                            style = messagingStyle;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.RequiresApi
 
-                class UnsafeImplicitCastInAssignmentKotlin {
-                    lateinit var style: Notification.Style
+                    class UnsafeImplicitCastInAssignmentKotlin {
+                        lateinit var style: Notification.Style
 
-                    @RequiresApi(24)
-                    fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
-                        style = messagingStyle
+                        @RequiresApi(24)
+                        fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
+                            style = messagingStyle
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -326,34 +326,34 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.RequiresApi;
 
-                public class ImplicitCastOnReturnJava {
-                    @RequiresApi(24)
-                    public Notification.Style convertStyle(Notification.MessagingStyle style) {
-                        return style;
+                    public class ImplicitCastOnReturnJava {
+                        @RequiresApi(24)
+                        public Notification.Style convertStyle(Notification.MessagingStyle style) {
+                            return style;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.RequiresApi
 
-                class ImplicitCastOnReturnKotlin {
-                    @RequiresApi(24)
-                    fun convertStyle(style: Notification.MessagingStyle): Notification.Style {
-                        return style
+                    class ImplicitCastOnReturnKotlin {
+                        @RequiresApi(24)
+                        fun convertStyle(style: Notification.MessagingStyle): Notification.Style {
+                            return style
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -402,57 +402,57 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.graphics.drawable.AdaptiveIconDrawable;
-                import android.graphics.drawable.Drawable;
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import android.graphics.drawable.AdaptiveIconDrawable;
+                    import android.graphics.drawable.Drawable;
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                public class ImplicitCastOfMethodCallResultJava {
-                    @RequiresApi(26)
-                    public Drawable createAdaptiveIconDrawable() {
-                        return Api26Impl.createAdaptiveIconDrawable(null, null);
-                    }
+                    public class ImplicitCastOfMethodCallResultJava {
+                        @RequiresApi(26)
+                        public Drawable createAdaptiveIconDrawable() {
+                            return Api26Impl.createAdaptiveIconDrawable(null, null);
+                        }
 
-                    @RequiresApi(26)
-                    static class Api26Impl {
-                        private Api26Impl() {}
-                        @DoNotInline
-                        static AdaptiveIconDrawable createAdaptiveIconDrawable(
-                                Drawable backgroundDrawable, Drawable foregroundDrawable) {
-                            return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+                        @RequiresApi(26)
+                        static class Api26Impl {
+                            private Api26Impl() {}
+                            @DoNotInline
+                            static AdaptiveIconDrawable createAdaptiveIconDrawable(
+                                    Drawable backgroundDrawable, Drawable foregroundDrawable) {
+                                return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+                            }
                         }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.graphics.drawable.AdaptiveIconDrawable
-                import android.graphics.drawable.Drawable
-                import androidx.annotation.DoNotInline
-                import androidx.annotation.RequiresApi
+                    import android.graphics.drawable.AdaptiveIconDrawable
+                    import android.graphics.drawable.Drawable
+                    import androidx.annotation.DoNotInline
+                    import androidx.annotation.RequiresApi
 
-                class ImplicitCastOfMethodCallResultKotlin {
-                    @RequiresApi(26)
-                    fun createAdaptiveIconDrawable(): Drawable =
-                        Api26Impl.createAdaptiveIconDrawable(null, null)
+                    class ImplicitCastOfMethodCallResultKotlin {
+                        @RequiresApi(26)
+                        fun createAdaptiveIconDrawable(): Drawable =
+                            Api26Impl.createAdaptiveIconDrawable(null, null)
 
-                    @RequiresApi(26)
-                    object Api26Impl {
-                        @JvmStatic
-                        @DoNotInline
-                        fun createAdaptiveIconDrawable(backgroundDrawable: Drawable,
-                                foregroundDrawable: Drawable): AdaptiveIconDrawable {
-                            return AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable)
+                        @RequiresApi(26)
+                        object Api26Impl {
+                            @JvmStatic
+                            @DoNotInline
+                            fun createAdaptiveIconDrawable(backgroundDrawable: Drawable,
+                                    foregroundDrawable: Drawable): AdaptiveIconDrawable {
+                                return AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable)
+                            }
                         }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -494,38 +494,38 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.RequiresApi;
 
-                public class SafeImplicitCastToObjectJava {
-                    Object style;
+                    public class SafeImplicitCastToObjectJava {
+                        Object style;
 
-                    @RequiresApi(24)
-                    public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
-                        style = messagingStyle;
+                        @RequiresApi(24)
+                        public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
+                            style = messagingStyle;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.RequiresApi
 
-                class SafeImplicitCastToObjectKotlin {
-                    lateinit var style: Any
+                    class SafeImplicitCastToObjectKotlin {
+                        lateinit var style: Any
 
-                    @RequiresApi(24)
-                    fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
-                        style = messagingStyle
+                        @RequiresApi(24)
+                        fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
+                            style = messagingStyle
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -539,38 +539,38 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.RequiresApi;
 
-                public class SafeExplicitCastJava {
-                    Notification.Style style;
+                    public class SafeExplicitCastJava {
+                        Notification.Style style;
 
-                    @RequiresApi(24)
-                    public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
-                        style = (Notification.Style) messagingStyle;
+                        @RequiresApi(24)
+                        public void setNotificationStyle(Notification.MessagingStyle messagingStyle) {
+                            style = (Notification.Style) messagingStyle;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.RequiresApi
 
-                class SafeExplicitCastKotlin {
-                    lateinit var style: Notification.Style
+                    class SafeExplicitCastKotlin {
+                        lateinit var style: Notification.Style
 
-                    @RequiresApi(24)
-                    fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
-                        style = messagingStyle as Notification.Style
+                        @RequiresApi(24)
+                        fun setNotificationStyle(messagingStyle: Notification.MessagingStyle) {
+                            style = messagingStyle as Notification.Style
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -584,40 +584,40 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.media.tv.BroadcastInfoResponse;
-                import android.media.tv.PesResponse;
-                import androidx.annotation.RequiresApi;
+                    import android.media.tv.BroadcastInfoResponse;
+                    import android.media.tv.PesResponse;
+                    import androidx.annotation.RequiresApi;
 
-                public class SafeImplicitCastSameApiLevelJava {
-                    BroadcastInfoResponse response;
+                    public class SafeImplicitCastSameApiLevelJava {
+                        BroadcastInfoResponse response;
 
-                    @RequiresApi(33)
-                    public void setResponse(PesResponse pesResponse) {
-                        response = pesResponse;
+                        @RequiresApi(33)
+                        public void setResponse(PesResponse pesResponse) {
+                            response = pesResponse;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.media.tv.BroadcastInfoResponse
-                import android.media.tv.PesResponse
-                import androidx.annotation.RequiresApi
+                    import android.media.tv.BroadcastInfoResponse
+                    import android.media.tv.PesResponse
+                    import androidx.annotation.RequiresApi
 
-                class SafeImplicitCastSameApiLevelKotlin {
-                    lateinit var response: BroadcastInfoResponse
+                    class SafeImplicitCastSameApiLevelKotlin {
+                        lateinit var response: BroadcastInfoResponse
 
-                    @RequiresApi(33)
-                    fun setResponse(pesResponse: PesResponse) {
-                        response = pesResponse
+                        @RequiresApi(33)
+                        fun setResponse(pesResponse: PesResponse) {
+                            response = pesResponse
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -631,42 +631,42 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
+                    import android.app.Notification;
 
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                @RequiresApi(24)
-                static class SafeImplicitCastWithRequiresApiJava {
-                    private SafeImplicitCastWithRequiresApi() {}
-                    @DoNotInline
-                    static void extend(Notification.Builder builder,
-                            Notification.CarExtender extender) {
-                        builder.extend(extender);
+                    @RequiresApi(24)
+                    static class SafeImplicitCastWithRequiresApiJava {
+                        private SafeImplicitCastWithRequiresApi() {}
+                        @DoNotInline
+                        static void extend(Notification.Builder builder,
+                                Notification.CarExtender extender) {
+                            builder.extend(extender);
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                @RequiresApi(24)
-                object SafeImplicitCastWithRequiresApiKotlin {
-                    @JvmStatic
-                    @DoNotInline
-                    fun extend(builder: Notification.Builder, extender: Notification.CarExtender) {
-                        builder.extend(extender)
+                    @RequiresApi(24)
+                    object SafeImplicitCastWithRequiresApiKotlin {
+                        @JvmStatic
+                        @DoNotInline
+                        fun extend(builder: Notification.Builder, extender: Notification.CarExtender) {
+                            builder.extend(extender)
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -680,34 +680,34 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.Notification;
-                import androidx.annotation.RequiresApi;
+                    import android.app.Notification;
+                    import androidx.annotation.RequiresApi;
 
-                public class SafeCastFromNullJava {
-                    @RequiresApi(24)
-                    public Notification.MessagingStyle getStyle() {
-                        return null;
+                    public class SafeCastFromNullJava {
+                        @RequiresApi(24)
+                        public Notification.MessagingStyle getStyle() {
+                            return null;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.Notification
-                import androidx.annotation.RequiresApi
+                    import android.app.Notification
+                    import androidx.annotation.RequiresApi
 
-                class SafeCastFromNullKotlin {
-                    @RequiresApi(24)
-                    fun getStyle(): Notification.MessagingStyle? {
-                        return null
+                    class SafeCastFromNullKotlin {
+                        @RequiresApi(24)
+                        fun getStyle(): Notification.MessagingStyle? {
+                            return null
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -721,38 +721,38 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.app.FragmentBreadCrumbs;
-                import android.view.ViewGroup;
+                    import android.app.FragmentBreadCrumbs;
+                    import android.view.ViewGroup;
 
-                public class SafeCastFromPreMinSdkClassJava {
-                    ViewGroup viewGroup;
+                    public class SafeCastFromPreMinSdkClassJava {
+                        ViewGroup viewGroup;
 
-                    public void setViewGroup(FragmentBreadCrumbs breadCrumbs) {
-                        // FragmentBreadCrumbs was added in API level 11
-                        viewGroup = breadCrumbs;
+                        public void setViewGroup(FragmentBreadCrumbs breadCrumbs) {
+                            // FragmentBreadCrumbs was added in API level 11
+                            viewGroup = breadCrumbs;
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                import android.app.FragmentBreadCrumbs
-                import android.view.ViewGroup
+                    import android.app.FragmentBreadCrumbs
+                    import android.view.ViewGroup
 
-                class SafeCastFromPreMinSdkClassKotlin {
-                    lateinit var viewGroup: ViewGroup
+                    class SafeCastFromPreMinSdkClassKotlin {
+                        lateinit var viewGroup: ViewGroup
 
-                    fun setViewGroup(breadCrumbs: FragmentBreadCrumbs) {
-                        // FragmentBreadCrumbs was added in API level 11
-                        viewGroup = breadCrumbs
+                        fun setViewGroup(breadCrumbs: FragmentBreadCrumbs) {
+                            // FragmentBreadCrumbs was added in API level 11
+                            viewGroup = breadCrumbs
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 ),
             )
@@ -766,29 +766,29 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
             arrayOf(
                 java(
                     """
-                package java.androidx;
+                    package java.androidx;
 
-                import android.icu.number.FormattedNumber;
-                import android.widget.BaseAdapter;
-                import androidx.annotation.DoNotInline;
-                import androidx.annotation.RequiresApi;
+                    import android.icu.number.FormattedNumber;
+                    import android.widget.BaseAdapter;
+                    import androidx.annotation.DoNotInline;
+                    import androidx.annotation.RequiresApi;
 
-                public class UnsafeCastToVarargs() {
-                    @RequiresApi(30)
-                    public void callVarArgsMethod(BaseAdapter adapter, FormattedNumber vararg1, FormattedNumber vararg2, FormattedNumber vararg3) {
-                        Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
-                    }
+                    public class UnsafeCastToVarargs() {
+                        @RequiresApi(30)
+                        public void callVarArgsMethod(BaseAdapter adapter, FormattedNumber vararg1, FormattedNumber vararg2, FormattedNumber vararg3) {
+                            Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+                        }
 
-                    @RequiresApi(27)
-                    static class Api27Impl {
-                        private Api27Impl() {}
-                        @DoNotInline
-                        static void setAutofillOptions(BaseAdapter baseAdapter, CharSequence... options) {
-                            baseAdapter.setAutofillOptions(baseAdapter, options);
+                        @RequiresApi(27)
+                        static class Api27Impl {
+                            private Api27Impl() {}
+                            @DoNotInline
+                            static void setAutofillOptions(BaseAdapter baseAdapter, CharSequence... options) {
+                                baseAdapter.setAutofillOptions(baseAdapter, options);
+                            }
                         }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 )
             )

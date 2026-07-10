@@ -18,6 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.Density
@@ -52,8 +53,8 @@ internal interface ComposeUiNode {
         }
         val SetCompositeKeyHash: ComposeUiNode.(Int) -> Unit = { this.compositeKeyHash = it }
         val ApplyOnDeactivatedNodeAssertion: ComposeUiNode.() -> Unit = {
-            if ((this as? LayoutNode)?.isDeactivated == true) {
-                throw IllegalStateException("Apply is called on deactivated node $this")
+            checkPrecondition((this as? LayoutNode)?.isDeactivated != true) {
+                "Apply is called on deactivated node $this"
             }
         }
     }

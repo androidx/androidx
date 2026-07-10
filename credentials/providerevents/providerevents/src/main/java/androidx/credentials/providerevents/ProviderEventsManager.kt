@@ -16,31 +16,40 @@
 
 package androidx.credentials.providerevents
 
+import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.provider.CallingAppInfo
+import androidx.credentials.providerevents.exception.ClearExportException
 import androidx.credentials.providerevents.exception.ImportCredentialsException
 import androidx.credentials.providerevents.exception.RegisterExportException
+import androidx.credentials.providerevents.transfer.ClearExportRequest
+import androidx.credentials.providerevents.transfer.ClearExportResponse
 import androidx.credentials.providerevents.transfer.ExportEntry
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
+import androidx.credentials.providerevents.transfer.ImportCredentialsResponse
+import androidx.credentials.providerevents.transfer.ProviderImportCredentialsRequest
 import androidx.credentials.providerevents.transfer.ProviderImportCredentialsResponse
 import androidx.credentials.providerevents.transfer.RegisterExportRequest
+import androidx.credentials.providerevents.transfer.RegisterExportResponse
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Manages provider event flows.
+ * Provides APIs for credential providers to participate in provider events, such as same-device
+ * credential transfer.
  *
- * APIs in [ProviderEventsManager] are API endpoints supported by credential providers. One example
- * of the supported provider API is credential transfer. In order to engage in exporting
- * credentials, each provider must register first its [ExportEntry]. Then calling
- * [importCredentials] will launch the transfer flow of importing credentials from the registered
- * providers.
+ * This manager supports two primary roles for credential transfer:
+ * - **Importing (Client Role):** A provider can initiate a flow to import credentials by calling
+ *   [importCredentials]. This will display a UI allowing the user to select another provider to
+ *   import from.
+ * - **Exporting (Source Role):** A provider must first register its ability to export credentials
+ *   by calling [registerExport]. Once registered, it will appear in the UI when other providers
+ *   initiate an import flow.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ProviderEventsManager {
     public companion object {
         /**
@@ -54,13 +63,20 @@ public interface ProviderEventsManager {
     }
 
     /**
-     * Starts a provider selector UI for the user to import credentials from. After the user selects
-     * an [ExportEntry] from the list, the request will be forwarded to the exporting provider. The
-     * exporting provider will return the credentials which will be returned as
-     * [ProviderImportCredentialsResponse].
+     * Initiates a flow to import credentials from another credential provider.
      *
-     * @param context the activity context
-     * @param request the information needed to import credentials from another provider
+     * This method launches a provider selector UI, allowing the user to choose a source provider
+     * from a list of those registered via [registerExport]. The request is then forwarded to the
+     * selected provider.
+     *
+     * <p>Under the hood, this API facilitates the transfer by creating a temporary file in the
+     * caller's cache directory. The framework handles the file I/O, permissions, and cleanup,
+     * providing a seamless transfer medium between the two providers.
+     *
+     * @param context the activity context required to launch the UI.
+     * @param request the request detailing the credentials to be imported.
+     * @return a [ProviderImportCredentialsResponse] with the imported credential data.
+     * @throws ImportCredentialsException on failure, with a subclass indicating the error type.
      */
     public suspend fun importCredentials(
         context: Context,
@@ -101,13 +117,18 @@ public interface ProviderEventsManager {
     }
 
     /**
-     * Starts a provider selector UI for the user to import credentials from. After the user selects
-     * an [ExportEntry] from the list, the request will be forwarded to the exporting provider. The
-     * exporting provider will return the credentials which will be returned as
-     * [ProviderImportCredentialsResponse].
+     * Initiates a flow to import credentials from another credential provider.
      *
-     * @param context the activity context
-     * @param request the information needed to import credentials from another provider
+     * This method launches a provider selector UI, allowing the user to choose a source provider
+     * from a list of those registered via [registerExport]. The request is then forwarded to the
+     * selected provider.
+     *
+     * <p>Under the hood, this API facilitates the transfer by creating a temporary file in the
+     * caller's cache directory. The framework handles the file I/O, permissions, and cleanup,
+     * providing a seamless transfer medium between the two providers.
+     *
+     * @param context the activity context required to launch the UI.
+     * @param request request the request detailing the credentials to be imported.
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
@@ -122,17 +143,36 @@ public interface ProviderEventsManager {
     )
 
     /**
-     * Registers the provider with the Provider Events Manager.
+     * Registers the calling credential provider as a source for exporting credentials.
      *
-     * The registered provider info will be used by the provider events manager when handling an
-     * import request by another provider. The provider events manager will determine if the
-     * registry contains qualified providers capable of fulfilling the import request, and if so
-     * will surface a provider selector UI to proceed with the import request. The [ExportEntry]
-     * registered through this API will show up in the selector UI.
+     * Once registered, the provider's [ExportEntry] will be displayed in the provider selector UI
+     * when another provider initiates an [importCredentials] flow.
+     *
+     * <p>In addition to calling this method, a provider that wishes to export credentials must
+     * declare an [Activity] in its manifest that can handle the transfer request. This activity
+     * must have an intent filter configured with the following:
+     * <ul>
+     * <li>An intent action of "androidx.identitycredentials.action.IMPORT_CREDENTIALS"</li>
+     * <li>A data element with a "content" scheme</li>
+     * </ul>
+     *
+     * The framework will invoke this activity with an intent containing a content URI, which serves
+     * as the medium for transferring the credential data. The activity can retrieve the request
+     * from the intent by calling [IntentHandler.retrieveProviderImportCredentialsRequest]. In
+     * addition to the [ImportCredentialsRequest], the [ProviderImportCredentialsRequest] contains a
+     * few security measures. The importer's [CallingAppInfo] is provided to verify the importer.
+     * The 'credId' is provided to validate the selected [ExportEntry].
+     *
+     * After the activity processes the request, the activity should return the
+     * [ImportCredentialsResponse] through the 'uri' of [ProviderImportCredentialsRequest] to
+     * successfully return the credentials or set an exception by calling
+     * [IntentHandler.setImportCredentialsException].
      *
      * @param request the request containing the provider data to register
+     * @return a [RegisterExportResponse] on successful registration.
+     * @throws RegisterExportException if the registration fails.
      */
-    public suspend fun registerExport(request: RegisterExportRequest): Boolean =
+    public suspend fun registerExport(request: RegisterExportRequest): RegisterExportResponse =
         suspendCancellableCoroutine { continuation ->
             // Any Android API that supports cancellation should be configured to propagate
             // coroutine cancellation as follows:
@@ -140,8 +180,9 @@ public interface ProviderEventsManager {
             continuation.invokeOnCancellation { canceller.cancel() }
 
             val callback =
-                object : CredentialManagerCallback<Boolean, RegisterExportException> {
-                    override fun onResult(result: Boolean) {
+                object :
+                    CredentialManagerCallback<RegisterExportResponse, RegisterExportException> {
+                    override fun onResult(result: RegisterExportResponse) {
                         if (continuation.isActive) {
                             continuation.resume(result)
                         }
@@ -156,7 +197,6 @@ public interface ProviderEventsManager {
 
             registerExportAsync(
                 request,
-                canceller,
                 // Use a direct executor to avoid extra dispatch. Resuming the continuation will
                 // handle getting to the right thread or pool via the ContinuationInterceptor.
                 Runnable::run,
@@ -165,22 +205,94 @@ public interface ProviderEventsManager {
         }
 
     /**
-     * Registers the provider with the Provider Events Manager.
+     * Registers the calling credential provider as a source for exporting credentials.
      *
-     * The registered provider info will be used by the provider events manager when handling an
-     * import request by another provider. The provider events manager will determine if the
-     * registry contains qualified providers capable of fulfilling the import request, and if so
-     * will surface a provider selector UI to proceed with the import request.
+     * Once registered, the provider's [ExportEntry] will be displayed in the provider selector UI
+     * when another provider initiates an [importCredentials] flow.
+     *
+     * <p>In addition to calling this method, a provider that wishes to export credentials must
+     * declare an [Activity] in its manifest that can handle the transfer request. This activity
+     * must have an intent filter configured with the following:
+     * <ul>
+     * <li>An intent action of "androidx.identitycredentials.action.IMPORT_CREDENTIALS"</li>
+     * <li>A data element with a "content" scheme</li>
+     * </ul>
+     *
+     * The framework will invoke this activity with an intent containing a content URI, which serves
+     * as the medium for transferring the credential data. The activity can retrieve the request
+     * from the intent by calling [IntentHandler.retrieveProviderImportCredentialsRequest]. In
+     * addition to the [ImportCredentialsRequest], the [ProviderImportCredentialsRequest] contains a
+     * few security measures. The importer's [CallingAppInfo] is provided to verify the importer.
+     * The 'credId' is provided to validate the selected [ExportEntry].
+     *
+     * After the activity processes the request, the activity should return the
+     * [ImportCredentialsResponse] through the 'uri' of [ProviderImportCredentialsRequest] to
+     * successfully return the credentials or set an exception by calling
+     * [IntentHandler.setImportCredentialsException].
      *
      * @param request the request containing the provider data to register
-     * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     public fun registerExportAsync(
         request: RegisterExportRequest,
-        cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Boolean, RegisterExportException>,
+        callback: CredentialManagerCallback<RegisterExportResponse, RegisterExportException>,
+    )
+
+    /**
+     * Clears all previously registered [ExportEntry] registered through the [registerExport] API.
+     * This API should be used to clear all [ExportEntry] from the device. If trying to override the
+     * existing [ExportEntry] with new ones, there is no need to clear the old ones.
+     * [registerExport] can be used to directly override [ExportEntry].
+     *
+     * @param request the request to clear all the [ExportEntry]
+     * @return a [ClearExportResponse] on successful clear.
+     * @throws ClearExportException if the registration fails.
+     */
+    public suspend fun clearExport(request: ClearExportRequest): ClearExportResponse =
+        suspendCancellableCoroutine { continuation ->
+            // Any Android API that supports cancellation should be configured to propagate
+            // coroutine cancellation as follows:
+            val canceller = CancellationSignal()
+            continuation.invokeOnCancellation { canceller.cancel() }
+
+            val callback =
+                object : CredentialManagerCallback<ClearExportResponse, ClearExportException> {
+                    override fun onResult(result: ClearExportResponse) {
+                        if (continuation.isActive) {
+                            continuation.resume(result)
+                        }
+                    }
+
+                    override fun onError(e: ClearExportException) {
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(e)
+                        }
+                    }
+                }
+
+            clearExportAsync(
+                request,
+                // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+                // handle getting to the right thread or pool via the ContinuationInterceptor.
+                Runnable::run,
+                callback,
+            )
+        }
+
+    /**
+     * Clears all previously registered [ExportEntry]. All [ExportEntry] will be cleared from the
+     * device. In order to override the previously registered [ExportEntry] with different ones,
+     * [registerExport] can be used to override the entries.
+     *
+     * @param request the request to clear all the [ExportEntry]
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    public fun clearExportAsync(
+        request: ClearExportRequest,
+        executor: Executor,
+        callback: CredentialManagerCallback<ClearExportResponse, ClearExportException>,
     )
 }

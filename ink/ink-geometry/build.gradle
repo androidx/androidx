@@ -22,65 +22,38 @@ plugins {
 }
 
 androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64
   jvm()
+
   androidLibrary {
     namespace = "androidx.ink.geometry"
   }
 
+  ios()
+
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {
-      dependencies {
-        api(libs.kotlinStdlib)
-
-        implementation("androidx.annotation:annotation:1.8.0")
-      }
+    commonMain.dependencies {
+      api(libs.androidx.annotation)
+      implementation(project(":ink:ink-nativeloader"))
     }
 
-    jvmAndroidMain {
-      dependsOn(commonMain)
-      dependencies {
-        implementation(project(":ink:ink-nativeloader"))
-      }
+    commonTest.dependencies {
+      implementation(libs.kotlinTest)
+      implementation(project(":kruth:kruth"))
     }
 
-    jvmAndroidTest {
-      dependsOn(commonTest)
-      dependencies {
-        implementation(libs.junit)
-        implementation(libs.kotlinTest)
-        implementation(libs.truth)
-        implementation(project(":ink:ink-brush"))
-        implementation(project(":ink:ink-strokes"))
-      }
-    }
-
-    jvmMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    jvmTest {
-      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
-      //   in a JVM environment in addition to on Android emulators, once the
-      //   mysterious SIGSEGV is resolved.
-    }
-
-    androidMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    androidInstrumentedTest {
-      dependsOn(jvmAndroidTest)
-      dependencies {
-        implementation(libs.testExtJunit)
-        implementation(libs.testRules)
-        implementation(libs.testRunner)
-        implementation(libs.espressoCore)
-        implementation(libs.junit)
-        implementation(libs.truth)
-	implementation("androidx.graphics:graphics-path:1.0.1")
-      }
+    androidDeviceTest.dependencies {
+      implementation(libs.espressoCore)
+      implementation(libs.junit)
+      implementation(libs.testExtJunit)
+      implementation(libs.testRules)
+      implementation(libs.testRunner)
+      implementation(libs.truth)
+      implementation("androidx.graphics:graphics-path:1.0.1")
+      implementation(project(":ink:ink-brush"))
+      implementation(project(":ink:ink-strokes"))
     }
   }
 }
@@ -90,4 +63,12 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Create beautiful strokes"
+    usePlatformSpecificCacheForJvmTests = true
+}
+
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+@Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class DoubleListTest {
     private val list: MutableDoubleList = mutableDoubleListOf(1.0, 2.0, 3.0, 4.0, 5.0)
 

@@ -137,7 +137,7 @@ fun SwipeToDismissDemo() {
             ) {
                 Card {
                     ListItem(
-                        headlineContent = {
+                        content = {
                             Text(item, fontWeight = if (unread) FontWeight.Bold else null)
                         },
                         modifier =

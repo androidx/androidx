@@ -20,11 +20,15 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isCapture
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isRepeating
@@ -33,8 +37,10 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -46,9 +52,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 internal class Controller3ALock3ATest {
     private val graphTestContext = GraphTestContext()
     private val graphState3A = GraphState3A()
@@ -56,13 +64,7 @@ internal class Controller3ALock3ATest {
     private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
 
     private val listener3A = Listener3A()
-    private val fakeMetadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-            )
-        )
+    private val fakeMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @After
@@ -121,7 +123,7 @@ internal class Controller3ALock3ATest {
         cameraResponse.await()
         assertThat(result.isCompleted).isFalse()
 
-        // One we we are notified that the AE and AF are in locked state, the result of lock3A call
+        // Once we are notified that the AE and AF are in locked state, the result of lock3A call
         // will complete.
         launch {
             listener3A.onRequestSequenceCreated(
@@ -196,7 +198,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -281,7 +283,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -366,7 +368,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -448,7 +450,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -541,7 +543,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -630,7 +632,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -786,11 +788,13 @@ internal class Controller3ALock3ATest {
     @Test
     fun testLock3AWithUnsupportedAutoFocusTrigger() = runTest {
         val fakeMetadata =
-            FakeCameraMetadata(
-                mapOf(
-                    CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
-                )
+            FakeCameraMetadata.fromTemplate(
+                template = EmulatorDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                            intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                    ),
             )
         val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
         val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN).await()
@@ -834,6 +838,7 @@ internal class Controller3ALock3ATest {
 
             return@convergeCondition aeUnlocked && afUnlocked && awbUnlocked
         }
+
         val lockCondition: (FrameMetadata) -> Boolean = lockCondition@{ frameMetadata ->
             val aeUnlocked =
                 frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {
@@ -889,7 +894,7 @@ internal class Controller3ALock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
         val deferredResult = lock3AAsyncTask.await()
@@ -917,8 +922,265 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @Test
+    fun testLock3AWithModesAndImmediateAf() = runTest {
+        val result =
+            controller3A.lock3A(
+                aeMode = AeMode.ON,
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                awbMode = AwbMode.AUTO,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        assertThat(result.isCompleted).isFalse()
+
+        // Verify that the graph state has been updated with the correct modes.
+        assertThat(graphState3A.current.aeMode).isEqualTo(AeMode.ON)
+        assertThat(graphState3A.current.afMode).isEqualTo(AfMode.CONTINUOUS_PICTURE)
+        assertThat(graphState3A.current.awbMode).isEqualTo(AwbMode.AUTO)
+
+        val cameraResponse = async {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                        ),
+                ),
+            )
+        }
+
+        cameraResponse.await()
+        assertThat(result.isCompleted).isFalse()
+
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                        ),
+                ),
+            )
+        }
+
+        val result3A = result.await()
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+
+        // Event 0: The first repeating request submitted by lock3A. It should contain the modes
+        // and also the AF trigger start because afLockBehavior is IMMEDIATE.
+        val event0 = captureSequenceProcessor.nextEvent()
+        assertThat(event0.isRepeating).isTrue()
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event0.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START,
+            )
+
+        // Event 1: The repeating request submitted by lock3ANow to lock AE/AWB. It should contain
+        // the modes and the locks, but not the AF trigger.
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.isRepeating).isTrue()
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AWB_LOCK, true)
+
+        // Event 2: The single request submitted by lock3ANow to trigger AF. It should contain the
+        // modes, the locks, and the AF trigger.
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.isCapture).isTrue()
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AWB_LOCK, true)
+        assertThat(event2.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START,
+            )
+    }
+
+    @Test
+    fun testLock3AWithModesAndAfterNewScan() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    aeMode = AeMode.ON,
+                    afMode = AfMode.CONTINUOUS_PICTURE,
+                    awbMode = AwbMode.AUTO,
+                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                )
+            }
+        assertThat(lock3AAsyncTask.isCompleted).isFalse()
+
+        // Verify that the graph state has been updated with the correct modes.
+        assertThat(graphState3A.current.aeMode).isEqualTo(AeMode.ON)
+        assertThat(graphState3A.current.afMode).isEqualTo(AfMode.CONTINUOUS_PICTURE)
+        assertThat(graphState3A.current.awbMode).isEqualTo(AwbMode.AUTO)
+
+        globalScope.launch {
+            while (true) {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                            ),
+                    ),
+                )
+                delay(FRAME_RATE)
+            }
+        }
+
+        val result = lock3AAsyncTask.await()
+        assertThat(result.isCompleted).isFalse()
+
+        globalScope.launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                        ),
+                ),
+            )
+        }
+
+        val result3A = result.await()
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+
+        // Event 0: The first repeating request submitted by lock3A. It should contain the modes.
+        // Since afLockBehavior is AFTER_NEW_SCAN, it should NOT contain the AF trigger start.
+        val event0 = captureSequenceProcessor.nextEvent()
+        assertThat(event0.isRepeating).isTrue()
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event0.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event0.requiredParameters).doesNotContainKey(CaptureRequest.CONTROL_AF_TRIGGER)
+
+        // Event 1: The single request to cancel AF to start a new scan. It should contain the modes
+        // and the cancel trigger.
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.isCapture).isTrue()
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event1.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event1.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_CANCEL,
+            )
+
+        // Event 2: The repeating request to unlock AE and monitor AF scan. It should contain the
+        // modes and AE unlock (aeLock = false).
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.isRepeating).isTrue()
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, false)
+
+        // Event 3: The repeating request to lock AE. It should contain the modes and AE lock
+        // (aeLock = true).
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.isRepeating).isTrue()
+        assertThat(event3.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event3.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event3.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event3.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+
+        // Event 4: The single request to lock AF. It should contain the modes, AE lock, and AF
+        // trigger
+        // (afTrigger = start).
+        val event4 = captureSequenceProcessor.nextEvent()
+        assertThat(event4.isCapture).isTrue()
+        assertThat(event4.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_MODE, AeMode.ON.value)
+        assertThat(event4.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, AfMode.CONTINUOUS_PICTURE.value)
+        assertThat(event4.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AWB_MODE, AwbMode.AUTO.value)
+        assertThat(event4.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event4.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START,
+            )
+
+        globalScope.cancel()
+    }
+
     companion object {
         // The time duration in milliseconds between two frame results.
-        private const val FRAME_RATE_MS = 33L
+        private val FRAME_RATE = 33.milliseconds
     }
 }

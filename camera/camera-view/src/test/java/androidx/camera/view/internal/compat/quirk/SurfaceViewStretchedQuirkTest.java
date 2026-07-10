@@ -32,7 +32,7 @@ import org.robolectric.util.ReflectionHelpers;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(maxSdk = 32) // maxSdk due to b/247175194
+@Config(minSdk = Config.OLDEST_SDK, maxSdk = 32) // maxSdk due to b/247175194
 public class SurfaceViewStretchedQuirkTest {
 
     @Test

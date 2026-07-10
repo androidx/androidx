@@ -277,7 +277,11 @@ private fun Icon(
 ) {
     val colorFilter =
         if (useContentColor || tint != null) {
-            IconColorFilterElement(useContentColor = useContentColor, tint = tint)
+            IconColorFilterElement(
+                useContentColor = useContentColor,
+                tint = tint,
+                painter = painter,
+            )
         } else {
             Modifier
         }
@@ -304,11 +308,12 @@ private fun Icon(
 private class IconColorFilterElement(
     private val useContentColor: Boolean,
     private val tint: ColorProducer?,
+    private val painter: Painter,
 ) : ModifierNodeElement<IconColorFilterNode>() {
-    override fun create() = IconColorFilterNode(useContentColor, tint)
+    override fun create() = IconColorFilterNode(useContentColor, tint, painter)
 
     override fun update(node: IconColorFilterNode) {
-        node.update(useContentColor, tint)
+        node.update(useContentColor, tint, painter)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -317,6 +322,7 @@ private class IconColorFilterElement(
 
         if (useContentColor != other.useContentColor) return false
         if (tint != other.tint) return false
+        if (painter != other.painter) return false
 
         return true
     }
@@ -324,6 +330,7 @@ private class IconColorFilterElement(
     override fun hashCode(): Int {
         var result = useContentColor.hashCode()
         result = 31 * result + (tint?.hashCode() ?: 0)
+        result = 31 * result + painter.hashCode()
         return result
     }
 }
@@ -331,6 +338,7 @@ private class IconColorFilterElement(
 private class IconColorFilterNode(
     private var useContentColor: Boolean,
     private var tint: ColorProducer?,
+    private var painter: Painter,
 ) : DelegatingNode() {
     val cacheDrawNode =
         delegate(
@@ -357,11 +365,17 @@ private class IconColorFilterNode(
             }
         )
 
-    fun update(useContentColor: Boolean, tint: ColorProducer?) {
-        if (this.useContentColor != useContentColor || this.tint != tint) {
+    fun update(useContentColor: Boolean, tint: ColorProducer?, painter: Painter) {
+        val painterChanged = this.painter != painter
+        if (this.useContentColor != useContentColor || this.tint != tint || painterChanged) {
             this.useContentColor = useContentColor
             this.tint = tint
-            cacheDrawNode.invalidateDraw()
+            this.painter = painter
+            if (painterChanged) {
+                cacheDrawNode.invalidateDrawCache()
+            } else {
+                cacheDrawNode.invalidateDraw()
+            }
         }
     }
 }

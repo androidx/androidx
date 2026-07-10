@@ -36,11 +36,11 @@ class BanThreadSleepTest :
 
         val expected =
             """
-src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThreadSleep]
-        Thread.sleep(1000);
-               ~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThreadSleep]
+                    Thread.sleep(1000);
+                           ~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -52,11 +52,11 @@ src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThread
 
         val expected =
             """
-src/androidx/ThreadSleepUsageKotlin.kt:21: Error: Uses Thread.sleep() [BanThreadSleep]
-        Thread.sleep(1000)
-               ~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/ThreadSleepUsageKotlin.kt:21: Error: Uses Thread.sleep() [BanThreadSleep]
+                    Thread.sleep(1000)
+                           ~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

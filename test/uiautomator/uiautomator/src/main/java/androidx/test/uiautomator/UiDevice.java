@@ -67,6 +67,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -678,8 +679,8 @@ public class UiDevice implements Searchable {
 
     /**
      * Performs a swipe from one coordinate to another on the default display using the number of
-     * steps to determine smoothness and speed. Each step execution is throttled to 5ms per step.
-     * So for a 100 steps, the swipe will take about 1/2 second to complete.
+     * steps to determine smoothness and speed. Each step execution is throttled to the length
+     * of a frame per step (throttled by VSync).
      *
      * @param startX X-axis value for the starting coordinate
      * @param startY Y-axis value for the starting coordinate
@@ -698,8 +699,7 @@ public class UiDevice implements Searchable {
     /**
      * Performs a swipe from one coordinate to another coordinate on the default display. You can
      * control the smoothness and speed of the swipe by specifying the number of steps. Each step
-     * execution is throttled to 5 milliseconds per step, so for a 100 steps, the swipe will take
-     * around 0.5 seconds to complete.
+     * execution is throttled to the length of a frame per step (throttled by VSync).
      *
      * @param startX X-axis value for the starting coordinate
      * @param startY Y-axis value for the starting coordinate
@@ -718,8 +718,7 @@ public class UiDevice implements Searchable {
 
     /**
      * Performs a swipe between points in the Point array on the default display. Each step
-     * execution is throttled to 5ms per step. So for a 100 steps, the swipe will take about 1/2
-     * second to complete.
+     * execution is throttled to the length of a frame per step (throttled by VSync).
      *
      * @param segments is Point array containing at least one Point object
      * @param segmentSteps steps to inject between two Points
@@ -733,6 +732,11 @@ public class UiDevice implements Searchable {
 
     /**
      * Waits for the current application to idle.
+     * <p>
+     * <b>Note:</b> Usage of this API in tests will result in non-deterministic tests. So this
+     * API should only be used as a last resort and <b>only</b> when there are no other
+     * alternatives available.
+     * <p>
      * Default wait timeout is 10 seconds
      */
     public void waitForIdle() {
@@ -743,6 +747,11 @@ public class UiDevice implements Searchable {
 
     /**
      * Waits for the current application to idle.
+     * <p>
+     * <b>Note:</b> Usage of this API in tests will result in non-deterministic tests. So this
+     * API should only be used as a last resort and <b>only</b> when there are no other
+     * alternatives available.
+     * <p>
      * @param timeout in milliseconds
      */
     public void waitForIdle(long timeout) {
@@ -1328,7 +1337,19 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Take a screenshot of current window and store it as PNG
+     * Take a screenshot of the default display.
+     *
+     * <p>The screenshot is adjusted per screen rotation.
+     *
+     * @return The screenshot bitmap on success, {@code null} otherwise
+     * @see android.app.UiAutomation#takeScreenshot()
+     */
+    public @Nullable Bitmap takeScreenshot() {
+        return getUiAutomation().takeScreenshot();
+    }
+
+    /**
+     * Take a screenshot of the default display and store it as PNG
      *
      * Default scale of 1.0f (original size) and 90% quality is used
      * The screenshot is adjusted per screen rotation
@@ -1341,7 +1362,7 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Take a screenshot of current window and store it as PNG
+     * Take a screenshot of the default display and store it as PNG
      *
      * The screenshot is adjusted per screen rotation
      *
@@ -1353,7 +1374,7 @@ public class UiDevice implements Searchable {
     public boolean takeScreenshot(@NonNull File storePath, float scale, int quality) {
         Log.d(TAG, String.format("Taking screenshot (scale=%f, quality=%d) and storing at %s.",
                 scale, quality, storePath));
-        Bitmap screenshot = getUiAutomation().takeScreenshot();
+        Bitmap screenshot = takeScreenshot();
         if (screenshot == null) {
             Log.w(TAG, "Failed to take screenshot.");
             return false;
@@ -1575,6 +1596,21 @@ public class UiDevice implements Searchable {
 
     InteractionController getInteractionController() {
         return mInteractionController;
+    }
+
+    /**
+     * Performs accessibility checks on the given {@link AccessibilityNodeInfo} using the
+     * validators set in
+     * {@link Configurator#addUiAccessibilityValidator(UiAccessibilityValidator)}.
+     *
+     * @param node The {@link AccessibilityNodeInfo} to validate.
+     */
+    void performAccessibilityChecks(@NonNull AccessibilityNodeInfo node) {
+        Objects.requireNonNull(node);
+        for (UiAccessibilityValidator validator : Configurator.getInstance()
+                .getUiAccessibilityValidators()) {
+            validator.validate(node);
+        }
     }
 
     @RequiresApi(24)

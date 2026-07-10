@@ -1,0 +1,131 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore.testing.internal
+
+import androidx.kruth.assertThat
+import androidx.xr.arcore.runtime.AnchorInvalidUuidException
+import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import java.util.UUID
+import org.junit.Assert.assertThrows
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@RunWith(JUnit4::class)
+class FakePerceptionManagerTest {
+
+    private lateinit var underTest: FakePerceptionManager
+
+    @Before
+    fun setUp() {
+        underTest = FakePerceptionManager()
+        FakeRuntimeAnchor.anchorsCreatedCount = 0
+    }
+
+    @Test
+    fun createAnchor_addsAnchorToAnchors() {
+        val anchor = underTest.createAnchor(Pose())
+
+        assertThat(underTest.anchors).containsExactly(anchor)
+    }
+
+    @Test
+    fun detachAnchor_removesAnchorFromAnchors() {
+        val anchor = underTest.createAnchor(Pose())
+        check(underTest.anchors.contains(anchor))
+
+        anchor.detach()
+
+        assertThat(underTest.anchors).isEmpty()
+    }
+
+    @Test
+    fun createAnchor_returnsAnchorWithTheGivenPose() {
+        val pose = Pose(translation = Vector3(1f, 2f, 3f))
+
+        val anchor = underTest.createAnchor(pose)
+
+        assertThat(anchor.pose).isEqualTo(pose)
+    }
+
+    @Test
+    fun createAnchor_returnsAnchorWithTrackingStateTracking() {
+        val anchor = underTest.createAnchor(Pose())
+
+        assertThat(anchor.trackingState).isEqualTo(TrackingState.TRACKING)
+    }
+
+    @Test
+    fun detach_removesAnchorFromAnchors() {
+        val anchor = underTest.createAnchor(Pose())
+        check(underTest.anchors.contains(anchor))
+
+        anchor.detach()
+
+        assertThat(underTest.anchors).isEmpty()
+    }
+
+    @Test
+    fun getPersistedAnchorUuids_returnsOneUuid() {
+        val anchor = underTest.createAnchor(Pose())
+        anchor.persist()
+
+        assertThat(underTest.getPersistedAnchorUuids()).containsExactly(anchor.uuid!!)
+    }
+
+    @Test
+    fun loadAnchor_returnsNewAnchor() {
+        val persistedAnchor = underTest.createAnchor(Pose())
+        persistedAnchor.persist()
+
+        val loadedAnchor = underTest.loadAnchor(persistedAnchor.uuid!!)
+
+        assertThat(loadedAnchor.pose).isEqualTo(Pose())
+    }
+
+    @Test
+    fun loadAnchor_invalidUuid_throwsAnchorInvalidUuidException() {
+        assertThrows(AnchorInvalidUuidException::class.java) {
+            underTest.loadAnchor(UUID.randomUUID())
+        }
+        assertThrows(AnchorInvalidUuidException::class.java) { underTest.loadAnchor(UUID(0L, 0L)) }
+    }
+
+    @Test
+    fun unpersistAnchor_removesAnchorFromAnchorUuids() {
+        val anchor = underTest.createAnchor(Pose())
+        anchor.persist()
+        check(underTest.getPersistedAnchorUuids().contains(anchor.uuid!!))
+
+        underTest.unpersistAnchor(anchor.uuid!!)
+
+        assertThat(underTest.getPersistedAnchorUuids()).isEmpty()
+    }
+
+    @Test
+    fun unpersistAnchor_invalidUuid_throwsAnchorInvalidUuidException() {
+        assertThrows(AnchorInvalidUuidException::class.java) {
+            underTest.unpersistAnchor(UUID.randomUUID())
+        }
+        assertThrows(AnchorInvalidUuidException::class.java) {
+            underTest.unpersistAnchor(UUID(0L, 0L))
+        }
+    }
+}

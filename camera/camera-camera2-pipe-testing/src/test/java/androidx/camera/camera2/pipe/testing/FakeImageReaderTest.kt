@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.HardwareBuffer
+import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
@@ -24,11 +26,20 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class FakeImageReaderTest {
     private val imageReader =
-        FakeImageReader.create(StreamFormat.PRIVATE, StreamId(32), OutputId(42), Size(640, 480), 10)
+        FakeImageReader.create(
+            StreamFormat.PRIVATE,
+            StreamId(32),
+            OutputId(42),
+            Size(IMAGE_WIDTH, IMAGE_HEIGHT),
+            10,
+            null,
+        )
 
     @After
     fun cleanup() {
@@ -45,14 +56,55 @@ class FakeImageReaderTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
     fun imageReaderCanSimulateImages() {
         val fakeImage = imageReader.simulateImage(100)
 
-        assertThat(fakeImage.width).isEqualTo(640)
-        assertThat(fakeImage.height).isEqualTo(480)
+        assertThat(fakeImage.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.height).isEqualTo(IMAGE_HEIGHT)
         assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
         assertThat(fakeImage.timestamp).isEqualTo(100)
+        assertThat(fakeImage.imagePlanes).hasSize(3)
+        @Suppress("DEPRECATION") assertThat(fakeImage.planes).hasSize(3)
         assertThat(fakeImage.isClosed).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun imageReaderCanSimulateYuvImagesWith3Planes() {
+        val yuvImageReader =
+            FakeImageReader.create(
+                StreamFormat.YUV_420_888,
+                StreamId(32),
+                OutputId(42),
+                Size(IMAGE_WIDTH, IMAGE_HEIGHT),
+                10,
+                null,
+            )
+        val fakeImage = yuvImageReader.simulateImage(100)
+
+        assertThat(fakeImage.format).isEqualTo(StreamFormat.YUV_420_888.value)
+        assertThat(fakeImage.imagePlanes).hasSize(3)
+        @Suppress("DEPRECATION") assertThat(fakeImage.planes).hasSize(3)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun imageReaderCanSimulateImagesWithCustomHardwareBuffer() {
+        val hardwareBuffer = HardwareBuffer.create(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, 1, 1)
+        val fakeImage = imageReader.simulateImage(100, hardwareBuffer = hardwareBuffer)
+
+        assertThat(fakeImage.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.height).isEqualTo(IMAGE_HEIGHT)
+        assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
+        assertThat(fakeImage.timestamp).isEqualTo(100)
+        assertThat(fakeImage.hardwareBuffer).isNotNull()
+        assertThat(fakeImage.hardwareBuffer?.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.hardwareBuffer?.height).isEqualTo(IMAGE_HEIGHT)
+        assertThat(fakeImage.hardwareBuffer?.format).isEqualTo(IMAGE_FORMAT)
+        assertThat(fakeImage.isClosed).isFalse()
+
+        hardwareBuffer.close()
     }
 
     @Test
@@ -80,7 +132,7 @@ class FakeImageReaderTest {
         val fakeListener = FakeOnImageListener()
 
         imageReader.simulateImage(100)
-        imageReader.setOnImageListener(fakeListener)
+        imageReader.onImageListener = fakeListener
         val image2 = imageReader.simulateImage(200)
         val image3 = imageReader.simulateImage(300)
 
@@ -95,5 +147,11 @@ class FakeImageReaderTest {
         assertThat(fakeListener.onImageEvents[1].image).isSameInstanceAs(image3)
         assertThat(fakeListener.onImageEvents[1].streamId).isEqualTo(StreamId(32))
         assertThat(fakeListener.onImageEvents[1].outputId).isEqualTo(OutputId(42))
+    }
+
+    companion object {
+        private val IMAGE_HEIGHT: Int = 480
+        private val IMAGE_WIDTH: Int = 640
+        private val IMAGE_FORMAT: Int = 3
     }
 }

@@ -46,17 +46,30 @@ import kotlin.jvm.JvmField
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.runtime.ComposeUiTestFlags {
+ *      -assumevalues class androidx.compose.ui.test.ComposeUiTestFlags {
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
 @ExperimentalTestApi
 object ComposeUiTestFlags {
     /**
-     * Enables support for providing a StandardTestDispatcher to ComposeTestRule. When false,
-     * previous behavior is restored even if a StandardTestDispatcher is explicitly provided.
+     * Flag to allow device tests to execute synchronization methods directly from the main thread.
+     *
+     * Historically, calling functions involving synchronization—such as assertions, actions, and
+     * wait-for-idle states (e.g., [ComposeUiTest.waitForIdle], [ComposeUiTest.runOnIdle], and
+     * assertions like `assertIsDisplayed()`) — was strictly prohibited on the main thread during
+     * device instrumentation tests. Attempting to call them on the main thread threw an
+     * [IllegalStateException]. This was done to prevent deadlocks, but introduced an inconsistency
+     * with Robolectric-based tests, which already permitted main-thread synchronization.
+     *
+     * Enabling this flag (`true`) bypasses the historical main-thread assertion. When running on
+     * main thread, the library performs recursive main-thread-safe Espresso synchronization,
+     * immediately followed by a final looper drain to guarantee absolute rest of all deferred
+     * lifecycle and cleanup events.
      */
-    @Suppress("MutableBareField")
+    // TODO: b/516342312 - Clean up this temporary feature flag and make main-thread synchronization
+    // the permanent default.
     @JvmField
-    var isStandardTestDispatcherSupportEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    var isMainThreadTestSynchronizationEnabledForDeviceTests: Boolean = true
 }

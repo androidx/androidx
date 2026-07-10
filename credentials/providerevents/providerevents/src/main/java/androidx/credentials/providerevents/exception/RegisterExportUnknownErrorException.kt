@@ -16,10 +16,7 @@
 
 package androidx.credentials.providerevents.exception
 
-import androidx.annotation.RestrictTo
-
 /** The provider cannot be registered for export for unknown reasons */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RegisterExportUnknownErrorException(errorMessage: String? = null) :
     RegisterExportException(TYPE_REGISTER_EXPORT_UNKNOWN_ERROR_EXCEPTION, errorMessage) {
     internal companion object {

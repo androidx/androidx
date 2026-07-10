@@ -16,14 +16,17 @@
 
 package androidx.appfunctions.compiler.core
 
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import kotlin.collections.joinToString
 
 private const val PARAM_TAG_REGEX_PATTERN = """^@param\s+(\w+)\s*(.*)"""
+private const val PROPERTY_TAG_REGEX_PATTERN = """^@property\s+(\w+)\s*(.*)"""
 private const val RESPONSE_TAG_REGEX_PATTERN = """^@return\s+(.*)"""
 private const val ANY_TAG_REGEX_PATTERN = """^@\w+.*"""
 private const val KOTLIN_SUPPORTED_TAGS_PATTERN =
     """^@(param|return|constructor|receiver|property|throws|exception|sample|see|author|since|suppress)\b.*"""
 private val PARAM_TAG_REGEX = Regex(PARAM_TAG_REGEX_PATTERN)
+private val PROPERTY_TAG_REGEX = Regex(PROPERTY_TAG_REGEX_PATTERN)
 private val RESPONSE_TAG_REGEX = Regex(RESPONSE_TAG_REGEX_PATTERN)
 private val ANY_TAG_REGEX = Regex(ANY_TAG_REGEX_PATTERN)
 private val KOTLIN_SUPPORTED_TAGS = Regex(KOTLIN_SUPPORTED_TAGS_PATTERN)
@@ -35,48 +38,62 @@ private val KOTLIN_SUPPORTED_TAGS = Regex(KOTLIN_SUPPORTED_TAGS_PATTERN)
  * The input docString is expected to be stripped from any "/**", "*/" or "*".
  */
 internal fun getParamDescriptionsFromKDoc(docString: String): Map<String, String> {
-    val descriptionMap = mutableMapOf<String, String>()
+    return getTagContentsFromKDoc(docString, PARAM_TAG_REGEX)
+}
 
-    val currentDescriptionBuilder = StringBuilder()
-    var currentParamName: String? = null
+/**
+ * Returns a mapping of property name to property description, where the property's description is
+ * extracted from `@property` declarations in the KDoc.
+ *
+ * The input docString is expected to be stripped from any "/**", "*/" or "*".
+ */
+internal fun getPropertyDescriptionsFromKDoc(docString: String): Map<String, String> {
+    return getTagContentsFromKDoc(docString, PROPERTY_TAG_REGEX)
+}
+
+private fun getTagContentsFromKDoc(docString: String, tagRegex: Regex): Map<String, String> {
+    val contentsMap = mutableMapOf<String, String>()
+
+    val currentContentBuilder = StringBuilder()
+    var currentTagName: String? = null
 
     for (line in docString.lines()) {
         val trimmedLine = line.trim()
-        val paramMatch = PARAM_TAG_REGEX.find(trimmedLine)
+        val propertyMatch = tagRegex.find(trimmedLine)
 
         when {
-            paramMatch != null -> {
-                if (currentParamName != null) {
-                    descriptionMap[currentParamName] = currentDescriptionBuilder.toString().trim()
-                    currentDescriptionBuilder.clear()
+            propertyMatch != null -> {
+                if (currentTagName != null) {
+                    contentsMap[currentTagName] = currentContentBuilder.toString().trim()
+                    currentContentBuilder.clear()
                 }
-                currentParamName = checkNotNull(paramMatch.groupValues[1])
-                currentDescriptionBuilder.append(checkNotNull(paramMatch.groupValues[2]))
+                currentTagName = propertyMatch.groupValues[1]
+                currentContentBuilder.append(propertyMatch.groupValues[2])
             }
 
             ANY_TAG_REGEX.matches(trimmedLine) -> {
-                if (currentParamName != null) {
-                    descriptionMap[currentParamName] = currentDescriptionBuilder.toString().trim()
-                    currentDescriptionBuilder.clear()
-                    currentParamName = null
+                if (currentTagName != null) {
+                    contentsMap[currentTagName] = currentContentBuilder.toString().trim()
+                    currentContentBuilder.clear()
+                    currentTagName = null
                 }
             }
 
-            currentParamName != null -> {
+            currentTagName != null -> {
                 if (trimmedLine.isNotBlank()) {
-                    if (currentDescriptionBuilder.isNotEmpty()) {
-                        currentDescriptionBuilder.append(" ")
+                    if (currentContentBuilder.isNotEmpty()) {
+                        currentContentBuilder.append(" ")
                     }
-                    currentDescriptionBuilder.append(trimmedLine)
+                    currentContentBuilder.append(trimmedLine)
                 }
             }
         }
     }
 
-    if (currentParamName != null) {
-        descriptionMap[currentParamName] = currentDescriptionBuilder.toString().trim()
+    if (currentTagName != null) {
+        contentsMap[currentTagName] = currentContentBuilder.toString().trim()
     }
-    return descriptionMap
+    return contentsMap
 }
 
 /**
@@ -94,7 +111,7 @@ internal fun getResponseDescriptionFromKDoc(docString: String): String {
 
         when {
             responseMatch != null -> {
-                responseDescriptionBuilder.append(checkNotNull(responseMatch.groupValues[1]))
+                responseDescriptionBuilder.append(responseMatch.groupValues[1])
             }
             responseDescriptionBuilder.isNotEmpty() -> {
                 if (ANY_TAG_REGEX.matches(trimmedLine)) {
@@ -141,4 +158,53 @@ internal fun sanitizeKDoc(docString: String): String {
     }
 
     return resultLines.joinToString("\n").trim()
+}
+
+/**
+ * Returns the function's description.
+ *
+ * If the function is annotated with `@AppFunctionInstruction`, its `instruction` property value is
+ * returned. Otherwise, the sanitized KDoc is returned (obtained by stripping Kotlin supported tags
+ * from [rawKDoc]).
+ *
+ * @param rawKDoc The raw KDoc string of the function.
+ * @return The description of the function.
+ */
+internal fun KSFunctionDeclaration.getFunctionDescription(rawKDoc: String): String {
+    val instruction =
+        this.annotations
+            .findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+            ?.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
+    if (instruction != null) {
+        return instruction
+    }
+    return sanitizeKDoc(rawKDoc)
+}
+
+/**
+ * Returns the function's response description.
+ *
+ * If the function's return type is annotated with `@AppFunctionInstruction`, its `instruction`
+ * property value is returned. Otherwise, the response description is extracted from the `@return`
+ * tag of the [rawKDoc] string.
+ *
+ * @param rawKDoc The raw KDoc string of the function.
+ * @return The description of the function's response.
+ */
+internal fun KSFunctionDeclaration.getResponseDescription(rawKDoc: String): String {
+    val returnInstruction =
+        this.returnType
+            ?.annotations
+            ?.findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+            ?.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
+    if (returnInstruction != null) {
+        return returnInstruction
+    }
+    return getResponseDescriptionFromKDoc(rawKDoc)
 }

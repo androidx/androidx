@@ -17,33 +17,35 @@
 package androidx.compose.material3
 
 import androidx.annotation.FloatRange
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.MutableStyleState
+import androidx.compose.foundation.style.animate
+import androidx.compose.foundation.style.border
+import androidx.compose.foundation.style.focused
+import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.OutputTransformation
-import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.toTextFieldBuffer
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
 import androidx.compose.material3.internal.TextFieldPadding
-import androidx.compose.material3.internal.TextFieldType
-import androidx.compose.material3.internal.animateBorderStrokeAsState
-import androidx.compose.material3.internal.textFieldBackground
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
+import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -68,6 +70,11 @@ object TextFieldDefaults {
     val shape: Shape
         @Composable get() = FilledTextFieldTokens.ContainerShape.value
 
+    /** A rounded shape for a [TextField], as recommended by Expressive style. */
+    val roundedShape: Shape
+        // TODO(b/448727879): reference the actual token once it is in place
+        @Composable get() = ShapeKeyTokens.CornerMedium.value
+
     /**
      * The default min height applied to a [TextField]. Note that you can override it by applying
      * Modifier.heightIn directly on a text field.
@@ -90,10 +97,10 @@ object TextFieldDefaults {
      * A decorator used to create custom text fields based on
      * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [TextField], such as
+     * If your text field requires customizing elements that aren't exposed by [TextField], such as
      * the indicator line thickness, consider using this decorator to achieve the desired design.
      *
-     * For example, if you wish to customise the bottom indicator line, you can pass a custom
+     * For example, if you wish to customize the bottom indicator line, you can pass a custom
      * [Container] to this decorator's [container].
      *
      * This decorator is meant to be used in conjunction with the overload of [BasicTextField] that
@@ -149,7 +156,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -159,12 +166,7 @@ object TextFieldDefaults {
         supportingText: @Composable (() -> Unit)? = null,
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues =
-            if (label == null || labelPosition is TextFieldLabelPosition.Above) {
-                contentPaddingWithoutLabel()
-            } else {
-                contentPaddingWithLabel()
-            },
+        contentPadding: PaddingValues = defaultContentPadding(label, labelPosition),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -178,23 +180,19 @@ object TextFieldDefaults {
         },
     ): TextFieldDecorator = TextFieldDecorator { innerTextField ->
         val visualText =
-            if (outputTransformation == null) state.text
-            else {
-                // TODO: use constructor to create TextFieldBuffer from TextFieldState when
-                // available
-                lateinit var buffer: TextFieldBuffer
-                state.edit { buffer = this }
-                // after edit completes, mutations on buffer are ineffective
+            if (outputTransformation == null) {
+                state.text
+            } else {
+                val buffer = state.toTextFieldBuffer()
                 with(outputTransformation) { buffer.transformOutput() }
                 buffer.asCharSequence()
             }
 
         CommonDecorationBox(
-            type = TextFieldType.Filled,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = labelPosition,
+            labelPosition = labelPosition.normalize(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -229,6 +227,7 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
+    @OptIn(ExperimentalFoundationStyleApi::class)
     @Composable
     fun Container(
         enabled: Boolean,
@@ -240,16 +239,20 @@ object TextFieldDefaults {
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
         unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) {
-        val focused = interactionSource.collectIsFocusedAsState().value
+        val styleState = remember(interactionSource) { MutableStyleState(interactionSource) }
         // TODO Load the motionScheme tokens from the component tokens file
-        val containerColor =
-            animateColorAsState(
-                targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
-            )
+        val animationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
         Box(
             modifier
-                .textFieldBackground(containerColor::value, shape)
+                .styleable(styleState) {
+                    shape(shape)
+                    background(colors.containerColor(enabled, isError, false))
+                    focused {
+                        animate(animationSpec) {
+                            background(colors.containerColor(enabled, isError, true))
+                        }
+                    }
+                }
                 .indicatorLine(
                     enabled = enabled,
                     isError = isError,
@@ -307,10 +310,10 @@ object TextFieldDefaults {
      * A decoration box used to create custom text fields based on
      * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [TextField], consider
+     * If your text field requires customizing elements that aren't exposed by [TextField], consider
      * using this decoration box to achieve the desired design.
      *
-     * For example, if you wish to customise the bottom indicator line, you can pass a custom
+     * For example, if you wish to customize the bottom indicator line, you can pass a custom
      * [Container] to this decoration box's [container].
      *
      * This decoration box is meant to be used in conjunction with overloads of [BasicTextField]
@@ -408,11 +411,10 @@ object TextFieldDefaults {
                 .text
 
         CommonDecorationBox(
-            type = TextFieldType.Filled,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Attached(),
+            labelPosition = TextFieldLabelPosition.Inside(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -445,8 +447,8 @@ object TextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
-     * Default content padding of the input field within the [TextField] when the label is null or
-     * positioned [TextFieldLabelPosition.Above].
+     * Default content padding of the input field within the [TextField] when the label is absent or
+     * not positioned inside the container.
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
@@ -457,6 +459,20 @@ object TextFieldDefaults {
         end: Dp = TextFieldPadding,
         bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [TextField] based on the presence of
+     * [label] and its [labelPosition].
+     */
+    internal fun defaultContentPadding(
+        label: @Composable (TextFieldLabelScope.() -> Unit)?,
+        labelPosition: TextFieldLabelPosition,
+    ): PaddingValues =
+        if (label != null && labelPosition.normalize() is TextFieldLabelPosition.Inside) {
+            contentPaddingWithLabel()
+        } else {
+            contentPaddingWithoutLabel()
+        }
 
     /**
      * Default padding applied to supporting text for both [TextField] and [OutlinedTextField]. See
@@ -477,6 +493,17 @@ object TextFieldDefaults {
     @Composable
     fun colors() =
         MaterialTheme.colorScheme.defaultTextFieldColors(LocalTextSelectionColors.current)
+
+    /**
+     * Creates a [TextFieldColors] that represents the Expressive style input text, container, and
+     * content colors (including label, placeholder, icons, etc.) used in a [TextField] with tonal
+     * colors.
+     *
+     * This should be used in conjunction with [TextFieldLabelPosition.Inside].
+     */
+    @Composable
+    fun tonalColors() =
+        MaterialTheme.colorScheme.tonalTextFieldColors(LocalTextSelectionColors.current)
 
     /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
@@ -713,28 +740,106 @@ object TextFieldDefaults {
                 .also { defaultTextFieldColorsCached = it }
     }
 
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Maintained for binary compatibility. Use overload with `textFieldShape`.",
-    )
-    @ExperimentalMaterial3Api
-    fun Modifier.indicatorLine(
-        enabled: Boolean,
-        isError: Boolean,
-        interactionSource: InteractionSource,
-        colors: TextFieldColors,
-        focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
-    ) =
-        indicatorLine(
-            enabled = enabled,
-            isError = isError,
-            interactionSource = interactionSource,
-            colors = colors,
-            textFieldShape = null,
-            focusedIndicatorLineThickness = focusedIndicatorLineThickness,
-            unfocusedIndicatorLineThickness = unfocusedIndicatorLineThickness,
-        )
+    internal fun ColorScheme.tonalTextFieldColors(
+        localTextSelectionColors: TextSelectionColors
+    ): TextFieldColors {
+        // TODO(b/448727879): Reference the actual token once it is in place.
+        return tonalTextFieldColorsCached?.let { cachedColors ->
+            if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                cachedColors
+            } else {
+                cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                    tonalTextFieldColorsCached = it
+                }
+            }
+        }
+            ?: TextFieldColors(
+                    // Unfocused
+                    unfocusedContainerColor = fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                    unfocusedIndicatorColor = Color.Transparent,
+                    unfocusedTextColor = fromToken(ColorSchemeKeyTokens.OnSurface),
+                    unfocusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    unfocusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Focused
+                    focusedContainerColor = fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                    focusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+
+                    // Disabled
+                    disabledContainerColor =
+                        fromToken(ColorSchemeKeyTokens.SurfaceContainer)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledIndicatorColor = Color.Transparent,
+                    disabledTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurface)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledLabelColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledLabelOpacity),
+                    disabledLeadingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+                    disabledTrailingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+                    disabledSupportingTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnBackground)
+                            .copy(alpha = FilledTextFieldTokens.DisabledSupportingOpacity),
+                    disabledPlaceholderColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledPrefixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledSuffixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+
+                    // Error
+                    errorContainerColor = fromToken(ColorSchemeKeyTokens.ErrorContainer),
+                    errorIndicatorColor = Color.Transparent,
+                    errorTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    errorLabelColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorTrailingIconColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorCursorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorSupportingTextColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Other
+                    cursorColor = fromToken(ColorSchemeKeyTokens.Primary),
+                    textSelectionColors = localTextSelectionColors,
+                )
+                .also { tonalTextFieldColorsCached = it }
+    }
+
+    /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
+    @Suppress("DEPRECATION")
+    internal fun TextFieldLabelPosition.normalize(): TextFieldLabelPosition =
+        if (this is TextFieldLabelPosition.Attached) {
+            TextFieldLabelPosition.Inside(
+                isAlwaysMinimized = alwaysMinimize,
+                minimizedAlignment = minimizedAlignment,
+                expandedAlignment = expandedAlignment,
+            )
+        } else {
+            this
+        }
 
     @Deprecated(
         message = "Renamed to TextFieldDefaults.Container",
@@ -850,10 +955,10 @@ object TextFieldDefaults {
         contentPaddingWithoutLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
-        message = "Renamed to `OutlinedTextFieldDefaults.contentPadding`",
+        message = "Renamed to `OutlinedTextFieldDefaults.contentPaddingWithoutLabel`",
         replaceWith =
             ReplaceWith(
-                "OutlinedTextFieldDefaults.contentPadding(\n" +
+                "OutlinedTextFieldDefaults.contentPaddingWithoutLabel(\n" +
                     "        start = start,\n" +
                     "        top = top,\n" +
                     "        end = end,\n" +
@@ -869,7 +974,7 @@ object TextFieldDefaults {
         end: Dp = TextFieldPadding,
         bottom: Dp = TextFieldPadding,
     ): PaddingValues =
-        OutlinedTextFieldDefaults.contentPadding(
+        OutlinedTextFieldDefaults.contentPaddingWithoutLabel(
             start = start,
             top = top,
             end = end,
@@ -886,6 +991,11 @@ object OutlinedTextFieldDefaults {
     /** Default shape for an [OutlinedTextField]. */
     val shape: Shape
         @Composable get() = OutlinedTextFieldTokens.ContainerShape.value
+
+    /** A rounded shape for an [OutlinedTextField], as recommended by Expressive style. */
+    val roundedShape: Shape
+        // TODO(b/448727879): reference the actual token once it is in place
+        @Composable get() = ShapeKeyTokens.CornerMedium.value
 
     /**
      * The default min height applied to an [OutlinedTextField]. Note that you can override it by
@@ -909,7 +1019,7 @@ object OutlinedTextFieldDefaults {
      * A decorator used to create custom text fields based on
      * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
+     * If your text field requires customizing elements that aren't exposed by [OutlinedTextField],
      * such as the border thickness, consider using this decorator to achieve the desired design.
      *
      * For example, if you wish to customize the thickness of the border, you can pass a custom
@@ -956,7 +1066,8 @@ object OutlinedTextFieldDefaults {
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decorator. Note that the padding values may not be respected if they are incompatible with
      *   the text field's size constraints or layout. See
-     *   [OutlinedTextFieldDefaults.contentPadding].
+     *   [OutlinedTextFieldDefaults.contentPaddingWithoutLabel] or
+     *   [OutlinedTextFieldDefaults.contentPaddingWithLabel].
      * @param container the container to be drawn behind the text field. By default, this is
      *   transparent and only includes a border. The cutout in the border to fit the [label] will be
      *   automatically added by the framework. Default colors for the container come from the
@@ -969,7 +1080,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Cutout(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -979,7 +1090,7 @@ object OutlinedTextFieldDefaults {
         supportingText: @Composable (() -> Unit)? = null,
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues = contentPadding(),
+        contentPadding: PaddingValues = defaultContentPadding(label, labelPosition),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -995,21 +1106,16 @@ object OutlinedTextFieldDefaults {
         val visualText =
             if (outputTransformation == null) state.text
             else {
-                // TODO: use constructor to create TextFieldBuffer from TextFieldState when
-                // available
-                lateinit var buffer: TextFieldBuffer
-                state.edit { buffer = this }
-                // after edit completes, mutations on buffer are ineffective
+                val buffer = state.toTextFieldBuffer()
                 with(outputTransformation) { buffer.transformOutput() }
                 buffer.asCharSequence()
             }
 
         CommonDecorationBox(
-            type = TextFieldType.Outlined,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = labelPosition,
+            labelPosition = labelPosition.normalize(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1042,6 +1148,7 @@ object OutlinedTextFieldDefaults {
      * @param focusedBorderThickness thickness of the border when the text field is focused
      * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
+    @OptIn(ExperimentalFoundationStyleApi::class)
     @Composable
     fun Container(
         enabled: Boolean,
@@ -1053,26 +1160,23 @@ object OutlinedTextFieldDefaults {
         focusedBorderThickness: Dp = FocusedBorderThickness,
         unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
     ) {
-        val focused = interactionSource.collectIsFocusedAsState().value
-        val borderStroke =
-            animateBorderStrokeAsState(
-                enabled,
-                isError,
-                focused,
-                colors,
-                focusedBorderThickness,
-                unfocusedBorderThickness,
-            )
-        // TODO Load the motionScheme tokens from the component tokens file
-        val containerColor =
-            animateColorAsState(
-                targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
-            )
+        val styleState = remember(interactionSource) { MutableStyleState(interactionSource) }
+        val animationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
         Box(
-            modifier
-                .border(borderStroke.value, shape)
-                .textFieldBackground(containerColor::value, shape)
+            modifier.styleable(styleState) {
+                shape(shape)
+                background(colors.containerColor(enabled, isError, false))
+                border(unfocusedBorderThickness, colors.indicatorColor(enabled, isError, false))
+                focused {
+                    animate(animationSpec) {
+                        background(colors.containerColor(enabled, isError, true))
+                        border(
+                            focusedBorderThickness,
+                            colors.indicatorColor(enabled, isError, true),
+                        )
+                    }
+                }
+            }
         )
     }
 
@@ -1080,7 +1184,7 @@ object OutlinedTextFieldDefaults {
      * A decoration box used to create custom text fields based on
      * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
+     * If your text field requires customizing elements that aren't exposed by [OutlinedTextField],
      * consider using this decoration box to achieve the desired design.
      *
      * For example, if you wish to customize the thickness of the border, you can pass a custom
@@ -1130,7 +1234,8 @@ object OutlinedTextFieldDefaults {
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decoration box. Note that the padding values may not be respected if they are incompatible
      *   with the text field's size constraints or layout. See
-     *   [OutlinedTextFieldDefaults.contentPadding].
+     *   [OutlinedTextFieldDefaults.contentPaddingWithoutLabel] or
+     *   [OutlinedTextFieldDefaults.contentPaddingWithLabel].
      * @param container the container to be drawn behind the text field. By default, this is
      *   transparent and only includes a border. The cutout in the border to fit the [label] will be
      *   automatically added by the framework. Default colors for the container come from the
@@ -1153,7 +1258,7 @@ object OutlinedTextFieldDefaults {
         suffix: @Composable (() -> Unit)? = null,
         supportingText: @Composable (() -> Unit)? = null,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues = contentPadding(),
+        contentPadding: PaddingValues = contentPaddingWithoutLabel(),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -1175,11 +1280,10 @@ object OutlinedTextFieldDefaults {
                 .text
 
         CommonDecorationBox(
-            type = TextFieldType.Outlined,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Attached(),
+            labelPosition = TextFieldLabelPosition.Cutout(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1197,12 +1301,28 @@ object OutlinedTextFieldDefaults {
     }
 
     /**
-     * Default content padding of the input field within the [OutlinedTextField].
+     * Default content padding of the input field within the [OutlinedTextField] when there is an
+     * inside label. Note that the top padding represents the padding above the label in the focused
+     * state. The input field is placed directly beneath the label.
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPadding(
+    fun contentPaddingWithLabel(
+        start: Dp = TextFieldPadding,
+        top: Dp = TextFieldWithLabelVerticalPadding,
+        end: Dp = TextFieldPadding,
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
+    ): PaddingValues = PaddingValues(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [OutlinedTextField] when the label is
+     * absent or not positioned inside the container.
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
+     */
+    fun contentPaddingWithoutLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -1210,10 +1330,52 @@ object OutlinedTextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
+     * Default content padding of the input field within the [OutlinedTextField].
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
+     */
+    @Deprecated(
+        "Use contentPaddingWithoutLabel or contentPaddingWithLabel instead",
+        replaceWith = ReplaceWith("contentPaddingWithoutLabel(start, top, end, bottom)"),
+    )
+    fun contentPadding(
+        start: Dp = TextFieldPadding,
+        top: Dp = TextFieldPadding,
+        end: Dp = TextFieldPadding,
+        bottom: Dp = TextFieldPadding,
+    ): PaddingValues = contentPaddingWithoutLabel(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [TextField] based on the presence of
+     * [label] and its [labelPosition].
+     */
+    internal fun defaultContentPadding(
+        label: @Composable (TextFieldLabelScope.() -> Unit)?,
+        labelPosition: TextFieldLabelPosition,
+    ): PaddingValues =
+        if (label != null && labelPosition is TextFieldLabelPosition.Inside) {
+            contentPaddingWithLabel()
+        } else {
+            contentPaddingWithoutLabel()
+        }
+
+    /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
      * colors (including label, placeholder, icons, etc.) used in an [OutlinedTextField].
      */
     @Composable fun colors() = MaterialTheme.colorScheme.defaultOutlinedTextFieldColors
+
+    /**
+     * Creates a [TextFieldColors] that represents the Expressive style input text, container, and
+     * content colors (including label, placeholder, icons, etc.) used in an [OutlinedTextField]
+     * with tonal colors.
+     *
+     * This should be used in conjunction with [TextFieldLabelPosition.Inside].
+     */
+    @Composable
+    fun tonalColors() =
+        MaterialTheme.colorScheme.tonalOutlinedTextFieldColors(LocalTextSelectionColors.current)
 
     /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
@@ -1451,6 +1613,107 @@ object OutlinedTextFieldDefaults {
                         errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor),
                     )
                     .also { defaultOutlinedTextFieldColorsCached = it }
+        }
+
+    internal fun ColorScheme.tonalOutlinedTextFieldColors(
+        localTextSelectionColors: TextSelectionColors
+    ): TextFieldColors {
+        // TODO(b/448727879): Reference the actual token once it is in place.
+        return tonalOutlinedTextFieldColorsCached?.let { cachedColors ->
+            if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                cachedColors
+            } else {
+                cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                    tonalOutlinedTextFieldColorsCached = it
+                }
+            }
+        }
+            ?: TextFieldColors(
+                    // Unfocused
+                    unfocusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    unfocusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    unfocusedTextColor = fromToken(ColorSchemeKeyTokens.OnSurface),
+                    unfocusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    unfocusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Focused
+                    focusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    focusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    focusedTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+
+                    // Disabled
+                    disabledContainerColor =
+                        fromToken(ColorSchemeKeyTokens.OnPrimary)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    disabledTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurface)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledLabelColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledLabelOpacity),
+                    disabledLeadingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledLeadingIconOpacity),
+                    disabledTrailingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
+                    disabledSupportingTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnBackground)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+                    disabledPlaceholderColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledPrefixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledSuffixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+
+                    // Error
+                    errorContainerColor = fromToken(ColorSchemeKeyTokens.ErrorContainer),
+                    errorIndicatorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    errorLabelColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorTrailingIconColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorCursorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorSupportingTextColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Other
+                    cursorColor = fromToken(ColorSchemeKeyTokens.Primary),
+                    textSelectionColors = localTextSelectionColors,
+                )
+                .also { tonalOutlinedTextFieldColorsCached = it }
+    }
+
+    /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
+    @Suppress("DEPRECATION")
+    internal fun TextFieldLabelPosition.normalize(): TextFieldLabelPosition =
+        if (this is TextFieldLabelPosition.Attached) {
+            TextFieldLabelPosition.Cutout(
+                isAlwaysMinimized = alwaysMinimize,
+                minimizedAlignment = minimizedAlignment,
+                expandedAlignment = expandedAlignment,
+            )
+        } else {
+            this
         }
 
     @Deprecated(
@@ -1961,11 +2224,7 @@ constructor(
 /** The position of the label with respect to the text field. */
 abstract class TextFieldLabelPosition private constructor() {
     /**
-     * The default label position according to the Material specification.
-     *
-     * For [TextField], the label is positioned inside the text field container. For
-     * [OutlinedTextField], the label is positioned inside the text field container when expanded
-     * and cuts into the border when minimized.
+     * Translates to [Inside] for [TextField], and [Cutout] for [OutlinedTextField].
      *
      * @param alwaysMinimize Whether to always keep the label of the text field minimized. If
      *   `false`, the label will expand to occupy the input area when the text field is unfocused
@@ -1974,11 +2233,16 @@ abstract class TextFieldLabelPosition private constructor() {
      * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
      * @param expandedAlignment The horizontal alignment of the label when it is expanded.
      */
+    @Deprecated(
+        "Use Inside for the default filled TextField behavior, or Cutout for the " +
+            "default OutlinedTextField behavior."
+    )
     class Attached(
         @get:Suppress("GetterSetterNames") val alwaysMinimize: Boolean = false,
         val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
         val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
+        @Suppress("DEPRECATION")
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Attached) return false
@@ -2000,6 +2264,95 @@ abstract class TextFieldLabelPosition private constructor() {
         override fun toString(): String {
             return "Attached(" +
                 "alwaysMinimize=$alwaysMinimize, " +
+                "minimizedAlignment=$minimizedAlignment, " +
+                "expandedAlignment=$expandedAlignment" +
+                ")"
+        }
+    }
+
+    /**
+     * The label is positioned inside the text field container.
+     *
+     * This is the default label position for [TextField].
+     *
+     * @param isAlwaysMinimized Whether to always keep the label of the text field minimized. If
+     *   `false`, the label will expand to occupy the input area when the text field is unfocused
+     *   and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     *   the label when the text field is unfocused and empty.
+     * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
+     * @param expandedAlignment The horizontal alignment of the label when it is expanded.
+     */
+    class Inside(
+        val isAlwaysMinimized: Boolean = false,
+        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : TextFieldLabelPosition() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Inside) return false
+
+            if (isAlwaysMinimized != other.isAlwaysMinimized) return false
+            if (minimizedAlignment != other.minimizedAlignment) return false
+            if (expandedAlignment != other.expandedAlignment) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = isAlwaysMinimized.hashCode()
+            result = 31 * result + minimizedAlignment.hashCode()
+            result = 31 * result + expandedAlignment.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Inside(" +
+                "isAlwaysMinimized=$isAlwaysMinimized, " +
+                "minimizedAlignment=$minimizedAlignment, " +
+                "expandedAlignment=$expandedAlignment" +
+                ")"
+        }
+    }
+
+    /**
+     * The label is positioned inside the text field container when expanded and cuts into the
+     * border when minimized.
+     *
+     * This is the default label position for [OutlinedTextField].
+     *
+     * @param isAlwaysMinimized Whether to always keep the label of the text field minimized. If
+     *   `false`, the label will expand to occupy the input area when the text field is unfocused
+     *   and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     *   the label when the text field is unfocused and empty.
+     * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
+     * @param expandedAlignment The horizontal alignment of the label when it is expanded.
+     */
+    class Cutout(
+        val isAlwaysMinimized: Boolean = false,
+        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : TextFieldLabelPosition() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Cutout) return false
+
+            if (isAlwaysMinimized != other.isAlwaysMinimized) return false
+            if (minimizedAlignment != other.minimizedAlignment) return false
+            if (expandedAlignment != other.expandedAlignment) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = isAlwaysMinimized.hashCode()
+            result = 31 * result + minimizedAlignment.hashCode()
+            result = 31 * result + expandedAlignment.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Cutout(" +
+                "isAlwaysMinimized=$isAlwaysMinimized, " +
                 "minimizedAlignment=$minimizedAlignment, " +
                 "expandedAlignment=$expandedAlignment" +
                 ")"

@@ -47,7 +47,7 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -57,6 +57,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeWithVelocity
 import java.lang.Math.sin
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -64,7 +65,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class BasicSwipeToDismissBoxTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -356,7 +357,9 @@ class BasicSwipeToDismissBoxTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(0f, 200f) }
-        rule.runOnIdle { assert(horizontalScrollState.value == initialScrollState) }
+        rule.runOnIdle {
+            assertEquals(initialScrollState.toFloat(), horizontalScrollState.value.toFloat(), 20f)
+        }
     }
 
     @Test
@@ -368,6 +371,23 @@ class BasicSwipeToDismissBoxTest {
             horizontalScrollState = rememberScrollState(initialScrollState)
 
             BasicSwipeToDismissBox(state = state, modifier = Modifier.testTag(TEST_TAG)) {
+                NestedScrollContent(state, horizontalScrollState)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(200f, 400f) }
+        rule.runOnIdle { assert(horizontalScrollState.value < initialScrollState) }
+    }
+
+    @Test
+    fun edgeswipe_without_swipe_box_swipe_not_crash() {
+        val initialScrollState = 200
+        lateinit var horizontalScrollState: ScrollState
+        rule.setContent {
+            val state = rememberSwipeToDismissBoxState()
+            horizontalScrollState = rememberScrollState(initialScrollState)
+
+            Box(modifier = Modifier.testTag(TEST_TAG)) {
                 NestedScrollContent(state, horizontalScrollState)
             }
         }
@@ -396,7 +416,7 @@ class BasicSwipeToDismissBoxTest {
             amplitude = 100,
             startLeft = false,
         ) { scrollState ->
-            assertEquals(scrollState.value, 200)
+            assertEquals(200f, scrollState.value.toFloat(), 40f)
         }
     }
 

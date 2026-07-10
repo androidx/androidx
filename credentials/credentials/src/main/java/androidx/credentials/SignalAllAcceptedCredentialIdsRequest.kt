@@ -16,8 +16,11 @@
 
 package androidx.credentials
 
+import android.Manifest.permission.CREDENTIAL_MANAGER_SET_ORIGIN
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresPermission
+import androidx.credentials.exceptions.publickeycredential.SignalCredentialSecurityException
 import androidx.credentials.internal.isValidBase64Url
 import org.json.JSONObject
 
@@ -34,6 +37,9 @@ import org.json.JSONObject
  *   rejected across all API levels, and for API level >=34, the calling party must also have the
  *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN permission otherwise a SecurityException will
  *   be thrown)
+ *     @throws IllegalArgumentException if request json validation fails
+ *     @throws SignalCredentialSecurityException if origin is set without having
+ *       android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
  */
 class SignalAllAcceptedCredentialIdsRequest
 internal constructor(requestJson: String, requestData: Bundle, origin: String? = null) :
@@ -58,17 +64,31 @@ internal constructor(requestJson: String, requestData: Bundle, origin: String? =
      *   [WebAuthn Spec](https://w3c.github.io/webauthn/#sctn-signalAllAcceptedCredentials). Throws
      *   IllegalArgumentException if the json does not have the required keys according to the spec,
      *   or if base64url decoding fails for the user id or credential id.
+     */
+    constructor(requestJson: String) : this(requestJson, null)
+
+    /**
+     * Constructs a request to signal the complete list of public key credentials ids for a given
+     * user.
+     *
+     * @param requestJson the request in JSON format. The format of the JSON should follow the
+     *   [WebAuthn Spec](https://w3c.github.io/webauthn/#sctn-signalAllAcceptedCredentials). Throws
+     *   IllegalArgumentException if the json does not have the required keys according to the spec,
+     *   or if base64url decoding fails for the user id or credential id.
      * @param origin the origin of a different application if the request is being made on behalf of
      *   that application, to be used only by browsers or privileged apps recognized by the target
      *   credential provider (Note: if a non-browser/non-privileged app sets an origin, it will be
      *   rejected across all API levels, and for API level >=34, the calling party must also have
      *   the android.permission.CREDENTIAL_MANAGER_SET_ORIGIN permission otherwise a
      *   SecurityException will be thrown)
+     * @throws IllegalArgumentException if request json validation fails
+     * @throws SignalCredentialSecurityException if origin is set without having
+     *   android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
      */
-    @JvmOverloads
+    @RequiresPermission(CREDENTIAL_MANAGER_SET_ORIGIN, conditional = true)
     constructor(
         requestJson: String,
-        origin: String? = null,
+        origin: String?,
     ) : this(requestJson, toRequestData(requestJson), origin)
 
     internal companion object {

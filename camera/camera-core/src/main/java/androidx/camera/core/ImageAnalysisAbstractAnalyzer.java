@@ -276,7 +276,13 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
             Rect cropRect = new Rect();
             Matrix transformMatrix = new Matrix();
             synchronized (mAnalyzerLock) {
-                if (outputImageDirty && !outputProcessedImageFailed) {
+                // Recalculate transform matrix and update crop rect only if rotation succeeded or
+                // relative rotation degree is 0. For 0-degree rotation,
+                // outputProcessedImageFailed is expected to be true (since rotateYUV returns null
+                // as a no-op), but we still need to recalculate the matrix to ensure it is reset
+                // to identity.
+                if (outputImageDirty && (!outputProcessedImageFailed
+                        || currentBufferRotationDegrees == 0)) {
                     recalculateTransformMatrixAndCropRect(
                             imageProxy.getWidth(),
                             imageProxy.getHeight(),

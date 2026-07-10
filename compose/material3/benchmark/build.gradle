@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -29,6 +28,7 @@ dependencies {
     androidTestImplementation("androidx.compose.material:material-icons-core:1.6.7")
     androidTestImplementation(project(":compose:material3:material3"))
     androidTestImplementation(project(":compose:material3:material3-adaptive-navigation-suite"))
+    androidTestImplementation(project(":compose:material3:material3-ripple"))
     androidTestImplementation(project(":compose:material3:material3-window-size-class"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
@@ -38,13 +38,15 @@ dependencies {
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinTestCommon)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.junit)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.compose.material3.benchmark"
 }
 

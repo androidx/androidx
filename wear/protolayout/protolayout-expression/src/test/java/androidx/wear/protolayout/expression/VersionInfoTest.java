@@ -23,12 +23,14 @@ import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public final class VersionInfoTest {
     @Test
     public void versionInfo() {

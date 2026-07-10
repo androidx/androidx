@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package androidx.glance.wear.proto;
+
+// An event where the widget was visible on screen.
+message WearWidgetVisibleEventProto {
+  // The ID of the widget instance for which an update is being requested.
+  uint32 id = 1;
+
+  // The namespace for the ID of the widget instance.
+  string id_namespace = 2;
+
+  // The instant when the widget instance was visible.
+  uint64 start_time_millis = 3;
+
+  // The duration for which the widget instance was visible
+  uint64 duration_millis = 4;
+}
+
+message WearWidgetEventProto {
+  oneof event {
+    // A visibility event.
+    WearWidgetVisibleEventProto visible_event = 1;
+  }
+}
+
+// Encodes data for a batch of interaction events.
+message WearWidgetEventBatchProto {
+  // A list of interaction events.
+  repeated WearWidgetEventProto events = 1;
+}

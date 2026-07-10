@@ -44,17 +44,35 @@ internal object MemoryCountersQuery {
     private const val MEMORY_RECLAIM_EVENTS_COUNT = "mem.mm.reclaim.count"
 
     data class SubMetrics(
-        // Minor Page Faults
+        /**
+         * The count of page faults that were resolved without requiring disk I/O. This usually
+         * happens when the page is already in memory but needs to be mapped into the process's page
+         * table.
+         */
         val minorPageFaults: Double,
-        // Major Page Faults
+        /**
+         * The count of page faults that required reading a page from disk. High numbers here often
+         * correlate with slow performance and "jank" because the CPU must wait for slow storage
+         * I/O.
+         */
         val majorPageFaults: Double,
-        // Page Faults Served by Swap Cache
+        /** Counts faults where the required page was found in the swap cache. */
         val pageFaultsBackedBySwapCache: Double,
-        // Read Page Faults backed by I/O
+        /**
+         * A specific subset of page faults that required a read operation from the underlying
+         * storage.
+         */
         val pageFaultsBackedByReadIO: Double,
-        // Memory Compaction Events
+        /**
+         * Records how many times the kernel attempted to move memory pages to create larger
+         * contiguous blocks of free memory. Frequent compaction can indicate high memory
+         * fragmentation.
+         */
         val memoryCompactionEvents: Double,
-        // Memory Reclaim Events
+        /**
+         * Records how many times the kernel attempted to "steal" or reclaim memory from the process
+         * to satisfy other memory requests under pressure.
+         */
         val memoryReclaimEvents: Double,
     )
 

@@ -17,12 +17,11 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
     namespace = "androidx.wear.benchmark.integration.macrobenchmark"
     targetProjectPath = ":wear:benchmark:integration-tests:macrobenchmark-target"

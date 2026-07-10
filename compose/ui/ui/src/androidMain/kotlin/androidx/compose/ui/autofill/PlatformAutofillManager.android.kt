@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.autofill
 
+import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
@@ -42,8 +43,20 @@ internal interface PlatformAutofillManager {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal class PlatformAutofillManagerImpl(val platformAndroidManager: AutofillManager) :
-    PlatformAutofillManager {
+internal class PlatformAutofillManagerImpl(val context: Context) : PlatformAutofillManager {
+
+    private var _platformAndroidManager: AutofillManager? = null
+    val platformAndroidManager: AutofillManager
+        get() {
+            var value = _platformAndroidManager
+            if (value == null) {
+                value =
+                    context.getSystemService(AutofillManager::class.java)
+                        ?: error("Could not locate AutofillManager from context")
+                _platformAndroidManager = value
+            }
+            return value
+        }
 
     override fun notifyViewEntered(view: View, semanticsId: Int, bounds: Rect) {
         platformAndroidManager.notifyViewEntered(view, semanticsId, bounds)

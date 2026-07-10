@@ -409,8 +409,8 @@ package androidx.kruth {
     method protected final void failWithActual(androidx.kruth.Fact first, androidx.kruth.Fact... rest);
     method protected final void failWithActual(String key, Object? value);
     method protected final void failWithoutActual(androidx.kruth.Fact first, androidx.kruth.Fact... rest);
-    method public final T? getActual();
-    method public final androidx.kruth.FailureMetadata getMetadata();
+    method @InaccessibleFromKotlin public final T? getActual();
+    method @InaccessibleFromKotlin public final androidx.kruth.FailureMetadata getMetadata();
     method protected final androidx.kruth.StandardSubjectBuilder ignoreCheck();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isEqualTo(Object? expected);

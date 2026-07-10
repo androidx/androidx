@@ -88,6 +88,6 @@ public object WorkDatabasePathHelper {
      * @return The the migrated database path.
      */
     public fun getDatabasePath(context: Context): File {
-        return context.noBackupFilesDir
+        return File(context.noBackupFilesDir, WORK_DATABASE_NAME)
     }
 }

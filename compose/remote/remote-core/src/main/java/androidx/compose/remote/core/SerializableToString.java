@@ -15,10 +15,12 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SerializableToString {
     /**
      * Returns a stable string representation of an operation

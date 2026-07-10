@@ -23,7 +23,9 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -32,15 +34,16 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
-import androidx.xr.scenecore.testapp.common.createSession
+import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.nio.file.Paths
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.time.TimeSource
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
@@ -53,41 +56,49 @@ class StandaloneActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.common_test_panel)
 
-        session = createSession(this)
-        if (session == null) this.finish()
-
-        // Set toolbar
-        val toolbar: Toolbar = findViewById(R.id.top_app_bar_activity_panel)
-        setSupportActionBar(toolbar)
-        toolbar.setTitle(getString(R.string.cuj_standalone_test))
-        toolbar.setNavigationOnClickListener { this.finish() }
-
-        // Hide center button
-        findViewById<Button>(R.id.spawn_activity_panel_button).visibility = View.GONE
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@StandaloneActivity) }
-        }
-
-        // Create a single panel with text
-        @SuppressLint("InflateParams")
-        val panelEntityView = layoutInflater.inflate(R.layout.standalone_panel, null)
-        val panelEntity =
-            PanelEntity.create(
-                session!!,
-                panelEntityView,
-                IntSize2d(720, 480),
-                "panel_entity",
-                Pose(Vector3(0f, -0.25f, 0.5f)),
-            )
-        panelEntity.parent = session!!.scene.activitySpace
-
         lifecycleScope.launch {
-            // load 3D Model
-            val model = load3DModel()
-            createModelSolarSystem(session!!, model)
+            session = SessionManager(this@StandaloneActivity).createSession()
+            if (session == null) this@StandaloneActivity.finish()
+
+            // Disable default scale overrides on key entity from Spatial Mode events
+            session?.scene?.setSpaceChangedListener { event ->
+                session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
+            }
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+
+            // Set toolbar
+            val toolbar: Toolbar = findViewById(R.id.top_app_bar_activity_panel)
+            setSupportActionBar(toolbar)
+            toolbar.setTitle(getString(R.string.cuj_standalone_test))
+            toolbar.setNavigationOnClickListener { this@StandaloneActivity.finish() }
+
+            // Hide center button
+            findViewById<Button>(R.id.spawn_activity_panel_button).visibility = View.GONE
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@StandaloneActivity) }
+            }
+
+            // Create a single panel with text
+            @SuppressLint("InflateParams")
+            val panelEntityView = layoutInflater.inflate(R.layout.standalone_panel, null)
+            val panelEntity =
+                PanelEntity.create(
+                    session!!,
+                    panelEntityView,
+                    IntSize2d(720, 480),
+                    "panel_entity",
+                    Pose(Vector3(0f, -0.25f, 0.1f)),
+                    parent = session!!.scene.mainPanelEntity,
+                )
+
+            lifecycleScope.launch {
+                // load 3D Model
+                val model = load3DModel()
+                createModelSolarSystem(session!!, model)
+            }
         }
     }
 
@@ -96,14 +107,36 @@ class StandaloneActivity : AppCompatActivity() {
     }
 
     private fun createModelSolarSystem(session: Session, model: GltfModel) {
-        val sunEntity = GltfModelEntity.create(session, model, Pose(Vector3(-0.5f, 2f, -9f)))
-        sunEntity.parent = session.scene.activitySpace
-        val planetEntity = GltfModelEntity.create(session, model, Pose(Vector3(-1f, 2f, -9f)))
-        planetEntity.parent = sunEntity
-        val moonEntity = GltfModelEntity.create(session, model, Pose(Vector3(-1.5f, 2f, -9f)))
-        moonEntity.parent = planetEntity
+        val sunEntity =
+            GltfModelEntity.create(
+                session,
+                model,
+                Pose(Vector3(-0.5f, 0.5f, -1f)),
+                parent = session.scene.mainPanelEntity,
+            )
+        // Each child is scaled down relative to the parent to make it more visually clear which
+        // entities are the "sun", "planet", and "moon".
+        sunEntity.setScale(0.50f) // Scale down the sun entity so everything fits in the FOV better
 
-        orbitModelAroundParent(planetEntity, 4f, 0f, 20000f)
+        val planetEntity =
+            GltfModelEntity.create(
+                session,
+                model,
+                Pose(Vector3(-1f, 2f, -0.5f)),
+                parent = sunEntity,
+            )
+        planetEntity.setScale(0.5f)
+
+        val moonEntity =
+            GltfModelEntity.create(
+                session,
+                model,
+                Pose(Vector3(-1.5f, 2f, -0.5f)),
+                parent = planetEntity,
+            )
+        moonEntity.setScale(0.5f)
+
+        orbitModelAroundParent(planetEntity, 3f, 0f, 20000f)
         orbitModelAroundParent(moonEntity, 2f, 1.67f, 5000f)
     }
 
@@ -119,15 +152,17 @@ class StandaloneActivity : AppCompatActivity() {
             val timeSource = TimeSource.Monotonic
             val startTime = timeSource.markNow()
 
-            while (true) {
-                delay(16L)
-                val deltaAngle =
-                    (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
-                        rotateTimeMs
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    awaitFrame()
+                    val deltaAngle =
+                        (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
+                            rotateTimeMs
 
-                val angle = startAngle + deltaAngle
-                val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
-                modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                    val angle = startAngle + deltaAngle
+                    val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
+                    modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                }
             }
         }
     }

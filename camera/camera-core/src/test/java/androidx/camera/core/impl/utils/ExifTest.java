@@ -36,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(instrumentedPackages = { "androidx.camera.core.impl.utils" })
+@Config(sdk = {Config.ALL_SDKS},
+        instrumentedPackages = { "androidx.camera.core.impl.utils" })
 public class ExifTest {
     private static final InputStream FAKE_INPUT_STREAM =
             new InputStream() {

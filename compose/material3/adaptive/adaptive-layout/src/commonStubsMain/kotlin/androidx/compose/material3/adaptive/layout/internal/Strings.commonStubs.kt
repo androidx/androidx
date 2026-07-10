@@ -26,6 +26,9 @@ import kotlin.jvm.JvmInline
 @Immutable
 internal actual value class Strings(val value: Int) {
     actual companion object {
+        actual val defaultPaneTitlePrimary: Strings = implementedInJetBrainsFork()
+        actual val defaultPaneTitleSecondary: Strings = implementedInJetBrainsFork()
+        actual val defaultPaneTitleTertiary: Strings = implementedInJetBrainsFork()
         actual val defaultPaneExpansionDragHandleContentDescription: Strings =
             implementedInJetBrainsFork()
         actual val defaultPaneExpansionDragHandleStateDescription: Strings =

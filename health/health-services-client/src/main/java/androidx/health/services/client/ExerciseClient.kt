@@ -318,8 +318,9 @@ public interface ExerciseClient {
      * [addGoalToActiveExerciseAsync].
      *
      * Before adding, [DebouncedGoal] should be checked for support against
-     * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is allowed per
-     * [DataType]+[ComparisonType] combination.
+     * [androidx.health.services.client.data.ExerciseTypeCapabilities.supportedDebouncedGoals]. Only
+     * one [DebouncedGoal] is allowed per
+     * [DataType]+[androidx.health.services.client.data.ComparisonType] combination.
      *
      * @param debouncedGoal the [DebouncedGoal] to add to this exercise
      * @return a [ListenableFuture] that completes when WHS received the request to add the

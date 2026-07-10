@@ -48,7 +48,15 @@ public class StartupFeatures {
     public static final String STARTUP_FEATURE_SET_PROFILES_TO_LOAD =
             "STARTUP_FEATURE_SET_PROFILES_TO_LOAD";
 
-    // ProcessGlobalConfig#setUiThreadStartupMode(int)
+    /**
+     * ProcessGlobalConfig#setUiThreadStartupMode(int)
+     * @deprecated Use {@link #STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2} instead.
+     */
+    @Deprecated
     public static final String STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE =
             "STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE";
+
+    // ProcessGlobalConfig#setUiThreadStartupMode(int)
+    public static final String STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2 =
+            "STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2";
 }

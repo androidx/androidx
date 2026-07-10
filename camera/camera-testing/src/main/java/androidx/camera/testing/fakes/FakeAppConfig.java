@@ -67,12 +67,12 @@ public final class FakeAppConfig {
                 (ignored0, ignored1, ignored2, ignore3, ignored4, ignored5) -> cameraFactory;
 
         final CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                (ignored1, ignored2, ignored3) -> new FakeCameraDeviceSurfaceManager();
+                (ignored1, ignored2, ignored3, ignored4) -> new FakeCameraDeviceSurfaceManager();
 
         final CameraXConfig.Builder appConfigBuilder = new CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                .setUseCaseConfigFactoryProvider(ignored -> {
+                .setUseCaseConfigFactoryProvider((ignored1, ignored2) -> {
                     List<FakeCamera> fakeCameras = new ArrayList<>();
 
                     for (String cameraId : cameraFactory.getAvailableCameraIds()) {

@@ -59,11 +59,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [VirtualCameraAdapter]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class VirtualCameraAdapterTest {
 
     companion object {
@@ -302,12 +304,30 @@ class VirtualCameraAdapterTest {
         // Arrange: create an edge that has mirrored the input in the past.
         val inputEdge = createSurfaceEdge(matrix = Matrix().apply { setScale(-1f, 1f) })
         // Act: get the children's out configs.
-        val outConfigs = adapter.getChildrenOutConfigs(inputEdge, Surface.ROTATION_90, true)
+        val outConfigs = adapter.getChildrenOutConfigs(inputEdge, Surface.ROTATION_90, true, false)
         // Assert: child1 needs additional mirroring because the parent mirrors the input while the
         // child doesn't mirror.
         assertThat(outConfigs[child1]!!.isMirroring).isTrue()
         // Assert: child2 does not need additional mirroring because both the parent and the child
         // mirrors the input.
+        assertThat(outConfigs[child2]!!.isMirroring).isFalse()
+    }
+
+    @Test
+    fun skipMirroring_clientDoNotApplyMirroring() {
+        // Arrange: create an edge that has mirrored the input in the past.
+        val inputEdge = createSurfaceEdge(matrix = Matrix().apply { setScale(-1f, 1f) })
+        // Act: get the children's out configs.
+        val outConfigs =
+            adapter.getChildrenOutConfigs(
+                inputEdge,
+                Surface.ROTATION_90,
+                true,
+                /* skipMirroring*/ true,
+            )
+        // Assert:  no mirror due to skipMirroring = true
+        assertThat(outConfigs[child1]!!.isMirroring).isFalse()
+        // Assert:  no mirror due to skipMirroring = true
         assertThat(outConfigs[child2]!!.isMirroring).isFalse()
     }
 
@@ -333,6 +353,7 @@ class VirtualCameraAdapterTest {
                 createSurfaceEdge(cropRect = cropRect, rotationDegrees = 90),
                 Surface.ROTATION_90,
                 true,
+                false,
             )
 
         // Assert: preview config

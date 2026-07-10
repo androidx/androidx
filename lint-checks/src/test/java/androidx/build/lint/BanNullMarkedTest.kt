@@ -32,20 +32,20 @@ class BanNullMarkedTest :
         val input =
             java(
                 """
-                    @NullMarked
-                    package test.pkg;
+                @NullMarked
+                package test.pkg;
 
-                    import org.jspecify.annotations.NullMarked;
+                import org.jspecify.annotations.NullMarked;
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/package-info.java:1: Error: Should not use @NullMarked annotation [BanNullMarked]
-                @NullMarked
-                ~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/package-info.java:1: Error: Should not use @NullMarked annotation [BanNullMarked]
+            @NullMarked
+            ~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
@@ -57,22 +57,22 @@ class BanNullMarkedTest :
         val input =
             java(
                 """
-                    package test.pkg;
+                package test.pkg;
 
-                    import org.jspecify.annotations.NullMarked;
+                import org.jspecify.annotations.NullMarked;
 
-                    @NullMarked
-                    public class Foo {}
+                @NullMarked
+                public class Foo {}
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:5: Error: Should not use @NullMarked annotation [BanNullMarked]
-                @NullMarked
-                ~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:5: Error: Should not use @NullMarked annotation [BanNullMarked]
+            @NullMarked
+            ~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
@@ -84,24 +84,24 @@ class BanNullMarkedTest :
         val input =
             java(
                 """
-                    package test.pkg;
+                package test.pkg;
 
-                    import org.jspecify.annotations.NullMarked;
+                import org.jspecify.annotations.NullMarked;
 
-                    public class Foo {
-                        @NullMarked
-                        public void foo() {}
-                    }
+                public class Foo {
+                    @NullMarked
+                    public void foo() {}
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:6: Error: Should not use @NullMarked annotation [BanNullMarked]
-                    @NullMarked
-                    ~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:6: Error: Should not use @NullMarked annotation [BanNullMarked]
+                @NullMarked
+                ~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
@@ -113,24 +113,24 @@ class BanNullMarkedTest :
         val input =
             java(
                 """
-                    package test.pkg;
+                package test.pkg;
 
-                    import org.jspecify.annotations.NullMarked;
+                import org.jspecify.annotations.NullMarked;
 
-                    public class Foo {
-                        @NullMarked
-                        public Foo() {}
-                    }
+                public class Foo {
+                    @NullMarked
+                    public Foo() {}
+                }
                 """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test/pkg/Foo.java:6: Error: Should not use @NullMarked annotation [BanNullMarked]
-                    @NullMarked
-                    ~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/test/pkg/Foo.java:6: Error: Should not use @NullMarked annotation [BanNullMarked]
+                @NullMarked
+                ~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
 
@@ -141,13 +141,13 @@ class BanNullMarkedTest :
         private val nullMarkedStub =
             java(
                 """
-                    package org.jspecify.annotations;
+                package org.jspecify.annotations;
 
-                    import java.lang.annotation.ElementType;
-                    import java.lang.annotation.Target;
+                import java.lang.annotation.ElementType;
+                import java.lang.annotation.Target;
 
-                    @Target({ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
-                    public @interface NullMarked {}
+                @Target({ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
+                public @interface NullMarked {}
                 """
                     .trimIndent()
             )

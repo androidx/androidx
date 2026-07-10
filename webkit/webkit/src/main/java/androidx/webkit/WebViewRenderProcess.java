@@ -35,7 +35,7 @@ public abstract class WebViewRenderProcess {
      *
      * <p>This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_TERMINATE}.
+     * returns {@code true} for {@link WebViewFeature#WEB_VIEW_RENDERER_TERMINATE}.
      *
      * @return {@code true} if it was possible to terminate this renderer, {@code false} otherwise.
      */

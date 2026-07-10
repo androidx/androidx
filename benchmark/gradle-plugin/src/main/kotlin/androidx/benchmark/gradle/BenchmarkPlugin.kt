@@ -50,11 +50,11 @@ class BenchmarkPlugin : Plugin<Project> {
             if (!foundAndroidPlugin) {
                 throw StopExecutionException(
                     """
-                        The androidx.benchmark plugin currently supports only android library
-                        modules. Ensure that `com.android.library` is applied in the project
-                        build.gradle file. Note that to run macrobenchmarks, this plugin is not
-                        required.
-                        """
+                    The androidx.benchmark plugin currently supports only android library
+                    modules. Ensure that `com.android.library` is applied in the project
+                    build.gradle file. Note that to run macrobenchmarks, this plugin is not
+                    required.
+                    """
                         .trimIndent()
                 )
             }

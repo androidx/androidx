@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.core.operations.layout.measure;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
 
 /** Encapsulate the result of a measure pass for a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentMeasure {
     int mId = -1;
     float mX;
@@ -27,6 +29,71 @@ public class ComponentMeasure {
     float mW;
     float mH;
     int mVisibility = Component.Visibility.VISIBLE;
+
+    private boolean mAllowsAnimation = true;
+
+    private float mMinWidth = -1f;
+    private float mMaxWidth = -1f;
+    private float mMinHeight = -1f;
+    private float mMaxHeight = -1f;
+    private boolean mHasCache = false;
+
+    /** Cache constraints for this component. */
+    public void setCachedConstraints(
+            float minWidth, float maxWidth, float minHeight, float maxHeight) {
+        mMinWidth = minWidth;
+        mMaxWidth = maxWidth;
+        mMinHeight = minHeight;
+        mMaxHeight = maxHeight;
+        mHasCache = true;
+    }
+
+    /** Clear the cached constraints for this component. */
+    public void clearCache() {
+        mHasCache = false;
+    }
+
+    public static boolean sEnableMeasureCache = true;
+
+    /** Returns whether measure caching is enabled. */
+    public static boolean isMeasureCacheEnabled() {
+        return sEnableMeasureCache;
+    }
+
+    /** Enable or disable measure caching globally. */
+    public static void setMeasureCacheEnabled(boolean enabled) {
+        sEnableMeasureCache = enabled;
+    }
+
+    /** Check if component has cached constraints matching specified parameters. */
+    public boolean hasCachedConstraints(
+            float minWidth, float maxWidth, float minHeight, float maxHeight) {
+        if (!sEnableMeasureCache || !mHasCache) {
+            return false;
+        }
+
+        // 1. Exact match
+        if (mMinWidth == minWidth && mMaxWidth == maxWidth
+                && mMinHeight == minHeight && mMaxHeight == maxHeight) {
+            return true;
+        }
+
+        // 2. Compatible vertical layout positioning pass: width constraints are identical,
+        // and height is now fixed to our previously computed height (mH).
+        if (mMinWidth == minWidth && mMaxWidth == maxWidth
+                && minHeight == mH && maxHeight == mH) {
+            return true;
+        }
+
+        // 3. Compatible horizontal layout positioning pass: height constraints are identical,
+        // and width is now fixed to our previously computed width (mW).
+        if (mMinHeight == minHeight && mMaxHeight == maxHeight
+                && minWidth == mW && maxWidth == mW) {
+            return true;
+        }
+
+        return false;
+    }
 
     public void setX(float value) {
         mX = value;
@@ -68,13 +135,41 @@ public class ComponentMeasure {
         mVisibility = visibility;
     }
 
+    public void setAllowsAnimation(boolean allowsAnimation) {
+        mAllowsAnimation = allowsAnimation;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static int sAllocationCount = 0;
+
     public ComponentMeasure(int id, float x, float y, float w, float h, int visibility) {
+        sAllocationCount++;
         this.mId = id;
         this.mX = x;
         this.mY = y;
         this.mW = w;
         this.mH = h;
         this.mVisibility = visibility;
+    }
+
+    /**
+     * Reset the values of the ComponentMeasure, allowing us to reuse the object.
+     * @param id
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param visibility
+     */
+    public void reset(int id, float x, float y, float w, float h, int visibility) {
+        this.mId = id;
+        this.mX = x;
+        this.mY = y;
+        this.mW = w;
+        this.mH = h;
+        this.mVisibility = visibility;
+        this.mAllowsAnimation = true;
+        this.mHasCache = false;
     }
 
     public ComponentMeasure(int id, float x, float y, float w, float h) {
@@ -150,5 +245,13 @@ public class ComponentMeasure {
     public void addVisibilityOverride(int value) {
         mVisibility = Component.Visibility.clearOverride(mVisibility);
         mVisibility = Component.Visibility.add(mVisibility, value);
+    }
+
+    /**
+     * If true, measures applied to a component will result into an animation, if false the measure
+     * will be applied immediately
+     */
+    public boolean getAllowsAnimation() {
+        return mAllowsAnimation;
     }
 }

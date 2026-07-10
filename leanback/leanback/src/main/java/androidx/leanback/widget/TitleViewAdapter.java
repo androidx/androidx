@@ -115,6 +115,7 @@ public abstract class TitleViewAdapter {
      *
      * @return Colors used to draw search affordance.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public SearchOrbView.Colors getSearchAffordanceColors() {
         return null;
     }

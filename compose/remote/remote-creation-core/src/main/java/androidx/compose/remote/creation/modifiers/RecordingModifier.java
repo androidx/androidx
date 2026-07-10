@@ -15,8 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteComposeBuffer;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
+import androidx.compose.remote.creation.Rc;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.actions.Action;
 
@@ -28,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** Represent a list of modifiers */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RecordingModifier {
 
     @NonNull List<Element> mList = new ArrayList<>();
@@ -38,8 +44,6 @@ public class RecordingModifier {
 
     /**
      * Add a wrap content size modifier
-     *
-     * @return
      */
     public @NonNull RecordingModifier wrapContentSize() {
         setWidthModifier(DimensionModifierOperation.Type.WRAP, 0);
@@ -48,9 +52,88 @@ public class RecordingModifier {
     }
 
     /**
-     * Write the modifier to the buffer
+     * Add a wrap content height modifier
+     */
+    public @NonNull RecordingModifier wrapContentHeight() {
+        setHeightModifier(DimensionModifierOperation.Type.WRAP, 0);
+        return this;
+    }
+
+    /**
+     * Add a wrap content width modifier
+     */
+    public @NonNull RecordingModifier wrapContentWidth() {
+        setWidthModifier(DimensionModifierOperation.Type.WRAP, 0);
+        return this;
+    }
+
+    /**
+     * Include a set of operations previously defined.
      *
-     * @param buffer
+     * @param id the id of the referenced operations container
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier include(int id) {
+        mList.add(new IncludeReferencedOperationsModifier(id));
+        return this;
+    }
+
+    /**
+     * Include a macro call as a modifier.
+     *
+     * @param id the id of the macro
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier includeMacro(int id) {
+        mList.add(new MacroCallModifier(id));
+        return this;
+    }
+
+    /**
+     * Include a macro call as a modifier.
+     *
+     * @param id     the id of the macro
+     * @param argIds the arguments for the macro
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier includeMacro(int id, int @NonNull [] argIds) {
+        mList.add(new MacroCallModifier(id, argIds));
+        return this;
+    }
+
+    /**
+     * Add a drawContent modifier
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawContent() {
+        mList.add(new DrawWithContentModifier());
+        return this;
+    }
+
+    /**
+     * Add a drawWithContent modifier (no callback, default content drawing).
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawWithContent() {
+        return drawContent();
+    }
+
+    /**
+     * Add a drawWithContent modifier
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawWithContent(
+            CanvasModifier.@NonNull CanvasCallback callback) {
+        mList.add(new CanvasModifier(callback));
+        return this;
+    }
+
+
+    /**
+     * Write the modifier to the buffer
      */
     public void write(@NonNull RemoteComposeBuffer buffer) {
         // nothing
@@ -58,9 +141,6 @@ public class RecordingModifier {
 
     /**
      * Set the component Id
-     *
-     * @param id
-     * @return
      */
     public @NonNull RecordingModifier componentId(int id) {
         mId = id;
@@ -71,10 +151,43 @@ public class RecordingModifier {
      * Add a visibility modifier
      *
      * @param id the id of the RemoteInt representing the runtime visibility
-     * @return
      */
     public @NonNull RecordingModifier visibility(int id) {
         mList.add(new VisibilityModifier(id));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier
+     *
+     * @param animationId the animation id
+     */
+    public @NonNull RecordingModifier animationSpec(int animationId) {
+        mList.add(new AnimateSpecModifier(animationId));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier
+     *
+     * @param animationId          the animation id
+     * @param motionDuration       the motion duration
+     * @param motionEasingType     the motion easing type
+     * @param visibilityDuration   the visibility duration
+     * @param visibilityEasingType the visibility easing type
+     * @param enterAnimation       the enter animation
+     * @param exitAnimation        the exit animation
+     */
+    public @NonNull RecordingModifier animationSpec(int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            @NonNull ANIMATION enterAnimation,
+            @NonNull ANIMATION exitAnimation) {
+        mList.add(new AnimateSpecModifier(animationId,
+                motionDuration, motionEasingType, visibilityDuration, visibilityEasingType,
+                enterAnimation, exitAnimation));
         return this;
     }
 
@@ -84,9 +197,6 @@ public class RecordingModifier {
 
     /**
      * Add a spacedBy value
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier spacedBy(float value) {
         mSpacedBy = value;
@@ -133,9 +243,6 @@ public class RecordingModifier {
 
     /**
      * Add a horizontal weight modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier horizontalWeight(float value) {
         setWidthModifier(DimensionModifierOperation.Type.WEIGHT, value);
@@ -144,9 +251,6 @@ public class RecordingModifier {
 
     /**
      * Add a vertical weight modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier verticalWeight(float value) {
         setHeightModifier(DimensionModifierOperation.Type.WEIGHT, value);
@@ -158,7 +262,6 @@ public class RecordingModifier {
      *
      * @param min minimum dimension, of -1f if not applied
      * @param max maximum dimension, of -1f if not applied
-     * @return
      */
     public @NonNull RecordingModifier widthIn(float min, float max) {
         then(new WidthInModifier(min, max));
@@ -170,7 +273,6 @@ public class RecordingModifier {
      *
      * @param min minimum dimension, of -1f if not applied
      * @param max maximum dimension, of -1f if not applied
-     * @return
      */
     public @NonNull RecordingModifier heightIn(float min, float max) {
         then(new HeightInModifier(min, max));
@@ -178,10 +280,33 @@ public class RecordingModifier {
     }
 
     /**
+     * Add min/max constraints on the horizontal dimension
+     *
+     * @param min minimum dimension, of -1f if not applied
+     * @param max maximum dimension, of -1f if not applied
+     */
+    public @NonNull RecordingModifier requiredWidthIn(float min, float max) {
+        then(new WidthInModifier(
+                DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS, min, max));
+        return this;
+    }
+
+    /**
+     * Add min/max constraints on the vertical dimension
+     *
+     * @param min minimum dimension, of -1f if not applied
+     * @param max maximum dimension, of -1f if not applied
+     */
+    public @NonNull RecordingModifier requiredHeightIn(float min, float max) {
+        then(new HeightInModifier(
+                DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS, min, max));
+        return this;
+    }
+
+    /**
      * Add a background modifier (flat color background)
      *
      * @param color color of the background
-     * @return
      */
     public @NonNull RecordingModifier background(int color) {
         mList.add(new SolidBackgroundModifier(color));
@@ -189,11 +314,108 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a horizontal scroll modifier
+     */
+    public @NonNull RecordingModifier horizontalScroll() {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.HORIZONTAL, 0f, 0));
+        return this;
+    }
+
+    /**
+     * Add a horizontal scroll modifier
+     */
+    public @NonNull RecordingModifier horizontalScroll(float position) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.HORIZONTAL, position, 0));
+        return this;
+    }
+
+    /**
+     * Add a horizontal scroll modifier with notches
+     */
+    public @NonNull RecordingModifier horizontalScroll(float position, int notches) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.HORIZONTAL, position, notches));
+        return this;
+    }
+
+    /**
+     * Add a vertical scroll modifier
+     */
+    public @NonNull RecordingModifier verticalScroll() {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.VERTICAL, 0f, 0));
+        return this;
+    }
+
+    /**
+     * Add a vertical scroll modifier
+     */
+    public @NonNull RecordingModifier verticalScroll(float position) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.VERTICAL, position, 0));
+        return this;
+    }
+
+    /**
+     * Add a vertical scroll modifier with notches
+     */
+    public @NonNull RecordingModifier verticalScroll(float position, int notches) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.VERTICAL, position, notches));
+        return this;
+    }
+
+
+    /**
+     * Add a background modifier (flat color background)
+     *
+     * @param color color of the background
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier backgroundId(int color) {
+        mList.add(new DynamicSolidBackgroundModifier(color));
+        return this;
+    }
+
+    /**
+     * Add a background modifier (flat color background)
+     *
+     * @param color color of the background
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier backgroundId(short color) {
+        mList.add(new DynamicSolidBackgroundModifier(color));
+        return this;
+    }
+
+    /**
+     * Add an align by baseline modifier
+     */
+    public @NonNull RecordingModifier alignByBaseline() {
+        mList.add(new AlignByModifier(Rc.Layout.FIRST_BASELINE));
+        return this;
+    }
+
+    /**
+     * Add a background modifier (flat color background)
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     */
+    public @NonNull RecordingModifier background(float r, float g, float b, float a) {
+        mList.add(new SolidBackgroundModifier(r, g, b, a));
+        return this;
+    }
+
+    /**
      * Add a collapsible priority. Only valid within a Collapsible layout.
      *
      * @param orientation HORIZONTAL or VERTICAL
-     * @param priority a float representing a priority (lower priority get collapsed first)
-     * @return
+     * @param priority    a float representing a priority (lower priority get collapsed first)
      */
     public @NonNull RecordingModifier collapsiblePriority(int orientation, float priority) {
         mList.add(new CollapsiblePriorityModifier(orientation, priority));
@@ -202,9 +424,6 @@ public class RecordingModifier {
 
     /**
      * Add a padding modifier
-     *
-     * @param padding
-     * @return
      */
     public @NonNull RecordingModifier padding(int padding) {
         mList.add(new PaddingModifier(padding, padding, padding, padding));
@@ -213,12 +432,6 @@ public class RecordingModifier {
 
     /**
      * Add a padding modifier
-     *
-     * @param start
-     * @param top
-     * @param end
-     * @param bottom
-     * @return
      */
     public @NonNull RecordingModifier padding(int start, int top, int end, int bottom) {
         mList.add(new PaddingModifier(start, top, end, bottom));
@@ -226,10 +439,23 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a padding modifier
+     */
+    public @NonNull RecordingModifier padding(float padding) {
+        mList.add(new PaddingModifier(padding, padding, padding, padding));
+        return this;
+    }
+
+    /**
+     * Add a padding modifier
+     */
+    public @NonNull RecordingModifier padding(float start, float top, float end, float bottom) {
+        mList.add(new PaddingModifier(start, top, end, bottom));
+        return this;
+    }
+
+    /**
      * Add a fixed width modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier width(int value) {
         setWidthModifier(DimensionModifierOperation.Type.EXACT, value);
@@ -238,9 +464,6 @@ public class RecordingModifier {
 
     /**
      * Add a fixed width modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier width(float value) {
         setWidthModifier(DimensionModifierOperation.Type.EXACT, value);
@@ -249,9 +472,6 @@ public class RecordingModifier {
 
     /**
      * Add a fixed height modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier height(int value) {
         setHeightModifier(DimensionModifierOperation.Type.EXACT, value);
@@ -260,9 +480,6 @@ public class RecordingModifier {
 
     /**
      * Add a fixed height modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier height(float value) {
         setHeightModifier(DimensionModifierOperation.Type.EXACT, value);
@@ -271,9 +488,6 @@ public class RecordingModifier {
 
     /**
      * Add a fixed size modifier
-     *
-     * @param value
-     * @return
      */
     public @NonNull RecordingModifier size(int value) {
         return width(value).height(value);
@@ -281,19 +495,78 @@ public class RecordingModifier {
 
     /**
      * Add a fixed size modifier
-     *
-     * @param width
-     * @param height
-     * @return
+     */
+    public @NonNull RecordingModifier size(float value) {
+        return width(value).height(value);
+    }
+
+    /**
+     * Add a fixed size modifier
      */
     public @NonNull RecordingModifier size(int width, int height) {
         return width(width).height(height);
     }
 
     /**
-     * Add a width modifier to fill the parent width
+     * Add an offset modifier
+     */
+    public @NonNull RecordingModifier offset(float x, float y) {
+        mList.add(new OffsetModifier(x, y));
+        return this;
+    }
+
+    /**
+     * Add a width modifier to fill the scrolling parent viewport width
+     */
+    public @NonNull RecordingModifier fillParentMaxWidth() {
+        return fillParentMaxWidth(1f);
+    }
+
+    /**
+     * Add a width modifier to fill the scrolling parent viewport width
      *
-     * @return
+     * @param fraction the fraction of the viewport width to fill
+     */
+    public @NonNull RecordingModifier fillParentMaxWidth(float fraction) {
+        setWidthModifier(DimensionModifierOperation.Type.FILL_PARENT_MAX_WIDTH, fraction);
+        return this;
+    }
+
+    /**
+     * Add a height modifier to fill the scrolling parent viewport height
+     */
+    public @NonNull RecordingModifier fillParentMaxHeight() {
+        return fillParentMaxHeight(1f);
+    }
+
+    /**
+     * Add a height modifier to fill the scrolling parent viewport height
+     *
+     * @param fraction the fraction of the viewport height to fill
+     */
+    public @NonNull RecordingModifier fillParentMaxHeight(float fraction) {
+        setHeightModifier(DimensionModifierOperation.Type.FILL_PARENT_MAX_HEIGHT, fraction);
+        return this;
+    }
+
+    /**
+     * Add a size modifier to fill the scrolling parent viewport
+     */
+    public @NonNull RecordingModifier fillParentMaxSize() {
+        return fillParentMaxSize(1f);
+    }
+
+    /**
+     * Add a size modifier to fill the scrolling parent viewport
+     *
+     * @param fraction the fraction of the viewport to fill
+     */
+    public @NonNull RecordingModifier fillParentMaxSize(float fraction) {
+        return fillParentMaxWidth(fraction).fillParentMaxHeight(fraction);
+    }
+
+    /**
+     * Add a width modifier to fill the parent width
      */
     public @NonNull RecordingModifier fillMaxWidth() {
         setWidthModifier(DimensionModifierOperation.Type.FILL, Float.NaN);
@@ -301,9 +574,17 @@ public class RecordingModifier {
     }
 
     /**
-     * Add a height modifier to fill the parent height
+     * Add a width modifier to fill the parent width
      *
-     * @return
+     * @param fraction the fraction of the width to fill
+     */
+    public @NonNull RecordingModifier fillMaxWidth(float fraction) {
+        setWidthModifier(DimensionModifierOperation.Type.FILL, fraction);
+        return this;
+    }
+
+    /**
+     * Add a height modifier to fill the parent height
      */
     public @NonNull RecordingModifier fillMaxHeight() {
         setHeightModifier(DimensionModifierOperation.Type.FILL, Float.NaN);
@@ -311,18 +592,33 @@ public class RecordingModifier {
     }
 
     /**
-     * Add a size modifier to fill the parent
+     * Add a height modifier to fill the parent height
      *
-     * @return
+     * @param fraction the fraction of the height to fill
+     */
+    public @NonNull RecordingModifier fillMaxHeight(float fraction) {
+        setHeightModifier(DimensionModifierOperation.Type.FILL, fraction);
+        return this;
+    }
+
+    /**
+     * Add a size modifier to fill the parent
      */
     public @NonNull RecordingModifier fillMaxSize() {
         return fillMaxWidth().fillMaxHeight();
     }
 
     /**
-     * Return the spacedBy value if set, NaN otherwise
+     * Add a size modifier to fill the parent
      *
-     * @return
+     * @param fraction the fraction of the size to fill
+     */
+    public @NonNull RecordingModifier fillMaxSize(float fraction) {
+        return fillMaxWidth(fraction).fillMaxHeight(fraction);
+    }
+
+    /**
+     * Return the spacedBy value if set, NaN otherwise
      */
     public float getSpacedBy() {
         return mSpacedBy;
@@ -330,8 +626,6 @@ public class RecordingModifier {
 
     /**
      * return the horizontal weight if set, NaN otherwise
-     *
-     * @return
      */
     public float getHorizontalWeight() {
         WidthModifier wm = findWidthModifier();
@@ -343,8 +637,6 @@ public class RecordingModifier {
 
     /**
      * return the vertical weight if set, NaN otherwise
-     *
-     * @return
      */
     public float getVerticalWeight() {
         HeightModifier hm = findHeightModifier();
@@ -356,8 +648,6 @@ public class RecordingModifier {
 
     /**
      * return true if there is a fillMaxWidth modifier
-     *
-     * @return
      */
     public boolean getFillMaxWidth() {
         WidthModifier wm = findWidthModifier();
@@ -369,8 +659,6 @@ public class RecordingModifier {
 
     /**
      * return true if there is a fillMaxHeight modifier
-     *
-     * @return
      */
     public boolean getFillMaxHeight() {
         HeightModifier hm = findHeightModifier();
@@ -386,9 +674,6 @@ public class RecordingModifier {
 
     /**
      * Add a clip modifier
-     *
-     * @param shape
-     * @return
      */
     public @NonNull RecordingModifier clip(@NonNull Shape shape) {
         mList.add(new ClipModifier(shape));
@@ -397,12 +682,6 @@ public class RecordingModifier {
 
     /**
      * Add a border modifier
-     *
-     * @param width
-     * @param roundedCorner
-     * @param color
-     * @param shape
-     * @return
      */
     public @NonNull RecordingModifier border(
             float width, float roundedCorner, int color, int shape) {
@@ -411,10 +690,19 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a border modifier
+     */
+    public @NonNull RecordingModifier dynamicBorder(
+            float width, float roundedCorner, short color, int shape) {
+        mList.add(new DynamicBorderModifier(width, roundedCorner, color, shape));
+        return this;
+    }
+
+
+    /**
      * Adds a click modifier
      *
      * @param actions list of actions to execute on click
-     * @return
      */
     public @NonNull RecordingModifier onClick(Action @NonNull ... actions) {
         mList.add(new ClickActionModifier(Arrays.asList(actions)));
@@ -422,10 +710,31 @@ public class RecordingModifier {
     }
 
     /**
+     * Adds a long click modifier
+     *
+     * @param actions list of actions to execute on long click
+     */
+    public @NonNull RecordingModifier onLongClick(Action @NonNull ... actions) {
+        mList.add(new ClickActionModifier(Arrays.asList(actions),
+                MultiClickModifier.CLICK_TYPE_LONG));
+        return this;
+    }
+
+    /**
+     * Adds a double click modifier
+     *
+     * @param actions list of actions to execute on double click
+     */
+    public @NonNull RecordingModifier onDoubleClick(Action @NonNull ... actions) {
+        mList.add(new ClickActionModifier(Arrays.asList(actions),
+                MultiClickModifier.CLICK_TYPE_DOUBLE));
+        return this;
+    }
+
+    /**
      * Adds a touchDownmodifier
      *
      * @param actions list of actions to execute on touch down
-     * @return
      */
     public @NonNull RecordingModifier onTouchDown(Action @NonNull ... actions) {
         mList.add(new TouchActionModifier(TouchActionModifier.DOWN, Arrays.asList(actions)));
@@ -436,7 +745,6 @@ public class RecordingModifier {
      * Adds a touchUp modifier
      *
      * @param actions list of actions to execute on touch up
-     * @return
      */
     public @NonNull RecordingModifier onTouchUp(Action @NonNull ... actions) {
         mList.add(new TouchActionModifier(TouchActionModifier.UP, Arrays.asList(actions)));
@@ -447,7 +755,6 @@ public class RecordingModifier {
      * Adds a touchCancel modifier
      *
      * @param actions list of actions to execute on cancel
-     * @return
      */
     public @NonNull RecordingModifier onTouchCancel(Action @NonNull ... actions) {
         mList.add(new TouchActionModifier(TouchActionModifier.CANCEL, Arrays.asList(actions)));
@@ -456,9 +763,6 @@ public class RecordingModifier {
 
     /**
      * Adds an element
-     *
-     * @param existing
-     * @return
      */
     public @NonNull RecordingModifier then(@NonNull RecordingModifier existing) {
         mList.addAll(existing.mList);
@@ -467,9 +771,6 @@ public class RecordingModifier {
 
     /**
      * Adds an element
-     *
-     * @param existing
-     * @return
      */
     public @NonNull RecordingModifier then(RecordingModifier.@NonNull Element existing) {
         mList.add(existing);
@@ -483,10 +784,6 @@ public class RecordingModifier {
 
     /**
      * Finds the element of type T
-     *
-     * @param type
-     * @return
-     * @param <T>
      */
     public @Nullable <T extends RecordingModifier.Element> T find(@NonNull Class<T> type) {
         for (@NonNull Element element : mList) {
@@ -498,11 +795,10 @@ public class RecordingModifier {
         return null;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Element {
         /**
          * Write the element to the buffer
-         *
-         * @param writer
          */
         void write(@NonNull RemoteComposeWriter writer);
     }

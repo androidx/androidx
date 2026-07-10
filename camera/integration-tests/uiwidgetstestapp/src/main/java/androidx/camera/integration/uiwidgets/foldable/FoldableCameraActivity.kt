@@ -55,6 +55,7 @@ import androidx.camera.core.MeteringPointFactory
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.integration.uiwidgets.databinding.ActivityFoldableCameraBinding
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.PERMISSIONS
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -66,7 +67,6 @@ import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class FoldableCameraActivity : AppCompatActivity() {
@@ -94,6 +94,12 @@ class FoldableCameraActivity : AppCompatActivity() {
         cameraController = LifecycleCameraController(this)
         binding.previewView.controller = cameraController
         setContentView(binding.root)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(binding.cameraInfo.id),
+        )
+
         savedInstanceState?.let {
             currentCameraSelectorString = it.getString(KEY_CAMERA_SELECTOR) ?: BACK_CAMERA_STR
             cameraController.cameraSelector =

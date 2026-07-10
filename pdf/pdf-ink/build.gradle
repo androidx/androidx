@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,35 +25,31 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.pdf.ink"
+    compileSdk { version = release(36) { sdkExtension = 19 } }
     defaultConfig {
-        minSdk = 31
-        compileSdk = 36
+        minSdk { version = release(28) }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }
 
 dependencies {
-    def ink_version = "1.0.0-alpha05"
-
-    api(libs.kotlinStdlib)
     implementation(project(":pdf:pdf-viewer-fragment"))
 
     implementation("androidx.core:core:1.13.0")
     implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.fragment:fragment-ktx:1.8.1")
-    implementation("androidx.ink:ink-authoring:${ink_version}")
-    implementation("androidx.ink:ink-brush:${ink_version}")
-    implementation("androidx.ink:ink-geometry:${ink_version}")
-    implementation("androidx.ink:ink-nativeloader:${ink_version}")
-    implementation("androidx.ink:ink-rendering:${ink_version}")
-    implementation("androidx.ink:ink-strokes:${ink_version}")
-    implementation("androidx.input:input-motionprediction:1.0.0-beta05")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.ink:ink-authoring:1.0.0")
+    implementation("androidx.ink:ink-brush:1.0.0")
+    implementation("androidx.ink:ink-geometry:1.0.0")
+    implementation("androidx.ink:ink-strokes:1.0.0")
+    implementation("androidx.input:input-motionprediction:1.0.0")
+    implementation("com.google.android.material:material:1.13.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
@@ -63,6 +58,8 @@ dependencies {
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.testExtJunitKtx)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin4)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testRunner)
@@ -71,6 +68,11 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.bundles.espressoContrib)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation("androidx.fragment:fragment-testing:1.7.1")
 }
 
 androidx {
@@ -78,4 +80,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Provide annotations support for PDF document using ink library"
+    addGoldenImageAssets()
 }

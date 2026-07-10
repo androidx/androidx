@@ -23,14 +23,12 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
 import androidx.appsearch.localstorage.IcingOptionsConfig;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.NamespaceCache;
@@ -100,11 +98,7 @@ public class SearchSpecToProtoConverterTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 config,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
     }
 
@@ -428,7 +422,6 @@ public class SearchSpecToProtoConverterTest {
 
     @Test
     public void testToResultSpecProto_withEmbeddingMatchInfo() {
-        assumeTrue(Flags.enableEmbeddingMatchInfo());
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultCountPerPage(123)
                 .setSnippetCount(234)

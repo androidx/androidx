@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -33,10 +32,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.unit"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -44,70 +39,36 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.8.1")
-                api(project(":compose:ui:ui-geometry"))
-                implementation("androidx.collection:collection:1.4.2")
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api(project(":compose:ui:ui-geometry"))
+            implementation("androidx.collection:collection:1.4.2")
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
 
-        jvmTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testExtJunit)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation-experimental:1.4.1")
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.testExtJunit)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
     }
 }

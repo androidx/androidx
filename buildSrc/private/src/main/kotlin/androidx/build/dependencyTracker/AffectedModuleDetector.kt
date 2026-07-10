@@ -16,6 +16,7 @@
 
 package androidx.build.dependencyTracker
 
+import androidx.build.AndroidXExtension
 import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_ARG
 import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
@@ -36,6 +37,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.services.BuildServiceSpec
+import org.gradle.kotlin.dsl.getByType
 
 /**
  * The subsets we allow the projects to be partitioned into. This is to allow more granular testing.
@@ -137,6 +139,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                 val projectGraph = ProjectGraph(rootProject)
                 val dependencyMap = mutableMapOf<String, MutableSet<String>>()
                 rootProject.subprojects.forEach { project ->
+                    @Suppress("EagerGradleConfiguration")
                     project.configurations.forEach { config ->
                         config.dependencies.filterIsInstance<ProjectDependency>().forEach {
                             dependency ->
@@ -191,6 +194,8 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
         @Throws(GradleException::class)
         @JvmStatic
         fun configureTaskGuard(task: Task) {
+            if (task.project.extensions.getByType<AndroidXExtension>().isIsolatedProjectsEnabled())
+                return
             val detector = getInstance(task.project)
             task.onlyIf { detector.shouldInclude(task) }
         }
@@ -220,9 +225,9 @@ class AffectedModuleDetectorWrapper : AffectedModuleDetector(logger = null) {
         return wrapped?.get()?.detector
             ?: throw GradleException(
                 """
-                        Tried to get the affected module detector implementation too early.
-                        You cannot access it until all projects are evaluated.
-            """
+                Tried to get the affected module detector implementation too early.
+                You cannot access it until all projects are evaluated.
+                """
                     .trimIndent()
             )
     }

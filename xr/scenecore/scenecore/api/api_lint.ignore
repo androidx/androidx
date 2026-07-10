@@ -1,15 +1,16 @@
 // Baseline format: 1.0
-HiddenSuperclass: androidx.xr.scenecore.internal.Entity:
-    Public class androidx.xr.scenecore.internal.Entity stripped of unavailable superclass androidx.xr.scenecore.internal.ActivityPose
+HiddenSuperclass: androidx.xr.scenecore.Scene:
+    Public class androidx.xr.scenecore.Scene stripped of unavailable superclass androidx.xr.runtime.SessionConnector
 
 
-HiddenTypeParameter: androidx.xr.scenecore.SpatialUser#SpatialUser(androidx.xr.runtime.internal.LifecycleManager, androidx.xr.scenecore.internal.JxrPlatformAdapter) parameter #1:
-    Parameter runtime references hidden type androidx.xr.scenecore.internal.JxrPlatformAdapter.
+MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#getPose(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#getScale(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#setPose(androidx.xr.runtime.math.Pose, androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#setScale(float, androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 
-
-ReferencesHidden: androidx.xr.scenecore.BaseEntity:
-    Class androidx.xr.scenecore.internal.Entity is hidden but was referenced (as type parameter) from public class androidx.xr.scenecore.BaseEntity
-ReferencesHidden: androidx.xr.scenecore.BaseScenePose:
-    Class androidx.xr.scenecore.internal.ActivityPose is hidden but was referenced (as type parameter) from public class androidx.xr.scenecore.BaseScenePose
-ReferencesHidden: androidx.xr.scenecore.SpatialUser#SpatialUser(androidx.xr.runtime.internal.LifecycleManager, androidx.xr.scenecore.internal.JxrPlatformAdapter) parameter #1:
-    Class androidx.xr.scenecore.internal.JxrPlatformAdapter is hidden but was referenced (in parameter type) from public parameter runtime in androidx.xr.scenecore.SpatialUser(androidx.xr.runtime.internal.LifecycleManager lifecycleManager, androidx.xr.scenecore.internal.JxrPlatformAdapter runtime)
+TypeParameterName: androidx.xr.scenecore.BaseScenePose:
+    Invalid type parameter name "RtScenePoseType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

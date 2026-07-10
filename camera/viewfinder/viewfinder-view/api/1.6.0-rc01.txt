@@ -1,0 +1,23 @@
+// Signature format: 4.0
+package androidx.camera.viewfinder.view {
+
+  public final class ViewfinderView extends android.widget.FrameLayout {
+    ctor @UiThread public ViewfinderView(android.content.Context);
+    ctor @UiThread public ViewfinderView(android.content.Context, android.util.AttributeSet?);
+    ctor @UiThread public ViewfinderView(android.content.Context, android.util.AttributeSet?, int);
+    ctor @UiThread public ViewfinderView(android.content.Context, android.util.AttributeSet?, int, int);
+    method @UiThread public android.graphics.Bitmap? getBitmap();
+    method @UiThread public androidx.camera.viewfinder.core.ScaleType getScaleType();
+    method @UiThread public androidx.camera.viewfinder.core.ImplementationMode getSurfaceImplementationMode();
+    method @UiThread public androidx.camera.viewfinder.core.TransformationInfo getTransformationInfo();
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<androidx.camera.viewfinder.core.ViewfinderSurfaceSession!> requestSurfaceSessionAsync(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest);
+    method @UiThread public void setScaleType(androidx.camera.viewfinder.core.ScaleType);
+    method @UiThread public void setTransformationInfo(androidx.camera.viewfinder.core.TransformationInfo);
+  }
+
+  public final class ViewfinderViewExtKt {
+    method public static suspend Object? requestSurfaceSession(androidx.camera.viewfinder.view.ViewfinderView, androidx.camera.viewfinder.core.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSession>);
+  }
+
+}
+

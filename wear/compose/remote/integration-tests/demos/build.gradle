@@ -1,0 +1,61 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("AndroidXComposePlugin")
+}
+
+android {
+    compileSdk { version = release(37) }
+    namespace = "androidx.wear.compose.remote.integration.demos"
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
+    useLibrary("wear-sdk")
+}
+
+androidx {
+    name = "Wear Remote Compose demos"
+    inceptionYear = "2025"
+    description = "Demo app for the Wear Remote Compose components"
+}
+
+dependencies {
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":compose:remote:remote-creation-core"))
+    implementation(project(":compose:remote:remote-player-compose"))
+    implementation(project(":compose:remote:remote-player-view"))
+    implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-player-compose-testutils"))
+    implementation(project(":compose:remote:remote-tooling-preview"))
+    implementation(project(":wear:compose:remote:remote-material3"))
+    implementation(project(":wear:compose:remote:remote-material3-samples"))
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
+    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("androidx.compose.runtime:runtime:1.11.0")
+    implementation("androidx.compose.ui:ui:1.11.0")
+    implementation("androidx.compose.ui:ui-graphics:1.11.0")
+    implementation("androidx.compose.ui:ui-tooling:1.11.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.11.0")
+    implementation("androidx.wear.compose:compose-foundation:1.5.5")
+    implementation("androidx.wear.compose:compose-material3:1.5.5")
+    implementation("androidx.wear.compose:compose-navigation:1.5.6")
+    implementation("androidx.wear.compose:compose-ui-tooling:1.5.5")
+    implementation("androidx.wear:wear-tooling-preview:1.0.0")
+}

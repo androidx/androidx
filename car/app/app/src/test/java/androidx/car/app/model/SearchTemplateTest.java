@@ -36,10 +36,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link SearchTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class SearchTemplateTest {
     @Rule
@@ -200,6 +202,16 @@ public class SearchTemplateTest {
                                 new Action.Builder().setTitle("Action").setOnClickListener(
                                         () -> {
                                         }).build()));
+    }
+
+
+    @Test
+    public void addList_withBanner() {
+        Banner banner = new Banner.Builder().setTitle("title").build();
+        ItemList itemList = new ItemList.Builder().addItem(banner).build();
+        new SearchTemplate.Builder(mMockSearchCallback)
+                .setItemList(itemList)
+                .build();
     }
 
     @Test

@@ -21,6 +21,8 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -34,7 +36,7 @@ class ThreadingTest {
     fun runBlockingCheckedThrowsOnTimeout() = runTest {
         val latch = CountDownLatch(1)
         assertThrows<IllegalStateException> {
-            threads.runBlockingChecked(500L) {
+            threads.runBlockingChecked(500.milliseconds) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
@@ -44,14 +46,14 @@ class ThreadingTest {
     @Test
     fun runBlockingCheckedDoesNotThrowWhenNotTimedOut() = runTest {
         val latch = CountDownLatch(1)
-        threads.runBlockingChecked(10_000L) { latch.await(500, TimeUnit.MILLISECONDS) }
+        threads.runBlockingChecked(10.seconds) { latch.await(500, TimeUnit.MILLISECONDS) }
     }
 
     @Test
     fun runBlockingCheckedOrNullReturnsNullOnTimeout() = runTest {
         val latch = CountDownLatch(1)
         val result =
-            threads.runBlockingCheckedOrNull(500L) {
+            threads.runBlockingCheckedOrNull(500.milliseconds) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
@@ -62,7 +64,7 @@ class ThreadingTest {
     fun runBlockingCheckedOrNullReturnsNonNullWhenNotTimeout() = runTest {
         val latch = CountDownLatch(1)
         val result =
-            threads.runBlockingCheckedOrNull(10_000L) {
+            threads.runBlockingCheckedOrNull(10.seconds) {
                 // Simulate a long call that should time out.
                 latch.await(500, TimeUnit.MILLISECONDS)
             }

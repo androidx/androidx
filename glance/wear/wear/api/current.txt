@@ -1,15 +1,34 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AssociateWithGlanceWearWidget {
+    ctor @KotlinOnly public AssociateWithGlanceWearWidget(kotlin.reflect.KClass<? extends androidx.glance.wear.GlanceWearWidget> value);
+    method @InaccessibleFromKotlin public abstract Class<? extends androidx.glance.wear.GlanceWearWidget> value();
+    property public abstract kotlin.reflect.KClass<? extends androidx.glance.wear.GlanceWearWidget> value;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearApi {
+  }
+
   public abstract class GlanceWearWidget {
     ctor public GlanceWearWidget();
-    method @MainThread public abstract suspend Object? provideWidgetContent(android.content.Context context, androidx.glance.wear.WearWidgetRequest request, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetContent>);
-    method public final void triggerUpdate(android.content.Context context, android.content.ComponentName provider, int instanceId);
+    method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public suspend Object? onEvents(android.content.Context context, java.util.List<? extends androidx.glance.wear.core.WearWidgetEvent> events, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public suspend Object? onRemoved(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.core.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
+    method public final suspend Object? triggerUpdate(android.content.Context context, androidx.glance.wear.core.WidgetInstanceId instanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? triggerUpdateAll(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public final class GlanceWearWidgetManager {
+    ctor public GlanceWearWidgetManager(android.content.Context context);
+    method public suspend Object? fetchActiveWidgets(kotlin.coroutines.Continuation<? super java.util.List<androidx.glance.wear.core.ActiveWearWidgetHandle>>);
+    method public suspend Object? fetchActiveWidgets(kotlin.reflect.KClass<? extends androidx.glance.wear.GlanceWearWidget> widget, kotlin.coroutines.Continuation<? super java.util.List<androidx.glance.wear.core.ActiveWearWidgetHandle>>);
   }
 
   public abstract class GlanceWearWidgetService extends androidx.lifecycle.LifecycleService {
     ctor public GlanceWearWidgetService();
-    method public abstract androidx.glance.wear.GlanceWearWidget getWidget();
+    method @InaccessibleFromKotlin public abstract androidx.glance.wear.GlanceWearWidget getWidget();
     method public final android.os.IBinder? onBind(android.content.Intent intent);
     property public abstract androidx.glance.wear.GlanceWearWidget widget;
     field public static final String ACTION_BIND_WIDGET_PROVIDER = "androidx.glance.wear.action.BIND_WIDGET_PROVIDER";
@@ -20,14 +39,69 @@ package androidx.glance.wear {
     property public static String ACTION_BIND_WIDGET_PROVIDER;
   }
 
-  public final class WearWidgetContent {
-    ctor public WearWidgetContent(byte[] content);
+  public abstract sealed nonexhaustive class WearWidgetBrush {
+    field public static final androidx.glance.wear.WearWidgetBrush.Companion Companion;
   }
 
-  public final class WearWidgetRequest {
-    ctor public WearWidgetRequest(int instanceId);
-    method public int getInstanceId();
-    property public int instanceId;
+  public static final class WearWidgetBrush.Companion extends androidx.glance.wear.WearWidgetBrush {
+  }
+
+  public final class WearWidgetBrushKt {
+    method public static androidx.glance.wear.WearWidgetBrush color(androidx.glance.wear.WearWidgetBrush, androidx.compose.remote.creation.compose.state.RemoteColor color);
+    method public static androidx.glance.wear.WearWidgetBrush horizontalGradient(androidx.glance.wear.WearWidgetBrush, java.util.List<? extends androidx.compose.remote.creation.compose.state.RemoteColor> colors);
+    method public static androidx.glance.wear.WearWidgetBrush image(androidx.glance.wear.WearWidgetBrush, androidx.compose.remote.creation.compose.state.RemoteImageBitmap bitmap, optional androidx.compose.ui.layout.ContentScale contentScale);
+    method @BytecodeOnly public static androidx.glance.wear.WearWidgetBrush! image$default(androidx.glance.wear.WearWidgetBrush!, androidx.compose.remote.creation.compose.state.RemoteImageBitmap!, androidx.compose.ui.layout.ContentScale!, int, Object!);
+    method public static androidx.glance.wear.WearWidgetBrush verticalGradient(androidx.glance.wear.WearWidgetBrush, java.util.List<? extends androidx.compose.remote.creation.compose.state.RemoteColor> colors);
+  }
+
+  public interface WearWidgetData {
+  }
+
+  public final class WearWidgetDocument implements androidx.glance.wear.WearWidgetData {
+    ctor public WearWidgetDocument(androidx.glance.wear.WearWidgetBrush background, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    ctor @BytecodeOnly public WearWidgetDocument(androidx.glance.wear.WearWidgetBrush, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+  }
+
+}
+
+package @SuppressCompatibility androidx.glance.wear.health {
+
+  @SuppressCompatibility @androidx.glance.wear.ExperimentalGlanceWearApi public final class HealthData {
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyCalories();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyDistanceMeters();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyFloors();
+    method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt getDailySteps();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getHeartRateAccuracy();
+    method @InaccessibleFromKotlin @RequiresPermission(anyOf={android.Manifest.permission.BODY_SENSORS, android.health.connect.HealthPermissions.READ_HEART_RATE}) public androidx.compose.remote.creation.compose.state.RemoteFloat getHeartRateBpm();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyFloorsAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyStepsAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isHeartRateBpmAvailable();
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_HIGH;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_LOW;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_MEDIUM;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_NO_CONTACT;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNKNOWN;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNRELIABLE;
+    property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat dailyCalories;
+    property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat dailyDistanceMeters;
+    property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat dailyFloors;
+    property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt dailySteps;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt heartRateAccuracy;
+    property @RequiresPermission(anyOf={"android.permission.BODY_SENSORS", "android.permission.health.READ_HEART_RATE"}) public androidx.compose.remote.creation.compose.state.RemoteFloat heartRateBpm;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyFloorsAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyStepsAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isHeartRateBpmAvailable;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_HIGH;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_LOW;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_MEDIUM;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_NO_CONTACT;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNKNOWN;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNRELIABLE;
+    field public static final androidx.glance.wear.health.HealthData INSTANCE;
   }
 
 }

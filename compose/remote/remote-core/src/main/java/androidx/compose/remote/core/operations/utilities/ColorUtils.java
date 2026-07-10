@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * These are tools to use long Color as variables long colors are stored a 0xXXXXXXXX XXXXXX?? in
  * SRGB the colors are stored 0xAARRGGBB,00000000 SRGB color sapce is color space 0 Our Color will
@@ -25,6 +27,7 @@ package androidx.compose.remote.core.operations.utilities;
  * <p>Our color space will be 62 (MAX_ID-1). (0x3E) Storing the default value in SRGB format and
  * having the id of the color between the ARGB values and the 62 i.e. 0xAARRGGBB 00 00 00 3E
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColorUtils {
     public static int sRC_COLOR = 62;
 

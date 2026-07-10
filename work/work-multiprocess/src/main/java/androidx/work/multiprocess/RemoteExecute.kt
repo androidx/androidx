@@ -72,6 +72,8 @@ internal suspend fun <T : IInterface> execute(
 
                     override fun onFailure(error: String?) =
                         continuation.resumeWithException(RuntimeException(error))
+
+                    override fun getInterfaceVersion(): Int = VERSION
                 },
             )
         }

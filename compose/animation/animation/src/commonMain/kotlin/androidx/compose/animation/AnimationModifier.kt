@@ -112,7 +112,7 @@ public fun Modifier.animateContentSize(
     this.clipToBounds() then
         SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
 
-private data class SizeAnimationModifierElement(
+private class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
     val alignment: Alignment,
     val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?,
@@ -131,6 +131,18 @@ private data class SizeAnimationModifierElement(
         properties["animationSpec"] = animationSpec
         properties["alignment"] = alignment
         properties["finishedListener"] = finishedListener
+    }
+
+    override fun hashCode(): Int {
+        return (animationSpec.hashCode() * 31 + alignment.hashCode()) * 31 +
+            finishedListener.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is SizeAnimationModifierElement &&
+            other.animationSpec == animationSpec &&
+            other.finishedListener === finishedListener &&
+            other.alignment == alignment
     }
 }
 

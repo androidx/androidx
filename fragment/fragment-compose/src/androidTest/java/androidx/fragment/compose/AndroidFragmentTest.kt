@@ -27,7 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -41,6 +41,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +49,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AndroidFragmentTest {
-    @get:Rule val testRule = createAndroidComposeRule<EmptyTestActivity>()
+    @get:Rule val testRule = createAndroidComposeRule<EmptyTestActivity>(StandardTestDispatcher())
 
     @Test
     fun showContent() {
@@ -62,7 +63,9 @@ class AndroidFragmentTest {
     @Test
     fun ensureArguments() {
         val name = "Molly"
-        val bundle = bundleOf("name" to name)
+        val bundle =
+            @Suppress("DEPRECATION") // bundleOf is deprecated
+            bundleOf("name" to name)
         testRule.setContent { AndroidFragment<FragmentForCompose>(arguments = bundle) }
 
         testRule.waitForIdle()
@@ -73,7 +76,9 @@ class AndroidFragmentTest {
     @Test
     fun restoreState() {
         val name = "Molly"
-        val bundle = bundleOf("name" to name)
+        val bundle =
+            @Suppress("DEPRECATION") // bundleOf is deprecated
+            bundleOf("name" to name)
         var stateChanger by mutableStateOf(0)
         testRule.setContent {
             if (stateChanger % 2 == 0) {
@@ -189,7 +194,9 @@ class AndroidFragmentTest {
             clazz = remember { mutableStateOf(FragmentForCompose::class.java) }
             AndroidFragment(
                 clazz = clazz.value,
-                arguments = bundleOf("name" to clazz.value.simpleName),
+                arguments =
+                    @Suppress("DEPRECATION") // bundleOf is deprecated
+                    bundleOf("name" to clazz.value.simpleName),
             )
         }
 
@@ -204,6 +211,46 @@ class AndroidFragmentTest {
 
         onView(withText("My name is ${FragmentForCompose2::class.simpleName}"))
             .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun maxLifecycleLimitsFragmentLifecycle() {
+        testRule.setContent {
+            AndroidFragment<FragmentForCompose>(maxLifecycle = Lifecycle.State.STARTED)
+        }
+
+        testRule.waitForIdle()
+
+        val fragment =
+            testRule.activity.supportFragmentManager.fragments
+                .filterIsInstance<FragmentForCompose>()
+                .first()
+
+        // Even though the Activity is RESUMED, the Fragment should be capped at STARTED
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+    }
+
+    @Test
+    fun updateMaxLifecycleRecomposes() {
+        var maxState by mutableStateOf(Lifecycle.State.STARTED)
+
+        testRule.setContent { AndroidFragment<FragmentForCompose>(maxLifecycle = maxState) }
+
+        testRule.waitForIdle()
+
+        val fragment =
+            testRule.activity.supportFragmentManager.fragments
+                .filterIsInstance<FragmentForCompose>()
+                .first()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        // Update the maxLifecycle state
+        testRule.runOnIdle { maxState = Lifecycle.State.RESUMED }
+        testRule.waitForIdle()
+
+        // Fragment should now be allowed to reach RESUMED
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 }
 

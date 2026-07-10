@@ -20,8 +20,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -284,6 +286,8 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun measureBlock_methodTracing() {
+        // Our API 23 and 24 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT > 24)
         val scope =
             MacrobenchmarkScope(
                 Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
@@ -307,6 +311,8 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun multipleMethodTraces_onProcessStartStop() {
+        // Our API 23 and 24 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT > 24)
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.fileLabel = "TEST-UNIQUE-NAME"
         scope.startMethodTracing()

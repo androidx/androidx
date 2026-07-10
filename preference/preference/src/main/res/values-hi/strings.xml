@@ -3,7 +3,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="v7_preference_on" msgid="5048321755000716519">"चालू है"</string>
     <string name="v7_preference_off" msgid="3516781442212499478">"बंद है"</string>
-    <string name="expand_button_title" msgid="4538737816656609903">"बेहतर बनाएं"</string>
+    <string name="expand_button_title" msgid="4538737816656609903">"ऐडवांस"</string>
     <string name="summary_collapsed_preference_list" msgid="4958113070631599540">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="8016979983985242980">"कॉपी करें"</string>
     <string name="preference_copied" msgid="811987176883013580">"\"<xliff:g id="SUMMARY">%1$s</xliff:g>\" क्लिपबोर्ड पर कॉपी किया गया."</string>

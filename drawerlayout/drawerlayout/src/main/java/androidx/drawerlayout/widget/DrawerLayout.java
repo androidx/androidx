@@ -1021,6 +1021,11 @@ public class DrawerLayout extends ViewGroup implements Openable {
         super.onDetachedFromWindow();
         mFirstLayout = true;
 
+        // Clear any pending peek runnables to prevent memory leaks or
+        // executions after the view has been detached.
+        mLeftCallback.removeCallbacks();
+        mRightCallback.removeCallbacks();
+
         updateBackInvokedCallbackState();
     }
 

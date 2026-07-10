@@ -253,7 +253,8 @@ fun assertEquals(context: Context, actual: CredentialEntry, expected: Credential
             assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
             assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
             if (Build.VERSION.SDK_INT >= 26) {
-                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+                assertThat(actual.lastUsedTime?.toEpochMilli())
+                    .isEqualTo(expected.lastUsedTime?.toEpochMilli())
             }
             assertEquals(context, actual.icon, expected.icon)
             assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
@@ -268,7 +269,8 @@ fun assertEquals(context: Context, actual: CredentialEntry, expected: Credential
             assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
             assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
             if (Build.VERSION.SDK_INT >= 26) {
-                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+                assertThat(actual.lastUsedTime?.toEpochMilli())
+                    .isEqualTo(expected.lastUsedTime?.toEpochMilli())
             }
             assertEquals(context, actual.icon, expected.icon)
             assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
@@ -284,7 +286,8 @@ fun assertEquals(context: Context, actual: CredentialEntry, expected: Credential
             assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
             assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
             if (Build.VERSION.SDK_INT >= 26) {
-                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+                assertThat(actual.lastUsedTime?.toEpochMilli())
+                    .isEqualTo(expected.lastUsedTime?.toEpochMilli())
             }
             assertEquals(context, actual.icon, expected.icon)
             assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
@@ -556,12 +559,8 @@ fun assertEquals(context: Context, actual: CreateEntry, expected: CreateEntry) {
     assertEquals(context, actual.icon, expected.icon)
     assertThat(actual.description).isEqualTo(expected.description)
     if (Build.VERSION.SDK_INT >= 26) {
-        if (Build.VERSION.SDK_INT >= 34) {
-            assertThat(actual.lastUsedTime?.toEpochMilli())
-                .isEqualTo(expected.lastUsedTime?.toEpochMilli())
-        } else {
-            assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
-        }
+        assertThat(actual.lastUsedTime?.toEpochMilli())
+            .isEqualTo(expected.lastUsedTime?.toEpochMilli())
     }
     assertThat(actual.getTotalCredentialCount()).isEqualTo(expected.getTotalCredentialCount())
     assertThat(actual.getPasswordCredentialCount()).isEqualTo(expected.getPasswordCredentialCount())
@@ -588,4 +587,11 @@ fun getTestCallingAppInfo(origin: String?): CallingAppInfo {
             context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
         return CallingAppInfo(packageName, packageInfo.signatures!!.filterNotNull(), origin)
     }
+}
+
+fun createDummyProviderGetCredentialRequest(): ProviderGetCredentialRequest {
+    return ProviderGetCredentialRequest(
+        listOf(GetPasswordOption()),
+        getTestCallingAppInfo("dummy-origin"),
+    )
 }

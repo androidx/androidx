@@ -162,7 +162,9 @@ internal class JniBindings {
         @JniVisible
         external fun nSetDataSpace(surfaceTransaction: Long, surfaceControl: Long, dataSpace: Int)
 
-        @JvmStatic @JniVisible external fun nGetDisplayOrientation(): String
+        @JvmStatic @JniVisible external fun nGetSurfaceFlingerOrientation(): String
+
+        @JvmStatic @JniVisible external fun nGetMinUiRotation(): String
 
         @JvmStatic @JniVisible external fun nIsHwuiUsingVulkanRenderer(): Boolean
 

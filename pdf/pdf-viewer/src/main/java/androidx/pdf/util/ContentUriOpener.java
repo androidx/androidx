@@ -57,22 +57,6 @@ public class ContentUriOpener {
     }
 
     /**
-     * Returns Exif orientation rotation value for this content.
-     *
-     * <p>Normally, we wouldn't need to get Exif orientation at this layer, as we would read and
-     * apply
-     * Exif data during bitmap decoding. However, when we request a lo-res thumbnail from a
-     * contentResolver, the Exif data of the original file is not transferred to the thumbnail,
-     * so we
-     * use this to get the Exif orientation from the original file and manually apply it to the
-     * thumbnail.
-     */
-    public int getExifOrientation(@NonNull Uri contentUri) {
-        Preconditions.checkNotRunOnUIThread();
-        return ExifThumbnailUtils.getExifOrientation(contentUri, mContentResolver);
-    }
-
-    /**
      * Opens this content as a specified content-type.
      *
      * @param contentUri  the content Uri

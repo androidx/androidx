@@ -18,8 +18,6 @@
 
 package androidx.build.lint.replacewith
 
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,7 +27,6 @@ class ReplaceWithDetectorKotlinMethodTest {
 
     @Test
     fun staticMethodExplicitClass() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
@@ -38,20 +35,20 @@ class ReplaceWithDetectorKotlinMethodTest {
 
         val expected =
             """
-src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Hint: Replacement available [ReplaceWith]
-        ReplaceWithUsageKotlin.toString(this);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 1 hint
-        """
+            src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Hint: Replacement available [ReplaceWith]
+                    ReplaceWithUsageKotlin.toString(this);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            0 errors, 0 warnings, 1 hint
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replace with `this.toString()`:
-@@ -25 +25
--         ReplaceWithUsageKotlin.toString(this);
-+         this.toString();
-        """
+            Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replace with `this.toString()`:
+            @@ -25 +25
+            -         ReplaceWithUsageKotlin.toString(this);
+            +         this.toString();
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -67,8 +64,8 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replac
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

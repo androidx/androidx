@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.benchmark.traceprocessor
 
 import androidx.annotation.CheckResult
@@ -385,10 +387,10 @@ internal constructor(
             val innerJoins =
                 if (packageName != null) {
                     """
-                INNER JOIN thread_track ON slice.track_id = thread_track.id
-                INNER JOIN thread USING(utid)
-                INNER JOIN process USING(upid)
-                """
+                    |                INNER JOIN thread_track ON slice.track_id = thread_track.id
+                    |                INNER JOIN thread USING(utid)
+                    |                INNER JOIN process USING(upid)
+                    """
                         .trimMargin()
                 } else {
                     ""
@@ -398,7 +400,7 @@ internal constructor(
                 """
                 INNER JOIN process_track ON slice.track_id = process_track.id
                 INNER JOIN process USING(upid)
-            """
+                """
                     .trimIndent()
 
             return query(
@@ -437,16 +439,12 @@ internal constructor(
 
     private fun startServerImpl(): TraceProcessor =
         tracer.trace("TraceProcessor#startServer") {
-            println("startserver")
             traceProcessorHttpServer.startServer()
             return@trace this
         }
 
     private fun stopServer() =
-        tracer.trace("TraceProcessor#stopServer") {
-            println("stopserver")
-            traceProcessorHttpServer.stopServer()
-        }
+        tracer.trace("TraceProcessor#stopServer") { traceProcessorHttpServer.stopServer() }
 
     /**
      * Loads a trace in the current instance of the trace processor, clearing any previous loaded

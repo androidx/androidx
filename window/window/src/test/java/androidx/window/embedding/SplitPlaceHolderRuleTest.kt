@@ -39,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
  * Unit test for [SplitPlaceholderRule] to check the construction is correct by using it's builder.
  */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 internal class SplitPlaceHolderRuleTest {
 
     /*------------------------------Class Test------------------------------*/

@@ -40,4 +40,4 @@ StaticFinalBuilder: androidx.camera.core.FocusMeteringAction.Builder:
 
 
 TopLevelBuilder: androidx.camera.core.ExtendableBuilder:
-    Builder should be defined as inner class: androidx.camera.core.ExtendableBuilder
+    Builder should be defined as nested class: androidx.camera.core.ExtendableBuilder

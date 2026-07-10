@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * A presenter for a control bar that supports "more actions",
  * and toggling the set of controls between primary and secondary
- * sets of {@link Actions}.
+ * sets of {@link android.support.v4.media.session.PlaybackStateCompat.Actions}.
  */
 class PlaybackControlsPresenter extends ControlBarPresenter {
 

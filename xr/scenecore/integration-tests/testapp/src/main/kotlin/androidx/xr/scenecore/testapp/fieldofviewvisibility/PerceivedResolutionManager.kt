@@ -19,12 +19,15 @@ package androidx.xr.scenecore.testapp.fieldofviewvisibility
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.CameraView
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ScenePose
@@ -32,6 +35,7 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.DebugTextLinearView
+import androidx.xr.scenecore.testapp.common.managers.PanelEntityManager
 import androidx.xr.scenecore.testapp.common.managers.SurfaceEntityManager
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +46,8 @@ class PerceivedResolutionManager(
     private val activity: FieldOfViewVisibilityActivity,
     private val surfaceEntityManager: SurfaceEntityManager,
     private val panelEntityManager: PanelEntityManager,
-) {
+) : LifecycleEventObserver {
+    private val cameraLeft: RenderViewpoint = RenderViewpoint.left(session)
     private val _mPanelEntityFlow = MutableStateFlow<PanelEntity?>(null)
     var mPanelEntity: PanelEntity?
         get() = _mPanelEntityFlow.value
@@ -69,10 +74,13 @@ class PerceivedResolutionManager(
             override fun run() {
 
                 // Update the Text
-                val leftEye = session.scene.spatialUser.cameraViews[CameraView.CameraType.LEFT_EYE]
-                val leftEyeFov = leftEye?.fov
-                val fovString =
-                    if (leftEyeFov != null) {
+                cameraLeft.state.value.let { cameraLeftState ->
+                    val leftEyePose =
+                        session.scene.perceptionSpace.getScenePoseFromPerceptionPose(
+                            cameraLeftState.pose
+                        )
+                    val leftEyeFov = cameraLeftState.fieldOfView
+                    val fovString =
                         "FOV L:%.2f, R:%.2f, U:%.2f, D:%.2f (rad)"
                             .format(
                                 leftEyeFov.angleLeft,
@@ -80,78 +88,86 @@ class PerceivedResolutionManager(
                                 leftEyeFov.angleUp,
                                 leftEyeFov.angleDown,
                             )
-                    } else {
-                        "Unavailable"
-                    }
-                mTextView?.setLine("Left Eye Field Of View", fovString)
+                    mTextView?.setLine("Left Eye Field Of View", fovString)
 
-                mTextView?.setLine(
-                    "Main Panel distance to Camera",
-                    distanceToCamera(leftEye, session.scene.mainPanelEntity),
-                )
-                mTextView?.setLine(
-                    "Main Panel Perceived Resolution",
-                    session.scene.mainPanelEntity.getPerceivedResolution().toString(),
-                )
-
-                mTextView?.setLine(
-                    "Panel Entity distance to Camera",
-                    distanceToCamera(leftEye, panelEntityManager.panelEntity),
-                )
-                if (panelEntityManager.panelEntity != null) {
-                    val panelWidthInActivitySpace: Float =
-                        panelEntityManager.panelEntity!!.size.width *
-                            panelEntityManager.panelEntity!!.getScale(Space.ACTIVITY)
-                    val panelHeightInActivitySpace: Float =
-                        panelEntityManager.panelEntity!!.size.height *
-                            panelEntityManager.panelEntity!!.getScale(Space.ACTIVITY)
                     mTextView?.setLine(
-                        "Panel Entity dimensions",
-                        "Width: $panelWidthInActivitySpace x Height: $panelHeightInActivitySpace",
+                        "Main Panel distance to Camera",
+                        distanceToCamera(leftEyePose, session.scene.mainPanelEntity),
                     )
                     mTextView?.setLine(
-                        "Panel Entity Perceived Resolution",
-                        panelEntityManager.panelEntity!!.getPerceivedResolution().toString(),
+                        "Main Panel Perceived Resolution",
+                        session.scene.mainPanelEntity.getPerceivedResolution(cameraLeft).toString(),
                     )
-                } else {
-                    mTextView?.setLine("Panel Entity dimensions", "Can't Retrieve it")
-                    mTextView?.setLine(
-                        "Panel Entity Perceived Resolution",
-                        "Create Panel Entity for resolution",
-                    )
-                }
 
-                mTextView?.setLine(
-                    "Surface Entity distance to Camera",
-                    distanceToCamera(leftEye, surfaceEntityManager.surfaceEntity),
-                )
-                if (surfaceEntityManager.surfaceEntity != null) {
-                    val dimensionsInLocalUnits: FloatSize3d =
-                        surfaceEntityManager.surfaceEntity!!.dimensions
-                    val activitySpaceScale: Float =
-                        surfaceEntityManager.surfaceEntity!!.getScale(Space.ACTIVITY)
-                    val dimensionsInActivitySpace: FloatSize3d =
-                        FloatSize3d(
-                            dimensionsInLocalUnits.width * activitySpaceScale,
-                            dimensionsInLocalUnits.height * activitySpaceScale,
-                            dimensionsInLocalUnits.depth * activitySpaceScale,
+                    mTextView?.setLine(
+                        "Panel Entity distance to Camera",
+                        distanceToCamera(leftEyePose, panelEntityManager.panelEntity),
+                    )
+                    if (panelEntityManager.panelEntity != null) {
+                        val panelWidthInActivitySpace: Float =
+                            panelEntityManager.panelEntity!!.size.width *
+                                panelEntityManager.panelEntity!!.getScale(Space.ACTIVITY)
+                        val panelHeightInActivitySpace: Float =
+                            panelEntityManager.panelEntity!!.size.height *
+                                panelEntityManager.panelEntity!!.getScale(Space.ACTIVITY)
+                        mTextView?.setLine(
+                            "Panel Entity dimensions (in Activity Space units)",
+                            "Width: $panelWidthInActivitySpace x Height: $panelHeightInActivitySpace",
                         )
-                    mTextView?.setLine("Surface Entity dimensions", "$dimensionsInActivitySpace")
-                    mTextView?.setLine(
-                        "Surface Entity Perceived Resolution",
-                        surfaceEntityManager.surfaceEntity?.getPerceivedResolution().toString(),
-                    )
-                } else {
-                    mTextView?.setLine("Surface Entity dimensions", "Can't Retrieve it")
-                    mTextView?.setLine(
-                        "Surface Entity Perceived Resolution",
-                        "Create Surface Entity for resolution",
-                    )
-                }
+                        mTextView?.setLine(
+                            "Panel Entity Perceived Resolution",
+                            panelEntityManager.panelEntity!!
+                                .getPerceivedResolution(cameraLeft)
+                                .toString(),
+                        )
+                    } else {
+                        mTextView?.setLine(
+                            "Panel Entity dimensions (in Activity Space units)",
+                            "Can't Retrieve it",
+                        )
+                        mTextView?.setLine(
+                            "Panel Entity Perceived Resolution",
+                            "Create Panel Entity for resolution",
+                        )
+                    }
 
-                // Schedule the runnable to run again after 1 second
-                if (!mStopLoop) {
-                    mHandler.postDelayed(this, TimeUnit.SECONDS.toMillis(1))
+                    mTextView?.setLine(
+                        "Surface Entity distance to Camera",
+                        distanceToCamera(leftEyePose, surfaceEntityManager.surfaceEntity),
+                    )
+                    if (surfaceEntityManager.surfaceEntity != null) {
+                        val dimensionsInLocalUnits: FloatSize3d =
+                            surfaceEntityManager.surfaceEntity!!.dimensions
+                        val activitySpaceScale: Float =
+                            surfaceEntityManager.surfaceEntity!!.getScale(Space.ACTIVITY)
+                        val dimensionsInActivitySpace: FloatSize3d =
+                            FloatSize3d(
+                                dimensionsInLocalUnits.width * activitySpaceScale,
+                                dimensionsInLocalUnits.height * activitySpaceScale,
+                                dimensionsInLocalUnits.depth * activitySpaceScale,
+                            )
+                        mTextView?.setLine(
+                            "Surface Entity dimensions",
+                            "$dimensionsInActivitySpace",
+                        )
+                        mTextView?.setLine(
+                            "Surface Entity Perceived Resolution",
+                            surfaceEntityManager.surfaceEntity
+                                ?.getPerceivedResolution(cameraLeft)
+                                .toString(),
+                        )
+                    } else {
+                        mTextView?.setLine("Surface Entity dimensions", "Can't Retrieve it")
+                        mTextView?.setLine(
+                            "Surface Entity Perceived Resolution",
+                            "Create Surface Entity for resolution",
+                        )
+                    }
+
+                    // Schedule the runnable to run again after 1 second
+                    if (!mStopLoop) {
+                        mHandler.postDelayed(this, TimeUnit.SECONDS.toMillis(1))
+                    }
                 }
             }
         }
@@ -161,12 +177,13 @@ class PerceivedResolutionManager(
         activity.findViewById<Button>(R.id.button_destroy_perceived_resolution_panel)
 
     init {
+        activity.lifecycle.addObserver(this)
         buttonCreatePerceivedResolutionPanel.setOnClickListener { createPanelEntity() }
 
         buttonDestroyPerceivedResolutionPanel.setOnClickListener {
             destroyPerceivedResolutionPanel()
-            updateButtonStates()
         }
+        updateButtonStates()
     }
 
     private fun updateButtonStates() {
@@ -175,7 +192,7 @@ class PerceivedResolutionManager(
     }
 
     private fun createPanelEntity() {
-        mTextView = DebugTextLinearView(context = session.activity)
+        mTextView = DebugTextLinearView(context = activity)
         mTextView?.setName("Perceived Resolution")
         // Create PanelEntity and Components if they don't exist.
         if (mPanelEntity == null) {
@@ -186,32 +203,53 @@ class PerceivedResolutionManager(
                     pixelDimensions = IntSize2d(1000, 500),
                     name = "perceivedResolutionPanel",
                     pose = Pose(Vector3(0.5f, 0f, 0.1f)),
+                    parent = session.scene.mainPanelEntity,
                 )
 
             mMovableComponent = MovableComponent.createSystemMovable(session)
             mPanelEntity!!.addComponent(mMovableComponent!!)
-
-            // Start the periodic update for perceived resolution
-            mStopLoop = false
-            mHandler.post(mUpdatePerceivedResolutionRunnable)
         }
+        updateButtonStates()
     }
 
     private fun destroyPerceivedResolutionPanel() {
-        mStopLoop = true
-        mPanelEntity?.dispose()
+        mPanelEntity?.removeAllComponents()
+        mPanelEntity?.parent = null
         mPanelEntity = null
+        updateButtonStates()
     }
 
-    private fun distanceToCamera(cameraView: CameraView?, pose: ScenePose?): String {
+    private fun distanceToCamera(cameraPose: ScenePose?, pose: ScenePose?): String {
         val distance =
-            if (cameraView != null && pose != null)
+            if (cameraPose != null && pose != null)
                 Vector3.distance(
-                        cameraView.activitySpacePose.translation,
-                        pose.activitySpacePose.translation,
+                        cameraPose.poseInActivitySpace.translation,
+                        pose.poseInActivitySpace.translation,
                     )
                     .toString()
             else "Can't retrieve distance to Camera"
         return distance
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                mStopLoop = false
+                mHandler.post(mUpdatePerceivedResolutionRunnable)
+            }
+
+            Lifecycle.Event.ON_STOP -> {
+                mStopLoop = true
+                mHandler.removeCallbacks(mUpdatePerceivedResolutionRunnable)
+            }
+
+            Lifecycle.Event.ON_DESTROY -> {
+                destroyPerceivedResolutionPanel()
+            }
+
+            else -> {
+                // Do nothing
+            }
+        }
     }
 }

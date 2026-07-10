@@ -23,12 +23,13 @@ import androidx.compose.ui.inspection.util.createAllParametersChecks
 import androidx.compose.ui.inspection.util.filter
 import androidx.compose.ui.inspection.util.nodes
 import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode.Flags
 import org.junit.After
 import org.junit.Before
@@ -38,7 +39,7 @@ import org.junit.rules.RuleChain
 
 @LargeTest
 class LazyColumnTest {
-    private val rule = createAndroidComposeRule<LazyColumnTestActivity>()
+    private val rule = createAndroidComposeRule<LazyColumnTestActivity>(StandardTestDispatcher())
 
     @get:Rule val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 
@@ -65,6 +66,7 @@ class LazyColumnTest {
         // Scrolling to index 30 is known to create some extra composables that are used to display
         // rows after a scroll operation. These would have been marked with unknown location.
         rule.onNode(hasScrollAction()).performScrollToIndex(30)
+        rule.waitForIdle()
         generation++
         val checks = createAllParametersChecks(inspectorTester, rootId, generation)
         val texts = checks.composableResponse.filter("Text")
@@ -85,20 +87,23 @@ class LazyColumnTest {
 
     @Test
     fun rowsInOrder(): Unit = runBlocking {
-        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single().toLong()
+        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single()
         textComponentsInOrder(0)
         rule.onNode(hasScrollAction()).performScrollToIndex(30)
+        rule.waitForIdle()
         textComponentsInOrder(30)
         rule.onNode(hasScrollAction()).performScrollToIndex(85)
+        rule.waitForIdle()
         textComponentsInOrder(85)
         rule.onNode(hasScrollAction()).performScrollToIndex(15)
+        rule.waitForIdle()
         textComponentsInOrder(15)
     }
 
     @Test
     fun testDrawModifierNodes() = runBlocking {
         generation++
-        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single().toLong()
+        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single()
         val checks = createAllParametersChecks(inspectorTester, rootId, generation)
         val withChildDrawModifiers =
             checks.composableResponse

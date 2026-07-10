@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:JvmName("StringUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+
+package androidx.room3.util
+
+import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
+
+/**
+ * Adds bind variable placeholders (?) to the given string. Each placeholder is separated by a
+ * comma.
+ *
+ * @param builder The StringBuilder for the query
+ * @param count Number of placeholders
+ */
+public fun appendPlaceholders(builder: StringBuilder, count: Int) {
+    for (i in 0 until count) {
+        builder.append("?")
+        if (i < count - 1) {
+            builder.append(",")
+        }
+    }
+}
+
+/**
+ * Adds row value placeholders (e.g., (?, ?)) to the given string. Each tuplet is separated by a
+ * comma.
+ *
+ * @param builder The StringBuilder for the query
+ * @param count Number of tuplets
+ * @param columnsSize Size of each tuplet
+ */
+public fun appendRowValuePlaceholders(builder: StringBuilder, count: Int, columnsSize: Int) {
+    if (count <= 0) return
+    val placeholder =
+        when (columnsSize) {
+            2 -> "(?, ?)"
+            3 -> "(?, ?, ?)"
+            else -> {
+                val sb = StringBuilder("(")
+                for (i in 0 until columnsSize) {
+                    if (i > 0) sb.append(", ")
+                    sb.append("?")
+                }
+                sb.append(")")
+                sb.toString()
+            }
+        }
+    for (i in 0 until count) {
+        builder.append(placeholder)
+        if (i < count - 1) {
+            builder.append(", ")
+        }
+    }
+}
+
+/**
+ * Splits a comma separated list of integers to integer list.
+ *
+ * If an input is malformed, it is omitted from the result.
+ *
+ * @param input Comma separated list of integers.
+ * @return A List containing the integers or null if the input is null.
+ */
+public fun splitToIntList(input: String?): List<Int>? {
+    return input?.split(',')?.mapNotNull { item ->
+        try {
+            item.toInt()
+        } catch (ex: NumberFormatException) {
+            null
+        }
+    }
+}
+
+/**
+ * Joins the given list of integers into a comma separated list.
+ *
+ * @param input The list of integers.
+ * @return Comma separated string composed of integers in the list. If the list is null, return
+ *   value is null.
+ */
+public fun joinIntoString(input: List<Int>?): String? {
+    return input?.joinToString(",")
+}

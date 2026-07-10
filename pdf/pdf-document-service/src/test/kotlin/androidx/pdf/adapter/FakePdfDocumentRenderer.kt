@@ -17,15 +17,24 @@
 package androidx.pdf.adapter
 
 import android.os.ParcelFileDescriptor
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_NOT_LINEARIZED
 
 class FakePdfDocumentRenderer(
-    override val isLinearized: Boolean,
-    override val pageCount: Int,
-    override val formType: Int,
-    private val pdfPageProvider: (Int) -> PdfPage,
+    override val linearizationStatus: Int = LINEARIZATION_STATUS_NOT_LINEARIZED,
+    override val pageCount: Int = 10,
+    override val formType: Int = 0,
 ) : PdfDocumentRenderer {
-    override fun openPage(pageNum: Int, useCache: Boolean): PdfPage =
-        pdfPageProvider.invoke(pageNum)
+    val fakePagesMap = mutableMapOf<Int, FakePdfPage>()
+
+    var isClosed = false
+
+    init {
+        for (pageNum in 0 until pageCount) fakePagesMap[pageNum] = FakePdfPage(pageNum, 100, 100)
+    }
+
+    override fun openPage(pageNum: Int, useCache: Boolean): PdfPage {
+        return fakePagesMap[pageNum] ?: throw IndexOutOfBoundsException()
+    }
 
     override fun releasePage(page: PdfPage?, pageNum: Int) {}
 
@@ -34,6 +43,6 @@ class FakePdfDocumentRenderer(
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        isClosed = true
     }
 }

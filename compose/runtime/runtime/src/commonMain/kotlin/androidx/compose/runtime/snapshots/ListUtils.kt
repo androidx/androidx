@@ -53,20 +53,6 @@ internal inline fun <T> ObjectList<T>.fastForEach(action: (T) -> Unit) {
 }
 
 /**
- * Iterates through an [Array] using the index and calls [action] for each item. This does not
- * allocate an iterator like [Iterable.forEach].
- */
-@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-@OptIn(ExperimentalContracts::class)
-internal inline fun <T> Array<T>.fastForEach(action: (T) -> Unit) {
-    contract { callsInPlace(action) }
-    for (index in indices) {
-        val item = get(index)
-        action(item)
-    }
-}
-
-/**
  * Returns a [Set] of all elements.
  *
  * The returned set preserves the element iteration order of the original collection.
@@ -110,40 +96,6 @@ internal inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEach { target += transform(it) }
-    return target
-}
-
-/**
- * Returns a list containing the results of applying the given [transform] function to each element
- * in the original collection.
- *
- * **Do not use for collections that come from public APIs**, since they may not support random
- * access in an efficient way, and this method may actually be a lot slower. Only use for
- * collections that are created by code we control and are known to support random access.
- */
-@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-@OptIn(ExperimentalContracts::class)
-internal inline fun <T, R> Array<T>.fastMap(transform: (T) -> R): List<R> {
-    contract { callsInPlace(transform) }
-    val target = ArrayList<R>(size)
-    fastForEach { target += transform(it) }
-    return target
-}
-
-/**
- * Returns a list containing the results of applying the given [transform] function to each element
- * in the original collection.
- *
- * **Do not use for collections that come from public APIs**, since they may not support random
- * access in an efficient way, and this method may actually be a lot slower. Only use for
- * collections that are created by code we control and are known to support random access.
- */
-@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-@OptIn(ExperimentalContracts::class)
-internal inline fun <T, R> Array<T>.fastMapNotNull(transform: (T) -> R?): List<R> {
-    contract { callsInPlace(transform) }
-    val target = ArrayList<R>()
-    fastForEach { transform(it)?.let { element -> target += element } }
     return target
 }
 

@@ -34,6 +34,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -42,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
@@ -325,7 +326,9 @@ public fun BasicSwipeToDismissBox(
  */
 @Stable
 @OptIn(ExperimentalWearFoundationApi::class)
-public class SwipeToDismissBoxState(
+public class SwipeToDismissBoxState
+@RememberInComposition
+constructor(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ) {
@@ -356,7 +359,7 @@ public class SwipeToDismissBoxState(
      * The offset shows how far the foreground content was swiped from its original position.
      */
     public val offset: Float
-        get() = swipeableState.offset ?: Float.NaN
+        @FrequentlyChangingValue get() = swipeableState.offset ?: Float.NaN
 
     /** Whether the state is currently animating. */
     public val isAnimationRunning: Boolean
@@ -370,7 +373,7 @@ public class SwipeToDismissBoxState(
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    public fun requireOffset(): Float = swipeableState.requireOffset()
+    @FrequentlyChangingValue public fun requireOffset(): Float = swipeableState.requireOffset()
 
     internal fun edgeNestedScrollConnection(
         edgeSwipeState: State<EdgeSwipeState>
@@ -385,6 +388,17 @@ public class SwipeToDismissBoxState(
         swipeableState.snapTo(targetValue)
 
     private companion object {
+        // edgeNestedScrollConnection is used with Modifier.edgeSwipeToDismiss. It implicitly calls
+        // requireDensity() and requireOffset() on SwipeableV2State, so both density and offset must
+        // be non-null to avoid an exception being thrown.
+        //
+        // Density and Offset are set in BasicSwipeToDismissBox. SwipeDismissableNavHost uses
+        // BasicSwipeToDismissBox up to API 35, so is compatible with Modifier.edgeSwipeToDismiss.
+        // For API 36 onwards, SwipeDismissableNavHost uses platform predictive back and so density
+        // and offset would not be set and calling requireDensity() and requireOffset() would throw.
+        private val <T> SwipeableV2State<T>.isSwipeableV2Initialized: Boolean
+            get() = density != null && offset != null
+
         private fun <T> SwipeableV2State<T>.edgeNestedScrollConnection(
             edgeSwipeState: State<EdgeSwipeState>
         ): NestedScrollConnection =
@@ -394,8 +408,8 @@ public class SwipeToDismissBoxState(
                     // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss
                     // drag and consume everything
                     return if (
-                        edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss &&
-                            source == NestedScrollSource.UserInput
+                        (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss &&
+                            source == NestedScrollSource.UserInput) && isSwipeableV2Initialized
                     ) {
                         dispatchRawDelta(delta)
                         available
@@ -412,10 +426,12 @@ public class SwipeToDismissBoxState(
 
                 override suspend fun onPreFling(available: Velocity): Velocity {
                     val toFling = available.x
-                    // Consumes fling by SwipeToDismiss
+                    // Consumes fling by SwipeToDismiss only after swipeableV2State is successfully
+                    // connected to composable
                     return if (
-                        edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss ||
-                            edgeSwipeState.value == EdgeSwipeState.SwipeToDismissInProgress
+                        (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss ||
+                            edgeSwipeState.value == EdgeSwipeState.SwipeToDismissInProgress) &&
+                            isSwipeableV2Initialized
                     ) {
                         settle(velocity = toFling)
                         available
@@ -426,8 +442,14 @@ public class SwipeToDismissBoxState(
                     consumed: Velocity,
                     available: Velocity,
                 ): Velocity {
-                    settle(velocity = available.x)
-                    return available
+                    // Consumes fling by SwipeToDismiss only after swipeableV2State is successfully
+                    // connected to composable
+                    return if (isSwipeableV2Initialized) {
+                        settle(velocity = available.x)
+                        available
+                    } else {
+                        Velocity.Zero
+                    }
                 }
             }
     }

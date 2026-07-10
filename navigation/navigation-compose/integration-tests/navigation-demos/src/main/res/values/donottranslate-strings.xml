@@ -15,8 +15,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="profile">Profile</string>
-    <string name="dashboard">Dashboard</string>
-    <string name="scrollable">Scrollable</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="profile" tools:ignore="PrivateResource">Profile</string>
+    <string name="dashboard" tools:ignore="PrivateResource">Dashboard</string>
+    <string name="scrollable" tools:ignore="PrivateResource">Scrollable</string>
 </resources>

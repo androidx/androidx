@@ -1,0 +1,74 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material3:material3-window-size-class>
+open annotation class androidx.compose.material3.windowsizeclass/ExperimentalMaterial3WindowSizeClassApi : kotlin/Annotation { // androidx.compose.material3.windowsizeclass/ExperimentalMaterial3WindowSizeClassApi|null[0]
+    constructor <init>() // androidx.compose.material3.windowsizeclass/ExperimentalMaterial3WindowSizeClassApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.compose.material3.windowsizeclass/TestOnly : kotlin/Annotation { // androidx.compose.material3.windowsizeclass/TestOnly|null[0]
+    constructor <init>() // androidx.compose.material3.windowsizeclass/TestOnly.<init>|<init>(){}[0]
+}
+
+final class androidx.compose.material3.windowsizeclass/WindowSizeClass { // androidx.compose.material3.windowsizeclass/WindowSizeClass|null[0]
+    final val heightSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.heightSizeClass|{}heightSizeClass[0]
+        final fun <get-heightSizeClass>(): androidx.compose.material3.windowsizeclass/WindowHeightSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.heightSizeClass.<get-heightSizeClass>|<get-heightSizeClass>(){}[0]
+    final val widthSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.widthSizeClass|{}widthSizeClass[0]
+        final fun <get-widthSizeClass>(): androidx.compose.material3.windowsizeclass/WindowWidthSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.widthSizeClass.<get-widthSizeClass>|<get-widthSizeClass>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.windowsizeclass/WindowSizeClass.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowSizeClass.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.windowsizeclass/WindowSizeClass.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion|null[0]
+        final fun calculateFromSize(androidx.compose.ui.unit/DpSize, kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass> = ..., kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> = ...): androidx.compose.material3.windowsizeclass/WindowSizeClass // androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion.calculateFromSize|calculateFromSize(androidx.compose.ui.unit.DpSize;kotlin.collections.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass>;kotlin.collections.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass>){}[0]
+    }
+}
+
+final value class androidx.compose.material3.windowsizeclass/WindowHeightSizeClass : kotlin/Comparable<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> { // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass|null[0]
+    final fun compareTo(androidx.compose.material3.windowsizeclass/WindowHeightSizeClass): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.compareTo|compareTo(androidx.compose.material3.windowsizeclass.WindowHeightSizeClass){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion|null[0]
+        final val AllSizeClasses // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.AllSizeClasses|{}AllSizeClasses[0]
+            final fun <get-AllSizeClasses>(): kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.AllSizeClasses.<get-AllSizeClasses>|<get-AllSizeClasses>(){}[0]
+        final val Compact // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Compact|{}Compact[0]
+            final fun <get-Compact>(): androidx.compose.material3.windowsizeclass/WindowHeightSizeClass // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Compact.<get-Compact>|<get-Compact>(){}[0]
+        final val DefaultSizeClasses // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.DefaultSizeClasses|{}DefaultSizeClasses[0]
+            final fun <get-DefaultSizeClasses>(): kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass> // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.DefaultSizeClasses.<get-DefaultSizeClasses>|<get-DefaultSizeClasses>(){}[0]
+        final val Expanded // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Expanded|{}Expanded[0]
+            final fun <get-Expanded>(): androidx.compose.material3.windowsizeclass/WindowHeightSizeClass // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Expanded.<get-Expanded>|<get-Expanded>(){}[0]
+        final val Medium // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Medium|{}Medium[0]
+            final fun <get-Medium>(): androidx.compose.material3.windowsizeclass/WindowHeightSizeClass // androidx.compose.material3.windowsizeclass/WindowHeightSizeClass.Companion.Medium.<get-Medium>|<get-Medium>(){}[0]
+    }
+}
+
+final value class androidx.compose.material3.windowsizeclass/WindowWidthSizeClass : kotlin/Comparable<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass> { // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass|null[0]
+    final fun compareTo(androidx.compose.material3.windowsizeclass/WindowWidthSizeClass): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.compareTo|compareTo(androidx.compose.material3.windowsizeclass.WindowWidthSizeClass){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion|null[0]
+        final val AllSizeClasses // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.AllSizeClasses|{}AllSizeClasses[0]
+            final fun <get-AllSizeClasses>(): kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass> // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.AllSizeClasses.<get-AllSizeClasses>|<get-AllSizeClasses>(){}[0]
+        final val Compact // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Compact|{}Compact[0]
+            final fun <get-Compact>(): androidx.compose.material3.windowsizeclass/WindowWidthSizeClass // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Compact.<get-Compact>|<get-Compact>(){}[0]
+        final val DefaultSizeClasses // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.DefaultSizeClasses|{}DefaultSizeClasses[0]
+            final fun <get-DefaultSizeClasses>(): kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass> // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.DefaultSizeClasses.<get-DefaultSizeClasses>|<get-DefaultSizeClasses>(){}[0]
+        final val Expanded // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Expanded|{}Expanded[0]
+            final fun <get-Expanded>(): androidx.compose.material3.windowsizeclass/WindowWidthSizeClass // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Expanded.<get-Expanded>|<get-Expanded>(){}[0]
+        final val Medium // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Medium|{}Medium[0]
+            final fun <get-Medium>(): androidx.compose.material3.windowsizeclass/WindowWidthSizeClass // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Medium.<get-Medium>|<get-Medium>(){}[0]
+    }
+}
+
+final val androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop // androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop|#static{}androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop[0]
+
+final fun androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter(): kotlin/Int // androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter|androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter(){}[0]

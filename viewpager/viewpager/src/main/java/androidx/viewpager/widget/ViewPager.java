@@ -47,8 +47,6 @@ import android.widget.Scroller;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -60,6 +58,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.widget.EdgeEffectCompat;
 import androidx.customview.view.AbsSavedState;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -237,12 +238,10 @@ public class ViewPager extends ViewGroup {
 
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @NonNull
-    public EdgeEffect mLeftEdge;
+    public @NonNull EdgeEffect mLeftEdge;
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @NonNull
-    public EdgeEffect mRightEdge;
+    public @NonNull EdgeEffect mRightEdge;
 
     private boolean mFirstLayout = true;
     private boolean mCalledSuper;
@@ -578,8 +577,7 @@ public class ViewPager extends ViewGroup {
      *
      * @return The currently registered PagerAdapter
      */
-    @Nullable
-    public PagerAdapter getAdapter() {
+    public @Nullable PagerAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -1438,8 +1436,7 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
-    @NonNull
-    public Parcelable onSaveInstanceState() {
+    public @NonNull Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.position = mCurItem;

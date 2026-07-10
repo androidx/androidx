@@ -16,17 +16,19 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
-import androidx.wear.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import kotlinx.coroutines.CoroutineScope
 
 internal fun interface MeasuredItemProvider {
@@ -50,7 +52,8 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
     horizontalAlignment: Alignment.Horizontal,
     verticalArrangement: Arrangement.Vertical,
     measurementStrategy: TransformingLazyColumnMeasurementStrategy,
-): LazyLayoutMeasureScope.(Constraints) -> MeasureResult =
+    reverseLayout: Boolean,
+): LazyLayoutMeasurePolicy =
     remember(
         itemProviderLambda,
         state,
@@ -59,7 +62,19 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
         verticalArrangement,
         measurementStrategy,
     ) {
-        { containerConstraints ->
+        LazyLayoutMeasurePolicy { containerConstraints ->
+            val placeablesCache = mutableIntObjectMapOf<List<Placeable>>()
+            fun LazyLayoutMeasureScope.getPlaceables(
+                index: Int,
+                constraints: Constraints,
+            ): List<Placeable> {
+                return placeablesCache.getOrPut(index) {
+                    val measurables = compose(index)
+                    List(measurables.size) { i -> measurables[i].measure(constraints) }
+                        .also { placeablesCache[index] = it }
+                }
+            }
+
             val childConstraints =
                 Constraints(
                     maxHeight = Constraints.Infinity,
@@ -72,7 +87,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
 
             val measuredItemProvider =
                 MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
-                    val placeables = measure(index, childConstraints)
+                    val placeables = getPlaceables(index, childConstraints)
                     // TODO(artemiy): Add support for multiple items.
                     val placeable = placeables.lastOrNull()
                     val key = itemProvider.getKey(index)
@@ -85,6 +100,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                         measurementDirection = measurementDirection,
                         horizontalAlignment = horizontalAlignment,
                         layoutDirection = layoutDirection,
+                        reverseLayout = reverseLayout,
                         key = key,
                         spacing = verticalArrangement.spacing.roundToPx(),
                         leftPadding = measurementStrategy.leftContentPadding,
@@ -116,7 +132,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                             itemsCount = itemsCount,
                             keyIndexMap = itemProvider.keyIndexMap,
                             measuredItemProvider = measuredItemProvider,
-                            itemSpacing = verticalArrangement.spacing.roundToPx(),
+                            verticalArrangement = verticalArrangement,
                             containerConstraints = containerConstraints,
                             scrollToBeConsumed = scrollToBeConsumed,
                             anchorItemKey = anchorItemKey,

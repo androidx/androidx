@@ -21,13 +21,18 @@ import static androidx.appcompat.testutils.TestUtils.assertCenterPixelOfColor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
@@ -169,5 +174,44 @@ public class ToolbarTest {
                 0xFFFF00FF,
                 10,
                 false);
+    }
+
+    @Test
+    public void testHeightWithTitleSubtitleAndMargins() {
+        final Context context = mToolbar.getContext();
+        final Toolbar toolbar = new Toolbar(context);
+        toolbar.setTitle("Title");
+        toolbar.setSubtitle("Subtitle");
+
+        final int topMargin = 30;   // pixels
+        final int bottomMargin = 30; // pixels
+        toolbar.setTitleMarginTop(topMargin);
+        toolbar.setTitleMarginBottom(bottomMargin);
+
+        toolbar.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        // Measure the Toolbar
+        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        toolbar.measure(widthMeasureSpec, heightMeasureSpec);
+
+        TextView titleView = toolbar.getTitleTextView();
+        TextView subtitleView = toolbar.getSubtitleTextView();
+        assertNotNull(titleView);
+        assertNotNull(subtitleView);
+
+        int titleHeight = titleView.getMeasuredHeight();
+        int subtitleHeight = subtitleView.getMeasuredHeight();
+
+        // The total height must be at least the sum of the title, subtitle, and their margins.
+        int expectedMinHeight = titleHeight + subtitleHeight + topMargin + bottomMargin;
+
+        assertTrue("Toolbar measured height (" + toolbar.getMeasuredHeight()
+                + ") should be at least the sum of its contents' heights and margins ("
+                + expectedMinHeight + ")",
+                toolbar.getMeasuredHeight() >= expectedMinHeight);
     }
 }

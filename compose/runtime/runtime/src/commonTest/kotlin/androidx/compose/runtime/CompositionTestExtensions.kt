@@ -16,18 +16,13 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.composer.gapbuffer.SlotTable
-
 @TestOnly
-fun Composition.getSlots(): Iterable<Any?> =
-    when (val storage = (this as CompositionImpl).slotStorage) {
-        is SlotTable -> storage.slots.asIterable()
-        else -> composeRuntimeError("Unknown slotStorage implementation")
-    }
+fun Composition.getSlots(): Iterable<Any?> = (this as CompositionImpl).slotStorage.getSlots()
 
 @TestOnly
 fun Composer.getInsertTableSlots(): Iterable<Any?> =
     when (this) {
         is GapComposer -> insertTable.slots.asIterable()
+        is LinkComposer -> insertTable.getSlots()
         else -> composeRuntimeError("Unknown composer implementation")
     }

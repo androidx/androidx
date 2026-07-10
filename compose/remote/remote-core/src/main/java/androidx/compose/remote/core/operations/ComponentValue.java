@@ -17,10 +17,12 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -32,12 +34,20 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class ComponentValue extends Operation implements SerializableToString, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ComponentValue extends Operation
+        implements SerializableToString, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COMPONENT_VALUE;
     private static final String CLASS_NAME = "ComponentValue";
 
     public static final int WIDTH = 0;
     public static final int HEIGHT = 1;
+    public static final int POS_X = 2;
+    public static final int POS_Y = 3;
+    public static final int POS_ROOT_X = 4;
+    public static final int POS_ROOT_Y = 5;
+    public static final int CONTENT_WIDTH = 6;
+    public static final int CONTENT_HEIGHT = 7;
 
     private int mType = WIDTH;
     private int mComponentID = -1;
@@ -80,6 +90,10 @@ public class ComponentValue extends Operation implements SerializableToString, S
         return mValueId;
     }
 
+    public void setComponentId(int componentId) {
+        mComponentID = componentId;
+    }
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer, mType, mComponentID, mValueId);
@@ -98,8 +112,8 @@ public class ComponentValue extends Operation implements SerializableToString, S
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readInt();
-        int componentId = buffer.readInt();
-        int valueId = buffer.readInt();
+        int componentId = buffer.readId();
+        int valueId = buffer.readId();
         ComponentValue op = new ComponentValue(type, componentId, valueId);
         operations.add(op);
     }
@@ -110,18 +124,30 @@ public class ComponentValue extends Operation implements SerializableToString, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Encode a component-related value (eg its width, height etc.)")
-                .field(
-                        DocumentedOperation.INT,
-                        "TYPE",
-                        "The type of value, either WIDTH(0) or HEIGHT(1)")
-                .field(INT, "COMPONENT_ID", "The component id to reference")
-                .field(
-                        INT,
-                        "VALUE_ID",
-                        "The id of the RemoteFloat representing the described"
-                                + " component value, which can be used in expressions");
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .description(
+                        "Expose a component's layout property (width, height, etc.) as a variable")
+                .field(DocumentedOperation.INT, "type", "The type of value to expose")
+                .possibleValues("WIDTH", WIDTH)
+                .possibleValues("HEIGHT", HEIGHT)
+                .possibleValues("POS_X", POS_X)
+                .possibleValues("POS_Y", POS_Y)
+                .possibleValues("POS_ROOT_X", POS_ROOT_X)
+                .possibleValues("POS_ROOT_Y", POS_ROOT_Y)
+                .possibleValues("CONTENT_WIDTH", CONTENT_WIDTH)
+                .possibleValues("CONTENT_HEIGHT", CONTENT_HEIGHT)
+                .field(INT, "componentId", "The ID of the component to reference")
+                .field(INT, "valueId", "The ID of the variable to store the value in");
+    }
+
+    @Override
+    public int getId() {
+        return mValueId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mValueId = id;
     }
 
     public ComponentValue(int type, int componentId, int valueId) {
@@ -148,7 +174,7 @@ public class ComponentValue extends Operation implements SerializableToString, S
     @NonNull
     @Override
     public String deepToString(@NonNull String indent) {
-        return null;
+        return indent + toString();
     }
 
     @Override

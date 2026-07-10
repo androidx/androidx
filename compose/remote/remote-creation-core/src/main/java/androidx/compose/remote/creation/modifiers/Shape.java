@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package androidx.compose.remote.creation.modifiers;
+import androidx.annotation.RestrictTo;
 
 /** Base class for Shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Shape {}

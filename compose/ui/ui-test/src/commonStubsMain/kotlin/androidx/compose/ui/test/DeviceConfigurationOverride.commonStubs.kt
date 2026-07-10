@@ -30,3 +30,7 @@ actual fun DeviceConfigurationOverride.Companion.FontScale(
 actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
     layoutDirection: LayoutDirection
 ): DeviceConfigurationOverride = implementedInJetBrainsFork()
+
+actual fun DeviceConfigurationOverride.Companion.WindowSize(
+    size: DpSize
+): DeviceConfigurationOverride = implementedInJetBrainsFork()

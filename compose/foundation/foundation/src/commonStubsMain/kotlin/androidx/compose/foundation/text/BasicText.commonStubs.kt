@@ -31,6 +31,7 @@ internal actual fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean,
 ): Unit = implementedInJetBrainsFork()
 
 @Suppress("ComposableNaming")
@@ -41,4 +42,5 @@ internal actual fun BackgroundTextMeasurement(
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
+    softWrap: Boolean,
 ): Unit = implementedInJetBrainsFork()

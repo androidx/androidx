@@ -42,8 +42,9 @@ interface ContentScale {
          * dimensions (width and height) of the source will be equal to or larger than the
          * corresponding dimension of the destination.
          *
-         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
-         * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_CROP]
+         * This [ContentScale] implementation in combination with usage of
+         * [androidx.compose.ui.Alignment.Center] provides similar behavior to
+         * [android.widget.ImageView.ScaleType.CENTER_CROP]
          */
         @Stable
         val Crop =
@@ -57,8 +58,9 @@ interface ContentScale {
          * dimensions (width and height) of the source will be equal to or less than the
          * corresponding dimension of the destination
          *
-         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
-         * provides similar behavior to [android.widget.ImageView.ScaleType.FIT_CENTER]
+         * This [ContentScale] implementation in combination with usage of
+         * [androidx.compose.ui.Alignment.Center] provides similar behavior to
+         * [android.widget.ImageView.ScaleType.FIT_CENTER]
          */
         @Stable
         val Fit =
@@ -97,8 +99,9 @@ interface ContentScale {
          * destination in both dimensions, this behaves similarly to [None]. This will always be
          * contained within the bounds of the destination.
          *
-         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
-         * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_INSIDE]
+         * This [ContentScale] implementation in combination with usage of
+         * [androidx.compose.ui.Alignment.Center] provides similar behavior to
+         * [android.widget.ImageView.ScaleType.CENTER_INSIDE]
          */
         @Stable
         val Inside =

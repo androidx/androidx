@@ -31,6 +31,10 @@ interface InputModeManager {
     /**
      * Send a request to change the [InputMode].
      *
+     * This may not succeed, depending on platform implementation. For example, on Android the input
+     * mode is managed by the platform, and an app can't programmatically request to move from
+     * [InputMode.Keyboard] to [InputMode.Touch] outside of tests.
+     *
      * @param inputMode The requested [InputMode].
      * @return true if the system is in the requested mode, after processing this request.
      */
@@ -49,18 +53,26 @@ value class InputMode internal constructor(@Suppress("unused") private val value
 
     companion object {
         /** The system is put into [Touch] mode when a user touches the screen. */
-        val Touch = InputMode(1)
+        val Touch
+            get() = InputMode(1)
 
         /** The system is put into [Keyboard] mode when a user presses a hardware key. */
-        val Keyboard = InputMode(2)
+        val Keyboard
+            get() = InputMode(2)
     }
 }
 
 internal class InputModeManagerImpl(
     initialInputMode: InputMode,
-    private val onRequestInputModeChange: (InputMode) -> Boolean,
+    private val onRequestInputModeChange: InputModeChangeRequester,
 ) : InputModeManager {
     override var inputMode: InputMode by mutableStateOf(initialInputMode)
 
-    override fun requestInputMode(inputMode: InputMode) = onRequestInputModeChange.invoke(inputMode)
+    override fun requestInputMode(inputMode: InputMode) =
+        onRequestInputModeChange.request(inputMode)
+}
+
+internal fun interface InputModeChangeRequester {
+
+    fun request(inputMode: InputMode): Boolean
 }

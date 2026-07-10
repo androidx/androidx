@@ -16,11 +16,17 @@
 
 package androidx.camera.integration.featurecombo.ui
 
+import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.integration.featurecombo.AppFeatures
+import androidx.camera.integration.featurecombo.AppUseCase
+import androidx.camera.integration.featurecombo.AppUseCase.Companion.getSupportedGroupableFeatures
 import androidx.camera.integration.featurecombo.DynamicRange
+import androidx.camera.integration.featurecombo.Effect
 import androidx.camera.integration.featurecombo.Fps
 import androidx.camera.integration.featurecombo.ImageFormat
+import androidx.camera.integration.featurecombo.RecordingQuality
 import androidx.camera.integration.featurecombo.StabilizationMode
+import androidx.camera.integration.featurecombo.effects.BouncyLogoOverlayEffect.Companion.supportsEffect
 
 data class FeatureUi(
     val title: AppFeatureTitle,
@@ -33,58 +39,70 @@ data class FeatureUi(
 enum class AppFeatureTitle(val value: String) {
     HDR("HDR"),
     FPS("FPS"),
-    STABILIZATION("Stabilization Mode"),
-    IMAGE_FORMAT("Image Format"),
+    STABILIZATION("Stabilization"),
+    IMAGE_FORMAT("Img Format"),
+    RECORDING_QUALITY("Recording"),
+    EFFECT("Effect"),
 }
 
-fun AppFeatures.toFeatureUiList(isVideoMode: Boolean): List<FeatureUi> {
-    return if (isVideoMode) {
-        listOf<FeatureUi>(
+fun AppFeatures.toFeatureUiList(useCases: Set<AppUseCase>): List<FeatureUi> {
+    return buildList {
+        useCases
+            .getSupportedGroupableFeatures()
+            .map { it.featureType }
+            .distinct()
+            .forEach { createFeatureUi(it)?.apply { add(this) } }
+
+        if (useCases.supportsEffect()) {
+            add(
+                FeatureUi(
+                    title = AppFeatureTitle.EFFECT,
+                    selectedValue = effect.text,
+                    unsupportedValues = unsupportedEffects.map { it.text },
+                    possibleValues = Effect.entries.map { it.text },
+                )
+            )
+        }
+    }
+}
+
+fun AppFeatures.createFeatureUi(featureType: Int): FeatureUi? {
+    return when (featureType) {
+        GroupableFeature.FEATURE_TYPE_DYNAMIC_RANGE ->
             FeatureUi(
                 title = AppFeatureTitle.HDR,
                 selectedValue = dynamicRange.text,
                 unsupportedValues = unsupportedDynamicRanges.map { it.text },
-                possibleValues = DynamicRange.values().map { it.text },
-            ),
+                possibleValues = DynamicRange.entries.map { it.text },
+            )
+        GroupableFeature.FEATURE_TYPE_RECORDING_QUALITY ->
+            FeatureUi(
+                title = AppFeatureTitle.RECORDING_QUALITY,
+                selectedValue = recordingQuality.text,
+                unsupportedValues = unsupportedRecordingQualities.map { it.text },
+                possibleValues = RecordingQuality.entries.map { it.text },
+            )
+        GroupableFeature.FEATURE_TYPE_FPS_RANGE ->
             FeatureUi(
                 title = AppFeatureTitle.FPS,
                 selectedValue = fps.text,
                 unsupportedValues = unsupportedFps.map { it.text },
-                possibleValues = Fps.values().map { it.text },
-            ),
+                possibleValues = Fps.entries.map { it.text },
+            )
+        GroupableFeature.FEATURE_TYPE_VIDEO_STABILIZATION ->
             FeatureUi(
                 title = AppFeatureTitle.STABILIZATION,
                 selectedValue = stabilizationMode.text,
                 unsupportedValues = unsupportedStabilizationModes.map { it.text },
-                possibleValues = StabilizationMode.values().map { it.text },
-            ),
-        )
-    } else {
-        listOf<FeatureUi>(
+                possibleValues = StabilizationMode.entries.map { it.text },
+            )
+        GroupableFeature.FEATURE_TYPE_IMAGE_FORMAT ->
             FeatureUi(
                 title = AppFeatureTitle.IMAGE_FORMAT,
                 selectedValue = imageFormat.text,
                 unsupportedValues = unsupportedImageFormats.map { it.text },
-                possibleValues = ImageFormat.values().map { it.text },
-            ),
-            FeatureUi(
-                title = AppFeatureTitle.HDR,
-                selectedValue = dynamicRange.text,
-                unsupportedValues = unsupportedDynamicRanges.map { it.text },
-                possibleValues = DynamicRange.values().map { it.text },
-            ),
-            FeatureUi(
-                title = AppFeatureTitle.STABILIZATION,
-                selectedValue = stabilizationMode.text,
-                unsupportedValues = unsupportedStabilizationModes.map { it.text },
-                possibleValues = StabilizationMode.values().map { it.text },
-            ),
-            FeatureUi(
-                title = AppFeatureTitle.FPS,
-                selectedValue = fps.text,
-                unsupportedValues = unsupportedFps.map { it.text },
-                possibleValues = Fps.values().map { it.text },
-            ),
-        )
+                possibleValues = ImageFormat.entries.map { it.text },
+            )
+        else -> null
     }
 }

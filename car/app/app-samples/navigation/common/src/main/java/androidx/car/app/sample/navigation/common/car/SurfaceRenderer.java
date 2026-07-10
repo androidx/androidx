@@ -33,8 +33,6 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.SurfaceCallback;
@@ -43,6 +41,9 @@ import androidx.car.app.sample.navigation.common.R;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** A very simple implementation of a renderer for the app's background surface. */
 public final class SurfaceRenderer implements DefaultLifecycleObserver {

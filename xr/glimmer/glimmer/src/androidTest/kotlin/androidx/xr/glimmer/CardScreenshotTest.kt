@@ -16,19 +16,20 @@
 
 package androidx.xr.glimmer
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.xr.glimmer.samples.ActionCardWithTitleSample
 import androidx.xr.glimmer.samples.CardSample
 import androidx.xr.glimmer.samples.CardWithLongText
-import androidx.xr.glimmer.samples.CardWithTitleAndActionSample
 import androidx.xr.glimmer.samples.CardWithTitleAndHeaderSample
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconLongText
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconSample
 import androidx.xr.glimmer.samples.CardWithTrailingIconSample
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +39,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CardScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 
@@ -74,7 +75,7 @@ class CardScreenshotTest {
 
     @Test
     fun card_withTitleAndAction() {
-        rule.setGlimmerThemeContent { CardWithTitleAndActionSample() }
+        rule.setGlimmerThemeContent { ActionCardWithTitleSample() }
         rule.assertRootAgainstGolden("card_titleAction", screenshotRule)
     }
 

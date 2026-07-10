@@ -22,22 +22,38 @@ import android.content.res.XmlResourceParser
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.GenericDocumentUtils.fromPlatformToJetpackGenericDocument
+import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
+import androidx.appfunctions.internal.SchemaAppFunctionInventory
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_APPFUNCTIONS_LIBRARY_ATTRIBUTE_NAMESPACE
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_ATTRIBUTE_NAMESPACE
+import androidx.appsearch.app.GenericDocument
 import org.xmlpull.v1.XmlPullParser
 
-/**
- * Represents metadata about a package providing app functions.
- *
- * @property packageName name of the package.
- * @property appFunctions list of [AppFunctionMetadata] for each app function provided by the app.
- */
-public class AppFunctionPackageMetadata(
+/** Represents metadata about a package providing app functions. */
+public class AppFunctionPackageMetadata
+// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
+@JvmOverloads
+constructor(
+    /** The name of the package */
     public val packageName: String,
+    /** The list of [AppFunctionMetadata] for each app function provided by the app. */
+    // TODO(b/500667251): remove this property after migrating to the new constructor.
+    //  This is a circular reference since we now reverse the relationship between package
+    //  and function metadata.
     public val appFunctions: List<AppFunctionMetadata>,
+    /** Reusable components that could be shared within the function specification. */
+    internal val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        packageName: String,
+        components: AppFunctionComponentsMetadata,
+    ) : this(packageName = packageName, appFunctions = listOf(), components = components)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -46,6 +62,7 @@ public class AppFunctionPackageMetadata(
 
         if (packageName != other.packageName) return false
         if (appFunctions != other.appFunctions) return false
+        if (components != other.components) return false
 
         return true
     }
@@ -53,11 +70,13 @@ public class AppFunctionPackageMetadata(
     override fun hashCode(): Int {
         var result = packageName.hashCode()
         result = 31 * result + appFunctions.hashCode()
+        result = 31 * result + components.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "AppFunctionPackageMetadata(packageName='$packageName', appFunctions=$appFunctions)"
+        return "AppFunctionPackageMetadata(packageName='$packageName', " +
+            "appFunctions=$appFunctions, components=$components)"
     }
 
     /**
@@ -130,11 +149,13 @@ public class AppFunctionPackageMetadata(
                 displayDescription = displayDescription ?: "",
             )
         } catch (ex: Exception) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Encountered an error while resolving app metadata for package: $packageName.",
-                ex,
-            )
+            if (Log.isLoggable(APP_FUNCTIONS_TAG, Log.DEBUG)) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Encountered an error while resolving app metadata for package: $packageName.",
+                    ex,
+                )
+            }
             null
         }
     }
@@ -190,7 +211,7 @@ public class AppFunctionPackageMetadata(
         } else displayDescriptionResIdWithGenericNamespace
     }
 
-    private companion object {
+    internal companion object {
         private const val APP_METADATA_XML_PROPERTY = "android.app.appfunctions.app_metadata"
 
         /**
@@ -208,5 +229,77 @@ public class AppFunctionPackageMetadata(
             "http://schemas.android.com/apk/androidx.appfunctions"
         private const val DISPLAY_DESCRIPTION_ATTRIBUTE_NAME = "displayDescription"
         private const val DESCRIPTION_ATTRIBUTE_NAME = "description"
+
+        private const val PROPERTY_TOP_LEVEL_DOCUMENTS =
+            android.app.appfunctions.AppFunctionPackageMetadata.PROPERTY_TOP_LEVEL_DOCUMENTS
+
+        /**
+         * Converts [android.app.appfunctions.AppFunctionPackageMetadata] to
+         * [androidx.appfunctions.metadata.AppFunctionPackageMetadata].
+         */
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionPackageMetadata(
+            platformPackageMetadata: android.app.appfunctions.AppFunctionPackageMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            isFromDynamicIndexer: Boolean,
+        ): AppFunctionPackageMetadata {
+            val componentsMetadata: AppFunctionComponentsMetadata? =
+                getAppFunctionComponentsMetadata(
+                    isFromDynamicIndexer,
+                    schemaMetadata,
+                    fromPlatformToJetpackGenericDocument(platformPackageMetadata.metadataDocument),
+                    schemaAppFunctionInventory,
+                )
+
+            return AppFunctionPackageMetadata(
+                packageName = platformPackageMetadata.packageName,
+                components = componentsMetadata ?: AppFunctionComponentsMetadata(),
+            )
+        }
+
+        private fun getAppFunctionComponentsMetadata(
+            isFromDynamicIndexer: Boolean,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            packageMetadataDocument: GenericDocument,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionComponentsMetadata? {
+            if (isFromDynamicIndexer) {
+                return extractComponentMetadataFromPackageMetadataDocument(packageMetadataDocument)
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.componentsMetadata
+            }
+        }
+
+        private fun extractComponentMetadataFromPackageMetadataDocument(
+            packageMetadataDocument: GenericDocument
+        ): AppFunctionComponentsMetadata? {
+            val packageLevelDocuments =
+                packageMetadataDocument.getPropertyDocumentArray(PROPERTY_TOP_LEVEL_DOCUMENTS)
+                    ?: return AppFunctionComponentsMetadata()
+
+            val aggregatedDataTypes = buildMap {
+                for (document in packageLevelDocuments) {
+                    if (
+                        document.schemaType.startsWith(
+                            AppFunctionComponentsMetadataDocument.SCHEMA_TYPE
+                        )
+                    ) {
+                        val metadata =
+                            safeCastToDocumentClass<AppFunctionComponentsMetadataDocument>(document)
+                                ?.toAppFunctionComponentsMetadata()
+                        if (metadata != null) {
+                            putAll(metadata.dataTypes)
+                        }
+                    }
+                }
+            }
+
+            return AppFunctionComponentsMetadata(aggregatedDataTypes)
+        }
     }
 }

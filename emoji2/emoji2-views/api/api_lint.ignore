@@ -1,15 +1,15 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiButton#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.ActionMode.Callback in parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiButton#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.inputmethod.InputConnection in method `onCreateInputConnection` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.inputmethod.EditorInfo in parameter `outAttrs` in method `onCreateInputConnection`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.ActionMode.Callback in parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.ActionMode.Callback in parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.emoji2.widget.EmojiTextView#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.

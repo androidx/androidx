@@ -17,9 +17,43 @@
 package androidx.compose.ui.platform
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 
-internal class AndroidClipboard
-internal constructor(private val androidClipboardManager: AndroidClipboardManager) : Clipboard {
+/**
+ * Returns an [android.content.ClipboardManager] that exposes the full functionality of platform
+ * clipboard.
+ */
+val Clipboard.nativeClipboardManager: android.content.ClipboardManager
+    get() {
+        require(this is AndroidClipboard) {
+            "Extracting native reference is only supported from androidx.compose.ui.platform.AndroidClipboard instances but received ${this::class.qualifiedName}"
+        }
+        return clipboardManager
+    }
+
+/**
+ * Android-specific implementation of the [Clipboard] interface that provides access to the
+ * underlying [android.content.ClipboardManager].
+ */
+@VisibleForTesting
+interface AndroidClipboard : Clipboard {
+    /**
+     * Returns an [android.content.ClipboardManager] that exposes the full functionality of platform
+     * clipboard.
+     */
+    val clipboardManager: android.content.ClipboardManager
+
+    @Deprecated(
+        message = "Use [nativeClipboardManager] extension instead",
+        replaceWith = ReplaceWith("nativeClipboardManager"),
+    )
+    override val nativeClipboard: android.content.ClipboardManager
+        get() = clipboardManager
+}
+
+internal class AndroidClipboardImpl
+internal constructor(private val androidClipboardManager: AndroidClipboardManager) :
+    AndroidClipboard {
 
     internal constructor(context: Context) : this(AndroidClipboardManager(context))
 
@@ -31,6 +65,6 @@ internal constructor(private val androidClipboardManager: AndroidClipboardManage
         androidClipboardManager.setClip(clipEntry)
     }
 
-    override val nativeClipboard: NativeClipboard
+    override val clipboardManager: android.content.ClipboardManager
         get() = androidClipboardManager.nativeClipboard
 }

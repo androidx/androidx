@@ -77,6 +77,8 @@
                 android:value="androidx.core.content.pm.TestShortcutInfoChangeListener" />
         </activity>
 
+        <activity android:name="androidx.core.TestActivity" />
+
         <activity
             android:name="androidx.core.app.TestComponentActivity"
             android:exported="true" />
@@ -119,6 +121,16 @@
 
         <activity
             android:name="androidx.core.view.LightSystemBarsActivity"
+            android:exported="true"
+            android:theme="@style/LightSystemBarsTheme" />
+
+        <activity
+            android:name="androidx.core.view.LightStatusBarDarkNavigationBarActivity"
+            android:exported="true"
+            android:theme="@style/LightSystemBarsTheme" />
+
+        <activity
+            android:name="androidx.core.view.LightNavigationBarDarkStatusBarActivity"
             android:exported="true"
             android:theme="@style/LightSystemBarsTheme" />
 

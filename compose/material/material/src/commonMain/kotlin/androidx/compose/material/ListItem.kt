@@ -50,8 +50,8 @@ import kotlin.math.max
  * ![Lists
  * image](https://developer.android.com/images/reference/androidx/compose/material/lists.png)
  *
- * To make this [ListItem] clickable, use [Modifier.clickable]. To add a background to the
- * [ListItem], wrap it with a [Surface].
+ * To make this [ListItem] clickable, use [androidx.compose.foundation.clickable]. To add a
+ * background to the [ListItem], wrap it with a [Surface].
  *
  * This component can be used to achieve the list item templates existing in the spec. For example:
  * - one-line items

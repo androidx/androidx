@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Пораката оди овде.\nУште текст во вториот ред."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Демо на шаблон за кратка порака"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Демо на поделен шаблон со ставки"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Демо на збиена ставка"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Демо со овозможен AlphaJump на поделена ставка"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Дел за тркалезно копче"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Дел за вклучување/исклучување"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Многу делови за редови"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Дел за ставки на мрежа"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демо на поделен список со ставки"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Список 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Список 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Поттекст под секој список"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Заврши го демото за слики и дејства"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Демо на чип"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демо на лента за напредок"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Демо на заглавје на оддел"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Демо на одделот „Интересно“"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демо за шаблон на окно"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демо за шаблон на список со места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Прелистувајте места"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Демо за шаблон за картичка"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Картичка во вид на порака"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Картичка во вид на окно"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Картичка со поделени ставки"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Картичка во вид на список"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Картичка во вид на решетка со долг наслов на картичката"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картичка за пребарување"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Редот исто така може да се избере"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Избрано е секундарно дејство"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Избрано е примарно дејство на ред"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демо на поделен список со ставки"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Список 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Список 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Поттекст под секој список"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Демо за слика и дејства на крајот на редот"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Демо со празен список"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Списокот е празен"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Разни демоа за шаблони"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демоа за карта со содржини"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демоа за шаблон на карта со порака"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демоа за шаблон на карта со мрежа"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

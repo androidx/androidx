@@ -646,6 +646,24 @@ constructor(
         }
     }
 
+    /**
+     * Queue a [Runnable] to be executed on the internal rendering thread. Note it is important this
+     * [Runnable] does not block otherwise it can stall the rendering thread.
+     *
+     * @param runnable to be executed
+     */
+    fun execute(runnable: Runnable) {
+        if (isValid()) {
+            mHandlerThread.execute(runnable)
+        } else {
+            Log.w(
+                TAG,
+                "Attempt to execute runnable after CanvasFrontBufferedRenderer has " +
+                    "been released",
+            )
+        }
+    }
+
     internal fun releaseInternal(cancelPending: Boolean, releaseCallback: (() -> Unit)? = null) {
         val renderer = mPersistedCanvasRenderer
         if (renderer != null) {

@@ -18,15 +18,18 @@ package androidx.benchmark.macro
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.DeviceInfo.isEmulator
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -52,6 +55,8 @@ class StartupTimingMetricTest {
     @Test
     @Ignore("b/258335082")
     fun noResults() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
         val measurements =
@@ -68,6 +73,8 @@ class StartupTimingMetricTest {
     // reflection to force reportFullyDrawn() to be traced. See b/182386956
     @SdkSuppress(minSdkVersion = 29)
     fun startup() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val intent =
@@ -95,6 +102,8 @@ class StartupTimingMetricTest {
                 .wait(Until.findObject(By.text(expectedText)), 3000)!!
         }
         assumeTrue(isAbiSupported())
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
 
         val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
         val launchIntent =
@@ -201,6 +210,8 @@ class StartupTimingMetricTest {
 
     private fun getApi32WarmMeasurements(metric: Metric): List<Metric.Measurement> {
         assumeTrue(isAbiSupported())
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         val traceFile = createTempFileFromAsset("api32_startup_warm", ".perfetto-trace")
         val captureInfo =
             Metric.CaptureInfo(
@@ -219,6 +230,8 @@ class StartupTimingMetricTest {
     @MediumTest
     @Test
     fun fixedStartupTraceMetricsReport_fullyDrawnBeforeFirstFrame() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
         val traceFile =
             createTempFileFromAsset(
@@ -309,14 +322,19 @@ internal fun measureStartup(
                         // and on API 23 and below, we use reflection to trace instead within this
                         // process
                         appTagPackages =
-                            if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
+                            if (SDK_INT >= 24 && packageName != Packages.TEST) {
                                 listOf(packageName, Packages.TEST)
                             } else {
                                 listOf(packageName)
                             },
                         useStackSamplingConfig = false,
                     ),
-                perfettoSdkConfig = PerfettoSdkConfig(packageName, InitialProcessState.Unknown),
+                tracingLibraryConfig =
+                    TracingLibraryConfig(
+                        targetPackage = packageName,
+                        processState = InitialProcessState.Unknown,
+                        inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                    ),
                 block = measureBlock,
             )!!
 

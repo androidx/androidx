@@ -27,13 +27,14 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Represents a rotation component in three-dimensional space. Any vector can be provided and the
- * resulting quaternion will be normalized at construction time.
+ * Rotation component in three-dimensional space. Any vector can be provided and the resulting
+ * quaternion will be normalized at construction time. A zero-length input (all components zero)
+ * cannot be normalized and falls back to the identity rotation.
  *
- * @param x the x value of the quaternion.
- * @param y the y value of the quaternion.
- * @param z the z value of the quaternion.
- * @param w the rotation of the unit vector, in radians.
+ * @property x the x value of the quaternion
+ * @property y the y value of the quaternion
+ * @property z the z value of the quaternion
+ * @property w the rotation of the unit vector, in radians
  */
 public class Quaternion
 @JvmOverloads
@@ -49,10 +50,19 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     init {
         val length = sqrt(x * x + y * y + z * z + w * w)
-        this.x = x / length
-        this.y = y / length
-        this.z = z / length
-        this.w = w / length
+        if (length < NORMALIZE_EPSILON) {
+            // A zero-length input cannot be normalized; fall back to the identity rotation
+            // instead of producing an all-NaN quaternion via division by zero.
+            this.x = 0f
+            this.y = 0f
+            this.z = 0f
+            this.w = 1f
+        } else {
+            this.x = x / length
+            this.y = y / length
+            this.z = z / length
+            this.w = w / length
+        }
     }
 
     /** Returns a new quaternion with the inverse rotation. Assumes unit length. */
@@ -88,7 +98,11 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
     public inline operator fun minus(other: Quaternion): Quaternion =
         Quaternion(x - other.x, y - other.y, z - other.z, w - other.w)
 
-    /** Rotates a [Vector3] by this quaternion. */
+    /**
+     * Rotates a [Vector3] by this quaternion.
+     *
+     * @param src the vector to rotate
+     */
     public inline operator fun times(src: Vector3): Vector3 {
         val qx = x
         val qy = y
@@ -109,7 +123,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     /**
      * Returns a new quaternion with the product of this quaternion and the [other] quaternion. The
-     * order of the multiplication is `[this] * [other]`.
+     * order of the multiplication is this * [other].
      */
     public inline operator fun times(other: Quaternion): Quaternion {
         val lx = this.x
@@ -129,26 +143,11 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
         )
     }
 
-    /** Returns a new quaternion with the product of this quaternion and a scalar amount. */
-    public operator fun times(c: Float): Quaternion = Quaternion(x * c, y * c, z * c, w * c)
-
-    /** Returns a new quaternion with this quaternion divided by a scalar amount. */
-    public operator fun div(c: Float): Quaternion = Quaternion(x / c, y / c, z / c, w / c)
-
-    /** Returns a new quaternion with a normalized rotation. */
-    public fun toNormalized(): Quaternion {
-        val norm = rsqrt(x * x + y * y + z * z + w * w)
-        return this * norm
-    }
-
     /** Returns the dot product of this quaternion and the [other] quaternion. */
     public inline infix fun dot(other: Quaternion): Float =
         x * other.x + y * other.y + z * other.z + w * other.w
 
-    /**
-     * Get a [Vector3] containing the pitch, yaw and roll in degrees, extracted in YXZ (yaw, pitch,
-     * roll) order.
-     */
+    /** Gets pitch, yaw, and roll (in degrees) extracted in YXZ (yaw, pitch, roll) order. */
     private fun toYawPitchRoll(): Vector3 {
         val test = w * x - y * z
         if (test > EULER_THRESHOLD) {
@@ -171,24 +170,28 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     /** Returns a Pair containing the axis of rotation and the angle of rotation in degrees. */
     private fun toAxisAngle(): Pair<Vector3, Float> {
-        val normalized = this.toNormalized()
-        val angleRadians = 2 * acos(normalized.w)
+        // Clamp before acos: float normalization can leave w marginally outside [-1, 1] for
+        // near-identity rotations, and acos of an out-of-domain argument returns NaN.
+        val angleRadians = 2 * acos(clamp(this.w, -1.0f, 1.0f))
         val sinHalfAngle = sin(angleRadians / 2)
         val axis =
             if (sinHalfAngle < 0.0001f) {
                 Vector3.Right // Default axis when angle is 0
             } else {
-                Vector3(
-                    normalized.x / sinHalfAngle,
-                    normalized.y / sinHalfAngle,
-                    normalized.z / sinHalfAngle,
-                )
+                Vector3(this.x / sinHalfAngle, this.y / sinHalfAngle, this.z / sinHalfAngle)
             }
 
         return Pair(axis, toDegrees(angleRadians))
     }
 
-    /** Returns a copy of the quaternion. */
+    /**
+     * Returns a copy of the quaternion.
+     *
+     * @param x the new x value for the copied quaternion
+     * @param y the new y value for the copied quaternion
+     * @param z the new z value for the copied quaternion
+     * @param w the new w value for the copied quaternion
+     */
     @JvmOverloads
     public fun copy(
         x: Float = this.x,
@@ -219,10 +222,18 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
     public companion object {
         private const val EULER_THRESHOLD: Float = 0.49999994f
         private const val COS_THRESHOLD: Float = 0.9995f
+        private const val CROSS_EPSILON: Float = 1e-6f
+        private const val NORMALIZE_EPSILON: Float = 1e-8f
+        private const val UP_NORMALIZED_THRESHOLD: Float = 0.999f
 
         @JvmField public val Identity: Quaternion = Quaternion()
 
-        /** Returns a new quaternion representing the rotation from one vector to another. */
+        /**
+         * Returns a new quaternion representing the rotation from one vector to another.
+         *
+         * @param start the starting vector
+         * @param end the ending vector
+         */
         @JvmStatic
         public fun fromRotation(start: Vector3, end: Vector3): Quaternion {
             val startNorm = start.toNormalized()
@@ -239,33 +250,55 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                             startNorm
                         ) // pick new rotation axis as the original was parallel
                 }
-                return Quaternion.Companion.fromAxisAngle(rotationAxis, 180f)
+                return fromAxisAngle(rotationAxis, 180f)
             }
 
             val rotationAxis = startNorm.cross(endNorm)
 
             return Quaternion(rotationAxis.x, rotationAxis.y, rotationAxis.z, 1 + cosTheta)
-                .toNormalized()
         }
 
-        /** Returns a new quaternion representing the rotation from one quaternion to another. */
+        /**
+         * Returns a new quaternion representing the rotation from one quaternion to another.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         */
         @JvmStatic
         public fun fromRotation(start: Quaternion, end: Quaternion): Quaternion =
-            Quaternion(end * start.inverse).toNormalized()
+            Quaternion(end * start.inverse)
 
-        /** Returns a new quaternion with the specified forward and upward directions. */
+        /**
+         * Returns a new quaternion with the specified forward and upward directions. If [up] is
+         * parallel (or antiparallel) to [forward], an alternate up axis is chosen so the resulting
+         * orientation basis is still well-defined.
+         *
+         * @param forward the forward direction
+         * @param up the upward direction
+         */
         @JvmStatic
         public fun fromLookTowards(forward: Vector3, up: Vector3): Quaternion {
             val forwardNormalized = forward.toNormalized()
-            val right = (up cross forwardNormalized).toNormalized()
-            val upNormalized = (forwardNormalized cross right).toNormalized()
+            // Compute the right axis from the cross product of up and forward vectors.
+            val upNormalized = up.toNormalized()
+            var rightAxis = upNormalized cross forwardNormalized
+            if (rightAxis.lengthSquared < CROSS_EPSILON) {
+                // up is (anti)parallel to forward, so the cross product is degenerate. Pick an
+                // alternate up axis that is not parallel to forward.
+                val alternateUp =
+                    if (abs(forwardNormalized.y) < UP_NORMALIZED_THRESHOLD) Vector3.Up
+                    else Vector3.Right
+                rightAxis = alternateUp cross forwardNormalized
+            }
+            val right = rightAxis.toNormalized()
+            val actualUp = (forwardNormalized cross right).toNormalized()
 
             val m00 = right.x
             val m01 = right.y
             val m02 = right.z
-            val m10 = upNormalized.x
-            val m11 = upNormalized.y
-            val m12 = upNormalized.z
+            val m10 = actualUp.x
+            val m11 = actualUp.y
+            val m12 = actualUp.z
             val m20 = forwardNormalized.x
             val m21 = forwardNormalized.y
             val m22 = forwardNormalized.z
@@ -288,7 +321,12 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             }
         }
 
-        /** Creates a new quaternion using an axis/angle to define the rotation. */
+        /**
+         * Creates a new quaternion using an axis/angle to define the rotation.
+         *
+         * @param axis the axis of rotation
+         * @param degrees the angle of rotation in degrees
+         */
         @JvmStatic
         public fun fromAxisAngle(axis: Vector3, degrees: Float): Quaternion =
             Quaternion(
@@ -299,8 +337,9 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
 
         /**
-         * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
-         * (yaw, pitch, roll) order.
+         * Creates a quaternion using Euler angles (in degrees) in YXZ (yaw, pitch, roll) order.
+         *
+         * @param eulerAngles the Euler angles in degrees
          */
         @JvmStatic
         public fun fromEulerAngles(eulerAngles: Vector3): Quaternion =
@@ -309,8 +348,11 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                 Quaternion(fromAxisAngle(Vector3.Backward, eulerAngles.z))
 
         /**
-         * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
-         * (yaw, pitch, roll) order.
+         * Creates a quaternion using Euler angles (in degrees) in YXZ (yaw, pitch, roll) order.
+         *
+         * @param pitch the pitch in degrees
+         * @param yaw the yaw in degrees
+         * @param roll the roll in degrees
          */
         @JvmStatic
         public fun fromEulerAngles(pitch: Float, yaw: Float, roll: Float): Quaternion =
@@ -319,11 +361,14 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
                 Quaternion(fromAxisAngle(Vector3.Backward, roll))
 
         /**
-         * Returns a new quaternion that is linearly interpolated between [start] and [end] using
-         * the interpolation amount [ratio].
+         * Linearly interpolates between [start] and [end] by [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Quaternion, end: Quaternion, ratio: Float): Quaternion =
@@ -335,13 +380,16 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
 
         /**
-         * Returns a new quaternion that is spherically interpolated between [start] and [end] using
-         * the interpolation amount [ratio]. If [ratio] is 0, this returns [start]. As [ratio]
-         * approaches 1, the result of this function may approach either `+end` or `-end` (whichever
-         * is closest to [start]).
+         * Spherically interpolates between [start] and [end] by [ratio]. If [ratio] is 0, this
+         * returns [start]. As [ratio] approaches 1, the result of this function may approach either
+         * `+end` or `-end` (whichever is closest to [start]).
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun slerp(start: Quaternion, end: Quaternion, ratio: Float): Quaternion {
@@ -382,12 +430,22 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
         }
 
-        /** Returns the angle between [start] and [end] quaternion in degrees. */
+        /**
+         * Returns the angle between [start] and [end] quaternion in degrees.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         */
         @JvmStatic
         public fun angle(start: Quaternion, end: Quaternion): Float =
             toDegrees(2.0f * acos(abs(clamp(dot(start, end), -1.0f, 1.0f))))
 
-        /** Returns the dot product of two quaternions. */
+        /**
+         * Returns the dot product of two quaternions.
+         *
+         * @param lhs the first quaternion
+         * @param rhs the second quaternion
+         */
         @JvmStatic
         public fun dot(lhs: Quaternion, rhs: Quaternion): Float =
             lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w

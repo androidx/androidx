@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.media.SoundPool
-import androidx.xr.scenecore.internal.PointSourceParams
-import androidx.xr.scenecore.internal.SoundFieldAttributes
-import androidx.xr.scenecore.internal.SpatializerConstants
+import androidx.xr.scenecore.runtime.PointSourceParams
+import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.runtime.SpatializerConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -27,6 +29,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class FakeSoundPoolExtensionsWrapperTest {
     private val testSoundId: Int = 0
     private val testVolume: Float = 0f
@@ -46,7 +49,8 @@ class FakeSoundPoolExtensionsWrapperTest {
         val expected = 123
 
         val soundPool = SoundPool.Builder().build()
-        val rtParams = PointSourceParams(FakeEntity())
+        val entity = FakeEntity()
+        val rtParams = PointSourceParams()
 
         fakeWrapper.setPlayAsPointSourceResult(expected)
 
@@ -55,6 +59,7 @@ class FakeSoundPoolExtensionsWrapperTest {
                 soundPool,
                 testSoundId,
                 rtParams,
+                entity,
                 testVolume,
                 testPriority,
                 testLoop,

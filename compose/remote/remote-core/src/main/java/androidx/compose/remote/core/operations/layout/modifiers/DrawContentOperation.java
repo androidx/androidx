@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -34,10 +35,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Represent a drawing of a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawContentOperation extends Operation
         implements ModifierOperation, VariableSupport, DecoratorComponent {
     private static final int OP_CODE = Operations.MODIFIER_DRAW_CONTENT;
-
+    private static final String CLASS_NAME = "DrawContentOperation";
     private @Nullable LayoutComponent mParent = null;
 
     public DrawContentOperation() {}
@@ -100,8 +102,8 @@ public class DrawContentOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ComponentVisibility")
-                .description("This operation represents a draw of a component");
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .description("A modifier that triggers drawing of the component's content");
     }
 
     @Override

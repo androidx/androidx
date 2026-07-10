@@ -17,23 +17,22 @@
 import androidx.build.ApkCopyHelperKt
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
@@ -41,7 +40,9 @@ dependencies {
     implementation(project(":navigation3:navigation3-runtime"))
     implementation(project(":navigation3:navigation3-ui"))
     implementation(project(":xr:glimmer:glimmer"))
+    implementation(project(":xr:glimmer:glimmer-google-fonts"))
     implementation(project(":xr:glimmer:glimmer:glimmer-samples"))
+    implementation(project(":xr:projected:projected"))
 }
 
 // Publish an APK so demo app is available in ab/ for devs, PMs, QA to use.
@@ -49,9 +50,9 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(37) }
     defaultConfig {
-        minSdk = 35
+        minSdk { version = release(35) }
     }
     namespace = "androidx.xr.glimmer.demos"
 }

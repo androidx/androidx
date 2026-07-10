@@ -1,0 +1,128 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.ui
+
+/**
+ * This is a collection of flags which are used to guard against regressions in some of the
+ * "riskier" refactors or new feature support that is added to this module. These flags are always
+ * "on" in the published artifact of this module, however these flags allow end consumers of this
+ * module to toggle them "off" in case this new path is causing a regression.
+ *
+ * These flags are considered temporary, and there should be no expectation for these flags be
+ * around for an extended period of time. If you have a regression that one of these flags fixes, it
+ * is strongly encouraged for you to file a bug ASAP.
+ *
+ * **Usage:**
+ *
+ * In order to turn a feature off in a debug environment, it is recommended to set this to false in
+ * as close to the initial loading of the application as possible. Changing this value after compose
+ * library code has already been loaded can result in undefined behavior.
+ *
+ *      class MyApplication : Application() {
+ *          override fun onCreate() {
+ *              AndroidComposeUiFlags.SomeFeatureEnabled = false
+ *              super.onCreate()
+ *          }
+ *      }
+ *
+ * In order to turn this off in a release environment, it is recommended to additionally utilize R8
+ * rules which force a single value for the entire build artifact. This can result in the new code
+ * paths being completely removed from the artifact, which can often have nontrivial positive
+ * performance impact.
+ *
+ *      -assumevalues class androidx.compose.ui.AndroidComposeUiFlags {
+ *          public static int isSharedComposeViewContextEnabled return false
+ *      }
+ */
+@ExperimentalComposeUiApi
+object AndroidComposeUiFlags {
+
+    /**
+     * This flag enables using the View's handler for semantics processing instead of the Main
+     * Looper. This avoids crashes in environments where Compose is used on a non-main thread.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // TODO remove me b/486998514
+    var isViewBasedSemanticsHandlerEnabled: Boolean = true
+
+    /** This flag enables the Android Framework implementation of VelocityTracker. */
+    // TODO: b/483449576
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isFrameworkVelocityTrackerEnabled: Boolean = false
+
+    /**
+     * This flag forces scroll capture to center the content being rendered even if it's already
+     * visible.
+     */
+    // TODO: remove and close b/509934021
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAlwaysScrollDuringScrollCaptureEnabled: Boolean = true
+
+    /**
+     * If enabled, interactions (like clicks) will automatically trigger interaction sound effects
+     * on Android.
+     */
+    // TODO: Remove this flag once it has soaked (b/495886959)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isInteractionSoundEffectsEnabled: Boolean = true
+
+    /** Enables using out of frame scheduler instead of Choreographer for text input events. */
+    // TODO(b/513525072): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
+
+    /**
+     * Return true for AndroidComposeView.dispatchHoverEvent when handleded by explore by touch.
+     *
+     * This fixes behavior where the event would be bubbled to a container view, causing explore by
+     * touch to flicker focus to Compose buttons.
+     *
+     * After this change compose buttons will correctly report they handled the hover event, and
+     * retain accessibility focus.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // TODO(b/507533865) cleanup feature flag after 1.12
+    var isExploreByTouchHoverHandled: Boolean = true
+
+    /**
+     * Enables sorting of accessibility children based on their traversal index when the parent is a
+     * traversal group and is a merging container.
+     */
+    // TODO: b/522932901
+    @field:Suppress("MutableBareField") @JvmField var isTraversalGroupSortingEnabled: Boolean = true
+
+    /** Enables propagation of hideFromAccessibility to children of merging parents. */
+    // TODO: b/522817006
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPropagateHideFromAccessibilityToMergingChildrenEnabled: Boolean = true
+
+    /**
+     * This flag enables performance improvements in accessibility, such as caching accessibility
+     * state and deferring listener registration.
+     */
+    // TODO: remove me b/529420099
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAccessibilityPerformanceEnabled: Boolean = true
+}

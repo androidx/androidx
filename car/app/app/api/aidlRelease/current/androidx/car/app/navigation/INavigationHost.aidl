@@ -37,4 +37,5 @@ interface INavigationHost {
   void navigationStarted() = 1;
   void navigationEnded() = 2;
   void updateTrip(in androidx.car.app.serialization.Bundleable trip) = 3;
+  void setVoiceAssistantCapabilities(in androidx.car.app.serialization.Bundleable capabilities) = 4;
 }

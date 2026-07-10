@@ -17,7 +17,6 @@
 package androidx.core.telecom.extensions;
 
 @JavaDerive(equals = true, toString = true)
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 parcelable ParticipantParcelable {
     // ID of the participant (must be unique for each call and NOT reused)

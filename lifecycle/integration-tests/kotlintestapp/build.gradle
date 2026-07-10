@@ -21,7 +21,6 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -49,8 +48,12 @@ dependencies {
 
 android {
     sourceSets {
-        test.java.srcDirs += "src/test-common/java"
-        androidTest.java.srcDirs += "src/test-common/java"
+        def testDir = "src/test-common/java"
+        test.java.directories.add(testDir)
+        test.kotlin.directories.add(testDir)
+        androidTest.java.directories.add(testDir)
+        androidTest.kotlin.directories.add(testDir)
     }
     namespace = "androidx.lifecycle.kotlintestapp"
+    testOptions.unitTests.returnDefaultValues = true
 }

@@ -83,4 +83,31 @@ public object CameraInterop {
     @JvmStatic
     internal fun nextCameraCaptureSessionId(): CameraCaptureSessionId =
         CameraCaptureSessionId(captureSessionIds.incrementAndGet())
+
+    /**
+     * Callback for observing the global state of the camera devices managed by CameraPipe.
+     *
+     * These callbacks are intended for logic that must run before any system-level interaction with
+     * [android.hardware.camera2.CameraManager] begins, and after all such interactions have
+     * completely finished and no further actions are queued.
+     */
+    public interface CameraSystemCallbacks {
+        /**
+         * Called synchronously before the first camera device is opened.
+         *
+         * This method provides a strong guarantee that it will complete before any interaction with
+         * the system camera service occurs. If this method blocks, it will delay the opening of the
+         * camera device and block all subsequent CameraPipe operations.
+         */
+        public fun onCameraSystemStarting()
+
+        /**
+         * Called synchronously after the last camera device has been closed.
+         *
+         * This is only called if there are no other pending requests to open a camera device,
+         * providing a strong guarantee that all system camera resources have been released and no
+         * new open requests are currently being processed.
+         */
+        public fun onCameraSystemStopped()
+    }
 }

@@ -20,5 +20,5 @@ package androidx.camera.video.internal.muxer
 public fun interface MuxerFactory {
 
     /** Creates a new [Muxer] instance. */
-    public fun create(): Muxer
+    public fun create(@Muxer.Format outputFormat: Int): Muxer
 }

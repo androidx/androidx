@@ -36,16 +36,19 @@ import kotlin.reflect.KType
  * Navigation hosts must:
  * * Handle [saving][NavController.saveState] and [restoring][NavController.restoreState] their
  *   controller's state
- * * Call [Navigation.setViewNavController] on their root view
+ * * Call [Navigation.setViewNavController](https://developer.android.com/reference/androidx/navigation/Navigation#setViewNavController(android.view.View,androidx.navigation.NavController))
+ *   on their root view
  * * Route system Back button events to the NavController either by manually calling
- *   [NavController.popBackStack] or by calling [NavHostController.setOnBackPressedDispatcher] when
- *   constructing the NavController.
+ *   [NavController.popBackStack] or by calling
+ *   [NavHostController.setOnBackPressedDispatcher](https://developer.android.com/reference/androidx/navigation/NavHostController#setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher))
+ *   when constructing the NavController.
  *
  * Optionally, a navigation host should consider calling:
  * * Call [NavHostController.setLifecycleOwner] to associate the NavController with a specific
  *   Lifecycle.
  * * Call [NavHostController.setViewModelStore] to enable usage of
- *   [NavController.getViewModelStoreOwner] and navigation graph scoped ViewModels.
+ *   [NavController.getViewModelStoreOwner](https://developer.android.com/reference/androidx/navigation/NavController#getViewModelStoreOwner(kotlin.Int))
+ *   and navigation graph scoped ViewModels.
  */
 public interface NavHost {
     /** The [navigation controller][NavController] for this navigation host. */

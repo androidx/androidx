@@ -15,8 +15,11 @@
  */
 package androidx.compose.remote.core.documentation;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DocumentedCompanionOperation {
     /**
      * A callback to populate the documentation of an operation

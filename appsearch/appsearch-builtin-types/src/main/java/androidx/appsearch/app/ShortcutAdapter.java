@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.core.content.pm.ShortcutInfoCompat;
@@ -44,7 +45,7 @@ public class ShortcutAdapter {
         // Hide constructor as utility classes are not meant to be instantiated.
     }
 
-    /** @exportToFramework:hide */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static final String DEFAULT_DATABASE = "__shortcut_adapter_db__";
 
@@ -135,9 +136,8 @@ public class ShortcutAdapter {
     /**
      * Extracts {@link GenericDocument} from given {@link ShortcutInfoCompat} if applicable.
      * Returns null if document cannot be found in the given shortcut.
-     *
-     * @exportToFramework:hide
      */
+    @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static @Nullable GenericDocument extractDocument(
             final @NonNull ShortcutInfoCompat shortcut) {

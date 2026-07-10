@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Meldingen skal skrives her.\nMer tekst i den andre linjen."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo av mal for kort melding"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo av inndelt elementmal"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo av komprimert element"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Sectioned Item AlphaJump-aktivert demo"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Del med alternativknapper"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Del for å slå av/på"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Del med mange rader"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Elementdel av rutenett"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo av inndelt elementliste"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Undertekst under hver liste"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Avslutt bilde- og handlingsdemoen"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Brikkedemo"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo av fremdriftslinje"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demo av deloverskrift"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo av Spotlight-delen"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo av panelmal"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo av mal for stedsliste"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Bla gjennom steder"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Demo av fanemal"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Meldingsfane"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Feltfane"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Fane for inndelt element"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Listefane"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Rutenettfane med lang fanetittel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Søkefane"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Raden kan også velges"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundærhandlingen er valgt"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Hovedhandlingen til raden er valgt"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo av inndelt elementliste"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Undertekst under hver liste"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo av bilde og handlinger på slutten av raden"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo med tom liste"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Listen er tom"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demoer av diverse maler"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kart med innholdsdemoer"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kart med demo av meldingsmaler"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kart med demo av rutenettmaler"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

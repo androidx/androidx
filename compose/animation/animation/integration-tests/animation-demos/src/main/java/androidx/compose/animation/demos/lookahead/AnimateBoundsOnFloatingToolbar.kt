@@ -16,10 +16,10 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.animation.demos.visualaid.EasingItemDemo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,30 +66,32 @@ import androidx.compose.ui.unit.dp
  * Animates an Icon component from a Toolbar to a FAB position, the toolbar is also animated to hide
  * it under the FAB.
  */
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Preview
 @Composable
 fun AnimateBoundsOnFloatingToolbarDemo() {
-    Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-            val sampleText = remember { LoremIpsum().values.first() }
-            Text(
-                text = "Click on the Toolbar to animate",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h6,
+    LookaheadAnimationVisualDebuggingToggle {
+        Box(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+                val sampleText = remember { LoremIpsum().values.first() }
+                Text(
+                    text = "Click on the Toolbar to animate",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.h6,
+                )
+                Text(text = sampleText)
+            }
+            FloatingFabToolbar(
+                Modifier.align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .padding(bottom = 24.dp)
             )
-            Text(text = sampleText)
         }
-        FloatingFabToolbar(
-            Modifier.align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(8.dp)
-                .padding(bottom = 24.dp)
-        )
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
     var mode by remember { mutableStateOf(FabToolbarMode.Toolbar) }

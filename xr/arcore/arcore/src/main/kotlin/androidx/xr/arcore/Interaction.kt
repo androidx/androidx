@@ -18,7 +18,7 @@
 
 package androidx.xr.arcore
 
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Ray
 
@@ -29,26 +29,28 @@ import androidx.xr.runtime.math.Ray
  * session. Conducting a hit-test results in a list of hit objects, in other words, a hit-test does
  * not stop at the first object hit.
  *
- * @return A list of [HitResult] objects, sorted by distance from the origin of the ray. The nearest
- *   hit is at the beginning of the list.
- * @throws [IllegalStateException] if [Session.config] is set to
- *   [Config.PlaneTrackingMode.DISABLED].
+ * @param session the [Session] to perform the hit-test in
+ * @param ray the [Ray] to use for the hit-test
+ * @return a list of [HitResult] objects, sorted by distance from the origin of the ray, nearest to
+ *   farthest
+ * @throws [IllegalStateException] if [Session.config] is set to [PlaneTrackingMode.DISABLED]
+ * @sample androidx.xr.arcore.samples.callHitTest
  */
 public fun hitTest(session: Session, ray: Ray): List<HitResult> {
     val perceptionStateExtender =
         session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
     val perceptionManager = perceptionStateExtender.perceptionManager
-    val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+    val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
 
-    check(config.planeTracking != Config.PlaneTrackingMode.DISABLED) {
+    check(config.planeTracking != PlaneTrackingMode.DISABLED) {
         "Config.PlaneTrackingMode is set to DISABLED."
     }
     val trackableMap = perceptionStateExtender.xrResourcesManager.trackablesMap
     return perceptionManager.hitTest(ray).map {
-        val trackable =
-            requireNotNull(trackableMap[it.trackable]) {
-                "No Active Trackable found for the given hit result."
+        val anchorable =
+            requireNotNull(trackableMap[it.trackable] as? Anchorable<Trackable.State>) {
+                "No Active Anchorable found for the given hit result."
             }
-        HitResult(it.distance, it.hitPose, trackable)
+        HitResult(it.distance, it.hitPose, anchorable)
     }
 }

@@ -23,6 +23,8 @@ import java.util.zip.ZipInputStream
  *
  * Currently, it just includes information from the header
  */
+data class RemappedClass(val originalName: String, val wasRemapped: Boolean, val mapLine: String)
+
 data class MappingFileInfo(
     val compiler: String?,
     val compilerVersion: String?,
@@ -30,6 +32,7 @@ data class MappingFileInfo(
     val mappingVersion: String?,
     val pgMapId: String?,
     val pgMapHash: String?,
+    val dexClassNameToOriginalName: Map<String, RemappedClass>,
 ) {
     // Summary type of patterns we see in mapping files
     enum class Type {
@@ -52,6 +55,7 @@ data class MappingFileInfo(
                     minApi = null,
                     pgMapId = null,
                     pgMapHash = null,
+                    dexClassNameToOriginalName = emptyMap(),
                 )
         ) {
             return Type.Minimal
@@ -81,11 +85,19 @@ data class MappingFileInfo(
         const val BUNDLE_LOCATION =
             "BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map"
 
-        val CSV_TITLES = listOf("mapping_file_version", "mapping_file_type")
-
-        fun MappingFileInfo?.csvEntries(): List<String> {
-            return listOf(this?.mappingVersion.toString(), this?.getType().toString())
-        }
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<MappingFileInfo?>(
+                    "mapping_file_version",
+                    "Version number in mapping file, or null if no mapping file present",
+                    calculate = { it?.mappingVersion.toString() },
+                ),
+                CsvColumn<MappingFileInfo?>(
+                    "mapping_file_type",
+                    "Mapping file header pattern, of those observed in common mapping file headers",
+                    calculate = { it?.getType().toString() },
+                ),
+            )
 
         private fun List<String>.findAfterPrefix(prefix: String): String? {
             return firstOrNull { it.startsWith(prefix) }?.removePrefix(prefix)?.trim()
@@ -103,16 +115,44 @@ data class MappingFileInfo(
             return firstOrNull { it.startsWith(prefix) }?.removePrefix(prefix)?.substringBefore("'")
         }
 
+        private val classMappingRegex = """^([\w-.$]+)\s+->\s+([\w-.$]+):\s*$""".toRegex()
+
         fun from(zis: ZipInputStream): MappingFileInfo {
-            val reader = zis.bufferedReader()
+            val sequence = zis.bufferedReader().lineSequence()
 
-            val lines = mutableListOf<String>()
-            while (true) {
-                val line = reader.readLine()?.trim()
-                if (line == null || !line.startsWith('#')) break
+            val headerLines = mutableListOf<String>()
+            var readingHeader = true
 
-                lines.add(line)
+            val dexClassNameToOriginalName = mutableMapOf<String, RemappedClass>()
+            sequence.forEach { line ->
+                val trimmedLine = line.trim()
+                if (readingHeader) {
+                    if (trimmedLine.startsWith("#")) {
+                        headerLines.add(line)
+                    } else {
+                        readingHeader = false
+                    }
+                }
+
+                if (!readingHeader) {
+                    val match = classMappingRegex.matchEntire(line)
+                    if (match != null) {
+                        val originalName = match.groupValues[1]
+                        val dexName = match.groupValues[2]
+                        if (!dexName.contains("$") /* ignore dex inner classes */) {
+                            dexClassNameToOriginalName[dexName] =
+                                RemappedClass(
+                                    originalName = originalName,
+                                    wasRemapped =
+                                        dexName.substringAfterLast(".") !=
+                                            originalName.substringAfterLast("."),
+                                    mapLine = line,
+                                )
+                        }
+                    }
+                }
             }
+
             /**
              * Example preamble:
              * ```
@@ -126,12 +166,14 @@ data class MappingFileInfo(
              * ```
              */
             return MappingFileInfo(
-                compiler = lines.findAfterPrefix("# compiler:"),
-                compilerVersion = lines.findAfterPrefix("# compiler_version:"),
-                minApi = lines.findAfterPrefix("# min_api:"),
-                mappingVersion = lines.findMappingVersion() ?: lines.findMappingVersionSQ(),
-                pgMapId = lines.findAfterPrefix("# pg_map_id:"),
-                pgMapHash = lines.findAfterPrefix("# pg_map_hash:"),
+                compiler = headerLines.findAfterPrefix("# compiler:"),
+                compilerVersion = headerLines.findAfterPrefix("# compiler_version:"),
+                minApi = headerLines.findAfterPrefix("# min_api:"),
+                mappingVersion =
+                    headerLines.findMappingVersion() ?: headerLines.findMappingVersionSQ(),
+                pgMapId = headerLines.findAfterPrefix("# pg_map_id:"),
+                pgMapHash = headerLines.findAfterPrefix("# pg_map_hash:"),
+                dexClassNameToOriginalName = dexClassNameToOriginalName,
             )
         }
     }

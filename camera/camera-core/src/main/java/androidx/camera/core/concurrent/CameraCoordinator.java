@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraRepository;
-import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.InternalCameraPresenceListener;
 
 import org.jspecify.annotations.NonNull;
@@ -96,12 +95,27 @@ public interface CameraCoordinator extends InternalCameraPresenceListener {
     void setActiveConcurrentCameraInfos(@NonNull List<CameraInfo> cameraInfos);
 
     /**
+     * Notifies the camera represented by the cameraInfo is ready and pending for opening the
+     * camera and create capture session for concurrent camera mode. Once paired cameraInfo is
+     * also ready and it will start to open the camera and create the capture session. Currently
+     * this method is used in cameraPipe config only.
+     */
+    default void addPendingCameraInfo(@NonNull CameraInfo cameraInfo) {
+    }
+
+    /**
+     * Notifies the camera represented by the cameraInfo is no longer pending for opening the camera
+     * and create capture sessions.
+     */
+    default void removePendingCameraInfo(@NonNull CameraInfo cameraInfo) {
+    }
+
+    /**
      * Returns paired camera id in concurrent mode.
      *
      * <p>The paired camera id dictionary is constructed when constructor is called. This
      * internal API is used to look up paired camera id when coordinating device open and session
-     * config in {@link CameraStateRegistry}. Currently only dual cameras will be supported in
-     * concurrent mode.
+     * is configured. Currently only dual cameras will be supported in concurrent mode.
      *
      * @param cameraId camera id.
      * @return The paired camera id if exists or null if paired camera not exists.
@@ -147,8 +161,7 @@ public interface CameraCoordinator extends InternalCameraPresenceListener {
      * Interface for concurrent camera mode update.
      *
      * <p>Everytime user changes {@link CameraOperatingMode}, the observer will be notified and
-     * update related states or parameters accordingly. E.g. in {@link CameraStateRegistry}, we
-     * will update the number of max allowed cameras.
+     * update related states or parameters accordingly.
      */
     interface ConcurrentCameraModeListener {
         void onCameraOperatingModeUpdated(

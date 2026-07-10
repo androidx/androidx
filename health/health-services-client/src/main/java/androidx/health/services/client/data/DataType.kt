@@ -565,8 +565,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          *
          * **_Note_: this [DataType] is only intended to be used in conjunction with exercise goals.
          * [DataPoint]s will not be delivered for this [DataType]. If you want to query the active
-         * duration, you should use [ExerciseUpdate.activeDuration] which is available in every
-         * [ExerciseUpdate].**
+         * duration, you should use [ExerciseUpdate.activeDurationCheckpoint] which is available in
+         * every [ExerciseUpdate].**
          */
         @JvmField
         val ACTIVE_EXERCISE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =

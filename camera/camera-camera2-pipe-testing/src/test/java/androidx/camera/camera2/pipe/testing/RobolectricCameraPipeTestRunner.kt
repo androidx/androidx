@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 /**
@@ -62,6 +63,7 @@ class DataWithInlineClassJUnitTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class DataWithInlineClassRobolectricTest {
     @Test
     fun inlineClassesAreEqualInRobolectric() {

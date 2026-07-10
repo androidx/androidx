@@ -27,6 +27,7 @@ import kotlin.math.abs
  * A composition local to customize the focus scrolling behavior used by some scrollable containers.
  * [LocalBringIntoViewSpec] has a platform defined default behavior.
  */
+@Suppress("KmpExperimentalMismatch") // only experimental in android
 expect val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
 
 /**

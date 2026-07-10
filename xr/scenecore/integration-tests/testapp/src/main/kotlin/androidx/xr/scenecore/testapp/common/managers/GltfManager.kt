@@ -24,13 +24,19 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import java.nio.file.Paths
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /** Manages the UI for the GLTF entity. */
-class GltfManager(private val session: Session, activity: AppCompatActivity) {
+class GltfManager(
+    private val session: Session,
+    activity: AppCompatActivity,
+    private val maxEntities: Int = 1,
+    private val entitiesPerClick: Int = 1,
+) {
     private val mSession = session
     private val _mGltfModelFlow = MutableStateFlow<GltfModel?>(null)
     var mGltfModel: GltfModel?
@@ -40,15 +46,11 @@ class GltfManager(private val session: Session, activity: AppCompatActivity) {
         }
 
     private val onEntityChangedCallbacks = mutableListOf<(GltfModelEntity?) -> Unit>()
-    private val _mGltfModelEntityFlow = MutableStateFlow<GltfModelEntity?>(null)
-    var mGltfModelEntity: GltfModelEntity?
-        get() = _mGltfModelEntityFlow.value
-        set(value) {
-            _mGltfModelEntityFlow.value = value
-            for (callback in onEntityChangedCallbacks) callback(_mGltfModelEntityFlow.value)
-        }
+    val gltfModelEntities = mutableListOf<GltfModelEntity>()
+    val mGltfModelEntity: GltfModelEntity?
+        get() = gltfModelEntities.firstOrNull()
 
-    private val _modelIsEnabledFlow = MutableStateFlow<Boolean>(true)
+    private val _modelIsEnabledFlow = MutableStateFlow(true)
     private var modelIsEnabled: Boolean
         get() = _modelIsEnabledFlow.value
         set(value) {
@@ -64,14 +66,13 @@ class GltfManager(private val session: Session, activity: AppCompatActivity) {
         activity.findViewById<Button>(R.id.button_destroy_gltf_entity)
 
     init {
-
         updateButtonStates()
 
         hideModelButton.setOnClickListener {
-            if (mGltfModelEntity != null) {
-                modelIsEnabled = mGltfModelEntity!!.isEnabled(true)
-                mGltfModelEntity?.setEnabled(!modelIsEnabled)
-                modelIsEnabled = !modelIsEnabled
+            if (gltfModelEntities.isNotEmpty()) {
+                val shouldBeEnabled = !modelIsEnabled
+                gltfModelEntities.forEach { it.setEnabled(shouldBeEnabled) }
+                modelIsEnabled = shouldBeEnabled
             }
             updateButtonStates()
         }
@@ -84,28 +85,72 @@ class GltfManager(private val session: Session, activity: AppCompatActivity) {
         }
 
         createGltfEntityButton.setOnClickListener {
-            mGltfModelEntity =
-                GltfModelEntity.create(
-                    mSession,
-                    mGltfModel!!,
-                    Pose(Vector3.Forward * 3f + Vector3.Right),
-                )
+            createGltfEntity()
             updateButtonStates()
         }
 
         destroyGltfEntityButton.setOnClickListener {
-            mGltfModelEntity?.dispose()
-            mGltfModelEntity = null
+            destroyGltfEntity()
             updateButtonStates()
         }
     }
 
+    private fun createGltfEntity() {
+        for (i in 1..entitiesPerClick) {
+            if (gltfModelEntities.size < maxEntities && mGltfModel != null) {
+                val entityNumber = gltfModelEntities.size + 1
+                val newEntity =
+                    GltfModelEntity.create(
+                        mSession,
+                        mGltfModel!!,
+                        // Offset each new entity
+                        Pose(Vector3.Forward * 3f + Vector3.Right * entityNumber.toFloat() * 1.5f),
+                        parent = session.scene.activitySpace,
+                    )
+                for (callback in onEntityChangedCallbacks) callback(newEntity)
+                gltfModelEntities.add(newEntity)
+            }
+        }
+    }
+
+    private fun destroyGltfEntity() {
+        for (i in 1..entitiesPerClick) {
+            if (gltfModelEntities.isNotEmpty()) {
+                val lastEntity = gltfModelEntities.removeAt(gltfModelEntities.lastIndex)
+                lastEntity.removeAllComponents()
+                lastEntity.parent = null
+            }
+        }
+    }
+
     private fun updateButtonStates() {
-        hideModelButton.isEnabled = (mGltfModelEntity != null)
-        hideModelButton.text = (if (modelIsEnabled) "Hide Model" else "Show Model")
-        loadGltfEntityModelButton.isEnabled = (mGltfModel == null)
-        createGltfEntityButton.isEnabled = (mGltfModelEntity == null && mGltfModel != null)
-        destroyGltfEntityButton.isEnabled = (mGltfModelEntity != null)
+        hideModelButton.isEnabled = gltfModelEntities.isNotEmpty()
+        hideModelButton.text = if (modelIsEnabled) "Hide Models" else "Show Models"
+        loadGltfEntityModelButton.isEnabled = mGltfModel == null
+        createGltfEntityButton.isEnabled =
+            gltfModelEntities.size < maxEntities && mGltfModel != null
+        destroyGltfEntityButton.isEnabled = gltfModelEntities.isNotEmpty()
+        if (maxEntities > 1) {
+            val currentCount = gltfModelEntities.size
+            createGltfEntityButton.text =
+                if (currentCount == maxEntities) "Create Gltf Entity"
+                else
+                    "Create Gltf Entity #${currentCount + 1}-#${
+                        minOf(
+                            currentCount + entitiesPerClick,
+                            maxEntities,
+                        )
+                    }"
+            destroyGltfEntityButton.text =
+                if (currentCount == 0) "Destroy Gltf Entity"
+                else
+                    "Destroy Gltf Entity #${currentCount}-#${
+                        maxOf(
+                            currentCount - entitiesPerClick,
+                            1,
+                        )
+                    }"
+        }
     }
 
     fun AddOnEntityChangedListener(callback: (GltfModelEntity?) -> Unit) =

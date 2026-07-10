@@ -86,6 +86,7 @@ public final class IsolateStartupParameters {
      *
      * @param size max size in bytes
      */
+    // TODO(b/435619571): Add documentation about MessagePortInternal using this limit.
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void setMaxEvaluationReturnSizeBytes(

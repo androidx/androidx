@@ -12,42 +12,18 @@
     {
       "coordinates": {
         "type": "module",
-        "identifier": "androidx.appcompat:appcompat",
-        "resolvedVersion": "1.1.0"
-      },
-      "fromConfiguration": "androidTestImplementation"
-    },
-    {
-      "coordinates": {
-        "type": "module",
         "identifier": "androidx.arch.core:core-common",
-        "resolvedVersion": "2.2.0"
-      },
-      "toConfiguration": "androidTestImplementation"
-    },
-    {
-      "coordinates": {
-        "type": "module",
-        "identifier": "androidx.arch.core:core-common",
-        "resolvedVersion": "2.2.0"
+        "resolvedVersion": "2.1.0"
       },
       "toConfiguration": "implementation"
     },
     {
       "coordinates": {
         "type": "module",
-        "identifier": "androidx.lifecycle:lifecycle-common",
-        "resolvedVersion": "2.3.1"
+        "identifier": "androidx.arch.core:core-runtime",
+        "resolvedVersion": "2.1.0"
       },
-      "toConfiguration": "androidTestImplementation"
-    },
-    {
-      "coordinates": {
-        "type": "module",
-        "identifier": "androidx.lifecycle:lifecycle-common",
-        "resolvedVersion": "2.3.1"
-      },
-      "toConfiguration": "implementation"
+      "toConfiguration": "testImplementation"
     },
     {
       "coordinates": {
@@ -84,6 +60,14 @@
     {
       "coordinates": {
         "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-livedata-ktx",
+        "resolvedVersion": "2.3.1"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
         "identifier": "androidx.test.espresso:espresso-core",
         "resolvedVersion": "3.5.0"
       },
@@ -92,10 +76,10 @@
     {
       "coordinates": {
         "type": "module",
-        "identifier": "androidx.test.uiautomator:uiautomator",
-        "resolvedVersion": "2.2.0"
+        "identifier": "androidx.test:core",
+        "resolvedVersion": "1.7.0-alpha01"
       },
-      "fromConfiguration": "androidTestImplementation"
+      "toConfiguration": "androidTestImplementation"
     },
     {
       "coordinates": {
@@ -108,6 +92,22 @@
     {
       "coordinates": {
         "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
         "identifier": "com.google.guava:guava",
         "resolvedVersion": "33.3.1-jre"
       },
@@ -124,10 +124,26 @@
     {
       "coordinates": {
         "type": "module",
-        "identifier": "com.linkedin.dexmaker:dexmaker-mockito",
-        "resolvedVersion": "2.28.4"
+        "identifier": "com.google.guava:listenablefuture",
+        "resolvedVersion": "1.0"
       },
-      "fromConfiguration": "androidTestImplementation"
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "javax.inject:javax.inject",
+        "resolvedVersion": "1"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "javax.inject:javax.inject",
+        "resolvedVersion": "1"
+      },
+      "toConfiguration": "testImplementation"
     },
     {
       "coordinates": {
@@ -140,8 +156,32 @@
     {
       "coordinates": {
         "type": "module",
+        "identifier": "net.bytebuddy:byte-buddy",
+        "resolvedVersion": "1.14.9"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
         "identifier": "org.hamcrest:hamcrest-core",
         "resolvedVersion": "1.3"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.3"
       },
       "toConfiguration": "androidTestImplementation"
     },
@@ -151,7 +191,7 @@
         "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
         "resolvedVersion": "1.7.3"
       },
-      "toConfiguration": "androidTestImplementation"
+      "toConfiguration": "api"
     },
     {
       "coordinates": {
@@ -164,7 +204,39 @@
     {
       "coordinates": {
         "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
         "identifier": "org.robolectric:annotations",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:sandbox",
         "resolvedVersion": "4.14"
       },
       "toConfiguration": "testImplementation"
@@ -190,7 +262,14 @@
         "type": "project",
         "identifier": ":camera:camera-video"
       },
-      "toConfiguration": "androidTestImplementation"
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":camera:camera-video"
+      },
+      "fromConfiguration": "testImplementation"
     }
   ]
 }

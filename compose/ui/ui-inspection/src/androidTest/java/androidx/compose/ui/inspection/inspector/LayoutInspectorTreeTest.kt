@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.inspection.compose.flatten
 import androidx.compose.ui.inspection.testdata.TestActivity
+import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.Ref
@@ -73,7 +74,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -102,6 +103,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.Collections
 import java.util.WeakHashMap
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -120,7 +122,7 @@ private const val MAX_ITERABLE_SIZE = 5
 class LayoutInspectorTreeTest {
     private lateinit var density: Density
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     private val fontFamily = Font(androidx.testutils.fonts.R.font.sample_font).toFontFamily()
 
@@ -168,7 +170,7 @@ class LayoutInspectorTreeTest {
 
     @Test // regression test for b/383639244
     fun noViews() {
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.convert(emptyList())
     }
 
@@ -210,7 +212,7 @@ class LayoutInspectorTreeTest {
         // TODO: Find out if we can set "settings put global debug_view_attributes 1" in tests
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.includeAllParameters = true
         val nodes = builder.convert(view)
         dumpNodes(nodes, view, builder)
@@ -298,7 +300,7 @@ class LayoutInspectorTreeTest {
         // TODO: Find out if we can set "settings put global debug_view_attributes 1" in tests
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val nodes = builder.convert(view)
         dumpNodes(nodes, view, builder)
 
@@ -347,7 +349,7 @@ class LayoutInspectorTreeTest {
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
         dumpSlotTableSet(slotTableRecord)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val nodes = builder.convert(view)
         dumpNodes(nodes, view, builder)
 
@@ -382,7 +384,7 @@ class LayoutInspectorTreeTest {
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
         dumpSlotTableSet(slotTableRecord)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         val nodes = builder.convert(view)
         dumpNodes(nodes, view, builder)
@@ -433,7 +435,7 @@ class LayoutInspectorTreeTest {
 
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val node = builder.convert(view).flatMap { flatten(it) }.firstOrNull { it.name == "Spacer" }
 
         // Spacer should show up in the Compose tree:
@@ -457,7 +459,7 @@ class LayoutInspectorTreeTest {
 
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.includeAllParameters = false
         val node =
             builder.convert(view).flatMap { flatten(it) }.firstOrNull { it.name == "BasicText" }
@@ -488,7 +490,7 @@ class LayoutInspectorTreeTest {
 
         val view = findAndroidComposeView()
         view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val node = builder.convert(view).flatMap { flatten(it) }.firstOrNull { it.name == "Text" }
 
         // LayoutNode id should be captured by the Text node:
@@ -517,7 +519,7 @@ class LayoutInspectorTreeTest {
 
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val nodes = builder.convert(androidComposeView)
         validate(nodes, builder, checkSemantics = true) {
             node("Column", children = listOf("Text", "Row", "Row"), inlined = true)
@@ -569,7 +571,7 @@ class LayoutInspectorTreeTest {
         appView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
         dialogView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
 
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
 
         val allNodes = builder.convert(listOf(appView, dialogView))
         val appNodes = allNodes[appView.uniqueDrawingId] ?: emptyList()
@@ -625,7 +627,7 @@ class LayoutInspectorTreeTest {
         val popupView = composeViews[1]
         appView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
         popupView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
 
         val allNodes = builder.convert(listOf(appView, popupView))
         val appNodes = allNodes[appView.uniqueDrawingId] ?: emptyList()
@@ -667,7 +669,7 @@ class LayoutInspectorTreeTest {
         }
         val composeView = findAndroidComposeView() as ViewGroup
         composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         val nodes = builder.convert(composeView)
         dumpNodes(nodes, composeView, builder)
@@ -713,7 +715,7 @@ class LayoutInspectorTreeTest {
         }
         val composeView = findAndroidComposeView() as ViewGroup
         composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         val nodes = builder.convert(composeView)
         dumpNodes(nodes, composeView, builder)
@@ -751,7 +753,7 @@ class LayoutInspectorTreeTest {
         }
         val composeView = findAndroidComposeView() as ViewGroup
         composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         val nodes = builder.convert(composeView)
         dumpSlotTableSet(slotTableRecord)
@@ -818,7 +820,7 @@ class LayoutInspectorTreeTest {
 
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         val nodes = builder.convert(androidComposeView)
         dumpNodes(nodes, androidComposeView, builder)
 
@@ -872,7 +874,7 @@ class LayoutInspectorTreeTest {
         }
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.includeAllParameters = true
         val tree1 = builder.convert(androidComposeView)
         val first = tree1.flatMap { flatten(it) }.single { it.name == "First" }
@@ -913,7 +915,7 @@ class LayoutInspectorTreeTest {
         show { Inspectable(slotTableRecord) { InlineParameters(20.5.dp, 30.sp) } }
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         builder.includeAllParameters = true
         val inlineParameters =
@@ -946,7 +948,7 @@ class LayoutInspectorTreeTest {
         }
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         builder.includeAllParameters = false
     }
@@ -965,7 +967,7 @@ class LayoutInspectorTreeTest {
 
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         builder.includeAllParameters = true
         ThreadUtils.runOnMainThread { builder.convert(androidComposeView) }
@@ -986,7 +988,7 @@ class LayoutInspectorTreeTest {
         }
         val androidComposeView = findAndroidComposeView()
         androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
-        val builder = LayoutInspectorTree()
+        val builder = createLayoutInspectorTree()
         builder.hideSystemNodes = false
         builder.includeAllParameters = true
         val linearProgressIndicator =
@@ -1154,6 +1156,11 @@ class LayoutInspectorTreeTest {
     private fun viewParent(view: View): View? = view.parent as? View
 
     private fun show(composable: @Composable () -> Unit) = composeTestRule.setContent(composable)
+
+    private fun createLayoutInspectorTree(): LayoutInspectorTree {
+        val anchorMap = AnchorMap()
+        return LayoutInspectorTree(anchorMap, InlineClassConverter())
+    }
 
     // region DEBUG print methods
     private fun dumpNodes(nodes: List<InspectorNode>, view: View, builder: LayoutInspectorTree) {
@@ -1333,5 +1340,5 @@ fun InlineParameters(size: Dp, fontSize: TextUnit) {
     Text("$size $fontSize")
 }
 
-fun LayoutInspectorTree.convert(view: View): List<InspectorNode> =
+internal fun LayoutInspectorTree.convert(view: View): List<InspectorNode> =
     convert(listOf(view))[view.uniqueDrawingId] ?: emptyList()

@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers
 
-import android.media.Image
 import android.opengl.GLES30
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Mesh
@@ -24,6 +23,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Shader
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Texture
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.VertexBuffer
+import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -75,6 +75,19 @@ public class BackgroundRenderer(render: SampleRender) {
                 Texture.WrapMode.CLAMP_TO_EDGE,
                 useMipmaps = false,
             )
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cameraDepthTexture.textureId)
+        GLES30.glTexParameteri(
+            GLES30.GL_TEXTURE_2D,
+            GLES30.GL_TEXTURE_MIN_FILTER,
+            GLES30.GL_NEAREST,
+        )
+        maybeThrowGLException("Failed to set texture parameter", "glTexParameteri")
+        GLES30.glTexParameteri(
+            GLES30.GL_TEXTURE_2D,
+            GLES30.GL_TEXTURE_MAG_FILTER,
+            GLES30.GL_NEAREST,
+        )
+        maybeThrowGLException("Failed to set texture parameter", "glTexParameteri")
 
         // Create a [Mesh] with three vertex buffers: one for the screen coordinates (normalized
         // device
@@ -112,6 +125,7 @@ public class BackgroundRenderer(render: SampleRender) {
             this.useDepthVisualization = useDepthVisualization
         }
         if (useDepthVisualization) {
+
             depthColorPaletteTexture =
                 Texture.createFromAsset(
                     render,
@@ -176,7 +190,7 @@ public class BackgroundRenderer(render: SampleRender) {
      * Updates the display geometry. This must be called every frame before calling either of
      * BackgroundRenderer's draw methods.
      *
-     * @param transformFunc How to process the display's [FloatBuffer]
+     * @param transformFunc how to process the display's [FloatBuffer]
      */
     public fun updateDisplayGeometry(transformFunc: (FloatBuffer) -> FloatBuffer) {
         // If display rotation changed (also includes view size change), we need to re-query the UV
@@ -184,23 +198,23 @@ public class BackgroundRenderer(render: SampleRender) {
         cameraTexCoordsVertexBuffer.set(transformFunc(NDC_QUAD_COORDS_BUFFER))
     }
 
-    /** Update depth texture with Image contents. */
-    public fun updateCameraDepthTexture(image: Image) {
+    /** Update depth texture with Float Buffer contents. */
+    public fun updateCameraDepthTexture(width: Int, height: Int, floatBuffer: FloatBuffer) {
         // SampleRender abstraction leaks here
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cameraDepthTexture.textureId)
         GLES30.glTexImage2D(
             GLES30.GL_TEXTURE_2D,
             0,
-            GLES30.GL_RG8,
-            image.width,
-            image.height,
+            GLES30.GL_R32F,
+            width,
+            height,
             0,
-            GLES30.GL_RG,
-            GLES30.GL_UNSIGNED_BYTE,
-            image.planes[0].buffer,
+            GLES30.GL_RED,
+            GLES30.GL_FLOAT,
+            floatBuffer,
         )
         if (useOcclusion) {
-            val aspectRatio: Float = 1.0f * image.width / image.height
+            val aspectRatio: Float = 1.0f * width / height
             occlusionShader!!.setFloat("u_DepthAspectRatio", aspectRatio)
         }
     }

@@ -32,4 +32,5 @@ package androidx.compose.runtime.internal
  * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
  * ```
  */
+@Suppress("KmpVisibilityMismatch") // public in native
 internal expect fun identityHashCode(instance: Any?): Int

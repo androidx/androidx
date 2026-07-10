@@ -31,7 +31,7 @@ class NativeSQLiteDriverTest : BaseConformanceTest() {
 
     @Test
     fun loadExtension() {
-        val extensionPath = getExtensionFileName() ?: return
+        val extensionPath = getExtensionFileName()
 
         val driver =
             NativeSQLiteDriver().apply {

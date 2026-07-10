@@ -19,15 +19,20 @@ package androidx.appfunctions.compiler.core.metadata
 data class AppFunctionComponentsMetadata(
     val dataTypes: Map<String, AppFunctionDataTypeMetadata> = emptyMap()
 ) {
-    fun toAppFunctionComponentsMetadataDocument(): AppFunctionComponentsMetadataDocument {
+    fun toAppFunctionComponentsMetadataDocument(
+        id: String? = null
+    ): AppFunctionComponentsMetadataDocument {
         return AppFunctionComponentsMetadataDocument(
+            id = id ?: APP_FUNCTION_ID_EMPTY,
             dataTypes =
-                dataTypes.map { (name, dataType) ->
-                    AppFunctionNamedDataTypeMetadataDocument(
-                        name = name,
-                        dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
-                    )
-                }
+                dataTypes.entries
+                    .sortedBy { it.key }
+                    .map { (name, dataType) ->
+                        AppFunctionNamedDataTypeMetadataDocument(
+                            name = name,
+                            dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
+                        )
+                    },
         )
     }
 }

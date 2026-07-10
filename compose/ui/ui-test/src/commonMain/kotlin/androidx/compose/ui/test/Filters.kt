@@ -27,7 +27,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.util.fastAny
 import kotlin.js.JsName
 
 /**
@@ -271,6 +270,10 @@ fun hasText(
  * @see SemanticsProperties.Text
  * @see SemanticsProperties.EditableText
  */
+@Deprecated(
+    message = "Replaced by hasTextExactly that includes the includeInputText parameter",
+    level = DeprecationLevel.HIDDEN,
+)
 fun hasTextExactly(
     vararg textValues: String,
     includeEditableText: Boolean = true,
@@ -286,6 +289,49 @@ fun hasTextExactly(
         val actual = mutableListOf<String>()
         if (includeEditableText) {
             node.config.getOrNull(EditableText)?.let { actual.add(it.text) }
+        }
+        node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }
+        actual.containsAll(expected) && expected.containsAll(actual)
+    }
+}
+
+/**
+ * Returns whether the node's text contains exactly the given [textValues] and nothing else.
+ *
+ * By default, this searches in [SemanticsProperties.Text] and [SemanticsProperties.EditableText].
+ * To also evaluate [SemanticsProperties.InputText] (which holds the raw user input of fields like
+ * passwords, bypassing visual transformations), set [includeInputText] to `true`.
+ *
+ * Note that in the merged semantics tree there can be a list of text items that got merged from the
+ * child nodes. Typically, an accessibility tooling will decide based on its heuristics which ones
+ * to use.
+ *
+ * @param textValues List of values to match (the order does not matter).
+ * @param includeEditableText Whether to also assert against the editable text. Defaults to true.
+ * @param includeInputText Whether to also assert against the un-transformed input text. Defaults to
+ *   false.
+ * @see SemanticsProperties.Text
+ * @see SemanticsProperties.EditableText
+ * @see SemanticsProperties.InputText
+ */
+fun hasTextExactly(
+    vararg textValues: String,
+    includeEditableText: Boolean = true,
+    includeInputText: Boolean = false,
+): SemanticsMatcher {
+    val expected = textValues.toList()
+    val propertyName = buildString {
+        append(Text.name)
+        if (includeEditableText) append(" + ${EditableText.name}")
+        if (includeInputText) append(" + ${InputText.name}")
+    }
+    return SemanticsMatcher("$propertyName = [${textValues.joinToString(",")}]") { node ->
+        val actual = mutableListOf<String>()
+        if (includeEditableText) {
+            node.config.getOrNull(EditableText)?.let { actual.add(it.text) }
+        }
+        if (includeInputText) {
+            node.config.getOrNull(InputText)?.let { actual.add(it.text) }
         }
         node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }
         actual.containsAll(expected) && expected.containsAll(actual)
@@ -349,28 +395,13 @@ fun isPopup(): SemanticsMatcher = hasKey(SemanticsProperties.IsPopup)
 /**
  * Returns whether the node is hidden from accessibility.
  *
- * This checks if the node itself has the [SemanticsProperties.HideFromAccessibility] property. It
- * does not check the node's ancestors.
+ * This only checks if the node itself is hidden from accessibility. To check if it is in a hidden
+ * subtree, use `hasAnyAncestor(isHiddenFromAccessibility())`.
  *
  * @see SemanticsProperties.HideFromAccessibility
  */
 fun isHiddenFromAccessibility(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility)
-
-/**
- * Returns whether the node is in a subtree that is hidden from accessibility.
- *
- * This is the matcher you'll typically want to use to filter for nodes that are not visible to
- * accessibility services.
- *
- * It checks if the node itself is hidden OR if it has an ancestor that is hidden.
- *
- * @see SemanticsProperties.HideFromAccessibility
- */
-fun isInHiddenAccessibilitySubtree(): SemanticsMatcher {
-    val isHidden = isHiddenFromAccessibility()
-    return isHidden or hasAnyAncestor(isHidden)
-}
 
 /**
  * Returns whether the node defines the given IME action.
@@ -530,17 +561,9 @@ fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
  */
 fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
-    //  it might be too much to show. But we could at least warn if there were no ancestors found.
-    fun checkIfSubtreeMatches(matcher: SemanticsMatcher, node: SemanticsNode): Boolean {
-        if (matcher.matchesAny(node.children)) {
-            return true
-        }
-
-        return node.children.fastAny { checkIfSubtreeMatches(matcher, it) }
-    }
-
+    //  it might be too much to show. But we could at least warn if there were no descendants found.
     return SemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {
-        checkIfSubtreeMatches(matcher, it)
+        matcher.matchesAny(it.descendants)
     }
 }
 
@@ -557,6 +580,35 @@ internal val SemanticsNode.ancestors: Iterable<SemanticsNode>
 
                     override fun next(): SemanticsNode {
                         return next!!.also { next = it.parent }
+                    }
+                }
+            }
+        }
+
+internal val SemanticsNode.descendants: Iterable<SemanticsNode>
+    get() =
+        object : Iterable<SemanticsNode> {
+            override fun iterator(): Iterator<SemanticsNode> {
+                return object : Iterator<SemanticsNode> {
+                    private val stack =
+                        ArrayDeque<SemanticsNode>().apply {
+                            val rootChildren = children
+                            for (i in rootChildren.lastIndex downTo 0) {
+                                addLast(rootChildren[i])
+                            }
+                        }
+
+                    override fun hasNext(): Boolean = stack.isNotEmpty()
+
+                    override fun next(): SemanticsNode {
+                        if (!hasNext()) throw NoSuchElementException()
+
+                        val nextNode = stack.removeLast()
+                        val children = nextNode.children
+                        for (i in children.lastIndex downTo 0) {
+                            stack.addLast(children[i])
+                        }
+                        return nextNode
                     }
                 }
             }

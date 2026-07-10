@@ -21,11 +21,13 @@ import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -92,6 +94,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
 
     @Test
     public void ui_dragsThumb_scrollsRecyclerView() throws Throwable {
+        assumeFalse("Test fails on cuttlefish b/460512664", Build.MODEL.contains("Cuttlefish"));
         arrangeWithXml();
 
         // RecyclerView#scrollBy(int, int) used to cause the scroller thumb to show up.

@@ -210,24 +210,6 @@ internal sealed class PageEvent<T : Any> {
                 sourceLoadStates: LoadStates,
                 mediatorLoadStates: LoadStates? = null,
             ) = Insert(APPEND, pages, -1, placeholdersAfter, sourceLoadStates, mediatorLoadStates)
-
-            /**
-             * Empty refresh, used to convey initial state.
-             *
-             * Note - has no remote state, so remote state may be added over time
-             */
-            val EMPTY_REFRESH_LOCAL: Insert<Any> =
-                Refresh(
-                    pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 0,
-                    sourceLoadStates =
-                        LoadStates(
-                            refresh = LoadState.NotLoading.Incomplete,
-                            prepend = LoadState.NotLoading.Complete,
-                            append = LoadState.NotLoading.Complete,
-                        ),
-                )
         }
 
         override fun toString(): String {

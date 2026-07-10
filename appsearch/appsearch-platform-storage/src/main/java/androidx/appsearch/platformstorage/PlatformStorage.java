@@ -21,7 +21,11 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
+import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
@@ -30,7 +34,9 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchContextToPlatformConverter;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,12 +62,18 @@ public final class PlatformStorage {
         final Context mContext;
         final String mDatabaseName;
         final Executor mExecutor;
+        @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+        @NonNull
+        final PlatformConversionAdapter mPlatformConversionAdapter;
 
+        @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
         SearchContext(@NonNull Context context, @NonNull String databaseName,
-                @NonNull Executor executor) {
+                @NonNull Executor executor,
+                @NonNull PlatformConversionAdapter platformConversionAdapter) {
             mContext = Preconditions.checkNotNull(context);
             mDatabaseName = Preconditions.checkNotNull(databaseName);
             mExecutor = Preconditions.checkNotNull(executor);
+            mPlatformConversionAdapter = Preconditions.checkNotNull(platformConversionAdapter);
         }
 
         /**
@@ -92,11 +104,23 @@ public final class PlatformStorage {
             return mExecutor;
         }
 
+        /**
+         * Returns the {@link PlatformConversionAdapter} associated with {@link AppSearchSession}.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @ExperimentalAppSearchApi
+        public @NonNull PlatformConversionAdapter getPlatformConversionAdapter() {
+            return mPlatformConversionAdapter;
+        }
+
         /** Builder for {@link SearchContext} objects. */
         public static final class Builder {
             private final Context mContext;
             private final String mDatabaseName;
             private Executor mExecutor;
+            @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+            @NonNull
+            private PlatformConversionAdapter mPlatformConversionAdapter;
 
             /**
              * Creates a {@link SearchContext.Builder} instance.
@@ -117,6 +141,7 @@ public final class PlatformStorage {
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
              */
+            @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
             public Builder(@NonNull Context context, @NonNull String databaseName) {
                 mContext = Preconditions.checkNotNull(context);
                 Preconditions.checkNotNull(databaseName);
@@ -124,6 +149,7 @@ public final class PlatformStorage {
                     throw new IllegalArgumentException("Database name cannot contain '/'");
                 }
                 mDatabaseName = databaseName;
+                mPlatformConversionAdapter = new UnsupportedPlatformConversionAdapter();
             }
 
             /**
@@ -138,12 +164,24 @@ public final class PlatformStorage {
                 return this;
             }
 
+            /**
+             * Sets the {@link PlatformConversionAdapter} associated with {@link AppSearchSession}.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @ExperimentalAppSearchApi
+            public @NonNull Builder setPlatformConversionAdapter(
+                    @NonNull PlatformConversionAdapter platformConversionAdapter) {
+                mPlatformConversionAdapter = Preconditions.checkNotNull(platformConversionAdapter);
+                return this;
+            }
+
             /** Builds a {@link SearchContext} instance. */
             public @NonNull SearchContext build() {
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-                return new SearchContext(mContext, mDatabaseName, mExecutor);
+                return new SearchContext(mContext, mDatabaseName, mExecutor,
+                        mPlatformConversionAdapter);
             }
         }
     }
@@ -152,10 +190,16 @@ public final class PlatformStorage {
     public static final class GlobalSearchContext {
         final Context mContext;
         final Executor mExecutor;
+        @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+        @NonNull
+        final PlatformConversionAdapter mAdapter;
 
-        GlobalSearchContext(@NonNull Context context, @NonNull Executor executor) {
+        @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+        GlobalSearchContext(@NonNull Context context, @NonNull Executor executor,
+                @NonNull PlatformConversionAdapter adapter) {
             mContext = Preconditions.checkNotNull(context);
             mExecutor = Preconditions.checkNotNull(executor);
+            mAdapter = Preconditions.checkNotNull(adapter);
         }
 
         /**
@@ -179,13 +223,28 @@ public final class PlatformStorage {
             return mExecutor;
         }
 
+        /**
+         * Returns the {@link PlatformConversionAdapter} associated with
+         * {@link GlobalSearchSession}.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @ExperimentalAppSearchApi
+        public @NonNull PlatformConversionAdapter getPlatformConversionAdapter() {
+            return mAdapter;
+        }
+
         /** Builder for {@link GlobalSearchContext} objects. */
         public static final class Builder {
             private final Context mContext;
             private Executor mExecutor;
+            @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+            @NonNull
+            private PlatformConversionAdapter mAdapter;
 
+            @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
             public Builder(@NonNull Context context) {
                 mContext = Preconditions.checkNotNull(context);
+                mAdapter = new UnsupportedPlatformConversionAdapter();
             }
 
             /**
@@ -201,12 +260,25 @@ public final class PlatformStorage {
                 return this;
             }
 
+            /**
+             * Sets the {@link PlatformConversionAdapter} associated with
+             * {@link GlobalSearchSession}.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @ExperimentalAppSearchApi
+            public @NonNull Builder setPlatformConversionAdapter(
+                    @NonNull PlatformConversionAdapter adapter) {
+                Preconditions.checkNotNull(adapter);
+                mAdapter = adapter;
+                return this;
+            }
+
             /** Builds a {@link GlobalSearchContext} instance. */
             public @NonNull GlobalSearchContext build() {
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-                return new GlobalSearchContext(mContext, mExecutor);
+                return new GlobalSearchContext(mContext, mExecutor, mAdapter);
             }
         }
     }
@@ -238,7 +310,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
-                                        context.mContext));
+                                        context.mContext, context.mPlatformConversionAdapter));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -268,7 +340,8 @@ public final class PlatformStorage {
                         future.set(new GlobalSearchSessionImpl(
                                 result.getResultValue(),
                                 context.mExecutor,
-                                context.mContext));
+                                context.mContext,
+                                context.mAdapter));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -284,38 +357,30 @@ public final class PlatformStorage {
     /**
      * Opens a new {@link EnterpriseGlobalSearchSession} on this storage.
      */
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    @SuppressLint("WrongConstant")
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ENTERPRISE_GLOBAL_SEARCH_SESSION)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint({"WrongConstant", "ObsoleteSdkInt"})
     public static @NonNull ListenableFuture<EnterpriseGlobalSearchSession>
             createEnterpriseGlobalSearchSessionAsync(@NonNull GlobalSearchContext context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.V_BASE) {
+            Preconditions.checkNotNull(context);
+            AppSearchManager appSearchManager =
+                    context.mContext.getSystemService(AppSearchManager.class);
+            ResolvableFuture<EnterpriseGlobalSearchSession> future = ResolvableFuture.create();
+            ApiHelperForSdkExtensionVBase.createEnterpriseGlobalSearchSession(
+                    appSearchManager,
+                    context.mExecutor,
+                    result -> ApiHelperForSdkExtensionVBase.setEnterpriseSearchSessionFuture(
+                            context,
+                            result, future));
+            return future;
+        } else {
             throw new UnsupportedOperationException(
                     Features.ENTERPRISE_GLOBAL_SEARCH_SESSION
                             + " is not supported on this AppSearch implementation");
         }
-        Preconditions.checkNotNull(context);
-        AppSearchManager appSearchManager =
-                context.mContext.getSystemService(AppSearchManager.class);
-        ResolvableFuture<EnterpriseGlobalSearchSession> future = ResolvableFuture.create();
-        ApiHelperForV.createEnterpriseGlobalSearchSession(
-                appSearchManager,
-                context.mExecutor,
-                result -> {
-                    if (result.isSuccess()) {
-                        future.set(new EnterpriseGlobalSearchSessionImpl(
-                                result.getResultValue(),
-                                context.mExecutor,
-                                context.mContext));
-                    } else {
-                        // Without the SuppressLint annotation on the method, this line causes a
-                        // lint error because getResultCode isn't defined as returning a value from
-                        // AppSearchResult.ResultCode
-                        future.setException(
-                                new AppSearchException(
-                                        result.getResultCode(), result.getErrorMessage()));
-                    }
-                });
-        return future;
     }
 
     /**
@@ -324,12 +389,14 @@ public final class PlatformStorage {
      */
     @ExperimentalAppSearchApi
     public static @NonNull Features getFeatures(@NonNull Context context) {
-        return new FeaturesImpl(context);
+        return new FeaturesImpl(context, /* isForEnterprise= */ false);
     }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private static class ApiHelperForV {
-        private ApiHelperForV() {
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.V_BASE)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForSdkExtensionVBase {
+        private ApiHelperForSdkExtensionVBase() {
             // This class is not instantiable.
         }
 
@@ -339,6 +406,29 @@ public final class PlatformStorage {
                 @NonNull Consumer<android.app.appsearch.AppSearchResult<
                         android.app.appsearch.EnterpriseGlobalSearchSession>> callback) {
             appSearchManager.createEnterpriseGlobalSearchSession(executor, callback);
+        }
+
+        @SuppressLint("WrongConstant")
+        @DoNotInline
+        static void setEnterpriseSearchSessionFuture(
+                PlatformStorage.GlobalSearchContext context,
+                android.app.appsearch.AppSearchResult<
+                        android.app.appsearch.EnterpriseGlobalSearchSession> result,
+                ResolvableFuture<EnterpriseGlobalSearchSession> future) {
+            if (result.isSuccess()) {
+                future.set(new EnterpriseGlobalSearchSessionImpl(
+                        result.getResultValue(),
+                        context.mExecutor,
+                        context.mContext,
+                        context.mAdapter));
+            } else {
+                // Without the SuppressLint annotation on the method, this line causes a
+                // lint error because getResultCode isn't defined as returning a value from
+                // AppSearchResult.ResultCode
+                future.setException(
+                        new AppSearchException(
+                                result.getResultCode(), result.getErrorMessage()));
+            }
         }
     }
 }

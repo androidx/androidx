@@ -37,23 +37,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.Plane
 import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.common.TrackablesList
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.helloar.rendering.AnchorRenderer
 import androidx.xr.arcore.testapp.helloar.rendering.PlaneRenderer
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
-import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.DisplayBlendMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.XrDevice
 
 class HelloArPlaneActivity : ComponentActivity() {
 
@@ -70,15 +76,15 @@ class HelloArPlaneActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                    headTracking = Config.HeadTrackingMode.LAST_KNOWN,
-                ),
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
 
-                    planeRenderer = PlaneRenderer(session, lifecycleScope)
-                    anchorRenderer = AnchorRenderer(this, planeRenderer, session, lifecycleScope)
+                    planeRenderer = PlaneRenderer(session)
+                    anchorRenderer = AnchorRenderer(this, planeRenderer, session)
                     lifecycle.addObserver(planeRenderer)
                     lifecycle.addObserver(anchorRenderer)
 
@@ -86,9 +92,9 @@ class HelloArPlaneActivity : ComponentActivity() {
                         Subspace {
                             SpatialPanel(
                                 modifier =
-                                    SubspaceModifier.size(DpVolumeSize(640.dp, 480.dp, 0.dp)),
-                                dragPolicy = MovePolicy(),
-                                resizePolicy = ResizePolicy(),
+                                    SubspaceModifier.size(DpVolumeSize(640.dp, 480.dp, 0.dp))
+                                        .movable()
+                                        .resizable()
                             ) {
                                 HelloPlanes(session)
                             }
@@ -100,11 +106,17 @@ class HelloArPlaneActivity : ComponentActivity() {
     }
 
     @Composable
+    @Suppress("deprecation")
     fun HelloPlanes(session: Session) {
         val state by session.state.collectAsStateWithLifecycle()
         val perceptionState = state.perceptionState
+        val arDevice = androidx.xr.arcore.ArDevice.getInstance(session)
+        val arDeviceState by arDevice.state.collectAsStateWithLifecycle()
         var title = intent.getStringExtra("TITLE")
         if (title == null) title = "Hello AR Plane"
+        val blendMode = XrDevice.getCurrentDevice(applicationContext).getPreferredDisplayBlendMode()
+        val isGeospatialSupported =
+            XrDevice.getCurrentDevice(this).isGeospatialModeSupported(GeospatialMode.SPATIAL)
         Scaffold(
             modifier = Modifier.fillMaxSize().padding(0.dp),
             topBar = {
@@ -143,18 +155,73 @@ class HelloArPlaneActivity : ComponentActivity() {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         modifier = Modifier.padding(start = 10.dp).weight(1f),
-                        text = "Trackables:",
+                        text = "Tracking State:",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(3f),
+                        text = "${arDeviceState.trackingState.asString()}",
+                        fontSize = 20.sp,
+                    )
+                }
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(1f),
+                        text = "Preferred Blend Mode:",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(3f),
+                        text = blendMode.toLocalString(),
+                        fontSize = 20.sp,
+                    )
+                }
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(1f),
+                        text = "Is Geospatial Supported:",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(3f),
+                        text = "$isGeospatialSupported",
+                        fontSize = 20.sp,
+                    )
+                }
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp).weight(1f),
+                        text = "Planes:",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
 
                 if (perceptionState != null) {
-                    TrackablesList(perceptionState.trackables.toList())
+                    TrackablesList(
+                        perceptionState.trackableStates.filterIsInstance<Plane.State>().map {
+                            it.owner
+                        }
+                    )
                 } else {
                     Text(text = "PerceptionState is null.", fontSize = 22.sp)
                 }
             }
+        }
+    }
+
+    private fun DisplayBlendMode.toLocalString(): String {
+        return when (this) {
+            DisplayBlendMode.ADDITIVE -> "ADDITIVE"
+            DisplayBlendMode.ALPHA_BLEND -> "ALPHA_BLEND"
+            DisplayBlendMode.NO_DISPLAY -> "NO_DISPLAY"
+            else -> "UNKNOWN"
         }
     }
 }

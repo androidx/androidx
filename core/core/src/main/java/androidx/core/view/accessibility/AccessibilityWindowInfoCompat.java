@@ -289,7 +289,7 @@ public class AccessibilityWindowInfoCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *   <li>Api &lt; 33: Will return {@link android.view.Display.DEFAULT_DISPLAY}.</li>
+     *   <li>Api &lt; 33: Will return {@link android.view.Display#DEFAULT_DISPLAY}.</li>
      * </ul>
      *
      * @return the logical display id.

@@ -26,6 +26,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -52,7 +53,7 @@ import org.junit.rules.TestName
  * @param screenshotRule AndroidXScreenshotTestRule instance created as a class property, which
  *   locates the directory containing the golden screenshots.
  * @param generateScreenshots Whether to generate new golden screenshots.
- * @param testTag The tag of the node to verify.
+ * @param testTagNode The semantic node to be verified.
  * @param matcher The matcher used to compare the screenshot against the goldens - default uses a a
  *   threshold of 0.98, it can be useful to pass 1.0 to test a more exact match.
  */
@@ -61,11 +62,11 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     testName: TestName,
     screenshotRule: AndroidXScreenshotTestRule,
     generateScreenshots: Boolean = GENERATE_SCREENSHOTS,
-    testTag: String = TEST_TAG,
+    testTagNode: SemanticsNodeInteraction = onNodeWithTag(TEST_TAG),
     matcher: BitmapMatcher = MSSIMMatcher(),
 ) {
     val goldenScreenshotName = testName.goldenIdentifier()
-    val screenshot = this.onNodeWithTag(testTag).captureToImage()
+    val screenshot = testTagNode.captureToImage()
 
     if (generateScreenshots) {
         screenshot.writeToDevice(goldenScreenshotName + "_emulator")
@@ -91,7 +92,7 @@ internal fun ComposeContentTestRule.verifyScreenshot(
  * @param screenshotRule AndroidXScreenshotTestRule instance created as a class property, which
  *   locates the directory containing the golden screenshots.
  * @param generateScreenshots Whether to generate new golden screenshots.
- * @param testTag The tag of the node to verify.
+ * @param testTagNode The semantic node to be verified.
  * @param layoutDirection The layout direction of the content.
  * @param matcher The matcher used to compare the screenshot against the goldens - default uses a a
  *   threshold of 0.98, it can be useful to pass 1.0 to test a more exact match.
@@ -102,7 +103,7 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     testName: TestName,
     screenshotRule: AndroidXScreenshotTestRule,
     generateScreenshots: Boolean = GENERATE_SCREENSHOTS,
-    testTag: String = TEST_TAG,
+    testTagNode: SemanticsNodeInteraction = onNodeWithTag(TEST_TAG),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     matcher: BitmapMatcher = MSSIMMatcher(),
     content: @Composable () -> Unit,
@@ -119,7 +120,7 @@ internal fun ComposeContentTestRule.verifyScreenshot(
 
     verifyScreenshot(
         testName,
-        testTag = testTag,
+        testTagNode = testTagNode,
         screenshotRule = screenshotRule,
         generateScreenshots = generateScreenshots,
         matcher = matcher,

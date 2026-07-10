@@ -51,11 +51,12 @@ public fun calculateContentColor(backgroundColor: Color): Color =
     if (backgroundColor.luminance() < LuminanceContrastRatioBreakpoint) Color.White else Color.Black
 
 /**
- * Retrieves the preferred content color for text and iconography. Most surfaces should be
- * [Color.Black], so content color is typically [Color.White]. In a few cases where surfaces are
- * filled with a different color, the content color may be [Color.Black] to improve contrast. For
- * cases where higher emphasis is required, content color may be a different color from the theme,
- * such as [Colors.primary], and provided separately using [contentColorProvider].
+ * Retrieves the preferred content color for text and iconography. Most backgrounds should be
+ * [Color.Black] and surfaces dark, so content color is typically [Color.White]. In a few cases
+ * where surfaces are filled with a different color, the content color may be [Color.Black] to
+ * improve contrast. For cases where higher emphasis is required, content color may be a different
+ * color from the theme, such as [Colors.primary], and provided separately using
+ * [contentColorProvider].
  *
  * Content color is automatically provided by [surface], and calculated from the provided background
  * color by default. It can also be provided with [contentColorProvider]. To manually calculate the

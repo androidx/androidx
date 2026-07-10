@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.apps.whitebox.mobile.common
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -25,16 +24,15 @@ import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateResult
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Observer class to manage the device ARCore verification on the lifecycle owner (activity) before
- * the session is created.
- */
+/** Manages ARCore verification before session creation. */
 class ArCoreVerificationHelper(
     val activity: ComponentActivity,
     val onArCoreVerified: () -> Unit = {},
@@ -133,7 +131,6 @@ class ArCoreVerificationHelper(
                 )
             ) {
                 ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                    Log.i(TAG, "ARCore installation requested.")
                     installRequested = true
                     return
                 }
@@ -151,16 +148,16 @@ class ArCoreVerificationHelper(
     suspend fun remoteQueryArCoreAvailability() {
         var attempt = 0
         while (queryRequested) {
-            // TODO: b/414854001 - Implement exponential backoff.
-            delay(REQUEST_DELAY_BETWEEN_ATTEMPTS_MS)
+            // exponential backoff to increase delay time before each attempt
+            val durationMs = ((2.0f.pow(attempt.toFloat()) - 1) * REQUEST_BASE_DELAY_MS).toLong()
+            delay(durationMs.milliseconds)
             when (arCoreApkInstance.checkAvailability(activity)) {
                 ArCoreApk.Availability.SUPPORTED_INSTALLED -> {
                     queryRequested = false
                     onArCoreVerified()
                 }
                 ArCoreApk.Availability.UNKNOWN_CHECKING -> {
-                    attempt++
-                    if (attempt >= REQUEST_MAX_ATTEMPTS) {
+                    if (attempt < REQUEST_MAX_ATTEMPTS) {
                         continue
                     } else {
                         queryRequested = false
@@ -174,6 +171,7 @@ class ArCoreVerificationHelper(
                     throw RuntimeException("Unable to determine ARCore availability.")
                 }
             }
+            attempt++
         }
     }
 
@@ -181,11 +179,10 @@ class ArCoreVerificationHelper(
         private val TAG = this::class.simpleName
 
         private fun <F> showErrorMessage(activity: ComponentActivity, error: F) {
-            Log.e(TAG, error.toString())
             Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
         }
 
-        const val REQUEST_DELAY_BETWEEN_ATTEMPTS_MS: Long = 200L
+        const val REQUEST_BASE_DELAY_MS: Long = 200L
         const val REQUEST_MAX_ATTEMPTS: Int = 5
         const private val ARCORE_PACKAGE_NAME = "com.google.ar.core"
     }

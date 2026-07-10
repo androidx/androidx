@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-DocumentExceptions: androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat#from(android.content.Context):
-    Method SdkSandboxControllerCompat.from appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.Companion#from(android.content.Context):
-    Method Companion.from appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

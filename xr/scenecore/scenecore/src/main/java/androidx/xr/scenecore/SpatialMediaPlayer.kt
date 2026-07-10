@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,20 @@ public object SpatialMediaPlayer {
      * @param session The current [Session] instance.
      * @param mediaPlayer The [MediaPlayer] instance on which to set the params
      * @param params The source params to be set.
+     * @param entity The [Entity] from which the sound will be played.
      */
     @JvmStatic
     public fun setPointSourceParams(
         session: Session,
         mediaPlayer: MediaPlayer,
         params: PointSourceParams,
+        entity: Entity,
     ) {
-        session.platformAdapter.mediaPlayerExtensionsWrapper.setPointSourceParams(
+        entity.checkNotDisposed()
+        session.sceneRuntime.mediaPlayerExtensionsWrapper.setPointSourceParams(
             mediaPlayer,
             params.rtPointSourceParams,
+            entity.rtEntity,
         )
     }
 
@@ -63,7 +67,7 @@ public object SpatialMediaPlayer {
         mediaPlayer: MediaPlayer,
         attributes: SoundFieldAttributes,
     ) {
-        session.platformAdapter.mediaPlayerExtensionsWrapper.setSoundFieldAttributes(
+        session.sceneRuntime.mediaPlayerExtensionsWrapper.setSoundFieldAttributes(
             mediaPlayer,
             attributes.rtSoundFieldAttributes,
         )

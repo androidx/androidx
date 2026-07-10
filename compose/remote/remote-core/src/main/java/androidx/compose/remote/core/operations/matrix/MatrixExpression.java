@@ -15,17 +15,19 @@
  */
 package androidx.compose.remote.core.operations.matrix;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.Matrix;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -38,8 +40,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /** This is a matrix that is formed by an expression */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixExpression extends Operation
-        implements VariableSupport, MatrixAccess, Serializable {
+        implements VariableSupport, MatrixAccess, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.MATRIX_EXPRESSION;
     private static final String CLASS_NAME = "MatrixExpression";
     private int mMatrixId;
@@ -48,6 +51,16 @@ public class MatrixExpression extends Operation
     private final float @NonNull [] mExpression;
     private float @Nullable [] mOutExpression;
     MatrixOperations mMatrixOperations = new MatrixOperations();
+
+    @Override
+    public int getId() {
+        return mMatrixId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mMatrixId = id;
+    }
 
     public MatrixExpression(int matrixId, int type, float @NonNull [] expression) {
         this.mMatrixId = matrixId;
@@ -93,13 +106,18 @@ public class MatrixExpression extends Operation
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mMatrixId, mType, mValues);
+        apply(buffer, mMatrixId, mType, mExpression);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "FloatConstant[" + mMatrixId + "] = " + Arrays.toString(mValues);
+        return "MatrixExpression["
+                + mMatrixId
+                + "] = "
+                + MatrixOperations.toString(mExpression, null)
+                + "-> "
+                + Arrays.toString(mValues);
     }
 
     /**
@@ -127,16 +145,16 @@ public class MatrixExpression extends Operation
      * @param buffer write command to this buffer
      * @param matrixId the id
      * @param type the type of matrix it is
-     * @param values the value of the float
+     * @param expression the value of the float
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] values) {
+            @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] expression) {
         buffer.start(OP_CODE);
         buffer.writeInt(matrixId);
         buffer.writeInt(type);
-        buffer.writeInt(values.length);
-        for (int i = 0; i < values.length; i++) {
-            buffer.writeFloat(values[i]);
+        buffer.writeInt(expression.length);
+        for (int i = 0; i < expression.length; i++) {
+            buffer.writeFloat(expression[i]);
         }
     }
 
@@ -144,10 +162,11 @@ public class MatrixExpression extends Operation
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     * @param operations the list of operations that will be added to mapping context for remapping
+     *     IDs
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int type = buffer.readInt();
         int len = buffer.readInt();
         if (len > 32 || len < 0) {
@@ -155,7 +174,17 @@ public class MatrixExpression extends Operation
         }
         float[] exp = new float[len];
         for (int i = 0; i < exp.length; i++) {
-            exp[i] = buffer.readFloat();
+            float v = buffer.readFloat();
+            if (Float.isNaN(v) && !MatrixOperations.isOperator(v)) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    exp[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+                } else {
+                    exp[i] = v;
+                }
+            } else {
+                exp[i] = v;
+            }
         }
 
         operations.add(new MatrixExpression(id, type, exp));
@@ -167,10 +196,12 @@ public class MatrixExpression extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of float")
-                .field(FLOAT, "value", "32-bit float value");
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("A matrix defined by an expression")
+                .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
+                .field(DocumentedOperation.INT, "type", "The type of matrix")
+                .field(DocumentedOperation.FLOAT_ARRAY, "expression", "The matrix expression");
     }
 
     @Override

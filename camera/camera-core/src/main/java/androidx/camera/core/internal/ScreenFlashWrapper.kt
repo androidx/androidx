@@ -29,7 +29,7 @@ import androidx.camera.core.Logger
  */
 internal class ScreenFlashWrapper private constructor(private val screenFlash: ScreenFlash?) :
     ScreenFlash {
-    private val lock = Object()
+    private val lock = Any()
 
     @GuardedBy("lock") private var isClearScreenFlashPending: Boolean = false
     @GuardedBy("lock") private var pendingListener: ScreenFlashListener? = null

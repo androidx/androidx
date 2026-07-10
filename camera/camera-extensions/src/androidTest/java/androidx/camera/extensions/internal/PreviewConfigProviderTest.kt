@@ -18,23 +18,25 @@ package androidx.camera.extensions.internal
 
 import android.content.Context
 import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCharacteristics
-import android.util.Pair
-import android.util.Size
+import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.impl.PreviewExtenderImpl
+import androidx.camera.extensions.ExtensionSessionConfig
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -46,9 +48,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -61,24 +60,26 @@ class PreviewConfigProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    // Tests in this class majorly use mock objects to run the test. No matter which extension
-    // mode is use, it should not affect the test results.
-    @ExtensionMode.Mode private val extensionMode = ExtensionMode.NONE
-    private var cameraSelector = CameraSelector.Builder().build()
+    private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val fakeLifecycleOwner = FakeLifecycleOwner()
 
     private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var extensionsManager: ExtensionsManager
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
 
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider = ProcessCameraProvider.awaitInstance(context)
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         fakeLifecycleOwner.startAndResume()
     }
 
     @After
     fun cleanUp(): Unit = runBlocking {
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
@@ -86,29 +87,32 @@ class PreviewConfigProviderTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 33)
     fun canSetSupportedResolutionsToConfigTest(): Unit = runBlocking {
-        assumeTrue(CameraUtil.deviceHasCamera())
+        val cameraXExtensionMode = ExtensionMode.NIGHT
+        assumeTrue(
+            ExtensionsTestUtil.isExtensionAvailable(
+                extensionsManager,
+                cameraSelector.lensFacing!!,
+                cameraXExtensionMode,
+            )
+        )
+        val cameraManager = context.getSystemService(CameraManager::class.java)
+        val camera2ExtensionMode =
+            Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode(cameraXExtensionMode)
+        val expectedPrivOutputSizes =
+            cameraManager
+                .getCameraExtensionCharacteristics(
+                    CameraUtil.getCameraIdWithLensFacing(cameraSelector.lensFacing!!)!!
+                )
+                .getExtensionSupportedSizes(camera2ExtensionMode, SurfaceTexture::class.java)
 
-        // getSupportedResolutions supported since version 1.1
-        val version = ExtensionVersion.getRuntimeVersion()
-        assumeTrue(version != null && version >= Version.VERSION_1_1)
+        val preview = Preview.Builder().build()
 
-        val mockPreviewExtenderImpl = mock(PreviewExtenderImpl::class.java)
-
-        Mockito.`when`(mockPreviewExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true)
-        Mockito.`when`(mockPreviewExtenderImpl.processorType)
-            .thenReturn(PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_NONE)
-
-        val targetFormatResolutionsPairList = generatePreviewSupportedResolutions()
-        Mockito.`when`(mockPreviewExtenderImpl.supportedResolutions)
-            .thenReturn(targetFormatResolutionsPairList)
-
-        val mockVendorExtender = BasicVendorExtender(null, mockPreviewExtenderImpl)
-
-        val preview = createPreviewWithExtenderImpl(mockVendorExtender)
+        val sessionConfig = ExtensionSessionConfig(cameraXExtensionMode, extensionsManager, preview)
 
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
         }
 
         val resultFormatResolutionsPairList =
@@ -116,44 +120,10 @@ class PreviewConfigProviderTest {
 
         // Checks the result and target pair lists are the same
         for (resultPair in resultFormatResolutionsPairList) {
-            val firstTargetSizes =
-                targetFormatResolutionsPairList
-                    .filter { it.first == resultPair.first }
-                    .map { it.second }
-                    .first()
-
-            assertThat(mutableListOf(resultPair.second)).containsExactly(firstTargetSizes)
-        }
-    }
-
-    private suspend fun createPreviewWithExtenderImpl(
-        basicVendorExtender: BasicVendorExtender
-    ): Preview {
-        withContext(Dispatchers.Main) {
-            val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
-            basicVendorExtender.init(camera.cameraInfo)
-        }
-        return Preview.Builder()
-            .also {
-                PreviewConfigProvider(basicVendorExtender).apply {
-                    updateBuilderConfig(it, basicVendorExtender)
-                }
+            if (resultPair.first == ImageFormat.PRIVATE) {
+                assertThat(resultPair.second.toList())
+                    .containsExactlyElementsIn(expectedPrivOutputSizes.toTypedArray())
             }
-            .build()
-    }
-
-    private fun generatePreviewSupportedResolutions(): List<Pair<Int, Array<Size>>> {
-        val formatResolutionsPairList = mutableListOf<Pair<Int, Array<Size>>>()
-        val cameraInfo = cameraProvider.availableCameraInfos[0] as CameraInfoInternal
-        val characteristics = cameraInfo.cameraCharacteristics as CameraCharacteristics
-        val map = characteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-
-        // Retrieves originally supported resolutions from CameraCharacteristics for PRIVATE
-        // format to return.
-        map?.getOutputSizes(ImageFormat.PRIVATE)?.let {
-            formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, it))
         }
-
-        return formatResolutionsPairList
     }
 }

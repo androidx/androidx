@@ -37,10 +37,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.arcore.apps.whitebox.mobile.anchors.AnchorsActivity
+import androidx.xr.arcore.apps.whitebox.mobile.anchorsplaneshittest.AnchorsPlanesHitTestActivity
+import androidx.xr.arcore.apps.whitebox.mobile.depth.DepthActivity
+import androidx.xr.arcore.apps.whitebox.mobile.facemeshing.FaceMeshActivity
 import androidx.xr.arcore.apps.whitebox.mobile.geospatial.GeospatialActivity
-import androidx.xr.arcore.apps.whitebox.mobile.hittest.HitTestActivity
-import androidx.xr.arcore.apps.whitebox.mobile.planes.PlanesActivity
+import androidx.xr.arcore.apps.whitebox.mobile.inertial.InertialTrackingActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -96,24 +97,33 @@ fun WhiteboxSessionMenu() {
         )
         HorizontalDivider()
         TextButton(
-            onClick = { context.startActivity(Intent(context, AnchorsActivity::class.java)) }
+            onClick = {
+                context.startActivity(Intent(context, AnchorsPlanesHitTestActivity::class.java))
+            }
         ) {
-            Text("Anchors")
-        }
-        TextButton(
-            onClick = { context.startActivity(Intent(context, PlanesActivity::class.java)) }
-        ) {
-            Text("Planes")
-        }
-        TextButton(
-            onClick = { context.startActivity(Intent(context, HitTestActivity::class.java)) }
-        ) {
-            Text("Hit Test")
+            Text("Anchors, Planes, HitTest")
         }
         TextButton(
             onClick = { context.startActivity(Intent(context, GeospatialActivity::class.java)) }
         ) {
             Text("Geospatial")
+        }
+        TextButton(
+            onClick = { context.startActivity(Intent(context, DepthActivity::class.java)) }
+        ) {
+            Text("Depth")
+        }
+        TextButton(
+            onClick = { context.startActivity(Intent(context, FaceMeshActivity::class.java)) }
+        ) {
+            Text("Face Meshes")
+        }
+        TextButton(
+            onClick = {
+                context.startActivity(Intent(context, InertialTrackingActivity::class.java))
+            }
+        ) {
+            Text("Inertial Tracking")
         }
     }
 }

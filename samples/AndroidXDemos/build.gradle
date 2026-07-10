@@ -1,24 +1,21 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
 
     implementation(project(":appcompat:appcompat"))
     implementation(project(":appcompat:appcompat-resources"))
-    implementation(project(":cardview:cardview"))
-    implementation(project(":core:core"))
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.core:core:1.17.0")
     implementation(project(":drawerlayout:drawerlayout"))
     implementation(project(":gridlayout:gridlayout"))
     implementation(project(":palette:palette"))
@@ -38,11 +35,12 @@ dependencies {
 android {
     buildTypes {
         release {
-            minifyEnabled = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
-    compileSdk = 36
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

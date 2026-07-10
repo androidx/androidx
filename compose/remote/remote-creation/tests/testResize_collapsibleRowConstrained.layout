@@ -1,0 +1,368 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 984.0, height: 984.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 884.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: WEIGHT
+            - type: WidthInModifierOperation
+              min: {type: Value, value: 100.0}
+              max: {type: Value, value: 3.4028235E38}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 884.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -6
+          x: 884.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 984.0, height: 984.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 884.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: WEIGHT
+            - type: WidthInModifierOperation
+              min: {type: Value, value: 100.0}
+              max: {type: Value, value: 3.4028235E38}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 884.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -6
+          x: 884.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 150
+    height: 600
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 150.0
+      height: 600.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 150.0
+        height: 600.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 134.0, height: 584.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 134.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: WEIGHT
+            - type: WidthInModifierOperation
+              min: {type: Value, value: 100.0}
+              max: {type: Value, value: 3.4028235E38}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 134.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -6
+          x: 134.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: OVERRIDE_GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1200
+    height: 600
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1200.0
+      height: 600.0
+      visibility: VISIBLE
+      list:
+      - type: COLLAPSIBLE_ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1200.0
+        height: 600.0
+        visibility: OVERRIDE_VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1184.0, height: 584.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1084.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: WEIGHT
+            - type: WidthInModifierOperation
+              min: {type: Value, value: 100.0}
+              max: {type: Value, value: 3.4028235E38}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1084.0, height: 100.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: -6
+          x: 1084.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

@@ -191,6 +191,7 @@ public final class SharedByteBuffer implements Closeable {
 
     // Finalizer as a safety net. This will introduce a performance penalty on construction but it
     // is often critical that all SharedByteBuffer instances are closed, so we eat the penalty.
+    @SuppressWarnings("removal")
     @Override
     protected void finalize() throws Throwable {
         try {

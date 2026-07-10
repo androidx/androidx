@@ -5,19 +5,19 @@ package androidx.compose.runtime {
     ctor public AbstractApplier(T root);
     method public final void clear();
     method public void down(T node);
-    method public T getCurrent();
-    method public final T getRoot();
+    method @InaccessibleFromKotlin public T getCurrent();
+    method @InaccessibleFromKotlin public final T getRoot();
     method protected final void move(java.util.List<T>, int from, int to, int count);
     method protected abstract void onClear();
     method protected final void remove(java.util.List<T>, int index, int count);
-    method protected void setCurrent(T);
+    method @InaccessibleFromKotlin protected void setCurrent(T);
     method public void up();
     property public T current;
     property public final T root;
   }
 
   public final class ActualAndroid_androidKt {
-    method @Deprecated public static androidx.compose.runtime.MonotonicFrameClock getDefaultMonotonicFrameClock();
+    method @InaccessibleFromKotlin @Deprecated public static androidx.compose.runtime.MonotonicFrameClock getDefaultMonotonicFrameClock();
     property @Deprecated public static androidx.compose.runtime.MonotonicFrameClock DefaultMonotonicFrameClock;
   }
 
@@ -25,7 +25,7 @@ package androidx.compose.runtime {
     method public default void apply(kotlin.jvm.functions.Function2<? super N,java.lang.Object?,kotlin.Unit> block, Object? value);
     method public void clear();
     method public void down(N node);
-    method public N getCurrent();
+    method @InaccessibleFromKotlin public N getCurrent();
     method public void insertBottomUp(int index, N instance);
     method public void insertTopDown(int index, N instance);
     method public void move(int from, int to, int count);
@@ -39,11 +39,13 @@ package androidx.compose.runtime {
 
   public final class BroadcastFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
     ctor public BroadcastFrameClock();
+    ctor @BytecodeOnly public BroadcastFrameClock(kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BroadcastFrameClock(optional kotlin.jvm.functions.Function0<kotlin.Unit>? onNewAwaiters);
     method public void cancel(optional java.util.concurrent.CancellationException cancellationException);
-    method @BytecodeOnly public <R> R! fold(R!, kotlin.jvm.functions.Function2<? super R!,? super kotlin.coroutines.CoroutineContext.Element!,? extends R!>);
-    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E!>);
-    method public boolean getHasAwaiters();
+    method @BytecodeOnly public static void cancel$default(androidx.compose.runtime.BroadcastFrameClock!, java.util.concurrent.CancellationException!, int, Object!);
+    method @BytecodeOnly public <R> R fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element!,? extends R>);
+    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E>);
+    method @InaccessibleFromKotlin public boolean getHasAwaiters();
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext minusKey(kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!>);
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext plus(kotlin.coroutines.CoroutineContext);
     method public void sendFrame(long timeNanos);
@@ -64,25 +66,37 @@ package androidx.compose.runtime {
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ComposableInferredTarget {
     ctor @KotlinOnly public ComposableInferredTarget(String scheme);
-    method public abstract String scheme();
+    method @InaccessibleFromKotlin public abstract String scheme();
     property public abstract String scheme;
+  }
+
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ComposableInferredTargetConstraints {
+    ctor @KotlinOnly public ComposableInferredTargetConstraints(String positional, String indexed);
+    method @InaccessibleFromKotlin public abstract String indexed();
+    method @InaccessibleFromKotlin public abstract String positional();
+    property public abstract String indexed;
+    property public abstract String positional;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface ComposableOpenTarget {
     ctor @KotlinOnly public ComposableOpenTarget(int index);
-    method public abstract int index();
+    method @InaccessibleFromKotlin public abstract int index();
     property public abstract int index;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface ComposableTarget {
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface ComposableTarget {
     ctor @KotlinOnly public ComposableTarget(String applier);
-    method public abstract String applier();
+    method @InaccessibleFromKotlin public abstract String applier();
     property public abstract String applier;
+  }
+
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public static @interface ComposableTarget.Container {
+    method public abstract androidx.compose.runtime.ComposableTarget[] value();
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface ComposableTargetMarker {
     ctor @KotlinOnly public ComposableTargetMarker(optional String description);
-    method public abstract String description() default "";
+    method @InaccessibleFromKotlin public abstract String description() default "";
     property public abstract String description;
   }
 
@@ -93,35 +107,29 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T, reified E extends androidx.compose.runtime.Applier<?>> void ReusableComposeNode(kotlin.jvm.functions.Function0<T> factory, kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit> update);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T, reified E extends androidx.compose.runtime.Applier<?>> void ReusableComposeNode(kotlin.jvm.functions.Function0<T> factory, kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static inline <T, reified E extends androidx.compose.runtime.Applier<?>> void ReusableComposeNode(kotlin.jvm.functions.Function0<T> factory, kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit> update, kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit> skippableUpdate, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static inline void ReusableContent(Object? key, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline void ReusableContent(Object? key, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ReusableContent(Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static inline void ReusableContentHost(boolean active, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static inline void ReusableContentHost(boolean active, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ReusableContentHost(boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer getCurrentComposer();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer getCurrentComposer(androidx.compose.runtime.Composer?, int);
-    method @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static int getCurrentCompositeKeyHash();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static int getCurrentCompositeKeyHash(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static long getCurrentCompositeKeyHashCode();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static long getCurrentCompositeKeyHashCode(androidx.compose.runtime.Composer?, int);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.InternalComposeApi @androidx.compose.runtime.ReadOnlyComposable @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.CompositionContext getCurrentCompositionContext();
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.InternalComposeApi @androidx.compose.runtime.ReadOnlyComposable @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.CompositionContext getCurrentCompositionContext(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionLocalContext getCurrentCompositionLocalContext();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionLocalContext getCurrentCompositionLocalContext(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope getCurrentRecomposeScope();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope getCurrentRecomposeScope(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T key(Object?[] keys, kotlin.jvm.functions.Function0<? extends T> block);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! key(Object![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! remember(Object?, Object?, Object?, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, Object? key2, kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! remember(Object?, Object?, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! remember(Object?, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T remember(Object?[] keys, kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! remember(Object![], kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T remember(kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! remember(kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext();
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T key(java.lang.Object?... keys, kotlin.jvm.functions.Function0<T> block);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T key(Object![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(Object?, Object?, Object?, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function0<T> calculation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(Object?, Object?, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, Object? key2, kotlin.jvm.functions.Function0<T> calculation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(Object?, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(Object? key1, kotlin.jvm.functions.Function0<T> calculation);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(java.lang.Object?... keys, kotlin.jvm.functions.Function0<T> calculation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(Object![], kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(kotlin.jvm.functions.Function0<T> calculation);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext(androidx.compose.runtime.Composer?, int);
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer currentComposer;
     property @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static int currentCompositeKeyHash;
@@ -131,7 +139,7 @@ package androidx.compose.runtime {
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
   }
 
-  @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
   }
 
   public interface ComposeNodeLifecycleCallback {
@@ -141,14 +149,12 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
-    property public boolean isMovableContentUsageTrackingEnabled;
-    property public boolean isMovingNestedMovableContentEnabled;
+    property public boolean isLinkBufferComposerEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
-    field public static boolean isMovableContentUsageTrackingEnabled;
-    field public static boolean isMovingNestedMovableContentEnabled;
+    field public static boolean isLinkBufferComposerEnabled;
   }
 
-  public sealed interface Composer {
+  public sealed nonexhaustive interface Composer {
     method @androidx.compose.runtime.ComposeCompilerApi public <V, T> void apply(V value, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit> block);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public androidx.compose.runtime.CompositionContext buildContext();
     method @androidx.compose.runtime.ComposeCompilerApi public default boolean changed(boolean value);
@@ -178,19 +184,19 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.ComposeCompilerApi public androidx.compose.runtime.ScopeUpdateScope? endRestartGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public void endReusableGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public void endToMarker(int marker);
-    method public androidx.compose.runtime.Applier<? extends java.lang.Object?> getApplier();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi @org.jetbrains.annotations.TestOnly public kotlin.coroutines.CoroutineContext getApplyCoroutineContext();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public long getCompositeKeyHashCode();
-    method @org.jetbrains.annotations.TestOnly public androidx.compose.runtime.ControlledComposition getComposition();
-    method public androidx.compose.runtime.tooling.CompositionData getCompositionData();
-    method @Deprecated @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public default int getCompoundKeyHash();
-    method public androidx.compose.runtime.CompositionLocalMap getCurrentCompositionLocalMap();
-    method public int getCurrentMarker();
-    method public boolean getDefaultsInvalid();
-    method public boolean getInserting();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public androidx.compose.runtime.RecomposeScope? getRecomposeScope();
-    method public Object? getRecomposeScopeIdentity();
-    method public boolean getSkipping();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.Applier<? extends java.lang.Object?> getApplier();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi @org.jetbrains.annotations.TestOnly public kotlin.coroutines.CoroutineContext getApplyCoroutineContext();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public long getCompositeKeyHashCode();
+    method @InaccessibleFromKotlin @org.jetbrains.annotations.TestOnly public androidx.compose.runtime.ControlledComposition getComposition();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.tooling.CompositionData getCompositionData();
+    method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public default int getCompoundKeyHash();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocalMap getCurrentCompositionLocalMap();
+    method @InaccessibleFromKotlin public int getCurrentMarker();
+    method @InaccessibleFromKotlin public boolean getDefaultsInvalid();
+    method @InaccessibleFromKotlin public boolean getInserting();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public androidx.compose.runtime.RecomposeScope? getRecomposeScope();
+    method @InaccessibleFromKotlin public Object? getRecomposeScopeIdentity();
+    method @InaccessibleFromKotlin public boolean getSkipping();
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void insertMovableContent(androidx.compose.runtime.MovableContent<? extends java.lang.Object?> value, Object? parameter);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void insertMovableContentReferences(java.util.List<kotlin.Pair<androidx.compose.runtime.MovableContentStateReference,androidx.compose.runtime.MovableContentStateReference?>> references);
     method @androidx.compose.runtime.ComposeCompilerApi public Object joinKey(Object? left, Object? right);
@@ -233,8 +239,10 @@ package androidx.compose.runtime {
   }
 
   public static final class Composer.Companion {
-    method public Object getEmpty();
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public void setDiagnosticStackTraceEnabled(boolean enabled);
+    method @InaccessibleFromKotlin public Object getEmpty();
+    method @Deprecated @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public void setDiagnosticStackTraceEnabled(boolean enabled);
+    method @KotlinOnly public void setDiagnosticStackTraceMode(androidx.compose.runtime.tooling.ComposeStackTraceMode mode);
+    method @BytecodeOnly public void setDiagnosticStackTraceMode-76WK1J0(int);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public void setTracer(androidx.compose.runtime.CompositionTracer? tracer);
     property public Object Empty;
   }
@@ -259,8 +267,8 @@ package androidx.compose.runtime {
 
   public interface Composition {
     method public void dispose();
-    method public boolean getHasInvalidations();
-    method public boolean isDisposed();
+    method @InaccessibleFromKotlin public boolean getHasInvalidations();
+    method @InaccessibleFromKotlin public boolean isDisposed();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly public void setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     property public abstract boolean hasInvalidations;
@@ -268,29 +276,24 @@ package androidx.compose.runtime {
   }
 
   public abstract class CompositionContext {
-    method public abstract kotlin.coroutines.CoroutineContext getEffectCoroutineContext();
+    method @InaccessibleFromKotlin public abstract kotlin.coroutines.CoroutineContext getEffectCoroutineContext();
     method public abstract androidx.compose.runtime.CancellationHandle scheduleFrameEndCallback(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     property public abstract kotlin.coroutines.CoroutineContext effectCoroutineContext;
   }
 
   public final class CompositionKt {
     method public static androidx.compose.runtime.Composition Composition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.Composition Composition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method public static androidx.compose.runtime.ReusableComposition ReusableComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext getRecomposeCoroutineContext(androidx.compose.runtime.ControlledComposition);
-    property @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext androidx.compose.runtime.ControlledComposition.recomposeCoroutineContext;
   }
 
-  @androidx.compose.runtime.Stable public abstract sealed class CompositionLocal<T> {
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T getCurrent();
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final T! getCurrent(androidx.compose.runtime.Composer?, int);
+  @androidx.compose.runtime.Stable public abstract sealed exhaustive class CompositionLocal<T> {
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final T getCurrent(androidx.compose.runtime.Composer?, int);
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T current;
   }
 
   public interface CompositionLocalAccessorScope {
-    method public <T> T getCurrentValue(androidx.compose.runtime.CompositionLocal<T>);
+    method @InaccessibleFromKotlin public <T> T getCurrentValue(androidx.compose.runtime.CompositionLocal<T>);
     property public abstract <T> T androidx.compose.runtime.CompositionLocal<T>.currentValue;
   }
 
@@ -298,28 +301,31 @@ package androidx.compose.runtime {
   }
 
   public final class CompositionLocalKt {
-    method @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.CompositionLocalContext context, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.CompositionLocalContext context, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.CompositionLocalContext, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?>[] values, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?>... values, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> defaultFactory);
+    method @BytecodeOnly public static androidx.compose.runtime.ProvidableCompositionLocal! compositionLocalOf$default(androidx.compose.runtime.SnapshotMutationPolicy!, kotlin.jvm.functions.Function0!, int, Object!);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithComputedDefaultOf(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> defaultComputation);
+    method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithHostDefaultOf(androidx.compose.runtime.HostDefaultKey<T> key);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalOf(kotlin.jvm.functions.Function0<? extends T> defaultFactory);
-    method @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<? extends T> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocals(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?>[] values, kotlin.jvm.functions.Function0<? extends T> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! withCompositionLocals(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T!>, androidx.compose.runtime.Composer?, int);
+    method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalWithComputedDefaultOf(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> defaultComputation);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<T> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocals(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?>... values, kotlin.jvm.functions.Function0<T> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T withCompositionLocals(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int);
   }
 
-  public sealed interface CompositionLocalMap {
+  public sealed nonexhaustive interface CompositionLocalMap {
     method public operator <T> T get(androidx.compose.runtime.CompositionLocal<T> key);
     field public static final androidx.compose.runtime.CompositionLocalMap.Companion Companion;
   }
 
   public static final class CompositionLocalMap.Companion {
-    method public androidx.compose.runtime.CompositionLocalMap getEmpty();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocalMap getEmpty();
     property public androidx.compose.runtime.CompositionLocalMap Empty;
   }
 
@@ -336,7 +342,7 @@ package androidx.compose.runtime {
     method public void traceEventStart(int key, int dirty1, int dirty2, String info);
   }
 
-  public sealed interface ControlledComposition extends androidx.compose.runtime.Composition {
+  public sealed nonexhaustive interface ControlledComposition extends androidx.compose.runtime.Composition {
     method public void abandonChanges();
     method public void applyChanges();
     method public void applyLateChanges();
@@ -346,10 +352,10 @@ package androidx.compose.runtime {
     method public <R> R delegateInvalidations(androidx.compose.runtime.ControlledComposition? to, int groupIndex, kotlin.jvm.functions.Function0<? extends R> block);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void disposeUnusedMovableContent(androidx.compose.runtime.MovableContentState state);
     method public androidx.compose.runtime.ShouldPauseCallback? getAndSetShouldPauseCallback(androidx.compose.runtime.ShouldPauseCallback? shouldPause);
-    method public boolean getHasPendingChanges();
+    method @InaccessibleFromKotlin public boolean getHasPendingChanges();
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void insertMovableContent(java.util.List<kotlin.Pair<androidx.compose.runtime.MovableContentStateReference,androidx.compose.runtime.MovableContentStateReference?>> references);
     method public void invalidateAll();
-    method public boolean isComposing();
+    method @InaccessibleFromKotlin public boolean isComposing();
     method public boolean observesAnyOf(java.util.Set<?> values);
     method public void prepareCompose(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean recompose();
@@ -359,17 +365,6 @@ package androidx.compose.runtime {
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void verifyConsistent();
     property public abstract boolean hasPendingChanges;
     property public abstract boolean isComposing;
-  }
-
-  public final class ControlledRetainScope extends androidx.compose.runtime.RetainScope {
-    ctor public ControlledRetainScope();
-    method public Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
-    method protected void onStartKeepingExitedValues();
-    method protected void onStopKeepingExitedValues();
-    method protected void saveExitingValue(Object key, Object? value);
-    method public void setParentRetainStateProvider(androidx.compose.runtime.RetainStateProvider parent);
-    method public void startKeepingExitedValues();
-    method public void stopKeepingExitedValues();
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.TYPE) public @interface DisallowComposableCalls {
@@ -388,37 +383,45 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface DoubleState extends androidx.compose.runtime.State<java.lang.Double> {
-    method public double getDoubleValue();
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double getValue();
+    method @InaccessibleFromKotlin public double getDoubleValue();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double getValue();
     property public abstract double doubleValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double value;
   }
 
   public final class EffectsKt {
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DisposableEffect(Object?, Object?, Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope!,? extends androidx.compose.runtime.DisposableEffectResult!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function1<androidx.compose.runtime.DisposableEffectScope,androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DisposableEffect(Object?, Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope!,? extends androidx.compose.runtime.DisposableEffectResult!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function1<androidx.compose.runtime.DisposableEffectScope,androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DisposableEffect(Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope!,? extends androidx.compose.runtime.DisposableEffectResult!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object?[] keys, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, kotlin.jvm.functions.Function1<androidx.compose.runtime.DisposableEffectScope,androidx.compose.runtime.DisposableEffectResult> effect);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(java.lang.Object?... keys, kotlin.jvm.functions.Function1<androidx.compose.runtime.DisposableEffectScope,androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DisposableEffect(Object![], kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope!,? extends androidx.compose.runtime.DisposableEffectResult!>, androidx.compose.runtime.Composer?, int);
-    method @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void DisposableEffect(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope!,? extends androidx.compose.runtime.DisposableEffectResult!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(kotlin.jvm.functions.Function1<androidx.compose.runtime.DisposableEffectScope,androidx.compose.runtime.DisposableEffectResult> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LaunchedEffect(Object?, Object?, Object?, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function2<kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LaunchedEffect(Object?, Object?, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function2<kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LaunchedEffect(Object?, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object?[] keys, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(Object? key1, kotlin.jvm.functions.Function2<kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void LaunchedEffect(java.lang.Object?... keys, kotlin.jvm.functions.Function2<kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LaunchedEffect(Object![], kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static void LaunchedEffect(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void LaunchedEffect(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(kotlin.jvm.functions.Function0<kotlin.Unit> effect);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static void LaunchedEffect(kotlin.jvm.functions.Function2<kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function0<kotlin.Unit> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(Object?, Object?, Object?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function0<kotlin.Unit> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(Object?, Object?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(Object? key1, kotlin.jvm.functions.Function0<kotlin.Unit> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(Object?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(java.lang.Object?... keys, kotlin.jvm.functions.Function0<kotlin.Unit> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(Object![], kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(kotlin.jvm.functions.Function0<kotlin.Unit> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static inline kotlinx.coroutines.CoroutineScope rememberCoroutineScope(optional kotlin.jvm.functions.Function0<? extends kotlin.coroutines.CoroutineContext> getContext);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static kotlinx.coroutines.CoroutineScope rememberCoroutineScope(kotlin.jvm.functions.Function0<? extends kotlin.coroutines.CoroutineContext!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline kotlinx.coroutines.CoroutineScope rememberCoroutineScope(optional kotlin.jvm.functions.Function0<kotlin.coroutines.CoroutineContext> getContext);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeApi {
@@ -431,18 +434,22 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface FloatState extends androidx.compose.runtime.State<java.lang.Float> {
-    method public float getFloatValue();
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float getValue();
+    method @InaccessibleFromKotlin public float getFloatValue();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float getValue();
     property public abstract float floatValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
   }
 
-  public final class ForgetfulRetainScope extends androidx.compose.runtime.RetainScope {
-    method public Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
-    method protected void onStartKeepingExitedValues();
-    method protected void onStopKeepingExitedValues();
-    method protected void saveExitingValue(Object key, Object? value);
-    field public static final androidx.compose.runtime.ForgetfulRetainScope INSTANCE;
+  public interface HostDefaultKey<T> {
+  }
+
+  public interface HostDefaultProvider {
+    method public <T> T getHostDefault(androidx.compose.runtime.HostDefaultKey<T> key);
+  }
+
+  public final class HostDefaultProviderKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.HostDefaultProvider> getLocalHostDefaultProvider();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.HostDefaultProvider> LocalHostDefaultProvider;
   }
 
   public final class HotReloaderKt {
@@ -454,8 +461,8 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface IntState extends androidx.compose.runtime.State<java.lang.Integer> {
-    method public int getIntValue();
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer getValue();
+    method @InaccessibleFromKotlin public int getIntValue();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer getValue();
     property public abstract int intValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer value;
   }
@@ -467,14 +474,14 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface LongState extends androidx.compose.runtime.State<java.lang.Long> {
-    method public long getLongValue();
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long getValue();
+    method @InaccessibleFromKotlin public long getLongValue();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long getValue();
     property public abstract long longValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long value;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface MonotonicFrameClock extends kotlin.coroutines.CoroutineContext.Element {
-    method public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> getKey();
+    method @InaccessibleFromKotlin public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> getKey();
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     property public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> key;
     field public static final androidx.compose.runtime.MonotonicFrameClock.Key Key;
@@ -484,7 +491,7 @@ package androidx.compose.runtime {
   }
 
   public final class MonotonicFrameClockKt {
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.MonotonicFrameClock getMonotonicFrameClock(kotlin.coroutines.CoroutineContext);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.MonotonicFrameClock getMonotonicFrameClock(kotlin.coroutines.CoroutineContext);
     method public static suspend inline <R> Object? withFrameMillis(androidx.compose.runtime.MonotonicFrameClock, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withFrameMillis(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
@@ -493,8 +500,8 @@ package androidx.compose.runtime {
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public final class MovableContent<P> {
     ctor public MovableContent(kotlin.jvm.functions.Function1<? super P,kotlin.Unit> content);
-    ctor @BytecodeOnly public MovableContent(kotlin.jvm.functions.Function3<? super P!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method public kotlin.jvm.functions.Function1<P,kotlin.Unit> getContent();
+    ctor @BytecodeOnly public MovableContent(kotlin.jvm.functions.Function3<? super P,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<P,kotlin.Unit> getContent();
     property public kotlin.jvm.functions.Function1<P,kotlin.Unit> content;
   }
 
@@ -504,14 +511,14 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2> kotlin.jvm.functions.Function2<P1,P2,kotlin.Unit> movableContentOf(kotlin.jvm.functions.Function2<? super P1,? super P2,kotlin.Unit> content);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3> kotlin.jvm.functions.Function3<P1,P2,P3,kotlin.Unit> movableContentOf(kotlin.jvm.functions.Function3<? super P1,? super P2,? super P3,kotlin.Unit> content);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3, P4> kotlin.jvm.functions.Function4<P1,P2,P3,P4,kotlin.Unit> movableContentOf(kotlin.jvm.functions.Function4<? super P1,? super P2,? super P3,? super P4,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3> kotlin.jvm.functions.Function5<P1!,P2!,P3!,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentOf(kotlin.jvm.functions.Function5<? super P1!,? super P2!,? super P3!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3, P4> kotlin.jvm.functions.Function6<P1!,P2!,P3!,P4!,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentOf(kotlin.jvm.functions.Function6<? super P1!,? super P2!,? super P3!,? super P4!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3> kotlin.jvm.functions.Function5<P1,P2,P3,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentOf(kotlin.jvm.functions.Function5<? super P1,? super P2,? super P3,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <P1, P2, P3, P4> kotlin.jvm.functions.Function6<P1,P2,P3,P4,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentOf(kotlin.jvm.functions.Function6<? super P1,? super P2,? super P3,? super P4,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <R> kotlin.jvm.functions.Function1<R,kotlin.Unit> movableContentWithReceiverOf(kotlin.jvm.functions.Function1<? super R,kotlin.Unit> content);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <R, P> kotlin.jvm.functions.Function2<R,P,kotlin.Unit> movableContentWithReceiverOf(kotlin.jvm.functions.Function2<? super R,? super P,kotlin.Unit> content);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2> kotlin.jvm.functions.Function3<R,P1,P2,kotlin.Unit> movableContentWithReceiverOf(kotlin.jvm.functions.Function3<? super R,? super P1,? super P2,kotlin.Unit> content);
     method @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2, P3> kotlin.jvm.functions.Function4<R,P1,P2,P3,kotlin.Unit> movableContentWithReceiverOf(kotlin.jvm.functions.Function4<? super R,? super P1,? super P2,? super P3,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2> kotlin.jvm.functions.Function5<R!,P1!,P2!,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentWithReceiverOf(kotlin.jvm.functions.Function5<? super R!,? super P1!,? super P2!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2, P3> kotlin.jvm.functions.Function6<R!,P1!,P2!,P3!,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentWithReceiverOf(kotlin.jvm.functions.Function6<? super R!,? super P1!,? super P2!,? super P3!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2> kotlin.jvm.functions.Function5<R,P1,P2,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentWithReceiverOf(kotlin.jvm.functions.Function5<? super R,? super P1,? super P2,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static <R, P1, P2, P3> kotlin.jvm.functions.Function6<R,P1,P2,P3,androidx.compose.runtime.Composer!,java.lang.Integer!,kotlin.Unit!> movableContentWithReceiverOf(kotlin.jvm.functions.Function6<? super R,? super P1,? super P2,? super P3,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
   }
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public final class MovableContentState {
@@ -521,29 +528,29 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableDoubleState extends androidx.compose.runtime.DoubleState androidx.compose.runtime.MutableState<java.lang.Double> {
-    method public void setDoubleValue(double);
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default void setValue(double);
+    method @InaccessibleFromKotlin public void setDoubleValue(double);
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default void setValue(double);
     property public abstract double doubleValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableFloatState extends androidx.compose.runtime.FloatState androidx.compose.runtime.MutableState<java.lang.Float> {
-    method public void setFloatValue(float);
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default void setValue(float);
+    method @InaccessibleFromKotlin public void setFloatValue(float);
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default void setValue(float);
     property public abstract float floatValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableIntState extends androidx.compose.runtime.IntState androidx.compose.runtime.MutableState<java.lang.Integer> {
-    method public void setIntValue(int);
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default void setValue(int);
+    method @InaccessibleFromKotlin public void setIntValue(int);
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default void setValue(int);
     property public abstract int intValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableLongState extends androidx.compose.runtime.LongState androidx.compose.runtime.MutableState<java.lang.Long> {
-    method public void setLongValue(long);
-    method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default void setValue(long);
+    method @InaccessibleFromKotlin public void setLongValue(long);
+    method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default void setValue(long);
     property public abstract long longValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long value;
   }
@@ -551,7 +558,7 @@ package androidx.compose.runtime {
   @androidx.compose.runtime.Stable public interface MutableState<T> extends androidx.compose.runtime.State<T> {
     method public operator T component1();
     method public operator kotlin.jvm.functions.Function1<T,kotlin.Unit> component2();
-    method public void setValue(T);
+    method @InaccessibleFromKotlin public void setValue(T);
     property public abstract T value;
   }
 
@@ -564,7 +571,7 @@ package androidx.compose.runtime {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface NonSkippableComposable {
   }
 
-  public sealed interface PausableComposition extends androidx.compose.runtime.ReusableComposition {
+  public sealed nonexhaustive interface PausableComposition extends androidx.compose.runtime.ReusableComposition {
     method public androidx.compose.runtime.PausedComposition setPausableContent(kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly public androidx.compose.runtime.PausedComposition setPausableContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method public androidx.compose.runtime.PausedComposition setPausableContentWithReuse(kotlin.jvm.functions.Function0<kotlin.Unit> content);
@@ -577,9 +584,9 @@ package androidx.compose.runtime {
 
   public final class PausableMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
     ctor public PausableMonotonicFrameClock(androidx.compose.runtime.MonotonicFrameClock frameClock);
-    method @BytecodeOnly public <R> R! fold(R!, kotlin.jvm.functions.Function2<? super R!,? super kotlin.coroutines.CoroutineContext.Element!,? extends R!>);
-    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E!>);
-    method public boolean isPaused();
+    method @BytecodeOnly public <R> R fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element!,? extends R>);
+    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E>);
+    method @InaccessibleFromKotlin public boolean isPaused();
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext minusKey(kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!>);
     method public void pause();
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext plus(kotlin.coroutines.CoroutineContext);
@@ -588,12 +595,12 @@ package androidx.compose.runtime {
     property public boolean isPaused;
   }
 
-  public sealed interface PausedComposition {
+  public sealed nonexhaustive interface PausedComposition {
     method public void apply();
     method public void cancel();
-    method public boolean isApplied();
-    method public boolean isCancelled();
-    method public boolean isComplete();
+    method @InaccessibleFromKotlin public boolean isApplied();
+    method @InaccessibleFromKotlin public boolean isCancelled();
+    method @InaccessibleFromKotlin public boolean isComplete();
     method public boolean resume(androidx.compose.runtime.ShouldPauseCallback shouldPause);
     property public abstract boolean isApplied;
     property public abstract boolean isCancelled;
@@ -617,9 +624,9 @@ package androidx.compose.runtime {
   }
 
   public final class ProvidedValue<T> {
-    method public boolean getCanOverride();
-    method public androidx.compose.runtime.CompositionLocal<T> getCompositionLocal();
-    method public T getValue();
+    method @InaccessibleFromKotlin public boolean getCanOverride();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocal<T> getCompositionLocal();
+    method @InaccessibleFromKotlin public T getValue();
     property public boolean canOverride;
     property public androidx.compose.runtime.CompositionLocal<T> compositionLocal;
     property public T value;
@@ -638,16 +645,15 @@ package androidx.compose.runtime {
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void cancel();
     method public void close();
-    method public long getChangeCount();
-    method public kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.Recomposer.State> getCurrentState();
-    method public kotlin.coroutines.CoroutineContext getEffectCoroutineContext();
-    method public boolean getHasPendingWork();
-    method @Deprecated public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> getState();
+    method @InaccessibleFromKotlin public long getChangeCount();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.Recomposer.State> getCurrentState();
+    method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getEffectCoroutineContext();
+    method @InaccessibleFromKotlin public boolean getHasPendingWork();
+    method @InaccessibleFromKotlin @Deprecated public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> getState();
     method public suspend Object? join(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void pauseCompositionFrameClock();
     method public void resumeCompositionFrameClock();
     method public suspend Object? runRecomposeAndApplyChanges(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public suspend Object? runRecomposeConcurrentlyAndApplyChanges(kotlin.coroutines.CoroutineContext recomposeCoroutineContext, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.runtime.CancellationHandle scheduleFrameEndCallback(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     property public long changeCount;
     property public kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.Recomposer.State> currentState;
@@ -658,7 +664,7 @@ package androidx.compose.runtime {
   }
 
   public static final class Recomposer.Companion {
-    method public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> getRunningRecomposers();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> getRunningRecomposers();
     property public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> runningRecomposers;
   }
 
@@ -671,12 +677,21 @@ package androidx.compose.runtime {
     enum_constant public static final androidx.compose.runtime.Recomposer.State ShuttingDown;
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public interface RecomposerErrorInformation {
+    method @InaccessibleFromKotlin public Throwable getCause();
+    method @InaccessibleFromKotlin public boolean isRecoverable();
+    property public abstract Throwable cause;
+    property public abstract boolean isRecoverable;
+  }
+
   public interface RecomposerInfo {
-    method public long getChangeCount();
-    method public boolean getHasPendingWork();
-    method public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> getState();
+    method @InaccessibleFromKotlin public long getChangeCount();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public default kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.RecomposerErrorInformation?> getErrorState();
+    method @InaccessibleFromKotlin public boolean getHasPendingWork();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> getState();
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public default androidx.compose.runtime.tooling.CompositionObserverHandle? observe(androidx.compose.runtime.tooling.CompositionRegistrationObserver observer);
     property public abstract long changeCount;
+    property @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public default kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.RecomposerErrorInformation?> errorState;
     property public abstract boolean hasPendingWork;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> state;
   }
@@ -691,63 +706,7 @@ package androidx.compose.runtime {
     method public void onRemembered();
   }
 
-  public final class RetainKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.RetainScope> getLocalRetainScope();
-    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T> T retain(java.lang.Object?... keys, kotlin.jvm.functions.Function0<T> calculation);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T> T retain(kotlin.jvm.functions.Function0<T> calculation);
-    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.RetainScope> LocalRetainScope;
-  }
-
-  public interface RetainObserver {
-    method public void onEnteredComposition();
-    method public void onExitedComposition();
-    method public void onRetained();
-    method public void onRetired();
-  }
-
-  public abstract class RetainScope implements androidx.compose.runtime.RetainStateProvider {
-    ctor public RetainScope();
-    method public final void addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    method public abstract Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
-    method public final boolean isKeepingExitedValues();
-    method protected abstract void onStartKeepingExitedValues();
-    method protected abstract void onStopKeepingExitedValues();
-    method public final void removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    method protected final void requestKeepExitedValues();
-    method protected abstract void saveExitingValue(Object key, Object? value);
-    method protected final void unRequestKeepExitedValues();
-    property public final boolean isKeepingExitedValues;
-  }
-
-  public interface RetainStateProvider {
-    method public void addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    method public boolean isKeepingExitedValues();
-    method public void removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    property public abstract boolean isKeepingExitedValues;
-  }
-
-  @androidx.compose.runtime.Stable public static final class RetainStateProvider.AlwaysKeepExitedValues implements androidx.compose.runtime.RetainStateProvider {
-    method public void addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    method public boolean isKeepingExitedValues();
-    method public void removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    property public boolean isKeepingExitedValues;
-    field public static final androidx.compose.runtime.RetainStateProvider.AlwaysKeepExitedValues INSTANCE;
-  }
-
-  @androidx.compose.runtime.Stable public static final class RetainStateProvider.NeverKeepExitedValues implements androidx.compose.runtime.RetainStateProvider {
-    method public void addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    method public boolean isKeepingExitedValues();
-    method public void removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver observer);
-    property public boolean isKeepingExitedValues;
-    field public static final androidx.compose.runtime.RetainStateProvider.NeverKeepExitedValues INSTANCE;
-  }
-
-  public static interface RetainStateProvider.RetainStateObserver {
-    method public void onStartKeepingExitedValues();
-    method public void onStopKeepingExitedValues();
-  }
-
-  public sealed interface ReusableComposition extends androidx.compose.runtime.Composition {
+  public sealed nonexhaustive interface ReusableComposition extends androidx.compose.runtime.Composition {
     method public void deactivate();
     method public void setContentWithReuse(kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly public void setContentWithReuse(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
@@ -767,13 +726,18 @@ package androidx.compose.runtime {
     method @BytecodeOnly public static <T> androidx.compose.runtime.Composer constructor-impl(androidx.compose.runtime.Composer);
     method @BytecodeOnly public androidx.compose.runtime.Composer! unbox-impl();
     method @KotlinOnly public inline void update(kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit> block);
-    method @BytecodeOnly public static void update-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T!>!,kotlin.Unit!>);
+    method @BytecodeOnly public static void update-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>!,kotlin.Unit!>);
   }
 
   public final class SnapshotDoubleStateKt {
     method public static inline operator double getValue(androidx.compose.runtime.DoubleState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableDoubleState mutableDoubleStateOf(double value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, double value);
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotFlowManager {
+    ctor public SnapshotFlowManager();
+    method public void dispose();
   }
 
   public final class SnapshotIntStateKt {
@@ -801,10 +765,12 @@ package androidx.compose.runtime {
   }
 
   public final class SnapshotStateKt {
-    method @androidx.compose.runtime.Composable public static <T extends R, R> androidx.compose.runtime.State<R> collectAsState(kotlinx.coroutines.flow.Flow<? extends T>, R initial, optional kotlin.coroutines.CoroutineContext context);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T extends R, R> androidx.compose.runtime.State<R!> collectAsState(kotlinx.coroutines.flow.Flow<? extends T!>, R!, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsState(kotlinx.coroutines.flow.StateFlow<? extends T>, optional kotlin.coroutines.CoroutineContext context);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> collectAsState(kotlinx.coroutines.flow.StateFlow<? extends T!>, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! collectAsState(kotlinx.coroutines.flow.Flow!, Object!, kotlin.coroutines.CoroutineContext!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T extends R, R> androidx.compose.runtime.State<R> collectAsState(kotlinx.coroutines.flow.Flow<? extends T>, R, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.SnapshotMutationPolicy<R>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T extends R, R> androidx.compose.runtime.State<R> collectAsState(kotlinx.coroutines.flow.Flow<T>, R initial, optional kotlin.coroutines.CoroutineContext context, optional androidx.compose.runtime.SnapshotMutationPolicy<R> mutationPolicy);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! collectAsState(kotlinx.coroutines.flow.StateFlow!, kotlin.coroutines.CoroutineContext!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsState(kotlinx.coroutines.flow.StateFlow<? extends T>, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.SnapshotMutationPolicy<T>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsState(kotlinx.coroutines.flow.StateFlow<T>, optional kotlin.coroutines.CoroutineContext context, optional androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> derivedStateOf(androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> calculation);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> derivedStateOf(kotlin.jvm.functions.Function0<? extends T> calculation);
     method public static inline operator <T> T getValue(androidx.compose.runtime.State<? extends T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
@@ -813,23 +779,35 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.MutableState<T> mutableStateOf(T value, optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy);
+    method @BytecodeOnly @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableState! mutableStateOf$default(Object!, androidx.compose.runtime.SnapshotMutationPolicy!, int, Object!);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf(T... elements);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> neverEqualPolicy();
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> produceState(T!, Object?, Object?, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> produceState(T!, Object?, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> produceState(T!, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object?[] keys, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> produceState(T!, Object![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> produceState(T!, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, androidx.compose.runtime.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, androidx.compose.runtime.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, Object?, androidx.compose.runtime.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, Object?, Object?, androidx.compose.runtime.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, Object? key3, androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, Object?, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, java.lang.Object?... keys, androidx.compose.runtime.SnapshotMutationPolicy<T> mutationPolicy, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, java.lang.Object?... keys, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object![], androidx.compose.runtime.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, Object![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, kotlin.jvm.functions.Function2<androidx.compose.runtime.ProduceStateScope<T>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> referentialEqualityPolicy();
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T newValue);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> rememberUpdatedState(T!, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T newValue);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T, androidx.compose.runtime.Composer?, int);
     method public static inline operator <T> void setValue(androidx.compose.runtime.MutableState<T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
+    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(androidx.compose.runtime.SnapshotFlowManager manager, kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> structuralEqualityPolicy();
     method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> toMutableStateList(java.util.Collection<? extends T>);
@@ -837,7 +815,7 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable public interface State<T> {
-    method public T getValue();
+    method @InaccessibleFromKotlin public T getValue();
     property public abstract T value;
   }
 
@@ -846,18 +824,23 @@ package androidx.compose.runtime {
     method @BytecodeOnly public static androidx.compose.runtime.Updater! box-impl(androidx.compose.runtime.Composer!);
     method @BytecodeOnly public static <T> androidx.compose.runtime.Composer constructor-impl(androidx.compose.runtime.Composer);
     method @KotlinOnly public void init(kotlin.jvm.functions.Function1<T,kotlin.Unit> block);
-    method @BytecodeOnly public static void init-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>);
+    method @KotlinOnly public <V> void init(V value, kotlin.jvm.functions.Function2<T,V,kotlin.Unit> block);
+    method @BytecodeOnly public static void init-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>);
+    method @BytecodeOnly public static <V> void init-impl(androidx.compose.runtime.Composer!, V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit!>);
     method @KotlinOnly public void reconcile(kotlin.jvm.functions.Function1<T,kotlin.Unit> block);
-    method @BytecodeOnly public static void reconcile-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>);
-    method @KotlinOnly public inline void set(int value, kotlin.jvm.functions.Function2<T,java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly public static void reconcile-impl(androidx.compose.runtime.Composer!, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>);
     method @KotlinOnly public <V> void set(V value, kotlin.jvm.functions.Function2<T,V,kotlin.Unit> block);
-    method @BytecodeOnly public static void set-impl(androidx.compose.runtime.Composer!, int, kotlin.jvm.functions.Function2<? super T!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static <V> void set-impl(androidx.compose.runtime.Composer!, V!, kotlin.jvm.functions.Function2<? super T!,? super V!,kotlin.Unit!>);
+    method @BytecodeOnly @Deprecated public static void set-impl(androidx.compose.runtime.Composer!, int, kotlin.jvm.functions.Function2<? super T,? super java.lang.Integer!,kotlin.Unit!>!);
+    method @BytecodeOnly public static <V> void set-impl(androidx.compose.runtime.Composer!, V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit!>);
     method @BytecodeOnly public androidx.compose.runtime.Composer! unbox-impl();
-    method @KotlinOnly public inline void update(int value, kotlin.jvm.functions.Function2<T,java.lang.Integer,kotlin.Unit> block);
     method @KotlinOnly public <V> void update(V value, kotlin.jvm.functions.Function2<T,V,kotlin.Unit> block);
-    method @BytecodeOnly public static void update-impl(androidx.compose.runtime.Composer!, int, kotlin.jvm.functions.Function2<? super T!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static <V> void update-impl(androidx.compose.runtime.Composer!, V!, kotlin.jvm.functions.Function2<? super T!,? super V!,kotlin.Unit!>);
+    method @BytecodeOnly @Deprecated public static void update-impl(androidx.compose.runtime.Composer!, int, kotlin.jvm.functions.Function2<? super T,? super java.lang.Integer!,kotlin.Unit!>!);
+    method @BytecodeOnly public static <V> void update-impl(androidx.compose.runtime.Composer!, V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit!>);
+  }
+
+  public interface ViewTreeHostDefaultKey<T> extends androidx.compose.runtime.HostDefaultKey<T> {
+    method @InaccessibleFromKotlin @IdRes public int getTagKey();
+    property @IdRes public abstract int tagKey;
   }
 
   @Deprecated public typealias CheckResult = androidx.annotation.CheckResult;
@@ -900,9 +883,9 @@ package androidx.compose.runtime.collection {
     method public inline void forEachReversed(kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> block);
     method public inline operator T get(int index);
-    method public inline kotlin.ranges.IntRange getIndices();
-    method public inline int getLastIndex();
-    method public int getSize();
+    method @InaccessibleFromKotlin public inline kotlin.ranges.IntRange getIndices();
+    method @InaccessibleFromKotlin public inline int getLastIndex();
+    method @InaccessibleFromKotlin public int getSize();
     method public int indexOf(T element);
     method public inline int indexOfFirst(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public inline int indexOfLast(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
@@ -953,7 +936,7 @@ package androidx.compose.runtime.internal {
   public final class ComposableLambdaKt {
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda composableLambda(androidx.compose.runtime.Composer composer, int key, boolean tracked, Object block);
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda composableLambdaInstance(int key, boolean tracked, Object block);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda rememberComposableLambda(int key, boolean tracked, Object block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda rememberComposableLambda(int key, boolean tracked, Object block);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda rememberComposableLambda(int, boolean, Object, androidx.compose.runtime.Composer?, int);
   }
 
@@ -963,22 +946,22 @@ package androidx.compose.runtime.internal {
   public final class ComposableLambdaN_jvmKt {
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN composableLambdaN(androidx.compose.runtime.Composer composer, int key, boolean tracked, int arity, Object block);
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN composableLambdaNInstance(int key, boolean tracked, int arity, Object block);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int key, boolean tracked, int arity, Object block);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int key, boolean tracked, int arity, Object block);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int, boolean, int, Object, androidx.compose.runtime.Composer?, int);
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
     ctor @KotlinOnly public Decoy(String targetName, java.lang.String... signature);
-    method public abstract String[] signature();
-    method public abstract String targetName();
+    method @InaccessibleFromKotlin public abstract String[] signature();
+    method @InaccessibleFromKotlin public abstract String targetName();
     property public abstract String[] signature;
     property public abstract String targetName;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
     ctor @KotlinOnly public DecoyImplementation(String name, long id);
-    method public abstract long id();
-    method public abstract String name();
+    method @InaccessibleFromKotlin public abstract long id();
+    method @InaccessibleFromKotlin public abstract String name();
     property public abstract long id;
     property public abstract String name;
   }
@@ -987,43 +970,43 @@ package androidx.compose.runtime.internal {
     method @androidx.compose.runtime.ComposeCompilerApi public static Void illegalDecoyCallException(String fName);
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
     ctor @KotlinOnly public FunctionKeyMeta(int key, int startOffset, int endOffset);
-    method public abstract int endOffset();
-    method public abstract int key();
-    method public abstract int startOffset();
+    method @InaccessibleFromKotlin public abstract int endOffset();
+    method @InaccessibleFromKotlin public abstract int key();
+    method @InaccessibleFromKotlin public abstract int startOffset();
     property public abstract int endOffset;
     property public abstract int key;
     property public abstract int startOffset;
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
     method public abstract androidx.compose.runtime.internal.FunctionKeyMeta[] value();
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface FunctionKeyMetaClass {
     ctor @KotlinOnly public FunctionKeyMetaClass(String file);
-    method public abstract String file();
+    method @InaccessibleFromKotlin public abstract String file();
     property public abstract String file;
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface LiveLiteralFileInfo {
     ctor @KotlinOnly public LiveLiteralFileInfo(String file);
-    method public abstract String file();
+    method @InaccessibleFromKotlin public abstract String file();
     property public abstract String file;
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface LiveLiteralInfo {
     ctor @KotlinOnly public LiveLiteralInfo(String key, int offset);
-    method public abstract String key();
-    method public abstract int offset();
+    method @InaccessibleFromKotlin public abstract String key();
+    method @InaccessibleFromKotlin public abstract int offset();
     property public abstract String key;
     property public abstract int offset;
   }
 
-  public final class LiveLiteralKt {
+  @SuppressCompatibility public final class LiveLiteralKt {
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static void enableLiveLiterals();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static boolean isLiveLiteralsEnabled();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static boolean isLiveLiteralsEnabled();
     method @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static <T> androidx.compose.runtime.State<T> liveLiteral(String key, T value);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static void updateLiveLiteralValue(String key, Object? value);
     property @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static boolean isLiveLiteralsEnabled;
@@ -1031,7 +1014,7 @@ package androidx.compose.runtime.internal {
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface StabilityInferred {
     ctor @KotlinOnly public StabilityInferred(int parameters);
-    method public abstract int parameters();
+    method @InaccessibleFromKotlin public abstract int parameters();
     property public abstract int parameters;
   }
 
@@ -1041,9 +1024,9 @@ package androidx.compose.runtime.reflect {
 
   public final class ComposableMethod {
     method public java.lang.reflect.Method asMethod();
-    method public int getParameterCount();
-    method public Class<? extends java.lang.Object?>[] getParameterTypes();
-    method public java.lang.reflect.Parameter[] getParameters();
+    method @InaccessibleFromKotlin public int getParameterCount();
+    method @InaccessibleFromKotlin public Class<? extends java.lang.Object?>[] getParameterTypes();
+    method @InaccessibleFromKotlin public java.lang.reflect.Parameter[] getParameters();
     method public operator Object? invoke(androidx.compose.runtime.Composer composer, Object? instance, java.lang.Object?... args);
     property public int parameterCount;
     property public Class<? extends java.lang.Object?>[] parameterTypes;
@@ -1061,17 +1044,18 @@ package androidx.compose.runtime.snapshots {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface AutoboxingStateValueProperty {
     ctor @KotlinOnly public AutoboxingStateValueProperty(String preferredPropertyName);
-    method public abstract String preferredPropertyName();
+    method @InaccessibleFromKotlin public abstract String preferredPropertyName();
     property public abstract String preferredPropertyName;
   }
 
   public class MutableSnapshot extends androidx.compose.runtime.snapshots.Snapshot {
     method public androidx.compose.runtime.snapshots.SnapshotApplyResult apply();
-    method public boolean getReadOnly();
-    method public androidx.compose.runtime.snapshots.Snapshot getRoot();
+    method @InaccessibleFromKotlin public boolean getReadOnly();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getRoot();
     method public boolean hasPendingChanges();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeNestedMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
-    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeNestedMutableSnapshot$default(androidx.compose.runtime.snapshots.MutableSnapshot!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     property public boolean readOnly;
     property public androidx.compose.runtime.snapshots.Snapshot root;
   }
@@ -1080,15 +1064,16 @@ package androidx.compose.runtime.snapshots {
     method public void dispose();
   }
 
-  public abstract sealed class Snapshot {
+  public abstract sealed nonexhaustive class Snapshot {
     method public void dispose();
     method public final inline <T> T enter(kotlin.jvm.functions.Function0<? extends T> block);
-    method @Deprecated public int getId();
-    method public abstract boolean getReadOnly();
-    method public abstract androidx.compose.runtime.snapshots.Snapshot getRoot();
-    method public long getSnapshotId();
+    method @InaccessibleFromKotlin @Deprecated public int getId();
+    method @InaccessibleFromKotlin public abstract boolean getReadOnly();
+    method @InaccessibleFromKotlin public abstract androidx.compose.runtime.snapshots.Snapshot getRoot();
+    method @InaccessibleFromKotlin public long getSnapshotId();
     method public abstract boolean hasPendingChanges();
     method public abstract androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.Snapshot! takeNestedSnapshot$default(androidx.compose.runtime.snapshots.Snapshot!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final androidx.compose.runtime.snapshots.Snapshot? unsafeEnter();
     method public final void unsafeLeave(androidx.compose.runtime.snapshots.Snapshot? oldSnapshot);
     property @Deprecated public int id;
@@ -1100,18 +1085,21 @@ package androidx.compose.runtime.snapshots {
   }
 
   public static final class Snapshot.Companion {
-    method public androidx.compose.runtime.snapshots.Snapshot getCurrent();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getCurrent();
     method public inline <T> T global(kotlin.jvm.functions.Function0<? extends T> block);
-    method public boolean isApplyObserverNotificationPending();
-    method public boolean isInSnapshot();
+    method @InaccessibleFromKotlin public boolean isApplyObserverNotificationPending();
+    method @InaccessibleFromKotlin public boolean isInSnapshot();
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly public static Object! observe$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public int openSnapshotCount();
     method public androidx.compose.runtime.snapshots.ObserverHandle registerApplyObserver(kotlin.jvm.functions.Function2<? super java.util.Set<?>,? super androidx.compose.runtime.snapshots.Snapshot,kotlin.Unit> observer);
     method public androidx.compose.runtime.snapshots.ObserverHandle registerGlobalWriteObserver(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> observer);
     method public void sendApplyNotifications();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeMutableSnapshot$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.compose.runtime.snapshots.Snapshot takeSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.Snapshot! takeSnapshot$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, int, Object!);
     method public inline <R> R withMutableSnapshot(kotlin.jvm.functions.Function0<? extends R> block);
     method public inline <T> T withoutReadObservation(kotlin.jvm.functions.Function0<? extends T> block);
     property public static int PreexistingSnapshotId;
@@ -1122,28 +1110,28 @@ package androidx.compose.runtime.snapshots {
 
   public final class SnapshotApplyConflictException extends java.lang.Exception {
     ctor public SnapshotApplyConflictException(androidx.compose.runtime.snapshots.Snapshot snapshot);
-    method public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
     property public androidx.compose.runtime.snapshots.Snapshot snapshot;
   }
 
-  public abstract sealed class SnapshotApplyResult {
+  public abstract sealed exhaustive class SnapshotApplyResult {
     method public abstract void check();
-    method public abstract boolean getSucceeded();
+    method @InaccessibleFromKotlin public abstract boolean getSucceeded();
     property public abstract boolean succeeded;
   }
 
   public static final class SnapshotApplyResult.Failure extends androidx.compose.runtime.snapshots.SnapshotApplyResult {
     ctor public SnapshotApplyResult.Failure(androidx.compose.runtime.snapshots.Snapshot snapshot);
     method public void check();
-    method public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
-    method public boolean getSucceeded();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
+    method @InaccessibleFromKotlin public boolean getSucceeded();
     property public androidx.compose.runtime.snapshots.Snapshot snapshot;
     property public boolean succeeded;
   }
 
   public static final class SnapshotApplyResult.Success extends androidx.compose.runtime.snapshots.SnapshotApplyResult {
     method public void check();
-    method public boolean getSucceeded();
+    method @InaccessibleFromKotlin public boolean getSucceeded();
     property public boolean succeeded;
     field public static final androidx.compose.runtime.snapshots.SnapshotApplyResult.Success INSTANCE;
   }
@@ -1167,13 +1155,14 @@ package androidx.compose.runtime.snapshots {
   public final class SnapshotKt {
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot);
-    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method @Deprecated public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
   }
 
   public interface SnapshotMutableState<T> extends androidx.compose.runtime.MutableState<T> {
-    method public androidx.compose.runtime.SnapshotMutationPolicy<T> getPolicy();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.SnapshotMutationPolicy<T> getPolicy();
     property public abstract androidx.compose.runtime.SnapshotMutationPolicy<T> policy;
   }
 
@@ -1188,8 +1177,8 @@ package androidx.compose.runtime.snapshots {
     method public boolean containsAll(java.util.Collection<? extends T> elements);
     method public int describeContents();
     method public T get(int index);
-    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
-    method public int getSize();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method @InaccessibleFromKotlin public int getSize();
     method public int indexOf(T element);
     method public boolean isEmpty();
     method public java.util.Iterator<T> iterator();
@@ -1197,7 +1186,7 @@ package androidx.compose.runtime.snapshots {
     method public java.util.ListIterator<T> listIterator();
     method public java.util.ListIterator<T> listIterator(int index);
     method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
-    method @BytecodeOnly public T! remove(int);
+    method @BytecodeOnly public T remove(int);
     method public boolean remove(T element);
     method public boolean removeAll(java.util.Collection<? extends T> elements);
     method public T removeAt(int index);
@@ -1207,7 +1196,7 @@ package androidx.compose.runtime.snapshots {
     method @BytecodeOnly public int size();
     method public java.util.List<T> subList(int fromIndex, int toIndex);
     method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    method @BytecodeOnly public <T> T[]! toArray(T[]!);
     method public java.util.List<T> toList();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
     property public androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
@@ -1224,22 +1213,22 @@ package androidx.compose.runtime.snapshots {
     method public void clear();
     method public boolean containsKey(K key);
     method public boolean containsValue(V value);
-    method @BytecodeOnly public java.util.Set<java.util.Map.Entry<K!,V!>!>! entrySet();
+    method @BytecodeOnly public java.util.Set<java.util.Map.Entry<K,V>!>! entrySet();
     method public V? get(K key);
-    method public java.util.Set<java.util.Map.Entry<K,V>> getEntries();
-    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
-    method public java.util.Set<K> getKeys();
-    method public int getSize();
-    method public java.util.Collection<V> getValues();
+    method @InaccessibleFromKotlin public java.util.Set<java.util.Map.Entry<K,V>> getEntries();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method @InaccessibleFromKotlin public java.util.Set<K> getKeys();
+    method @InaccessibleFromKotlin public int getSize();
+    method @InaccessibleFromKotlin public java.util.Collection<V> getValues();
     method public boolean isEmpty();
-    method @BytecodeOnly public java.util.Set<K!>! keySet();
+    method @BytecodeOnly public java.util.Set<K>! keySet();
     method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
     method public V? put(K key, V value);
     method public void putAll(java.util.Map<? extends K,? extends V> from);
     method public V? remove(K key);
     method @BytecodeOnly public int size();
     method public java.util.Map<K,V> toMap();
-    method @BytecodeOnly public java.util.Collection<V!>! values();
+    method @BytecodeOnly public java.util.Collection<V>! values();
     property public java.util.Set<java.util.Map.Entry<K,V>> entries;
     property public androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
     property public java.util.Set<K> keys;
@@ -1267,8 +1256,8 @@ package androidx.compose.runtime.snapshots {
     method public boolean contains(T element);
     method public boolean containsAll(java.util.Collection<? extends T> elements);
     method public int describeContents();
-    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
-    method public int getSize();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method @InaccessibleFromKotlin public int getSize();
     method public boolean isEmpty();
     method public java.util.Iterator<T> iterator();
     method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
@@ -1277,7 +1266,7 @@ package androidx.compose.runtime.snapshots {
     method public boolean retainAll(java.util.Collection<? extends T> elements);
     method @BytecodeOnly public int size();
     method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    method @BytecodeOnly public <T> T[]! toArray(T[]!);
     method public java.util.Set<T> toSet();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
     property public androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
@@ -1289,7 +1278,7 @@ package androidx.compose.runtime.snapshots {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface StateObject {
-    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
     method public default androidx.compose.runtime.snapshots.StateRecord? mergeRecords(androidx.compose.runtime.snapshots.StateRecord previous, androidx.compose.runtime.snapshots.StateRecord current, androidx.compose.runtime.snapshots.StateRecord applied);
     method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
     property public abstract androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
@@ -1311,13 +1300,14 @@ package androidx.compose.runtime.snapshots {
 
 }
 
-package androidx.compose.runtime.snapshots.tooling {
+package @SuppressCompatibility androidx.compose.runtime.snapshots.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotInstanceObservers {
     ctor public SnapshotInstanceObservers();
+    ctor @BytecodeOnly public SnapshotInstanceObservers(kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SnapshotInstanceObservers(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
-    method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
-    method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getWriteObserver();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getWriteObserver();
     property public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver;
     property public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver;
   }
@@ -1329,7 +1319,7 @@ package androidx.compose.runtime.snapshots.tooling {
     method public default void onPreDispose(androidx.compose.runtime.snapshots.Snapshot snapshot);
   }
 
-  public final class SnapshotObserverKt {
+  @SuppressCompatibility public final class SnapshotObserverKt {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.snapshots.ObserverHandle observeSnapshots(androidx.compose.runtime.snapshots.Snapshot.Companion, androidx.compose.runtime.snapshots.tooling.SnapshotObserver snapshotObserver);
   }
 
@@ -1337,13 +1327,36 @@ package androidx.compose.runtime.snapshots.tooling {
 
 package androidx.compose.runtime.tooling {
 
+  @kotlin.jvm.JvmInline public final value class ComposeStackTraceMode {
+    method @BytecodeOnly public static androidx.compose.runtime.tooling.ComposeStackTraceMode! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.runtime.tooling.ComposeStackTraceMode.Companion Companion;
+  }
+
+  public static final class ComposeStackTraceMode.Companion {
+    method @BytecodeOnly public int getAuto-MD5MrJc();
+    method @BytecodeOnly public int getGroupKeys-MD5MrJc();
+    method @BytecodeOnly public int getNone-MD5MrJc();
+    method @BytecodeOnly public int getSourceInformation-MD5MrJc();
+    property public androidx.compose.runtime.tooling.ComposeStackTraceMode Auto;
+    property public androidx.compose.runtime.tooling.ComposeStackTraceMode GroupKeys;
+    property public androidx.compose.runtime.tooling.ComposeStackTraceMode None;
+    property public androidx.compose.runtime.tooling.ComposeStackTraceMode SourceInformation;
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is for tooling only and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ComposeToolingApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class ComposeToolingFlags {
+    property public boolean isVerboseTracingEnabled;
+    field public static final androidx.compose.runtime.tooling.ComposeToolingFlags INSTANCE;
+    field public static boolean isVerboseTracingEnabled;
   }
 
   public interface CompositionData {
     method public default androidx.compose.runtime.tooling.CompositionGroup? find(Object identityToFind);
-    method public Iterable<androidx.compose.runtime.tooling.CompositionGroup> getCompositionGroups();
-    method public boolean isEmpty();
+    method @InaccessibleFromKotlin public Iterable<androidx.compose.runtime.tooling.CompositionGroup> getCompositionGroups();
+    method @InaccessibleFromKotlin public boolean isEmpty();
     property public abstract Iterable<androidx.compose.runtime.tooling.CompositionGroup> compositionGroups;
     property public abstract boolean isEmpty;
   }
@@ -1352,23 +1365,23 @@ package androidx.compose.runtime.tooling {
     method public static androidx.compose.runtime.tooling.CompositionInstance? findCompositionInstance(androidx.compose.runtime.tooling.CompositionData);
   }
 
-  public sealed interface CompositionErrorContext {
+  public sealed nonexhaustive interface CompositionErrorContext {
     method public boolean attachComposeStackTrace(Throwable, Object composeNode);
   }
 
   public final class CompositionErrorContextKt {
-    method public static androidx.compose.runtime.CompositionLocal<androidx.compose.runtime.tooling.CompositionErrorContext?> getLocalCompositionErrorContext();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<androidx.compose.runtime.tooling.CompositionErrorContext?> getLocalCompositionErrorContext();
     property public static androidx.compose.runtime.CompositionLocal<androidx.compose.runtime.tooling.CompositionErrorContext?> LocalCompositionErrorContext;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface CompositionGroup extends androidx.compose.runtime.tooling.CompositionData {
-    method public Iterable<java.lang.Object?> getData();
-    method public default int getGroupSize();
-    method public default Object? getIdentity();
-    method public Object getKey();
-    method public Object? getNode();
-    method public default int getSlotsSize();
-    method public String? getSourceInfo();
+    method @InaccessibleFromKotlin public Iterable<java.lang.Object?> getData();
+    method @InaccessibleFromKotlin public default int getGroupSize();
+    method @InaccessibleFromKotlin public default Object? getIdentity();
+    method @InaccessibleFromKotlin public Object getKey();
+    method @InaccessibleFromKotlin public Object? getNode();
+    method @InaccessibleFromKotlin public default int getSlotsSize();
+    method @InaccessibleFromKotlin public String? getSourceInfo();
     property public abstract Iterable<java.lang.Object?> data;
     property public default int groupSize;
     property public default Object? identity;
@@ -1380,8 +1393,8 @@ package androidx.compose.runtime.tooling {
 
   public interface CompositionInstance {
     method public androidx.compose.runtime.tooling.CompositionGroup? findContextGroup();
-    method public androidx.compose.runtime.tooling.CompositionData getData();
-    method public androidx.compose.runtime.tooling.CompositionInstance? getParent();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.tooling.CompositionData getData();
+    method @InaccessibleFromKotlin public androidx.compose.runtime.tooling.CompositionInstance? getParent();
     property public abstract androidx.compose.runtime.tooling.CompositionData data;
     property public abstract androidx.compose.runtime.tooling.CompositionInstance? parent;
   }
@@ -1400,7 +1413,7 @@ package androidx.compose.runtime.tooling {
     method public void dispose();
   }
 
-  public final class CompositionObserverKt {
+  @SuppressCompatibility public final class CompositionObserverKt {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle observe(androidx.compose.runtime.Recomposer, androidx.compose.runtime.tooling.CompositionRegistrationObserver observer);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle? setObserver(androidx.compose.runtime.Composition, androidx.compose.runtime.tooling.CompositionObserver observer);
   }
@@ -1410,17 +1423,22 @@ package androidx.compose.runtime.tooling {
     method public void onCompositionUnregistered(androidx.compose.runtime.tooling.ObservableComposition composition);
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public interface IdentifiableRecomposeScope {
+    method @InaccessibleFromKotlin public Object? getIdentity();
+    property public abstract Object? identity;
+  }
+
   public final class InspectionTablesKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> getLocalInspectionTables();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> getLocalInspectionTables();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> LocalInspectionTables;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class LocationSourceInformation {
     ctor public LocationSourceInformation(int lineNumber, int offset, int length, boolean isRepeatable);
-    method public int getLength();
-    method public int getLineNumber();
-    method public int getOffset();
-    method public boolean isRepeatable();
+    method @InaccessibleFromKotlin public int getLength();
+    method @InaccessibleFromKotlin public int getLineNumber();
+    method @InaccessibleFromKotlin public int getOffset();
+    method @InaccessibleFromKotlin public boolean isRepeatable();
     property public boolean isRepeatable;
     property public int length;
     property public int lineNumber;
@@ -1433,24 +1451,37 @@ package androidx.compose.runtime.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class ParameterSourceInformation {
     ctor public ParameterSourceInformation(int sortedIndex, optional String? name, optional String? inlineClass);
-    method public String? getInlineClass();
-    method public String? getName();
-    method public int getSortedIndex();
+    ctor @BytecodeOnly public ParameterSourceInformation(int, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getInlineClass();
+    method @InaccessibleFromKotlin public String? getName();
+    method @InaccessibleFromKotlin public int getSortedIndex();
     property public String? inlineClass;
     property public String? name;
     property public int sortedIndex;
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public final class RecompositionTracer {
+    ctor public RecompositionTracer(androidx.compose.runtime.tooling.RecompositionTracer.TraceCollector traceCollector);
+    method public suspend Object? runTracing(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public static interface RecompositionTracer.TraceCollector {
+    method public void beginSection(String sectionName, java.util.List<java.lang.Long> flowIds);
+    method public void endSection();
+    method public void instantEvent(String sectionName, java.util.List<java.lang.StackTraceElement> stackTrace, int id, java.util.List<java.lang.Long> flowIds);
+    method public boolean isEnabled();
+  }
+
   @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class SourceInformation {
     ctor public SourceInformation(boolean isCall, boolean isInline, String? functionName, String? sourceFile, java.util.List<androidx.compose.runtime.tooling.ParameterSourceInformation> parameters, String? packageHash, java.util.List<androidx.compose.runtime.tooling.LocationSourceInformation> locations, String rawData);
-    method public String? getFunctionName();
-    method public java.util.List<androidx.compose.runtime.tooling.LocationSourceInformation> getLocations();
-    method public String? getPackageHash();
-    method public java.util.List<androidx.compose.runtime.tooling.ParameterSourceInformation> getParameters();
-    method public String getRawData();
-    method public String? getSourceFile();
-    method public boolean isCall();
-    method public boolean isInline();
+    method @InaccessibleFromKotlin public String? getFunctionName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.runtime.tooling.LocationSourceInformation> getLocations();
+    method @InaccessibleFromKotlin public String? getPackageHash();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.runtime.tooling.ParameterSourceInformation> getParameters();
+    method @InaccessibleFromKotlin public String getRawData();
+    method @InaccessibleFromKotlin public String? getSourceFile();
+    method @InaccessibleFromKotlin public boolean isCall();
+    method @InaccessibleFromKotlin public boolean isInline();
     property public String? functionName;
     property public boolean isCall;
     property public boolean isInline;
@@ -1461,7 +1492,7 @@ package androidx.compose.runtime.tooling {
     property public String? sourceFile;
   }
 
-  public final class SourceInformationKt {
+  @SuppressCompatibility public final class SourceInformationKt {
     method @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public static androidx.compose.runtime.tooling.SourceInformation? parseSourceInformation(String data);
   }
 

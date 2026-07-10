@@ -28,8 +28,10 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatabl
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class AnimationSpecTest {
     @Test
     public void animationSpecToString_deprecated() {

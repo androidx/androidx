@@ -5786,8 +5786,13 @@ public class ExifInterface {
             if (marker != MARKER) {
                 throw new IOException("Invalid marker:" + Integer.toHexString(marker & 0xff));
             }
-            ++bytesRead;
-            marker = in.readByte();
+
+            // JPEG spec permits padding with 0xFF fill bytes before any marker.
+            do {
+                ++bytesRead;
+                marker = in.readByte();
+            } while(marker == MARKER);
+
             if (DEBUG) {
                 Log.d(TAG, "Found JPEG segment indicator: " + Integer.toHexString(marker & 0xff));
             }
@@ -6549,7 +6554,10 @@ public class ExifInterface {
             if (marker != MARKER) {
                 throw new IOException("Invalid marker");
             }
-            marker = dataInputStream.readByte();
+            // Skip 0xFF fill bytes
+            do {
+                marker = dataInputStream.readByte();
+            } while (marker == MARKER);
             switch (marker) {
                 case MARKER_APP1: {
                     int length = dataInputStream.readUnsignedShort() - 2;
@@ -7322,7 +7330,7 @@ public class ExifInterface {
                 int jpegInterchangeFormat =
                         jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
                 int jpegInterchangeFormatLength =
-                        jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
+                        jpegInterchangeFormatLengthAttribute.getIntValue(mExifByteOrder);
 
                 // Searches for SOF marker in JPEG data and updates IMAGE_LENGTH & IMAGE_WIDTH tags
                 in.seek(jpegInterchangeFormat);

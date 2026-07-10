@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+TypeParameterName: androidx.xr.arcore.Trackable:
+    Invalid type parameter name "State". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

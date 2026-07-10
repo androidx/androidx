@@ -16,11 +16,11 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.demos.R
 import androidx.compose.animation.demos.gesture.pastelColors
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -52,9 +52,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 fun LookaheadWithPopularBoxWithConstraintsUsage() {
     val padding by
         produceState(initialValue = 0.dp) {
@@ -67,13 +67,15 @@ fun LookaheadWithPopularBoxWithConstraintsUsage() {
                 }
             }
         }
-    LookaheadScope {
-        Box(
-            Modifier.fillMaxSize()
-                .animateBounds(this, Modifier.padding(padding))
-                .background(pastelColors[3])
-        ) {
-            DetailsContent()
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            Box(
+                Modifier.fillMaxSize()
+                    .animateBounds(this, Modifier.padding(padding))
+                    .background(pastelColors[3])
+            ) {
+                DetailsContent()
+            }
         }
     }
 }

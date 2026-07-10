@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.downwardMeasuredItemScrollProgress
@@ -56,6 +57,7 @@ internal data class TransformingLazyColumnMeasuredItem(
     val horizontalAlignment: Alignment.Horizontal,
     /** The [LayoutDirection] of the `Layout`. */
     private val layoutDirection: LayoutDirection,
+    private val reverseLayout: Boolean,
     val animationProvider: () -> LazyLayoutItemAnimation? = { null },
     override val key: Any,
     override val contentType: Any?,
@@ -92,14 +94,13 @@ internal data class TransformingLazyColumnMeasuredItem(
     override val crossAxisOffset: Int
         get() = leftPadding
 
-    override val parentData: Any? =
-        placeable?.parentData?.let {
-            if (it is TransformingLazyColumnParentData) {
-                it.animationSpecs
-            } else {
-                it
-            }
-        }
+    override val parentData: Any?
+        get() = placeable?.parentData
+
+    val minimumTopContentPadding: Dp? =
+        (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumTopContentPadding
+    val minimumBottomContentPadding: Dp? =
+        (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumBottomContentPadding
 
     private var lastMeasuredTransformedHeight = placeable?.height ?: 0
 
@@ -183,26 +184,45 @@ internal data class TransformingLazyColumnMeasuredItem(
     fun place(scope: Placeable.PlacementScope) =
         with(scope) {
             placeable?.let { placeable ->
-                var intOffset =
-                    IntOffset(
-                        x =
-                            leftPadding +
-                                horizontalAlignment.align(
-                                    space =
-                                        containerConstraints.maxWidth - rightPadding - leftPadding,
-                                    size = placeable.width,
-                                    layoutDirection = layoutDirection,
-                                ),
-                        y = offset,
-                    )
+                val xOffset =
+                    leftPadding +
+                        horizontalAlignment.align(
+                            space = containerConstraints.maxWidth - rightPadding - leftPadding,
+                            size = placeable.width,
+                            layoutDirection = layoutDirection,
+                        )
+
                 val currentAnimation = animationProvider()
+
+                // If animating, dynamically update the transformed height based on the
+                // animated scroll progress to prevent visual jumps in reverseLayout.
+                if (currentAnimation != null) {
+                    val parentData = placeable.parentData as? TransformingLazyColumnParentData
+                    lastMeasuredTransformedHeight =
+                        parentData?.heightProvider?.invoke(placeable.height, scrollProgress)
+                            ?: placeable.height
+                }
+
+                val animationDelta = currentAnimation?.placementDelta ?: IntOffset.Zero
+                val animatedLogicalY = offset + animationDelta.y
+
+                val finalVisualY =
+                    if (reverseLayout) {
+                        containerConstraints.maxHeight - animatedLogicalY - transformedHeight
+                    } else {
+                        animatedLogicalY
+                    }
+                val finalOffset = IntOffset(x = xOffset, y = finalVisualY)
+
                 if (currentAnimation == null) {
-                    placeable.placeWithLayer(intOffset)
+                    placeable.placeWithLayer(finalOffset)
                 } else {
-                    intOffset += currentAnimation.placementDelta
-                    currentAnimation.layer?.let { placeable.placeWithLayer(intOffset, it) }
-                        ?: placeable.placeWithLayer(intOffset)
-                    currentAnimation.finalOffset = intOffset
+                    currentAnimation.layer?.let { placeable.placeWithLayer(finalOffset, it) }
+                        ?: placeable.placeWithLayer(finalOffset)
+                    currentAnimation.finalOffset = finalOffset
+                    currentAnimation.logicalOffset = IntOffset(x = xOffset, y = animatedLogicalY)
+                    // Keep the animation's height in sync for the next frame's scroll progress.
+                    currentAnimation.transformedHeight = lastMeasuredTransformedHeight
                 }
             }
         }

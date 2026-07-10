@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("deprecation")
+
 package androidx.wear.protolayout.material3
 
 import android.graphics.Color
@@ -64,7 +67,7 @@ class MaterialScopeTest {
                 defaultAvatarImageStyle = AvatarImageStyle(),
                 layoutSlotsPresence = LayoutSlotsPresence(),
                 defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
-                protoLayoutScope = ProtoLayoutScope(),
+                _protoLayoutScope = ProtoLayoutScope(),
             )
 
         assertThat(scopeWithDefaultTheme.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
@@ -99,7 +102,7 @@ class MaterialScopeTest {
                 defaultAvatarImageStyle = AvatarImageStyle(),
                 layoutSlotsPresence = LayoutSlotsPresence(),
                 defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
-                protoLayoutScope = ProtoLayoutScope(),
+                _protoLayoutScope = ProtoLayoutScope(),
             )
 
         assertThat(materialScope.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
@@ -138,7 +141,7 @@ class MaterialScopeTest {
                 defaultAvatarImageStyle = AvatarImageStyle(),
                 layoutSlotsPresence = LayoutSlotsPresence(),
                 defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
-                protoLayoutScope = ProtoLayoutScope(),
+                _protoLayoutScope = ProtoLayoutScope(),
             )
 
         assertThat(isDynamicColorSchemeEnabled(materialScope.context)).isFalse()

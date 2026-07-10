@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,16 +25,15 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":core:core-backported-fixes"))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 android {
+    compileSdk { version = release(35) } // ki452390376 requires VANILLA_ICE_CREAM
     namespace = "androidx.core.backported.fixes.samples"
 }
 

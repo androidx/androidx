@@ -20,46 +20,29 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputId
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
-import androidx.camera.camera2.pipe.media.ImageSource
 import org.mockito.kotlin.mock
 
-class ImageSimulator(
+internal class ImageSimulator(
     streamConfigs: List<CameraStream.Config>,
-    imageStreams: Set<CameraStream.Config>? = null,
     defaultCameraMetadata: CameraMetadata? = null,
-    defaultStreamGraph: StreamGraph? = null,
 ) : AutoCloseable {
     private val fakeSurfaces = FakeSurfaces()
+    private val fakeImageReaders = FakeImageReaders(fakeSurfaces)
+    private val fakeImageSources = FakeImageSources(fakeImageReaders)
 
-    val cameraMetadata = defaultCameraMetadata ?: FakeCameraMetadata()
+    val cameraMetadata =
+        defaultCameraMetadata ?: FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     val graphConfig = CameraGraph.Config(camera = cameraMetadata.camera, streams = streamConfigs)
-    val streamGraph = defaultStreamGraph ?: StreamGraphImpl(cameraMetadata, graphConfig, mock())
 
-    private val fakeImageSources = buildMap {
-        for (config in graphConfig.streams) {
-            if (imageStreams != null && !imageStreams.contains(config)) continue
-            val cameraStream = streamGraph[config]!!
-            val fakeImageSource =
-                FakeImageSource(
-                    cameraStream.id,
-                    config.outputs.first().format,
-                    cameraStream.outputs.associate { it.id to it.size },
-                )
-            check(this[cameraStream.id] == null)
-            this[cameraStream.id] = fakeImageSource
-        }
-    }
+    val streamGraph = StreamGraphImpl(cameraMetadata, graphConfig, fakeImageSources, mock())
 
-    val imageSources: Map<StreamId, ImageSource> = fakeImageSources
-    val imageStreams = imageSources.keys
     val streamToSurfaceMap = buildMap {
         for (config in graphConfig.streams) {
             val cameraStream = streamGraph[config]!!
             this[cameraStream.id] =
-                imageSources[cameraStream.id]?.surface
+                fakeImageSources[cameraStream.id]?.surface
                     ?: fakeSurfaces.createFakeSurface(cameraStream.outputs.first().size)
         }
     }
@@ -68,10 +51,11 @@ class ImageSimulator(
         return fakeImageSources[streamId]!!.simulateImage(timestamp, outputId)
     }
 
+    fun simulateExpectedOutputs(streamId: StreamId, timestamp: Long, outputIds: Set<OutputId>) {
+        return fakeImageSources[streamId]!!.simulateExpectedOutputs(timestamp, outputIds)
+    }
+
     override fun close() {
-        for (imageSource in fakeImageSources.values) {
-            imageSource.close()
-        }
         fakeSurfaces.close()
     }
 }

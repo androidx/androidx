@@ -17,7 +17,6 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
@@ -25,20 +24,19 @@ dependencies {
     api(libs.jspecify)
 
     implementation("androidx.arch.core:core-runtime:2.2.0")
-    implementation(project(":room:room-ktx"))
-    implementation(project(":room:room-rxjava2"))
-    implementation(project(":room:room-paging"))
+    implementation("androidx.room:room-ktx:2.7.2")
+    implementation("androidx.room:room-rxjava2:2.7.2")
+    implementation("androidx.room:room-paging:2.7.2")
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    ksp(project(":room:room-compiler"))
+    ksp("androidx.room:room-compiler:2.7.2")
 
-    implementation(project(":recyclerview:recyclerview"))
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation(libs.kotlinStdlib)
 
     // Only needed to ensure version of annotation:annotation matches in impl
     // and androidTestImpl, for both AOSP and playground builds.
@@ -54,7 +52,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.paging.integration.testapp"
 }
 

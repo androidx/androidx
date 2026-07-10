@@ -18,40 +18,25 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
-
+    compileSdk { version = release(36) }
     defaultConfig {
         applicationId = "androidx.camera.integration.camera2.pipe"
     }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
-    }
-
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro")
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.camera.integration.camera2.pipe"
 }
 
 dependencies {
-    def lifecycle_version = "2.8.7"
-
     // Internal library
-    implementation(libs.kotlinStdlib)
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.1.0")

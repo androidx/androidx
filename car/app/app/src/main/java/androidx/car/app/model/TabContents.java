@@ -127,36 +127,6 @@ public class TabContents implements Content {
          *     <li>{@code NavigationTemplate}
          * </ul>
          *
-         * @throws NullPointerException     if {@code template} is null
-         * @throws IllegalArgumentException if {@code template} does not meet the requirements
-         */
-        public Builder(@NonNull Template template) {
-            TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
-            mTemplate = template;
-        }
-
-        /**
-         * Creates a {@link TabContents.Builder} instance using the given {@link Template} to
-         * display as contents. Additional template types are enabled if enableApi8 is set to true.
-         *
-         * <p>There should be no title, Header {@link Action} or {@link ActionStrip} set on the
-         * template. The host will ignore these.
-         *
-         * <p>From Car API 6 onward, the following template types are supported as content:
-         * <ul>
-         *     <li>{@code ListTemplate}
-         *     <li>{@code PaneTemplate}
-         *     <li>{@code GridTemplate}
-         *     <li>{@code MessageTemplate}
-         *     <li>{@code SearchTemplate}
-         * </ul>
-         *
-         * <p>From Car API 7 onward, the following template type is supported as content in
-         * addition to all previously supported template types:
-         * <ul>
-         *     <li>{@code NavigationTemplate}
-         * </ul>
-         *
          * <p>From Car API 8 onward, the following template type is supported as content in
          * addition to all previously supported template types:
          * <ul>
@@ -166,13 +136,8 @@ public class TabContents implements Content {
          * @throws NullPointerException     if {@code template} is null
          * @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
-        @ExperimentalCarApi
-        public Builder(@NonNull Template template, boolean enableApi8) {
-            if (enableApi8) {
-                TabContentsConstraints.API_8.validateOrThrow(requireNonNull(template));
-            } else {
-                TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
-            }
+        public Builder(@NonNull Template template) {
+            TabContentsConstraints.API_8.validateOrThrow(requireNonNull(template));
             mTemplate = template;
         }
     }

@@ -5,8 +5,6 @@
 -Djdk.attach.allowAttachSelf=true
 # b/297379481
 -Dprofiler.trace.open.mode.web=true
-# b/343774023
--Didea.kotlin.plugin.use.k2=true
 # https://github.com/google/google-java-format#intellij-jre-config
 --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
 --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED

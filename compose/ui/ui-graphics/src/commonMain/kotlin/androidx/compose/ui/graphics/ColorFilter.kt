@@ -19,8 +19,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
-// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
-/* internal */ expect class NativeColorFilter
+internal expect class NativeColorFilter
 
 /** Effect used to modify the color of each pixel drawn on a [Paint] that it is installed on */
 @Immutable

@@ -1,20 +1,20 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
-    Invalid nullability on parameter `target` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onNestedPreScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:
-    Invalid nullability on parameter `consumed` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type int[] in parameter `consumed` in method `onNestedPreScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScroll(android.view.View, int, int, int, int) parameter #0:
-    Invalid nullability on parameter `target` in method `onNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onNestedScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #0:
-    Invalid nullability on parameter `child` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `child` in method `onNestedScrollAccepted`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #1:
-    Invalid nullability on parameter `target` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onNestedScrollAccepted`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #0:
-    Invalid nullability on parameter `child` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `child` in method `onStartNestedScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #1:
-    Invalid nullability on parameter `target` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onStartNestedScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onStopNestedScroll(android.view.View) parameter #0:
-    Invalid nullability on parameter `target` in method `onStopNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onStopNestedScroll`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:

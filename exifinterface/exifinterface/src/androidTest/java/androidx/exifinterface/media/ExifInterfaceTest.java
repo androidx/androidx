@@ -339,6 +339,28 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
+    public void testJpegWithFill1Byte() throws Throwable {
+        // One fill bytes added before each marker
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_fill_1byte, "jpeg_with_fill_1byte.jpg");
+        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_1BYTE);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_1BYTE);
+    }
+
+    @Test
+    @LargeTest
+    public void testJpegWithFill2Bytes() throws Throwable {
+        // Two fill bytes added before each marker
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_fill_2bytes, "jpeg_with_fill_2bytes.jpg");
+        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_2BYTES);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_2BYTES);
+    }
+
+    @Test
+    @LargeTest
     public void testDngWithExifAndXmp() throws Throwable {
         File imageFile =
                 copyFromResourceToFile(R.raw.dng_with_exif_with_xmp, "dng_with_exif_with_xmp.dng");
@@ -525,7 +547,7 @@ public class ExifInterfaceTest {
     // https://issuetracker.google.com/342697059
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = 24) // Parsing the large image causes OOM on API 23 FTL emulators.
+    @SdkSuppress(minSdkVersion = 25) // Parsing the large image causes OOM on API 24 FTL emulators.
     public void testWebpWithoutExifHeight8192px() throws Throwable {
         File imageFile =
                 copyFromResourceToFile(

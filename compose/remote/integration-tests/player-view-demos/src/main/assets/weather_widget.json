@@ -1,0 +1,190 @@
+{
+  "header": {
+    "width": 380,
+    "height": 240,
+    "profiles": 512,
+    "contentDescription": "Weather Card with AGSL Atmosphere Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#0F172A"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 24
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = fragCoord / iResolution;\n    float t = iTime * 0.6;\n    float sunDist = length(uv - float2(0.82, 0.22));\n    float sun = 0.04 / (sunDist + 0.04);\n    float cloud = sin(uv.x * 5.0 + t) * cos(uv.y * 6.0 - t * 0.4) * 0.5 + 0.5;\n    float3 sky = mix(float3(0.08, 0.16, 0.35), float3(0.18, 0.38, 0.72), uv.y);\n    float3 col = sky + float3(1.0, 0.65, 0.25) * sun * 0.5 + float3(0.9, 0.95, 1.0) * cloud * 0.12;\n    return half4(col, 1.0);\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 16
+          }
+        ],
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "verticalAlignment": "center",
+            "children": [
+              {
+                "type": "column",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "San Francisco",
+                    "fontSize": 20,
+                    "fontWeight": 700,
+                    "color": "#FFFFFF"
+                  },
+                  {
+                    "type": "text",
+                    "value": "AGSL Dynamic Sky \u2022 Sunny",
+                    "fontSize": 12,
+                    "color": "#93C5FD"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": "\u2600\ufe0f",
+                "fontSize": 34
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "verticalAlignment": "center",
+            "children": [
+              {
+                "type": "text",
+                "value": "72\u00b0",
+                "fontSize": 54,
+                "fontWeight": 700,
+                "color": "#FFFFFF"
+              },
+              {
+                "type": "column",
+                "modifiers": [
+                  {
+                    "padding": [
+                      0,
+                      0,
+                      0,
+                      16
+                    ]
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "H: 76\u00b0 L: 58\u00b0",
+                    "fontSize": 12,
+                    "color": "#E0F2FE"
+                  },
+                  {
+                    "type": "text",
+                    "value": "Humidity 45%",
+                    "fontSize": 12,
+                    "color": "#BAE6FD"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "children": [
+              {
+                "type": "text",
+                "value": "NOW 72\u00b0",
+                "fontSize": 12,
+                "fontWeight": 700,
+                "color": "#FFFFFF"
+              },
+              {
+                "type": "text",
+                "value": "3 PM 74\u00b0",
+                "fontSize": 12,
+                "color": "#E0F2FE"
+              },
+              {
+                "type": "text",
+                "value": "4 PM 73\u00b0",
+                "fontSize": 12,
+                "color": "#E0F2FE"
+              },
+              {
+                "type": "text",
+                "value": "5 PM 70\u00b0",
+                "fontSize": 12,
+                "color": "#E0F2FE"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

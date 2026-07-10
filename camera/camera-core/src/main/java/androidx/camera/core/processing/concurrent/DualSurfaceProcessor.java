@@ -199,6 +199,18 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         }
     }
 
+    /**
+     * Update the {@link CompositionSettings}.
+     */
+    public void updateCompositionSettings(
+            @NonNull CompositionSettings primaryCompositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings) {
+        executeSafely(() -> {
+            mGlRenderer.updateCompositionSettings(
+                    primaryCompositionSettings, secondaryCompositionSettings);
+        });
+    }
+
     private void initGlRenderer(
             @NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {

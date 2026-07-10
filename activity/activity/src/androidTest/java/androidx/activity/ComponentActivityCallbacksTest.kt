@@ -16,11 +16,14 @@
 
 package androidx.activity
 
+import android.app.PictureInPictureUiState
 import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Parcel
 import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.app.PictureInPictureUiStateCompat
 import androidx.core.util.Consumer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -455,6 +458,64 @@ class ComponentActivityCallbacksTest {
 
             // Only the first picture-in-picture mode change should be received
             assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun onPictureInPictureUiStateChanged() {
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedState: PictureInPictureUiStateCompat
+            val stashedState = Parcel.obtain()
+            stashedState.writeBoolean(true /* isStashed */)
+            stashedState.writeBoolean(false /* isTransitioningToPip */)
+            stashedState.setDataPosition(0)
+
+            val listener = Consumer<PictureInPictureUiStateCompat> { info -> receivedState = info }
+            withActivity {
+                addOnPictureInPictureUiStateChangedListener(listener)
+                onPictureInPictureUiStateChanged(
+                    PictureInPictureUiState.CREATOR.createFromParcel(stashedState)
+                )
+            }
+
+            assertThat(receivedState.isStashed).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun onPictureInPictureUiStateChangedRemove() {
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedState: PictureInPictureUiStateCompat
+            val stashedState = Parcel.obtain()
+            stashedState.writeBoolean(true /* isStashed */)
+            stashedState.writeBoolean(false /* isTransitioningToPip */)
+            stashedState.setDataPosition(0)
+
+            val listener = Consumer<PictureInPictureUiStateCompat> { info -> receivedState = info }
+            withActivity {
+                addOnPictureInPictureUiStateChangedListener(listener)
+                onPictureInPictureUiStateChanged(
+                    PictureInPictureUiState.CREATOR.createFromParcel(stashedState)
+                )
+            }
+
+            assertThat(receivedState.isStashed).isTrue()
+
+            val unstashedState = Parcel.obtain()
+            unstashedState.writeBoolean(false /* isStashed */)
+            unstashedState.writeBoolean(false /* isTransitioningToPip */)
+            unstashedState.setDataPosition(0)
+            withActivity {
+                removeOnPictureInPictureUiStateChangedListener(listener)
+                onPictureInPictureUiStateChanged(
+                    PictureInPictureUiState.CREATOR.createFromParcel(unstashedState)
+                )
+            }
+
+            // Should still be true and not false
+            assertThat(receivedState.isStashed).isTrue()
         }
     }
 

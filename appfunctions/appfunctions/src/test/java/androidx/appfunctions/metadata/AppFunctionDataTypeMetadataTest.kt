@@ -147,6 +147,87 @@ class AppFunctionDataTypeMetadataTest {
     }
 
     @Test
+    fun appFunctionOneOfTypeMetadata_equalsAndHashCode() {
+        val description = "Test OneOf description"
+
+        val properties1 = mapOf("prop1" to AppFunctionIntTypeMetadata(false))
+        val objectType =
+            AppFunctionObjectTypeMetadata(
+                properties1,
+                listOf("prop1"),
+                "qualifiedName",
+                false,
+                description,
+            )
+        val referenceType = AppFunctionReferenceTypeMetadata("type1", false)
+        val oneOfDataType1 =
+            AppFunctionOneOfTypeMetadata(
+                matchOneOf = listOf(objectType),
+                isNullable = true,
+                qualifiedName = "oneOfType1",
+                description = description,
+            )
+        val oneOfDataType2 =
+            AppFunctionOneOfTypeMetadata(
+                matchOneOf = listOf(objectType, referenceType),
+                isNullable = true,
+                qualifiedName = "oneOfType2",
+                description = description,
+            )
+        val oneOfDataType2a =
+            AppFunctionOneOfTypeMetadata(
+                matchOneOf = listOf(objectType, referenceType),
+                isNullable = true,
+                qualifiedName = "oneOfType2",
+                description = description,
+            )
+
+        assertThat(oneOfDataType1).isNotEqualTo(oneOfDataType2)
+        assertThat(oneOfDataType1.hashCode()).isNotEqualTo(oneOfDataType2.hashCode())
+
+        assertThat(oneOfDataType2).isEqualTo(oneOfDataType2a)
+        assertThat(oneOfDataType2.hashCode()).isEqualTo(oneOfDataType2a.hashCode())
+    }
+
+    @Test
+    fun appFunctionOneOfTypeMetadata_toAppFunctionDatatypeMetadataDocument_returnsCorrectDocument() {
+        val description = "Test OneOf description"
+
+        val properties1 = mapOf("prop1" to AppFunctionIntTypeMetadata(false))
+        val objectType =
+            AppFunctionObjectTypeMetadata(
+                properties1,
+                listOf("prop1"),
+                "qualifiedName",
+                false,
+                description,
+            )
+        val referenceType = AppFunctionReferenceTypeMetadata("type1", false)
+        val oneOfDataType =
+            AppFunctionOneOfTypeMetadata(
+                matchOneOf = listOf(referenceType, objectType),
+                isNullable = true,
+                qualifiedName = "oneOf1",
+                description = description,
+            )
+
+        val document = oneOfDataType.toAppFunctionDataTypeMetadataDocument()
+
+        assertThat(document.oneOf)
+            .containsExactly(
+                referenceType.toAppFunctionDataTypeMetadataDocument(),
+                objectType.toAppFunctionDataTypeMetadataDocument(),
+            )
+        assertThat(document.type).isEqualTo(AppFunctionOneOfTypeMetadata.TYPE)
+        assertThat(document.isNullable).isTrue()
+        assertThat(document.dataTypeReference).isNull()
+        assertThat(document.itemType).isNull()
+        assertThat(document.properties).isEmpty()
+        assertThat(document.objectQualifiedName).isNotEmpty()
+        assertThat(document.objectQualifiedName).isEqualTo("oneOf1")
+    }
+
+    @Test
     fun appFunctionObjectTypeMetadata_equalsAndHashCode() {
         val description = "Test Object description"
 
@@ -331,14 +412,51 @@ class AppFunctionDataTypeMetadataTest {
                 AppFunctionDataTypeMetadata.TYPE_STRING to AppFunctionStringTypeMetadata(false),
                 AppFunctionDataTypeMetadata.TYPE_BYTES to AppFunctionBytesTypeMetadata(false),
                 AppFunctionDataTypeMetadata.TYPE_UNIT to AppFunctionUnitTypeMetadata(false),
-                AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT to
-                    AppFunctionPendingIntentTypeMetadata(false),
             )
         primitiveTypes.forEach { (type, expectedMetadata) ->
             val document = AppFunctionDataTypeMetadataDocument(type = type, isNullable = false)
             val metadata = document.toAppFunctionDataTypeMetadata()
             assertThat(metadata).isEqualTo(expectedMetadata)
         }
+    }
+
+    @Test
+    fun appFunctionDataTypeMetadataDocument_toAppFunctionParcelableTypeMetadata_returnsCorrectMetadata() {
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_PARCELABLE,
+                isNullable = false,
+                objectQualifiedName = "android.os.Bundle",
+            )
+
+        val metadata = document.toAppFunctionDataTypeMetadata()
+
+        assertThat(metadata)
+            .isEqualTo(
+                AppFunctionParcelableTypeMetadata(
+                    qualifiedName = "android.os.Bundle",
+                    isNullable = false,
+                )
+            )
+    }
+
+    @Test
+    fun appFunctionDataTypeMetadataDocument_toAppFunctionParcelableTypeMetadata_defaultsToPendingIntentIfQualifiedNameIsMissing() {
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_PARCELABLE,
+                isNullable = false,
+            )
+
+        val metadata = document.toAppFunctionDataTypeMetadata()
+
+        assertThat(metadata)
+            .isEqualTo(
+                AppFunctionParcelableTypeMetadata(
+                    qualifiedName = "android.app.PendingIntent",
+                    isNullable = false,
+                )
+            )
     }
 
     @Test
@@ -453,6 +571,38 @@ class AppFunctionDataTypeMetadataTest {
                 AppFunctionAllOfTypeMetadata(
                     matchAll = listOf(AppFunctionIntTypeMetadata(false)),
                     qualifiedName = "AllOfType",
+                    isNullable = false,
+                    description = description,
+                )
+            )
+    }
+
+    @Test
+    fun appFunctionDataTypeMetadataDocument_toAppFunctionOneOfTypeMetadata_returnsCorrectMetadata() {
+        val description = "Test OneOf description"
+
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_ONE_OF,
+                oneOf =
+                    listOf(
+                        AppFunctionDataTypeMetadataDocument(
+                            type = AppFunctionDataTypeMetadata.TYPE_INT,
+                            isNullable = false,
+                        )
+                    ),
+                objectQualifiedName = "OneOfType",
+                isNullable = false,
+                description = description,
+            )
+
+        val metadata = document.toAppFunctionDataTypeMetadata()
+
+        assertThat(metadata)
+            .isEqualTo(
+                AppFunctionOneOfTypeMetadata(
+                    matchOneOf = listOf(AppFunctionIntTypeMetadata(false)),
+                    qualifiedName = "OneOfType",
                     isNullable = false,
                     description = description,
                 )

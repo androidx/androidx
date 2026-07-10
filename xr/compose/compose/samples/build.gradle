@@ -20,32 +20,36 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(project(":xr:compose:compose"))
     implementation(project(":xr:scenecore:scenecore"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+    implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
     implementation(project(":compose:material3:material3"))
 
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation("androidx.activity:activity-compose:1.10.0")
     implementation("androidx.compose.runtime:runtime:1.8.0")
     implementation("androidx.compose.foundation:foundation-layout:1.8.0")
     implementation("androidx.compose.ui:ui:1.7.0")
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
 }
 
 androidx {
     name = "Compose XR Samples"
     type = SoftwareType.SAMPLES
     inceptionYear = "2025"
-    description = "Contains the sample code for the Androidx JXR Compose Components"
+    description = "Contains the sample code for the AndroidX Compose for XR Components"
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     namespace = "androidx.xr.compose.samples"
     defaultConfig {
-        minSdk = 34
+        minSdk { version = release(34) }
     }
 }

@@ -23,6 +23,7 @@ import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
+import android.os.StrictMode
 import android.util.Log
 import android.view.Display
 import android.view.DisplayCutout
@@ -93,7 +94,9 @@ private object BoundsHelperApi29Impl : BoundsHelper {
     override fun currentWindowBounds(activity: Activity): Rect {
         var bounds: Rect
         val config = activity.resources.configuration
+        val origPolicy = StrictMode.getVmPolicy()
         try {
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
             val windowConfigField =
                 Configuration::class.java.getDeclaredField("windowConfiguration")
             windowConfigField.isAccessible = true
@@ -113,6 +116,8 @@ private object BoundsHelperApi29Impl : BoundsHelper {
                 }
                 else -> throw e
             }
+        } finally {
+            StrictMode.setVmPolicy(origPolicy)
         }
         return bounds
     }
@@ -135,7 +140,9 @@ private object BoundsHelperApi28Impl : BoundsHelper {
     override fun currentWindowBounds(activity: Activity): Rect {
         val bounds = Rect()
         val config = activity.resources.configuration
+        val origPolicy = StrictMode.getVmPolicy()
         try {
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
             val windowConfigField =
                 Configuration::class.java.getDeclaredField("windowConfiguration")
             windowConfigField.isAccessible = true
@@ -162,6 +169,8 @@ private object BoundsHelperApi28Impl : BoundsHelper {
                 }
                 else -> throw e
             }
+        } finally {
+            StrictMode.setVmPolicy(origPolicy)
         }
 
         val platformWindowManager = activity.windowManager
@@ -330,7 +339,9 @@ private fun getRectSizeFromDisplay(activity: Activity, bounds: Rect) {
 @RequiresApi(Build.VERSION_CODES.P)
 private fun getCutoutForDisplay(display: Display): DisplayCutout? {
     var displayCutout: DisplayCutout? = null
+    val origPolicy = StrictMode.getVmPolicy()
     try {
+        StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
         val displayInfoClass = Class.forName("android.view.DisplayInfo")
         val displayInfoConstructor = displayInfoClass.getConstructor()
         displayInfoConstructor.isAccessible = true
@@ -357,6 +368,8 @@ private fun getCutoutForDisplay(display: Display): DisplayCutout? {
             }
             else -> throw e
         }
+    } finally {
+        StrictMode.setVmPolicy(origPolicy)
     }
     return displayCutout
 }

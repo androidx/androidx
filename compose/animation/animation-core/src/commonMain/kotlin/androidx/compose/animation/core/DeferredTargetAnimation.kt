@@ -16,17 +16,12 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-@RequiresOptIn(
-    message = "This is an experimental animation API for Transition. It may change in the future."
-)
-@Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalAnimatableApi
 
 /**
  * [DeferredTargetAnimation] is intended for animations where the target is unknown at the time of
@@ -40,13 +35,21 @@ public annotation class ExperimentalAnimatableApi
  *
  * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationSample
  */
-@ExperimentalAnimatableApi
 public class DeferredTargetAnimation<T, V : AnimationVector>(
     private val vectorConverter: TwoWayConverter<T, V>
 ) {
     /** Returns the target value from the most recent [updateTarget] call. */
     public val pendingTarget: T?
         get() = _pendingTarget
+
+    /**
+     * Returns the current value of the animation, or `null` if [updateTarget] has not been called.
+     *
+     * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationPresentInDrawSample
+     */
+    @get:FrequentlyChangingValue
+    public val value: T?
+        get() = animatable?.value
 
     private var _pendingTarget: T? by mutableStateOf(null)
     private val target: T?

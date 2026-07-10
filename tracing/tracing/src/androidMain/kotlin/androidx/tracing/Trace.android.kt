@@ -18,9 +18,16 @@
 
 package androidx.tracing
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Trace
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.tracing.Trace.beginAsyncSection
+import androidx.tracing.Trace.beginSection
+import androidx.tracing.Trace.endAsyncSection
+import androidx.tracing.Trace.endSection
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -48,9 +55,9 @@ import java.lang.reflect.Method
  * For information see [Overview of system tracing]({@docRoot}studio/profile/systrace/).
  */
 public actual object Trace {
-    private const val TAG: String = "Trace"
-    internal const val MAX_TRACE_LABEL_LENGTH: Int = 127
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val TAG: String = "Trace"
+    internal const val MAX_TRACE_LABEL_LENGTH: Int = 127
     private var traceTagApp = 0L
     private var isTagEnabledMethod: Method? = null
     private var asyncTraceBeginMethod: Method? = null
@@ -63,7 +70,7 @@ public actual object Trace {
      *
      * This is useful to avoid intermediate string creation for trace sections that require
      * formatting. It is not necessary to guard all Trace method calls as they internally already
-     * check this. However it is recommended to use this to prevent creating any temporary objects
+     * check this. However, it is recommended to use this to prevent creating any temporary objects
      * that would then be passed to those methods to reduce runtime cost when tracing isn't enabled.
      *
      * @return `true` if tracing is currently enabled, `false` otherwise.
@@ -120,6 +127,7 @@ public actual object Trace {
      * @param label The name of the code section to appear in the trace.
      */
     @JvmStatic
+    @SuppressLint("UnclosedTrace") // The imperative begin API
     public actual fun beginSection(label: String) {
         Trace.beginSection(label.truncatedTraceSectionLabel())
     }
@@ -207,6 +215,18 @@ public actual object Trace {
         } else {
             setCounterFallback(counterName.truncatedTraceSectionLabel(), counterValue)
         }
+    }
+
+    /**
+     * Writes trace message to indicate the value of a given counter.
+     *
+     * @param counterName The counter name to appear in the trace.
+     * @param counterValue The counter value.
+     */
+    @JvmStatic
+    @RequiresApi(Build.VERSION_CODES.Q)
+    public fun setCounter(counterName: String, counterValue: Long) {
+        TraceApi29Impl.setCounter(counterName.truncatedTraceSectionLabel(), counterValue)
     }
 
     @Suppress("JavaReflectionMemberAccess", "BanUncheckedReflection")
@@ -299,8 +319,12 @@ public actual object Trace {
         Log.v(TAG, "Unable to call $methodName via reflection", exception)
     }
 
-    private fun String.truncatedTraceSectionLabel(): String =
-        takeIf { it.length <= MAX_TRACE_LABEL_LENGTH } ?: substring(0, MAX_TRACE_LABEL_LENGTH)
+    private fun String.truncatedTraceSectionLabel(): String {
+        if (this.length <= MAX_TRACE_LABEL_LENGTH) {
+            return this
+        }
+        return this.substring(0, MAX_TRACE_LABEL_LENGTH)
+    }
 }
 
 /**
@@ -329,6 +353,7 @@ public inline fun <T> trace(label: String, block: () -> T): T {
  * @param lazyLabel A name of the code section to appear in the trace, computed lazily if needed.
  * @param block A block of code which is being traced.
  */
+@SuppressLint("UnclosedTrace") // False positive
 public inline fun <T> trace(lazyLabel: () -> String, block: () -> T): T {
     val isEnabled = androidx.tracing.Trace.isEnabled()
     if (isEnabled) {

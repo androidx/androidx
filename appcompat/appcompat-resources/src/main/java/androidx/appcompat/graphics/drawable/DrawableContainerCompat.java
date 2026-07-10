@@ -16,8 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -28,14 +26,12 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -120,11 +116,10 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
         return result;
     }
 
-    @RequiresApi(LOLLIPOP)
     @Override
     public void getOutline(@NonNull Outline outline) {
         if (mCurrDrawable != null) {
-            Api21Impl.getOutline(mCurrDrawable, outline);
+            mCurrDrawable.getOutline(outline);
         }
     }
 
@@ -515,9 +510,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
             d.setState(getState());
             d.setLevel(getLevel());
             d.setBounds(getBounds());
-            if (Build.VERSION.SDK_INT >= 23) {
-                DrawableCompat.setLayoutDirection(d, DrawableCompat.getLayoutDirection(this));
-            }
+            d.setLayoutDirection(getLayoutDirection());
             DrawableCompat.setAutoMirrored(d, mDrawableContainerState.mAutoMirrored);
             final Rect hotspotBounds = mHotspotBounds;
             if (hotspotBounds != null) {
@@ -806,9 +799,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
         }
 
         private Drawable prepareDrawable(Drawable child) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                DrawableCompat.setLayoutDirection(child, mLayoutDirection);
-            }
+            child.setLayoutDirection(mLayoutDirection);
             child = child.mutate();
             child.setCallback(mOwner);
             return child;
@@ -851,11 +842,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
             final Drawable[] drawables = mDrawables;
             for (int i = 0; i < count; i++) {
                 if (drawables[i] != null) {
-                    boolean childChanged = false;
-                    if (android.os.Build.VERSION.SDK_INT >= 23) {
-                        childChanged =
-                                DrawableCompat.setLayoutDirection(drawables[i], layoutDirection);
-                    }
+                    boolean childChanged = drawables[i].setLayoutDirection(layoutDirection);
                     if (i == currentIndex) {
                         changed = childChanged;
                     }
@@ -886,7 +873,6 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
             }
         }
 
-        @RequiresApi(LOLLIPOP)
         final void applyTheme(Theme theme) {
             if (theme != null) {
                 createAllFutures();
@@ -899,11 +885,10 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
                         mChildrenChangingConfigurations |= drawables[i].getChangingConfigurations();
                     }
                 }
-                updateDensity(Api21Impl.getResources(theme));
+                updateDensity(theme.getResources());
             }
         }
 
-        @RequiresApi(LOLLIPOP)
         @Override
         public boolean canApplyTheme() {
             final int count = mNumChildren;
@@ -916,7 +901,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
                     }
                 } else {
                     final ConstantState future = mDrawableFutures.get(i);
-                    if (future != null && Api21Impl.canApplyTheme(future)) {
+                    if (future != null && future.canApplyTheme()) {
                         return true;
                     }
                 }
@@ -1201,23 +1186,5 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
     static int resolveDensity(@Nullable Resources r, int parentDensity) {
         final int densityDpi = r == null ? parentDensity : r.getDisplayMetrics().densityDpi;
         return densityDpi == 0 ? DisplayMetrics.DENSITY_DEFAULT : densityDpi;
-    }
-
-    private static class Api21Impl {
-        private Api21Impl() {
-            // Non-instantiable.
-        }
-
-        public static boolean canApplyTheme(ConstantState constantState) {
-            return constantState.canApplyTheme();
-        }
-
-        public static Resources getResources(Theme theme) {
-            return theme.getResources();
-        }
-
-        public static void getOutline(Drawable drawable, Outline outline) {
-            drawable.getOutline(outline);
-        }
     }
 }

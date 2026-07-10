@@ -16,4 +16,6 @@
 
 package androidx.compose.animation.internal
 
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
 internal expect annotation class JvmDefaultWithCompatibility()

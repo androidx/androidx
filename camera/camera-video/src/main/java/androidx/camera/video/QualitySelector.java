@@ -29,7 +29,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -49,8 +48,9 @@ import java.util.Set;
  * {@link Recorder.Builder#setQualitySelector(QualitySelector) Recorder}.
  *
  * <p>There are pre-defined quality constants that are universally used for video, such as
- * {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD} and {@link Quality#UHD}, but
- * not all of them are supported on every device since each device has its own capabilities.
+ * {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}, {@link Quality#QHD} and
+ * {@link Quality#UHD}, but not all of them are supported on every device since each device has
+ * its own capabilities.
  * {@link #isQualitySupported(CameraInfo, Quality)} can be used to check whether a quality is
  * supported on the device or not and {@link #getResolution(CameraInfo, Quality)} can be used to get
  * the actual resolution defined in the device. Aside from checking the qualities one by one,
@@ -85,6 +85,15 @@ public final class QualitySelector {
     private static final String TAG = "QualitySelector";
 
     /**
+     * A QualitySelector that contains no preferred qualities and no fallback strategy.
+     * When used, the resolution engine will have to rely entirely on system defaults
+     * or other specification components (like AspectRatio).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final @NonNull QualitySelector NONE =
+            new QualitySelector(Collections.emptyList(), FallbackStrategy.NONE);
+
+    /**
      * Gets all supported qualities on the device.
      *
      * <p>The returned list is sorted by quality size from largest to smallest. For the qualities in
@@ -111,8 +120,8 @@ public final class QualitySelector {
      * {@link #getSupportedQualities} will return {@code true}.
      *
      * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
-     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
-     * and {@link Quality#UHD}.
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
+     * {@link Quality#QHD} and {@link Quality#UHD}.
      *
      * <p>If this method is called with {@link Quality#LOWEST} or {@link Quality#HIGHEST}, it
      * will return {@code true} except the case that none of the qualities can be supported.
@@ -134,8 +143,8 @@ public final class QualitySelector {
      * Gets the corresponding resolution from the input quality.
      *
      * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
-     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
-     * and {@link Quality#UHD}.
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
+     * {@link Quality#QHD} and {@link Quality#UHD}.
      *
      * @param cameraInfo the cameraInfo for checking the quality.
      * @param quality one of the quality constants.
@@ -149,8 +158,7 @@ public final class QualitySelector {
             @NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(cameraInfo);
-        VideoValidatedEncoderProfilesProxy profiles = videoCapabilities.getProfiles(quality, SDR);
-        return profiles != null ? getProfileVideoSize(profiles) : null;
+        return videoCapabilities.getResolution(quality, SDR);
     }
 
     /**
@@ -164,8 +172,8 @@ public final class QualitySelector {
             @NonNull VideoCapabilities videoCapabilities, @NonNull DynamicRange dynamicRange) {
         Map<Quality, Size> map = new HashMap<>();
         for (Quality supportedQuality : videoCapabilities.getSupportedQualities(dynamicRange)) {
-            map.put(supportedQuality, getProfileVideoSize(
-                    requireNonNull(videoCapabilities.getProfiles(supportedQuality, dynamicRange))));
+            map.put(supportedQuality, requireNonNull(
+                    videoCapabilities.getResolution(supportedQuality, dynamicRange)));
         }
         return map;
     }
@@ -175,9 +183,6 @@ public final class QualitySelector {
 
     QualitySelector(@NonNull List<Quality> preferredQualityList,
             @NonNull FallbackStrategy fallbackStrategy) {
-        Preconditions.checkArgument(
-                !preferredQualityList.isEmpty() || fallbackStrategy != FallbackStrategy.NONE,
-                "No preferred quality and fallback strategy.");
         mPreferredQualityList = Collections.unmodifiableList(new ArrayList<>(preferredQualityList));
         mFallbackStrategy = fallbackStrategy;
     }
@@ -187,7 +192,7 @@ public final class QualitySelector {
      *
      * @param quality the quality. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @return the QualitySelector instance.
      * @throws NullPointerException if {@code quality} is {@code null}.
      * @throws IllegalArgumentException if {@code quality} is not one of the possible values.
@@ -205,7 +210,7 @@ public final class QualitySelector {
      *
      * @param quality the quality. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @param fallbackStrategy the fallback strategy that will be applied when the device does
      *                         not support {@code quality}.
      * @return the QualitySelector instance.
@@ -228,7 +233,7 @@ public final class QualitySelector {
      *
      * @param qualities the quality list. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @return the QualitySelector instance.
      * @throws NullPointerException if {@code qualities} is {@code null}.
      * @throws IllegalArgumentException if {@code qualities} is empty or contains a quality that is
@@ -248,7 +253,7 @@ public final class QualitySelector {
      *
      * @param qualities the quality list. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @param fallbackStrategy the fallback strategy that will be applied when the device does
      *                         not support those {@code qualities}.
      * @throws NullPointerException if {@code qualities} is {@code null} or
@@ -405,11 +410,6 @@ public final class QualitySelector {
             default:
                 throw new AssertionError("Unhandled fallback strategy: " + mFallbackStrategy);
         }
-    }
-
-    private static @NonNull Size getProfileVideoSize(
-            @NonNull VideoValidatedEncoderProfilesProxy profiles) {
-        return profiles.getDefaultVideoProfile().getResolution();
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull List<Quality> qualities) {

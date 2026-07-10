@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /** Returns true if the [Icon]s are equal. */
-infix fun Icon?.iconEquals(other: Icon?): Boolean =
+public infix fun Icon?.iconEquals(other: Icon?): Boolean =
     this === other ||
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             IconP.equals(this, other)
@@ -34,7 +34,7 @@ infix fun Icon?.iconEquals(other: Icon?): Boolean =
         }
 
 /** Creates a hash code for the [Icon]. */
-fun Icon.iconHashCode(): Int =
+public fun Icon.iconHashCode(): Int =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         IconP.hashCode(this)
     } else {

@@ -19,6 +19,8 @@ package androidx.compose.animation.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -599,4 +601,37 @@ fun SnapToSample() {
     }
     val transition = rememberTransition(seekingState)
     // use the transition
+}
+
+@OptIn(ExperimentalDeferredTransitionApi::class)
+@Sampled
+@Composable
+fun DeferredTransitionSample() {
+    var targetState by remember { mutableStateOf("Initial") }
+    var isDeferred by remember { mutableStateOf(false) }
+
+    // Create a DeferredTransitionState
+    val transitionState = remember { DeferredTransitionState(targetState) }
+
+    // Use LaunchedEffect to handle defer/animateTo logic based on some external signal
+    // (e.g. gesture progress, predictive back events, etc).
+    LaunchedEffect(targetState, isDeferred) {
+        if (isDeferred) {
+            // Enter deferred phase: targetState is updated as a pendingTargetState
+            // but animations don't start yet.
+            transitionState.defer(targetState)
+        } else {
+            // Start automatic transition: pendingTargetState is cleared and targetState is updated
+            // to trigger animations.
+            transitionState.animateTo(targetState)
+        }
+    }
+
+    val transition = rememberTransition(transitionState)
+    // Create animations as usual
+    val alpha by transition.animateFloat { state -> if (state == "Initial") 0f else 1f }
+
+    Box(Modifier.graphicsLayer { this.alpha = alpha }) {
+        // Content
+    }
 }

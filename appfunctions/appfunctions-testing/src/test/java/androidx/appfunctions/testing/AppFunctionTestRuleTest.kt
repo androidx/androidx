@@ -18,10 +18,15 @@ package androidx.appfunctions.testing
 
 import android.os.Build
 import androidx.appfunctions.AppFunctionData
-import androidx.appfunctions.AppFunctionManagerCompat
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -37,13 +42,17 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.junit.runners.model.Statement
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.junit.rules.TimeoutRule
+import org.robolectric.shadows.ShadowSystemProperties
 
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -57,14 +66,13 @@ class AppFunctionTestRuleTest {
 
     @get:Rule val timeoutRule = TimeoutRule(10, TimeUnit.SECONDS)
 
-    private val appFunctionManagerCompat: AppFunctionManagerCompat =
-        appFunctionTestRule.getAppFunctionManagerCompat()
+    private val appFunctionManager: AppFunctionManager = appFunctionTestRule.getAppFunctionManager()
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_observeApiNoFilter_returnsAllAppFunctions() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_noFilter_returnsAllAppFunctions() =
         runBlocking<Unit> {
             val results =
-                appFunctionManagerCompat
+                appFunctionManager
                     .observeAppFunctions(AppFunctionSearchSpec())
                     .timeout(FLOW_COLLECTION_TIMEOUT)
                     .take(1)
@@ -74,11 +82,11 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_observeApi_returnsNewValueOnUpdate() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_returnsNewValueOnUpdate() =
         runBlocking<Unit> {
             val functionIdToTest = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
             val appFunctionSearchFlow =
-                appFunctionManagerCompat.observeAppFunctions(
+                appFunctionManager.observeAppFunctions(
                     AppFunctionSearchSpec(packageNames = setOf(context.packageName))
                 )
             val emittedValues =
@@ -90,9 +98,9 @@ class AppFunctionTestRuleTest {
             emittedValues.first() // Allow emitting initial value and registering callback.
 
             // Modify the runtime document.
-            appFunctionManagerCompat.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
-                AppFunctionManagerCompat.APP_FUNCTION_STATE_ENABLED,
+                AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
 
             // Collect in a separate scope to avoid deadlock within the testcase.
@@ -119,10 +127,10 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_filterBySchemaName_success() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterBySchemaName_success() =
         runBlocking<Unit> {
             val results =
-                appFunctionManagerCompat
+                appFunctionManager
                     .observeAppFunctions(
                         AppFunctionSearchSpec(
                             packageNames = setOf(context.packageName),
@@ -138,10 +146,10 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_filterByPackageName_success() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByPackageName_success() =
         runBlocking<Unit> {
             val results =
-                appFunctionManagerCompat
+                appFunctionManager
                     .observeAppFunctions(
                         AppFunctionSearchSpec(packageNames = setOf(context.packageName))
                     )
@@ -153,10 +161,10 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_filterBySchemaCategory_success() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterBySchemaCategory_success() =
         runBlocking<Unit> {
             val results =
-                appFunctionManagerCompat
+                appFunctionManager
                     .observeAppFunctions(
                         AppFunctionSearchSpec(
                             packageNames = setOf(context.packageName),
@@ -172,10 +180,54 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_filterByMinSchemaVersion_success() =
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByFunctionName_success() =
         runBlocking<Unit> {
             val results =
-                appFunctionManagerCompat
+                appFunctionManager
+                    .observeAppFunctions(
+                        AppFunctionSearchSpec(
+                            functionNames =
+                                setOf(
+                                    AppFunctionName(
+                                        context.packageName,
+                                        "androidx.appfunctions.testing.NotesFunctions#createNote",
+                                    )
+                                )
+                        )
+                    )
+                    .timeout(FLOW_COLLECTION_TIMEOUT)
+                    .take(1)
+                    .toList()
+
+            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
+                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByFunctionName_success() =
+        runBlocking<Unit> {
+            val results =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(
+                        functionNames =
+                            setOf(
+                                AppFunctionName(
+                                    context.packageName,
+                                    "androidx.appfunctions.testing.NotesFunctions#createNote",
+                                )
+                            )
+                    )
+                )
+
+            assertThat(results.map { it.id })
+                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByMinSchemaVersion_success() =
+        runBlocking<Unit> {
+            val results =
+                appFunctionManager
                     .observeAppFunctions(
                         AppFunctionSearchSpec(
                             packageNames = setOf(context.packageName),
@@ -191,43 +243,85 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_observeAppFunctions_enabledStateChanged_emitsChange() =
+        runBlocking<Unit> {
+            val functionIdToTest = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+            val changeEventFlow = appFunctionManager.observeAppFunctions()
+
+            try {
+                launch {
+                    appFunctionManager.setAppFunctionEnabled(
+                        functionIdToTest,
+                        AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
+                    )
+                }
+
+                val event = changeEventFlow.take(1).first()
+                assertIs<ObserveAppFunctionsEvent.StatesChanged>(event)
+                assertThat(event.changedFunctionNames)
+                    .containsExactly(AppFunctionName(context.packageName, functionIdToTest))
+            } finally {
+                appFunctionManager.setAppFunctionEnabled(
+                    functionIdToTest,
+                    AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
+                )
+            }
+        }
+
+    @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_enabledByDefault_modified_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
 
-            appFunctionManagerCompat.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionId,
-                AppFunctionManagerCompat.APP_FUNCTION_STATE_DISABLED,
+                AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
 
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
         }
 
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modified_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
 
-            appFunctionManagerCompat.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionId,
-                AppFunctionManagerCompat.APP_FUNCTION_STATE_ENABLED,
+                AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
 
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
         }
 
     @Test(timeout = 5000)
     fun executeAppFunction_success() =
         runBlocking<Unit> {
             val response =
-                appFunctionManagerCompat.executeAppFunction(
+                appFunctionManager.executeAppFunction(
                     request =
                         ExecuteAppFunctionRequest(
                             context.packageName,
                             "androidx.appfunctions.testing.TestFunctions#add",
-                            AppFunctionData.Builder("")
+                            AppFunctionData.Builder(
+                                    listOf(
+                                        AppFunctionParameterMetadata(
+                                            name = "num1",
+                                            isRequired = true,
+                                            dataType =
+                                                AppFunctionLongTypeMetadata(isNullable = false),
+                                        ),
+                                        AppFunctionParameterMetadata(
+                                            name = "num2",
+                                            isRequired = true,
+                                            dataType =
+                                                AppFunctionLongTypeMetadata(isNullable = false),
+                                        ),
+                                    ),
+                                    AppFunctionComponentsMetadata(),
+                                )
                                 .setLong("num1", 1)
                                 .setLong("num2", 2)
                                 .build(),
@@ -247,22 +341,58 @@ class AppFunctionTestRuleTest {
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modifiedAndRestoredToDefault_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
 
-            appFunctionManagerCompat.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionId,
-                AppFunctionManagerCompat.APP_FUNCTION_STATE_ENABLED,
+                AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
 
-            appFunctionManagerCompat.setAppFunctionEnabled(
+            appFunctionManager.setAppFunctionEnabled(
                 functionId,
-                AppFunctionManagerCompat.APP_FUNCTION_STATE_DEFAULT,
+                AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            assertThat(appFunctionManagerCompat.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
         }
+
+    @Test(timeout = 5000)
+    fun apply_correctlyOverridesTExtensionPropertyForTestBody() {
+        val rule = AppFunctionTestRule(targetContext)
+        // The class-level rule already set the property for this test method; reset it to a
+        // sentinel
+        // so this assertion observes the fresh rule's effect, not the outer rule's.
+        ShadowSystemProperties.override(T_EXTENSION_PROPERTY, SENTINEL_T_EXTENSION_PROPERTY)
+        val propertyBeforeApply = readTExtensionProperty()
+        var propertyDuringTest: String? = null
+        val statement =
+            object : Statement() {
+                override fun evaluate() {
+                    propertyDuringTest = readTExtensionProperty()
+                }
+            }
+
+        rule.apply(statement, Description.EMPTY).evaluate()
+
+        assertThat(propertyBeforeApply).isEqualTo(SENTINEL_T_EXTENSION_PROPERTY)
+        assertThat(propertyDuringTest).isEqualTo("13")
+    }
+
+    /**
+     * Reads the T-extension system property. [android.os.SystemProperties] is a hidden API, so it
+     * is read reflectively to let the Robolectric shadow intercept the call and return the
+     * override.
+     */
+    private fun readTExtensionProperty(): String {
+        val systemProperties = Class.forName("android.os.SystemProperties")
+        val get = systemProperties.getMethod("get", String::class.java, String::class.java)
+        return get.invoke(null, T_EXTENSION_PROPERTY, "") as String
+    }
 
     private companion object {
         val FLOW_COLLECTION_TIMEOUT = 2.seconds
+        const val T_EXTENSION_PROPERTY = "build.version.extensions.t"
+        // A value other than "13" so a reversed set/evaluate order is observable.
+        const val SENTINEL_T_EXTENSION_PROPERTY = "0"
     }
 }

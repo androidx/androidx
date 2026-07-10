@@ -39,10 +39,10 @@ public class ElevationGainedRecord(
      * See b/400965398 for more context.
      */
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.toPlatformRecord()
         } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             elevation.requireNotLess(other = MIN_ELEVATION_GAIN, name = "elevation")
             elevation.requireNotMore(other = MAX_ELEVATION_GAIN, name = "elevation")
         }

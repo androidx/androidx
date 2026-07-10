@@ -15,19 +15,20 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
+import org.gradle.work.DisableCachingByDefault
+
+import javax.inject.Inject
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 /**
@@ -50,27 +51,51 @@ def reusePrebuiltsAar = Boolean.parseBoolean(
         System.getProperty("TRACING_PERFETTO_REUSE_PREBUILTS_AAR", "true")
 )
 def prebuiltsAarVersion = androidx.LibraryVersions.TRACING_PERFETTO
-def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
+
+@DisableCachingByDefault
+abstract class ExtractJniFromAar extends DefaultTask {
+    @InputFiles FileTree sourceAar
+    @OutputDirectory abstract DirectoryProperty getOutputDirectory()
+    @Inject abstract FileSystemOperations getFs()
+
+    @TaskAction
+    void copy() {
+        outputDirectory.get().asFile.deleteDir()
+        fs.copy { copySpec ->
+            copySpec.from(sourceAar) {
+                include("jni/**")
+                // Modify the path of each file to strip the first directory ("jni")
+                eachFile { fileDetails ->
+                    fileDetails.relativePath = new RelativePath(
+                            !fileDetails.isDirectory(),
+                            fileDetails.relativePath.segments.drop(1) as String[]
+                    )
+                }
+                // Prevent Gradle from creating the now-empty "jni" root folder
+                includeEmptyDirs = false
+            }
+            copySpec.into(outputDirectory)
+        }
+    }
+}
 
 if (reusePrebuiltsAar) {
-    def unzipTask = tasks.register("unzipPrebuiltsAarDir", Copy) {
+    def extractJni = tasks.register("extractJni", ExtractJniFromAar) {
         def zipFile = AndroidXConfig.getPrebuiltsRoot(project).toPath().resolve(
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/$prebuiltsAarVersion/" +
                         "tracing-perfetto-binary-${prebuiltsAarVersion}.aar"
         )
-        from zipTree(zipFile)
-        into file(unzippedPrebuiltsAarDir)
+        sourceAar = zipTree(zipFile)
     }
-
-    tasks.findByName("preBuild").dependsOn(unzipTask)
-}
-
-android {
-    if (reusePrebuiltsAar) {
-        sourceSets {
-            main.jniLibs.srcDirs += new File(unzippedPrebuiltsAarDir, "jni")
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            // use extracted .so files
+            variant.sources.jniLibs.addGeneratedSourceDirectory(extractJni) { it.outputDirectory }
         }
-    } else { // build .so files from scratch
+    }
+} else {
+    android {
+        // build .so files from scratch
         externalNativeBuild {
             cmake {
                 path "src/main/cpp/CMakeLists.txt"
@@ -78,14 +103,15 @@ android {
             }
         }
     }
+}
+
+android {
     namespace = "androidx.tracing.perfetto.binary"
 }
 
 dependencies {
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":benchmark:benchmark-common")) // for supported ABI checks
 }
 
 androidx {

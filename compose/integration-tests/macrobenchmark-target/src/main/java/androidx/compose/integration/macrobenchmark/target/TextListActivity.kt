@@ -20,8 +20,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.LocalBackgroundTextMeasurementExecutor
 import androidx.compose.material3.Text
@@ -54,13 +57,13 @@ class TextListActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @OptIn(ExperimentalComposeUiApi::class)
+        ContentCaptureManager.isEnabled = false
         val wordCount = intent.getIntExtra(BenchmarkConfig.WordCount, 8)
         val wordLength = intent.getIntExtra(BenchmarkConfig.WordLength, 4)
         val textCount = intent.getIntExtra(BenchmarkConfig.TextCount, 3)
         val styled = intent.getBooleanExtra(BenchmarkConfig.Styled, false)
         val prefetch = intent.getBooleanExtra(BenchmarkConfig.Prefetch, false)
-        val enableContentCapture =
-            intent.getBooleanExtra(BenchmarkConfig.EnableContentCapture, false)
         val randomTextGenerator = RandomTextGenerator()
 
         val items =
@@ -88,14 +91,11 @@ class TextListActivity : ComponentActivity() {
                 null
             }
 
-        if (!enableContentCapture) {
-            @OptIn(ExperimentalComposeUiApi::class)
-            ContentCaptureManager.isEnabled = false
-        }
-
         setContent {
             CompositionLocalProvider(LocalBackgroundTextMeasurementExecutor provides executor) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeContent)
+                ) {
                     items(ItemCount) { i ->
                         val startIndex = i * textCount
                         FlowRow {

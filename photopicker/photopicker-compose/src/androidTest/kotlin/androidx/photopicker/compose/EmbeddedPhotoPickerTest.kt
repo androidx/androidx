@@ -18,14 +18,16 @@ package androidx.photopicker.compose
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,11 +38,15 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class EmbeddedPhotoPickerTest {
 
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() = runTest {
+        assumeFalse(
+            "Test fails on cuttlefish b/460511933",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
         lateinit var state: EmbeddedPhotoPickerState
 
@@ -56,6 +62,10 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() = runTest {
+        assumeFalse(
+            "Test fails on cuttlefish b/460511933",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
         lateinit var state: EmbeddedPhotoPickerStateImpl
 
@@ -71,6 +81,10 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerOpensSession() = runTest {
+        assumeFalse(
+            "Test fails on cuttlefish b/460511933",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
         composeTestRule.setContent {

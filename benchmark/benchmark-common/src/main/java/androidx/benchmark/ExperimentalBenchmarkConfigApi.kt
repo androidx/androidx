@@ -28,15 +28,35 @@ import androidx.benchmark.perfetto.PerfettoConfig
 @Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalBenchmarkConfigApi
 
+/**
+ * Experimental configuration options for a benchmark.
+ *
+ * Currently used to override the default [PerfettoConfig], or to enable Startup
+ * [Insights][androidx.benchmark.traceprocessor.Insight]s.
+ */
 @ExperimentalBenchmarkConfigApi
 public class ExperimentalConfig(
+    /** The PerfettoConfig for the benchmark - `null` to use the default config. */
     val perfettoConfig: PerfettoConfig? = null,
+
+    /** The StartupInsightsConfig for the benchmark - `null` to not enable insights reporting. */
     val startupInsightsConfig: StartupInsightsConfig? = null,
 )
 
-/** Configuration for startup insights. */
+/**
+ * Configuration for Startup Insights.
+ *
+ * By passing this object to a `MacrobenchmarkRule`, you can enable reporting of Startup
+ * [Insights][androidx.benchmark.traceprocessor.Insight]s - problems patterns discovered during your
+ * application startup.
+ *
+ * c, as well in the Benchmark JSON output file.
+ */
 @ExperimentalBenchmarkConfigApi
-public class StartupInsightsConfig(val isEnabled: Boolean) {
+public class StartupInsightsConfig(
+    /** Set to true to enable reporting of Startup Insights. */
+    val isEnabled: Boolean
+) {
     /**
      * Base URL for linking to more information about specific startup reasons. This URL should
      * accept a reason ID as a direct suffix. For example, a base URL of
@@ -46,4 +66,25 @@ public class StartupInsightsConfig(val isEnabled: Boolean) {
      */
     val reasonHelpUrlBase: String? = Arguments.startupInsightsHelpUrlBase
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
+}
+
+/**
+ * Configuration for in-process tracing.
+ *
+ * By passing this object in `MacrobenchmarkRule` you can enable capture of in-process traces.
+ */
+@ExperimentalBenchmarkConfigApi
+public enum class InProcessTracingMode {
+    /**
+     * Enable in-process tracing, which requires the target application to include the
+     * `androidx.tracing:tracing-wire` dependency.
+     *
+     * If `androidx.tracing:tracing-wire` is not present in the target application, an exception is
+     * thrown during the benchmark.
+     */
+    Require,
+    /** Enable in-process tracing if the app depends on `androidx.tracing:tracing-wire`. */
+    UseIfAvailable,
+    /** Do not include in-process traces. */
+    Disable,
 }

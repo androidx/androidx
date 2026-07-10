@@ -20,7 +20,6 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
-import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.GlobalSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
@@ -143,8 +142,8 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     override var doubleValue: Double
         get() = next.readable(this).value
         set(value) =
-            next.withCurrent {
-                if (!it.value.equalsWithNanFix(value)) {
+            next.withCurrent(this) {
+                if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
             }
@@ -169,7 +168,7 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     ): StateRecord? {
         val currentRecord = current as DoubleStateStateRecord
         val appliedRecord = applied as DoubleStateStateRecord
-        return if (currentRecord.value.equalsWithNanFix(appliedRecord.value)) {
+        return if (currentRecord.value == appliedRecord.value) {
             current
         } else {
             null
@@ -177,7 +176,7 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     }
 
     override fun toString(): String =
-        next.withCurrent { "MutableDoubleState(value=${it.value})@${hashCode()}" }
+        next.withCurrent(this) { "MutableDoubleState(value=${it.value})@${hashCode()}" }
 
     private class DoubleStateStateRecord(snapshotId: SnapshotId, var value: Double) :
         StateRecord(snapshotId) {

@@ -46,7 +46,7 @@ package androidx.appfunctions
  * // Constraining a property within an AppFunctionSerializable:
  * @AppFunctionSerializable
  * data class MySettings(
- *     @AppFunctionIntValueConstraint(enumValues = [0, 1])
+ *     @property:AppFunctionIntValueConstraint(enumValues = [0, 1])
  *     val darkMode: Int
  * )
  * ```

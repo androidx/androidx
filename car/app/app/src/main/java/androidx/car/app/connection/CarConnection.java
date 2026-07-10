@@ -65,7 +65,7 @@ public final class CarConnection {
     }
 
     /**
-     * Not connected to any car head unit.z
+     * Not connected to any car head unit.
      */
     public static final int CONNECTION_TYPE_NOT_CONNECTED = 0;
 

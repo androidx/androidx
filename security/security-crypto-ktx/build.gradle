@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,13 +25,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(project(":security:security-crypto"))
 
-    api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
@@ -51,4 +48,5 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ package androidx.xr.scenecore
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.ResizeEventListener as RtResizeEventListener
+import androidx.xr.scenecore.runtime.HandlerExecutor
+import androidx.xr.scenecore.runtime.ResizableComponent as RtResizableComponent
+import androidx.xr.scenecore.runtime.ResizeEventListener as RtResizeEventListener
+import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -33,21 +35,35 @@ import java.util.function.Consumer
  * boundaries of a user-resize affordance. While resizing an overlay will appear indicating the
  * proposed updated size.
  *
- * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+ * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
  * [Entity.addComponent] to an Entity with these types will return false.
  *
  * Note: This Component is currently unsupported on GltfModelEntity.
  */
 public class ResizableComponent
 private constructor(
-    private val platformAdapter: JxrPlatformAdapter,
+    private val sceneRuntime: SceneRuntime,
     minimumSize: FloatSize3d,
     maximumSize: FloatSize3d,
-    private val initialListenerExecutor: Executor,
-    private val initialListener: Consumer<ResizeEvent>,
-) : Component {
+    initialListenerExecutor: Executor,
+    initialListener: Consumer<ResizeEvent>,
+) : Component() {
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtResizableComponent: RtResizableComponent by lazy {
+        sceneRuntime.createResizableComponent(
+            minimumSize.toRtDimensions(),
+            maximumSize.toRtDimensions(),
+        )
+    }
+
     private val resizeListenerMap =
-        ConcurrentHashMap<Consumer<ResizeEvent>, RtResizeEventListener>()
+        ConcurrentHashMap<Consumer<ResizeEvent>, Pair<Executor, RtResizeEventListener>>()
+
+    init {
+        addResizeEventListener(initialListenerExecutor, initialListener)
+    }
+
     /**
      * The current size of the affordance for the [Entity], in meters. This property is
      * automatically updated after resize events to match the resize affordance to the newly
@@ -55,6 +71,7 @@ private constructor(
      * meter. If attached to a [PanelEntity], this is updated to the size of the Entity when
      * attached.
      */
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var affordanceSize: FloatSize3d = kDimensionsOneMeter
         set(value) {
             if (field != value) {
@@ -68,6 +85,7 @@ private constructor(
      * user can resize the bounding box of the [Entity]. The size of the content inside that
      * bounding box is fully controlled by the application.
      */
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var minimumEntitySize: FloatSize3d = minimumSize
         set(value) {
             if (field != value) {
@@ -81,6 +99,7 @@ private constructor(
      * can resize the bounding box of the [Entity]. The size of the content inside that bounding box
      * is fully controlled by the application.
      */
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var maximumEntitySize: FloatSize3d = maximumSize
         set(value) {
             if (field != value) {
@@ -90,19 +109,17 @@ private constructor(
         }
 
     /**
-     * The aspect ratio of the entity during resizing. The aspect ratio is determined by taking the
-     * entity's width over its height. A value of 0.0f (or negative) means there are no preferences.
+     * Whether the aspect ratio is maintained during resizing.
      *
-     * This method does not immediately resize the entity. The new aspect ratio will be provided in
-     * the [Consumer<ResizeEvent>] the next time the user resizes the [Entity] through the reform
-     * UI.
+     * If true the affordance will maintain its current aspect ratio being resized and all suggested
+     * sizes will maintain the current aspect ratio. This defaults to false.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public var fixedAspectRatio: Float = 0.0f
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
+    public var isFixedAspectRatioEnabled: Boolean = false
         set(value) {
             if (field != value) {
                 field = value
-                rtResizableComponent.fixedAspectRatio = value
+                rtResizableComponent.isFixedAspectRatioEnabled = value
             }
         }
 
@@ -110,6 +127,7 @@ private constructor(
      * Whether the content of the [Entity], and all child Entities, will be automatically hidden
      * while it is being resized.
      */
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var isAutoHideContentWhileResizingEnabled: Boolean = true
         set(value) {
             if (field != value) {
@@ -122,8 +140,9 @@ private constructor(
      * Whether the size of the resize overlay should be automatically updated to match the proposed
      * size as resize events are received.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:JvmName("shouldAutoUpdateOverlay")
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var shouldAutoUpdateOverlay: Boolean = true
         set(value) {
             if (field != value) {
@@ -137,6 +156,7 @@ private constructor(
      *
      * This is useful for resizing multiple panels at once.
      */
+    // TODO: b/514173126 - Update getter to retrieve value from rtResizableComponent.
     public var isAlwaysShowOverlayEnabled: Boolean = false
         set(value) {
             if (field != value) {
@@ -145,34 +165,34 @@ private constructor(
             }
         }
 
-    private val rtResizableComponent by lazy {
-        platformAdapter.createResizableComponent(
-            minimumSize.toRtDimensions(),
-            maximumSize.toRtDimensions(),
-        )
-    }
-
     private var entity: Entity? = null
 
     override fun onAttach(entity: Entity): Boolean {
-        if (entity is AnchorEntity || entity is ActivitySpace) {
+        if (entity is AnchorSpace || entity is ActivitySpace) {
             return false
         }
         if (this.entity != null) {
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity!!.addComponent(rtResizableComponent)
+        val attached = entity.rtEntity.addComponent(rtResizableComponent)
         if (!attached) {
+            this.entity = null
             return false
         }
-        addResizeEventListener(initialListenerExecutor, initialListener)
+
+        for (entry in resizeListenerMap.values) {
+            rtResizableComponent.addResizeEventListener(entry.first, entry.second)
+        }
 
         return true
     }
 
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtResizableComponent)
+        for (entry in resizeListenerMap.values) {
+            rtResizableComponent.removeResizeEventListener(entry.second)
+        }
+        entity.rtEntity.removeComponent(rtResizableComponent)
         this.entity = null
     }
 
@@ -182,7 +202,7 @@ private constructor(
      *
      * The listener is invoked on the provided [Executor] if provided.
      *
-     * @param executor The Executor to run the listener on. By default listener is invoked on the
+     * @param executor The Executor to run the listener on. By default, listener is invoked on the
      *   main thread.
      * @param resizeEventListener The listener to be invoked when a resize event occurs.
      */
@@ -191,11 +211,14 @@ private constructor(
         executor: Executor = HandlerExecutor.mainThreadExecutor,
         resizeEventListener: Consumer<ResizeEvent>,
     ) {
+        if (resizeListenerMap.containsKey(resizeEventListener)) {
+            return
+        }
         val rtResizeEventListener = RtResizeEventListener { rtResizeEvent ->
             run { entity?.let { resizeEventListener.accept(rtResizeEvent.toResizeEvent(it)) } }
         }
         rtResizableComponent.addResizeEventListener(executor, rtResizeEventListener)
-        resizeListenerMap[resizeEventListener] = rtResizeEventListener
+        resizeListenerMap[resizeEventListener] = executor to rtResizeEventListener
     }
 
     /**
@@ -204,10 +227,8 @@ private constructor(
      * @param resizeEventListener The listener to be removed.
      */
     public fun removeResizeEventListener(resizeEventListener: Consumer<ResizeEvent>) {
-        if (resizeListenerMap.containsKey(resizeEventListener)) {
-            rtResizableComponent.removeResizeEventListener(resizeListenerMap[resizeEventListener]!!)
-            resizeListenerMap.remove(resizeEventListener)
-        }
+        val entry = resizeListenerMap.remove(resizeEventListener)
+        entry?.let { rtResizableComponent.removeResizeEventListener(it.second) }
     }
 
     public companion object {
@@ -218,14 +239,14 @@ private constructor(
 
         /** Factory function for creating [ResizableComponent] instance. */
         internal fun create(
-            platformAdapter: JxrPlatformAdapter,
+            sceneRuntime: SceneRuntime,
             minimumSize: FloatSize3d,
             maximumSize: FloatSize3d,
             initialListenerExecutor: Executor,
             initialListener: Consumer<ResizeEvent>,
         ): ResizableComponent {
             return ResizableComponent(
-                platformAdapter,
+                sceneRuntime,
                 minimumSize,
                 maximumSize,
                 initialListenerExecutor,
@@ -240,7 +261,7 @@ private constructor(
          * Component will enable the user to resize the Entity by dragging along the boundaries of a
          * user-resize affordance.
          *
-         * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+         * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
          * @param session The [Session] to create the ResizableComponent in.
@@ -252,7 +273,7 @@ private constructor(
          *   used to set constraints on how large the user can resize the bounding box of the entity
          *   up to. The size of the content inside that bounding box is fully controlled by the
          *   application. The default value is 10 meters.
-         * @param executor The Executor to run the listener on. By default listener is invoked on
+         * @param executor The Executor to run the listener on. By default, listener is invoked on
          *   the main thread.
          * @param resizeEventListener A resize event listener for the event. The application should
          *   set the size of a PanelEntity using [PanelEntity.size].
@@ -267,12 +288,6 @@ private constructor(
             executor: Executor = HandlerExecutor.mainThreadExecutor,
             resizeEventListener: Consumer<ResizeEvent>,
         ): ResizableComponent =
-            ResizableComponent.create(
-                session.platformAdapter,
-                minimumSize,
-                maximumSize,
-                executor,
-                resizeEventListener,
-            )
+            create(session.sceneRuntime, minimumSize, maximumSize, executor, resizeEventListener)
     }
 }

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.ambient.AmbientLifecycleObserver#isAmbient():
+    Source breaking change: method androidx.wear.ambient.AmbientLifecycleObserver.isAmbient() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails#getBurnInProtectionRequired():
+    Source breaking change: method androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails.getBurnInProtectionRequired() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails#getDeviceHasLowBitAmbient():
+    Source breaking change: method androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails.getDeviceHasLowBitAmbient() can no longer be resolved from Kotlin source

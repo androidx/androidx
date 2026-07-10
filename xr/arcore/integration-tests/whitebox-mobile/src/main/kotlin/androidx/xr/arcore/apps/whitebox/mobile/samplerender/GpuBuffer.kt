@@ -119,7 +119,7 @@ internal class GpuBuffer(
     fun free() {
         if (bufferId[0] != 0) {
             GLES30.glDeleteBuffers(1, bufferId, 0)
-            maybeLogGLError(Log.WARN, TAG, "Failed to free buffer object", "glDeleteBuffers")
+            maybeLogGLError(Log.WARN, "Failed to free buffer object", "glDeleteBuffers")
             bufferId[0] = 0
         }
     }
@@ -131,6 +131,7 @@ internal class GpuBuffer(
     companion object {
         private const val TAG: String = "GpuBuffer"
         public const val INT_SIZE: Int = 4
+        public const val SHORT_SIZE: Int = 2
         public const val FLOAT_SIZE: Int = 4
     }
 }

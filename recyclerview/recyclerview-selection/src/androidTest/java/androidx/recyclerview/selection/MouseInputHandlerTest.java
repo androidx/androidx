@@ -18,7 +18,6 @@ package androidx.recyclerview.selection;
 
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.ALT_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.CLICK;
-import static androidx.recyclerview.selection.testing.TestEvents.Mouse.CTRL_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.SECONDARY_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.SHIFT_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.TERTIARY_CLICK;
@@ -352,17 +351,6 @@ public final class MouseInputHandlerTest {
     }
 
     @Test
-    public void testUnconfirmedCtrlClick_AddsToExistingSelection() {
-        mDetailsLookup.initAt(7).setInItemSelectRegion(true);
-        mInputDelegate.onSingleTapConfirmed(CLICK);
-
-        mDetailsLookup.initAt(11);
-        mInputDelegate.onSingleTapConfirmed(CTRL_CLICK);
-
-        mSelection.assertSelection(7, 11);
-    }
-
-    @Test
     public void testUnconfirmedShiftClick_ExtendsSelection() {
         mDetailsLookup.initAt(7).setInItemSelectRegion(true);
         mInputDelegate.onSingleTapConfirmed(CLICK);
@@ -401,18 +389,13 @@ public final class MouseInputHandlerTest {
     }
 
     @Test
-    public void testUnconfirmedShiftCtrlClick_Combination() {
+    public void testUnconfirmedShiftClick_Combination() {
         mDetailsLookup.initAt(7).setInItemSelectRegion(true);
         mInputDelegate.onSingleTapConfirmed(CLICK);
 
         mDetailsLookup.initAt(11);
         mInputDelegate.onSingleTapConfirmed(SHIFT_CLICK);
         mSelection.assertSelection(7, 8, 9, 10, 11);
-
-        mDetailsLookup.initAt(5);
-        mInputDelegate.onSingleTapConfirmed(CTRL_CLICK);
-
-        mSelection.assertSelection(5, 7, 8, 9, 10, 11);
     }
 
     @Test

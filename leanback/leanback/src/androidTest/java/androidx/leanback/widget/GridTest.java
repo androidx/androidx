@@ -43,12 +43,14 @@ public abstract class GridTest {
         }
 
         @Override
-        public int createItem(int index, boolean append, Object[] item, boolean disappearingItem) {
+        public int createItem(int index, int spanSize, boolean append, Object[] item,
+                boolean disappearingItem) {
             return mItems[index];
         }
 
         @Override
-        public void addItem(Object item, int index, int length, int rowIndex, int edge) {
+        public void addItem(Object item, int index, int length, int rowIndex, int edge,
+                boolean finishedAlCreateItems) {
             if (edge == Integer.MAX_VALUE || edge == Integer.MIN_VALUE) {
                 // initialize edge for first item added
                 edge = 0;

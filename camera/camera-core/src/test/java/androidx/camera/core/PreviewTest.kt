@@ -82,6 +82,7 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 /** Unit tests for [Preview]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 // Option Declarations:
 // *********************************************************************************************
 class PreviewTest {
@@ -864,7 +865,7 @@ class PreviewTest {
             null,
             previewToDetach.getDefaultConfig(
                 true,
-                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context),
+                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context, false),
             ),
         )
 

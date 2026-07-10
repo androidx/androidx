@@ -18,8 +18,9 @@ package androidx.input.motionprediction.kalman.matrix;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -57,7 +58,7 @@ public class Matrix {
      * @param values the array of values
      * @throws IllegalArgumentException if length of values array not a multiple of stride
      */
-    public Matrix(int stride, @NonNull double[] values) {
+    public Matrix(int stride, double @NonNull [] values) {
         mRows = (values.length + stride - 1) / stride;
         mCols = stride;
         mMem = values;

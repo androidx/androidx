@@ -21,11 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.matrix.DVector2;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;

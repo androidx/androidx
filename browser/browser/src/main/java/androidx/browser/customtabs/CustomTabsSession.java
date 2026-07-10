@@ -450,6 +450,11 @@ public final class CustomTabsSession {
             public void onSessionEnded(boolean didUserInteract, Bundle extras) {
                 mHandler.post(() -> callback.onSessionEnded(didUserInteract, extras));
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 
@@ -517,6 +522,11 @@ public final class CustomTabsSession {
                 } finally {
                     Binder.restoreCallingIdentity(identity);
                 }
+            }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
             }
         };
     }
@@ -679,6 +689,11 @@ public final class CustomTabsSession {
         public boolean newAuthTabSession(IAuthTabCallback callback, Bundle extras)
                 throws RemoteException {
             return false;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 }

@@ -1,7 +1,7 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.wear.phone.interactions.authentication.RemoteAuthService#onUnbind(android.content.Intent) parameter #0:
-    Invalid nullability on parameter `intent` in method `onUnbind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Intent in parameter `intent` in method `onUnbind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 NullableCollection: androidx.wear.phone.interactions.notifications.BridgingConfig#getExcludedTags():
-    Return type of method androidx.wear.phone.interactions.notifications.BridgingConfig.getExcludedTags() is a nullable collection (`java.util.Set`); must be non-null
+    Return type of method androidx.wear.phone.interactions.notifications.BridgingConfig.getExcludedTags() uses a nullable collection (`java.util.Set`); must be non-null

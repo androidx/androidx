@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -39,27 +38,20 @@ configurations {
 }
 
 dependencies {
-    // Pinned AGP and lint versions that use an older version of Kotlin (pre-2.1) to avoid bumping
-    // the Kotlin target of this project to 2.1. We may get a different version on the runtime
-    // classpath.
-    compileOnly("com.android.tools.build:gradle-api:8.8.0-alpha06")
-    compileOnly("com.android.tools:common:31.8.0-alpha06")
-    compileOnly("com.android.tools:sdk-common:31.8.0-alpha06")
-    compileOnly("com.android.tools:repository:31.8.0-alpha06")
     compileOnly(libs.kotlinGradlePlugin)
 
     api(libs.androidGradlePluginApi)
     api(libs.androidToolsCommon)
     api(libs.androidToolsSdkCommon)
+    api(libs.androidToolsRepository)
     api(libs.guava)
 
     implementation(libs.apacheCommonIo)
     implementation(libs.apacheAnt)
-    implementation(libs.kotlinStdlib)
 
     testPlugin(libs.androidGradlePlugin)
 
-    testImplementation("com.android.tools.build:gradle:8.8.0-alpha06")
+    testImplementation(libs.androidGradlePlugin)
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)
@@ -89,5 +81,5 @@ androidx {
     type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }

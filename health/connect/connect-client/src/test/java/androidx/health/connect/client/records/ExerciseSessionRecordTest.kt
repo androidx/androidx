@@ -16,6 +16,8 @@
 
 package androidx.health.connect.client.records
 
+import android.annotation.SuppressLint
+import android.os.Build
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BIKING
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_CALISTHENICS
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
@@ -29,8 +31,10 @@ import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class ExerciseSessionRecordTest {
@@ -219,11 +223,29 @@ class ExerciseSessionRecordTest {
             .isEqualTo(ExerciseRouteResult.Data(ExerciseRoute(listOf())))
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseSessionRecord(
                 startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
+                title = "title",
+                notes = "notes",
+                exerciseRoute = null,
+            )
+        }
+    }
+
+    @Test
+    fun startTimeAfterEndTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSessionRecord(
+                startTime = Instant.ofEpochMilli(1235L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
@@ -349,6 +371,7 @@ class ExerciseSessionRecordTest {
     }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     fun record_routeOutOfRange_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseSessionRecord(
@@ -571,7 +594,7 @@ class ExerciseSessionRecordTest {
                     .toString()
             )
             .isEqualTo(
-                "ExerciseSessionRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, exerciseType=8, title=title, notes=notes, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0), segments=[ExerciseSegment(startTime=1970-01-01T00:00:01.234Z, endTime=1970-01-01T00:00:01.235Z, segmentType=7, repetitions=0)], laps=[ExerciseLap(startTime=1970-01-01T00:00:01.235Z, endTime=1970-01-01T00:00:01.236Z, length=10.0 meters)], exerciseRouteResult=Data(exerciseRoute=ExerciseRoute(route=[Location(time=1970-01-01T00:00:01.234Z, latitude=34.5, longitude=-34.5, horizontalAccuracy=0.4 meters, verticalAccuracy=1.3 meters, altitude=23.4 meters)])))"
+                "ExerciseSessionRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, exerciseType=8, title=title, notes=notes, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0), segments=[ExerciseSegment(startTime=1970-01-01T00:00:01.234Z, endTime=1970-01-01T00:00:01.235Z, segmentType=7, repetitions=0, weight=null, setIndex=null, rateOfPerceivedExertion=null)], laps=[ExerciseLap(startTime=1970-01-01T00:00:01.235Z, endTime=1970-01-01T00:00:01.236Z, length=10.0 meters)], exerciseRouteResult=Data(exerciseRoute=ExerciseRoute(route=[Location(time=1970-01-01T00:00:01.234Z, latitude=34.5, longitude=-34.5, horizontalAccuracy=0.4 meters, verticalAccuracy=1.3 meters, altitude=23.4 meters)])), rateOfPerceivedExertion=null)"
             )
     }
 
@@ -591,5 +614,114 @@ class ExerciseSessionRecordTest {
                     .plannedExerciseSessionId
             )
             .isEqualTo("some_id")
+    }
+
+    @Test
+    fun improvedExerciseSessionRecord_toString_containsMembers() {
+        assertThat(
+                ExerciseSessionRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        metadata = Metadata.unknownRecordingMethod(),
+                        exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_BIKING,
+                        title = "title",
+                        notes = "notes",
+                        segments =
+                            listOf(
+                                ExerciseSegment(
+                                    startTime = Instant.ofEpochMilli(1234L),
+                                    endTime = Instant.ofEpochMilli(1235L),
+                                    segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING,
+                                )
+                            ),
+                        laps =
+                            listOf(
+                                ExerciseLap(
+                                    startTime = Instant.ofEpochMilli(1235L),
+                                    endTime = Instant.ofEpochMilli(1236L),
+                                    length = 10.meters,
+                                )
+                            ),
+                        exerciseRoute =
+                            ExerciseRoute(
+                                route =
+                                    listOf(
+                                        ExerciseRoute.Location(
+                                            time = Instant.ofEpochMilli(1234L),
+                                            latitude = 34.5,
+                                            longitude = -34.5,
+                                            horizontalAccuracy = 0.4.meters,
+                                            verticalAccuracy = 1.3.meters,
+                                            altitude = 23.4.meters,
+                                        )
+                                    )
+                            ),
+                        rateOfPerceivedExertion = 5.0f,
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "ExerciseSessionRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, exerciseType=8, title=title, notes=notes, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0), segments=[ExerciseSegment(startTime=1970-01-01T00:00:01.234Z, endTime=1970-01-01T00:00:01.235Z, segmentType=7, repetitions=0, weight=null, setIndex=null, rateOfPerceivedExertion=null)], laps=[ExerciseLap(startTime=1970-01-01T00:00:01.235Z, endTime=1970-01-01T00:00:01.236Z, length=10.0 meters)], exerciseRouteResult=Data(exerciseRoute=ExerciseRoute(route=[Location(time=1970-01-01T00:00:01.234Z, latitude=34.5, longitude=-34.5, horizontalAccuracy=0.4 meters, verticalAccuracy=1.3 meters, altitude=23.4 meters)])), rateOfPerceivedExertion=5.0)"
+            )
+    }
+
+    @Test
+    fun validRpe_equals() {
+        assertThat(
+                ExerciseSessionRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
+                    exerciseType = EXERCISE_TYPE_BIKING,
+                    rateOfPerceivedExertion = 5.0f,
+                    exerciseRoute = null,
+                )
+            )
+            .isEqualTo(
+                ExerciseSessionRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
+                    exerciseType = EXERCISE_TYPE_BIKING,
+                    rateOfPerceivedExertion = 5.0f,
+                    exerciseRoute = null,
+                )
+            )
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun invalidRpe_throws() {
+        assumeTrue(isAtLeastSdkExtension21())
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                exerciseType = EXERCISE_TYPE_BIKING,
+                rateOfPerceivedExertion = 11.0f,
+                exerciseRoute = null,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                exerciseType = EXERCISE_TYPE_BIKING,
+                rateOfPerceivedExertion = -1.0f,
+                exerciseRoute = null,
+            )
+        }
     }
 }

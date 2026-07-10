@@ -32,6 +32,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -43,6 +44,9 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
+// TODO: When re-enabling web targets, the KotlinRunTestResultUnused suppression MUST be removed
+//  for correct execution of the tests on web.
+@Suppress("KotlinRunTestResultUnused")
 @IgnoreWebTarget // b/395933428
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PagerFlowSnapshotTest {

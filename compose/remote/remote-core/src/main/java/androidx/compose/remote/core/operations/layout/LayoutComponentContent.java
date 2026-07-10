@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.WireBuffer;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Represents the content of a LayoutComponent (i.e. the children components) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LayoutComponentContent extends Component {
 
     public LayoutComponentContent(
@@ -39,6 +41,10 @@ public class LayoutComponentContent extends Component {
             @Nullable Component parent,
             int animationId) {
         super(parent, componentId, animationId, x, y, width, height);
+    }
+
+    public LayoutComponentContent(int componentId) {
+        super(null, componentId, 0, -1, 0, 0, 0);
     }
 
     /**
@@ -84,7 +90,7 @@ public class LayoutComponentContent extends Component {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
+        int componentId = buffer.declareId();
         operations.add(new LayoutComponentContent(componentId, 0, 0, 0, 0, null, -1));
     }
 
@@ -95,11 +101,11 @@ public class LayoutComponentContent extends Component {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", id(), name())
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+                .field(INT, "componentId", "Unique ID for this component")
                 .description(
-                        "Container for components. BoxLayout, RowLayout and ColumnLayout "
-                                + "expects a LayoutComponentContent as a child, encapsulating the "
-                                + "components that needs to be laid out.");
+                        "Container for child components. BoxLayout, RowLayout and ColumnLayout "
+                                + "expect a LayoutComponentContent as a child, encapsulating the "
+                                + "components that need to be laid out.");
     }
 
     @Override

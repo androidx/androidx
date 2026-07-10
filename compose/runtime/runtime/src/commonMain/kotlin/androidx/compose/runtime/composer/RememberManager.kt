@@ -19,6 +19,7 @@ package androidx.compose.runtime.composer
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberObserverHolder
+import androidx.compose.runtime.composeImmediateRuntimeError
 
 /**
  * An interface used during [androidx.compose.runtime.ControlledComposition.applyChanges] and
@@ -59,4 +60,36 @@ internal interface RememberManager {
 
     /** The restart scope is finished resuming */
     fun endResumingScope(scope: RecomposeScopeImpl)
+}
+
+/**
+ * A stub of [RememberManager] that does not implement any operations and throws when called into.
+ * Used to apply pending changes that do not result in a change to the composition hierarchy and
+ * therefore do not need a real application phase after completing the composition.
+ */
+internal object ThrowingRememberManagerStub : RememberManager {
+    override fun remembering(instance: RememberObserverHolder) = throwIllegalOperationException()
+
+    override fun forgetting(instance: RememberObserverHolder) = throwIllegalOperationException()
+
+    override fun sideEffect(effect: () -> Unit) = throwIllegalOperationException()
+
+    override fun deactivating(instance: ComposeNodeLifecycleCallback) =
+        throwIllegalOperationException()
+
+    override fun releasing(instance: ComposeNodeLifecycleCallback) =
+        throwIllegalOperationException()
+
+    override fun rememberPausingScope(scope: RecomposeScopeImpl) = throwIllegalOperationException()
+
+    override fun startResumingScope(scope: RecomposeScopeImpl) = throwIllegalOperationException()
+
+    override fun endResumingScope(scope: RecomposeScopeImpl) = throwIllegalOperationException()
+
+    private fun throwIllegalOperationException() {
+        composeImmediateRuntimeError(
+            "ChangeList cannot call the RememberManager when " +
+                "executing pending changes outside of the applier phase."
+        )
+    }
 }

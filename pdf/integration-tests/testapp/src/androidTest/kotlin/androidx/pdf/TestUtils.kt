@@ -18,10 +18,12 @@ package androidx.pdf
 
 import android.content.Context
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.view.View
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -73,4 +75,26 @@ object TestUtils {
             matchResult.groups[2]!!.value.toInt(),
         )
     }
+
+    /**
+     * Returns a [Uri] for a new file in the app's cache directory, deleting any existing file
+     * first.
+     *
+     * @param fileName The name of the file.
+     */
+    fun createFile(fileName: String): Uri {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val file = File(context.cacheDir, fileName)
+        if (file.exists()) {
+            file.delete()
+        }
+        file.createNewFile()
+        return Uri.fromFile(file)
+    }
+}
+
+/** Converts a [Uri] to a [ParcelFileDescriptor] in read/write mode. */
+fun Uri.toPfd(): ParcelFileDescriptor {
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    return context.contentResolver.openFileDescriptor(this, "rw")!!
 }

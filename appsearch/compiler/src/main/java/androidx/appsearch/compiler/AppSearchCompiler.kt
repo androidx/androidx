@@ -48,7 +48,6 @@ import javax.tools.Diagnostic
     AppSearchCompiler.OUTPUT_DIR_OPTION,
     AppSearchCompiler.RESTRICT_GENERATED_CODE_TO_LIB_OPTION,
 )
-@Suppress("NullAnnotationGroup") // b/424469950
 @OptIn(ExperimentalProcessingApi::class)
 class AppSearchCompiler : JavacBasicAnnotationProcessor() {
     companion object {
@@ -78,7 +77,6 @@ class AppSearchCompiler : JavacBasicAnnotationProcessor() {
     }
 }
 
-@Suppress("NullAnnotationGroup") // b/424469950
 @OptIn(ExperimentalProcessingApi::class)
 private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessingStep {
     private val restrictGeneratedCodeToLibOption: Boolean =
@@ -91,8 +89,7 @@ private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessin
     // round starting from 0.
     private var roundIndex = -1
 
-    override fun annotations() =
-        setOf(IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName())
+    override fun annotations() = setOf(IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName)
 
     override fun process(
         env: XProcessingEnv,
@@ -103,7 +100,7 @@ private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessin
         roundIndex += 1
 
         val documentElements: Set<XTypeElement> =
-            elementsByAnnotation[IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName()]
+            elementsByAnnotation[IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName]
                 ?.filterIsInstance<XTypeElement>()
                 ?.toSet() ?: emptySet()
 
@@ -120,9 +117,6 @@ private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessin
             } catch (e: XProcessingException) {
                 // Prints error message.
                 e.printDiagnostic(env.messager)
-            } catch (e: ProcessingException) {
-                // Prints error message.
-                e.printDiagnostic(env.messager.toJavac())
             }
             classNames.add(document.qualifiedName)
             val packageName = document.packageElement.qualifiedName
@@ -191,7 +185,7 @@ private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessin
      * Process the document class by generating a factory class for it and properly update
      * [.mDocumentClassMap].
      */
-    @Throws(ProcessingException::class, MissingXTypeException::class)
+    @Throws(XProcessingException::class, MissingXTypeException::class)
     fun processDocument(element: XTypeElement) {
         if (!element.isClass() && !element.isInterface()) {
             throw XProcessingException(
@@ -201,7 +195,7 @@ private class AppSearchCompileStep(private val env: XProcessingEnv) : XProcessin
         }
 
         val model: DocumentModel =
-            if (element.getAnnotation(AutoValue::class) != null) {
+            if (element.hasAnnotation(AutoValue::class)) {
                 // Document class is annotated as AutoValue class. For processing the AutoValue
                 // class, we also need the generated class from AutoValue annotation processor.
                 val generatedElement: XTypeElement? =

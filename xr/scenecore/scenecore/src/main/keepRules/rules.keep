@@ -1,0 +1,2 @@
+-if class androidx.xr.runtime.Session
+-keep class androidx.xr.scenecore.Scene{ *; }

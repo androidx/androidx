@@ -102,11 +102,8 @@ object SensorPatternUtil {
         )
         // Skip for b/412262667
         assumeFalse(
-            "Emulator API 33-36 can not correctly apply solid color pattern",
-            (Build.VERSION.SDK_INT == 33 ||
-                Build.VERSION.SDK_INT == 34 ||
-                Build.VERSION.SDK_INT == 35 ||
-                Build.VERSION.SDK_INT == 36) && AndroidUtil.isEmulator(),
+            "Emulator API 33-37 can not correctly apply solid color pattern",
+            (Build.VERSION.SDK_INT in 33..37) && AndroidUtil.isEmulator(),
         )
 
         with(Camera2InteropUtil.Camera2CameraInfoWrapper.from(implName, cameraInfo)) {

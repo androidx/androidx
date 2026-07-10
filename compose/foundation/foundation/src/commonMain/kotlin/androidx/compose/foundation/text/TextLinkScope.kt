@@ -16,11 +16,14 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +42,9 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties.LinkTestMarker
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -48,6 +53,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
@@ -211,6 +217,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      * [TextLinkScope] object created *only* when there are links present in the text, we don't need
      * to do any additional guarding inside this composable function.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun LinksComposables() {
         val uriHandler = LocalUriHandler.current
@@ -220,21 +227,44 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             if (range.start != range.end) {
                 val interactionSource = remember { MutableInteractionSource() }
 
-                Box(
-                    Modifier.clipLink(range)
-                        .semantics {
-                            // adding this to identify links in tests, see performFirstLinkClick
-                            this[LinkTestMarker] = Unit
-                        }
-                        .textRange(range)
-                        .hoverable(interactionSource)
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = interactionSource,
-                            onClick = { handleLink(range.item, uriHandler) },
+                val boxContent =
+                    @Composable {
+                        Box(
+                            Modifier.clipLink(range)
+                                .semantics {
+                                    // adding this to identify links in tests, see
+                                    // performFirstLinkClick
+                                    this[LinkTestMarker] = Unit
+                                }
+                                .textRange(range)
+                                .hoverable(interactionSource)
+                                .pointerHoverIcon(PointerIcon.Hand)
+                                .combinedClickable(
+                                    indication = null,
+                                    interactionSource = interactionSource,
+                                    onClick = { handleLink(range.item, uriHandler) },
+                                )
                         )
-                )
+                    }
+
+                // disable minimum touch target for clipping-to-path to correctly handle the
+                // multi-line links clicking
+                if (ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled) {
+                    val viewConfiguration = LocalViewConfiguration.current
+                    val zeroMinTouchTargetViewConfiguration =
+                        remember(viewConfiguration) {
+                            object : ViewConfiguration by viewConfiguration {
+                                override val minimumTouchTargetSize: DpSize
+                                    get() = DpSize.Zero
+                            }
+                        }
+                    CompositionLocalProvider(
+                        LocalViewConfiguration provides zeroMinTouchTargetViewConfiguration,
+                        content = boxContent,
+                    )
+                } else {
+                    boxContent()
+                }
 
                 if (!range.item.styles.isNullOrEmpty()) {
                     // the interaction source is not hoisted, we create and remember it in the

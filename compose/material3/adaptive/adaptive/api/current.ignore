@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt#currentWindowAdaptiveInfo():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt.currentWindowAdaptiveInfo()
-RemovedMethod: androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt#currentWindowSize():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt.currentWindowSize()

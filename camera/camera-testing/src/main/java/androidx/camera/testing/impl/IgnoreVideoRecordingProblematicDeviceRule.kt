@@ -40,10 +40,10 @@ public class IgnoreVideoRecordingProblematicDeviceRule : TestRule {
                 Build.MODEL.contains("Cuttlefish") &&
                     (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33),
             )
-            // Skip test for b/268102904
+            // Skip test for b/441563673
             Assume.assumeFalse(
-                "Emulator API 21 has empty supported qualities. Unable to test.",
-                AndroidUtil.isEmulatorAndAPI21(),
+                "Emulator API 23 codec native crash.",
+                Build.VERSION.SDK_INT == 23 && AndroidUtil.isEmulator(),
             )
             // Skip test for b/399669628, b/401097968
             Assume.assumeFalse(

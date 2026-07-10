@@ -29,14 +29,14 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object PdfFeatureFlags {
-    // Toggles handling of external hardware events like keyboard and mouse shortcuts.
-    public var isExternalHardwareInteractionEnabled: Boolean = false
-
-    // Toggles availability of smart action contextual menu components for text selection.
-    public var isSmartActionMenuComponentEnabled: Boolean = false
-
+    // Toggle handling of custom link.
     public var isCustomLinkHandlingEnabled: Boolean = false
 
     // Toggles multi touch scroll functionality for the PDF viewer.
     public var isMultiTouchScrollEnabled: Boolean = false
+
+    // Toggles availability of vertical thumbnail preview panel in the PDF viewer.
+    public var isThumbnailPreviewEnabled: Boolean = false
+
+    public var isFormFillingEnabled: Boolean = false
 }

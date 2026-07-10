@@ -37,6 +37,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.MoreExecutors;
@@ -52,13 +53,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.Executor;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 @SuppressWarnings("deprecation")
 public class BiometricFragmentTest {
@@ -74,7 +74,7 @@ public class BiometricFragmentTest {
     @Mock
     private Handler mHandler;
     @Mock
-    private androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
+    private FingerprintManagerCompat mFingerprintManager;
 
     @Captor
     private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
@@ -174,12 +174,10 @@ public class BiometricFragmentTest {
                 final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
                 final String errString = "test string";
                 doThrow(NullPointerException.class).when(mFingerprintManager).authenticate(
-                        nullable(androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                                .CryptoObject.class),
+                        nullable(FingerprintManagerCompat.CryptoObject.class),
                         anyInt(),
                         any(androidx.core.os.CancellationSignal.class),
-                        any(androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                                .AuthenticationCallback.class),
+                        any(FingerprintManagerCompat.AuthenticationCallback.class),
                         nullable(Handler.class));
                 when(mContext.getString(anyInt())).thenReturn(errString);
 

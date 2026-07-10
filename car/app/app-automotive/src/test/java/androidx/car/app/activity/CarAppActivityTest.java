@@ -26,9 +26,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,6 +56,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 import androidx.car.app.CarAppService;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.SessionInfo;
 import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
@@ -64,6 +67,7 @@ import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
@@ -82,6 +86,7 @@ import org.robolectric.shadows.ShadowPackageManager;
 
 /** Tests for {@link CarAppActivity}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppActivityTest {
     public static final String INTENT_IDENTIFIER = "CarAppActivityTest";
@@ -132,6 +137,86 @@ public class CarAppActivityTest {
             verify(mRenderService, times(1)).onNewIntent(activity.getIntent(),
                     mFakeCarAppServiceComponent, activity.getDisplayId());
 
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_propagatesIntent() {
+        runOnActivity((scenario, activity) -> {
+            // Reset mock to clear calls from initial activity launch
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            newIntent.putExtra("test_key", "test_value");
+
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+
+            // Verify onNewIntent is called with the new intent.
+            verify(mRenderService, times(1)).onNewIntent(argThat((Intent intent) ->
+                            "test_value".equals(intent.getStringExtra("test_key"))),
+                    eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+            // Properties check: Surface should be visible when connected
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
+            assertThat(activity.mErrorMessageView.getVisibility()).isEqualTo(View.GONE);
+            assertThat(activity.mLoadingView.getVisibility()).isEqualTo(View.GONE);
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_whenConnected_doesNotRebind() {
+        runOnActivity((scenario, activity) -> {
+            // Reset mock to clear calls from initial activity launch
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.initialize(any(), any(), anyInt())).thenReturn(true);
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+
+            // Verify initialize was NOT called because it was already connected
+            verify(mRenderService, never()).initialize(any(), any(), anyInt());
+
+            // Properties check: Surface should still be visible
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_whenDisconnected_rebinds() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel viewModel = activity.mViewModel;
+            assertThat(viewModel).isNotNull();
+
+            // Force an error state
+            scenario.onActivity(a -> viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR));
+            org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+            // Verify surface is hidden on error
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.GONE);
+
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.initialize(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.performHandshake(any(), anyInt())).thenReturn(
+                    Bundleable.create(new HandshakeInfo("", CarAppApiLevels.getLatest())));
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+            org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+            // Verify initialize WAS called (since we were disconnected)
+            verify(mRenderService, times(1)).initialize(any(), eq(mFakeCarAppServiceComponent),
+                    eq(activity.getDisplayId()));
+
+            // Verify onNewIntent was called
+            verify(mRenderService, times(1)).onNewIntent(argThat((Intent intent) ->
+                            intent.getComponent().equals(newIntent.getComponent())),
+                    eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+            // Properties check: Surface should be visible again after rebind
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
         });
     }
 
@@ -457,6 +542,113 @@ public class CarAppActivityTest {
             });
 
         }
+    }
+
+    @Test
+    public void onApplyWindowInsets_dispatchesWindowInsetsToViewModel() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(0, statusBarTop, 0, navigationBarBottom))
+                    .build();
+
+            activity.mActivityContainerView.onApplyWindowInsets(insets.toWindowInsets());
+
+            verify(mockViewModel).updateWindowInsets(
+                    eq(insets.getInsets(WindowInsetsCompat.Type.systemBars()).toPlatformInsets()),
+                    eq(insets.getDisplayCutout())
+            );
+        });
+    }
+
+    @Test
+    public void onApplyWindowInsets_setsCorrectLocalPadding_systemBars() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(5, statusBarTop, 15, navigationBarBottom))
+                    .build();
+
+            activity.mActivityContainerView.onApplyWindowInsets(insets.toWindowInsets());
+
+            // mActivityContainerView should have 0 padding
+            assertThat(activity.mActivityContainerView.getPaddingLeft()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingTop()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingRight()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingBottom()).isEqualTo(0);
+
+            // mLocalContentContainerView should have systemBars padding
+            assertThat(activity.mLocalContentContainerView.getPaddingLeft()).isEqualTo(5);
+            assertThat(activity.mLocalContentContainerView.getPaddingTop()).isEqualTo(statusBarTop);
+            assertThat(activity.mLocalContentContainerView.getPaddingRight()).isEqualTo(15);
+            assertThat(activity.mLocalContentContainerView.getPaddingBottom()).isEqualTo(navigationBarBottom);
+        });
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.R)
+    public void onApplyWindowInsets_dispatchesImeInsetsToViewModel() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int imeBottom = 100;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.ime(),
+                            Insets.of(0, 0, 0, imeBottom))
+                    .build();
+
+            activity.mWindowInsetsListener.onApplyWindowInsets(
+                    activity.mActivityContainerView, insets.toWindowInsets());
+
+            verify(mockViewModel).updateImeInsets(
+                    eq(insets.getInsets(WindowInsetsCompat.Type.ime()).toPlatformInsets())
+            );
+        });
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.R)
+    public void onApplyWindowInsets_setsCorrectLocalPadding_combined() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            int imeBottom = 100;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(5, statusBarTop, 15, navigationBarBottom))
+                    .setInsets(WindowInsetsCompat.Type.ime(),
+                            Insets.of(0, 0, 0, imeBottom))
+                    .build();
+
+            activity.mWindowInsetsListener.onApplyWindowInsets(
+                    activity.mActivityContainerView, insets.toWindowInsets());
+
+            // mActivityContainerView should have 0 padding
+            assertThat(activity.mActivityContainerView.getPaddingLeft()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingTop()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingRight()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingBottom()).isEqualTo(0);
+
+            // mLocalContentContainerView should have combined padding
+            assertThat(activity.mLocalContentContainerView.getPaddingLeft()).isEqualTo(5);
+            assertThat(activity.mLocalContentContainerView.getPaddingTop()).isEqualTo(statusBarTop);
+            assertThat(activity.mLocalContentContainerView.getPaddingRight()).isEqualTo(15);
+            assertThat(activity.mLocalContentContainerView.getPaddingBottom()).isEqualTo(imeBottom);
+        });
     }
 
     interface CarActivityAction {

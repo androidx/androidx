@@ -29,8 +29,10 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -39,8 +41,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class Controller3AForCaptureTest {
     private val graphTestContext = GraphTestContext()
     private val graphState3A = GraphState3A()
@@ -49,7 +53,12 @@ class Controller3AForCaptureTest {
 
     private val listener3A = Listener3A()
     private val controller3A =
-        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
+        Controller3A(
+            graphProcessor,
+            FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+            graphState3A,
+            listener3A,
+        )
 
     @After
     fun teardown() {
@@ -61,7 +70,12 @@ class Controller3AForCaptureTest {
         val graphProcessor2 = FakeGraphProcessor()
         val graphState3A2 = GraphState3A()
         val controller3A =
-            Controller3A(graphProcessor2, FakeCameraMetadata(), graphState3A2, listener3A)
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                graphState3A2,
+                listener3A,
+            )
         val result = controller3A.lock3AForCapture()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
     }
@@ -209,6 +223,62 @@ class Controller3AForCaptureTest {
         assertThat(result.isCompleted).isTrue()
 
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+
+        // We now check if the correct sequence of requests were submitted by lock3AForCapture call.
+        // There should be a request to trigger AF and AE precapture metering.
+        assertCorrectCaptureSequenceInLock3AForCapture()
+    }
+
+    @Test
+    fun testLock3AForCapture_withPartialResult_whenAFModeIsMissing() = runTest {
+        // Arrange
+        val result = controller3A.lock3AForCapture()
+        assertThat(result.isCompleted).isFalse()
+
+        // Act
+        // Simulate a partial result where AF mode is missing
+        val cameraResponse = async {
+            listener3A.sendPartialCaptureResult(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                        CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_AUTO,
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                    )
+            )
+        }
+
+        // Assert: the result of lock3AForCapture call will not complete when a partial result
+        // without AF mode
+        cameraResponse.await()
+        assertThat(result.isCompleted).isFalse()
+    }
+
+    @Test
+    fun testLock3AForCapture_withPartialResult_when3AAreConverged() = runTest {
+        // Arrange
+        val result = controller3A.lock3AForCapture()
+        assertThat(result.isCompleted).isFalse()
+
+        // Act
+        // Simulate a partial result with all required modes and converged states
+        listener3A.sendPartialCaptureResult(
+            resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_MODE to
+                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                    CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_AUTO,
+                    CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                )
+        )
+
+        // Assert
+        val result3A = result.await()
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by lock3AForCapture call.
@@ -366,7 +436,7 @@ class Controller3AForCaptureTest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
         repeatingJob.await()
@@ -497,7 +567,7 @@ class Controller3AForCaptureTest {
 
     companion object {
         // The time duration in milliseconds between two frame results.
-        private const val FRAME_RATE_MS = 33L
+        private val FRAME_RATE = 33.milliseconds
     }
 }
 

@@ -26,7 +26,6 @@ import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.util.DisplayMetrics;
@@ -83,7 +82,6 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
 
     @Test
     @MediumTest
-    // public TextView#getMaxLines only introduced in API 16.
     public void testAutoSizeCallers_setMaxLines() throws Throwable {
         final T autoSizeView = prepareAndRetrieveAutoSizeTestData(R.id.view_autosize_uniform,
                 false);
@@ -420,25 +418,23 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     @Test
     @MediumTest
     public void testAutoSizeCallers_setCompoundDrawablesRelative() throws Throwable {
-        if (Build.VERSION.SDK_INT >= 17) {
-            final T autoSizeView = prepareAndRetrieveAutoSizeTestData(
-                    R.id.view_autosize_uniform, false);
-            final float initialTextSize = autoSizeView.getTextSize();
-            final Drawable drawable = ResourcesCompat.getDrawable(mActivity.getResources(),
-                    R.drawable.test_drawable_red, null);
-            drawable.setBounds(0, 0, autoSizeView.getWidth() / 3,
-                    autoSizeView.getHeight() / 3);
-            mActivityTestRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    autoSizeView.setCompoundDrawablesRelative(
-                            drawable, drawable, drawable, drawable);
-                }
-            });
-            mInstrumentation.waitForIdleSync();
+        final T autoSizeView = prepareAndRetrieveAutoSizeTestData(
+                R.id.view_autosize_uniform, false);
+        final float initialTextSize = autoSizeView.getTextSize();
+        final Drawable drawable = ResourcesCompat.getDrawable(mActivity.getResources(),
+                R.drawable.test_drawable_red, null);
+        drawable.setBounds(0, 0, autoSizeView.getWidth() / 3,
+                autoSizeView.getHeight() / 3);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeView.setCompoundDrawablesRelative(
+                        drawable, drawable, drawable, drawable);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
 
-            assertTrue(autoSizeView.getTextSize() < initialTextSize);
-        }
+        assertTrue(autoSizeView.getTextSize() < initialTextSize);
     }
 
     @Test
@@ -503,25 +499,21 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     @Test
     @MediumTest
     public void testAutoSizeCallers_setPaddingRelative() throws Throwable {
-        if (Build.VERSION.SDK_INT >= 16) {
-            final T autoSizeView = prepareAndRetrieveAutoSizeTestData(
-                    R.id.view_autosize_uniform, false);
-            final float initialTextSize = autoSizeView.getTextSize();
+        final T autoSizeView = prepareAndRetrieveAutoSizeTestData(
+                R.id.view_autosize_uniform, false);
+        final float initialTextSize = autoSizeView.getTextSize();
 
-            mActivityTestRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (Build.VERSION.SDK_INT > 16) {
-                        autoSizeView.setPaddingRelative(
-                                autoSizeView.getWidth() / 3, autoSizeView.getHeight() / 3,
-                                autoSizeView.getWidth() / 3, autoSizeView.getHeight() / 3);
-                    }
-                }
-            });
-            mInstrumentation.waitForIdleSync();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeView.setPaddingRelative(
+                        autoSizeView.getWidth() / 3, autoSizeView.getHeight() / 3,
+                        autoSizeView.getWidth() / 3, autoSizeView.getHeight() / 3);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
 
-            assertTrue(autoSizeView.getTextSize() < initialTextSize);
-        }
+        assertTrue(autoSizeView.getTextSize() < initialTextSize);
     }
 
     @UiThreadTest

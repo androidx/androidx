@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.records.MindfulnessSessionRecord.Companion.MINDFULNESS_SESSION_TYPE_INT_TO_STRING_MAP
 import androidx.health.connect.client.records.MindfulnessSessionRecord.Companion.MINDFULNESS_SESSION_TYPE_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.metadata.Metadata
@@ -27,6 +28,7 @@ import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class MindfulnessSessionRecordTest {
@@ -74,11 +76,29 @@ class MindfulnessSessionRecordTest {
             .testEquals()
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun constructor_invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             MindfulnessSessionRecord(
                 startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
+                title = "title",
+                notes = "note",
+                mindfulnessSessionType =
+                    MindfulnessSessionRecord.MINDFULNESS_SESSION_TYPE_MEDITATION,
+            )
+        }
+    }
+
+    @Test
+    fun startTimeAfterEndTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            MindfulnessSessionRecord(
+                startTime = Instant.ofEpochMilli(1235L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,

@@ -44,8 +44,6 @@ class RuntimeIssueRegistry : IssueRegistry() {
                 ProduceStateDetector.ProduceStateDoesNotAssignValue,
                 RememberDetector.RememberReturnType,
                 RememberInCompositionDetector.RememberInComposition,
-                RetainDetector.RetainUnitType,
-                RetainDetector.RetainRememberObserver,
                 OpaqueUnitKeyDetector.OpaqueUnitKey,
                 UnrememberedStateDetector.UnrememberedState,
             )

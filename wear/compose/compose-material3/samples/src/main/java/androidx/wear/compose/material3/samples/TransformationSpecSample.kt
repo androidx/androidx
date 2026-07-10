@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy.Companion.ModulateAlpha
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonGroup
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
@@ -91,6 +93,59 @@ fun CustomTransformationSpecSample() {
 @Composable
 @Sampled
 @Preview
+fun CustomCompositingStrategyTransformationSpecSample() {
+    val transformationSpec = rememberTransformationSpec()
+
+    TransformingLazyColumn(
+        contentPadding = PaddingValues(20.dp),
+        modifier = Modifier.background(Color.Black),
+    ) {
+        items(count = 100) { index ->
+            Button(
+                onClick = {},
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .transformedHeight(this, transformationSpec)
+                        .graphicsLayer {
+                            with(transformationSpec) {
+                                applyContainerTransformation(scrollProgress)
+                            }
+                            // Using CompositingStrategy.ModulateAlpha can provide better
+                            // performance when a container transformation involves alpha rendering,
+                            // as it avoids an extra offscreen buffer.
+                            //
+                            // However, care must be taken with overlapping or transparent content
+                            // inside the container. If the content itself uses alpha, ModulateAlpha
+                            // can lead to multiple, incorrect alpha blending with the background
+                            // (double-blending artifacts).
+                            //
+                            // To prevent this, the content's drawing layer must explicitly use
+                            // CompositingStrategy.Offscreen to ensure internal elements are
+                            // correctly pre-blended before the outer ModulateAlpha is applied.
+                            compositingStrategy = ModulateAlpha
+                        },
+            ) {
+                Text(
+                    text = "Item $index",
+                    modifier =
+                        Modifier.graphicsLayer {
+                            // Ensure content layer uses CompositingStrategy.Offscreen when
+                            // container uses CompositingStrategy.ModulateAlpha.
+                            // This composition is required to guarantee correct visual blending of
+                            // content that contains internal alpha or complex blending.
+                            // compositingStrategy is set to CompositingStrategy.Offscreen inside
+                            // applyContentTransformation.
+                            with(transformationSpec) { applyContentTransformation(scrollProgress) }
+                        },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Sampled
+@Preview
 fun ResponsiveTransformationSpecButtonSample() {
     val transformationSpec =
         rememberTransformationSpec(
@@ -129,7 +184,7 @@ fun TransformationSpecButtonRowSample() {
     val transformationSpec = rememberTransformationSpec()
 
     TransformingLazyColumn(
-        contentPadding = PaddingValues(20.dp),
+        contentPadding = PaddingValues(),
         modifier = Modifier.background(Color.Black),
     ) {
         items(count = 100) {
@@ -145,6 +200,9 @@ fun TransformationSpecButtonRowSample() {
                             }
                         }
                         .transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        )
             ) {
                 Button(
                     onClick = {},

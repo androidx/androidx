@@ -35,4 +35,9 @@ interface INavigationHost {
    * places in the car such as the navigation templates, cluster screens, etc.
    */
   void updateTrip(in Bundleable trip) = 3;
+
+  /**
+   * Sends the voice assistant capabilities of the navigation app to the host.
+   */
+  void setVoiceAssistantCapabilities(in Bundleable capabilities) = 4;
 }

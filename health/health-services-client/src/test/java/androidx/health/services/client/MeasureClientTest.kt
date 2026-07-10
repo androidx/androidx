@@ -54,6 +54,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class MeasureClientTest {
 
     private lateinit var callback: FakeCallback
@@ -270,6 +271,8 @@ class MeasureClientTest {
         fun setException() {
             throwExcepotion = true
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     internal companion object {

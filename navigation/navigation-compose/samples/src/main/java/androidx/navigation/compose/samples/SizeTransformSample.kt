@@ -32,12 +32,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 
 @Sampled
 @Composable
-fun SizeTransformNav() {
+fun SizeTransformComposable() {
     val navController = rememberNavController()
     Box {
         NavHost(navController, startDestination = Collapsed) {
@@ -76,9 +77,46 @@ fun SizeTransformNav() {
     }
 }
 
+@Sampled
+@Composable
+fun SizeTransformNav() {
+    val navController = rememberNavController()
+    Box {
+        NavHost(navController, startDestination = Collapsed) {
+            navigation<NestedGraph>(
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                startDestination = InnerCollapsed::class,
+                sizeTransform = {
+                    SizeTransform { initialSize, targetSize ->
+                        keyframes {
+                            durationMillis = 500
+                            IntSize(
+                                initialSize.width,
+                                (initialSize.height + targetSize.height) / 2,
+                            ) at 150
+                        }
+                    }
+                },
+            ) {
+                composable<InnerCollapsed>(
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                ) {
+                    ExpandedScreen {}
+                }
+            }
+        }
+    }
+}
+
 @Serializable object Collapsed
 
 @Serializable object Expanded
+
+@Serializable object NestedGraph
+
+@Serializable object InnerCollapsed
 
 @Composable
 fun CollapsedScreen(onNavigate: () -> Unit) {

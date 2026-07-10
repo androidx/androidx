@@ -18,6 +18,7 @@
 #include <android/log.h>
 #include <functional>
 #include <unordered_map>
+#include <mutex>
 #include <jvmti.h>
 #include <android/api-level.h>
 
@@ -30,10 +31,20 @@
 
 namespace {
 
+    // Thread Safety / Race Condition
+    // Add a mutex to protect the global map of transformations.
+    static std::mutex g_transforms_mutex;
+
     static std::string ConvertClass(JNIEnv* env, jclass cls) {
         jclass classClass = env->FindClass("java/lang/Class");
+        if (classClass == nullptr) return ""; // Unchecked JNI Return Value
+
         jmethodID mid =
                 env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
+        if (mid == nullptr) { // Unchecked JNI Return Value
+            env->DeleteLocalRef(classClass);
+            return "";
+        }
 
         jstring strObj = (jstring)env->CallObjectMethod(cls, mid);
 
@@ -42,6 +53,14 @@ namespace {
         std::string name = "L" + name_wrapped.get() + ";";
 
         std::replace(name.begin(), name.end(), '.', '/');
+
+        // JNI Local Reference Exhaustion
+        // Always delete local references to avoid blowing up the JNI local reference table
+        if (strObj != nullptr) {
+            env->DeleteLocalRef(strObj);
+        }
+        env->DeleteLocalRef(classClass);
+
         return name;
     }
 
@@ -207,9 +226,16 @@ void ArtToolingImpl::OnClassFileLoaded(
     // however, in .dex these classes are stored using the "Ljava/net/URL;"
     // format.
     std::string desc = "L" + std::string(name) + ";";
-    auto class_transforms = GetAppInspectionTransforms();
-    auto transform = class_transforms->find(desc);
-    if (transform == class_transforms->end()) return;
+    ArtToolingTransform* transform = nullptr;
+    {
+        // Thread Safety / Race Condition
+        // Lock the global map during read.
+        std::lock_guard<std::mutex> lock(g_transforms_mutex);
+        auto class_transforms = GetAppInspectionTransforms();
+        auto transform_iter = class_transforms->find(desc);
+        if (transform_iter == class_transforms->end()) return;
+        transform = transform_iter->second;
+    }
 
     dex::Reader reader(class_data, class_data_len);
     auto class_index = reader.FindClassIndex(desc.c_str());
@@ -220,7 +246,7 @@ void ArtToolingImpl::OnClassFileLoaded(
 
     reader.CreateClassIr(class_index);
     auto dex_ir = reader.GetIr();
-    transform->second->Apply(dex_ir);
+    transform->Apply(dex_ir);
 
     size_t new_image_size = 0;
     dex::u1* new_image = nullptr;
@@ -259,15 +285,22 @@ void ArtToolingImpl::AddTransform(JNIEnv* jni, const jclass& origin_class,
                                   const std::string& signature,
                                   bool is_entry) {
     HiddenApiSilencer silencer(jvmti_);
-    auto class_transforms = GetAppInspectionTransforms();
     std::string class_name = ConvertClass(jni, origin_class);
-    auto transform_iter = class_transforms->find(class_name);
-    ArtToolingTransform* app_transform;
-    if (transform_iter == class_transforms->end()) {
-        app_transform = new ArtToolingTransform(class_name.c_str());
-        class_transforms->insert({class_name, app_transform});
-    } else {
-        app_transform = transform_iter->second;
+    if (class_name.empty()) return;
+
+    ArtToolingTransform* app_transform = nullptr;
+    {
+        // Thread Safety / Race Condition
+        // Lock the global map during write.
+        std::lock_guard<std::mutex> lock(g_transforms_mutex);
+        auto class_transforms = GetAppInspectionTransforms();
+        auto transform_iter = class_transforms->find(class_name);
+        if (transform_iter == class_transforms->end()) {
+            app_transform = new ArtToolingTransform(class_name.c_str());
+            class_transforms->insert({class_name, app_transform});
+        } else {
+            app_transform = transform_iter->second;
+        }
     }
     app_transform->AddTransform(class_name.c_str(), method_name.c_str(),
                                 signature.c_str(), is_entry);

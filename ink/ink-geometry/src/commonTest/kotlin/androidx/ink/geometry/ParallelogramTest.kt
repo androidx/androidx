@@ -1,0 +1,321 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ink.geometry
+
+import androidx.kruth.assertThat
+import kotlin.test.Test
+
+class ParallelogramTest {
+
+    @Test
+    fun fromCenterDimensionsRotationInDegreesAndSkew_withNegativeWidth_normalizes() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = -5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(parallelogram.width).isEqualTo(5f)
+        assertThat(parallelogram.height).isEqualTo(-3f)
+        assertThat(parallelogram.rotationDegrees)
+            .isWithin(tolerance)
+            .of(Angle.QUARTER_TURN_DEGREES + Angle.HALF_TURN_DEGREES)
+    }
+
+    @Test
+    fun fromCenterDimensionsRotationInDegreesAndSkew_withHighRotation_normalizesRotation() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = 5 * Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(parallelogram.width).isEqualTo(5f)
+        assertThat(parallelogram.height).isEqualTo(3f)
+        assertThat(parallelogram.rotationDegrees).isWithin(tolerance).of(Angle.QUARTER_TURN_DEGREES)
+    }
+
+    @Test
+    fun signedArea_calculatesArea() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(parallelogram.computeSignedArea()).isEqualTo(15f)
+    }
+
+    @Test
+    fun computeBoundingBox_returnsCorrectBoundingBoxNoSkew() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(
+                parallelogram
+                    .computeBoundingBox()
+                    .isAlmostEqual(
+                        ImmutableBox.fromTwoPoints(
+                            ImmutableVec(-1.5f, -2.5f),
+                            ImmutableVec(1.5f, 2.5f),
+                        ),
+                        tolerance,
+                    )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun computeBoundingBox_populatesBoundingBoxNoSkew() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        val box = MutableBox()
+        parallelogram.computeBoundingBox(box)
+        assertThat(
+                box.isAlmostEqual(
+                    ImmutableBox.fromTwoPoints(
+                        ImmutableVec(-1.5f, -2.5f),
+                        ImmutableVec(1.5f, 2.5f),
+                    ),
+                    tolerance,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun computeBoundingBox_returnsCorrectBoundingBoxWithShear() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
+            )
+        assertThat(
+                parallelogram
+                    .computeBoundingBox()
+                    .isAlmostEqual(
+                        ImmutableBox.fromTwoPoints(
+                            ImmutableVec(-1.5f, -5.5f),
+                            ImmutableVec(1.5f, 5.5f),
+                        ),
+                        tolerance,
+                    )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun computeBoundingBox_populatesBoundingBoxWithShear() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
+            )
+        val box = MutableBox()
+        parallelogram.computeBoundingBox(box)
+        assertThat(
+                box.isAlmostEqual(
+                    ImmutableBox.fromTwoPoints(
+                        ImmutableVec(-1.5f, -5.5f),
+                        ImmutableVec(1.5f, 5.5f),
+                    ),
+                    tolerance,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun computeSemiAxes_returnsCorrectSemiAxes() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.HALF_TURN_DEGREES,
+                skew = 2f,
+            )
+
+        val axes = parallelogram.computeSemiAxes()
+        assertThat(axes.size).isEqualTo(2)
+        assertThat(axes.get(0).isAlmostEqual(ImmutableVec(-2.5f, 0f), tolerance)).isTrue()
+        assertThat(axes.get(1).isAlmostEqual(ImmutableVec(-3f, -1.5f), tolerance)).isTrue()
+    }
+
+    @Test
+    fun computeSemiAxes_populatesSemiAxes() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.HALF_TURN_DEGREES,
+                skew = 2f,
+            )
+        val axis1 = MutableVec()
+        val axis2 = MutableVec()
+        parallelogram.computeSemiAxes(axis1, axis2)
+        assertThat(axis1.isAlmostEqual(ImmutableVec(-2.5f, 0f), tolerance)).isTrue()
+        assertThat(axis2.isAlmostEqual(ImmutableVec(-3f, -1.5f), tolerance)).isTrue()
+    }
+
+    @Test
+    fun computeCorners_returnsCorrectCorners() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
+            )
+        val corners = parallelogram.computeCorners()
+        assertThat(corners.size).isEqualTo(4)
+        assertThat(corners.get(0).isAlmostEqual(ImmutableVec(1.5f, -5.5f), tolerance)).isTrue()
+        assertThat(corners.get(1).isAlmostEqual(ImmutableVec(1.5f, -0.5f), tolerance)).isTrue()
+        assertThat(corners.get(2).isAlmostEqual(ImmutableVec(-1.5f, 5.5f), tolerance)).isTrue()
+        assertThat(corners.get(3).isAlmostEqual(ImmutableVec(-1.5f, 0.5f), tolerance)).isTrue()
+    }
+
+    @Test
+    fun computeCorners_populatesCorrectCorners() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
+            )
+        val corner1 = MutableVec()
+        val corner2 = MutableVec()
+        val corner3 = MutableVec()
+        val corner4 = MutableVec()
+        parallelogram.computeCorners(corner1, corner2, corner3, corner4)
+        assertThat(corner1.isAlmostEqual(ImmutableVec(1.5f, -5.5f), tolerance)).isTrue()
+        assertThat(corner2.isAlmostEqual(ImmutableVec(1.5f, -0.5f), tolerance)).isTrue()
+        assertThat(corner3.isAlmostEqual(ImmutableVec(-1.5f, 5.5f), tolerance)).isTrue()
+        assertThat(corner4.isAlmostEqual(ImmutableVec(-1.5f, 0.5f), tolerance)).isTrue()
+    }
+
+    @Test
+    fun isAlmostEqual_withToleranceGiven_returnsCorrectValue() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        val corner1 = MutableVec()
+        val corner2 = MutableVec()
+        val corner3 = MutableVec()
+        val corner4 = MutableVec()
+        parallelogram.computeCorners(corner1, corner2, corner3, corner4)
+
+        assertThat(corner1.isAlmostEqual(ImmutableVec(-5.5f, -1.5f), tolerance)).isTrue()
+        assertThat(corner2.isAlmostEqual(ImmutableVec(-0.5f, -1.5f), tolerance)).isTrue()
+        assertThat(corner3.isAlmostEqual(ImmutableVec(5.5f, 1.5f), tolerance)).isTrue()
+        assertThat(corner4.isAlmostEqual(ImmutableVec(0.5f, 1.5f), tolerance)).isTrue()
+    }
+
+    @Test
+    fun contains_returnsCorrectValue() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        // Center of the parallelogram
+        assertThat(parallelogram.contains(ImmutableVec(0f, 0f))).isTrue()
+        // On one of the lines
+        assertThat(parallelogram.contains(ImmutableVec(2f, 1.5f))).isTrue()
+        // Outside the parallelogram
+        assertThat(parallelogram.contains(ImmutableVec(2f, 2f))).isFalse()
+    }
+
+    @Test
+    fun isAlmostEqual_withinToleranceReturnsTrue() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        val other =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5.0000009f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
+    }
+
+    @Test
+    fun isAlmostEqual_outsideToleranceReturnsFalse() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        val other =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5.000009f,
+                height = 3f,
+                rotationDegrees = Angle.ZERO_DEGREES,
+                skew = 2f,
+            )
+        assertThat(parallelogram.isAlmostEqual(other, 1e-6f)).isFalse()
+    }
+
+    private val tolerance = 1e-4f
+}

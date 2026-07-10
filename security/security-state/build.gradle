@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,14 +25,15 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     api(libs.kotlinCoroutinesCore)
+    api(libs.guavaListenableFuture)
     implementation(libs.kotlinSerializationJson)
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.3.0")
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.webkit:webkit:1.11.0")
 
@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kxml2)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
@@ -53,8 +54,11 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
     namespace = "androidx.security.state"
+    buildFeatures {
+        aidl = true
+    }
 }
 
 androidx {

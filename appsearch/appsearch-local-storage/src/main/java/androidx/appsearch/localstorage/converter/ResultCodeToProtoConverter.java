@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 
@@ -29,8 +30,8 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Translates an {@link StatusProto.Code} into a {@link AppSearchResult.ResultCode}
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResultCodeToProtoConverter {
 

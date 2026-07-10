@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.AndroidXConfig
@@ -27,19 +26,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
+        minSdk { version = release(24) }
         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
 
-    }
-    sourceSets {
-        main.assets.srcDirs += new File(
-                AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/testdata"
-        )
     }
     namespace = "androidx.benchmark.integration.macrobenchmark"
     targetProjectPath = ":benchmark:integration-tests:macrobenchmark-target"
@@ -49,7 +42,15 @@ android {
 // Create a release build type and make sure it's the only one enabled.
 // This is needed because we benchmark the release build type only.
 android.buildTypes { release {} }
-androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+androidComponents {
+    beforeVariants(selector().all()) { enabled = buildType == 'release' }
+    def testDataPath = new File(
+            AndroidXConfig.getPrebuiltsRoot(project),
+            "androidx/traceprocessor/testdata").absolutePath
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(testDataPath)
+    }
+}
 
 dependencies {
     implementation(project(":benchmark:benchmark-common"))

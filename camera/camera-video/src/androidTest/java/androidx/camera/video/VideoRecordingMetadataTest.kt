@@ -21,7 +21,6 @@ import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -29,7 +28,6 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraTaskTrackingExecutor
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
@@ -66,10 +64,6 @@ class VideoRecordingMetadataTest(
     private val cameraConfig: CameraXConfig,
     private val forceEnableStreamSharing: Boolean,
 ) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
 
     @get:Rule
     val cameraRule =
@@ -133,46 +127,6 @@ class VideoRecordingMetadataTest(
                         .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
                         .build(),
                     Camera2Config.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ true,
-                ),
-                arrayOf(
-                    "back+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ false,
-                ),
-                arrayOf(
-                    "front+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ false,
-                ),
-                arrayOf(
-                    "external+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
-                        .build(),
-                    CameraPipeConfig.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ false,
-                ),
-                arrayOf(
-                    "back+" + CameraPipeConfig::class.simpleName + "+streamSharing",
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ true,
-                ),
-                arrayOf(
-                    "front+" + CameraPipeConfig::class.simpleName + "+streamSharing",
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                    /*forceEnableStreamSharing=*/ true,
-                ),
-                arrayOf(
-                    "external+" + CameraPipeConfig::class.simpleName + "+streamSharing",
-                    CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
-                        .build(),
-                    CameraPipeConfig.defaultConfig(),
                     /*forceEnableStreamSharing=*/ true,
                 ),
             )

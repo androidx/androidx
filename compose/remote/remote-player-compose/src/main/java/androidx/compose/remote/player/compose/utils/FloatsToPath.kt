@@ -16,9 +16,11 @@
 
 package androidx.compose.remote.player.compose.utils
 
+import android.os.Build
 import android.util.Log
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.Utils.idFromNan
+import androidx.compose.ui.graphics.AndroidPath
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import kotlin.math.max
@@ -46,11 +48,13 @@ internal object FloatsToPath {
                     path.moveTo(floatPath[i + 0], floatPath[i + 1])
                     i += 2
                 }
+
                 PathData.LINE -> {
                     i += 3
                     path.lineTo(floatPath[i + 0], floatPath[i + 1])
                     i += 2
                 }
+
                 PathData.QUADRATIC -> {
                     i += 3
                     path.quadraticTo(
@@ -61,22 +65,25 @@ internal object FloatsToPath {
                     )
                     i += 4
                 }
+
                 PathData.CONIC -> {
                     i += 3
-                    //                    if (Build.VERSION.SDK_INT >= 34) { // REMOVE IN PLATFORM
-                    //                        path.conicTo(
-                    //                            floatPath[i + 0],
-                    //                            floatPath[i + 1],
-                    //                            floatPath[i + 2],
-                    //                            floatPath[i + 3],
-                    //                            floatPath[i + 4]
-                    //                        )
-                    //                    } // REMOVE IN PLATFORM
+                    if (Build.VERSION.SDK_INT >= 34) {
+                        // TODO(b/434130226): Conic operation not available in
+                        // androidx.compose.ui.graphics
+                        (path as AndroidPath)
+                            .internalPath
+                            .conicTo(
+                                floatPath[i + 0],
+                                floatPath[i + 1],
+                                floatPath[i + 2],
+                                floatPath[i + 3],
+                                floatPath[i + 4],
+                            )
+                    }
                     i += 5
-                    // TODO(b/434130226): Conic operation not available in
-                    // androidx.compose.ui.graphics
-                    throw UnsupportedOperationException("Conic operation not yet implemented.")
                 }
+
                 PathData.CUBIC -> {
                     i += 3
                     path.cubicTo(
@@ -89,10 +96,12 @@ internal object FloatsToPath {
                     )
                     i += 6
                 }
+
                 PathData.CLOSE -> {
                     path.close()
                     i++
                 }
+
                 PathData.DONE -> i++
                 else -> Log.w(TAG, " Odd command " + idFromNan(floatPath[i]))
             }

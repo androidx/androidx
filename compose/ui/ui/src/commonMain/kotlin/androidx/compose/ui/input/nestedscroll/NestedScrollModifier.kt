@@ -125,24 +125,31 @@ class NestedScrollDispatcher {
      *
      * **Note:** this scope is retrieved from the parent nestedScroll participants, unless the node
      * knows its parent (which is usually after first composition commits), this will throw
-     * [IllegalStateException].
+     * [IllegalStateException]. Use [coroutineScopeOrNull] to safely retrieve this scope.
      *
      * @throws IllegalStateException when this field is accessed before the [nestedScroll] modifier
      *   with this [NestedScrollDispatcher] provided knows its nested scroll parent. Should be safe
      *   to access after the initial composition commits.
      */
     val coroutineScope: CoroutineScope
-        /**
-         * @throws IllegalStateException when this field is accessed before the [nestedScroll]
-         *   modifier with this [NestedScrollDispatcher] provided knows its nested scroll parent.
-         *   Should be safe to access after the initial composition commits.
-         */
         get() =
             calculateNestedScrollScope.invoke()
                 ?: throw IllegalStateException(
                     "in order to access nested coroutine scope you need to attach dispatcher to the " +
                         "`Modifier.nestedScroll` first."
                 )
+
+    /**
+     * Returns [coroutineScope] if it is available, otherwise returns `null`.
+     *
+     * There might be situations when the component that is dispatching preFling or postFling to
+     * parent can be disposed together with its scope, so it's recommended to launch nested fling
+     * dispatch using this scope to prevent abrupt scrolling user experience.
+     *
+     * If this dispatcher is not attached to a node tree or if it was later detached, this will
+     * return `null`.
+     */
+    fun coroutineScopeOrNull(): CoroutineScope? = calculateNestedScrollScope.invoke()
 
     /**
      * Parent to be set when attached to nested scrolling chain. `null` is valid and means there no
@@ -245,13 +252,15 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
          * Represents any source of scroll events originated from a user interaction: mouse, touch,
          * key events.
          */
-        val UserInput: NestedScrollSource = NestedScrollSource(1)
+        val UserInput: NestedScrollSource
+            get() = NestedScrollSource(1)
 
         /**
          * Represents any other source of scroll events that are not a direct user input. (e.g
          * animations, fling)
          */
-        val SideEffect: NestedScrollSource = NestedScrollSource(2)
+        val SideEffect: NestedScrollSource
+            get() = NestedScrollSource(2)
 
         /** Dragging via mouse/touch/etc events. */
         @Deprecated(
@@ -263,7 +272,8 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.UserInput",
                 ),
         )
-        val Drag: NestedScrollSource = UserInput
+        val Drag: NestedScrollSource
+            get() = UserInput
 
         /** Flinging after the drag has ended with velocity. */
         @Deprecated(
@@ -275,11 +285,13 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.SideEffect",
                 ),
         )
-        val Fling: NestedScrollSource = SideEffect
+        val Fling: NestedScrollSource
+            get() = SideEffect
 
         /** Relocating when a component asks parents to scroll to bring it into view. */
         @Deprecated("Do not use. Will be removed in the future.")
-        val Relocate: NestedScrollSource = NestedScrollSource(3)
+        val Relocate: NestedScrollSource
+            get() = NestedScrollSource(3)
 
         /** Scrolling via mouse wheel. */
         @Deprecated(
@@ -291,7 +303,8 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.UserInput",
                 ),
         )
-        val Wheel: NestedScrollSource = UserInput
+        val Wheel: NestedScrollSource
+            get() = UserInput
     }
 }
 

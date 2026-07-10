@@ -17,22 +17,19 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3_adaptive_default_pane_title_primary" msgid="4435202124665670898">"Panel główny"</string>
+    <string name="m3_adaptive_default_pane_title_secondary" msgid="5571153069654173825">"Panel dodatkowy"</string>
+    <string name="m3_adaptive_default_pane_title_tertiary" msgid="4618411484428250300">"Panel trzeciorzędny"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"Uchwyt do przeciągania panelu"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_state_description" msgid="3470811934112444098">"Bieżący podział panelu: %s"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description" msgid="9031621431415014327">"Zmień podział panelu na %s"</string>
     <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"%d procent"</string>
     <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description" msgid="5056616348537665604">"%d DP od początku"</string>
     <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description" msgid="6412636251656811002">"%d DP od końca"</string>
-    <!-- no translation found for m3_adaptive_drag_to_resize_click_to_expand_description (6325505525872861038) -->
-    <skip />
-    <!-- no translation found for m3_adaptive_drag_to_resize_click_to_collapse_description (8565061238194380345) -->
-    <skip />
-    <!-- no translation found for m3_adaptive_drag_to_resize_click_to_partially_expand_description (2385410923144639926) -->
-    <skip />
-    <!-- no translation found for m3_adaptive_drag_to_resize_expanded_state_description (2077268415416814943) -->
-    <skip />
-    <!-- no translation found for m3_adaptive_drag_to_resize_collapsed_state_description (825821966773165267) -->
-    <skip />
-    <!-- no translation found for m3_adaptive_drag_to_resize_partially_expanded_state_description (1542167866507882321) -->
-    <skip />
+    <string name="m3_adaptive_drag_to_resize_click_to_expand_description" msgid="6325505525872861038">"rozwiń"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_collapse_description" msgid="8565061238194380345">"zwiń"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_partially_expand_description" msgid="2385410923144639926">"częściowo rozwiń"</string>
+    <string name="m3_adaptive_drag_to_resize_expanded_state_description" msgid="2077268415416814943">"rozwinięty"</string>
+    <string name="m3_adaptive_drag_to_resize_collapsed_state_description" msgid="825821966773165267">"zwinięty"</string>
+    <string name="m3_adaptive_drag_to_resize_partially_expanded_state_description" msgid="1542167866507882321">"częściowo rozwinięty"</string>
 </resources>

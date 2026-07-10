@@ -17,7 +17,6 @@
 
 package androidx.pdf.adapter
 
-import androidx.annotation.RestrictTo
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -27,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap
  * This cache is designed to be thread-safe, allowing concurrent access for efficient page retrieval
  * and updates.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfPageCache {
     private val cachedPageMap = ConcurrentHashMap<Int, PdfPage>()
 

@@ -73,6 +73,58 @@ class OrderedScatterSetTest {
     }
 
     @Test
+    fun mutableOrderedScatterSetFromSet() {
+        val from = setOf("Hello", "World")
+        val set = from.toMutableOrderedScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun mutableOrderedScatterSetFromOrderedScatterSet() {
+        val from = orderedScatterSetOf("Hello", "World")
+        val set = from.toMutableOrderedScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun orderedScatterSetFromSet() {
+        val from = setOf("Hello", "World")
+        val set = from.toOrderedScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun orderedScatterSetFromOrderedScatterSet() {
+        val from = orderedScatterSetOf("Hello", "World")
+        val set = from.toOrderedScatterSet()
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+    }
+
+    @Test
+    fun orderedScatterSetFromEmptySet() {
+        val from = setOf<String>()
+        val set = from.toOrderedScatterSet()
+        assertEquals(0, set.size)
+        assertSame(emptyOrderedScatterSet(), set)
+    }
+
+    @Test
+    fun orderedScatterSetFromEmptyOrderedScatterSet() {
+        val from = mutableOrderedScatterSetOf<String>()
+        val set = from.toOrderedScatterSet()
+        assertEquals(0, set.size)
+        assertSame(emptyOrderedScatterSet(), set)
+    }
+
+    @Test
     fun addToScatterSet() {
         val set = MutableOrderedScatterSet<String>()
         set += "Hello"

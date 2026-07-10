@@ -230,7 +230,7 @@ public class UiObject {
      * </ul>
      *
      * @param steps indicates the number of injected move steps into the system. Steps are
-     * injected about 5ms apart. So a 100 steps may take about 1/2 second to complete.
+     * injected about the length of a frame apart (throttled by VSync).
      * @return true of successful
      * @throws UiObjectNotFoundException
      */
@@ -262,7 +262,7 @@ public class UiObject {
      * </ul>
      *
      * @param steps indicates the number of injected move steps into the system. Steps are
-     * injected about 5ms apart. So a 100 steps may take about 1/2 second to complete.
+     * injected about the length of a frame apart (throttled by VSync).
      * @return true if successful
      * @throws UiObjectNotFoundException
      */
@@ -294,7 +294,7 @@ public class UiObject {
      * </ul>
      *
      * @param steps indicates the number of injected move steps into the system. Steps are
-     * injected about 5ms apart. So a 100 steps may take about 1/2 second to complete.
+     * injected about the length of a frame apart (throttled by VSync).
      * @return true if successful
      * @throws UiObjectNotFoundException
      */
@@ -325,7 +325,7 @@ public class UiObject {
      * </ul>
      *
      * @param steps indicates the number of injected move steps into the system. Steps are
-     * injected about 5ms apart. So a 100 steps may take about 1/2 second to complete.
+     * injected about the length of a frame apart (throttled by VSync).
      * @return true if successful
      * @throws UiObjectNotFoundException
      */

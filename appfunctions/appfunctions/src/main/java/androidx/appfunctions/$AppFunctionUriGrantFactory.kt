@@ -28,11 +28,14 @@ import androidx.appfunctions.`internal`.serializableproxies.`$UriFactory`
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class `$AppFunctionUriGrantFactory` : AppFunctionSerializableFactory<AppFunctionUriGrant> {
     override fun fromAppFunctionData(appFunctionData: AppFunctionData): AppFunctionUriGrant {
+        val appFunctionDataWithSpec =
+            getAppFunctionDataWithSpec(appFunctionData, "androidx.appfunctions.AppFunctionUriGrant")
+
         val appFunctionUriFactory = `$UriFactory`()
 
-        val uriData = checkNotNull(appFunctionData.getAppFunctionData("uri"))
+        val uriData = checkNotNull(appFunctionDataWithSpec.getAppFunctionData("uri"))
         val uri = appFunctionUriFactory.fromAppFunctionData(uriData)
-        val modeFlags = checkNotNull(appFunctionData.getIntOrNull("modeFlags"))
+        val modeFlags = checkNotNull(appFunctionDataWithSpec.getIntOrNull("modeFlags"))
 
         val resultAppFunctionUriGrant = AppFunctionUriGrant(uri, modeFlags)
         return resultAppFunctionUriGrant
@@ -42,7 +45,7 @@ public class `$AppFunctionUriGrantFactory` : AppFunctionSerializableFactory<AppF
         val appFunctionUriGrant_appFunctionSerializable = appFunctionSerializable
         val appFunctionUriFactory = `$UriFactory`()
 
-        val builder = AppFunctionData.Builder("androidx.appfunctions.AppFunctionUriGrant")
+        val builder = getAppFunctionDataBuilder("androidx.appfunctions.AppFunctionUriGrant")
         val uri = appFunctionUriGrant_appFunctionSerializable.uri
         builder.setAppFunctionData("uri", appFunctionUriFactory.toAppFunctionData(uri))
         val modeFlags = appFunctionUriGrant_appFunctionSerializable.modeFlags

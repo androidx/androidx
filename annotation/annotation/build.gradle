@@ -1,14 +1,12 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,30 +25,6 @@ androidXMultiplatform {
     watchos()
 
     defaultPlatform(PlatformIdentifier.JVM)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
-        }
-
-        nonJvmMain {
-            dependsOn(commonMain)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
-            }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
-        }
-    }
 }
 
 jvmJar {
@@ -73,6 +47,17 @@ task annotationsZip(type: Zip) {
 artifacts {
     archives jvmJar
     archives annotationsZip
+}
+
+dependencies {
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with Compose Multiplatform 1.8.0, "annotation-internal" published as empty
+        // artifact with dependency to this androidx module.
+        commonMainImplementation("org.jetbrains.compose.annotation-internal:annotation:1.8.0") {
+            because "prevents symbols duplication"
+        }
+    }
 }
 
 androidx {

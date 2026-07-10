@@ -35,6 +35,7 @@ import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
@@ -93,6 +94,13 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
 
     @Override
     public @NonNull Template onGetTemplate() {
+        return buildPaneTemplate();
+    }
+
+    /**
+     * Helper method to build the PaneTemplate.
+     */
+    private PaneTemplate buildPaneTemplate() {
         int listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_PANE);
 
@@ -131,26 +139,41 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                                 .show())
                                 .build());
 
+        Action mapXAction = new Action.Builder()
+                .setTitle("Map+X this!")
+                .setIcon(
+                        new CarIcon.Builder(mCommuteIcon)
+                                .setTint(CarColor.BLUE)
+                                .build())
+                .setOnClickListener(
+                        () -> getScreenManager().push(new MapPaneDemoScreen(getCarContext())))
+                .build();
+
         return new PaneTemplate.Builder(paneBuilder.build())
                 .setHeader(new Header.Builder()
                         .setTitle(getCarContext().getString(R.string.pane_template_demo_title))
                         .setStartHeaderAction(Action.BACK)
-                        .addEndHeaderAction(new Action.Builder()
-                                .setTitle(getCarContext().getString(
-                                        R.string.commute_action_title))
-                                .setIcon(
-                                        new CarIcon.Builder(mCommuteIcon)
-                                                .setTint(CarColor.BLUE)
-                                                .build())
-                                .setOnClickListener(
-                                        () -> CarToast.makeText(
-                                                        getCarContext(),
-                                                        getCarContext().getString(
-                                                                R.string.commute_toast_msg),
-                                                        LENGTH_SHORT)
-                                                .show())
-                                .build())
+                        .addEndHeaderAction(mapXAction)
                         .build())
                 .build();
+    }
+
+    /**
+     * A new screen that displays the MapWithContentTemplate
+     * containing the exact same PaneTemplate.
+     */
+    private class MapPaneDemoScreen extends Screen {
+        protected MapPaneDemoScreen(@NonNull CarContext carContext) {
+            super(carContext);
+        }
+
+        @Override
+        public @NonNull Template onGetTemplate() {
+            PaneTemplate innerTemplate = PaneTemplateDemoScreen.this.buildPaneTemplate();
+
+            return new MapWithContentTemplate.Builder()
+                    .setContentTemplate(innerTemplate)
+                    .build();
+        }
     }
 }

@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -33,19 +34,20 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw Text */
-public class DrawText extends PaintOperation implements VariableSupport {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class DrawText extends PaintOperation implements VariableSupport, ComponentData {
     private static final int OP_CODE = Operations.DRAW_TEXT_RUN;
     private static final String CLASS_NAME = "DrawText";
-    int mTextID;
-    int mStart = 0;
-    int mEnd = 0;
-    int mContextStart = 0;
-    int mContextEnd = 0;
-    float mX = 0f;
-    float mY = 0f;
-    float mOutX = 0f;
-    float mOutY = 0f;
-    boolean mRtl = false;
+    public int mTextID;
+    public int mStart = 0;
+    public int mEnd = 0;
+    public int mContextStart = 0;
+    public int mContextEnd = 0;
+    public float mX = 0f;
+    public float mY = 0f;
+    public float mOutX = 0f;
+    public float mOutY = 0f;
+    public boolean mRtl = false;
 
     public DrawText(
             int textId,
@@ -67,6 +69,11 @@ public class DrawText extends PaintOperation implements VariableSupport {
     }
 
     @Override
+    public void paint(@NonNull PaintContext context) {
+        context.drawTextRun(mTextID, mStart, mEnd, mContextStart, mContextEnd, mOutX, mOutY, mRtl);
+    }
+
+    @Override
     public void updateVariables(@NonNull RemoteContext context) {
         mOutX = Float.isNaN(mX) ? context.getFloat(Utils.idFromNan(mX)) : mX;
         mOutY = Float.isNaN(mY) ? context.getFloat(Utils.idFromNan(mY)) : mY;
@@ -74,6 +81,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextID, this);
         if (Float.isNaN(mX)) {
             context.listensTo(Utils.idFromNan(mX), this);
         }
@@ -103,56 +111,17 @@ public class DrawText extends PaintOperation implements VariableSupport {
     }
 
     /**
-     * Read this operation and add it to the list of operations
+     * write DrawText to the buffer
      *
-     * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
-     */
-    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int text = buffer.readInt();
-        int start = buffer.readInt();
-        int end = buffer.readInt();
-        int contextStart = buffer.readInt();
-        int contextEnd = buffer.readInt();
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
-        boolean rtl = buffer.readBoolean();
-        DrawText op = new DrawText(text, start, end, contextStart, contextEnd, x, y, rtl);
-
-        operations.add(op);
-    }
-
-    /**
-     * The name of the class
-     *
-     * @return the name
-     */
-    @NonNull
-    public static String name() {
-        return CLASS_NAME;
-    }
-
-    /**
-     * The OP_CODE for this command
-     *
-     * @return the opcode
-     */
-    public static int id() {
-        return OP_CODE;
-    }
-
-    /**
-     * Writes out the operation to the buffer
-     *
-     * @param buffer write the command to the buffer
-     * @param textId id of the text
-     * @param start Start position
-     * @param end end position
-     * @param contextStart start of the context
-     * @param contextEnd end of the context
-     * @param x position of where to draw
-     * @param y position of where to draw
-     * @param rtl is it Right to Left text
+     * @param buffer
+     * @param textId
+     * @param start
+     * @param end
+     * @param contextStart
+     * @param contextEnd
+     * @param x
+     * @param y
+     * @param rtl
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -164,7 +133,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
             float x,
             float y,
             boolean rtl) {
-        buffer.start(Operations.DRAW_TEXT_RUN);
+        buffer.start(OP_CODE);
         buffer.writeInt(textId);
         buffer.writeInt(start);
         buffer.writeInt(end);
@@ -176,35 +145,47 @@ public class DrawText extends PaintOperation implements VariableSupport {
     }
 
     /**
-     * Populate the documentation with a description of this operation
+     * Read this operation and add it to the list of operations
      *
-     * @param doc to append the description to.
+     * @param buffer the buffer to read
+     * @param operations the list of operations that will be added to the remap context
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        int text = buffer.readId();
+        int start = buffer.readInt();
+        int end = buffer.readInt();
+        int contextStart = buffer.readInt();
+        int contextEnd = buffer.readInt();
+        float x = buffer.readNanId();
+        float y = buffer.readNanId();
+        boolean rtl = buffer.readBoolean();
+        DrawText op = new DrawText(text, start, end, contextStart, contextEnd, x, y, rtl);
+        operations.add(op);
+    }
+
+    /**
+     * Documentation of the operation
+     *
+     * @param doc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", id(), CLASS_NAME)
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text")
                 .description("Draw a run of text, all in a single direction")
-                .field(DocumentedOperation.INT, "textId", "id of bitmap")
-                .field(
-                        DocumentedOperation.INT,
-                        "start",
-                        "The start of the text to render. -1=end of string")
-                .field(DocumentedOperation.INT, "end", "The end of the text to render")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
+                .field(DocumentedOperation.INT, "start", "The start index of the text to render")
+                .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.INT,
                         "contextStart",
-                        "the index of the start of the shaping context")
+                        "The index of the start of the shaping context")
                 .field(
                         DocumentedOperation.INT,
                         "contextEnd",
-                        "the index of the end of the shaping context")
+                        "The index of the end of the shaping context")
                 .field(DocumentedOperation.FLOAT, "x", "The x position at which to draw the text")
                 .field(DocumentedOperation.FLOAT, "y", "The y position at which to draw the text")
-                .field(DocumentedOperation.BOOLEAN, "RTL", "Whether the run is in RTL direction");
-    }
-
-    @Override
-    public void paint(@NonNull PaintContext context) {
-        context.drawTextRun(mTextID, mStart, mEnd, mContextStart, mContextEnd, mOutX, mOutY, mRtl);
+                .field(DocumentedOperation.BOOLEAN, "rtl", "Whether the run is in RTL direction");
     }
 
     @Override
@@ -214,10 +195,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
                 .add("textId", mTextID)
                 .add("start", mStart)
                 .add("end", mEnd)
-                .add("contextStart", mContextStart)
-                .add("contextEnd", mContextEnd)
-                .add("x", mX, mOutX)
-                .add("y", mY, mOutY)
-                .add("rtl", mRtl);
+                .add("x", mX)
+                .add("y", mY);
     }
 }

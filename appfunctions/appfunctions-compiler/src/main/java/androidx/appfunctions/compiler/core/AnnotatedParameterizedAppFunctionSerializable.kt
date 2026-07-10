@@ -79,7 +79,10 @@ class AnnotatedParameterizedAppFunctionSerializable(
     private val unparameterizedJvmQualifiedName: String by lazy { super.jvmQualifiedName }
 
     override val factoryVariableName: String by lazy {
-        val variableName = jvmClassName.replace("$", "").replaceFirstChar { it -> it.lowercase() }
+        val variableName =
+            appFunctionSerializableTypeClassDeclaration.jvmClassName
+                .replace("$", "")
+                .replaceFirstChar { it -> it.lowercase() }
         val typeArgumentSuffix =
             typeParameterMap.values.joinToString { typeArgument ->
                 typeArgument
@@ -93,9 +96,21 @@ class AnnotatedParameterizedAppFunctionSerializable(
     }
 
     override fun getDescription(sharedDataTypeDescriptionMap: Map<String, String>): String {
-        return docstring.ifEmpty {
-            sharedDataTypeDescriptionMap[unparameterizedJvmQualifiedName] ?: ""
+        val instructionAnnotation =
+            classDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME
+            )
+        if (instructionAnnotation != null) {
+            return instructionAnnotation.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
         }
+        return sanitizeKDoc(
+            docString.ifEmpty {
+                sharedDataTypeDescriptionMap[unparameterizedJvmQualifiedName] ?: ""
+            }
+        )
     }
 
     /**

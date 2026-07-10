@@ -16,12 +16,9 @@
 
 package androidx.navigationevent.compose
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.HostDefaultKey
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
-@Composable
-internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? {
-    // For non-Android platforms (e.g., Desktop, Web), the concept of a
-    // 'ViewTree' doesn't exist in the same way. Therefore, returns null.
-    return null
-}
+public actual val NavigationEventDispatcherOwnerHostDefaultKey:
+    HostDefaultKey<NavigationEventDispatcherOwner?> =
+    object : HostDefaultKey<NavigationEventDispatcherOwner?> {}

@@ -1,0 +1,102 @@
+// Signature format: 4.0
+package androidx.glance.wear.core {
+
+  public final class ActiveWearWidgetHandle {
+    method @InaccessibleFromKotlin public int getContainerType();
+    method @InaccessibleFromKotlin public androidx.glance.wear.core.WidgetInstanceId getInstanceId();
+    method @InaccessibleFromKotlin public android.content.ComponentName getProvider();
+    property public int containerType;
+    property public androidx.glance.wear.core.WidgetInstanceId instanceId;
+    property public android.content.ComponentName provider;
+    field public static final androidx.glance.wear.core.ActiveWearWidgetHandle.Companion Companion;
+  }
+
+  public static final class ActiveWearWidgetHandle.Companion {
+  }
+
+  public final class ContainerInfo {
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public String? getLabel();
+    method @InaccessibleFromKotlin public int getPreviewImage();
+    method @InaccessibleFromKotlin public int getType();
+    property public String? description;
+    property public String? label;
+    property public int previewImage;
+    property public int type;
+    field public static final int CONTAINER_TYPE_LARGE = 1; // 0x1
+    field public static final int CONTAINER_TYPE_SMALL = 2; // 0x2
+    field public static final int CONTAINER_TYPE_TILE_COMPAT = 0; // 0x0
+    field public static final androidx.glance.wear.core.ContainerInfo.Companion Companion;
+  }
+
+  public static final class ContainerInfo.Companion {
+    property public static int CONTAINER_TYPE_LARGE;
+    property public static int CONTAINER_TYPE_SMALL;
+    property public static int CONTAINER_TYPE_TILE_COMPAT;
+  }
+
+  public interface WearWidgetEvent {
+  }
+
+  public final class WearWidgetParams {
+    method @InaccessibleFromKotlin public int getContainerType();
+    method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getHeightDp();
+    method @InaccessibleFromKotlin public androidx.glance.wear.core.WidgetInstanceId getInstanceId();
+    method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getWidthDp();
+    property public int containerType;
+    property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float heightDp;
+    property public androidx.glance.wear.core.WidgetInstanceId instanceId;
+    property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float widthDp;
+    field public static final androidx.glance.wear.core.WearWidgetParams.Companion Companion;
+  }
+
+  public static final class WearWidgetParams.Companion {
+  }
+
+  public final class WearWidgetProviderInfo {
+    method @InaccessibleFromKotlin public String? getConfigIntentAction();
+    method @InaccessibleFromKotlin public java.util.List<androidx.glance.wear.core.ContainerInfo> getContainers();
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getGroup();
+    method @InaccessibleFromKotlin public int getIcon();
+    method @InaccessibleFromKotlin public String getLabel();
+    method @InaccessibleFromKotlin public int getPreferredContainerType();
+    method @InaccessibleFromKotlin public android.content.ComponentName getProviderService();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.String> getUnrecognisedAttributes();
+    method @kotlin.jvm.Throws(exceptionClasses={PackageManager.NameNotFoundException::class, XmlPullParserException::class}) public static androidx.glance.wear.core.WearWidgetProviderInfo parseFromService(android.content.Context context, android.content.ComponentName providerService) throws android.content.pm.PackageManager.NameNotFoundException, org.xmlpull.v1.XmlPullParserException;
+    property public String? configIntentAction;
+    property public java.util.List<androidx.glance.wear.core.ContainerInfo> containers;
+    property public String description;
+    property public String group;
+    property public int icon;
+    property public String label;
+    property public int preferredContainerType;
+    property public android.content.ComponentName providerService;
+    property public java.util.Map<java.lang.String,java.lang.String> unrecognisedAttributes;
+    field public static final androidx.glance.wear.core.WearWidgetProviderInfo.Companion Companion;
+  }
+
+  public static final class WearWidgetProviderInfo.Companion {
+    method @kotlin.jvm.Throws(exceptionClasses={PackageManager.NameNotFoundException::class, XmlPullParserException::class}) public androidx.glance.wear.core.WearWidgetProviderInfo parseFromService(android.content.Context context, android.content.ComponentName providerService) throws android.content.pm.PackageManager.NameNotFoundException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+  public final class WearWidgetVisibleEvent implements androidx.glance.wear.core.WearWidgetEvent {
+    method @InaccessibleFromKotlin public java.time.Duration getDuration();
+    method @InaccessibleFromKotlin public androidx.glance.wear.core.WidgetInstanceId getInstanceId();
+    method @InaccessibleFromKotlin public java.time.Instant getStartTime();
+    property public java.time.Duration duration;
+    property public androidx.glance.wear.core.WidgetInstanceId instanceId;
+    property public java.time.Instant startTime;
+  }
+
+  public final class WidgetInstanceId {
+    ctor public WidgetInstanceId(String namespace, int id);
+    method public String flattenToString();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getNamespace();
+    property public int id;
+    property public String namespace;
+  }
+
+}
+

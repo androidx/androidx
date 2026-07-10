@@ -17,6 +17,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="label_copy_link" msgid="869104793055534158">"लिंक कॉपी करा"</string>
+    <string name="label_jump_to" msgid="462543500326296329">"यावर जा"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"ही फाइल संरक्षित आहे"</string>
     <string name="label_password_first" msgid="4456258714097111908">"पासवर्ड"</string>
     <string name="label_password_incorrect" msgid="5291118378657145978">"पासवर्ड चुकीचा आहे. पुन्हा प्रयत्न करा."</string>
@@ -28,7 +30,13 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g> पैकी पेज <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> टक्के झूम करा"</string>
+    <string name="desc_pdf_view" msgid="4353979540148077296">"PDF दृश्य"</string>
+    <string name="desc_goto" msgid="1333698934111921601">"इथे जा"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"पेज <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> वर जा"</string>
+    <string name="desc_copy" msgid="385275789223074637">"निवडलेला आशय तुमच्या क्लिपबोर्डवर कॉपी करतो"</string>
+    <string name="desc_copy_link" msgid="4764327179483836535">"लिंक तुमच्या क्लिपबोर्डवर कॉपी करतो"</string>
+    <string name="desc_jump_to" msgid="9085362382536609454">"PDF मधील विभागावर किंवा पेजवर जातो"</string>
+    <string name="desc_select_all" msgid="428248654717550270">"PDF मधील सर्व मजकूर निवडतो"</string>
     <string name="desc_page" msgid="6702471448987833953">"पेज <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="desc_empty_page" msgid="5041794048330057239">"रिक्त पेज"</string>
     <string name="desc_page_with_text" msgid="2564017005407577604">"पेज <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>: <xliff:g id="PAGE_TEXT">%2$s</xliff:g>"</string>
@@ -60,9 +68,10 @@
     <string name="page_broken" msgid="2968770793669433462">"पीडीएफ दस्तऐवजासाठी पेज खंडित झाले आहे"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF दस्तऐवजावर प्रक्रिया करण्यासाठी डेटा पुरेसा नाही"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF फाइल उघडू शकत नाही"</string>
+    <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"पासवर्ड संरक्षित PDFs ना सपोर्ट नाही."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"ही PDF संपादित केली जाऊ शकत नाही"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"आशय PDF वरून कॉपी केला आहे"</string>
-    <string name="fast_scroller_thumb" msgid="6712048991132846541">"स्क्रोल बार"</string>
+    <string name="fast_scroller_thumb" msgid="1491143649111222713">"स्क्रोल बार"</string>
     <string name="confirm_selection" msgid="7020926320719465164">"कन्फर्म करा"</string>
     <string name="form_widget" msgid="5841730047544552656">"फॉर्म विजेट"</string>
     <string name="form_type" msgid="1302137779809645840">"प्रकार: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
@@ -70,16 +79,17 @@
     <string name="form_value" msgid="960532222685914495">"मूल्य: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_current_value" msgid="3883820498421821863">"वर्तमान मूल्य: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
     <string name="form_read_only" msgid="4928929192592391646">"विजेट फक्त रीड-ओन्ली आहे आणि त्यात बदल केले जाऊ शकत नाही."</string>
-    <string name="form_multiselect_type" msgid="8834016845619058170">"प्रकार: मल्टी सिलेक्ट <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
+    <string name="form_multiselect_type" msgid="6137116306327174299">"प्रकार: मल्टी-सिलेक्ट <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"क्लिक केल्याने मूल्य टॉगल केले जाईल."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"क्लिक केल्याने निवडण्यासाठीचा मेनू उघडेल."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"क्लिक केल्याने मजकूर संपादन मोडमध्ये एंटर होईल."</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"कस्टम"</string>
     <string name="form_unknown" msgid="6371515914365431330">"अज्ञात"</string>
-    <string name="form_widget_type_push_button" msgid="3595388398616291441">"पुश बटण"</string>
-    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"चेकबॉक्स"</string>
-    <string name="form_widget_type_radio_button" msgid="879588277617060839">"रेडिओ बटण"</string>
-    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"कॉम्बो बॉक्स"</string>
-    <string name="form_widget_type_list_box" msgid="8052623180309553495">"सूची बॉक्स"</string>
-    <string name="form_widget_type_text_field" msgid="581285155951215607">"मजकूर फील्ड"</string>
+    <string name="form_widget_type_push_button" msgid="7978535904272874920">"पुश बटण"</string>
+    <string name="form_widget_type_checkbox" msgid="2905625606101301245">"चेक बॉक्स"</string>
+    <string name="form_widget_type_radio_button" msgid="4798553968129281550">"रेडिओ बटण"</string>
+    <string name="form_widget_type_combo_box" msgid="3912742706795495520">"काँबो बॉक्स"</string>
+    <string name="form_widget_type_list_box" msgid="431828611710070971">"सूची बॉक्स"</string>
+    <string name="form_widget_type_text_field" msgid="4443782242324937941">"मजकूर फील्ड"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"स्वाक्षरी"</string>
 </resources>

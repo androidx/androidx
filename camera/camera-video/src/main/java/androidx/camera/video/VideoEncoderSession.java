@@ -16,8 +16,6 @@
 
 package androidx.camera.video;
 
-import static androidx.core.util.Preconditions.checkState;
-
 import android.view.Surface;
 
 import androidx.camera.core.Logger;
@@ -98,7 +96,6 @@ final class VideoEncoderSession {
     @ExecutedBy("mSequentialExecutor")
     @NonNull ListenableFuture<Encoder> configure(@NonNull SurfaceRequest surfaceRequest,
             @NonNull VideoEncoderConfig videoEncoderConfig) {
-        checkState(!surfaceRequest.isServiced());
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
                 mVideoEncoderState = VideoEncoderState.INITIALIZING;

@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(sdk = {Config.ALL_SDKS})
 public class FocusMeteringActionTest {
     private SurfaceOrientedMeteringPointFactory mPointFactory =
             new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f);
@@ -314,6 +316,74 @@ public class FocusMeteringActionTest {
     @Test(expected = IllegalArgumentException.class)
     public void builderWithNullPoint2() {
         new FocusMeteringAction.Builder(null, FocusMeteringAction.FLAG_AF).build();
+    }
+
+    @Test
+    public void defaultLockingMode_isAF() {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1).build();
+        assertThat(action.getLockingMode()).isEqualTo(FocusMeteringAction.FLAG_AF);
+    }
+
+    @Test
+    public void setLockingModeViaMethod() {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1,
+                FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
+                .setLockingMode(FocusMeteringAction.FLAG_AE).build();
+        assertThat(action.getLockingMode()).isEqualTo(FocusMeteringAction.FLAG_AE);
+    }
+
+    @Test
+    public void setLockingModeViaMethod_multiple() {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE)
+                .addPoint(mPoint3, FocusMeteringAction.FLAG_AWB)
+                .setLockingMode(FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .build();
+        assertThat(action.getLockingMode()).isEqualTo(
+                FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB);
+    }
+
+    @Test
+    public void setLockingMode() {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
+                .build();
+        assertThat(action.getLockingMode()).isEqualTo(
+                FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB);
+    }
+
+    @Test
+    public void setLockingMode_toZero() {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(0)
+                .build();
+        assertThat(action.getLockingMode()).isEqualTo(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setLockingMode_invalidLowerBound() {
+        new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setLockingMode_invalidUpperBound() {
+        new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(8); // 8 is invalid (1 << 3)
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setLockingMode_invalidBitCombination() {
+        new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(FocusMeteringAction.FLAG_AF | 8);
+    }
+
+    @Test
+    public void copyBuilder_preservesLockingMode() {
+        FocusMeteringAction action1 = new FocusMeteringAction.Builder(mPoint1)
+                .setLockingMode(FocusMeteringAction.FLAG_AE).build();
+        FocusMeteringAction action2 = new FocusMeteringAction.Builder(action1).build();
+        assertThat(action2.getLockingMode()).isEqualTo(FocusMeteringAction.FLAG_AE);
     }
 
     @Test

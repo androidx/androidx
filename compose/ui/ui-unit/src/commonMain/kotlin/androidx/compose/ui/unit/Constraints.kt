@@ -186,9 +186,9 @@ value class Constraints(@PublishedApi internal val value: Long) {
             maxWidth >= minWidth && maxHeight >= minHeight && minWidth >= 0 && minHeight >= 0
         ) {
             """
-                maxWidth must be >= than minWidth,
-                maxHeight must be >= than minHeight,
-                minWidth and minHeight must be >= 0
+            maxWidth must be >= than minWidth,
+            maxHeight must be >= than minHeight,
+            minWidth and minHeight must be >= 0
             """
                 .trimIndent()
         }
@@ -487,9 +487,9 @@ fun Constraints(
         (maxWidth >= minWidth) and (maxHeight >= minHeight) and (minWidth >= 0) and (minHeight >= 0)
     ) {
         """
-            maxWidth must be >= than minWidth,
-            maxHeight must be >= than minHeight,
-            minWidth and minHeight must be >= 0
+        maxWidth must be >= than minWidth,
+        maxHeight must be >= than minHeight,
+        minWidth and minHeight must be >= 0
         """
             .trimIndent()
     }

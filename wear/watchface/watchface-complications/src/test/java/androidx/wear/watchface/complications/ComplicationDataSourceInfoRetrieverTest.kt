@@ -43,6 +43,7 @@ import org.mockito.Mockito
 import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class ComplicationDataSourceInfoRetrieverTest {
     private val mockService = Mockito.mock(IProviderInfoService::class.java)
     private val mockBinder = Mockito.mock(android.os.IBinder::class.java)

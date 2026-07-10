@@ -24,7 +24,31 @@ import androidx.window.layout.WindowLayoutInfo
  * Returns a [WindowLayoutInfo] with default values for testing.
  *
  * @param displayFeatures a [List] of [DisplayFeature], the default value is an empty [List].
- * @return [WindowLayoutInfo] with matching [List] of [DisplayFeature]
+ * @param engagementModes a [Set] of [WindowLayoutInfo.EngagementMode], the default value is
+ *   [WindowLayoutInfo.EngagementMode.VISUALS_ON] and [WindowLayoutInfo.EngagementMode.AUDIO_ON].
+ * @return [WindowLayoutInfo] with matching parameters.
+ * @see WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo
+ */
+@Deprecated(
+    message =
+        "WindowLayoutInfo.EngagementMode is deprecated. Use TestWindowLayoutInfo without engagementModes",
+    replaceWith = ReplaceWith("TestWindowLayoutInfo(displayFeatures)"),
+)
+@Suppress("FunctionName")
+@JvmName("createWindowLayoutInfo")
+public fun TestWindowLayoutInfo(
+    displayFeatures: List<DisplayFeature> = emptyList(),
+    @Suppress("DEPRECATION") engagementModes: Set<WindowLayoutInfo.EngagementMode>,
+): WindowLayoutInfo {
+    @Suppress("DEPRECATION")
+    return WindowLayoutInfo(displayFeatures, engagementModes)
+}
+
+/**
+ * Returns a [WindowLayoutInfo] with default values for testing.
+ *
+ * @param displayFeatures a [List] of [DisplayFeature], the default value is an empty [List].
+ * @return [WindowLayoutInfo] with matching parameters.
  * @see WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo
  */
 @Suppress("FunctionName")

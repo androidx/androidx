@@ -75,6 +75,7 @@ public class FastScrollDrawer(
 
     public var alpha: Int = GONE_ALPHA // Initially fast scroller should be hidden
         set(value) {
+            field = value
             thumbDrawable?.alpha = value
             pageIndicatorBackground?.alpha = value
             textPaint.alpha = value
@@ -103,7 +104,7 @@ public class FastScrollDrawer(
      */
     public fun draw(canvas: Canvas, xOffset: Int, yOffset: Int, visiblePages: Range<Int>) {
         // The intrinsic value is -1 if the width or height is not set for any drawable.
-        if (thumbWidthPx < 0 || thumbHeightPx < 0 || pageIndicatorHeightPx < 0) {
+        if (alpha == 0 || thumbWidthPx < 0 || thumbHeightPx < 0 || pageIndicatorHeightPx < 0) {
             return
         }
         val thumbLeftPx = (xOffset - (thumbWidthPx + thumbMarginEnd))

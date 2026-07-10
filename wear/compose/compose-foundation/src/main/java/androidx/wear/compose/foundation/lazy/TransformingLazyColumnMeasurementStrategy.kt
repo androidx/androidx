@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -32,8 +33,12 @@ internal interface TransformingLazyColumnMeasurementStrategy {
      *
      * @param itemsCount The total number of items in the list.
      * @param measuredItemProvider A provider that returns the measured items.
-     * @param itemSpacing The spacing between items.
+     * @param keyIndexMap A mapping from item keys to their indices.
+     * @param verticalArrangement The vertical arrangement to use when the items fit in the
+     *   container.
      * @param containerConstraints The constraints for the list.
+     * @param anchorItemKey The key of the anchor item. Anchor item is a visible item used to
+     *   position the rest of the items before and after it.
      * @param anchorItemIndex The index of the anchor item. Anchor item is a visible item used to
      *   position the rest of the items before and after it. Should be from 0 (inclusive) to
      *   [itemsCount] (exclusive).
@@ -41,6 +46,7 @@ internal interface TransformingLazyColumnMeasurementStrategy {
      *   item used to position the rest of the items before and after it.
      * @param lastMeasuredAnchorItemHeight Last measured height from the previous measurement.
      * @param coroutineScope Scope for animations.
+     * @param density The [Density] of the current layout.
      * @param scrollToBeConsumed The amount of scroll to be consumed.
      * @param layout A function that lays out the items.
      */
@@ -48,7 +54,7 @@ internal interface TransformingLazyColumnMeasurementStrategy {
         itemsCount: Int,
         measuredItemProvider: MeasuredItemProvider,
         keyIndexMap: LazyLayoutKeyIndexMap,
-        itemSpacing: Int,
+        verticalArrangement: Arrangement.Vertical,
         containerConstraints: Constraints,
         anchorItemKey: Any,
         anchorItemIndex: Int,
@@ -112,6 +118,8 @@ internal fun emptyMeasureResult(
         afterContentPadding = afterContentPadding,
         itemSpacing = 0,
         childConstraints = Constraints(),
+        reverseLayout = false,
+        consumedScroll = 0f,
         measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {},
     )
 

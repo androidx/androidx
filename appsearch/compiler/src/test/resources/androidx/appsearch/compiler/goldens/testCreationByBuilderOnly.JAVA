@@ -51,8 +51,12 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String idConv = genericDoc.getId();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     GiftBuilder builder = Gift.getBuilder();
-    builder.setNamespace(namespaceConv);
-    builder.setId(idConv);
+    if (namespaceConv != null) {
+      builder.setNamespace(namespaceConv);
+    }
+    if (idConv != null) {
+      builder.setId(idConv);
+    }
     builder.setPrice(priceConv);
     return builder.build();
   }

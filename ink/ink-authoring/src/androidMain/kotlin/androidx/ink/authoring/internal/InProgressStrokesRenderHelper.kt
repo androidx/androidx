@@ -18,12 +18,13 @@ package androidx.ink.authoring.internal
 
 import android.graphics.Matrix
 import android.graphics.Path
+import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
-import androidx.ink.authoring.ExperimentalLatencyDataApi
-import androidx.ink.authoring.InProgressStrokeId
+import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
+import androidx.ink.authoring.ExperimentalInkLatencyDataApi
+import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
-import androidx.ink.strokes.InProgressStroke
 
 /**
  * Manages rendering of in-progress strokes and the synchronized handoff of strokes from being in
@@ -42,50 +43,75 @@ import androidx.ink.strokes.InProgressStroke
  * - Stroke cohort: A group of strokes that are in progress at the same time, which means that they
  *   need to be handed off to HWUI rendering at the same time.
  */
-@OptIn(ExperimentalLatencyDataApi::class)
-internal interface InProgressStrokesRenderHelper {
+@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
+internal abstract class InProgressStrokesRenderHelper<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
+    CompletedShapeT : Any,
+> {
+    private var initOnceCallback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>? = null
+
+    var callback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>
+        get() = checkNotNull(initOnceCallback) { "callback must be set exactly once before use." }
+        set(value) {
+            check(initOnceCallback == null) { "callback must be set exactly once before use." }
+            initOnceCallback = value
+        }
 
     /**
      * Whether stroke contents that were drawn earlier are preserved for later draws, as an
      * optimization to redraw only the modified regions of the screen.
      */
-    val contentsPreservedBetweenDraws: Boolean
+    abstract val contentsPreservedBetweenDraws: Boolean
 
     /**
-     * Whether [InProgressStrokesView.handoffDebounceTimeMs] is supported. If not, then handoff
-     * should be initiated as soon as possible.
+     * Whether [androidx.ink.authoring.InProgressStrokesView.handoffDebounceTimeMs] is supported. If
+     * not, then handoff should be initiated as soon as possible.
      */
-    val supportsDebounce: Boolean
+    abstract val supportsDebounce: Boolean
 
     /**
-     * Whether [InProgressStrokesView.flush] is supported. If not, then that method will not be able
-     * to wait for strokes to be completed.
+     * Whether [androidx.ink.authoring.InProgressStrokesView.flush] can synchronously wait on the UI
+     * thread for strokes to be completed and handed off. Implementations that set this to true must
+     * ensure that draw and handoff can happen while blocking that UI thread during flush. That is,
+     * any actions necessary for rendering and handoff must be able to complete while the UI thread
+     * is blocked: Both the chain of actions kicked off by [requestDraw] and that between any call
+     * to [Callback.pauseStrokeCohortHandoffs] and the subsequent call to
+     * [Callback.resumeStrokeCohortHandoffs] (including those two calls).
      */
-    val supportsFlush: Boolean
+    abstract val canSynchronouslyWaitForFlush: Boolean
 
     /**
      * An area of the inking surface where no ink should be visible, and the contents beneath should
      * show through.
      */
-    var maskPath: Path?
+    var maskPath: Path? = null
 
     /**
      * Can be used by [InProgressStrokesManager] to fail fast when not operating on the expected
      * thread.
      */
-    fun assertOnRenderThread()
+    abstract fun assertOnRenderThread()
+
+    /**
+     * Executes the given [runnable] on the render thread at the next opportunity between draws.
+     * (That is, it should not be executed between [Callback.onDraw] and [Callback.onDrawComplete]).
+     * This is not synchronous, the [runnable] should not be executed immediately even if the render
+     * thread is the same as the UI thread.
+     */
+    @UiThread abstract fun executeOnRenderThread(runnable: Runnable)
 
     /**
      * Called by [InProgressStrokesManager] when new content must be drawn. Will lead to
      * [InProgressStrokesRenderHelper.Callback.onDraw].
      */
-    @UiThread fun requestDraw()
+    @UiThread abstract fun requestDraw()
 
     /**
      * Allows communication between this interface and the code making use of it, which is presumed
      * to be an [InProgressStrokesManager].
      */
-    interface Callback {
+    interface Callback<CompletedShapeT : Any> {
 
         /**
          * Called on the render thread to prompt [InProgressStrokesManager] to start making draw
@@ -127,10 +153,16 @@ internal interface InProgressStrokesRenderHelper {
         fun handOffAllLatencyData()
 
         /**
-         * Called on the UI thread to either disallow (pause) or allow (unpause) calls to
-         * [requestStrokeCohortHandoffToHwui].
+         * Disallows calls to [requestStrokeCohortHandoffToHwui] until [resumeStrokeCohortHandoffs]
+         * is called.
          */
-        @UiThread fun setPauseStrokeCohortHandoffs(paused: Boolean)
+        @UiThread fun pauseStrokeCohortHandoffs()
+
+        /**
+         * Allows calls to [requestStrokeCohortHandoffToHwui] again after
+         * [pauseStrokeCohortHandoffs] was called.
+         */
+        @AnyThread fun resumeStrokeCohortHandoffs()
 
         /**
          * Called to hand off a group of finished strokes from being rendered internally to being
@@ -138,11 +170,10 @@ internal interface InProgressStrokesRenderHelper {
          * frame. Failure to do so will result in a flicker on handoff, where the stroke is
          * temporarily not rendered. Initiated by [requestStrokeCohortHandoffToHwui].
          *
-         * @param strokeCohort The finished strokes, with map iteration order in stroke z-order from
-         *   back to front.
+         * @param cohort The finished strokes, with map iteration order in stroke z-order from back
+         *   to front.
          */
-        @UiThread
-        fun onStrokeCohortHandoffToHwui(strokeCohort: Map<InProgressStrokeId, FinishedStroke>)
+        @UiThread fun onStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>)
 
         /**
          * Called some time after [onStrokeCohortHandoffToHwui], when it is appropriate to start
@@ -155,30 +186,26 @@ internal interface InProgressStrokesRenderHelper {
      * Set up rendering to a particular region that has modified geometry. Called on the render
      * thread.
      */
-    fun prepareToDrawInModifiedRegion(modifiedRegionInMainView: MutableBox)
+    abstract fun prepareToDrawInModifiedRegion(modifiedRegionInMainView: MutableBox)
 
     /**
-     * Draw an [InProgressStroke] in the region previously prepared with
+     * Draw an [InProgressShape] in the region previously prepared with
      * [prepareToDrawInModifiedRegion]. This may be called multiple times per modified region with
-     * different [InProgressStroke] objects. Called on the render thread.
+     * different [InProgressShape] objects. Called on the render thread.
      */
-    fun drawInModifiedRegion(
-        inProgressStroke: InProgressStroke,
+    abstract fun drawInModifiedRegion(
+        inProgressShape: InProgressShapeT,
         strokeToMainViewTransform: Matrix,
-        textureAnimationProgress: Float,
     )
 
     /**
      * Cleans up what was initialized in [prepareToDrawInModifiedRegion]. Called on the render
      * thread.
      */
-    fun afterDrawInModifiedRegion()
+    abstract fun afterDrawInModifiedRegion()
 
-    /**
-     * Clear all contents that have previously been rendered, if [contentsPreservedBetweenDraws] is
-     * `true`. Called on the render thread.
-     */
-    fun clear()
+    /** Prepares for a new cohort of strokes to be drawn. Called on the render thread. */
+    abstract fun startCohort()
 
     /**
      * Called by [InProgressStrokesManager] when no new content is expected and the current
@@ -188,9 +215,9 @@ internal interface InProgressStrokesRenderHelper {
      * Between this and [Callback.onStrokeCohortHandoffToHwuiComplete], any calls to [requestDraw]
      * may not (and may never become) visible.
      *
-     * @param handingOff The finished strokes, with map iteration order in stroke z-order from back
-     *   to front.
+     * @param cohort The finished strokes, with map iteration order in stroke z-order from back to
+     *   front.
      */
     @UiThread
-    fun requestStrokeCohortHandoffToHwui(handingOff: Map<InProgressStrokeId, FinishedStroke>)
+    abstract fun requestStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>)
 }

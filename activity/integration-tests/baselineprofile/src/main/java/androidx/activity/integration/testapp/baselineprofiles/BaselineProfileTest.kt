@@ -22,6 +22,8 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -31,6 +33,16 @@ import org.junit.Test
 class BaselineProfileTest {
 
     @get:Rule val baselineRule = BaselineProfileRule()
+
+    @Test
+    fun selfInstrumenting() {
+        // validates that the baseline profile plugin has set this test to be self-instrumenting
+
+        assertEquals(
+            InstrumentationRegistry.getInstrumentation().context.packageName,
+            InstrumentationRegistry.getInstrumentation().targetContext.packageName,
+        )
+    }
 
     @Test
     fun startupBaselineProfile() {

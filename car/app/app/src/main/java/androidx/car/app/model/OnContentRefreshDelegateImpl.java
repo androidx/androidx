@@ -89,5 +89,10 @@ public class OnContentRefreshDelegateImpl implements OnContentRefreshDelegate {
                 return null;
             });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

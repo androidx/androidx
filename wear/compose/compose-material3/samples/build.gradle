@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,12 +27,12 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation("androidx.compose.animation:animation-graphics:1.8.0")
     implementation("androidx.compose.foundation:foundation:1.8.0")
     implementation("androidx.compose.foundation:foundation-layout:1.8.0")
 
@@ -50,9 +49,9 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     namespace = "androidx.wear.compose.material3.samples"
 }

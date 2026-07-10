@@ -96,16 +96,18 @@ class AppFunctionIdProcessor(private val codeGenerator: CodeGenerator) : SymbolP
     private fun TypeSpec.Builder.addAppFunctionIdProperties(
         appFunctionClass: AnnotatedAppFunctions
     ) {
-        for (appFunctionDeclaration in appFunctionClass.appFunctionDeclarations) {
+        for (appFunction in appFunctionClass.appFunctions) {
             // For example, transform method name from "createNote" to "CREATE_NOTE"
             val functionMethodName =
-                appFunctionDeclaration.simpleName.asString().fromCamelCaseToScreamingSnakeCase()
+                appFunction.appFunctionDeclaration.simpleName
+                    .asString()
+                    .fromCamelCaseToScreamingSnakeCase()
             val propertySpec =
                 PropertySpec.builder("${functionMethodName}_ID", String::class.asTypeName())
                     .addModifiers(KModifier.CONST)
                     .initializer(
                         "%S",
-                        appFunctionClass.getAppFunctionIdentifier(appFunctionDeclaration),
+                        appFunction.getAppFunctionIdentifier(appFunctionClass.classDeclaration),
                     )
                     .build()
             this.addProperty(propertySpec)

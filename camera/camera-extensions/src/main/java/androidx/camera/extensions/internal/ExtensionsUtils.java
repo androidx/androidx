@@ -16,23 +16,16 @@
 
 package androidx.camera.extensions.internal;
 
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.AdapterCameraInfo;
-import androidx.camera.core.impl.CameraInfoInternal;
 
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -40,41 +33,6 @@ import java.util.Set;
  */
 public class ExtensionsUtils {
     private ExtensionsUtils() {}
-
-    /**
-     * Returns a map consisting of the camera ids and the {@link CameraCharacteristics}s.
-     *
-     * <p>For every camera, the map contains at least the CameraCharacteristics for the camera id.
-     * If the camera is logical camera, it will also contain associated physical camera ids and
-     * their CameraCharacteristics.
-     *
-     */
-    public static @NonNull Map<String, CameraCharacteristics> getCameraCharacteristicsMap(
-            @NonNull CameraInfoInternal cameraInfoInternal) {
-        LinkedHashMap<String, CameraCharacteristics> map = new LinkedHashMap<>();
-        String cameraId = cameraInfoInternal.getCameraId();
-        CameraCharacteristics cameraCharacteristics =
-                (CameraCharacteristics) cameraInfoInternal.getCameraCharacteristics();
-        map.put(cameraId, cameraCharacteristics);
-
-        if (Build.VERSION.SDK_INT < 28) {
-            return map;
-        }
-
-        Set<String> physicalCameraIds = Api28Impl.getPhysicalCameraIds(cameraCharacteristics);
-        if (physicalCameraIds == null) {
-            return map;
-        }
-
-        for (String physicalCameraId : physicalCameraIds) {
-            if (Objects.equals(physicalCameraId, cameraId)) {
-                continue;
-            }
-            map.put(physicalCameraId, (CameraCharacteristics)
-                    cameraInfoInternal.getPhysicalCameraCharacteristics(physicalCameraId));
-        }
-        return map;
-    }
 
     /**
      * Returns the supported camera operations.
@@ -137,24 +95,5 @@ public class ExtensionsUtils {
         }
 
         return operations;
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in API 28.
-     */
-    @RequiresApi(28)
-    private static class Api28Impl {
-
-        private Api28Impl() {
-        }
-
-        static Set<String> getPhysicalCameraIds(
-                @NonNull CameraCharacteristics cameraCharacteristics) {
-            try {
-                return cameraCharacteristics.getPhysicalCameraIds();
-            } catch (Exception e) {
-                return Collections.emptySet();
-            }
-        }
     }
 }

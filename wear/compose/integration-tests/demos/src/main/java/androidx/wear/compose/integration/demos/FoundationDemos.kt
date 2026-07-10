@@ -18,6 +18,8 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.wear.compose.foundation.samples.AmbientModeBasicSample
+import androidx.wear.compose.foundation.samples.AmbientModeWithAmbientTickSample
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
@@ -30,6 +32,7 @@ import androidx.wear.compose.foundation.samples.CurvedLetterSpacingSample
 import androidx.wear.compose.foundation.samples.CurvedLineHeight
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedSemanticsSample
+import androidx.wear.compose.foundation.samples.CurvedWarpingSample
 import androidx.wear.compose.foundation.samples.CurvedWeight
 import androidx.wear.compose.foundation.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.foundation.samples.ExpandableTextSample
@@ -47,16 +50,20 @@ import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.foundation.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.foundation.samples.SimpleTransformingLazyColumnSample
 import androidx.wear.compose.foundation.samples.SimpleVerticalPagerSample
 import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.foundation.samples.SwipeToRevealSample
 import androidx.wear.compose.foundation.samples.SwipeToRevealWithDelayedText
 import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnAnimateItemSample
-import androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
+import androidx.wear.compose.foundation.samples.TransformingLazyColumnFirstLayoutItemProviderSample
+import androidx.wear.compose.foundation.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+import androidx.wear.compose.foundation.samples.TransformingLazyColumnWithSnapSample
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material3.demos.ArrangementsDemo
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
@@ -100,6 +107,14 @@ val WearFoundationDemos =
         "Foundation",
         listOf(
             DemoCategory(
+                "Ambient mode",
+                listOf(
+                    ComposableDemo("Ambient sample") { AmbientModeBasicSample() },
+                    ComposableDemo("Ambient tick sample") { AmbientModeWithAmbientTickSample() },
+                ),
+            ),
+            ComposableDemo("Arrangements") { ArrangementsDemo() },
+            DemoCategory(
                 "Expandables",
                 listOf(
                     ComposableDemo("Items in SLC") { ExpandableListItems() },
@@ -112,6 +127,9 @@ val WearFoundationDemos =
             DemoCategory(
                 "CurvedLayout",
                 listOf(
+                    ComposableDemo("Warped Text Demo") { WarpedTextDemo() },
+                    ComposableDemo("Warped Text Sample") { CurvedWarpingSample() },
+                    ComposableDemo("Lookahead Demo") { LookaheadDemo() },
                     ComposableDemo("Curved Row") { CurvedWorldDemo() },
                     ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
                     ComposableDemo("Curved Box") { CurvedBoxDemo() },
@@ -165,6 +183,7 @@ val WearFoundationDemos =
                     DemoCategory(
                         "Demos",
                         listOf(
+                            ComposableDemo("Resolution") { RotaryResolutionDemo() },
                             ComposableDemo("Nested scroll with Pager") { NestedScrollPagerDemo() },
                             ComposableDemo("Nested scroll with Lazy Column") {
                                 NestedScrollLazyColumnDemo(false)
@@ -230,8 +249,18 @@ val WearFoundationDemos =
             DemoCategory(
                 "TransformingLazyColumn",
                 listOf(
-                    ComposableDemo("Letter Sample") { TransformingLazyColumnLettersSample() },
-                    ComposableDemo("Animation Sample") { TransformingLazyColumnAnimateItemSample() },
+                    ComposableDemo("Basic Sample") { SimpleTransformingLazyColumnSample() },
+                    ComposableDemo("With Snap") { TransformingLazyColumnWithSnapSample() },
+                    ComposableDemo("Animation Sample") {
+                        TransformingLazyColumnAnimateItemSample()
+                    },
+                    ComposableDemo("Responsive Padding") {
+                        TransformingLazyColumnMinimumVerticalContentPaddingSample()
+                    },
+                    ComposableDemo("Letter Demo") { TransformingLazyColumnLettersDemo() },
+                    ComposableDemo("First Layout Item") {
+                        TransformingLazyColumnFirstLayoutItemProviderSample()
+                    },
                 ),
             ),
         ),

@@ -110,6 +110,8 @@ internal class PassiveListenerCallbackStub(
         }
     }
 
+    override fun getInterfaceVersion(): Int = VERSION
+
     private companion object {
         const val TAG = "PassiveListenerCallbackStub"
     }

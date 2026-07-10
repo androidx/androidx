@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -29,19 +28,18 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.10.0")
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material3:material3-window-size-class"))
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
@@ -61,10 +59,9 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2025"
     description = "Contains the sample code for Navigation3 UI"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(37) }
     namespace = "androidx.navigation3.ui.samples"
 }

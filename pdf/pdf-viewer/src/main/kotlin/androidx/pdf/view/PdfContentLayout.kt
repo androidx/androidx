@@ -17,14 +17,15 @@
 package androidx.pdf.view
 
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.pdf.R
-import androidx.pdf.featureflag.PdfFeatureFlags
 
 /**
  * A [ViewGroup] that hosts [PdfView] for adding overlays on it using the [ViewGroup.addView]
@@ -38,15 +39,45 @@ public class PdfContentLayout(context: Context, attrs: AttributeSet? = null) :
     public val pdfView: PdfView
         get() = _pdfView
 
+    /**
+     * Controls whether annotation interaction is currently enabled.
+     *
+     * When set to `true`, [PdfContentLayout] is allowed to intercept touch events and route it to
+     * required child. When `false`, touch interception is disable and touch events are passed to
+     * the child views(e.g. [PdfView] for scrolling/zooming).
+     */
+    public var isAnnotationInteractionEnabled: Boolean = false
+
     init {
         LayoutInflater.from(context).inflate(R.layout.pdf_content_layout, this, true)
         _pdfView = findViewById(R.id.pdfView)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        _pdfView.enableDefaultFastScrollerRendering = false
+    }
+
+    override fun dispatchDraw(canvas: Canvas) {
+        super.dispatchDraw(canvas)
+        _pdfView.drawFastScroller(canvas)
+    }
+
+    override fun onDescendantInvalidated(child: View, target: View) {
+        super.onDescendantInvalidated(child, target)
+        invalidate()
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         if (ev == null) {
             return super.onInterceptTouchEvent(ev)
         }
-        return PdfFeatureFlags.isMultiTouchScrollEnabled
+        // Intercept touch events only if annotation interaction is enabled
+        return isAnnotationInteractionEnabled
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        pdfView.enableDefaultFastScrollerRendering = true
     }
 }

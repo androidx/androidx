@@ -17,7 +17,6 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
@@ -37,7 +36,6 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public final class ClimateStateRequest<T> {
 
     @ClimateProfileRequest.ClimateProfileFeature

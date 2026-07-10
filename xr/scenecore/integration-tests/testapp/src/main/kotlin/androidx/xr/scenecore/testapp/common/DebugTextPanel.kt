@@ -24,6 +24,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.scene
 
 /**
  * A debug panel that holds a panel entity with a view that displays a list of text lines.
@@ -53,6 +54,7 @@ class DebugTextPanel(
             name = name,
             pose = pose,
             pixelDimensions = pixelDimensions,
+            parent = session.scene.activitySpace,
         )
 
     /** Optional entity that the Debug panel is tracking. */

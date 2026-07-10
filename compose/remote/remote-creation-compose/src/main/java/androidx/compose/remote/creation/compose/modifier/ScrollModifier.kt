@@ -1,0 +1,67 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
+package androidx.compose.remote.creation.compose.modifier
+
+import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.creation.modifiers.ScrollModifier as CoreScrollModifier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteScrollState(
+    public val positionState: MutableRemoteFloat,
+    public val notches: Int,
+) {
+    public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
+}
+
+@Composable
+public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
+    val state = LocalRemoteComposeCreationState.current
+    val scrollState = remember {
+        // TODO(b/520313106) - It shouldn't be writing id at this point.
+        val positionId = state.document.nextId()
+        val position = MutableRemoteFloat(positionId)
+        RemoteScrollState(position, evenNotches)
+    }
+    return scrollState
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
+    RemoteModifier.Element {
+
+    // Not used
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        return CoreScrollModifier(direction, state.positionState.floatId, state.notches)
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
+    return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier {
+    return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.HORIZONTAL, state))
+}

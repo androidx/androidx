@@ -24,6 +24,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import androidx.test.core.app.ActivityScenario
@@ -35,6 +36,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -54,6 +56,8 @@ class SurfaceViewImplementationTest(name: String) {
             ParameterizedTestConfigUtil.generateInLabRequiredTestDefaultParameterizedTestConfigs()
     }
 
+    @get:Rule val requireForegroundRule = RequireForegroundRule()
+
     private lateinit var mParent: FrameLayout
     private lateinit var mImplementation: SurfaceViewImplementation
     private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
@@ -65,8 +69,6 @@ class SurfaceViewImplementationTest(name: String) {
 
     @Before
     fun setUp() {
-        CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
-
         mActivityScenario = ActivityScenario.launch(FakeActivity::class.java)
         mContext = ApplicationProvider.getApplicationContext()
         mParent = FrameLayout(mContext)

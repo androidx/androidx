@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.SCENE_UNDERSTANDING_COARSE" />
     <uses-permission android:name="android.permission.HAND_TRACKING" />
     <uses-permission android:name="android.permission.HEAD_TRACKING" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -35,6 +35,11 @@
             android:name=".modechange.ModeChange"
             android:exported="true"
             android:label="@string/title_activity_mode_change"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".followingsubspace.AnchorFollowingSubspaceActivity"
+            android:exported="true"
+            android:label="@string/anchor_subspace_app_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
        <activity
            android:name=".movable.MovableActivity"
@@ -71,6 +76,7 @@
        <activity
            android:name=".spatialelevation.SpatialElevation"
            android:exported="true"
+           android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
            android:label="SpatialElevationTest"
            android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
@@ -78,6 +84,7 @@
             android:exported="true"
             android:label="SpatialCompose"
             android:enableOnBackInvokedCallback="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
             android:name=".spatialcompose.SpatialComposeVideoPlayer"
@@ -104,12 +111,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".spatialcompose.NonCustomizableVideoPlayer"
-            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
-            android:enableOnBackInvokedCallback="true"
-            android:exported="true">
-        </activity>
        <activity
            android:name=".videoplayer.VideoPlayerActivity"
            android:exported="true"
@@ -131,6 +132,11 @@
             android:label="PanelEmbeddedSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
+            android:name=".followingsubspace.FollowingSubspaceActivity"
+            android:exported="true"
+            android:label="FollowingSubspace"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
             android:name=".panelvolume.PanelVolume"
             android:exported="true"
             android:label="PanelVolume"
@@ -138,6 +144,7 @@
         <activity
             android:name=".resizablepanel.ResizablePanel"
             android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:label="ResizablePanel"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
@@ -196,8 +203,75 @@
             android:enableOnBackInvokedCallback="true"
             android:label="SpatialAlignment"
             android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialarrangementusage.SpatialArrangementUsageActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="SpatialArrangementUsage"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".rtlawareness.RtlAwareSubspaceModifierActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="SubspaceModifierRtlAwareness"
+            android:theme="@style/Theme.IntegrationTestsApp" />
 
+        <activity
+            android:name=".pose.Pose"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="Pose"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".gravityaligned.GravityAlignedActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="@string/gravity_aligned_test_case"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".rotatetolookatuser.RotateToLookAtUserActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="@string/rotatetolookatuser_test_case"
+            android:theme="@style/Theme.IntegrationTestsApp" />
 
+        <activity android:name=".performance.LayoutPerformance"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="LayoutPerformance"
+            android:theme="@style/Theme.IntegrationTestsApp"
+            />
+        <activity
+            android:name=".fragments.FragmentCompatibilityActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="FragmentCompatibility"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialgltfmodel.SpatialGltfModelActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="FragmentCompatibility"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".EmptyActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialaudio.SpatialAudioActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="@string/spatial_audio_test"
+            android:theme="@style/Theme.IntegrationTestsApp" />
         <property
             android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
             android:value="XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED" />

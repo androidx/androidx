@@ -15,18 +15,16 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -36,10 +34,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.runtime"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
         compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
             it.returnDefaultValues = true
         }
@@ -57,90 +51,43 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlibCommon)
-                api(libs.kotlinCoroutinesCore)
-                api(project(":compose:runtime:runtime-annotation"))
-                implementation("androidx.collection:collection:1.5.0")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(project(":compose:runtime:runtime-annotation"))
+            implementation("androidx.collection:collection:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinReflect)
-                implementation(project(":compose:runtime:runtime-test-utils"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+            implementation(project(":compose:runtime:runtime-test-utils"))
         }
 
-        nonEmulatorCommonMain {
-            dependsOn(commonMain)
+        create("nonEmulatorCommonTest").dependsOn(commonTest)
+        create("nonEmulatorJvmTest").dependsOn(nonEmulatorCommonTest)
+
+        androidMain.dependencies {
+            api(libs.kotlinCoroutinesAndroid)
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        nonEmulatorCommonTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
         }
 
-        nonEmulatorJvmMain {
-            dependsOn(nonEmulatorCommonMain)
-        }
+        androidHostTest.dependsOn(nonEmulatorJvmTest)
 
-        nonEmulatorJvmTest {
-            dependsOn(nonEmulatorCommonTest)
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
 
-        jvmMain {
-            dependsOn(nonEmulatorJvmMain)
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependsOn(nonEmulatorJvmTest)
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
-        }
+        desktopMain.dependsOn(nonAndroidMain)
 
         desktopTest {
-            dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
             dependsOn(nonAndroidTest)
         }
@@ -152,76 +99,17 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-            dependsOn(nonJvmMain)
-        }
+        nativeMain.dependsOn(nonAndroidMain)
 
         nativeTest {
             dependsOn(nonAndroidTest)
-            dependsOn(nonJvmTest)
             dependsOn(nonEmulatorCommonTest)
         }
 
-        webMain {
-            dependsOn(nonJvmMain)
-        }
+        webTest.dependsOn(nonEmulatorCommonTest)
 
-        webTest {
-            dependsOn(nonJvmTest)
-            dependsOn(nonEmulatorCommonTest)
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinXw3c)
-            }
-        }
-
-        unixMain {
-            dependsOn(nativeMain)
-        }
-
-        unixTest {
-            dependsOn(nativeTest)
-        }
-
-        darwinMain {
-            dependsOn(unixMain)
-        }
-
-        darwinTest {
-            dependsOn(unixTest)
-        }
-
-        linuxMain {
-            dependsOn(unixMain)
-        }
-
-        linuxTest {
-            dependsOn(unixTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                } else {
-                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
         }
     }
 }
@@ -229,6 +117,15 @@ androidXMultiplatform {
 dependencies {
     lintChecks(project(":compose:runtime:runtime-lint"))
     lintPublish(project(":compose:runtime:runtime-lint"))
+
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 1.9.0, this module is published as empty artifact
+        // with dependency to this androidx module.
+        commonMainImplementation("org.jetbrains.compose.runtime:runtime:1.9.0") {
+            because "prevents symbols duplication"
+        }
+    }
 }
 
 androidx {

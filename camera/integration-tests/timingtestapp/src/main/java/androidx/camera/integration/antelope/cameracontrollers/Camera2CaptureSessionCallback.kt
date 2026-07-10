@@ -140,7 +140,7 @@ class Camera2CaptureSessionCallback(
                     CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                     CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED,
                     CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN -> {
-                        Unit // no-op, keep waiting for lock
+                        // no-op, keep waiting for lock
                     }
                 }
             }

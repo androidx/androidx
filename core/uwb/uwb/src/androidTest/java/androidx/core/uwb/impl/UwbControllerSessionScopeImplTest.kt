@@ -143,7 +143,7 @@ class UwbControllerSessionScopeImplTest {
             uwbControllerSession.removeControlee(UwbAddress(NEIGHBOR_1))
             delay(500)
         }
-        assertThat(rangingResult is RangingResult.RangingResultPeerDisconnected).isTrue()
+        assertThat(rangingResult is RangingResult.RangingResultFailure).isTrue()
         assertThat(rangingResult!!.device.address.address).isEqualTo(NEIGHBOR_1)
         stopRanging(job)
     }

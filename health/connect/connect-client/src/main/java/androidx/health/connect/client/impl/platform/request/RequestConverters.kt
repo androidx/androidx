@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.impl.platform.aggregate.DOUBLE_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.DURATION_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.DURATION_TO_LONG_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.ENERGY_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.GRAMS_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP
@@ -129,6 +130,7 @@ fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<A
 fun AggregateMetric<Any>.toAggregationType(): AggregationType<Any> {
     return DOUBLE_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: DURATION_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+        ?: DURATION_TO_LONG_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: ENERGY_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: GRAMS_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: LENGTH_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?

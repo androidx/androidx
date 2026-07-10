@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -27,6 +27,7 @@ import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DialogTokens
+import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
@@ -90,6 +91,54 @@ fun TimePickerDialog(
     }
 }
 
+/**
+ * [Material Design rich time picker
+ * dialog](https://m3.material.io/components/time-pickers/overview)
+ *
+ * A dialog for displaying a [TimePicker]. Time pickers let people select a time.
+ *
+ * Rich time picker dialogs have a more prominent layout and are suitable for larger screens or
+ * situations where the time picker is the main focus of the UI.
+ *
+ * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
+ *   pressing the back button. This is not called when the dismiss button is clicked.
+ * @param confirmButton button which is meant to confirm a proposed action, thus resolving what
+ *   triggered the dialog. The dialog does not set up any events for this button, nor does it
+ *   control its enablement, so those need to be set up by the caller.
+ * @param modifier the [Modifier] to be applied to this dialog's content.
+ * @param properties typically platform specific properties to further configure the dialog
+ * @param modeToggleButton Optional toggle to switch between clock and text input modes.
+ * @param dismissButton button which is meant to dismiss the dialog. The dialog does not set up any
+ *   events for this button so they need to be set up by the caller.
+ * @param shape defines the dialog's surface shape as well its shadow
+ * @param containerColor the color of the dialog's container
+ * @param content the content of the dialog (i.e. a [TimePicker], for example)
+ */
+@Composable
+fun RichTimePickerDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    modeToggleButton: @Composable (() -> Unit)? = null,
+    dismissButton: @Composable (() -> Unit)? = null,
+    shape: Shape = TimePickerDialogDefaults.richShape,
+    containerColor: Color = TimePickerDialogDefaults.richContainerColor,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Dialog(onDismissRequest = onDismissRequest, properties = properties) {
+        RichTimePickerDialogLayout(
+            confirmButton = confirmButton,
+            modifier = modifier,
+            modeToggleButton = modeToggleButton,
+            dismissButton = dismissButton,
+            shape = shape,
+            containerColor = containerColor,
+            content = content,
+        )
+    }
+}
+
 @Composable
 internal fun TimePickerDialogLayout(
     confirmButton: @Composable () -> Unit,
@@ -110,7 +159,43 @@ internal fun TimePickerDialogLayout(
         TimePickerCustomLayout(
             title = title,
             actions = {
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    modeToggleButton?.invoke()
+                    Spacer(modifier = Modifier.weight(1f))
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
+            },
+            content = content,
+        )
+    }
+}
+
+@Composable
+internal fun RichTimePickerDialogLayout(
+    confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    modeToggleButton: @Composable (() -> Unit)? = null,
+    dismissButton: @Composable (() -> Unit)? = null,
+    shape: Shape = TimePickerDialogDefaults.richShape,
+    containerColor: Color = TimePickerDialogDefaults.richContainerColor,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Surface(
+        shape = shape,
+        tonalElevation = DialogTokens.ContainerElevation,
+        modifier = modifier,
+        color = containerColor,
+    ) {
+        RichTimePickerCustomLayout(
+            actions = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     modeToggleButton?.invoke()
                     Spacer(modifier = Modifier.weight(1f))
                     dismissButton?.invoke()
@@ -134,47 +219,38 @@ internal fun TimePickerCustomLayout(
             Box(modifier = Modifier.layoutId("actions")) { actions() }
             Column(modifier = Modifier.layoutId("timePickerContent"), content = content)
         }
-
     val measurePolicy = MeasurePolicy { measurables, constraints ->
         val titleMeasurable = measurables.fastFirst { it.layoutId == "title" }
         val contentMeasurable = measurables.fastFirst { it.layoutId == "timePickerContent" }
         val actionsMeasurable = measurables.fastFirst { it.layoutId == "actions" }
-
         val contentPadding = 24.dp.roundToPx()
         val landMaxDialogHeight = 384.dp.roundToPx()
         val landTitleTopPadding = 24.dp.roundToPx()
         val landContentTopPadding = 16.dp.roundToPx()
         val landContentActionsPadding = 4.dp.roundToPx()
         val landActionsBottomPadding = 8.dp.roundToPx()
-
         val portTitleTopPadding = 24.dp.roundToPx()
         val portActionsBottomPadding = 24.dp.roundToPx()
-
         val contentPlaceable = contentMeasurable.measure(constraints.copy(minHeight = 0))
-
         // Input mode will be smaller than the smallest TimePickerContent (currently 200.dp)
         // But will always use portrait layout for correctness.
         val isLandscape =
             contentPlaceable.width > contentPlaceable.height &&
                 contentPlaceable.height >= truncate(ClockDialMinContainerSize.toPx())
-
         val dialogWidth =
             if (isLandscape) {
                 contentPlaceable.width + contentPadding * 2
             } else {
                 contentPlaceable.width + contentPadding * 2
             }
-
         val actionsPlaceable =
             actionsMeasurable.measure(
                 constraints.copy(minWidth = 0, minHeight = 0, maxWidth = contentPlaceable.width)
             )
-
         val titlePlaceable =
             titleMeasurable.measure(
                 constraints.copy(minWidth = 0, minHeight = 0, maxWidth = contentPlaceable.width)
             )
-
         val layoutHeight =
             if (isLandscape) {
                 val contentTotalHeight =
@@ -191,7 +267,6 @@ internal fun TimePickerCustomLayout(
                     actionsPlaceable.height +
                     portActionsBottomPadding
             }
-
         layout(width = dialogWidth, height = layoutHeight) {
             if (isLandscape) {
                 val contentHeight =
@@ -207,7 +282,6 @@ internal fun TimePickerCustomLayout(
                     } else {
                         0
                     }
-
                 titlePlaceable.place(x = landTitleTopPadding, y = landTitleTopPadding)
                 val timePickerContentX = contentPadding
                 val timePickerContentY = landContentTopPadding + remainingSpace / 2
@@ -219,24 +293,98 @@ internal fun TimePickerCustomLayout(
             } else {
                 val titleX = landTitleTopPadding
                 titlePlaceable.place(x = titleX, y = portTitleTopPadding)
-
                 val contentX = (dialogWidth - contentPlaceable.width) / 2
                 val contentY = portTitleTopPadding + titlePlaceable.height
                 contentPlaceable.place(x = contentX, y = contentY)
-
                 val actionsX = (dialogWidth - actionsPlaceable.width) / 2
                 val actionsY = contentY + contentPlaceable.height
                 actionsPlaceable.place(x = actionsX, y = actionsY)
             }
         }
     }
+    Layout(content = content, measurePolicy = measurePolicy)
+}
 
+@Composable
+internal fun RichTimePickerCustomLayout(
+    actions: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val content =
+        @Composable {
+            Box(modifier = Modifier.layoutId("actions")) { actions() }
+            Column(modifier = Modifier.layoutId("timePickerContent"), content = content)
+        }
+    val measurePolicy = MeasurePolicy { measurables, constraints ->
+        val contentMeasurable = measurables.fastFirst { it.layoutId == "timePickerContent" }
+        val actionsMeasurable = measurables.fastFirst { it.layoutId == "actions" }
+        val contentPadding = 12.dp.roundToPx()
+        val landContentTopPadding = 12.dp.roundToPx()
+        val landContentActionsPadding = 8.dp.roundToPx()
+        val landActionsBottomPadding = 12.dp.roundToPx()
+        val portTitleTopPadding = 12.dp.roundToPx()
+        val portActionsBottomPadding = 12.dp.roundToPx()
+        val portContentActionsPadding = 12.dp.roundToPx()
+        val contentPlaceable = contentMeasurable.measure(constraints.copy(minHeight = 0))
+        // Input mode will be smaller than the smallest TimePickerContent (currently 200.dp)
+        // But will always use portrait layout for correctness.
+        val isLandscape =
+            contentPlaceable.width > contentPlaceable.height &&
+                contentPlaceable.height >= truncate(ClockDialMinContainerSize.toPx())
+        val dialogWidth = contentPlaceable.width + contentPadding * 2
+        val actionsPlaceable =
+            actionsMeasurable.measure(
+                constraints.copy(minWidth = 0, minHeight = 0, maxWidth = contentPlaceable.width)
+            )
+        val layoutHeight =
+            if (isLandscape) {
+                val contentTotalHeight =
+                    contentPlaceable.height +
+                        actionsPlaceable.height +
+                        landActionsBottomPadding +
+                        landContentTopPadding +
+                        landContentActionsPadding
+                if (constraints.hasBoundedHeight) constraints.maxHeight else contentTotalHeight
+            } else {
+                portTitleTopPadding +
+                    contentPlaceable.height +
+                    actionsPlaceable.height +
+                    portActionsBottomPadding +
+                    portContentActionsPadding
+            }
+        layout(width = dialogWidth, height = layoutHeight) {
+            if (isLandscape) {
+                val contentHeight =
+                    landContentTopPadding +
+                        contentPlaceable.height +
+                        landContentActionsPadding +
+                        actionsPlaceable.height +
+                        landActionsBottomPadding
+                val remainingSpace = layoutHeight - contentHeight
+                val timePickerContentX = contentPadding
+                val timePickerContentY = landContentTopPadding + remainingSpace / 2
+                contentPlaceable.place(x = timePickerContentX, y = timePickerContentY)
+                val actionsY =
+                    timePickerContentY +
+                        contentPlaceable.height +
+                        landContentActionsPadding +
+                        remainingSpace / 2
+                actionsPlaceable.place(x = timePickerContentX, y = actionsY)
+            } else {
+                val contentX = (dialogWidth - contentPlaceable.width) / 2
+                val contentY = portTitleTopPadding
+                contentPlaceable.place(x = contentX, y = contentY)
+                val actionsX = (dialogWidth - actionsPlaceable.width) / 2
+                val actionsY = contentY + contentPlaceable.height + portContentActionsPadding
+                actionsPlaceable.place(x = actionsX, y = actionsY)
+            }
+        }
+    }
     Layout(content = content, measurePolicy = measurePolicy)
 }
 
 /** Default properties for a [TimePickerDialog] */
 object TimePickerDialogDefaults {
-
     /** Container color for [TimePickerDialog] */
     val containerColor
         @Composable get() = DialogTokens.ContainerColor.value
@@ -244,6 +392,14 @@ object TimePickerDialogDefaults {
     /** Shape color for [TimePickerDialog] */
     val shape
         @Composable get() = DialogTokens.ContainerShape.value
+
+    /** Container color for a rich [TimePickerDialog] */
+    val richContainerColor
+        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
+
+    /** Shape color for a rich [TimePickerDialog] */
+    val richShape
+        @Composable get() = ShapeKeyTokens.CornerExtraLarge.value
 
     /** Min Screen Height required to display a TimePicker in Picker in mode */
     val MinHeightForTimePicker: Dp = 300.dp
@@ -274,7 +430,7 @@ object TimePickerDialogDefaults {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text(contentDescription) } },
+            tooltip = { PlainTooltipInternal(contentDescription) { Text(contentDescription) } },
             state = rememberTooltipState(),
         ) {
             IconButton(modifier = modifier, onClick = onDisplayModeChange) {
@@ -290,6 +446,47 @@ object TimePickerDialogDefaults {
     }
 
     /**
+     * A button that toggles the display mode of the time picker between
+     * [TimePickerDisplayMode.Input] and [TimePickerDisplayMode.Scroll].
+     *
+     * @param onDisplayModeChange called when the button is clicked
+     * @param displayMode the current display mode of the time picker
+     * @param modifier the [Modifier] to be applied to this button
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ScrollDisplayModeToggle(
+        onDisplayModeChange: () -> Unit,
+        displayMode: TimePickerDisplayMode,
+        modifier: Modifier = Modifier,
+    ) {
+        val contentDescription =
+            getString(
+                if (displayMode == TimePickerDisplayMode.Picker) {
+                    Strings.TimePickerToggleKeyboard
+                } else {
+                    Strings.TimePickerToggleScroll
+                }
+            )
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltipInternal(contentDescription) { Text(contentDescription) } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(modifier = modifier, onClick = onDisplayModeChange) {
+                val icon =
+                    if (displayMode == androidx.compose.material3.TimePickerDisplayMode.Scroll) {
+                        Icons.Outlined.Keyboard
+                    } else {
+                        Icons.Outlined.SwipeVertical
+                    }
+                Icon(imageVector = icon, contentDescription = contentDescription)
+            }
+        }
+    }
+
+    /**
      * The title of the time picker dialog.
      *
      * @param modifier the [Modifier] to be applied to this title
@@ -297,17 +494,17 @@ object TimePickerDialogDefaults {
      */
     @Composable
     fun Title(displayMode: TimePickerDisplayMode, modifier: Modifier = Modifier) {
+        val titleRes =
+            when (displayMode) {
+                TimePickerDisplayMode.Picker -> Strings.TimePickerDialogTitle
+                TimePickerDisplayMode.Input -> Strings.TimeInputDialogTitle
+                TimePickerDisplayMode.Scroll -> Strings.TimeScrollDialogTitle
+                else -> Strings.TimePickerDialogTitle
+            }
         Text(
             modifier = modifier.padding(bottom = 20.dp),
             style = MaterialTheme.typography.labelMedium,
-            text =
-                getString(
-                    if (displayMode == TimePickerDisplayMode.Picker) {
-                        Strings.TimePickerDialogTitle
-                    } else {
-                        Strings.TimeInputDialogTitle
-                    }
-                ),
+            text = getString(titleRes),
         )
     }
 }
@@ -324,16 +521,27 @@ value class TimePickerDisplayMode internal constructor(internal val value: Int) 
 
     companion object {
         /** Time picker input mode */
-        val Picker = TimePickerDisplayMode(0)
+        val Picker
+            get() = TimePickerDisplayMode(0)
 
         /** Time text input mode */
-        val Input = TimePickerDisplayMode(1)
+        val Input
+            get() = TimePickerDisplayMode(1)
+
+        /**
+         * Time scroll wheel mode.
+         *
+         * This mode displays the time selection using vertical scroll wheels (e.g. [ScrollField]).
+         */
+        val Scroll
+            get() = TimePickerDisplayMode(2)
     }
 
     override fun toString() =
         when (this) {
             Picker -> "Picker"
             Input -> "Input"
+            Scroll -> "Scroll"
             else -> "Unknown"
         }
 }

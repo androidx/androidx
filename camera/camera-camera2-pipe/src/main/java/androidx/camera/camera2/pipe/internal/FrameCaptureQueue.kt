@@ -86,20 +86,19 @@ internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
         }
 
     override fun close() {
+        val pendingOutputFramesToCancel: List<FrameCaptureImpl>
         synchronized(lock) {
             if (closed) return
             closed = true
+
+            pendingOutputFramesToCancel = queue.toList()
+            queue.clear()
         }
 
-        // Note: This happens outside the synchronized block, but is safe since all modifications
-        // above happen within the synchronized block, and all modifications check the closed value
-        // before modifying the list.
-        for (pendingOutputFrame in queue) {
-
+        for (pendingOutputFrame in pendingOutputFramesToCancel) {
             // Any pending frame in the queue is guaranteed to not hold a real result.
             pendingOutputFrame.completeWithFailure(OutputStatus.ERROR_OUTPUT_ABORTED)
         }
-        queue.clear()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

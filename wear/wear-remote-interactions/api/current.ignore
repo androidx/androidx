@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.remote.interactions.RemoteActivityHelper#getAvailabilityStatus():
+    Source breaking change: method androidx.wear.remote.interactions.RemoteActivityHelper.getAvailabilityStatus() can no longer be resolved from Kotlin source

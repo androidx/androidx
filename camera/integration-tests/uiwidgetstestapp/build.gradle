@@ -17,26 +17,14 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
 
     defaultConfig {
         applicationId = "androidx.camera.integration.uiwidgets"
-        versionCode 1
-        versionName "1.0"
     }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
-    }
-
     buildTypes {
         release {
             minifyEnabled = true
@@ -52,10 +40,8 @@ android {
 
 dependencies {
     // Internal library
-    implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
@@ -79,6 +65,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.2")
     implementation("androidx.compose.animation:animation:1.7.2")
     implementation("androidx.compose.runtime:runtime:1.7.2")
+    implementation(project(":compose:ui:ui"))
     implementation("androidx.compose.ui:ui-tooling:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation("androidx.navigation:navigation-compose:2.4.2")
@@ -93,7 +80,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
@@ -103,7 +90,7 @@ dependencies {
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing")) {
+    implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
@@ -136,13 +123,16 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-graphics:1.7.2")
     androidTestImplementation("androidx.compose.ui:ui-unit:1.7.2")
     androidTestImplementation("androidx.compose.ui:ui-text:1.7.2")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.2")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.collection:collection:1.4.2")
-    androidTestImplementation 'androidx.compose.ui:ui-test:1.7.2'
+    androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation libs.hamcrestCore
     androidTestImplementation libs.junit
     androidTestImplementation libs.testMonitor
 
     // Needed for createComposeRule, but not createAndroidComposeRule:
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
+    debugImplementation(project(":compose:ui:ui-test-manifest"))
+    androidTestImplementation(project(":window:window"))
 }
+
+androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630

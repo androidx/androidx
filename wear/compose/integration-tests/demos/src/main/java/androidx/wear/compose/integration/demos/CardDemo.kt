@@ -91,7 +91,7 @@ fun CardDemo() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
+                        resourceId = R.drawable.icon_maps_icon,
                         size = CardDefaults.AppImageSize,
                     )
                 },
@@ -135,7 +135,7 @@ fun CardDemo() {
                 onClick = {},
                 title = {
                     DemoIcon(
-                        resourceId = R.drawable.ic_accessibility_24px,
+                        resourceId = R.drawable.icon_accessibility_24px,
                         size = CardDefaults.AppImageSize,
                     )
                     Spacer(Modifier.width(6.dp))

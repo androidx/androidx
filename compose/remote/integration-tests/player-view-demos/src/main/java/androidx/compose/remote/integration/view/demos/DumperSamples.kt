@@ -1,0 +1,76 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.integration.view.demos
+
+import android.content.res.Resources
+import android.graphics.BitmapFactory
+import androidx.compose.remote.creation.RemoteComposeContext
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.integration.view.demos.examples.*
+import androidx.compose.runtime.Composable
+import java.io.File
+
+@Suppress("RestrictedApiAndroidX")
+sealed class DumperSample(val name: String) {
+    class ComposableSample(name: String, val content: @Composable @RemoteComposable () -> Unit) :
+        DumperSample(name)
+
+    class Context(name: String, val getContext: () -> RemoteComposeContext) : DumperSample(name)
+
+    class FileSample(name: String, val file: File) : DumperSample(name)
+}
+
+@Suppress("RestrictedApiAndroidX")
+val AllSamples =
+    listOf(
+        DumperSample.ComposableSample("Clock", @Composable @RemoteComposable { RcSimpleClock1() }),
+        DumperSample.Context("Cube") { cube3d() },
+        DumperSample.Context("Timer") { RemoteComposeContext(basicTimer()) },
+        DumperSample.Context("PressureGauge") { RemoteComposeContext(demoPressureGauge()) },
+        DumperSample.Context("Countdown") { countDown() },
+        DumperSample.Context("ParticleShader") { shaderFireworks() },
+        DumperSample.ComposableSample("AiAgent", @Composable @RemoteComposable { AiAgent() }),
+        DumperSample.ComposableSample(
+            "DogeCalendar",
+            @Composable @RemoteComposable { DogeCalendar() },
+        ),
+        DumperSample.Context("RideShare") {
+            val rideShare = checkNotNull(RideShareHolder.get()) { "ride share not initialized" }
+            rideShare.rideShare()
+        },
+    )
+
+object RideShareHolder {
+    private var rideShare: RideShare? = null
+
+    fun init(resources: Resources) {
+        if (rideShare != null) {
+            return
+        }
+
+        val carLogo = BitmapFactory.decodeResource(resources, R.drawable.car_logo)
+        val carDriver = BitmapFactory.decodeResource(resources, R.drawable.car_driver)
+        val carIcon = BitmapFactory.decodeResource(resources, R.drawable.car_icon)
+
+        rideShare = RideShare()
+        rideShare?.setBitmaps(carLogo, carDriver, carIcon)
+    }
+
+    fun get(): RideShare? {
+        return rideShare
+    }
+}

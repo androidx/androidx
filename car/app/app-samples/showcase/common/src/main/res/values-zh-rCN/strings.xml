@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"消息放在此处。\n更多文本放在第二行。"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"短信模板演示"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"分节项目模板演示"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"精简项目演示"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"启用 AlphaJump 的分节项目模板演示"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"单选按钮部分"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"切换按钮部分"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"多行部分"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"网格项部分"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分节项目列表演示"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"列表 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"列表 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每个列表下的辅助文本"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"结束图片和操作的演示"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"条状标签演示"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"进度条演示"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"章节标题演示"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"“聚焦版块”演示"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"窗格模板演示"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"地点列表模板演示"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"浏览地点"</string>
@@ -243,13 +254,13 @@
     <string name="search_hint" msgid="978495498991026792">"在此处搜索"</string>
     <string name="additional_text" msgid="5755100726890686184">"请查看我们的"<annotation link="terms_of_service">"服务条款"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google 登录"</string>
-    <string name="use_pin" msgid="7850893299484337431">"使用 PIN 码"</string>
+    <string name="use_pin" msgid="7850893299484337431">"使用数字密码"</string>
     <string name="qr_code" msgid="5487041647280777397">"二维码"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"您的主机不支持登录模板"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"不兼容的主机"</string>
     <string name="email_hint" msgid="7205549445477319606">"电子邮件"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"登录"</string>
-    <string name="sign_in_instructions" msgid="9044850228284294762">"输入您的凭据"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"输入您的凭证"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"用户名必须是有效的电子邮件地址"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"用户名的长度必须至少为 %s 个字符"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"密码无效"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"标签页模板演示"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"信息标签页"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"窗格标签页"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"分节项目标签页"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"列表标签页"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"包含长标签页标题的网格标签页"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜索标签页"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"也可以选择行"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"次要操作处于选中状态"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"行主要操作处于选中状态"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分节项目列表演示"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"列表 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"列表 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每个列表下的辅助文本"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"行尾图片和操作演示"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"空列表演示"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"列表为空"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他模板演示"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"包含内容演示的地图"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"包含消息模板演示的地图"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"包含网格模板演示的地图"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

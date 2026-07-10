@@ -17,16 +17,17 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.benchmark.integration.baselineprofile.library.consumer"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     baselineProfile(project(":benchmark:integration-tests:baselineprofile-library-producer"))
 }
 

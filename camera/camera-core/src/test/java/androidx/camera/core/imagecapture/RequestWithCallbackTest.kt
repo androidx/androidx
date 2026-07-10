@@ -36,11 +36,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [RequestWithCallback] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class RequestWithCallbackTest {
 
     private lateinit var abortError: ImageCaptureException
@@ -63,6 +65,9 @@ class RequestWithCallbackTest {
     @After
     fun tearDown() {
         captureRequestFuture.cancel(true)
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

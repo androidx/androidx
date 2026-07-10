@@ -46,7 +46,7 @@ class CameraXQuirksClassDetectorTest :
             public class CameraXMissingQuirkSummaryJava implements Quirk {
                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         lint()

@@ -179,8 +179,11 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
     }
 }
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val SetType = java.util.Set::class.java.canonicalName
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val ListType = java.util.List::class.java.canonicalName
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val MapType = java.util.Map::class.java.canonicalName
 
 // Map from the kotlin type to the primitive type used in the collection

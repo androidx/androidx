@@ -44,11 +44,17 @@ internal class FastScrollGestureDetector(
      *
      * @param event The [MotionEvent] to handle.
      * @param viewWidth Width of the view in pixels.
+     * @param offsetY The vertical offset of the view in pixels.
      * @return True if the event was handled as a fast scroll gesture, false otherwise.
      */
-    fun handleEvent(event: MotionEvent, parent: ViewParent?, viewWidth: Int): Boolean {
+    fun handleEvent(
+        event: MotionEvent,
+        parent: ViewParent?,
+        viewWidth: Int,
+        offsetY: Int = 0,
+    ): Boolean {
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-            if (fastScroller.isPointOnThumb(event.x, event.y, viewWidth)) {
+            if (fastScroller.isPointOnThumb(event.x, event.y - offsetY, viewWidth)) {
                 trackingFastScrollGesture = true
                 gestureHandler.onFastScrollStart()
                 return true

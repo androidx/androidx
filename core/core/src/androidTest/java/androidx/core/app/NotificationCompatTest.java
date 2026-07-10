@@ -16,6 +16,8 @@
 
 package androidx.core.app;
 
+import static androidx.core.app.NotificationCompat.Action.EMPHASIS_AUTO;
+import static androidx.core.app.NotificationCompat.Action.STYLE_AUTO;
 import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
 import static androidx.core.app.NotificationCompat.DEFAULT_LIGHTS;
 import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
@@ -35,9 +37,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -56,6 +60,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.BaseInstrumentationTestCase;
+import android.text.Annotation;
+import android.text.ParcelableSpan;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.widget.RemoteViews;
@@ -83,7 +89,12 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -437,9 +448,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testStyle_getClassName() throws Exception {
         for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
-            Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
-            ctor.setAccessible(true);
-            Style style = ctor.newInstance();
+            Style style = createStyle(styleSubclass);
             assertEquals(styleSubclass.getName(), style.getClassName());
         }
     }
@@ -458,16 +467,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
      * Validate that constructStyleForExtras can reinflate any default-constructed Style class.
      */
     @Test
-    public void testStyle_constructStyleForExtras() throws Exception {
+    public void testStyle_constructStyleForExtras() {
         for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
-            final Style original;
-            if (styleSubclass == NotificationCompat.MessagingStyle.class) {
-                original = new NotificationCompat.MessagingStyle("Person's Name");
-            } else {
-                Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
-                ctor.setAccessible(true);
-                original = ctor.newInstance();
-            }
+            final Style original = createStyle(styleSubclass);
             Bundle bundle = new Bundle();
             original.addCompatExtras(bundle);
             Style result = Style.constructStyleForExtras(bundle);
@@ -480,16 +482,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
      * original style.
      */
     @Test
-    public void testStyle_recoveredCorrectly() throws Exception {
+    public void testStyle_recoveredCorrectly() {
         for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
-            final Style original;
-            if (styleSubclass == NotificationCompat.MessagingStyle.class) {
-                original = new NotificationCompat.MessagingStyle("Person's Name");
-            } else {
-                Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
-                ctor.setAccessible(true);
-                original = ctor.newInstance();
-            }
+            final Style original = createValidStyle(styleSubclass);
             Notification n = new NotificationCompat.Builder(mContext).setStyle(original).build();
             Style result = new NotificationCompat.Builder(mContext, n).mStyle;
             assertIsStyle(styleSubclass, result);
@@ -506,6 +501,36 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             n.extras.remove(EXTRA_COMPAT_TEMPLATE);
             result = new NotificationCompat.Builder(mContext, n).mStyle;
             assertIsStyle(styleSubclass, result);
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private static Style createValidStyle(Class<? extends Style> styleClass) {
+        if (styleClass == NotificationCompat.MetricStyle.class) {
+            // A valid MetricStyle must have >=1 metrics, otherwise build() will throw.
+            return new NotificationCompat.MetricStyle()
+                    .addMetric(new NotificationCompat.Metric(
+                            new NotificationCompat.Metric.FixedText("RequiredValue"),
+                            "RequiredLabel"));
+        } else {
+            return createStyle(styleClass);
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private static Style createStyle(Class<? extends Style> styleClass) {
+        if (styleClass == NotificationCompat.MessagingStyle.class) {
+            return new NotificationCompat.MessagingStyle("Person's Name");
+        } else {
+            try {
+                Constructor<? extends Style> ctor = styleClass.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                return ctor.newInstance();
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                     | InvocationTargetException e) {
+                throw new RuntimeException(
+                        "Could not create style: " + styleClass.getName() + " via reflection", e);
+            }
         }
     }
 
@@ -1229,7 +1254,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 26)
+    @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 26) // minSdk b/454185919
     @Test
     public void testSetNotification_setLargeIconBitmapScales() {
         // Original icon is 860x860
@@ -2231,8 +2256,11 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 new NotificationCompat.MessagingStyle(
                         new Person.Builder().setName("test name").build())
                         .setGroupConversation(true);
-        Bundle bundle = new Bundle();
-        messagingStyle.addCompatExtras(bundle);
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+        Bundle bundle = notification.extras;
 
         NotificationCompat.MessagingStyle resultMessagingStyle =
                 new NotificationCompat.MessagingStyle(new Person.Builder().setName("temp").build());
@@ -2240,6 +2268,62 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         assertTrue(resultMessagingStyle.isGroupConversation());
         assertEquals("test name", resultMessagingStyle.getUser().getName());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_compatExtrasGatedOnAndroidP() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build())
+                        .setGroupConversation(true);
+        messagingStyle.addMessage("text", 200, new Person.Builder().setName("sender").build());
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+
+        Bundle extras = notification.extras;
+
+        // Compat extras should NOT be written on SDK >= 28
+        assertFalse(extras.containsKey(NotificationCompat.EXTRA_MESSAGING_STYLE_USER));
+
+        // Framework extras SHOULD be written
+        assertTrue(extras.containsKey(Notification.EXTRA_MESSAGING_PERSON));
+        assertTrue(extras.containsKey(Notification.EXTRA_MESSAGES));
+
+        // We should be able to restore correctly
+        NotificationCompat.MessagingStyle restored = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification);
+        assertNotNull(restored);
+        assertEquals("test name", restored.getUser().getName());
+        assertEquals(1, restored.getMessages().size());
+        assertEquals("sender", restored.getMessages().get(0).getPerson().getName());
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testMessagingStyle_messageExtrasPreserved() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build());
+
+        Message message = new Message("text", 200, new Person.Builder().setName("sender").build());
+        message.getExtras().putString("custom_key", "custom_value");
+        messagingStyle.addMessage(message);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+
+        NotificationCompat.MessagingStyle restored = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification);
+        assertNotNull(restored);
+        assertEquals(1, restored.getMessages().size());
+        Message restoredMessage = restored.getMessages().get(0);
+        assertEquals("custom_value", restoredMessage.getExtras().getString("custom_key"));
     }
 
     @Test
@@ -2551,8 +2635,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         NotificationCompat.Action fooAction = new NotificationCompat.Action(0, "foo",
                 createIntent("foo"));
         NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
-                createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
-                false);
+                createIntent("bar"), null, null, null, false, 0, false,
+                /* isContextual= */ true, EMPHASIS_AUTO, STYLE_AUTO, false);
         NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
                 createIntent("baz"));
 
@@ -2601,7 +2685,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 createIntent("foo"));
         NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
                 createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
-                false);
+                EMPHASIS_AUTO, STYLE_AUTO, false);
         NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
                 createIntent("baz"));
         NotificationCompat.Action bbqAction = new NotificationCompat.Action(0, "bbq",
@@ -2645,7 +2729,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 createIntent("foo"));
         NotificationCompat.Action barAction = new NotificationCompat.Action(0, "bar",
                 createIntent("bar"), null, null, null, false, 0, false, /*isContextual=*/true,
-                false);
+                EMPHASIS_AUTO, STYLE_AUTO, false);
         NotificationCompat.Action bazAction = new NotificationCompat.Action(0, "baz",
                 createIntent("baz"));
 
@@ -3340,6 +3424,41 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void action_builder_defaultEmphasisAndStyle() {
+        NotificationCompat.Action action = newActionBuilder().build();
+        assertThat(action.getEmphasisHint()).isEqualTo(NotificationCompat.Action.EMPHASIS_AUTO);
+        assertThat(action.getStyleHint()).isEqualTo(NotificationCompat.Action.STYLE_AUTO);
+    }
+
+    @Test
+    public void action_builder_setEmphasisAndStyle() {
+        NotificationCompat.Action action =
+                newActionBuilder()
+                        .setEmphasisHint(NotificationCompat.Action.EMPHASIS_PRIMARY)
+                        .setStyleHint(NotificationCompat.Action.STYLE_ICON_ONLY)
+                        .build();
+        assertThat(action.getEmphasisHint()).isEqualTo(NotificationCompat.Action.EMPHASIS_PRIMARY);
+        assertThat(action.getStyleHint()).isEqualTo(NotificationCompat.Action.STYLE_ICON_ONLY);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void action_emphasisAndStyle_toAndFromNotification() {
+        // Sadly we don't have the same back-compatibility for actions that we do for styles,
+        // so we lose action properties not present in the device's platform.
+        NotificationCompat.Action action =
+                newActionBuilder()
+                        .setEmphasisHint(NotificationCompat.Action.EMPHASIS_PRIMARY)
+                        .setStyleHint(NotificationCompat.Action.STYLE_ICON_ONLY)
+                        .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertThat(result.getEmphasisHint()).isEqualTo(NotificationCompat.Action.EMPHASIS_PRIMARY);
+        assertThat(result.getStyleHint()).isEqualTo(NotificationCompat.Action.STYLE_ICON_ONLY);
+    }
+
+    @Test
     public void tvExtenderSetGetChannelId() {
         NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
         tvExtender.setChannelId("My cool channel");
@@ -3448,6 +3567,72 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void projectedExtenderSetGetContentIntent() {
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender();
+        PendingIntent intent = createIntent("test");
+        projectedExtender.setContentIntent(intent);
+        assertEquals(intent, projectedExtender.getContentIntent());
+    }
+
+    @Test
+    public void projectedExtenderSetsExtras() {
+        PendingIntent contentIntent = createIntent("content");
+
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender().setContentIntent(contentIntent);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text");
+
+        builder = projectedExtender.extend(builder);
+        Notification notification = builder.build();
+
+        Bundle projectedExtensions =
+                notification.extras.getBundle(
+                        NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
+        assertNotNull(projectedExtensions);
+        assertEquals(
+                contentIntent,
+                BundleCompat.getParcelable(
+                        projectedExtensions,
+                        NotificationCompat.ProjectedExtender.KEY_CONTENT_INTENT,
+                        PendingIntent.class));
+    }
+
+    @Test
+    public void projectedExtenderFromNotification() {
+        PendingIntent contentIntent = createIntent("content");
+
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender().setContentIntent(contentIntent);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text");
+
+        builder = projectedExtender.extend(builder);
+        Notification notification = builder.build();
+
+        NotificationCompat.ProjectedExtender recoveredExtender =
+                new NotificationCompat.ProjectedExtender(notification);
+        assertEquals(contentIntent, recoveredExtender.getContentIntent());
+    }
+
+    @Test
+    public void emptyProjectedExtender() {
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender();
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .extend(projectedExtender).build();
+        assertTrue(notification.extras.getBundle(
+                NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER).isEmpty());
+    }
+
+    @Test
     public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
@@ -3494,6 +3679,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 30)
     public void setBubbleMetadataShortcut() {
         String shortcutId = "someShortcut";
         PendingIntent deleteIntent =
@@ -3989,6 +4175,759 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertThat(extras.containsKey(NotificationCompat.EXTRA_PROGRESS_TRACKER_ICON)).isTrue();
         assertThat(extras.containsKey(NotificationCompat.EXTRA_PROGRESS_START_ICON)).isTrue();
         assertThat(extras.containsKey(NotificationCompat.EXTRA_PROGRESS_END_ICON)).isTrue();
+    }
+
+    @Test
+    public void testProgressStyle_defaultSemanticStyle() {
+        NotificationCompat.ProgressStyle.Point point =
+                new NotificationCompat.ProgressStyle.Point(10);
+        NotificationCompat.ProgressStyle.Segment segment =
+                new NotificationCompat.ProgressStyle.Segment(100);
+
+        assertThat(point.getSemanticStyle()).isEqualTo(
+                NotificationCompat.SEMANTIC_STYLE_UNSPECIFIED);
+        assertThat(segment.getSemanticStyle()).isEqualTo(
+                NotificationCompat.SEMANTIC_STYLE_UNSPECIFIED);
+    }
+
+    @Test
+    public void testProgressStyle_setSemanticStyle() {
+        NotificationCompat.ProgressStyle.Point point =
+                new NotificationCompat.ProgressStyle.Point(10)
+                        .setSemanticStyle(NotificationCompat.SEMANTIC_STYLE_CAUTION);
+        NotificationCompat.ProgressStyle.Segment segment =
+                new NotificationCompat.ProgressStyle.Segment(100)
+                        .setSemanticStyle(NotificationCompat.SEMANTIC_STYLE_INFO);
+
+        assertThat(point.getSemanticStyle()).isEqualTo(
+                NotificationCompat.SEMANTIC_STYLE_CAUTION);
+        assertThat(segment.getSemanticStyle()).isEqualTo(
+                NotificationCompat.SEMANTIC_STYLE_INFO);
+    }
+
+    @Test
+    public void testProgressStyle_setSemanticStyle_toAndFromNotification() {
+        NotificationCompat.ProgressStyle.Point point =
+                new NotificationCompat.ProgressStyle.Point(10)
+                        .setSemanticStyle(NotificationCompat.SEMANTIC_STYLE_CAUTION);
+        NotificationCompat.ProgressStyle.Segment segment =
+                new NotificationCompat.ProgressStyle.Segment(100)
+                        .setSemanticStyle(NotificationCompat.SEMANTIC_STYLE_INFO);
+
+        Notification n = newNotificationBuilder()
+                .setStyle(new NotificationCompat.ProgressStyle()
+                        .addProgressPoint(point)
+                        .addProgressSegment(segment))
+                .build();
+        Style result = new NotificationCompat.Builder(mContext, n).mStyle;
+
+        assertThat(result).isInstanceOf(NotificationCompat.ProgressStyle.class);
+        assertThat(((NotificationCompat.ProgressStyle) result).getProgressPoints()
+                .get(0).getSemanticStyle()).isEqualTo(NotificationCompat.SEMANTIC_STYLE_CAUTION);
+        assertThat(((NotificationCompat.ProgressStyle) result).getProgressSegments()
+                .get(0).getSemanticStyle()).isEqualTo(NotificationCompat.SEMANTIC_STYLE_INFO);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26) // For java.time
+    public void metricStyle_recoverCompatFromCompat() {
+        Style originalCompat = sampleCompatMetricStyle();
+        Notification n = newNotificationBuilder().setStyle(originalCompat).build();
+
+        Style recoveredCompat = new NotificationCompat.Builder(mContext, n).mStyle;
+
+        assertThat(recoveredCompat).isEqualTo(originalCompat);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void metricStyle_recoverPlatformFromCompat() {
+
+        Style originalCompat = sampleCompatMetricStyle();
+        Notification n = newNotificationBuilder().setStyle(originalCompat).build();
+
+        Notification.Style recoveredPlatform = Notification.Builder.recoverBuilder(mContext, n)
+                .getStyle();
+
+        assertThat(recoveredPlatform).isEqualTo(samplePlatformMetricStyle());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    public void metricStyle_recoverCompatFromPlatform() {
+
+        Notification.Style originalPlatform = samplePlatformMetricStyle();
+        Notification n = new Notification.Builder(mContext, "channel")
+                .setStyle(originalPlatform)
+                .build();
+
+        Style recoveredCompat = new NotificationCompat.Builder(mContext, n).mStyle;
+
+        assertThat(recoveredCompat).isEqualTo(sampleCompatMetricStyle());
+    }
+
+    @SuppressLint("NewApi")
+    private static Notification.Style samplePlatformMetricStyle() {
+        if (Build.VERSION.SDK_INT < 37) {
+            throw new IllegalStateException("Cannot construct platform MetricStyle on this device");
+        }
+
+        return new Notification.MetricStyle()
+                .addMetric(new Notification.Metric(
+                        Notification.Metric.TimeDifference.forTimer(Instant.ofEpochMilli(1),
+                                Notification.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                        "Time:"))
+                .addMetric(new Notification.Metric(
+                        Notification.Metric.TimeDifference.forTimer(123456L,
+                                Notification.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                        "Time:"))
+                .addMetric(new Notification.Metric(
+                        Notification.Metric.TimeDifference.forPausedStopwatch(Duration.ofHours(4),
+                                Notification.Metric.TimeDifference.FORMAT_CHRONOMETER),
+                        "Stopwatch:"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedDate(LocalDate.of(2025, 6, 2),
+                                Notification.Metric.FixedDate.FORMAT_SHORT_DATE),
+                        "Event date:"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedTime(LocalTime.of(10, 30)),
+                        "Event time:"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedInt(12, "drummers"), "Label"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedInt(42), "Answer"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedFloat(0.75f), "Readiness"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedFloat(273f, "°K"),
+                        "Temp"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedFloat(12.345f, null, 0, 3),
+                        "Active time"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedText("A LOT", "things"), "With unit"))
+                .addMetric(new Notification.Metric(
+                        new Notification.Metric.FixedText("This is the last"), "Last"))
+                .setCriticalMetric(5);
+    }
+
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle applies to clients, not tests
+    private static NotificationCompat.Style sampleCompatMetricStyle() {
+        if (Build.VERSION.SDK_INT < 26) {
+            throw new IllegalStateException(
+                    "Cannot construct compat MetricStyle on this device (requires java.time)");
+        }
+
+        return new NotificationCompat.MetricStyle()
+                .addMetric(new NotificationCompat.Metric(
+                        NotificationCompat.Metric.TimeDifference.forTimer(Instant.ofEpochMilli(1),
+                                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                        "Time:"))
+                .addMetric(new NotificationCompat.Metric(
+                        NotificationCompat.Metric.TimeDifference.forTimer(123456L,
+                                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                        "Time:"))
+                .addMetric(new NotificationCompat.Metric(
+                        NotificationCompat.Metric.TimeDifference.forPausedStopwatch(
+                                Duration.ofHours(4),
+                                NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER),
+                        "Stopwatch:"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedDate(LocalDate.of(2025, 6, 2),
+                                NotificationCompat.Metric.FixedDate.FORMAT_SHORT_DATE),
+                        "Event date:"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedTime(LocalTime.of(10, 30)),
+                        "Event time:"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedInt(12, "drummers"), "Label"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedInt(42), "Answer"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedFloat(0.75f), "Readiness"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedFloat(273f, "°K"),
+                        "Temp"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedFloat(12.345f, null, 0, 3),
+                        "Active time"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedText("A LOT", "things"), "With unit"))
+                .addMetric(new NotificationCompat.Metric(
+                        new NotificationCompat.Metric.FixedText("This is the last"), "Last"))
+                .setCriticalMetric(5);
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle applies to clients, not tests
+    public void builderBuild_metricStyleNoMetrics_throws() {
+        NotificationCompat.Builder builder =
+                newNotificationBuilder().setStyle(new NotificationCompat.MetricStyle());
+
+        assertThrows(IllegalArgumentException.class, () -> builder.build());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26) // For java.time
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_addMetric_adds() {
+        NotificationCompat.MetricStyle style = new NotificationCompat.MetricStyle();
+        style.addMetric(
+                new NotificationCompat.Metric(new NotificationCompat.Metric.FixedText("Blah"),
+                        "Meh"));
+        style.addMetric(
+                new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(42), "Steps"));
+        style.addMetric(new NotificationCompat.Metric(new NotificationCompat.Metric.FixedDate(
+                LocalDate.of(2017, 4, 1)), "X"));
+
+        assertThat(style.getMetrics())
+                .containsExactly(
+                        new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedText("Blah"), "Meh"),
+                        new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(42),
+                                "Steps"),
+                        new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedDate(LocalDate.of(2017, 4, 1)),
+                                "X"))
+                .inOrder();
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_addMetric_null_throws() {
+        NotificationCompat.MetricStyle style = new NotificationCompat.MetricStyle();
+        assertThrows(NullPointerException.class, () -> style.addMetric(null));
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_setMetrics_replaces() {
+        NotificationCompat.MetricStyle style = new NotificationCompat.MetricStyle();
+        style.addMetric(new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedText("Will be discarded"), "A"));
+        style.addMetric(new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedText("And this too"), "B"));
+
+        style.setMetrics(
+                List.of(new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10),
+                        "X")));
+
+        assertThat(style.getMetrics()).containsExactly(
+                new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10), "X"));
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_getMetrics_immutable() {
+        NotificationCompat.MetricStyle style = new NotificationCompat.MetricStyle();
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> style.getMetrics().add(
+                        new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10),
+                                "X")));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26) // For java.time
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_equalsAndHash_sameStyle_isEqual() {
+        NotificationCompat.MetricStyle style1 =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(
+                                new NotificationCompat.Metric(
+                                        NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                                                Duration.ofSeconds(30),
+                                                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                                        "Timer"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedText("Gibbous"), "Moon"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedTime(
+                                        LocalTime.of(19, 30)), "Event"));
+
+        NotificationCompat.MetricStyle style2 =
+                new NotificationCompat.MetricStyle()
+                        .setMetrics(
+                                List.of(
+                                        new NotificationCompat.Metric(
+                                                NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                                                        Duration.ofSeconds(30),
+                                                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                                                "Timer"),
+                                        new NotificationCompat.Metric(
+                                                new NotificationCompat.Metric.FixedText("Gibbous"),
+                                                "Moon"),
+                                        new NotificationCompat.Metric(
+                                                new NotificationCompat.Metric.FixedTime(
+                                                        LocalTime.of(19, 30)), "Event")));
+
+        assertThat(style1).isEqualTo(style2);
+        assertThat(style1.hashCode()).isEqualTo(style2.hashCode());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26) // For java.time
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_equalsAndHash_differentStyle_isDifferent() {
+        NotificationCompat.MetricStyle style1 =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(
+                                new NotificationCompat.Metric(
+                                        NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                                                Duration.ofSeconds(30),
+                                                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                                        "Timer"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedText("Gibbous"), "Moon"));
+
+        NotificationCompat.MetricStyle style2 =
+                new NotificationCompat.MetricStyle()
+                        .setMetrics(
+                                List.of(
+                                        new NotificationCompat.Metric(
+                                                NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                                                        Duration.ofSeconds(30),
+                                                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE),
+                                                "A *different* timer"),
+                                        new NotificationCompat.Metric(
+                                                new NotificationCompat.Metric.FixedText("Gibbous"),
+                                                "Moon")));
+
+        assertThat(style1).isNotEqualTo(style2);
+        assertThat(style1.hashCode()).isNotEqualTo(style2.hashCode());
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_getCriticalMetric_default_isFirstMetric() {
+        NotificationCompat.MetricStyle style =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(1), "First"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(2), "Second"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(3), "Third"));
+
+        assertThat(style.getCriticalMetric().getLabel().toString()).isEqualTo("First");
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_getCriticalMetric_afterSetIndex_hasValue() {
+        NotificationCompat.MetricStyle style =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(1), "First"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(2), "Second"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(3), "Third"))
+                        .setCriticalMetric(1);
+
+        assertThat(style.getCriticalMetric().getLabel().toString()).isEqualTo("Second");
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_getCriticalMetric_afterSetIndexNone_isNull() {
+        NotificationCompat.MetricStyle style =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(1), "First"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(2), "Second"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(3), "Third"))
+                        .setCriticalMetric(NotificationCompat.MetricStyle.METRIC_INDEX_NONE);
+
+        assertThat(style.getCriticalMetric()).isNull();
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi(37) for MetricStyle only applies to clients, not tests
+    public void metricStyle_getCriticalMetric_afterSetIndexInvalid_isNull() {
+        NotificationCompat.MetricStyle style =
+                new NotificationCompat.MetricStyle()
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(1), "First"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(2), "Second"))
+                        .addMetric(new NotificationCompat.Metric(
+                                new NotificationCompat.Metric.FixedInt(3), "Third"))
+                        .setCriticalMetric(3);
+
+        assertThat(style.getCriticalMetric()).isNull();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_constructs() {
+        NotificationCompat.Metric metric = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedText("str"), "Port");
+
+        assertThat(metric.getValue()).isEqualTo(new NotificationCompat.Metric.FixedText("str"));
+        assertThat(metric.getLabel()).isEqualTo("Port");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_withSemanticStyle_constructs() {
+        NotificationCompat.Metric metric = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedText("str"), "Port",
+                NotificationCompat.SEMANTIC_STYLE_INFO);
+
+        assertThat(metric.getValue()).isEqualTo(new NotificationCompat.Metric.FixedText("str"));
+        assertThat(metric.getLabel()).isEqualTo("Port");
+        assertThat(metric.getSemanticStyle()).isEqualTo(NotificationCompat.SEMANTIC_STYLE_INFO);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void metric_equalsAndHash_sameMetric_isEqual() {
+        NotificationCompat.Metric metric1 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedFloat(23.5f, "°C", 0, 1), "Temp",
+                NotificationCompat.SEMANTIC_STYLE_SAFE);
+        NotificationCompat.Metric metric2 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedFloat(23.5f, "°C", 0, 1), "Temp",
+                NotificationCompat.SEMANTIC_STYLE_SAFE);
+
+        assertThat(metric1).isEqualTo(metric2);
+        assertThat(metric1.hashCode()).isEqualTo(metric2.hashCode());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void metric_equalsAndHash_differentMetricValue_isDifferent() {
+        NotificationCompat.Metric metric1 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedInt(23, "m"), "Distance");
+        NotificationCompat.Metric metric2 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedInt(24, "m"), "Distance");
+
+        assertThat(metric1).isNotEqualTo(metric2);
+        assertThat(metric1.hashCode()).isNotEqualTo(metric2.hashCode());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void metric_equalsAndHash_differentSemanticStyle_isDifferent() {
+        NotificationCompat.Metric metric1 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedInt(23, "m"), "Distance",
+                NotificationCompat.SEMANTIC_STYLE_UNSPECIFIED);
+        NotificationCompat.Metric metric2 = new NotificationCompat.Metric(
+                new NotificationCompat.Metric.FixedInt(23, "m"), "Distance",
+                NotificationCompat.SEMANTIC_STYLE_CAUTION);
+
+        assertThat(metric1).isNotEqualTo(metric2);
+        assertThat(metric1.hashCode()).isNotEqualTo(metric2.hashCode());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_nullValue_throws() {
+        assertThrows(NullPointerException.class, () -> new NotificationCompat.Metric(null, "X"));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_nullLabel_throws() {
+        assertThrows(NullPointerException.class,
+                () -> new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10),
+                        null));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_emptyLabel_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10),
+                        ""));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newMetric_blankLabel_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric(new NotificationCompat.Metric.FixedInt(10),
+                        "   "));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forTimer_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forTimer(
+                        Instant.ofEpochMilli(100),
+                        NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+
+        assertThat(timeDifference.getZeroTime()).isEqualTo(Instant.ofEpochMilli(100));
+        assertThat(timeDifference.getZeroElapsedRealtime()).isNull();
+        assertThat(timeDifference.getPausedDuration()).isNull();
+        assertThat(timeDifference.isTimer()).isTrue();
+        assertThat(timeDifference.isStopwatch()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forElapsedRealtimeTimer_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forTimer(20_000,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+
+        assertThat(timeDifference.getZeroTime()).isNull();
+        assertThat(timeDifference.getZeroElapsedRealtime()).isEqualTo(20_000);
+        assertThat(timeDifference.getPausedDuration()).isNull();
+        assertThat(timeDifference.isTimer()).isTrue();
+        assertThat(timeDifference.isStopwatch()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forStopwatch_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forStopwatch(
+                        Instant.ofEpochMilli(200),
+                        NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+
+        assertThat(timeDifference.getZeroTime()).isEqualTo(Instant.ofEpochMilli(200));
+        assertThat(timeDifference.getZeroElapsedRealtime()).isNull();
+        assertThat(timeDifference.getPausedDuration()).isNull();
+        assertThat(timeDifference.isStopwatch()).isTrue();
+        assertThat(timeDifference.isTimer()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forElapsedRealtimeStopwatch_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forStopwatch(30_000,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+
+        assertThat(timeDifference.getZeroTime()).isNull();
+        assertThat(timeDifference.getZeroElapsedRealtime()).isEqualTo(30_000);
+        assertThat(timeDifference.getPausedDuration()).isNull();
+        assertThat(timeDifference.isStopwatch()).isTrue();
+        assertThat(timeDifference.isTimer()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forPausedTimer_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                        Duration.ofSeconds(90),
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE);
+
+        assertThat(timeDifference.getZeroTime()).isNull();
+        assertThat(timeDifference.getZeroElapsedRealtime()).isNull();
+        assertThat(timeDifference.getPausedDuration()).isEqualTo(Duration.ofSeconds(90));
+        assertThat(timeDifference.isTimer()).isTrue();
+        assertThat(timeDifference.isStopwatch()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_forPausedStopwatch_constructs() {
+        NotificationCompat.Metric.TimeDifference timeDifference =
+                NotificationCompat.Metric.TimeDifference.forPausedStopwatch(
+                        Duration.ofMinutes(2),
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE);
+
+        assertThat(timeDifference.getZeroTime()).isNull();
+        assertThat(timeDifference.getZeroElapsedRealtime()).isNull();
+        assertThat(timeDifference.getPausedDuration()).isEqualTo(Duration.ofMinutes(2));
+        assertThat(timeDifference.isStopwatch()).isTrue();
+        assertThat(timeDifference.isTimer()).isFalse();
+        assertThat(timeDifference.getFormat()).isEqualTo(
+                NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_invalidFormat_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forTimer(Instant.now(), /* format= */
+                        -10));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forStopwatch(
+                        Instant.now(), /* format= */ 100));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forPausedTimer(
+                        Duration.ofMinutes(2), /* format= */ -20));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forPausedStopwatch(
+                        Duration.ofMinutes(2), /* format= */ 77));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    @SuppressLint("NewApi") // RequiresApi(37) for TimeDifference applies to clients, not tests
+    public void newTimeDifference_nullInput_throws() {
+        assertThrows(
+                NullPointerException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forTimer(null,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE));
+        assertThrows(
+                NullPointerException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forPausedTimer(null,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE));
+        assertThrows(
+                NullPointerException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forStopwatch(null,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE));
+        assertThrows(
+                NullPointerException.class,
+                () -> NotificationCompat.Metric.TimeDifference.forPausedStopwatch(null,
+                        NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedDate_constructs() {
+        NotificationCompat.Metric.FixedDate fixedDate = new NotificationCompat.Metric.FixedDate(
+                LocalDate.of(2021, 10, 31), NotificationCompat.Metric.FixedDate.FORMAT_LONG_DATE);
+
+        assertThat(fixedDate.getValue()).isEqualTo(LocalDate.of(2021, 10, 31));
+        assertThat(fixedDate.getFormat()).isEqualTo(
+                NotificationCompat.Metric.FixedDate.FORMAT_LONG_DATE);
+
+        NotificationCompat.Metric.FixedDate defaults = new NotificationCompat.Metric.FixedDate(
+                LocalDate.of(2021, 10, 31));
+
+        assertThat(defaults.getValue()).isEqualTo(LocalDate.of(2021, 10, 31));
+        assertThat(defaults.getFormat()).isEqualTo(
+                NotificationCompat.Metric.FixedDate.FORMAT_AUTOMATIC);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedDate_nullDate_throws() {
+        assertThrows(NullPointerException.class,
+                () -> new NotificationCompat.Metric.FixedDate(null));
+        assertThrows(
+                NullPointerException.class, () -> new NotificationCompat.Metric.FixedDate(null,
+                        NotificationCompat.Metric.FixedDate.FORMAT_AUTOMATIC));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedTime_constructs() {
+        NotificationCompat.Metric.FixedTime fixedTime = new NotificationCompat.Metric.FixedTime(
+                LocalTime.of(21, 15));
+
+        assertThat(fixedTime.getValue()).isEqualTo(LocalTime.of(21, 15));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedTime_nullTime_throws() {
+        assertThrows(NullPointerException.class,
+                () -> new NotificationCompat.Metric.FixedTime(null));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedInt_constructs() {
+        NotificationCompat.Metric.FixedInt fixedInt = new NotificationCompat.Metric.FixedInt(33,
+                "orientales");
+
+        assertThat(fixedInt.getValue()).isEqualTo(33);
+        assertThat(fixedInt.getUnit()).isEqualTo("orientales");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedFloat_constructs() {
+        NotificationCompat.Metric.FixedFloat fixedFloat = new NotificationCompat.Metric.FixedFloat(
+                33.33f, "degrees", 1, 2);
+
+        assertThat(fixedFloat.getValue()).isEqualTo(33.33f);
+        assertThat(fixedFloat.getUnit()).isEqualTo("degrees");
+        assertThat(fixedFloat.getMinFractionDigits()).isEqualTo(1);
+        assertThat(fixedFloat.getMaxFractionDigits()).isEqualTo(2);
+
+        NotificationCompat.Metric.FixedFloat defaults = new NotificationCompat.Metric.FixedFloat(
+                44.44f);
+
+        assertThat(defaults.getValue()).isEqualTo(44.44f);
+        assertThat(defaults.getUnit()).isNull();
+        assertThat(defaults.getMinFractionDigits()).isEqualTo(0);
+        assertThat(defaults.getMaxFractionDigits()).isEqualTo(2);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedFloat_invalidFractionDigits_throws() {
+        // invalid (negative) min and max
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric.FixedFloat(1f, null, -10, -5));
+        // invalid (negative) min, valid max
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric.FixedFloat(1f, null, -1, 3));
+        // too large min, too large max
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric.FixedFloat(1f, null, 10, 15));
+        // valid min, too large max
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric.FixedFloat(1f, null, 2, 8));
+        // max lower than min
+        assertThrows(IllegalArgumentException.class,
+                () -> new NotificationCompat.Metric.FixedFloat(1f, null, 3, 1));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedText_constructs() {
+        NotificationCompat.Metric.FixedText fixedText = new NotificationCompat.Metric.FixedText(
+                "120/80", "mmHg");
+        assertThat(fixedText.getValue()).isEqualTo("120/80");
+        assertThat(fixedText.getUnit()).isEqualTo("mmHg");
+
+        NotificationCompat.Metric.FixedText defaults = new NotificationCompat.Metric.FixedText(
+                "Hello!");
+        assertThat(defaults.getValue()).isEqualTo("Hello!");
+        assertThat(defaults.getUnit()).isNull();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void newFixedText_nullString_throws() {
+        assertThrows(NullPointerException.class,
+                () -> new NotificationCompat.Metric.FixedText(null));
+    }
+
+    @Test
+    public void createSemanticStyleAnnotation() {
+        ParcelableSpan annotation = NotificationCompat.createSemanticStyleAnnotation(
+                NotificationCompat.SEMANTIC_STYLE_DANGER);
+
+        // Eventually this could be ForegroundColorSpan in older platforms, but for now we always
+        // return annotation (which will only have an effect on CINNAMON_BUN).
+        assertThat(annotation).isInstanceOf(Annotation.class);
+        assertThat(((Annotation) annotation).getValue()).isEqualTo(
+                String.valueOf(NotificationCompat.SEMANTIC_STYLE_DANGER));
     }
 
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a

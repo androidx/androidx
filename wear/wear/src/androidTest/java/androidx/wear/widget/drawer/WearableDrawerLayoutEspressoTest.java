@@ -36,11 +36,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
+import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -229,6 +231,7 @@ public class WearableDrawerLayoutEspressoTest {
 
     @Test
     public void navDrawerShouldOpenWhenCalledInOnCreate() {
+        assumeFalse("Test fails on cuttlefish b/460511513", Build.MODEL.contains("Cuttlefish"));
         // GIVEN an activity which calls openDrawer(Gravity.TOP) in onCreate
         // WHEN it is launched
         activityRule.launchActivity(
@@ -302,6 +305,7 @@ public class WearableDrawerLayoutEspressoTest {
 
     @Test
     public void navDrawerShouldOpenWhenCalledInOnCreateAndThenCloseWhenRequested() {
+        assumeFalse("Test fails on cuttlefish b/460511513", Build.MODEL.contains("Cuttlefish"));
         // GIVEN an activity which calls openDrawer(Gravity.TOP) in onCreate, then closes it
         // WHEN it is launched
         activityRule.launchActivity(
@@ -504,6 +508,7 @@ public class WearableDrawerLayoutEspressoTest {
 
     @Test
     public void addingActionDrawerItemShouldUpdateView() {
+        assumeFalse("Test fails on cuttlefish b/460511513", Build.MODEL.contains("Cuttlefish"));
         // GIVEN a drawer layout with an open action drawer
         activityRule.launchActivity(
                 new DrawerTestActivity.Builder()

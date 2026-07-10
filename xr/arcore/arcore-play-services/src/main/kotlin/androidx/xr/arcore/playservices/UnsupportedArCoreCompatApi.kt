@@ -27,5 +27,5 @@ import kotlin.RequiresOptIn
 )
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class UnsupportedArCoreCompatApi {}

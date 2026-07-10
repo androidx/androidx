@@ -17,16 +17,18 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     productFlavors {
@@ -57,10 +59,8 @@ android {
 dependencies {
 
     // Specifying build type dependencies is part of the test
-    debugImplementation(libs.kotlinStdlib)
     debugImplementation(libs.constraintLayout)
 
-    releaseImplementation(libs.kotlinStdlib)
     releaseImplementation(libs.constraintLayout)
 }
 

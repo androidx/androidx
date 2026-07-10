@@ -21,10 +21,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.Bundle
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromCreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromSlice
+import androidx.credentials.provider.CreateEntry.Companion.marshall
 import androidx.credentials.provider.CreateEntry.Companion.toSlice
+import androidx.credentials.provider.CreateEntry.Companion.unmarshallCreateEntries
 import androidx.credentials.provider.ui.UiUtils.Companion.testBiometricPromptData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -135,6 +138,39 @@ class CreateEntryTest {
 
         assertNotNull(entry)
         assertEntryWithAllParams(entry!!)
+    }
+
+    @Test
+    fun createFromBundle_success() {
+        val expectedEntry =
+            CreateEntry(
+                "accountName",
+                mPendingIntent,
+                "Description",
+                Instant.ofEpochMilli(1760047936000L),
+                ICON,
+                2,
+                3,
+                20,
+                true,
+            )
+        val bundle = Bundle()
+        listOf(expectedEntry).marshall(bundle)
+
+        val actualEntry = bundle.unmarshallCreateEntries().single()
+
+        assertThat(actualEntry.accountName).isEqualTo(expectedEntry.accountName)
+        assertThat(actualEntry.pendingIntent).isEqualTo(expectedEntry.pendingIntent)
+        assertThat(actualEntry.description).isEqualTo(expectedEntry.description)
+        assertThat(actualEntry.getPasswordCredentialCount())
+            .isEqualTo(expectedEntry.getPasswordCredentialCount())
+        assertThat(actualEntry.getPublicKeyCredentialCount())
+            .isEqualTo(expectedEntry.getPublicKeyCredentialCount())
+        assertThat(actualEntry.getTotalCredentialCount())
+            .isEqualTo(expectedEntry.getTotalCredentialCount())
+        assertThat(actualEntry.lastUsedTime!!.toEpochMilli())
+            .isEqualTo(expectedEntry.lastUsedTime?.toEpochMilli())
+        assertThat(actualEntry.isAutoSelectAllowed).isEqualTo(expectedEntry.isAutoSelectAllowed)
     }
 
     private fun constructEntryWithRequiredParams(): CreateEntry {

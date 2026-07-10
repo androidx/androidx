@@ -253,10 +253,12 @@ public class ArcAnimationSpec<T>(
 public value class StartOffsetType private constructor(internal val value: Int) {
     public companion object {
         /** Delays the start of the animation. */
-        public val Delay: StartOffsetType = StartOffsetType(-1)
+        public val Delay: StartOffsetType
+            get() = StartOffsetType(-1)
 
         /** Fast forwards the animation to a given play time, and starts it immediately. */
-        public val FastForward: StartOffsetType = StartOffsetType(1)
+        public val FastForward: StartOffsetType
+            get() = StartOffsetType(1)
     }
 }
 
@@ -382,6 +384,7 @@ public class RepeatableSpec<T>(
  * @see infiniteRepeatable
  */
 // TODO: Consider supporting repeating spring specs
+@OptIn(ExperimentalAnimationSpecApi::class)
 public class InfiniteRepeatableSpec<T>(
     public val animation: DurationBasedAnimationSpec<T>,
     public val repeatMode: RepeatMode = RepeatMode.Restart,
@@ -393,6 +396,27 @@ public class InfiniteRepeatableSpec<T>(
         animation: DurationBasedAnimationSpec<T>,
         repeatMode: RepeatMode = RepeatMode.Restart,
     ) : this(animation, repeatMode, StartOffset(0))
+
+    init {
+        // Checking if the animation has 0-duration. If so, it would result in an infinite
+        // loop for infinite animations.
+        val isZeroDuration =
+            when (animation) {
+                is TweenSpec -> animation.durationMillis == 0 && animation.delay == 0
+                is SnapSpec -> animation.delay == 0
+                is KeyframesSpec ->
+                    animation.config.durationMillis == 0 && animation.config.delayMillis == 0
+                is KeyframesWithSplineSpec ->
+                    animation.config.durationMillis == 0 && animation.config.delayMillis == 0
+                is ArcAnimationSpec -> animation.durationMillis == 0 && animation.delayMillis == 0
+                else -> false
+            }
+        if (isZeroDuration) {
+            throw IllegalArgumentException(
+                "Animation to be infinitely repeated cannot have a" + " 0-duration"
+            )
+        }
+    }
 
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
@@ -550,6 +574,7 @@ public sealed class KeyframeBaseEntity<T>(internal val value: T, internal var ea
 @Immutable
 public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
     DurationBasedAnimationSpec<T> {
+
     /**
      * [KeyframesSpecConfig] stores a mutable configuration of the key frames, including
      * [durationMillis], [delayMillis], and all the key frames. Each key frame defines what the
@@ -721,6 +746,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
 @Immutable
 public class KeyframesWithSplineSpec<T>(public val config: KeyframesWithSplineSpecConfig<T>) :
     DurationBasedAnimationSpec<T> {
+
     // Periodic bias property, NaN by default. Only meant to be set by secondary constructor
     private var periodicBias: Float = Float.NaN
 

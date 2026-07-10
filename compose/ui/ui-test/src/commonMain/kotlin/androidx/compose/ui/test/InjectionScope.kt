@@ -23,17 +23,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 
 /**
- * The receiver scope of all input injection lambdas offered in `ui-test`, such as
+ * The receiver scope for input injection lambdas that are tied to a specific node, such as
  * [performTouchInput] and [performMouseInput].
  *
- * This scope offers several properties that allow you to get [coordinates][Offset] within the node
- * you're interacting on, like the [topLeft] corner, its [center], or some percentage of the size
- * ([percentOffset]).
- *
- * All positional properties are expressed in pixels. [InjectionScope] implements [Density] so you
- * can convert between px and dp as you wish. The density used is taken from the
- * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] from the [SemanticsNodeInteraction]
- * on which the input injection method is called.
+ * The properties exposed here (e.g., [center], [width], [height]) are derived from the
+ * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] of the [SemanticsNodeInteraction] on
+ * which the injection method was called.
  */
 @JvmDefaultWithCompatibility
 interface InjectionScope : Density {
@@ -76,7 +71,7 @@ interface InjectionScope : Density {
         get() = 0f
 
     /**
-     * The y-coordinate for the bottom of the node we're interacting with in px, in the node's local
+     * The y-coordinate for the top of the node we're interacting with in px, in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      */
     val top: Float

@@ -17,111 +17,227 @@
 package androidx.pdf.view
 
 import android.content.Context
-import android.graphics.Point
-import android.graphics.PointF
-import android.graphics.RectF
-import android.os.DeadObjectException
-import androidx.core.graphics.toRectF
-import androidx.pdf.PdfDocument
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.pdf.PdfPoint
 import androidx.pdf.R
-import androidx.pdf.exceptions.RequestFailedException
-import androidx.pdf.exceptions.RequestMetadata
-import androidx.pdf.models.FormEditRecord
+import androidx.pdf.autofill.FormWidgetInteractionListener
+import androidx.pdf.autofill.getVirtualFormWidgetId
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
-import androidx.pdf.util.FORM_APPLY_EDIT_REQUEST_NAME
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 /**
  * Handles user interaction with different types of form widgets in a PDF document and assembles a
- * [FormEditRecord] based on the interaction. The class also handles responsibilities like creating
+ * [FormEditInfo] based on the interaction. The class also handles responsibilities like creating
  * drop-down menus or creating text fields for user input.
  */
 internal class FormWidgetInteractionHandler(
     private val context: Context,
-    private val pdfDocument: PdfDocument,
     private val backgroundScope: CoroutineScope,
-    private val errorFlow: MutableSharedFlow<Throwable>,
+    private val placeTextInputInLayout: (FormFillingEditText?) -> Unit,
 ) {
+    private val formFillingTextInputFactory = FormFillingTextInputFactory(context)
+    private var currentFormFillingEditText: FormFillingEditText? = null
 
-    private val _invalidatedAreas =
-        MutableSharedFlow<Pair<Int, List<RectF>>>(replay = pdfDocument.pageCount)
+    internal val formWidgetUpdates: SharedFlow<FormEditInfo>
+        get() = _formWidgetUpdates
 
-    val invalidatedAreas: SharedFlow<Pair<Int, List<RectF>>>
-        get() = _invalidatedAreas
+    internal var interactionListener: FormWidgetInteractionListener? = null
 
-    private var currentApplyEditJob: Job? = null
+    private val _formWidgetUpdates = MutableSharedFlow<FormEditInfo>()
 
     /** Entry point to handle interaction with the formWidget. */
     fun handleInteraction(touchPoint: PdfPoint, formWidgetInfo: FormWidgetInfo) {
-        if (formWidgetInfo.readOnly) return
+        if (formWidgetInfo.isReadOnly) return
 
         val pageNum = touchPoint.pageNum
-        val pdfCoordinates = PointF(touchPoint.x, touchPoint.y)
         // switch case to delegate to the appropriate handler
         when (formWidgetInfo.widgetType) {
             FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
             FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
             FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON -> {
-                handleInteractionWithClickTypeWidget(pageNum, pdfCoordinates, formWidgetInfo)
+                handleInteractionWithClickTypeWidget(touchPoint, formWidgetInfo)
             }
+
             FormWidgetInfo.WIDGET_TYPE_TEXTFIELD -> {
                 handleInteractionWithTextWidget(pageNum, formWidgetInfo)
             }
-            FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+
             FormWidgetInfo.WIDGET_TYPE_COMBOBOX -> {
+                handleInteractionWithComboBox(pageNum, formWidgetInfo)
+            }
+
+            FormWidgetInfo.WIDGET_TYPE_LISTBOX -> {
                 handleInteractionWithChoiceSelectionWidget(pageNum, formWidgetInfo)
             }
         }
     }
 
     /** Implements logic to take user input in a click-type widget. */
-    fun handleInteractionWithClickTypeWidget(
-        pageNum: Int,
-        pdfCoordinates: PointF,
+    private fun handleInteractionWithClickTypeWidget(
+        clickPoint: PdfPoint,
         formWidgetInfo: FormWidgetInfo,
     ) {
-        val formEditRecord =
-            FormEditRecord(
-                pageNum,
+        val formEditInfo =
+            FormEditInfo.createClick(
                 formWidgetInfo.widgetIndex,
-                clickPoint = Point(pdfCoordinates.x.roundToInt(), pdfCoordinates.y.roundToInt()),
+                clickPoint =
+                    PdfPoint(
+                        clickPoint.pageNum,
+                        formWidgetInfo.widgetRect.centerX().toFloat(),
+                        formWidgetInfo.widgetRect.centerY().toFloat(),
+                    ),
             )
-        applyEditRecord(pageNum, formEditRecord)
+        relayFormEditInfo(formEditInfo)
     }
 
-    /** Implements logic to take user input in a text field. Once done assembles a FormEditRecord */
-    fun handleInteractionWithTextWidget(pageNum: Int, formWidgetInfo: FormWidgetInfo) {}
+    /** Implements logic to take user input in a text field. Once done assembles a FormEditInfo */
+    fun handleInteractionWithTextWidget(
+        pageNum: Int,
+        formWidgetInfo: FormWidgetInfo,
+        startingText: String? = null,
+    ) {
+        val formFillingEditText = configureEditText(pageNum, formWidgetInfo, startingText)
+        placeTextInputInLayout.invoke(formFillingEditText)
+        currentFormFillingEditText = formFillingEditText
+
+        postToTextWidget {
+            interactionListener?.onWidgetInteractionStarted(
+                getVirtualFormWidgetId(pageNum, formWidgetInfo.widgetIndex),
+                formWidgetInfo,
+            )
+        }
+    }
+
+    private fun configureEditText(
+        pageNum: Int,
+        formWidgetInfo: FormWidgetInfo,
+        startingText: String? = null,
+    ): FormFillingEditText {
+        val formFillingEditText =
+            formFillingTextInputFactory.makeEditText(pageNum, formWidgetInfo, startingText) {
+                currentText ->
+                createAndRelayEditTextInfo(pageNum, formWidgetInfo.widgetIndex, currentText)
+            }
+        formFillingEditText.let {
+            val editText = it.editText
+            editText.setOnEditorActionListener { _, actionId: Int, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    finishTextEditing(formFillingEditText)
+                }
+                false
+            }
+        }
+        return formFillingEditText
+    }
+
+    private fun hideKeyboard(editText: EditText) {
+        val imm: InputMethodManager =
+            context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+
+    fun finishTextEditing(formFillingEditText: FormFillingEditText) {
+        interactionListener?.onWidgetInteractionFinished(
+            getVirtualFormWidgetId(
+                formFillingEditText.pageNum,
+                formFillingEditText.formWidget.widgetIndex,
+            )
+        )
+
+        formFillingEditText.editText.clearFocus()
+        hideKeyboard(formFillingEditText.editText)
+        placeTextInputInLayout(null)
+        currentFormFillingEditText = null
+    }
+
+    fun createAndRelayEditTextInfo(pageNum: Int, widgetIndex: Int, text: String) {
+        val formEditInfo = FormEditInfo.createSetText(pageNum, widgetIndex, text)
+        relayFormEditInfo(formEditInfo)
+
+        postToTextWidget {
+            interactionListener?.onWidgetValueChanged(
+                getVirtualFormWidgetId(pageNum, widgetIndex),
+                formEditInfo,
+            )
+        }
+    }
+
+    /**
+     * Posts [block] to the [EditText] message queue to ensure it executes after the view is
+     * attached and laid out. This is required for services like autofill to correctly manage focus
+     * and display suggestions over the widget.
+     */
+    private fun postToTextWidget(block: () -> Unit) {
+        currentFormFillingEditText?.editText?.post(block)
+    }
+
+    private fun handleInteractionWithComboBox(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
+        showSingleChoiceSelectMenu(
+            pageNum,
+            formWidgetInfo,
+            showCustomOption = formWidgetInfo.isEditableText,
+        )
+    }
 
     /**
      * Creates a drop-down menu with a list of options. Once option is selected by the user,
-     * assembles a FormEditRecord
+     * assembles a FormEditInfo
      */
-    fun handleInteractionWithChoiceSelectionWidget(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
-        if (formWidgetInfo.multiSelect) {
+    private fun handleInteractionWithChoiceSelectionWidget(
+        pageNum: Int,
+        formWidgetInfo: FormWidgetInfo,
+    ) {
+        if (formWidgetInfo.isMultiSelect) {
             showMultiChoiceSelectMenu(pageNum, formWidgetInfo)
         } else {
             showSingleChoiceSelectMenu(pageNum, formWidgetInfo)
         }
     }
 
-    private fun showSingleChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
-        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.selected }
-        val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
+    private fun showSingleChoiceSelectMenu(
+        pageNum: Int,
+        formWidgetInfo: FormWidgetInfo,
+        showCustomOption: Boolean = false,
+    ) {
+        val listItems = formWidgetInfo.listItems
+        val labels =
+            if (showCustomOption) {
+                listOf(context.getString(R.string.combobox_custom_option)) +
+                    listItems.map { it.label }
+            } else {
+                listItems.map { it.label }
+            }
+
+        val initialSelection = listItems.indexOfFirst { it.isSelected }
+        // Offset by 1 if "Custom" is at index 0; otherwise use the raw index.
+        var selectedIndex = if (showCustomOption) initialSelection + 1 else initialSelection
 
         MaterialAlertDialogBuilder(context)
-            .setSingleChoiceItems(listItemValues.toTypedArray(), selectedItemIndex) { dialog, which
-                ->
-                selectedItemIndex = which
+            .setSingleChoiceItems(labels.toTypedArray(), selectedIndex) { _, which ->
+                selectedIndex = which
             }
-            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, which ->
-                handleSelectedItem(pageNum, formWidgetInfo, listOf(selectedItemIndex))
+            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, _ ->
+                if (showCustomOption && selectedIndex == 0) {
+                    // User selected the "Custom" option
+                    handleInteractionWithTextWidget(
+                        pageNum,
+                        formWidgetInfo,
+                        startingText = formWidgetInfo.textValue,
+                    )
+                } else {
+                    // Calculate the actual index in the original listItems
+                    val actualIndex = if (showCustomOption) selectedIndex - 1 else selectedIndex
+                    if (actualIndex >= 0) {
+                        handleSelectedItem(pageNum, formWidgetInfo, listOf(actualIndex))
+                    }
+                }
                 dialog.dismiss()
             }
             .show()
@@ -130,7 +246,7 @@ internal class FormWidgetInteractionHandler(
     private fun showMultiChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
         val selectedItems =
             BooleanArray(formWidgetInfo.listItems.size) { i ->
-                formWidgetInfo.listItems[i].selected
+                formWidgetInfo.listItems[i].isSelected
             }
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 
@@ -157,44 +273,17 @@ internal class FormWidgetInteractionHandler(
         formWidgetInfo: FormWidgetInfo,
         selectedItemIndices: List<Int>,
     ) {
-        val formEditRecord =
-            FormEditRecord(
+        val formEditInfo =
+            FormEditInfo.createSetIndices(
                 pageNum,
                 formWidgetInfo.widgetIndex,
                 selectedIndices = selectedItemIndices.toIntArray(),
             )
 
-        applyEditRecord(pageNum, formEditRecord)
+        relayFormEditInfo(formEditInfo)
     }
 
-    /** Calls pdfDocument.applyEdit inside a CoroutineScope */
-    fun applyEditRecord(pageNum: Int, formEditRecord: FormEditRecord) {
-        val previousApplyEditJob = currentApplyEditJob
-        currentApplyEditJob =
-            backgroundScope.launch {
-                previousApplyEditJob?.join()
-                try {
-                    _invalidatedAreas.emit(
-                        pageNum to
-                            pdfDocument.applyEdit(pageNum, formEditRecord).map { it.toRectF() }
-                    )
-                } catch (error: Exception) {
-                    when (error) {
-                        is DeadObjectException,
-                        is IllegalArgumentException -> {
-                            val exception =
-                                RequestFailedException(
-                                    requestMetadata =
-                                        RequestMetadata(
-                                            requestName = FORM_APPLY_EDIT_REQUEST_NAME,
-                                            pageRange = pageNum..pageNum,
-                                        ),
-                                    throwable = error,
-                                )
-                            errorFlow.emit(exception)
-                        }
-                    }
-                }
-            }
+    private fun relayFormEditInfo(formEditInfo: FormEditInfo) {
+        backgroundScope.launch { _formWidgetUpdates.emit(formEditInfo) }
     }
 }

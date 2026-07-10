@@ -32,16 +32,18 @@ import java.util.Locale
  *
  * It is designed to encourage best i18n practices, and work correctly on old / new Android
  * versions, without having to test the API level everywhere.
- *
- * @param context the application context.
- * @param options various options for the formatter (what fields should be rendered, length, etc.).
- * @param locale the locale used for formatting. If missing then the application locale will be
- *   used.
  */
 public class DateTimeFormatter {
 
     private val dateFormatter: IDateTimeFormatterImpl
 
+    /**
+     * @param context the application context.
+     * @param options various options for the formatter (what fields should be rendered, length,
+     *   etc.).
+     * @param locale the locale used for formatting. If missing then the application locale will be
+     *   used.
+     */
     @JvmOverloads
     public constructor(
         context: Context,

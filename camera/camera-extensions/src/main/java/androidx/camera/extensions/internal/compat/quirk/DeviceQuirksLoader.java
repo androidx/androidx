@@ -40,30 +40,6 @@ public class DeviceQuirksLoader {
         final List<Quirk> quirks = new ArrayList<>();
 
         if (quirkSettings.shouldEnableQuirk(
-                ExtensionDisabledQuirk.class,
-                ExtensionDisabledQuirk.load())) {
-            quirks.add(new ExtensionDisabledQuirk());
-        }
-
-        if (quirkSettings.shouldEnableQuirk(
-                CrashWhenOnDisableTooSoon.class,
-                CrashWhenOnDisableTooSoon.load())) {
-            quirks.add(new CrashWhenOnDisableTooSoon());
-        }
-
-        if (quirkSettings.shouldEnableQuirk(
-                GetAvailableKeysNeedsOnInit.class,
-                GetAvailableKeysNeedsOnInit.load())) {
-            quirks.add(new GetAvailableKeysNeedsOnInit());
-        }
-
-        if (quirkSettings.shouldEnableQuirk(
-                CaptureOutputSurfaceOccupiedQuirk.class,
-                CaptureOutputSurfaceOccupiedQuirk.load())) {
-            quirks.add(new CaptureOutputSurfaceOccupiedQuirk());
-        }
-
-        if (quirkSettings.shouldEnableQuirk(
                 EnsurePostviewFormatEquivalenceQuirk.class,
                 EnsurePostviewFormatEquivalenceQuirk.load())) {
             quirks.add(new EnsurePostviewFormatEquivalenceQuirk());

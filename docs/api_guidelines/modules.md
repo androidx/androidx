@@ -115,24 +115,19 @@ interchangeably within AndroidX, with *project* being the technical term used by
 Gradle to describe a build target, e.g. a library that maps to a single AAR.
 
 New projects can be created using our
-[project creation script](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/project-creator/?q=project-creator&ss=androidx%2Fplatform%2Fframeworks%2Fsupport)
+[project creation gradle task](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/ProjectCreatorTask.kt)
 available in our repo.
 
 It will create a new project with the proper structure and configuration based
 on your project needs!
 
-To use it, first install the virtualenv if it is not already installed
-
-*   (Linux) `sudo apt-get install virtualenv python3-venv`
-*   (Mac) `pip3 install virtualenv`
-*   (Mac homebrew) `brew install virtualenv`
-
-Then run the script:
+To use it, run the task:
 
 ```sh
-cd ~/androidx-main/frameworks/support && \
-./development/project-creator/create_project.sh androidx.foo foo-bar
+cd ~/androidx-main/frameworks/support && ./gradlew :createProject
 ```
+
+You will be prompted to enter the project details.
 
 If the module you are creating is an application (not a library), such as you
 might want for integration-tests, edit the project's `build.gradle` file and
@@ -231,7 +226,6 @@ Libraries within an atomic group should not specify a version in their
 androidx {
     name = 'AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2019'
     description = 'Provides local and centralized app indexing'
 }
@@ -316,7 +310,6 @@ import androidx.build.KmpPlatformsKt
 androidx {
     name = "Collection"
     type = LibraryType.KMP_LIBRARY
-    mavenGroup = LibraryGroups.COLLECTION
     mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP
     inceptionYear = "2018"
     description = "Standalone efficient collections."
@@ -326,14 +319,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**23** (Android 6.0, Marshmallow). This SDK was chosen to represent 99% of
-active devices based on Play Store check-ins (see Android Studio
+**24** (Android 7.0, Nougat). This SDK was chosen to represent 99% of active
+devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **21** (Android 5.0, Lollipop).
+default is **23** (Android 6.0, Marshmallow).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match

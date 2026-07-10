@@ -212,7 +212,7 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
     }
 
     @MainThread
-    void onStartCommand(@NonNull Intent intent) {
+    void onStartCommand(@NonNull Intent intent, int startId) {
         String action = intent.getAction();
         if (ACTION_START_FOREGROUND.equals(action)) {
             handleStartForeground(intent);
@@ -224,7 +224,7 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
         } else if (ACTION_CANCEL_WORK.equals(action)) {
             handleCancelWork(intent);
         } else if (ACTION_STOP_FOREGROUND.equals(action)) {
-            handleStop(intent);
+            handleStop(intent, startId);
         }
     }
 
@@ -251,7 +251,7 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
             }
         }
         if (mCallback != null) {
-            mCallback.stop();
+            mCallback.stop(startId);
         }
     }
 
@@ -334,10 +334,10 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
     }
 
     @MainThread
-    void handleStop(@NonNull Intent intent) {
+    void handleStop(@NonNull Intent intent, int startId) {
         Logger.get().info(TAG, "Stopping foreground service");
         if (mCallback != null) {
-            mCallback.stop();
+            mCallback.stop(startId);
         }
     }
 
@@ -466,8 +466,10 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
 
         /**
          * Used to stop the {@link SystemForegroundService}.
+         *
+         * @param startId start id associated with the start command
          */
         @MainThread
-        void stop();
+        void stop(int startId);
     }
 }

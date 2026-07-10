@@ -56,7 +56,7 @@ class FakeImagePipeline(
         )
 
     @MainThread
-    internal override fun createRequests(
+    override fun createRequests(
         request: TakePictureRequest,
         callback: TakePictureCallback,
         captureFuture: ListenableFuture<Void>,

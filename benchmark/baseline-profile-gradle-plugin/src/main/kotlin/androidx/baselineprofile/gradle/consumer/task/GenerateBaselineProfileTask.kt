@@ -20,8 +20,6 @@ import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -34,7 +32,6 @@ private const val GENERATE_TASK_NAME = "generate"
 
 /** This task does nothing and it's only to start the generation process. */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 internal abstract class GenerateBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -64,7 +61,6 @@ internal abstract class GenerateBaselineProfileTask : DefaultTask() {
  * `generateBaselineProfile` generating only for `release` with AGP 8.0.
  */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTask() {
 
     companion object {
@@ -100,18 +96,18 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
             propertyName = "multipleBuildTypesWithAgp80",
             message =
                 """
-        The task `generateBaselineProfile` does not support generating baseline profiles for 
-        multiple build types with AGP 8.0.
+                The task `generateBaselineProfile` does not support generating baseline profiles for 
+                multiple build types with AGP 8.0.
 
-        Only baseline profile for variants of build type `release` will be generated.
-        With AGP 8.0, this command behaves like `generateReleaseBaselineProfile`.
+                Only baseline profile for variants of build type `release` will be generated.
+                With AGP 8.0, this command behaves like `generateReleaseBaselineProfile`.
 
-        If you intend to generate profiles for multiple build types using AGP 8.0 you'll 
-        need to run separate gradle commands for each build type.
-        Example: `generateReleaseBaselineProfile` and `generateAnotherReleaseBaselineProfile`.
+                If you intend to generate profiles for multiple build types using AGP 8.0 you'll 
+                need to run separate gradle commands for each build type.
+                Example: `generateReleaseBaselineProfile` and `generateAnotherReleaseBaselineProfile`.
 
-        Details on https://issuetracker.google.com/issue?id=270433400.
-            """
+                Details on https://issuetracker.google.com/issue?id=270433400.
+                """
                     .trimIndent(),
         )
     }

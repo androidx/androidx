@@ -28,6 +28,8 @@ import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.credentials.provider.BeginGetCustomCredentialOption
+import androidx.credentials.provider.CredentialEntry.Companion.marshall
+import androidx.credentials.provider.CredentialEntry.Companion.unmarshallCredentialEntries
 import androidx.credentials.provider.CustomCredentialEntry
 import androidx.credentials.provider.CustomCredentialEntry.Companion.fromCredentialEntry
 import androidx.credentials.provider.CustomCredentialEntry.Companion.fromSlice
@@ -307,6 +309,37 @@ class CustomCredentialEntryTest {
             CustomCredentialEntry.Builder(mContext, TYPE, TITLE, mPendingIntent, BEGIN_OPTION)
                 .build()
         Assert.assertFalse(entry.isAutoSelectAllowedFromOption)
+    }
+
+    @Test
+    fun createFromBundle_success() {
+        val expected =
+            CustomCredentialEntry(
+                mContext,
+                "title",
+                mPendingIntent,
+                BEGIN_OPTION,
+                "subtitle",
+                TYPE_DISPLAY_NAME,
+                Instant.ofEpochMilli(1760047935000L),
+                ICON,
+                true,
+                "ENTRY_GROUP_ID",
+                true,
+            )
+        val bundle = Bundle()
+        listOf(expected).marshall(bundle)
+
+        val actual = bundle.unmarshallCredentialEntries().single() as CustomCredentialEntry
+
+        assertThat(actual.title).isEqualTo(expected.title)
+        assertThat(actual.subtitle).isEqualTo(expected.subtitle)
+        assertThat(actual.lastUsedTime?.toEpochMilli())
+            .isEqualTo(expected.lastUsedTime?.toEpochMilli())
+        assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+        assertThat(actual.entryGroupId).isEqualTo(expected.entryGroupId)
+        assertThat(actual.isDefaultIconPreferredAsSingleProvider)
+            .isEqualTo(expected.isDefaultIconPreferredAsSingleProvider)
     }
 
     private fun constructEntryWithRequiredParams(): CustomCredentialEntry {

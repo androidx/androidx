@@ -45,6 +45,9 @@ public class CookieManagerCompat {
      * @param cookieManager The CookieManager instance to get info from.
      * @param url the URL for which the API retrieves all available cookies.
      * @return the cookies as a list of strings.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#GET_COOKIE_INFO} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @RequiresFeature(name = WebViewFeature.GET_COOKIE_INFO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

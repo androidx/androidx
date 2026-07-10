@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"Інші опції"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"Вікно"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Розгорнуто"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Згорнуто"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Розгорнути нижній екран"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Згорнути панель інструментів"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Розгорнути панель інструментів"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"Інші опції"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Спливаюча підказка"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Показати спливаючу підказку"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"ПП"</string>
@@ -81,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Перейти в режим годинника"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Виберіть час"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Введіть час"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Укажіть від 0 до 59 хв"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Укажіть від 1 до 12 год"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"Укажіть від 0 до 23 год"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Закрити панель"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Панель навігації"</string>
 </resources>

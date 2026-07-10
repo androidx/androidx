@@ -19,13 +19,18 @@ import java.io.FileOutputStream
 import java.util.Calendar
 import java.util.GregorianCalendar
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -92,28 +97,61 @@ abstract class GMavenZipTask : DefaultTask() {
     }
 }
 
+/** Merges multiple zip files into one. */
+@DisableCachingByDefault(because = "Zip tasks are not worth caching according to Gradle")
+abstract class MergeZipsTask : DefaultTask() {
+    /** List of zips to include */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val zips: ConfigurableFileCollection
+
+    /** Zip file to save artifacts to */
+    @get:OutputFile abstract val archiveFile: RegularFileProperty
+
+    @TaskAction
+    fun createZip() {
+        val seenEntries = HashSet<String>()
+        ZipOutputStream(FileOutputStream(archiveFile.get().asFile)).use { zipOut ->
+            zips.files.forEach { file ->
+                ZipFile(file).use { zipFile ->
+                    val entries = zipFile.entries()
+                    while (entries.hasMoreElements()) {
+                        val entry = entries.nextElement()
+                        if (seenEntries.add(entry.name)) {
+                            zipOut.putNextEntry(
+                                ZipEntry(entry.name).also {
+                                    it.time = CONSTANT_TIME_FOR_ZIP_ENTRIES
+                                }
+                            )
+                            zipFile.getInputStream(entry).use { it.copyTo(zipOut) }
+                            zipOut.closeEntry()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** Handles creating various release tasks that create zips for the maven upload and local use. */
 object Release {
     @Suppress("MemberVisibilityCanBePrivate")
     const val PROJECT_ARCHIVE_ZIP_TASK_NAME = "createProjectZip"
-    private const val FULL_ARCHIVE_TASK_NAME = "createArchive"
-    private const val ALL_ARCHIVES_TASK_NAME = "createAllArchives"
     const val DEFAULT_PUBLISH_CONFIG = "release"
     const val PROJECT_ZIPS_FOLDER = "per-project-zips"
-    private const val GLOBAL_ZIP_PREFIX = "top-of-tree-m2repository"
 
     /**
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, androidXExtension: AndroidXExtension) {
-        if (!androidXExtension.shouldPublish()) {
+        if (!androidXExtension.shouldPublish.get()) {
             project.logger.info(
                 "project ${project.name} isn't part of release," +
                     " because its \"publish\" property is explicitly set to Publish.NONE"
             )
             return
         }
-        if (!androidXExtension.shouldRelease() && !isSnapshotBuild()) {
+        if (!androidXExtension.shouldRelease.get() && !isSnapshotBuild()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because its" +
                     " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build"
@@ -126,61 +164,30 @@ object Release {
             )
         }
 
-        val projectZipTask =
-            getProjectZipTask(project, androidXExtension.isIsolatedProjectsEnabled())
-        val zipTasks =
-            listOfNotNull(
-                projectZipTask,
-                getGlobalFullZipTask(project, androidXExtension.isIsolatedProjectsEnabled()),
-            )
+        val projectZipTask = getProjectZipTask(project)
 
         val publishTask = project.tasks.named("publish")
-        zipTasks.forEach { it.configure { zipTask -> zipTask.dependsOn(publishTask) } }
-    }
+        projectZipTask.configure { zipTask -> zipTask.dependsOn(publishTask) }
 
-    /** Registers an archive task as a dependency of the anchor task */
-    private fun Project.addToAnchorTask(task: TaskProvider<GMavenZipTask>) {
-        val archiveAnchorTask: TaskProvider<VerifyLicenseAndVersionFilesTask> =
-            project.rootProject.maybeRegister(
-                name = ALL_ARCHIVES_TASK_NAME,
-                onConfigure = { archiveTask: VerifyLicenseAndVersionFilesTask ->
-                    archiveTask.group = "Distribution"
-                    archiveTask.description = "Builds all archives for publishing"
-                    archiveTask.repositoryDirectory.set(
-                        project.rootProject.getRepositoryDirectory()
-                    )
-                },
-                onRegister = {},
-            )
-        archiveAnchorTask.configure { it.dependsOn(task) }
-    }
-
-    /**
-     * Creates and returns the task that includes all projects regardless of their release status.
-     */
-    private fun getGlobalFullZipTask(
-        project: Project,
-        projectIsolationEnabled: Boolean,
-    ): TaskProvider<GMavenZipTask>? {
-        if (projectIsolationEnabled) return null
-        return project.rootProject.maybeRegister(
-            name = FULL_ARCHIVE_TASK_NAME,
-            onConfigure = { task: GMavenZipTask ->
-                task.archiveFile.set(
-                    project.getDistributionDirectory().file("${getZipName(GLOBAL_ZIP_PREFIX)}.zip")
+        // Playground projects run with group constraints disabled (androidx.constraints=false).
+        // Returning early here ensures that the createProjectZip task (GMavenZipTask) is not
+        // included in the task graph, as it would otherwise fail due to the missing constraints.
+        if (ProjectLayoutType.isPlayground(project)) return
+        project.configurations.register("releaseArtifacts") {
+            it.isCanBeResolved = false
+            it.isCanBeConsumed = true
+            it.isTransitive = false
+            it.attributes { attributes ->
+                attributes.attribute(
+                    CATEGORY_ATTRIBUTE,
+                    project.objects.named(Category::class.java, "androidx-release-artifacts"),
                 )
-                task.projectRepositoryDir.set(project.getRepositoryDirectory())
-            },
-            onRegister = { taskProvider: TaskProvider<GMavenZipTask> ->
-                project.addToAnchorTask(taskProvider)
-            },
-        )
+            }
+        }
+        project.artifacts.add("releaseArtifacts", projectZipTask)
     }
 
-    private fun getProjectZipTask(
-        project: Project,
-        projectIsolationEnabled: Boolean,
-    ): TaskProvider<GMavenZipTask> {
+    private fun getProjectZipTask(project: Project): TaskProvider<GMavenZipTask> {
         val taskProvider =
             project.tasks.register(PROJECT_ARCHIVE_ZIP_TASK_NAME, GMavenZipTask::class.java) {
                 it.archiveFile.set(
@@ -188,7 +195,6 @@ object Release {
                 )
                 it.projectRepositoryDir.set(project.getPerProjectRepositoryDirectory())
             }
-        if (!projectIsolationEnabled) project.addToAnchorTask(taskProvider)
         return taskProvider
     }
 }

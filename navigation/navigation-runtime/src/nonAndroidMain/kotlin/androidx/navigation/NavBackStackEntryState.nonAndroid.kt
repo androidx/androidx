@@ -37,7 +37,7 @@ internal actual class NavBackStackEntryState {
     private val impl: NavBackStackEntryStateImpl
 
     actual constructor(entry: NavBackStackEntry) {
-        impl = NavBackStackEntryStateImpl(entry, 0)
+        impl = NavBackStackEntryStateImpl(entry, entry.destination.id)
     }
 
     actual constructor(state: SavedState) {
@@ -52,9 +52,15 @@ internal actual class NavBackStackEntryState {
         context: NavContext,
         destination: NavDestination,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?,
+        viewModelStoreProvider: NavViewModelStoreProvider?,
     ): NavBackStackEntry {
-        return impl.instantiate(context, destination, args, hostLifecycleState, viewModel)
+        return impl.instantiate(
+            context,
+            destination,
+            args,
+            hostLifecycleState,
+            viewModelStoreProvider,
+        )
     }
 
     actual fun prepareArgs(args: SavedState, context: NavContext): SavedState? {

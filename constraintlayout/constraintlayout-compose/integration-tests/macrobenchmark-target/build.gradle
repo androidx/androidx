@@ -18,22 +18,20 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.constraintlayout.compose.integration.macrobenchmark.target"
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
 }
@@ -41,7 +39,6 @@ android {
 dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.cardview:cardview:1.0.0")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,21 @@ package androidx.xr.scenecore
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.TextureResource as RtTextureResource
+import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.runtime.TextureResource as RtTextureResource
 
 /** [CubeMapTexture] represents a cube map texture that can be used with materials. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CubeMapTexture internal constructor(texture: RtTextureResource, session: Session) :
     Texture(texture, session) {
 
     public companion object {
         internal fun borrowReflectionTexture(
-            platformAdapter: JxrPlatformAdapter,
+            renderingRuntime: RenderingRuntime,
             session: Session,
         ): CubeMapTexture {
             // TODO(b/396116100): Handle null return from borrow reflection texture.
-            return CubeMapTexture(platformAdapter.borrowReflectionTexture()!!, session)
+            return CubeMapTexture(renderingRuntime.borrowReflectionTexture()!!, session)
         }
 
         /**
@@ -51,7 +51,7 @@ public class CubeMapTexture internal constructor(texture: RtTextureResource, ses
         @MainThread
         @JvmStatic
         public fun borrowReflectionTexture(session: Session): CubeMapTexture {
-            return borrowReflectionTexture(session.platformAdapter, session)
+            return borrowReflectionTexture(session.renderingRuntime, session)
         }
     }
 }

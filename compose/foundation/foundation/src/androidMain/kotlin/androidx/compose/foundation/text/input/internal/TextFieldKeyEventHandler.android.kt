@@ -17,17 +17,10 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.view.InputDevice
-import android.view.InputDevice.SOURCE_DPAD
-import android.view.KeyEvent.KEYCODE_DPAD_CENTER
-import android.view.KeyEvent.KEYCODE_DPAD_DOWN
-import android.view.KeyEvent.KEYCODE_DPAD_LEFT
-import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
-import android.view.KeyEvent.KEYCODE_DPAD_UP
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.view.InputDevice.KEYBOARD_TYPE_ALPHABETIC
+import android.view.KeyEvent.FLAG_SOFT_KEYBOARD
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.key
@@ -38,67 +31,21 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 internal actual fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler =
     AndroidTextFieldKeyEventHandler()
 
+internal actual val KeyEvent.isFromHardwareSource: Boolean
+    get() {
+        val device = nativeKeyEvent.device ?: return false
+        return !device.isVirtual &&
+            device.keyboardType == KEYBOARD_TYPE_ALPHABETIC &&
+            (nativeKeyEvent.flags and FLAG_SOFT_KEYBOARD) != FLAG_SOFT_KEYBOARD
+    }
+
 internal actual val KeyEvent.isFromSoftKeyboard: Boolean
-    get() =
-        (nativeKeyEvent.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD) ==
-            android.view.KeyEvent.FLAG_SOFT_KEYBOARD
+    get() = (nativeKeyEvent.flags and FLAG_SOFT_KEYBOARD) == FLAG_SOFT_KEYBOARD
 
 internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
 
-    override fun onPreKeyEvent(
-        event: KeyEvent,
-        textFieldState: TransformedTextFieldState,
-        textFieldSelectionState: TextFieldSelectionState,
-        focusManager: FocusManager,
-        keyboardController: SoftwareKeyboardController,
-    ): Boolean {
-        val consumed =
-            super.onPreKeyEvent(
-                event = event,
-                textFieldState = textFieldState,
-                textFieldSelectionState = textFieldSelectionState,
-                focusManager = focusManager,
-                keyboardController = keyboardController,
-            )
-        // After fixing the Dpad navigation, we no longer need to intercept prekey events for the
-        // Android platform.
-        if (
-            @OptIn(ExperimentalFoundationApi::class)
-            ComposeFoundationFlags.isTextFieldDpadNavigationEnabled
-        )
-            return consumed
-
-        // do not proceed if common code has consumed the event
-        if (consumed) return true
-
-        val device = event.nativeKeyEvent.device
-        return when {
-            device == null -> false
-
-            // Ignore key events from non-dpad sources
-            !device.supportsSource(SOURCE_DPAD) -> false
-
-            // Ignore key events from virtual keyboards
-            device.isVirtual -> false
-
-            // Ignore key release events
-            event.type != KeyDown -> false
-
-            // Ignore events that originate from a source that only identifies as keyboard.
-            // This logic is taken from `android.widget.TextView#doKeyDown()` method.
-            event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD -> false
-            event.isKeyCode(KEYCODE_DPAD_UP) -> focusManager.moveFocus(FocusDirection.Up)
-            event.isKeyCode(KEYCODE_DPAD_DOWN) -> focusManager.moveFocus(FocusDirection.Down)
-            event.isKeyCode(KEYCODE_DPAD_LEFT) -> focusManager.moveFocus(FocusDirection.Left)
-            event.isKeyCode(KEYCODE_DPAD_RIGHT) -> focusManager.moveFocus(FocusDirection.Right)
-            event.isKeyCode(KEYCODE_DPAD_CENTER) -> {
-                // Enable keyboard on center key press
-                keyboardController.show()
-                true
-            }
-            else -> false
-        }
-    }
+    // After fixing the Dpad navigation, we no longer need to intercept prekey events for the
+    // Android platform. Therefore no `override fun onPreKeyEvent`
 
     override fun onKeyEvent(
         event: KeyEvent,
@@ -112,13 +59,17 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         onSubmit: () -> Boolean,
     ): Boolean {
         // Before handing off the key processing to the super class, we check whether the event is
-        // coming from a hardware keyboard (virtual or not) to decide touch mode.
+        // coming from a hardware keyboard (virtual or not) to decide direct touch interaction
+        // state.
+        // We use !isFromSoftKeyboard here to preserve the old behavior of leaving direct touch
+        // interaction for
+        // anything that is not explicitly a soft keyboard event.
         if (
             event.type == KeyDown &&
                 event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
-                !event.isFromSoftKeyboard
+                (!event.isFromSoftKeyboard || !event.isTypedEvent)
         ) {
-            textFieldSelectionState.isInTouchMode = false
+            textFieldSelectionState.isDirectTouchInteraction = false
         }
 
         return super.onKeyEvent(

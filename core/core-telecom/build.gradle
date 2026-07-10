@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,12 +25,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     // core-telecom dependencies
-    api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
     implementation("androidx.annotation:annotation:1.9.0") // OptIn, RestrictTo, etc.
     implementation("androidx.core:core:1.13.1")
@@ -40,7 +37,6 @@ dependencies {
     // Test dependencies
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(libs.androidx.annotation)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -48,9 +44,11 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-test:2.2.10"
 }
 
 android {
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
     namespace = "androidx.core.telecom"
     buildFeatures {
         aidl = true

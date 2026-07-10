@@ -108,5 +108,10 @@ public class InputCallbackDelegateImpl implements InputCallbackDelegate {
 
                     });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

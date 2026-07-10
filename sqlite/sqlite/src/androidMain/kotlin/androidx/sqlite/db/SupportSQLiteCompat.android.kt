@@ -17,15 +17,12 @@ package androidx.sqlite.db
 
 import android.app.ActivityManager
 import android.content.ContentResolver
-import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.os.Bundle
 import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.sqlite.db.SupportSQLiteCompat.Api29Impl.setNotificationUris
-import java.io.File
 
 /** Helper for accessing features in [SupportSQLiteOpenHelper]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -87,38 +84,6 @@ public class SupportSQLiteCompat private constructor() {
         @JvmStatic
         public fun isLowRamDevice(activityManager: ActivityManager): Boolean {
             return activityManager.isLowRamDevice
-        }
-    }
-
-    /** Helper for accessing functions that require SDK version 21 and higher. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public object Api21Impl {
-        /**
-         * Returns the absolute path to the directory on the filesystem.
-         *
-         * @return The path of the directory holding application files that will not be
-         *   automatically backed up to remote storage.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @JvmStatic
-        public fun getNoBackupFilesDir(context: Context): File {
-            return context.noBackupFilesDir
-        }
-    }
-
-    /** Helper for accessing functions that require SDK version 23 and higher. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(23)
-    public object Api23Impl {
-        /**
-         * Sets a [Bundle] that will be returned by [Cursor.getExtras].
-         *
-         * @param extras [Bundle] to set, or null to set an empty bundle.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @JvmStatic
-        public fun setExtras(cursor: Cursor, extras: Bundle) {
-            cursor.extras = extras
         }
     }
 

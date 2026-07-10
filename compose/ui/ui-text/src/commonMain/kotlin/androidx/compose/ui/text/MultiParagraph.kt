@@ -41,6 +41,7 @@ import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
+import kotlin.math.ceil
 
 /**
  * Lays out and renders multiple paragraphs at once. Unlike [Paragraph], supports multiple
@@ -164,6 +165,7 @@ class MultiParagraph(
                 placeholders = placeholders,
                 density = density,
                 fontFamilyResolver = createFontFamilyResolver(resourceLoader),
+                softWrap = true,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -215,6 +217,7 @@ class MultiParagraph(
                 placeholders = placeholders,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                softWrap = true,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -264,6 +267,7 @@ class MultiParagraph(
                 placeholders = placeholders,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                softWrap = true,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -310,6 +314,7 @@ class MultiParagraph(
                 placeholders = placeholders,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                softWrap = true,
             ),
         maxLines = maxLines,
         overflow = overflow,
@@ -981,7 +986,9 @@ class MultiParagraph(
     fun isLineEllipsized(lineIndex: Int): Boolean {
         requireLineIndexInRange(lineIndex)
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
-        return with(paragraphInfoList[paragraphIndex]) { paragraph.isLineEllipsized(lineIndex) }
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.isLineEllipsized(lineIndex.toLocalLineIndex())
+        }
     }
 
     private fun requireIndexInRange(offset: Int) {
@@ -1224,3 +1231,5 @@ internal data class ParagraphInfo(
         return TextRange(start = start.toGlobalIndex(), end = end.toGlobalIndex())
     }
 }
+
+internal fun Float.ceilToInt(): Int = ceil(this).toInt()

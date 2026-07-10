@@ -72,41 +72,50 @@ public class ParametrizedDynamicTypeEvaluatorTest {
     private static final ZoneId GMT_PLUS_TWO = ZoneId.ofOffset("GMT", ZoneOffset.ofHours(2));
     private static final ZoneId ASIA_KATHMANDU = ZoneId.of("Asia/Kathmandu");
     private static final ZoneId EUROPE_LONDON = ZoneId.of("Europe/London");
+    private static final Instant FIXED_JAVA_INSTANT = Instant.ofEpochSecond(123450000L);
     private static final DynamicInstant FIXED_INSTANT =
-            DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123450000L));
+            DynamicInstant.withSecondsPrecision(FIXED_JAVA_INSTANT);
 
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
     public static ImmutableList<Object[]> params() {
         AppDataKey<DynamicInt32> int32Source = new AppDataKey<>("state_int_15");
+        DynamicInt32 appKeyInt32 = DynamicInt32.from(int32Source);
+        DynamicString appKeyString = DynamicString.from(new AppDataKey<>("state_hello_world"));
+        DynamicBool appKeyBool = DynamicBool.from(new AppDataKey<>("state_bool_true"));
         ParametrizedDynamicTypeEvaluatorTest.TestCase<?>[] testCases = {
             test(constant("hello"), "hello"),
-            test(DynamicString.from(new AppDataKey<>("state_hello_world")), "hello_world"),
+            test(appKeyString, "hello_world"),
             test(DynamicInt32.constant(5).format(), "5"),
             test(DynamicInt32.constant(10), 10),
-            test(DynamicInt32.from(int32Source), 15),
-            test(DynamicInt32.from(int32Source).plus(DynamicInt32.constant(2)), 17),
-            test(DynamicInt32.from(int32Source).minus(DynamicInt32.constant(5)), 10),
-            test(DynamicInt32.from(int32Source).times(DynamicInt32.constant(2)), 30),
-            test(DynamicInt32.from(int32Source).div(DynamicInt32.constant(3)), 5),
-            test(DynamicInt32.from(int32Source).rem(DynamicInt32.constant(2)), 1),
-            test(DynamicInt32.from(int32Source).plus(2), 17),
-            test(DynamicInt32.from(int32Source).minus(5), 10),
-            test(DynamicInt32.from(int32Source).times(2), 30),
-            test(DynamicInt32.from(int32Source).div(3), 5),
-            test(DynamicInt32.from(int32Source).rem(2), 1),
-            test(DynamicInt32.from(int32Source).plus(2.5f), 17.5f),
-            test(DynamicInt32.from(int32Source).minus(5.5f), 9.5f),
-            test(DynamicInt32.from(int32Source).times(2.5f), 37.5f),
-            test(DynamicInt32.from(int32Source).div(2.0f), 7.5f),
-            test(DynamicInt32.from(int32Source).rem(4.5f), 1.5f),
-            test(DynamicInt32.from(int32Source).plus(DynamicFloat.constant(2.5f)), 17.5f),
-            test(DynamicInt32.from(int32Source).minus(DynamicFloat.constant(5.5f)), 9.5f),
-            test(DynamicInt32.from(int32Source).times(DynamicFloat.constant(2.5f)), 37.5f),
-            test(DynamicInt32.from(int32Source).div(DynamicFloat.constant(2.0f)), 7.5f),
-            test(DynamicInt32.from(int32Source).rem(DynamicFloat.constant(4.5f)), 1.5f),
+            test(appKeyInt32, 15),
+            test(appKeyInt32.plus(DynamicInt32.constant(2)), 17),
+            test(appKeyInt32.minus(DynamicInt32.constant(5)), 10),
+            test(appKeyInt32.times(DynamicInt32.constant(2)), 30),
+            test(appKeyInt32.div(DynamicInt32.constant(3)), 5),
+            test(appKeyInt32.rem(DynamicInt32.constant(2)), 1),
+            test(appKeyInt32.plus(2), 17),
+            test(appKeyInt32.minus(5), 10),
+            test(appKeyInt32.times(2), 30),
+            test(appKeyInt32.div(3), 5),
+            test(appKeyInt32.rem(2), 1),
+            test(appKeyInt32.plus(2.5f), 17.5f),
+            test(appKeyInt32.minus(5.5f), 9.5f),
+            test(appKeyInt32.times(2.5f), 37.5f),
+            test(appKeyInt32.div(2.0f), 7.5f),
+            test(appKeyInt32.rem(4.5f), 1.5f),
+            test(appKeyInt32.plus(DynamicFloat.constant(2.5f)), 17.5f),
+            test(appKeyInt32.minus(DynamicFloat.constant(5.5f)), 9.5f),
+            test(appKeyInt32.times(DynamicFloat.constant(2.5f)), 37.5f),
+            test(appKeyInt32.div(DynamicFloat.constant(2.0f)), 7.5f),
+            test(appKeyInt32.rem(DynamicFloat.constant(4.5f)), 1.5f),
+            test(appKeyInt32.minus(appKeyInt32), 0),
+            // Tests with a duplicate sub-expression.
+            test(appKeyInt32.plus(2.5f).minus(appKeyInt32.plus(2.5f)), 0.0f),
+            test(appKeyInt32.plus(2).minus(appKeyInt32.plus(2)), 0),
             test(DynamicFloat.constant(5.0f), 5.0f),
             testForInvalidValue(DynamicFloat.constant(Float.NaN)),
             testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(5.0f)),
+            testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(Float.NaN)),
             test(DynamicFloat.from(new AppDataKey<>("state_float_1.5")), 1.5f),
             test(DynamicFloat.constant(1234.567f).asInt(), 1234),
             test(DynamicFloat.constant(0.967f).asInt(), 0),
@@ -235,18 +244,19 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(FIXED_INSTANT.getSecond(GMT_PLUS_TWO), 0),
             test(
                     DynamicString.onCondition(DynamicBool.constant(true))
-                            .use(constant("Hello"))
-                            .elseUse(constant("World")),
-                    "Hello"),
+                            .use(constant("  ").concat(constant("Hello")))
+                            .elseUse(constant("  ").concat(constant("World"))),
+                    "  Hello"),
             test(
                     DynamicString.onCondition(DynamicBool.constant(false))
-                            .use(constant("Hello"))
-                            .elseUse(constant("World")),
-                    "World"),
+                            .use(constant("  ").concat(constant("Hello")))
+                            .elseUse(constant("  ").concat(constant("World"))),
+                    "  World"),
+            test(appKeyString.concat(DynamicString.constant("_test")), "hello_world_test"),
+            // Test with a duplicate sub-expression.
             test(
-                    DynamicString.from(new AppDataKey<>("state_hello_world"))
-                            .concat(DynamicString.constant("_test")),
-                    "hello_world_test"),
+                    appKeyString.concat(constant("_")).concat(appKeyString),
+                    "hello_world_hello_world"),
             test(
                     DynamicString.constant("this ")
                             .concat(DynamicString.constant("is "))
@@ -259,8 +269,8 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                     1),
             test(
                     DynamicInt32.onCondition(DynamicBool.constant(false))
-                            .use(DynamicInt32.constant(1))
-                            .elseUse(DynamicInt32.constant(10)),
+                            .use(DynamicInt32.constant(1).plus(0))
+                            .elseUse(DynamicInt32.constant(10).plus(0)),
                     10),
             test(
                     DynamicInstant.onCondition(DynamicBool.constant(true))
@@ -282,6 +292,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                             .use(DynamicColor.constant(Color.BLUE))
                             .elseUse(DynamicColor.constant(Color.RED)),
                     Color.RED),
+            // Test with a duplicate sub-expression.
+            test(
+                    DynamicColor.onCondition(appKeyBool)
+                            .use(DynamicColor.constant(Color.BLUE))
+                            .elseUse(DynamicColor.constant(Color.BLUE)),
+                    Color.BLUE),
+            test(
+                    DynamicInstant.onCondition(appKeyBool)
+                            .use(FIXED_INSTANT)
+                            .elseUse(FIXED_INSTANT),
+                    FIXED_JAVA_INSTANT),
             test(
                     DynamicDuration.onCondition(DynamicBool.constant(true))
                             .use(dynamicDurationOfSeconds(10))
@@ -292,6 +313,12 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                             .use(dynamicDurationOfSeconds(10))
                             .elseUse(Duration.ofSeconds(100)),
                     Duration.ofSeconds(100)),
+            // Test with a duplicate sub-expression.
+            test(
+                    DynamicDuration.onCondition(appKeyBool)
+                            .use(dynamicDurationOfSeconds(42))
+                            .elseUse(dynamicDurationOfSeconds(42)),
+                    Duration.ofSeconds(42)),
             test(
                     DynamicFloat.constant(12.345f)
                             .format(
@@ -371,6 +398,7 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                 new DynamicTypeEvaluator(
                         new DynamicTypeEvaluator.Config.Builder()
                                 .setStateStore(stateStore)
+                                .setEnableExpressionDeduplication(true)
                                 .setAnimationQuotaManager(new FixedQuotaManagerImpl(MAX_VALUE))
                                 .build());
 

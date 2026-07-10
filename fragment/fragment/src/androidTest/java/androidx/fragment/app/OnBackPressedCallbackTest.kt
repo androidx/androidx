@@ -19,8 +19,10 @@ package androidx.fragment.app
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -245,6 +247,41 @@ class OnBackPressedCallbackTest {
             assertWithMessage("Grand child Fragment should be popped by onBackPressed()")
                 .that(grandChildFragmentManager.findFragmentByTag("grandchild"))
                 .isNull()
+        }
+    }
+
+    @Test
+    fun testBackPressFailsAfterOnSaveInstanceState() {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+
+            val fragment = StrictViewFragment()
+
+            withActivity {
+                fragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragmentContainer, fragment)
+                    .addToBackStack("initial_state")
+                    .commit()
+                executePendingTransactions()
+            }
+
+            // Moving from RESUMED -> CREATED implies passing through ON_PAUSE and ON_STOP.
+            // This forces `onSaveInstanceState()` to be called.
+            moveToState(Lifecycle.State.CREATED)
+
+            withActivity {
+                // Previously, this caused an `IllegalStateException` (b/461999811).
+                // We now verify that `onBackPressed()` is handled safely (no crash).
+                onBackPressed()
+
+                // Because state is saved, the back stack pop should be blocked/ignored.
+                assertThat(fragmentManager.backStackEntryCount).isEqualTo(1)
+                assertThat(fragment.isAdded).isTrue()
+            }
         }
     }
 }

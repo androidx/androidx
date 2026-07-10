@@ -150,7 +150,9 @@ class AppSearchMigrationHelper implements Closeable {
                 codedOutputStream.flush();
                 mTotalNeedMigratedDocumentCount += searchResultPage.getResults().size();
                 searchResultPage = mAppSearchImpl.getNextPage(mPackageName,
-                        searchResultPage.getNextPageToken(), /*queryStatsBuilder=*/ null,
+                        searchResultPage.getNextPageToken(),
+                        /* maxResults= */ Integer.MAX_VALUE,
+                        /*queryStatsBuilder=*/ null,
                         /*callStatsBuilder=*/null);
                 outputStream.flush();
             }

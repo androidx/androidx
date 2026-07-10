@@ -23,10 +23,12 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class SwappedVideoEncoderInfoTest {
 
     @Test
@@ -51,8 +53,8 @@ class SwappedVideoEncoderInfoTest {
 
         val swappedVideoEncoderInfo = SwappedVideoEncoderInfo(videoEncoderInfo)
 
-        assertThat(swappedVideoEncoderInfo.supportedWidths).isEqualTo(heights)
-        assertThat(swappedVideoEncoderInfo.supportedHeights).isEqualTo(widths)
+        assertThat(swappedVideoEncoderInfo.getSupportedWidths()).isEqualTo(heights)
+        assertThat(swappedVideoEncoderInfo.getSupportedHeights()).isEqualTo(widths)
         assertThat(swappedVideoEncoderInfo.getSupportedWidthsFor(anyLength)).isEqualTo(heights)
         assertThat(swappedVideoEncoderInfo.getSupportedHeightsFor(anyLength)).isEqualTo(widths)
         assertThat(swappedVideoEncoderInfo.widthAlignment).isEqualTo(4)

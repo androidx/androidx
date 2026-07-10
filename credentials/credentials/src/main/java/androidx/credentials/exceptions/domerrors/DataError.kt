@@ -21,7 +21,7 @@ package androidx.credentials.exceptions.domerrors
  * exception contains a data_err code from the fido spec, indicating inadequate data provided. The
  * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
- * @see CreatePublicKeyCredentialDomException
+ * @see androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
 class DataError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_ERROR) {

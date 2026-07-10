@@ -20,6 +20,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import android.support.wearable.complications.ComplicationText.plainText
@@ -36,6 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class ComplicationDataTest {
     @get:Rule val expect = Expect.create()
 
@@ -1143,6 +1147,169 @@ public class ComplicationDataTest {
         for (scenario in HasDynamicValuesWithoutDynamicValueScenario.values()) {
             expect.withMessage(scenario.name).that(scenario.data.hasDynamicValues()).isFalse()
         }
+    }
+
+    private class TypeMismatchedParcelable : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {}
+
+        companion object {
+            @JvmField
+            val CREATOR =
+                object : Parcelable.Creator<TypeMismatchedParcelable> {
+                    override fun createFromParcel(source: Parcel): TypeMismatchedParcelable {
+                        throw AssertionError("Mismatched CREATOR invoked despite type check!")
+                    }
+
+                    override fun newArray(size: Int) = arrayOfNulls<TypeMismatchedParcelable>(size)
+                }
+        }
+    }
+
+    @Test
+    fun testGetParcelableFieldOrWarn_typeMismatch_rejectedBeforeCreatorInvoked() {
+        val dataBundle = Bundle().apply { putParcelable("SHORT_TEXT", TypeMismatchedParcelable()) }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(dataBundle)
+                setDataPosition(0)
+            }
+
+        // On API 33+, BundleCompat.getParcelable checks type matching before invoking CREATOR.
+        // Therefore, TypeMismatchedParcelable.CREATOR.createFromParcel() should NOT be called,
+        // preventing arbitrary gadget execution.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.shortText).isNull()
+
+        parcel.recycle()
+    }
+
+    private class ThrowingParcelable : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {}
+
+        companion object {
+            @JvmField
+            val CREATOR =
+                object : Parcelable.Creator<ThrowingParcelable> {
+                    override fun createFromParcel(source: Parcel): ThrowingParcelable {
+                        throw RuntimeException("Unparceling failure!")
+                    }
+
+                    override fun newArray(size: Int) = arrayOfNulls<ThrowingParcelable>(size)
+                }
+        }
+    }
+
+    @Test
+    fun testGetParcelableFieldOrWarn_catchesRuntimeException_suppressesToNull() {
+        val dataBundle = Bundle().apply { putParcelable("SHORT_TEXT", ThrowingParcelable()) }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(dataBundle)
+                setDataPosition(0)
+            }
+
+        // Verify getParcelableFieldOrWarn successfully catches RuntimeException
+        // and suppresses the malformed field to null rather than letting the exception escape.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.shortText).isNull()
+
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_invalidDynamicValueBytes_isSuppressedSafely() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_RANGED_VALUE)
+                putByteArray(
+                    "DYNAMIC_VALUE",
+                    byteArrayOf(0xFF.toByte(), 0xFE.toByte(), 0xFD.toByte()),
+                ) // Garbage bytes
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_RANGED_VALUE)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        // Garbage bytes in dynamic value are safely caught and skipped.
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.hasDynamicValues()).isFalse()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_invalidDynamicStringBytes_isSuppressedSafely() {
+        val nestedTextBundle =
+            Bundle().apply {
+                putByteArray("SURROUNDING_STRING", byteArrayOf()) // Valid key
+                putByteArray(
+                    "DYNAMIC_STRING",
+                    byteArrayOf(0xFF.toByte(), 0xFE.toByte(), 0xFD.toByte()),
+                ) // Garbage bytes
+            }
+        val parentBundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putBundle("SHORT_TEXT", nestedTextBundle)
+            }
+        val parentParcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(parentBundle)
+                setDataPosition(0)
+            }
+
+        // Unhandled ImvalidArgumentException from nested ComplicationText is cleanly caught.
+        val data = ComplicationData.CREATOR.createFromParcel(parentParcel)
+        assertThat(data.shortText).isNull()
+        parentParcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_deeplyNestedBundle_isTruncatedAtMaxDepth() {
+        val inputDepth = 20
+        var innermostBundle = Bundle()
+
+        // Use TYPE_SHORT_TEXT as it definitely supports placeholders.
+        for (i in 0 until inputDepth) {
+            val parentBundle =
+                Bundle().apply {
+                    putInt("PLACEHOLDER_TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                    putBundle("PLACEHOLDER_FIELDS", innermostBundle)
+                }
+            innermostBundle = parentBundle
+        }
+
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(innermostBundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        var current = data
+        var placeholderDepth = 0
+        while (current.hasPlaceholder() && current.placeholder != null) {
+            placeholderDepth++
+            current = current.placeholder!!
+        }
+
+        // Truncation happens when unmarshalling depth MAX_NESTING_DEPTH's child, returning empty
+        // map. Therefore, we traverse MAX_NESTING_DEPTH + 1 placeholders.
+        assertThat(placeholderDepth).isEqualTo(ComplicationData.MAX_NESTING_DEPTH + 1)
     }
 
     private companion object {

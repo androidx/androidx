@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Collapsible Priority modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CollapsiblePriorityModifier implements RecordingModifier.Element {
 
     float mPriority;

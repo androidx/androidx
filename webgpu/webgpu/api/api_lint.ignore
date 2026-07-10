@@ -1,0 +1,379 @@
+// Baseline format: 1.0
+AcronymName: androidx.webgpu.GPU:
+    Acronyms should not be capitalized in class names: was `GPU`, should this be `Gpu`?
+AcronymName: androidx.webgpu.GPUAdapter:
+    Acronyms should not be capitalized in class names: was `GPUAdapter`, should this be `GpuAdapter`?
+AcronymName: androidx.webgpu.GPUAdapterInfo:
+    Acronyms should not be capitalized in class names: was `GPUAdapterInfo`, should this be `GpuAdapterInfo`?
+AcronymName: androidx.webgpu.GPUAdapterInfo#getDeviceID():
+    Acronyms should not be capitalized in method names: was `getDeviceID`, should this be `getDeviceId`?
+AcronymName: androidx.webgpu.GPUAdapterInfo#getVendorID():
+    Acronyms should not be capitalized in method names: was `getVendorID`, should this be `getVendorId`?
+AcronymName: androidx.webgpu.GPUAdapterInfo#setDeviceID(int):
+    Acronyms should not be capitalized in method names: was `setDeviceID`, should this be `setDeviceId`?
+AcronymName: androidx.webgpu.GPUAdapterInfo#setVendorID(int):
+    Acronyms should not be capitalized in method names: was `setVendorID`, should this be `setVendorId`?
+AcronymName: androidx.webgpu.GPUBindGroup:
+    Acronyms should not be capitalized in class names: was `GPUBindGroup`, should this be `GpuBindGroup`?
+AcronymName: androidx.webgpu.GPUBindGroupDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUBindGroupDescriptor`, should this be `GpuBindGroupDescriptor`?
+AcronymName: androidx.webgpu.GPUBindGroupEntry:
+    Acronyms should not be capitalized in class names: was `GPUBindGroupEntry`, should this be `GpuBindGroupEntry`?
+AcronymName: androidx.webgpu.GPUBindGroupLayout:
+    Acronyms should not be capitalized in class names: was `GPUBindGroupLayout`, should this be `GpuBindGroupLayout`?
+AcronymName: androidx.webgpu.GPUBindGroupLayoutDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUBindGroupLayoutDescriptor`, should this be `GpuBindGroupLayoutDescriptor`?
+AcronymName: androidx.webgpu.GPUBindGroupLayoutEntry:
+    Acronyms should not be capitalized in class names: was `GPUBindGroupLayoutEntry`, should this be `GpuBindGroupLayoutEntry`?
+AcronymName: androidx.webgpu.GPUBlendComponent:
+    Acronyms should not be capitalized in class names: was `GPUBlendComponent`, should this be `GpuBlendComponent`?
+AcronymName: androidx.webgpu.GPUBlendState:
+    Acronyms should not be capitalized in class names: was `GPUBlendState`, should this be `GpuBlendState`?
+AcronymName: androidx.webgpu.GPUBuffer:
+    Acronyms should not be capitalized in class names: was `GPUBuffer`, should this be `GpuBuffer`?
+AcronymName: androidx.webgpu.GPUBufferBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUBufferBindingLayout`, should this be `GpuBufferBindingLayout`?
+AcronymName: androidx.webgpu.GPUBufferDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUBufferDescriptor`, should this be `GpuBufferDescriptor`?
+AcronymName: androidx.webgpu.GPUColor:
+    Acronyms should not be capitalized in class names: was `GPUColor`, should this be `GpuColor`?
+AcronymName: androidx.webgpu.GPUColorTargetState:
+    Acronyms should not be capitalized in class names: was `GPUColorTargetState`, should this be `GpuColorTargetState`?
+AcronymName: androidx.webgpu.GPUCommandBuffer:
+    Acronyms should not be capitalized in class names: was `GPUCommandBuffer`, should this be `GpuCommandBuffer`?
+AcronymName: androidx.webgpu.GPUCommandBufferDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUCommandBufferDescriptor`, should this be `GpuCommandBufferDescriptor`?
+AcronymName: androidx.webgpu.GPUCommandEncoder:
+    Acronyms should not be capitalized in class names: was `GPUCommandEncoder`, should this be `GpuCommandEncoder`?
+AcronymName: androidx.webgpu.GPUCommandEncoderDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUCommandEncoderDescriptor`, should this be `GpuCommandEncoderDescriptor`?
+AcronymName: androidx.webgpu.GPUCompatibilityModeLimits:
+    Acronyms should not be capitalized in class names: was `GPUCompatibilityModeLimits`, should this be `GpuCompatibilityModeLimits`?
+AcronymName: androidx.webgpu.GPUCompilationInfo:
+    Acronyms should not be capitalized in class names: was `GPUCompilationInfo`, should this be `GpuCompilationInfo`?
+AcronymName: androidx.webgpu.GPUCompilationMessage:
+    Acronyms should not be capitalized in class names: was `GPUCompilationMessage`, should this be `GpuCompilationMessage`?
+AcronymName: androidx.webgpu.GPUComputePassDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUComputePassDescriptor`, should this be `GpuComputePassDescriptor`?
+AcronymName: androidx.webgpu.GPUComputePassEncoder:
+    Acronyms should not be capitalized in class names: was `GPUComputePassEncoder`, should this be `GpuComputePassEncoder`?
+AcronymName: androidx.webgpu.GPUComputePipeline:
+    Acronyms should not be capitalized in class names: was `GPUComputePipeline`, should this be `GpuComputePipeline`?
+AcronymName: androidx.webgpu.GPUComputePipelineDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUComputePipelineDescriptor`, should this be `GpuComputePipelineDescriptor`?
+AcronymName: androidx.webgpu.GPUComputeState:
+    Acronyms should not be capitalized in class names: was `GPUComputeState`, should this be `GpuComputeState`?
+AcronymName: androidx.webgpu.GPUConstantEntry:
+    Acronyms should not be capitalized in class names: was `GPUConstantEntry`, should this be `GpuConstantEntry`?
+AcronymName: androidx.webgpu.GPUDepthStencilState:
+    Acronyms should not be capitalized in class names: was `GPUDepthStencilState`, should this be `GpuDepthStencilState`?
+AcronymName: androidx.webgpu.GPUDevice:
+    Acronyms should not be capitalized in class names: was `GPUDevice`, should this be `GpuDevice`?
+AcronymName: androidx.webgpu.GPUDeviceDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUDeviceDescriptor`, should this be `GpuDeviceDescriptor`?
+AcronymName: androidx.webgpu.GPUExtent3D:
+    Acronyms should not be capitalized in class names: was `GPUExtent3D`, should this be `GpuExtent3D`?
+AcronymName: androidx.webgpu.GPUExternalTexture:
+    Acronyms should not be capitalized in class names: was `GPUExternalTexture`, should this be `GpuExternalTexture`?
+AcronymName: androidx.webgpu.GPUExternalTextureBindingEntry:
+    Acronyms should not be capitalized in class names: was `GPUExternalTextureBindingEntry`, should this be `GpuExternalTextureBindingEntry`?
+AcronymName: androidx.webgpu.GPUExternalTextureBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUExternalTextureBindingLayout`, should this be `GpuExternalTextureBindingLayout`?
+AcronymName: androidx.webgpu.GPUFragmentState:
+    Acronyms should not be capitalized in class names: was `GPUFragmentState`, should this be `GpuFragmentState`?
+AcronymName: androidx.webgpu.GPUInstance:
+    Acronyms should not be capitalized in class names: was `GPUInstance`, should this be `GpuInstance`?
+AcronymName: androidx.webgpu.GPUInstance#getWGSLLanguageFeatures():
+    Acronyms should not be capitalized in method names: was `getWGSLLanguageFeatures`, should this be `getWgslLanguageFeatures`?
+AcronymName: androidx.webgpu.GPUInstance#hasWGSLLanguageFeature(int):
+    Acronyms should not be capitalized in method names: was `hasWGSLLanguageFeature`, should this be `hasWgslLanguageFeature`?
+AcronymName: androidx.webgpu.GPUInstanceDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUInstanceDescriptor`, should this be `GpuInstanceDescriptor`?
+AcronymName: androidx.webgpu.GPUInstanceLimits:
+    Acronyms should not be capitalized in class names: was `GPUInstanceLimits`, should this be `GpuInstanceLimits`?
+AcronymName: androidx.webgpu.GPULimits:
+    Acronyms should not be capitalized in class names: was `GPULimits`, should this be `GpuLimits`?
+AcronymName: androidx.webgpu.GPUMultisampleState:
+    Acronyms should not be capitalized in class names: was `GPUMultisampleState`, should this be `GpuMultisampleState`?
+AcronymName: androidx.webgpu.GPUOrigin3D:
+    Acronyms should not be capitalized in class names: was `GPUOrigin3D`, should this be `GpuOrigin3D`?
+AcronymName: androidx.webgpu.GPUPassTimestampWrites:
+    Acronyms should not be capitalized in class names: was `GPUPassTimestampWrites`, should this be `GpuPassTimestampWrites`?
+AcronymName: androidx.webgpu.GPUPipelineLayout:
+    Acronyms should not be capitalized in class names: was `GPUPipelineLayout`, should this be `GpuPipelineLayout`?
+AcronymName: androidx.webgpu.GPUPipelineLayoutDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUPipelineLayoutDescriptor`, should this be `GpuPipelineLayoutDescriptor`?
+AcronymName: androidx.webgpu.GPUPrimitiveState:
+    Acronyms should not be capitalized in class names: was `GPUPrimitiveState`, should this be `GpuPrimitiveState`?
+AcronymName: androidx.webgpu.GPUQuerySet:
+    Acronyms should not be capitalized in class names: was `GPUQuerySet`, should this be `GpuQuerySet`?
+AcronymName: androidx.webgpu.GPUQuerySetDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUQuerySetDescriptor`, should this be `GpuQuerySetDescriptor`?
+AcronymName: androidx.webgpu.GPUQueue:
+    Acronyms should not be capitalized in class names: was `GPUQueue`, should this be `GpuQueue`?
+AcronymName: androidx.webgpu.GPUQueueDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUQueueDescriptor`, should this be `GpuQueueDescriptor`?
+AcronymName: androidx.webgpu.GPURenderBundle:
+    Acronyms should not be capitalized in class names: was `GPURenderBundle`, should this be `GpuRenderBundle`?
+AcronymName: androidx.webgpu.GPURenderBundleDescriptor:
+    Acronyms should not be capitalized in class names: was `GPURenderBundleDescriptor`, should this be `GpuRenderBundleDescriptor`?
+AcronymName: androidx.webgpu.GPURenderBundleEncoder:
+    Acronyms should not be capitalized in class names: was `GPURenderBundleEncoder`, should this be `GpuRenderBundleEncoder`?
+AcronymName: androidx.webgpu.GPURenderBundleEncoderDescriptor:
+    Acronyms should not be capitalized in class names: was `GPURenderBundleEncoderDescriptor`, should this be `GpuRenderBundleEncoderDescriptor`?
+AcronymName: androidx.webgpu.GPURenderPassColorAttachment:
+    Acronyms should not be capitalized in class names: was `GPURenderPassColorAttachment`, should this be `GpuRenderPassColorAttachment`?
+AcronymName: androidx.webgpu.GPURenderPassDepthStencilAttachment:
+    Acronyms should not be capitalized in class names: was `GPURenderPassDepthStencilAttachment`, should this be `GpuRenderPassDepthStencilAttachment`?
+AcronymName: androidx.webgpu.GPURenderPassDescriptor:
+    Acronyms should not be capitalized in class names: was `GPURenderPassDescriptor`, should this be `GpuRenderPassDescriptor`?
+AcronymName: androidx.webgpu.GPURenderPassEncoder:
+    Acronyms should not be capitalized in class names: was `GPURenderPassEncoder`, should this be `GpuRenderPassEncoder`?
+AcronymName: androidx.webgpu.GPURenderPassMaxDrawCount:
+    Acronyms should not be capitalized in class names: was `GPURenderPassMaxDrawCount`, should this be `GpuRenderPassMaxDrawCount`?
+AcronymName: androidx.webgpu.GPURenderPipeline:
+    Acronyms should not be capitalized in class names: was `GPURenderPipeline`, should this be `GpuRenderPipeline`?
+AcronymName: androidx.webgpu.GPURenderPipelineDescriptor:
+    Acronyms should not be capitalized in class names: was `GPURenderPipelineDescriptor`, should this be `GpuRenderPipelineDescriptor`?
+AcronymName: androidx.webgpu.GPURequestAdapterOptions:
+    Acronyms should not be capitalized in class names: was `GPURequestAdapterOptions`, should this be `GpuRequestAdapterOptions`?
+AcronymName: androidx.webgpu.GPURequestAdapterOptions#getRequestAdapterWebXROptions():
+    Acronyms should not be capitalized in method names: was `getRequestAdapterWebXROptions`, should this be `getRequestAdapterWebXrOptions`?
+AcronymName: androidx.webgpu.GPURequestAdapterOptions#setRequestAdapterWebXROptions(androidx.webgpu.GPURequestAdapterWebXROptions):
+    Acronyms should not be capitalized in method names: was `setRequestAdapterWebXROptions`, should this be `setRequestAdapterWebXrOptions`?
+AcronymName: androidx.webgpu.GPURequestAdapterOptions.Builder#setRequestAdapterWebXROptions(androidx.webgpu.GPURequestAdapterWebXROptions):
+    Acronyms should not be capitalized in method names: was `setRequestAdapterWebXROptions`, should this be `setRequestAdapterWebXrOptions`?
+AcronymName: androidx.webgpu.GPURequestAdapterWebXROptions:
+    Acronyms should not be capitalized in class names: was `GPURequestAdapterWebXROptions`, should this be `GpuRequestAdapterWebXrOptions`?
+AcronymName: androidx.webgpu.GPURequestCallback:
+    Acronyms should not be capitalized in class names: was `GPURequestCallback`, should this be `GpuRequestCallback`?
+AcronymName: androidx.webgpu.GPURequestCallbackKt:
+    Acronyms should not be capitalized in class names: was `GPURequestCallbackKt`, should this be `GpuRequestCallbackKt`?
+AcronymName: androidx.webgpu.GPURequestCallbackKt#awaitGPURequest(kotlin.jvm.functions.Function1<? super androidx.webgpu.GPURequestCallback<T>,kotlin.Unit>, kotlin.coroutines.Continuation<? super T>):
+    Acronyms should not be capitalized in method names: was `awaitGPURequest`, should this be `awaitGpuRequest`?
+AcronymName: androidx.webgpu.GPUSampler:
+    Acronyms should not be capitalized in class names: was `GPUSampler`, should this be `GpuSampler`?
+AcronymName: androidx.webgpu.GPUSamplerBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUSamplerBindingLayout`, should this be `GpuSamplerBindingLayout`?
+AcronymName: androidx.webgpu.GPUSamplerDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUSamplerDescriptor`, should this be `GpuSamplerDescriptor`?
+AcronymName: androidx.webgpu.GPUShaderModule:
+    Acronyms should not be capitalized in class names: was `GPUShaderModule`, should this be `GpuShaderModule`?
+AcronymName: androidx.webgpu.GPUShaderModuleDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUShaderModuleDescriptor`, should this be `GpuShaderModuleDescriptor`?
+AcronymName: androidx.webgpu.GPUShaderModuleDescriptor#getShaderSourceSPIRV():
+    Acronyms should not be capitalized in method names: was `getShaderSourceSPIRV`, should this be `getShaderSourceSpirv`?
+AcronymName: androidx.webgpu.GPUShaderModuleDescriptor#getShaderSourceWGSL():
+    Acronyms should not be capitalized in method names: was `getShaderSourceWGSL`, should this be `getShaderSourceWgsl`?
+AcronymName: androidx.webgpu.GPUShaderModuleDescriptor#setShaderSourceSPIRV(androidx.webgpu.GPUShaderSourceSPIRV):
+    Acronyms should not be capitalized in method names: was `setShaderSourceSPIRV`, should this be `setShaderSourceSpirv`?
+AcronymName: androidx.webgpu.GPUShaderModuleDescriptor#setShaderSourceWGSL(androidx.webgpu.GPUShaderSourceWGSL):
+    Acronyms should not be capitalized in method names: was `setShaderSourceWGSL`, should this be `setShaderSourceWgsl`?
+AcronymName: androidx.webgpu.GPUShaderSourceSPIRV:
+    Acronyms should not be capitalized in class names: was `GPUShaderSourceSPIRV`, should this be `GpuShaderSourceSpirv`?
+AcronymName: androidx.webgpu.GPUShaderSourceWGSL:
+    Acronyms should not be capitalized in class names: was `GPUShaderSourceWGSL`, should this be `GpuShaderSourceWgsl`?
+AcronymName: androidx.webgpu.GPUStencilFaceState:
+    Acronyms should not be capitalized in class names: was `GPUStencilFaceState`, should this be `GpuStencilFaceState`?
+AcronymName: androidx.webgpu.GPUStorageTextureBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUStorageTextureBindingLayout`, should this be `GpuStorageTextureBindingLayout`?
+AcronymName: androidx.webgpu.GPUSupportedFeatures:
+    Acronyms should not be capitalized in class names: was `GPUSupportedFeatures`, should this be `GpuSupportedFeatures`?
+AcronymName: androidx.webgpu.GPUSupportedInstanceFeatures:
+    Acronyms should not be capitalized in class names: was `GPUSupportedInstanceFeatures`, should this be `GpuSupportedInstanceFeatures`?
+AcronymName: androidx.webgpu.GPUSupportedWGSLLanguageFeatures:
+    Acronyms should not be capitalized in class names: was `GPUSupportedWGSLLanguageFeatures`, should this be `GpuSupportedWgslLanguageFeatures`?
+AcronymName: androidx.webgpu.GPUSurface:
+    Acronyms should not be capitalized in class names: was `GPUSurface`, should this be `GpuSurface`?
+AcronymName: androidx.webgpu.GPUSurfaceCapabilities:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceCapabilities`, should this be `GpuSurfaceCapabilities`?
+AcronymName: androidx.webgpu.GPUSurfaceColorManagement:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceColorManagement`, should this be `GpuSurfaceColorManagement`?
+AcronymName: androidx.webgpu.GPUSurfaceConfiguration:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceConfiguration`, should this be `GpuSurfaceConfiguration`?
+AcronymName: androidx.webgpu.GPUSurfaceDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceDescriptor`, should this be `GpuSurfaceDescriptor`?
+AcronymName: androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceSourceAndroidNativeWindow`, should this be `GpuSurfaceSourceAndroidNativeWindow`?
+AcronymName: androidx.webgpu.GPUSurfaceTexture:
+    Acronyms should not be capitalized in class names: was `GPUSurfaceTexture`, should this be `GpuSurfaceTexture`?
+AcronymName: androidx.webgpu.GPUTexelCopyBufferInfo:
+    Acronyms should not be capitalized in class names: was `GPUTexelCopyBufferInfo`, should this be `GpuTexelCopyBufferInfo`?
+AcronymName: androidx.webgpu.GPUTexelCopyBufferLayout:
+    Acronyms should not be capitalized in class names: was `GPUTexelCopyBufferLayout`, should this be `GpuTexelCopyBufferLayout`?
+AcronymName: androidx.webgpu.GPUTexelCopyTextureInfo:
+    Acronyms should not be capitalized in class names: was `GPUTexelCopyTextureInfo`, should this be `GpuTexelCopyTextureInfo`?
+AcronymName: androidx.webgpu.GPUTexture:
+    Acronyms should not be capitalized in class names: was `GPUTexture`, should this be `GpuTexture`?
+AcronymName: androidx.webgpu.GPUTextureBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUTextureBindingLayout`, should this be `GpuTextureBindingLayout`?
+AcronymName: androidx.webgpu.GPUTextureBindingViewDimension:
+    Acronyms should not be capitalized in class names: was `GPUTextureBindingViewDimension`, should this be `GpuTextureBindingViewDimension`?
+AcronymName: androidx.webgpu.GPUTextureComponentSwizzle:
+    Acronyms should not be capitalized in class names: was `GPUTextureComponentSwizzle`, should this be `GpuTextureComponentSwizzle`?
+AcronymName: androidx.webgpu.GPUTextureComponentSwizzleDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUTextureComponentSwizzleDescriptor`, should this be `GpuTextureComponentSwizzleDescriptor`?
+AcronymName: androidx.webgpu.GPUTextureDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUTextureDescriptor`, should this be `GpuTextureDescriptor`?
+AcronymName: androidx.webgpu.GPUTextureView:
+    Acronyms should not be capitalized in class names: was `GPUTextureView`, should this be `GpuTextureView`?
+AcronymName: androidx.webgpu.GPUTextureViewDescriptor:
+    Acronyms should not be capitalized in class names: was `GPUTextureViewDescriptor`, should this be `GpuTextureViewDescriptor`?
+AcronymName: androidx.webgpu.GPUVertexAttribute:
+    Acronyms should not be capitalized in class names: was `GPUVertexAttribute`, should this be `GpuVertexAttribute`?
+AcronymName: androidx.webgpu.GPUVertexBufferLayout:
+    Acronyms should not be capitalized in class names: was `GPUVertexBufferLayout`, should this be `GpuVertexBufferLayout`?
+AcronymName: androidx.webgpu.GPUVertexState:
+    Acronyms should not be capitalized in class names: was `GPUVertexState`, should this be `GpuVertexState`?
+AcronymName: androidx.webgpu.WGSLLanguageFeatureName:
+    Acronyms should not be capitalized in class names: was `WGSLLanguageFeatureName`, should this be `WgslLanguageFeatureName`?
+AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(int):
+    Acronyms should not be capitalized in method names: was `toGPUColor`, should this be `toGpuColor`?
+AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(long):
+    Acronyms should not be capitalized in method names: was `toGPUColor`, should this be `toGpuColor`?
+
+
+ArrayReturn: androidx.webgpu.GPUBindGroupDescriptor#GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout, String, androidx.webgpu.GPUBindGroupEntry[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupEntry[]`
+ArrayReturn: androidx.webgpu.GPUBindGroupDescriptor#getEntries():
+    Method should return Collection<androidx.webgpu.GPUBindGroupEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupEntry[]`
+ArrayReturn: androidx.webgpu.GPUBindGroupDescriptor#setEntries(androidx.webgpu.GPUBindGroupEntry[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupEntry[]`
+ArrayReturn: androidx.webgpu.GPUBindGroupLayoutDescriptor#GPUBindGroupLayoutDescriptor(String, androidx.webgpu.GPUBindGroupLayoutEntry[]) parameter #1:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupLayoutEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayoutEntry[]`
+ArrayReturn: androidx.webgpu.GPUBindGroupLayoutDescriptor#getEntries():
+    Method should return Collection<androidx.webgpu.GPUBindGroupLayoutEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayoutEntry[]`
+ArrayReturn: androidx.webgpu.GPUBindGroupLayoutDescriptor#setEntries(androidx.webgpu.GPUBindGroupLayoutEntry[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupLayoutEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayoutEntry[]`
+ArrayReturn: androidx.webgpu.GPUCompilationInfo#GPUCompilationInfo(androidx.webgpu.GPUCompilationMessage[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUCompilationMessage> (or subclass) instead of raw array; was `androidx.webgpu.GPUCompilationMessage[]`
+ArrayReturn: androidx.webgpu.GPUCompilationInfo#getMessages():
+    Method should return Collection<androidx.webgpu.GPUCompilationMessage> (or subclass) instead of raw array; was `androidx.webgpu.GPUCompilationMessage[]`
+ArrayReturn: androidx.webgpu.GPUCompilationInfo#setMessages(androidx.webgpu.GPUCompilationMessage[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUCompilationMessage> (or subclass) instead of raw array; was `androidx.webgpu.GPUCompilationMessage[]`
+ArrayReturn: androidx.webgpu.GPUComputeState#GPUComputeState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUComputeState#getConstants():
+    Method should return Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUComputeState#setConstants(androidx.webgpu.GPUConstantEntry[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#GPUFragmentState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#GPUFragmentState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[], androidx.webgpu.GPUColorTargetState[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#GPUFragmentState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[], androidx.webgpu.GPUColorTargetState[]) parameter #3:
+    Method parameter should be Collection<androidx.webgpu.GPUColorTargetState> (or subclass) instead of raw array; was `androidx.webgpu.GPUColorTargetState[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#getConstants():
+    Method should return Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#getTargets():
+    Method should return Collection<androidx.webgpu.GPUColorTargetState> (or subclass) instead of raw array; was `androidx.webgpu.GPUColorTargetState[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#setConstants(androidx.webgpu.GPUConstantEntry[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUFragmentState#setTargets(androidx.webgpu.GPUColorTargetState[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUColorTargetState> (or subclass) instead of raw array; was `androidx.webgpu.GPUColorTargetState[]`
+ArrayReturn: androidx.webgpu.GPUPipelineLayoutDescriptor#GPUPipelineLayoutDescriptor(String, androidx.webgpu.GPUBindGroupLayout[]) parameter #1:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayout[]`
+ArrayReturn: androidx.webgpu.GPUPipelineLayoutDescriptor#GPUPipelineLayoutDescriptor(String, androidx.webgpu.GPUBindGroupLayout[], int) parameter #1:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayout[]`
+ArrayReturn: androidx.webgpu.GPUPipelineLayoutDescriptor#getBindGroupLayouts():
+    Method should return Collection<androidx.webgpu.GPUBindGroupLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayout[]`
+ArrayReturn: androidx.webgpu.GPUPipelineLayoutDescriptor#setBindGroupLayouts(androidx.webgpu.GPUBindGroupLayout[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUBindGroupLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUBindGroupLayout[]`
+ArrayReturn: androidx.webgpu.GPUQueue#submit(androidx.webgpu.GPUCommandBuffer[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUCommandBuffer> (or subclass) instead of raw array; was `androidx.webgpu.GPUCommandBuffer[]`
+ArrayReturn: androidx.webgpu.GPURenderPassDescriptor#GPURenderPassDescriptor(String, androidx.webgpu.GPURenderPassColorAttachment[], androidx.webgpu.GPURenderPassDepthStencilAttachment, androidx.webgpu.GPUQuerySet, androidx.webgpu.GPUPassTimestampWrites, androidx.webgpu.GPURenderPassMaxDrawCount) parameter #1:
+    Method parameter should be Collection<androidx.webgpu.GPURenderPassColorAttachment> (or subclass) instead of raw array; was `androidx.webgpu.GPURenderPassColorAttachment[]`
+ArrayReturn: androidx.webgpu.GPURenderPassDescriptor#getColorAttachments():
+    Method should return Collection<androidx.webgpu.GPURenderPassColorAttachment> (or subclass) instead of raw array; was `androidx.webgpu.GPURenderPassColorAttachment[]`
+ArrayReturn: androidx.webgpu.GPURenderPassDescriptor#setColorAttachments(androidx.webgpu.GPURenderPassColorAttachment[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPURenderPassColorAttachment> (or subclass) instead of raw array; was `androidx.webgpu.GPURenderPassColorAttachment[]`
+ArrayReturn: androidx.webgpu.GPURenderPassDescriptor.Builder#setColorAttachments(androidx.webgpu.GPURenderPassColorAttachment[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPURenderPassColorAttachment> (or subclass) instead of raw array; was `androidx.webgpu.GPURenderPassColorAttachment[]`
+ArrayReturn: androidx.webgpu.GPURenderPassEncoder#executeBundles(androidx.webgpu.GPURenderBundle[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPURenderBundle> (or subclass) instead of raw array; was `androidx.webgpu.GPURenderBundle[]`
+ArrayReturn: androidx.webgpu.GPUVertexBufferLayout#GPUVertexBufferLayout(long, int, androidx.webgpu.GPUVertexAttribute[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUVertexAttribute> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexAttribute[]`
+ArrayReturn: androidx.webgpu.GPUVertexBufferLayout#getAttributes():
+    Method should return Collection<androidx.webgpu.GPUVertexAttribute> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexAttribute[]`
+ArrayReturn: androidx.webgpu.GPUVertexBufferLayout#setAttributes(androidx.webgpu.GPUVertexAttribute[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUVertexAttribute> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexAttribute[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#GPUVertexState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#GPUVertexState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[], androidx.webgpu.GPUVertexBufferLayout[]) parameter #2:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#GPUVertexState(androidx.webgpu.GPUShaderModule, String, androidx.webgpu.GPUConstantEntry[], androidx.webgpu.GPUVertexBufferLayout[]) parameter #3:
+    Method parameter should be Collection<androidx.webgpu.GPUVertexBufferLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexBufferLayout[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#getBuffers():
+    Method should return Collection<androidx.webgpu.GPUVertexBufferLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexBufferLayout[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#getConstants():
+    Method should return Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#setBuffers(androidx.webgpu.GPUVertexBufferLayout[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUVertexBufferLayout> (or subclass) instead of raw array; was `androidx.webgpu.GPUVertexBufferLayout[]`
+ArrayReturn: androidx.webgpu.GPUVertexState#setConstants(androidx.webgpu.GPUConstantEntry[]) parameter #0:
+    Method parameter should be Collection<androidx.webgpu.GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
+
+
+FacadeClassJvmName: androidx.webgpu.helper.ExtensionsKt:
+    Use `@file:JvmName` to provide a name for this file facade class for Java callers
+
+
+GenericCallbacks: androidx.webgpu.GPURequestCallback:
+    GPURequestCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+
+
+GetterSetterNames: androidx.webgpu.GPUBufferBindingLayout#isHasDynamicOffset():
+    Getter for boolean property `hasDynamicOffset` is named `isHasDynamicOffset` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.webgpu.GPUBufferDescriptor#mappedAtCreation:
+    Invalid name for boolean property `mappedAtCreation`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPUMultisampleState#alphaToCoverageEnabled:
+    Invalid name for boolean property `alphaToCoverageEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPUPrimitiveState#unclippedDepth:
+    Invalid name for boolean property `unclippedDepth`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURenderBundleEncoderDescriptor#depthReadOnly:
+    Invalid name for boolean property `depthReadOnly`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURenderBundleEncoderDescriptor#stencilReadOnly:
+    Invalid name for boolean property `stencilReadOnly`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURenderPassDepthStencilAttachment#depthReadOnly:
+    Invalid name for boolean property `depthReadOnly`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURenderPassDepthStencilAttachment#stencilReadOnly:
+    Invalid name for boolean property `stencilReadOnly`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURequestAdapterOptions#forceFallbackAdapter:
+    Invalid name for boolean property `forceFallbackAdapter`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPURequestAdapterWebXROptions#xrCompatible:
+    Invalid name for boolean property `xrCompatible`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.webgpu.GPUTextureBindingLayout#multisampled:
+    Invalid name for boolean property `multisampled`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+KotlinDefaultParameterOrder: androidx.webgpu.GPUAdapter#requestDevice(java.util.concurrent.Executor, androidx.webgpu.GPUDeviceDescriptor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUDevice>) parameter #1:
+    Parameter `descriptor` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.GPULimits, androidx.webgpu.GPUQueueDescriptor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #2:
+    Parameter `label` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.GPULimits, androidx.webgpu.GPUQueueDescriptor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #3:
+    Parameter `requiredFeatures` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.GPULimits, androidx.webgpu.GPUQueueDescriptor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #4:
+    Parameter `requiredLimits` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.GPULimits, androidx.webgpu.GPUQueueDescriptor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #5:
+    Parameter `defaultQueue` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUInstance#requestAdapter(java.util.concurrent.Executor, androidx.webgpu.GPURequestAdapterOptions, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUAdapter>) parameter #1:
+    Parameter `options` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+
+
+MethodNameUnits: androidx.webgpu.GPUSurfaceColorManagement#getColorSpace():
+    Expected method name units to be `Bytes`, was `Space` in `getColorSpace`
+
+
+NoByteOrShort: androidx.webgpu.GPUSamplerDescriptor#GPUSamplerDescriptor(String, int, int, int, int, int, int, float, float, int, short) parameter #10:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter maxAnisotropy in androidx.webgpu.GPUSamplerDescriptor(String label, int addressModeU, int addressModeV, int addressModeW, int magFilter, int minFilter, int mipmapFilter, float lodMinClamp, float lodMaxClamp, int compare, short maxAnisotropy)
+NoByteOrShort: androidx.webgpu.GPUSamplerDescriptor#getMaxAnisotropy():
+    Should avoid odd sized primitives; use `int` instead of `short` in method androidx.webgpu.GPUSamplerDescriptor.getMaxAnisotropy()
+NoByteOrShort: androidx.webgpu.GPUSamplerDescriptor#setMaxAnisotropy(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter <set-?> in androidx.webgpu.GPUSamplerDescriptor.setMaxAnisotropy(short <set-?>)
+NoByteOrShort: androidx.webgpu.GPUSamplerDescriptor.Builder#setMaxAnisotropy(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter maxAnisotropy in androidx.webgpu.GPUSamplerDescriptor.Builder.setMaxAnisotropy(short maxAnisotropy)
+
+
+OptionalBuilderConstructorArgument: androidx.webgpu.GPUDeviceDescriptor.Builder#Builder(java.util.concurrent.Executor, java.util.concurrent.Executor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #2:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter deviceLostCallback in androidx.webgpu.GPUDeviceDescriptor.Builder(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.DeviceLostCallback deviceLostCallback, androidx.webgpu.UncapturedErrorCallback uncapturedErrorCallback)
+OptionalBuilderConstructorArgument: androidx.webgpu.GPUDeviceDescriptor.Builder#Builder(java.util.concurrent.Executor, java.util.concurrent.Executor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #3:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter uncapturedErrorCallback in androidx.webgpu.GPUDeviceDescriptor.Builder(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.DeviceLostCallback deviceLostCallback, androidx.webgpu.UncapturedErrorCallback uncapturedErrorCallback)

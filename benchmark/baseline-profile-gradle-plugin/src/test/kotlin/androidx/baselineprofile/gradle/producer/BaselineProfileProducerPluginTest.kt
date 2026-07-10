@@ -18,8 +18,7 @@ package androidx.baselineprofile.gradle.producer
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_1
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_1
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_4_2
 import androidx.baselineprofile.gradle.utils.VariantProfile
@@ -29,6 +28,7 @@ import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.require
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,22 +36,22 @@ import org.junit.runners.Parameterized
 
 private val GRADLE_PRINT_ARGS_TASK =
     """
-abstract class PrintArgsTask extends DefaultTask {
-    @Input abstract MapProperty<String, String> getProperties()
-    @TaskAction void exec() {
-        for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
-            println(e.key + "=" + e.value)
+    abstract class PrintArgsTask extends DefaultTask {
+        @Input abstract MapProperty<String, String> getProperties()
+        @TaskAction void exec() {
+            for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
+                println(e.key + "=" + e.value)
+            }
         }
     }
-}
-androidComponents {
-    onVariants(selector()) { variant ->
-        tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
-            t.properties.set(variant.instrumentationRunnerArguments)
+    androidComponents {
+        onVariants(selector()) { variant ->
+            tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
+                t.properties.set(variant.instrumentationRunnerArguments)
+            }
         }
     }
-}
-"""
+    """
         .trimIndent()
 
 @RunWith(Parameterized::class)
@@ -98,7 +98,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["nonExisting"]
-            """
+                """
                     .trimIndent(),
         )
 
@@ -117,7 +117,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["somePixelDevice"]
-            """
+                """
                     .trimIndent(),
         )
 
@@ -149,7 +149,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["somePixelDevice"]
-            """
+                """
                     .trimIndent(),
             additionalGradleCodeBlock =
                 """
@@ -161,7 +161,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                         println(taskName + "=" + task.enabled)
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -192,7 +192,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                 """
                 managedDevices = ["somePixelDevice"]
                 useConnectedDevices = false
-            """
+                """
                     .trimIndent(),
         )
 
@@ -219,7 +219,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                 """
                 managedDevices = ["somePixelDevice"]
                 useConnectedDevices = false
-            """
+                """
                     .trimIndent(),
         )
 
@@ -236,12 +236,12 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
 }
 
 @RunWith(Parameterized::class)
-class BaselineProfileProducerPluginTestWithAgp81AndAbove(agpVersion: TestAgpVersion) {
+class BaselineProfileProducerPluginTestWithAgp82AndAbove(agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_1)
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_2_1)
     }
 
     @get:Rule
@@ -269,22 +269,6 @@ class BaselineProfileProducerPluginTestWithAgp81AndAbove(agpVersion: TestAgpVers
             assertThat(notFound).isEmpty()
         }
     }
-}
-
-@RunWith(Parameterized::class)
-class BaselineProfileProducerPluginTestWithAgp82AndAbove(agpVersion: TestAgpVersion) {
-
-    companion object {
-        @Parameterized.Parameters(name = "agpVersion={0}")
-        @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_2_0)
-    }
-
-    @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
-
-    private val emptyReleaseVariantProfile =
-        VariantProfile(flavor = null, buildType = "release", profileFileLines = mapOf())
 
     @Test
     fun verifyInstrumentationRunnerArgumentsAreSet() {
@@ -331,6 +315,7 @@ class BaselineProfileProducerPluginTestWithAgp82AndAbove(agpVersion: TestAgpVers
             }
     }
 
+    @Ignore // b/441089720
     @Test
     fun runWhenInstrumentationRunnerArgumentsAreSetManually() {
         projectSetup.appTarget.setup()

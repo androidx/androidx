@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -25,6 +27,7 @@ import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import org.jspecify.annotations.NonNull;
 
 /** Helper class to set the min / max dimension on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DimensionInModifierOperation extends Operation
         implements ModifierOperation, VariableSupport {
     int mOpCode = -1;
@@ -50,11 +53,14 @@ public abstract class DimensionInModifierOperation extends Operation
     public void updateVariables(@NonNull RemoteContext context) {
         mV1 = Float.isNaN(mValue1) ? context.getFloat(Utils.idFromNan(mValue1)) : mValue1;
         mV2 = Float.isNaN(mValue2) ? context.getFloat(Utils.idFromNan(mValue2)) : mValue2;
-        if (mV1 != -1) {
-            mV1 = mV1 * context.getDensity();
-        }
-        if (mV2 != -1) {
-            mV2 = mV2 * context.getDensity();
+        if (context.getDensityBehavior() != CoreDocument.DENSITY_BEHAVIOR_PIXELS) {
+            float density = context.getDensity();
+            if (mV1 != -1) {
+                mV1 = mV1 * density;
+            }
+            if (mV2 != -1) {
+                mV2 = mV2 * density;
+            }
         }
     }
 
@@ -105,5 +111,25 @@ public abstract class DimensionInModifierOperation extends Operation
     @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         serializer.append(indent, "DIMENSION = [" + getMin() + ", " + getMax() + "]");
+    }
+
+    /**
+     * Apply constraints
+     *
+     * @param width
+     * @return
+     */
+    public float applyWidthConstraint(float width) {
+        return width;
+    }
+
+    /**
+     * Apply constraints
+     *
+     * @param height
+     * @return
+     */
+    public float applyHeightConstraint(float height) {
+        return height;
     }
 }

@@ -20,15 +20,17 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 public class ExtendedCameraConfigProviderStoreTest {
 
     @Test
     public fun canRetrieveStoredCameraConfigProvider() {
-        val id = Object()
+        val id = Any()
         val cameraConfigProvider = CameraConfigProvider { _, _ -> CameraConfigs.defaultConfig() }
 
         ExtendedCameraConfigProviderStore.addConfig(id, cameraConfigProvider)
@@ -39,7 +41,7 @@ public class ExtendedCameraConfigProviderStoreTest {
 
     @Test
     public fun returnDefaultEmptyCameraConfigProvider_whenNoDataStored() {
-        assertThat(ExtendedCameraConfigProviderStore.getConfigProvider(Object()))
+        assertThat(ExtendedCameraConfigProviderStore.getConfigProvider(Any()))
             .isEqualTo(CameraConfigProvider.EMPTY)
     }
 }

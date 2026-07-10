@@ -51,7 +51,8 @@ fun MemoryAllocsSetText() {
             @Composable
             fun SetText(text: State<String>) {
                 Text(text.value)
-            }"""
+            }
+            """
                 .trimIndent()
         )
         SetText(textToggler())
@@ -74,7 +75,8 @@ fun MemoryAllocsIfNotEmptyText() {
                 if (text.value.isNotEmpty()) {
                     Text(text.value)
                 }
-            }"""
+            }
+            """
                 .trimIndent()
         )
         IfNotEmptyText(textToggler())
@@ -89,7 +91,7 @@ fun MemoryAllocsLazyList() {
             sourceCode =
                 """
                 item { Text("Some static text") }
-            """
+                """
                     .trimIndent()
         )
         LazyListReuse(states)

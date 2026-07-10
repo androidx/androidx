@@ -26,13 +26,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
-import java.util.Locale
 
 @Composable
 fun TimeTextClockOnly() {
@@ -95,7 +95,10 @@ fun TimeTextWithLocalisedFormat() {
     TimeText(
         timeSource =
             TimeTextDefaults.timeSource(
-                DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy.MM.dd HH:mm")
+                DateFormat.getBestDateTimePattern(
+                    LocalLocale.current.platformLocale,
+                    "yyyy.MM.dd HH:mm",
+                )
             )
     )
 }

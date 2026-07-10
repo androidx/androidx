@@ -1,3 +1,81 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.graphics.shapes.PointTransformer#transform-XgqJiTY(float, float):
-    Binary breaking change: Added method androidx.graphics.shapes.PointTransformer.transform-XgqJiTY(float,float)
+AddedMethod: androidx.graphics.shapes.CornerRounding#CornerRounding(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.shapes.CornerRounding(float,float,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.shapes.Morph#calculateBounds$default(androidx.graphics.shapes.Morph, float[], boolean, int, Object):
+    Added method androidx.graphics.shapes.Morph.calculateBounds$default(androidx.graphics.shapes.Morph,float[],boolean,int,Object)
+AddedMethod: androidx.graphics.shapes.Morph#calculateMaxBounds$default(androidx.graphics.shapes.Morph, float[], int, Object):
+    Added method androidx.graphics.shapes.Morph.calculateMaxBounds$default(androidx.graphics.shapes.Morph,float[],int,Object)
+AddedMethod: androidx.graphics.shapes.Morph#forEachCubic$default(androidx.graphics.shapes.Morph, float, androidx.graphics.shapes.MutableCubic, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.shapes.Morph.forEachCubic$default(androidx.graphics.shapes.Morph,float,androidx.graphics.shapes.MutableCubic,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygon#calculateBounds$default(androidx.graphics.shapes.RoundedPolygon, float[], boolean, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygon.calculateBounds$default(androidx.graphics.shapes.RoundedPolygon,float[],boolean,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygon#calculateMaxBounds$default(androidx.graphics.shapes.RoundedPolygon, float[], int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygon.calculateMaxBounds$default(androidx.graphics.shapes.RoundedPolygon,float[],int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(float[], androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(float[],androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(int, float, float, float, androidx.graphics.shapes.CornerRounding, java.util.List, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(int,float,float,float,androidx.graphics.shapes.CornerRounding,java.util.List,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#circle$default(androidx.graphics.shapes.RoundedPolygon.Companion, int, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.circle$default(androidx.graphics.shapes.RoundedPolygon.Companion,int,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#pill$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.pill$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#pillStar$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, int, float, androidx.graphics.shapes.CornerRounding, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.pillStar$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,int,float,androidx.graphics.shapes.CornerRounding,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#rectangle$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.rectangle$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#star$default(androidx.graphics.shapes.RoundedPolygon.Companion, int, float, float, androidx.graphics.shapes.CornerRounding, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.star$default(androidx.graphics.shapes.RoundedPolygon.Companion,int,float,float,androidx.graphics.shapes.CornerRounding,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.Shapes_androidKt#toPath$default(androidx.graphics.shapes.Morph, float, android.graphics.Path, int, Object):
+    Added method androidx.graphics.shapes.Shapes_androidKt.toPath$default(androidx.graphics.shapes.Morph,float,android.graphics.Path,int,Object)
+AddedMethod: androidx.graphics.shapes.Shapes_androidKt#toPath$default(androidx.graphics.shapes.RoundedPolygon, android.graphics.Path, int, Object):
+    Added method androidx.graphics.shapes.Shapes_androidKt.toPath$default(androidx.graphics.shapes.RoundedPolygon,android.graphics.Path,int,Object)
+
+
+RemovedFromKotlin: androidx.graphics.shapes.CornerRounding#getRadius():
+    Source breaking change: method androidx.graphics.shapes.CornerRounding.getRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.CornerRounding#getSmoothing():
+    Source breaking change: method androidx.graphics.shapes.CornerRounding.getSmoothing() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getAnchor0X():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getAnchor0X() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getAnchor0Y():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getAnchor0Y() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getAnchor1X():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getAnchor1X() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getAnchor1Y():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getAnchor1Y() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getControl0X():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getControl0X() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getControl0Y():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getControl0Y() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getControl1X():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getControl1X() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Cubic#getControl1Y():
+    Source breaking change: method androidx.graphics.shapes.Cubic.getControl1Y() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Feature#getCubics():
+    Source breaking change: method androidx.graphics.shapes.Feature.getCubics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Feature#isConcaveCorner():
+    Source breaking change: method androidx.graphics.shapes.Feature.isConcaveCorner() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Feature#isConvexCorner():
+    Source breaking change: method androidx.graphics.shapes.Feature.isConvexCorner() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Feature#isEdge():
+    Source breaking change: method androidx.graphics.shapes.Feature.isEdge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.Feature#isIgnorableFeature():
+    Source breaking change: method androidx.graphics.shapes.Feature.isIgnorableFeature() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.MutablePoint#getX():
+    Source breaking change: method androidx.graphics.shapes.MutablePoint.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.MutablePoint#getY():
+    Source breaking change: method androidx.graphics.shapes.MutablePoint.getY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.MutablePoint#setX(float):
+    Source breaking change: method androidx.graphics.shapes.MutablePoint.setX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.MutablePoint#setY(float):
+    Source breaking change: method androidx.graphics.shapes.MutablePoint.setY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.RoundedPolygon#getCenterX():
+    Source breaking change: method androidx.graphics.shapes.RoundedPolygon.getCenterX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.RoundedPolygon#getCenterY():
+    Source breaking change: method androidx.graphics.shapes.RoundedPolygon.getCenterY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.RoundedPolygon#getCubics():
+    Source breaking change: method androidx.graphics.shapes.RoundedPolygon.getCubics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.shapes.RoundedPolygon#getFeatures():
+    Source breaking change: method androidx.graphics.shapes.RoundedPolygon.getFeatures() can no longer be resolved from Kotlin source

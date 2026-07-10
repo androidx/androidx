@@ -21,18 +21,21 @@ import androidx.annotation.RestrictTo
 import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
 import androidx.work.Operation
+import androidx.work.ScheduleEventListener
 import androidx.work.WorkInfo
 import androidx.work.WorkManager.UpdateResult
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkRequest
 import androidx.work.executeAsync
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.model.getWorkInfo
 import androidx.work.impl.utils.EnqueueRunnable
+import androidx.work.impl.utils.dispatchEvent
 import androidx.work.impl.utils.wrapWorkSpecIfNeeded
 import androidx.work.launchOperation
 import com.google.common.util.concurrent.ListenableFuture
 
-private fun updateWorkImpl(
+private fun WorkManagerImpl.updateWorkImpl(
     processor: Processor,
     workDatabase: WorkDatabase,
     configuration: Configuration,
@@ -54,9 +57,12 @@ private fun updateWorkImpl(
     }
     val isEnqueued = processor.isEnqueued(workSpecId)
     if (!isEnqueued) schedulers.forEach { scheduler -> scheduler.cancel(workSpecId) }
+    val scheduleListener = configuration.getScheduleEventListener()
     workDatabase.runInTransaction {
         val workSpecDao = workDatabase.workSpecDao()
         val workTagDao = workDatabase.workTagDao()
+        val oldWorkInfo =
+            if (scheduleListener != null) workSpecDao.getWorkInfo(workSpecId) else null
 
         // should keep state BLOCKING, preserving the chain, or possibly RUNNING
         // preserving run attempt count, to calculate back off correctly, and enqueue/override time
@@ -88,6 +94,12 @@ private fun updateWorkImpl(
             workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
             workDatabase.workProgressDao().delete(workSpecId)
         }
+        scheduleListener?.dispatchEvent(
+            workTaskExecutor,
+            oldWorkInfo!!,
+            workSpecDao.getWorkInfo(workSpecId)!!,
+            ScheduleEventListener::onUpdated,
+        )
     }
     if (!isEnqueued) Schedulers.schedule(configuration, workDatabase, schedulers)
     return if (isEnqueued) APPLIED_FOR_NEXT_RUN else UpdateResult.APPLIED_IMMEDIATELY

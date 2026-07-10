@@ -43,6 +43,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
+import android.view.inputmethod.TextAttribute
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -237,6 +238,28 @@ internal class StatelessInputConnection(
         return true
     }
 
+    override fun commitText(
+        text: CharSequence,
+        newCursorPosition: Int,
+        textAttribute: TextAttribute?,
+    ): Boolean {
+        logDebug("commitText(\"$text\", $newCursorPosition, $textAttribute)")
+
+        val isTextSuggestionSelected =
+            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
+                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
+            } else {
+                false
+            }
+
+        session.commitText(
+            text = text.toString(),
+            newCursorPosition = newCursorPosition,
+            isTextSuggestionSelected = isTextSuggestionSelected,
+        )
+        return true
+    }
+
     override fun setComposingRegion(start: Int, end: Int): Boolean {
         logDebug("setComposingRegion($start, $end)")
         session.setComposingRegion(start, end)
@@ -250,6 +273,28 @@ internal class StatelessInputConnection(
             text = text.toString(),
             newCursorPosition = newCursorPosition,
             annotations = (text as? Spanned)?.toAnnotationList(),
+        )
+        return true
+    }
+
+    override fun setComposingText(
+        text: CharSequence,
+        newCursorPosition: Int,
+        textAttribute: TextAttribute?,
+    ): Boolean {
+        logDebug("setComposingText(\"$text\", $newCursorPosition, $textAttribute)")
+
+        val isTextSuggestionSelected =
+            if (Build.VERSION.SDK_INT >= 37 && textAttribute != null) {
+                Api37TextAttributeImpl.isTextSuggestionSelected(textAttribute)
+            } else {
+                false
+            }
+
+        session.setComposingText(
+            text = text.toString(),
+            newCursorPosition = newCursorPosition,
+            isTextSuggestionSelected = isTextSuggestionSelected,
         )
         return true
     }
@@ -269,6 +314,7 @@ internal class StatelessInputConnection(
     override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
         session.setSelection(start, end)
+        session.updateDirectTouchInteraction(false)
         return true
     }
 
@@ -356,12 +402,14 @@ internal class StatelessInputConnection(
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         logDebug("getExtractedText($request, $flags)")
-        //        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR)
-        // != 0
-        //        if (extractedTextMonitorMode) {
-        //            currentExtractedTextRequestToken = request?.token ?: 0
-        //        }
-        // TODO(halilibo): Implement extracted text monitor
+        val monitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
+        if (monitorMode) {
+            // This may look weird that we are ignoring subsequent requests that may want to turn
+            // off the extracted text monitor updates but this is how EditableInputConnection was
+            // implemented. Many IMEs also rely on this behavior. Therefore once the extracted text
+            // monitor is enabled, it remains enabled until the InputConnection gets restarted.
+            session.requestExtractedTextUpdates(request?.token ?: 0)
+        }
         // TODO(b/135556699) should return styled text
         return text.toExtractedText()
     }
@@ -539,7 +587,14 @@ private object Api34PerformHandwritingGestureImpl {
     }
 }
 
-private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
+@RequiresApi(37)
+private object Api37TextAttributeImpl {
+    fun isTextSuggestionSelected(textAttribute: TextAttribute): Boolean {
+        return textAttribute.isTextSuggestionSelected
+    }
+}
+
+internal fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     val res = ExtractedText()
     res.text = this
     res.startOffset = 0

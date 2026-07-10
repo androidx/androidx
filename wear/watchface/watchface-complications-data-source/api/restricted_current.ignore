@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationDataTimeline#getDefaultComplicationData():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationDataTimeline.getDefaultComplicationData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationDataTimeline#getTimelineEntries():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationDataTimeline.getTimelineEntries() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationRequest#getComplicationInstanceId():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationRequest.getComplicationInstanceId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationRequest#getComplicationType():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationRequest.getComplicationType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationRequest#isForSafeWatchFace():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationRequest.isForSafeWatchFace() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.ComplicationRequest#isImmediateResponseRequired():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.ComplicationRequest.isImmediateResponseRequired() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimeInterval#getEnd():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimeInterval.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimeInterval#getStart():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimeInterval.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimeInterval#setEnd(java.time.Instant):
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimeInterval.setEnd(java.time.Instant) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimeInterval#setStart(java.time.Instant):
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimeInterval.setStart(java.time.Instant) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimelineEntry#getComplicationData():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimelineEntry.getComplicationData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimelineEntry#getValidity():
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimelineEntry.getValidity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimelineEntry#setComplicationData(androidx.wear.watchface.complications.data.ComplicationData):
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimelineEntry.setComplicationData(androidx.wear.watchface.complications.data.ComplicationData) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.datasource.TimelineEntry#setValidity(androidx.wear.watchface.complications.datasource.TimeInterval):
+    Source breaking change: method androidx.wear.watchface.complications.datasource.TimelineEntry.setValidity(androidx.wear.watchface.complications.datasource.TimeInterval) can no longer be resolved from Kotlin source

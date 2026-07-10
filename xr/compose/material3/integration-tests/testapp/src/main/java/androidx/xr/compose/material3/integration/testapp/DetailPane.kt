@@ -37,7 +37,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun DetailPane(navigator: ThreePaneScaffoldNavigator<Destination>) {
-    val destination = navigator.currentDestination?.contentKey ?: return
+    val destination = navigator.currentDestination?.contentKey
+    if (destination == null) {
+        // Populate the pane with blank content so it can show as a "placeholder", as suggested in
+        // the guidelines:
+        // https://developer.android.com/develop/ui/compose/layouts/adaptive/canonical-layouts#list-detail
+        Surface(Modifier.fillMaxSize()) {}
+        return
+    }
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = { MediumTopAppBar(title = { Text("XR Compose Adaptive: ${destination.label}") }) }

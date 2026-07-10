@@ -25,4 +25,5 @@ actual class ClipEntry {
 
 actual class ClipMetadata
 
+@Deprecated("Use direct reference to platform type instead of typealias")
 actual class NativeClipboard

@@ -61,6 +61,57 @@ internal constructor(
             "https://wear.googleapis-cn.com/3p_auth/"
 
         internal const val REDIRECT_URI_KEY: String = "redirect_uri"
+
+        /**
+         * Check the validity of the request for the OAuth2 flow with PKCE
+         *
+         * @throws IllegalArgumentException if the request is invalid.
+         */
+        internal fun checkValidity(requestUrl: Uri) {
+            // check that client_id is provided in the request
+            queryParameterCheck(
+                requestUrl = requestUrl,
+                queryKey = "client_id",
+                expectedQueryParameter = null,
+            )
+            // check that code_challenge is provided in the request
+            queryParameterCheck(
+                requestUrl = requestUrl,
+                queryKey = "code_challenge",
+                expectedQueryParameter = null,
+            )
+            // check that code_challenge_mode is provided in the request, and with value 'S256'
+            queryParameterCheck(
+                requestUrl = requestUrl,
+                queryKey = "code_challenge_method",
+                expectedQueryParameter = "S256",
+            )
+            // check that response_type is provided in the request, and with value 'code'
+            queryParameterCheck(
+                requestUrl = requestUrl,
+                queryKey = "response_type",
+                expectedQueryParameter = "code",
+            )
+        }
+
+        private fun queryParameterCheck(
+            requestUrl: Uri,
+            queryKey: String,
+            expectedQueryParameter: String?,
+        ) {
+            val queryParam = requestUrl.getQueryParameter(queryKey)
+            require(queryParam != null) {
+                "The use of Proof Key for Code Exchange is required for authentication, " +
+                    "please provide $queryKey in the request."
+            }
+            expectedQueryParameter?.let {
+                require(queryParam == expectedQueryParameter) {
+                    "The use of Proof Key for Code Exchange is required for authentication, " +
+                        "the query parameter '$queryKey' is expected to have value of " +
+                        "'$expectedQueryParameter',but'$queryParam' is set"
+                }
+            }
+        }
     }
 
     /**
@@ -180,39 +231,8 @@ internal constructor(
         @RequiresApi(Build.VERSION_CODES.O)
         public fun build(): OAuthRequest {
             val requestUrl = composeRequestUrl()
-            checkValidity(requestUrl)
+            OAuthRequest.checkValidity(requestUrl)
             return OAuthRequest(packageName, requestUrl)
-        }
-
-        // check the validity of the request for the OAuth2 flow with PKCE
-        private fun checkValidity(requestUrl: Uri) {
-            // check that client_id is provided in the request
-            queryParameterCheck(requestUrl, "client_id", null)
-            // check that code_challenge is provided in the request
-            queryParameterCheck(requestUrl, "code_challenge", null)
-            // check that code_challenge_mode is provided in the request, and with value 'S256'
-            queryParameterCheck(requestUrl, "code_challenge_method", "S256")
-            // check that response_type is provided in the request, and with value 'code'
-            queryParameterCheck(requestUrl, "response_type", "code")
-        }
-
-        private fun queryParameterCheck(
-            requestUrl: Uri,
-            queryKey: String,
-            expectedQueryParameter: String?,
-        ) {
-            val queryParam = requestUrl.getQueryParameter(queryKey)
-            require(queryParam != null) {
-                "The use of Proof Key for Code Exchange is required for authentication, " +
-                    "please provide $queryKey in the request."
-            }
-            expectedQueryParameter?.let {
-                require(queryParam == expectedQueryParameter) {
-                    "The use of Proof Key for Code Exchange is required for authentication, " +
-                        "the query parameter '$queryKey' is expected to have value of " +
-                        "'$expectedQueryParameter', but '$queryParam' is set"
-                }
-            }
         }
     }
 

@@ -73,6 +73,7 @@
     <string name="activity_configuration_title">Activity#onConfigurationChanged</string>
     <string name="window_layout_info_getter_title">WindowInfoTracker#getCurrentWindowLayoutInfo</string>
     <string name="window_layout_info_flow_title">WindowInfoTracker#windowLayoutInfo</string>
+    <string name="window_engagement_info_flow_title">WindowInfoTracker#windowEngagementInfo</string>
     <string name="timestamp_title">Timestamp:</string>
     <string name="application_display_rotation_title">Application Display Rotation:</string>
     <string name="activity_display_rotation_title">Activity Display Rotation:</string>

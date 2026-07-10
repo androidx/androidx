@@ -63,10 +63,13 @@ internal object PaddingDefaults {
     val edgePadding = 2.dp
 }
 
-@Composable private fun ceilDp(dp: Dp): Dp = with(LocalDensity.current) { Dp(ceil(dp.value)) }
-
 @Composable
 internal fun screenHeightFraction(fraction: Float): Dp = ceilDp(screenHeightDp().dp * fraction)
 
 @Composable
 internal fun screenWidthFraction(fraction: Float): Dp = ceilDp(screenWidthDp().dp * fraction)
+
+internal const val LARGE_VERTICAL_CONTENT_PADDING_FRACTION = 0.23f
+internal const val SMALL_VERTICAL_CONTENT_PADDING_FRACTION = 0.13f
+
+@Composable private fun ceilDp(dp: Dp): Dp = with(LocalDensity.current) { Dp(ceil(dp.value)) }

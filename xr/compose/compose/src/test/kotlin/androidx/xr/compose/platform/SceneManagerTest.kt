@@ -16,11 +16,13 @@
 
 package androidx.xr.compose.platform
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.createFakeSession
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,24 +30,37 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SceneManagerTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
     fun onSceneCreated_onlyAddsSceneOnce() {
-        assertThat(SceneManager.getSceneCount()).isEqualTo(0)
+        assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(0)
 
-        val testSession = createFakeSession(composeTestRule.activity)
-        val scene =
-            SpatialComposeScene(
-                lifecycleOwner = composeTestRule.activity,
-                context = composeTestRule.activity,
-                jxrSession = testSession,
-            )
+        var scene: SpatialComposeScene? = null
 
-        assertThat(SceneManager.getSceneCount()).isEqualTo(1)
+        composeTestRule.setContent {
+            val session = checkNotNull(LocalSession.current)
+            val context = rememberCompositionContext()
+            scene = remember {
+                SpatialComposeScene(
+                    lifecycleOwner = composeTestRule.activity,
+                    context = composeTestRule.activity,
+                    jxrSession = session,
+                    parentCompositionContext = context,
+                )
+            }
+        }
+
+        assertNotNull(scene)
+        assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(1)
 
         SceneManager.onSceneCreated(scene)
 
-        assertThat(SceneManager.getSceneCount()).isEqualTo(1)
+        assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(1)
     }
 }

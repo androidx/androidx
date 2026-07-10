@@ -29,6 +29,7 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.SectionedItemList;
 import androidx.car.app.model.Template;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -45,6 +46,13 @@ public final class RadioButtonListDemoScreen extends Screen {
 
     @Override
     public @NonNull Template onGetTemplate() {
+        return buildListTemplate();
+    }
+
+    /**
+     * Helper method to build the ListTemplate.
+     */
+    private ListTemplate buildListTemplate() {
         ListTemplate.Builder templateBuilder = new ListTemplate.Builder();
         ItemList radioList =
                 new ItemList.Builder()
@@ -69,22 +77,32 @@ public final class RadioButtonListDemoScreen extends Screen {
                 SectionedItemList.create(radioList,
                         getCarContext().getString(R.string.sample_additional_list)));
 
+        Action toggleAction = new Action.Builder()
+                .setTitle(mIsEnabled
+                        ? getCarContext().getString(
+                        R.string.disable_all_rows)
+                        : getCarContext().getString(
+                                R.string.enable_all_rows))
+                .setOnClickListener(
+                        () -> {
+                            mIsEnabled = !mIsEnabled;
+                            invalidate();
+                        })
+                .build();
+
+        Action mapXAction = new Action.Builder()
+                .setTitle("Map+X this!")
+                .setIcon(CarIcon.ALERT)
+                .setOnClickListener(
+                        () -> getScreenManager().push(new MapListDemoScreen(getCarContext())))
+                .build();
+
         return templateBuilder
                 .setHeader(new Header.Builder()
                         .setTitle(getCarContext().getString(R.string.radio_button_list_demo_title))
                         .setStartHeaderAction(Action.BACK)
-                        .addEndHeaderAction(new Action.Builder()
-                                .setTitle(mIsEnabled
-                                        ? getCarContext().getString(
-                                        R.string.disable_all_rows)
-                                        : getCarContext().getString(
-                                                R.string.enable_all_rows))
-                                .setOnClickListener(
-                                        () -> {
-                                            mIsEnabled = !mIsEnabled;
-                                            invalidate();
-                                        })
-                                .build())
+                        .addEndHeaderAction(toggleAction)
+                        .addEndHeaderAction(mapXAction)
                         .build())
                 .build();
     }
@@ -123,5 +141,24 @@ public final class RadioButtonListDemoScreen extends Screen {
                                 + ":"
                                 + " " + index, LENGTH_LONG)
                 .show();
+    }
+
+    /**
+     * A new screen that displays the MapWithContentTemplate
+     * containing the exact same ListTemplate.
+     */
+    public class MapListDemoScreen extends Screen {
+        public MapListDemoScreen(@NonNull CarContext carContext) {
+            super(carContext);
+        }
+
+        @Override
+        public @NonNull Template onGetTemplate() {
+            ListTemplate innerTemplate = RadioButtonListDemoScreen.this.buildListTemplate();
+
+            return new MapWithContentTemplate.Builder()
+                    .setContentTemplate(innerTemplate)
+                    .build();
+        }
     }
 }

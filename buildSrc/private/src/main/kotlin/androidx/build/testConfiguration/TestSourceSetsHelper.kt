@@ -22,7 +22,6 @@ import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 internal fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCollection> {
     val testSourceFileCollections = mutableListOf<FileCollection>()
@@ -32,37 +31,26 @@ internal fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCo
             variant.sources.java?.all?.let { sourceSet ->
                 testSourceFileCollections.add(files(sourceSet))
             }
-            // Add kotlin-android main source set
-            extensions
-                .findByType(KotlinAndroidProjectExtension::class.java)
-                ?.sourceSets
-                ?.find { it.name == "main" }
-                ?.let { testSourceFileCollections.add(it.kotlin.sourceDirectories) }
-            // Note, don't have to add kotlin-multiplatform as it is not compatible with
-            // com.android.test modules
+            variant.sources.kotlin?.all?.let { sourceSet ->
+                testSourceFileCollections.add(files(sourceSet))
+            }
         }
         is com.android.build.api.variant.HasAndroidTest -> {
             variant.androidTest?.sources?.java?.all?.let {
                 testSourceFileCollections.add(files(it))
             }
+            variant.androidTest?.sources?.kotlin?.all?.let {
+                testSourceFileCollections.add(files(it))
+            }
         }
     }
 
-    // Add kotlin-android androidTest source set
-    extensions
-        .findByType(KotlinAndroidProjectExtension::class.java)
-        ?.sourceSets
-        ?.find { it.name == "androidTest" }
-        ?.let { testSourceFileCollections.add(it.kotlin.sourceDirectories) }
-
-    // Add kotlin-multiplatform androidInstrumentedTest target source sets when AGP KMP plugin is
+    // Add kotlin-multiplatform androidDeviceTest target source sets when AGP KMP plugin is
     // applied
     multiplatformExtension
         ?.targets
         ?.filterIsInstance<KotlinMultiplatformAndroidLibraryTarget>()
-        ?.mapNotNull {
-            it.compilations.find { compilation -> compilation.name == "instrumentedTest" }
-        }
+        ?.mapNotNull { it.compilations.find { compilation -> compilation.name == "deviceTest" } }
         ?.flatMap { it.allKotlinSourceSets }
         ?.mapTo(testSourceFileCollections) { it.kotlin.sourceDirectories }
     return testSourceFileCollections

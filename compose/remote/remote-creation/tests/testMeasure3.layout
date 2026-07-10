@@ -1,0 +1,124 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 332.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 332.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 384.0
+          width: 300.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 300.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 332.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 332.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 384.0
+          width: 300.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 300.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+        spacedBy: 0.0

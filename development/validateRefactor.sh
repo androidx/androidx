@@ -120,10 +120,10 @@ function unzipInPlace() {
 function doBuild() {
   # build androidx
   echoAndDo ./gradlew createAllArchives zipDocs --no-daemon --rerun-tasks --offline -Pandroidx.highMemory -Pandroidx.constraints=true
-  archiveName="top-of-tree-m2repository-all-0.zip"
-  unzipInPlace "${tempOutPath}/dist/top-of-tree-m2repository-all-0.zip"
-  unzipInPlace "${tempOutPath}/dist/docs-tip-of-tree-0.zip"
-  unzipInPlace "${tempOutPath}/dist/docs-public-0.zip"
+  archiveName="top-of-tree-m2repository-all.zip"
+  unzipInPlace "${tempOutPath}/dist/top-of-tree-m2repository-all.zip"
+  unzipInPlace "${tempOutPath}/dist/docs-tip-of-tree.zip"
+  unzipInPlace "${tempOutPath}/dist/docs-public.zip"
 }
 
 nonNamedArgs=()

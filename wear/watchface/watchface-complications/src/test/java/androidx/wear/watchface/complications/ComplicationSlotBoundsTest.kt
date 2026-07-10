@@ -23,6 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 @org.junit.runner.RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ComplicationSlotBoundsTest {
     @Test
     public fun createFromPartialMap() {

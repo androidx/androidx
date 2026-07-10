@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
@@ -35,15 +36,51 @@ import kotlinx.atomicfu.atomic
  * and all of the underlying placeholder objects for each expected output.
  */
 internal class FrameImpl
-private constructor(private val frameState: FrameState, override val imageStreams: Set<StreamId>) :
-    Frame {
-    internal constructor(
-        frameState: FrameState
-    ) : this(frameState, frameState.imageOutputs.map { it.streamId }.toSet())
-
+internal constructor(
+    private val frameState: FrameState,
+    override val imageStreams: Set<StreamId> = frameState.imageOutputs.map { it.streamId }.toSet(),
+) : Frame {
+    private val outputStreams = frameState.imageOutputs.map { it.outputId }.toSet()
     private val closed = atomic(false)
 
+    private val _isExternal = atomic(false)
+    /**
+     * Indicates whether this [FrameImpl] has been marked for external use.
+     *
+     * A [FrameImpl] can be marked for external use only once. Setting this to `false` has no
+     * effect.
+     */
+    internal var isExternal: Boolean
+        get() = _isExternal.value
+        set(value) {
+            if (!value) {
+                Log.warn {
+                    "Attempted to set isExternal to false on $this, which is not supported."
+                }
+                return
+            }
+            // A Frame can be marked for external use only once.
+            if (_isExternal.compareAndSet(expect = false, update = true)) {
+                for (streamResult in frameState.imageOutputs) {
+                    if (imageStreams.contains(streamResult.streamId)) {
+                        streamResult.incrementExternalUseCount()
+                    }
+                }
+            }
+        }
+
     override fun tryAcquire(streamFilter: Set<StreamId>?): FrameImpl? {
+        return tryAcquireForUsageType(streamFilter, forExternalUse = true)
+    }
+
+    internal fun tryAcquireForInternalUse(streamFilter: Set<StreamId>?): FrameImpl? {
+        return tryAcquireForUsageType(streamFilter = streamFilter, forExternalUse = false)
+    }
+
+    private fun tryAcquireForUsageType(
+        streamFilter: Set<StreamId>?,
+        forExternalUse: Boolean,
+    ): FrameImpl? {
         if (closed.value) return null
         if (!frameState.frameInfoOutput.increment()) return null
 
@@ -80,7 +117,11 @@ private constructor(private val frameState: FrameState, override val imageStream
         }
 
         // Return the new Frame instance
-        return FrameImpl(frameState, availableImageStreams)
+        val frame = FrameImpl(frameState, availableImageStreams)
+        if (forExternalUse) {
+            frame.isExternal = true
+        }
+        return frame
     }
 
     override fun close() {
@@ -96,8 +137,12 @@ private constructor(private val frameState: FrameState, override val imageStream
             // imageStreams that are held by this Frame.
             for (i in frameState.imageOutputs.indices) {
                 val streamResult = frameState.imageOutputs[i]
-                if (imageStreams.contains(streamResult.streamId)) {
-                    streamResult.decrement()
+                if (!imageStreams.contains(streamResult.streamId)) {
+                    continue
+                }
+                streamResult.decrement()
+                if (_isExternal.value) {
+                    streamResult.decrementExternalUseCount()
                 }
             }
             return true
@@ -135,32 +180,117 @@ private constructor(private val frameState: FrameState, override val imageStream
     }
 
     override suspend fun awaitFrameInfo(): FrameInfo? {
-        if (closed.value) return null
+        // Since FrameInfo is not an AutoCloseable, return it regardless of whether the Frame is
+        // closed or not.
         return frameState.frameInfoOutput.await()
     }
 
     override fun getFrameInfo(): FrameInfo? {
-        if (closed.value) return null
+        // Since FrameInfo is not an AutoCloseable, return it regardless of whether the Frame is
+        // closed or not.
         return frameState.frameInfoOutput.outputOrNull()
     }
 
     override suspend fun awaitImage(streamId: StreamId): OutputImage? {
         if (closed.value) return null
         if (!imageStreams.contains(streamId)) return null
-        val output = frameState.imageOutputs.firstOrNull { it.streamId == streamId }
-        return output?.await()
+        check(frameState.concurrentImageStreams?.contains(streamId) != true) {
+            "This is a multi-output stream, " +
+                "use awaitImage(outputId) or awaitImages(streamId) to acquire image(s)"
+        }
+        val outputs = frameState.imageOutputs.filter { it.streamId == streamId }
+        for (output in outputs) {
+            output.awaitForExternalUse()?.let {
+                return it
+            }
+        }
+        return null
     }
 
     override fun getImage(streamId: StreamId): OutputImage? {
         if (closed.value) return null
         if (!imageStreams.contains(streamId)) return null
-        val output = frameState.imageOutputs.firstOrNull { it.streamId == streamId }
-        return output?.outputOrNull()
+        check(frameState.concurrentImageStreams?.contains(streamId) != true) {
+            "This is a multi-output stream, " +
+                "use awaitImage(outputId) or awaitImages(streamId) to acquire image(s)"
+        }
+        val outputs = frameState.imageOutputs.filter { it.streamId == streamId }
+        for (output in outputs) {
+            output.acquireOrNullForExternalUse()?.let {
+                return it
+            }
+        }
+        return null
+    }
+
+    override suspend fun awaitImage(outputId: OutputId): OutputImage? {
+        if (closed.value) return null
+        if (!outputStreams.contains(outputId)) return null
+        val output = frameState.imageOutputs.firstOrNull { it.outputId == outputId }
+        return output?.awaitForExternalUse()
+    }
+
+    override fun getImage(outputId: OutputId): OutputImage? {
+        if (closed.value) return null
+        if (!outputStreams.contains(outputId)) return null
+        val output = frameState.imageOutputs.firstOrNull { it.outputId == outputId }
+        return output?.acquireOrNullForExternalUse()
+    }
+
+    override suspend fun awaitImages(streamId: StreamId): List<OutputImage> {
+        if (closed.value) return emptyList()
+        if (!imageStreams.contains(streamId)) return emptyList()
+        return frameState.imageOutputs
+            .filter { it.streamId == streamId }
+            .mapNotNull { it.awaitForExternalUse() }
+    }
+
+    override fun getImages(streamId: StreamId): List<OutputImage> {
+        if (closed.value) return emptyList()
+        if (!imageStreams.contains(streamId)) return emptyList()
+        return frameState.imageOutputs
+            .filter { it.streamId == streamId }
+            .mapNotNull { it.acquireOrNullForExternalUse() }
     }
 
     override fun imageStatus(streamId: StreamId): OutputStatus {
         if (closed.value || !imageStreams.contains(streamId)) return OutputStatus.UNAVAILABLE
-        return frameState.imageOutputs.firstOrNull { it.streamId == streamId }?.status
+        val statuses = frameState.imageOutputs.filter { it.streamId == streamId }.map { it.status }
+
+        check(statuses.isNotEmpty()) {
+            "No matching outputs found with $streamId. This is unexpected."
+        }
+
+        // For a single-output frame, return the status directly.
+        if (statuses.size == 1) {
+            return statuses[0]
+        }
+
+        // For a multi-output frame, look at all the statuses.
+        // If any of the outputs is still pending, consider the status as pending.
+        if (statuses.any { it == OutputStatus.PENDING }) {
+            return OutputStatus.PENDING
+        }
+
+        // All the outputs are complete.
+        // If any of the outputs is available, consider the status as available, given that there is
+        // available output to be retrieved.
+        if (statuses.any { it == OutputStatus.AVAILABLE }) {
+            return OutputStatus.AVAILABLE
+        }
+
+        // If no output is available, but all the statues are the same, use the status.
+        if (statuses.all { it == statuses.first() }) {
+            return statuses.first()
+        }
+
+        // Otherwise, consider the status as unavailable.
+        return OutputStatus.UNAVAILABLE
+    }
+
+    override fun imageStatus(outputId: OutputId): OutputStatus {
+        if (closed.value || !outputStreams.contains(outputId)) return OutputStatus.UNAVAILABLE
+        return frameState.imageOutputs.firstOrNull { it.outputId == outputId }?.status
             ?: OutputStatus.UNAVAILABLE
     }
 

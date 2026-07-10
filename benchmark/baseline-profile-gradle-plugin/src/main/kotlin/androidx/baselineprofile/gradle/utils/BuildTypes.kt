@@ -20,8 +20,7 @@ import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.ApkSigningConfig
 import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.BuildType
-import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet
-import com.android.build.gradle.internal.api.DefaultAndroidSourceFile
+import java.io.File
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
@@ -98,7 +97,9 @@ internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
     extensionBuildTypes.create(buildTypeName).apply { configureBlock(this) }
 }
 
+@Suppress("DEPRECATION", "UNCHECKED_CAST", "PrivateApi")
 internal fun copyBuildTypeSources(
+    supportsDirectories: Boolean,
     extensionSourceSets: NamedDomainObjectContainer<out AndroidSourceSet>,
     fromToMapping: Map<String, String>,
 ) {
@@ -122,13 +123,24 @@ internal fun copyBuildTypeSources(
                     { it.resources },
                     { it.shaders },
                 )) {
-                val fromSet = dirSet(fromSourceSets) as DefaultAndroidSourceDirectorySet
-                val toSet = dirSet(toSourceSets) as DefaultAndroidSourceDirectorySet
-                toSet.srcDirs(*fromSet.srcDirs.toTypedArray())
+                val fromSet = dirSet(fromSourceSets)
+                val toSet = dirSet(toSourceSets)
+
+                if (supportsDirectories) {
+                    toSet.directories.addAll(fromSet.directories)
+                } else {
+                    AndroidSourceDirectorySetAgp85Compat.addAllDirectories(
+                        toSet = toSet,
+                        fromSet = fromSet,
+                    )
+                }
             }
 
             // Copies the manifest file
-            val manifestFile = (fromSourceSets.manifest as DefaultAndroidSourceFile).srcFile
+            // Always use reflection here since there's no public API to do this, see b/460544407
+            val method = fromSourceSets.manifest.javaClass.getDeclaredMethod("getSrcFile")
+            method.isAccessible = true
+            val manifestFile = method.invoke(fromSourceSets.manifest) as File
             toSourceSets.manifest.srcFile(manifestFile)
         }
 }

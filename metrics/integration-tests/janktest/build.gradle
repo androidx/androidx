@@ -17,19 +17,17 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     buildFeatures {
         viewBinding = true
     }
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.metrics.performance.janktest"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))

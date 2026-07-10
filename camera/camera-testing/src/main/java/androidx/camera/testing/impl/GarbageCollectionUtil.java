@@ -42,6 +42,7 @@ public final class GarbageCollectionUtil {
     /**
      * Runs garbage collection and ensures finalization for a specified number of iterations.
      */
+    @SuppressWarnings("removal") // usage of Runtime.getRuntime().runFinalization();
     private static void runFinalization(int numGcIterations)
             throws TimeoutException, InterruptedException {
         ReferenceQueue<Object> finalizeAwaitQueue = new ReferenceQueue<>();

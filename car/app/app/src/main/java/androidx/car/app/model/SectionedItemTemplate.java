@@ -17,6 +17,7 @@
 package androidx.car.app.model;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -36,11 +37,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** A template that contains sections of items like rows, grid items, etc. */
+/** A template that contains sections of items like rows, grid items, chips, etc. */
 @KeepFields
 @RequiresCarApi(8)
 @CarProtocol
-@ExperimentalCarApi
 public final class SectionedItemTemplate implements Template {
     /**
      * Denotes possible strategies for preserving a user's scroll position when this template is
@@ -71,6 +71,48 @@ public final class SectionedItemTemplate implements Template {
     @ScrollStatePersistenceStrategy
     public static final int SCROLL_STATE_PRESERVE_INDEX = 1;
 
+    /**
+     * Denotes possible strategies for alphabetical indexing which allows items in this template
+     * to be sorted or "jumped" to via UI affordances (for example, a keyboard to jump to a
+     * starting letter within a list of contacts).
+     */
+    @IntDef(value = {ALPHABETICAL_INDEXING_DISABLED, ALPHABETICAL_INDEXING_TITLE_AS_IS,
+            ALPHABETICAL_INDEXING_TITLE_IGNORE_ARTICLES_AND_SYMBOLS})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface AlphabeticalIndexingStrategy {
+    }
+
+    /**
+     * Indicate that alphabetical indexing should not be available for the template which also
+     * disables any UI accelerators that the user may be shown to help the user navigate larger
+     * lists.
+     *
+     * <p>This is the default behavior if not explicitly set.
+     */
+    @AlphabeticalIndexingStrategy
+    public static final int ALPHABETICAL_INDEXING_DISABLED = 0;
+
+    /**
+     * Indicates that alphabetical indexing should use the item's title as-is with no processing.
+     *
+     * <p>Note that a UI accelerator may still group the item under the "miscellaneous" category
+     * if the title starts with a non-alphabetical character.
+     */
+    @AlphabeticalIndexingStrategy
+    public static final int ALPHABETICAL_INDEXING_TITLE_AS_IS = 1;
+
+    /**
+     * Indicates that alphabetical indexing should ignore English articles (like "the", "an", and
+     * "a") as well as non-alphanumeric symbols.
+     *
+     * <p>Note this will not change the display of the item's title, just how it's sorted. For
+     * example, "The Example Song" will continue to show up as "The Example Song", but will be
+     * sorted into the "E" bucket.
+     */
+    @AlphabeticalIndexingStrategy
+    public static final int ALPHABETICAL_INDEXING_TITLE_IGNORE_ARTICLES_AND_SYMBOLS = 2;
+
     private final @NonNull List<Section<?>> mSections;
 
     private final @NonNull List<Action> mActions;
@@ -79,7 +121,10 @@ public final class SectionedItemTemplate implements Template {
 
     private final boolean mIsLoading;
 
+    @Deprecated
     private final boolean mIsAlphabeticalIndexingAllowed;
+
+    private final int mAlphabeticalIndexingStrategy;
 
     private final int mScrollStatePersistenceStrategy;
 
@@ -90,7 +135,8 @@ public final class SectionedItemTemplate implements Template {
         mHeader = null;
         mIsLoading = false;
         mIsAlphabeticalIndexingAllowed = false;
-        mScrollStatePersistenceStrategy = SCROLL_STATE_RESET_TO_TOP;
+        mAlphabeticalIndexingStrategy = ALPHABETICAL_INDEXING_DISABLED;
+        mScrollStatePersistenceStrategy = SCROLL_STATE_PRESERVE_INDEX;
     }
 
     /** Creates a {@link SectionedItemTemplate} from the {@link Builder}. */
@@ -100,6 +146,7 @@ public final class SectionedItemTemplate implements Template {
         mHeader = builder.mHeader;
         mIsLoading = builder.mIsLoading;
         mIsAlphabeticalIndexingAllowed = builder.mIsAlphabeticalIndexingAllowed;
+        mAlphabeticalIndexingStrategy = builder.mAlphabeticalIndexingStrategy;
         mScrollStatePersistenceStrategy = builder.mScrollStatePersistenceStrategy;
     }
 
@@ -134,9 +181,34 @@ public final class SectionedItemTemplate implements Template {
      *
      * <p>To enable/disable accelerators for the entire list, see
      * {@link SectionedItemTemplate.Builder#setAlphabeticalIndexingAllowed(boolean)}
+     *
+     * @deprecated use {@link #getAlphabeticalIndexingStrategy()} with
+     * {@link SectionedItemTemplate.Builder#setAlphabeticalIndexingStrategy(int)}
      */
+    @Deprecated
     public boolean isAlphabeticalIndexingAllowed() {
         return mIsAlphabeticalIndexingAllowed;
+    }
+
+    /**
+     * Returns the alphabetical indexing strategy.
+     *
+     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
+     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
+     * which allow a user to quickly find a particular {@link Item} in a long list.
+     *
+     * <p>Individual items may be excluded from the list by setting their {@code #isIndexable}
+     * field to {@code false}.
+     */
+    @AlphabeticalIndexingStrategy
+    public int getAlphabeticalIndexingStrategy() {
+        // Existing field is used if the new field is set to DISABLED
+        if (mAlphabeticalIndexingStrategy == ALPHABETICAL_INDEXING_DISABLED
+                && mIsAlphabeticalIndexingAllowed) {
+            return ALPHABETICAL_INDEXING_TITLE_IGNORE_ARTICLES_AND_SYMBOLS;
+        }
+
+        return mAlphabeticalIndexingStrategy;
     }
 
     /**
@@ -144,6 +216,7 @@ public final class SectionedItemTemplate implements Template {
      *
      * See {@link Builder#setScrollStatePersistenceStrategy(int)}
      */
+    @ScrollStatePersistenceStrategy
     public int getScrollStatePersistenceStrategy() {
         return mScrollStatePersistenceStrategy;
     }
@@ -191,10 +264,12 @@ public final class SectionedItemTemplate implements Template {
      *
      * <ul>
      *     <li>The template is not both loading and populated with sections
-     *     <li>Only {@link RowSection} and/or {@link GridSection} are added as sections
+     *     <li>Only {@link ChipSection}, {@link RowSection}, {@link GridSection},
+     *     {@link CondensedSection}, or {@link BannerSection} are added as sections
+     *     <li>If a {@link ChipSection} is added, it must be the first section and only one
+     *     is allowed
      * </ul>
      */
-    @ExperimentalCarApi
     public static final class Builder {
         private @NonNull List<Section<?>> mSections = new ArrayList<>();
 
@@ -206,7 +281,9 @@ public final class SectionedItemTemplate implements Template {
 
         private boolean mIsAlphabeticalIndexingAllowed = false;
 
-        private int mScrollStatePersistenceStrategy = SCROLL_STATE_RESET_TO_TOP;
+        private int mAlphabeticalIndexingStrategy = ALPHABETICAL_INDEXING_DISABLED;
+
+        private int mScrollStatePersistenceStrategy = SCROLL_STATE_PRESERVE_INDEX;
 
         /** Create a new {@link SectionedItemTemplate} builder. */
         public Builder() {
@@ -222,6 +299,7 @@ public final class SectionedItemTemplate implements Template {
             mHeader = template.mHeader;
             mIsLoading = template.mIsLoading;
             mIsAlphabeticalIndexingAllowed = template.mIsAlphabeticalIndexingAllowed;
+            mAlphabeticalIndexingStrategy = template.mAlphabeticalIndexingStrategy;
             mScrollStatePersistenceStrategy = template.mScrollStatePersistenceStrategy;
         }
 
@@ -325,11 +403,44 @@ public final class SectionedItemTemplate implements Template {
          *
          * <p>Individual items may be excluded from the list by setting their {@code #isIndexable}
          * field to {@code false}.
+         *
+         * @deprecated use {@link #setAlphabeticalIndexingStrategy(int)} instead. This method will
+         * default to setting {@link #ALPHABETICAL_INDEXING_TITLE_IGNORE_ARTICLES_AND_SYMBOLS}.
          */
+        @Deprecated
         @CanIgnoreReturnValue
         public @NonNull Builder setAlphabeticalIndexingAllowed(
                 boolean alphabeticalIndexingAllowed) {
             mIsAlphabeticalIndexingAllowed = alphabeticalIndexingAllowed;
+            return this;
+        }
+
+        /**
+         * Sets how this list can be indexed alphabetically. By default, this is
+         * {@link #ALPHABETICAL_INDEXING_DISABLED}.
+         *
+         * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to
+         * sort, partition, or filter a list. Indexing is generally used for features called
+         * "Accelerators", which allow a user to quickly find a particular {@link Item} in a long
+         * list.
+         *
+         * <p>For example, a media app may, by default, provide a user's playlists sorted by date
+         * created in {@link #addSection(Section)}. If {@link #setAlphabeticalIndexingStrategy(int)}
+         * is set to a non-disabled value, the user will be able to jump to their playlists that
+         * start with the letter "H". When this happens, the list is reconstructed and sorted
+         * alphabetically, then shown to the user, jumping down to the letter "H".
+         *
+         * <p>Individual items may be excluded from the reconstructed list by setting their
+         * {@code #isIndexable} field to {@code false}.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setAlphabeticalIndexingStrategy(
+                @AlphabeticalIndexingStrategy int alphabeticalIndexingStrategy) {
+            mAlphabeticalIndexingStrategy = alphabeticalIndexingStrategy;
+            // Set the legacy field for older host versions. Indexing is allowed when the strategy
+            // is NOT disabled.
+            mIsAlphabeticalIndexingAllowed =
+                    alphabeticalIndexingStrategy != ALPHABETICAL_INDEXING_DISABLED;
             return this;
         }
 
@@ -359,6 +470,7 @@ public final class SectionedItemTemplate implements Template {
          *
          * @see Builder for the list of validation logic
          */
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public @NonNull SectionedItemTemplate build() {
             if (mIsLoading) {
                 if (!mSections.isEmpty()) {
@@ -367,11 +479,28 @@ public final class SectionedItemTemplate implements Template {
                 }
             }
 
-            for (Section<?> section : mSections) {
-                if (!(section instanceof RowSection) && !(section instanceof GridSection)) {
+            boolean hasChipSection = false;
+            for (int i = 0; i < mSections.size(); i++) {
+                Section<?> section = mSections.get(i);
+                if (section instanceof ChipSection) {
+                    if (hasChipSection) {
+                        throw new IllegalArgumentException(
+                                "Only one ChipSection is allowed in SectionedItemTemplate.");
+                    }
+                    if (i != 0) {
+                        throw new IllegalArgumentException(
+                                "ChipSection must be the first section in "
+                                        + "SectionedItemTemplate.");
+                    }
+                    hasChipSection = true;
+                } else if (!(section instanceof RowSection) && !(section instanceof GridSection)
+                        && !(section instanceof CondensedSection)
+                        && !(section instanceof SpotlightSection)
+                        && !(section instanceof BannerSection)) {
                     throw new IllegalArgumentException(
-                            "Only RowSections and GridSections are allowed in "
-                                    + "SectionedItemTemplate.");
+                            "Only ChipSections, RowSections, GridSections, "
+                                    + "CondensedSections, SpotlightSections, and BannerSections "
+                                    + "are allowed in SectionedItemTemplate.");
                 }
             }
 

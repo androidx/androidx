@@ -27,7 +27,6 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.foundation.pager.LazyLayoutScrollScope
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -48,7 +47,6 @@ import kotlin.math.abs
  *   snapped position.
  * @param itemCount the number of items this Carousel will have.
  */
-@ExperimentalMaterial3Api
 class CarouselState(
     currentItem: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) currentItemOffsetFraction: Float = 0f,
@@ -118,7 +116,6 @@ class CarouselState(
             }
         }
 
-    @ExperimentalMaterial3Api
     companion object {
         /** To keep current item and item offset saved */
         val Saver: Saver<CarouselState, *> =
@@ -147,7 +144,6 @@ class CarouselState(
  * @param initialItem The initial item that should be scrolled to.
  * @param itemCount The number of items this Carousel will have.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberCarouselState(initialItem: Int = 0, itemCount: () -> Int): CarouselState {
     return rememberSaveable(saver = CarouselState.Saver) {
@@ -298,7 +294,6 @@ private fun PagerState.calculateScrollDistanceTo(currentPage: Int, targetPage: I
  *
  * @sample androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
  */
-@ExperimentalMaterial3Api
 sealed interface CarouselItemDrawInfo {
 
     /** The size of the carousel item in the main axis in pixels */
@@ -320,13 +315,15 @@ sealed interface CarouselItemDrawInfo {
     val maskRect: Rect
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 internal class CarouselItemDrawInfoImpl : CarouselItemDrawInfo {
 
     var sizeState by mutableFloatStateOf(0f)
     var minSizeState by mutableFloatStateOf(0f)
     var maxSizeState by mutableFloatStateOf(0f)
-    var maskRectState by mutableStateOf(Rect.Zero)
+    var maskLeftState by mutableFloatStateOf(0f)
+    var maskTopState by mutableFloatStateOf(0f)
+    var maskRightState by mutableFloatStateOf(0f)
+    var maskBottomState by mutableFloatStateOf(0f)
 
     override val size: Float
         get() = sizeState
@@ -337,6 +334,22 @@ internal class CarouselItemDrawInfoImpl : CarouselItemDrawInfo {
     override val maxSize: Float
         get() = maxSizeState
 
+    private var cachedRect = Rect.Zero
+
     override val maskRect: Rect
-        get() = maskRectState
+        get() {
+            val left = maskLeftState
+            val top = maskTopState
+            val right = maskRightState
+            val bottom = maskBottomState
+            if (
+                left != cachedRect.left ||
+                    top != cachedRect.top ||
+                    right != cachedRect.right ||
+                    bottom != cachedRect.bottom
+            ) {
+                cachedRect = Rect(left, top, right, bottom)
+            }
+            return cachedRect
+        }
 }

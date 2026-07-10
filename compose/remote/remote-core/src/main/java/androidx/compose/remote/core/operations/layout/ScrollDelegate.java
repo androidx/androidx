@@ -15,12 +15,18 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.PaintContext;
+
+import org.jspecify.annotations.NonNull;
+
 /**
  * Represent scroll delegates components.
  *
  * <p>Components have scroll X & Y properties. We can inject a scroll delegate as a modifier (e.g. a
  * scrollView, a marquee...) to control the value of those properties.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ScrollDelegate {
 
     /**
@@ -55,4 +61,18 @@ public interface ScrollDelegate {
 
     /** Reset the delegate (e.g. the content of the component has changed) */
     void reset();
+
+    /**
+     * Apply an edge effect
+     *
+     * @param context
+     * @param component
+     */
+    void applyEdgeEffect(@NonNull PaintContext context, @NonNull Component component, int phase);
+
+    /** Return current content width */
+    float contentWidth();
+
+    /** Return current content height */
+    float contentHeight();
 }

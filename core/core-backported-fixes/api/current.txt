@@ -9,18 +9,19 @@ package androidx.core.backported.fixes {
   }
 
   public final class KnownIssue {
-    method public long getId();
-    method public String getUrl();
+    method @InaccessibleFromKotlin public long getId();
+    method @InaccessibleFromKotlin public String getUrl();
     property public long id;
     property public String url;
   }
 
-  public abstract sealed class KnownIssues {
+  public abstract sealed exhaustive class KnownIssues {
     field public static final androidx.core.backported.fixes.KnownIssues.Companion Companion;
     field public static final androidx.core.backported.fixes.KnownIssue KI_350037023;
     field public static final androidx.core.backported.fixes.KnownIssue KI_350037348;
     field public static final androidx.core.backported.fixes.KnownIssue KI_372917199;
     field public static final androidx.core.backported.fixes.KnownIssue KI_398591036;
+    field public static final androidx.core.backported.fixes.KnownIssue KI_452390376;
   }
 
   public static final class KnownIssues.Companion {
@@ -28,6 +29,7 @@ package androidx.core.backported.fixes {
     property public androidx.core.backported.fixes.KnownIssue KI_350037348;
     property public androidx.core.backported.fixes.KnownIssue KI_372917199;
     property public androidx.core.backported.fixes.KnownIssue KI_398591036;
+    property public androidx.core.backported.fixes.KnownIssue KI_452390376;
   }
 
   public enum Status {

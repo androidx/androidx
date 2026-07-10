@@ -25,7 +25,6 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.deviceProtectedDataStoreFile
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -35,6 +34,7 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import okio.BufferedSink
 import okio.BufferedSource
@@ -154,33 +154,45 @@ internal constructor(
      */
     @SuppressLint("NewApi")
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
+        val context =
+            if (scope.coroutineContext[Job] == null) {
+                scope.coroutineContext + Job()
+            } else {
+                scope.coroutineContext
+            }
         return INSTANCE
             ?: synchronized(lock) {
                 if (INSTANCE == null) {
                     val applicationContext = thisRef.applicationContext
                     INSTANCE =
-                        DataStoreFactory.create(
-                            storage =
-                                OkioStorage(FileSystem.SYSTEM, serializer) {
-                                    if (createInDeviceProtectedStorage) {
-                                            // Should not be able to reach here with lower SDK level
-                                            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                                            applicationContext.deviceProtectedDataStoreFile(
-                                                fileName
-                                            )
-                                        } else {
-                                            // Regardless of whether thisRef is a
-                                            // DeviceProtectedStorageContext, the applicationContext
-                                            // will always provide a User-Encrypted Storage Context.
-                                            applicationContext.dataStoreFile(fileName)
-                                        }
-                                        .absolutePath
-                                        .toPath()
-                                },
-                            corruptionHandler = corruptionHandler,
-                            migrations = produceMigrations(applicationContext),
-                            scope = scope,
-                        )
+                        DataStore.Builder(
+                                storage =
+                                    OkioStorage(FileSystem.SYSTEM, serializer) {
+                                        if (createInDeviceProtectedStorage) {
+                                                // Should not be able to reach here with lower SDK
+                                                // level
+                                                check(
+                                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                                                )
+                                                applicationContext.deviceProtectedDataStoreFile(
+                                                    fileName
+                                                )
+                                            } else {
+                                                // Regardless of whether thisRef is a
+                                                // DeviceProtectedStorageContext, the
+                                                // applicationContext
+                                                // will always provide a User-Encrypted Storage
+                                                // Context.
+                                                applicationContext.dataStoreFile(fileName)
+                                            }
+                                            .absolutePath
+                                            .toPath()
+                                    },
+                                context = context,
+                            )
+                            .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
+                            .addMigrations(produceMigrations(applicationContext))
+                            .build()
                 }
                 INSTANCE!!
             }

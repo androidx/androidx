@@ -11,8 +11,7 @@
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="true"
-            tools:ignore="MetadataTagInsideApplicationTag" />
+            android:value="true"/>
         <activity
             android:name=".app.MainActivity"
             android:exported="true"

@@ -146,11 +146,20 @@ internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
 internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
     BaseCurvedChildWrapper(wrapped) {
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) =
-        with(wrapped) {
-            capturedInfo.measuresCount++
-            initializeMeasure(measurables)
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): Placeable.PlacementScope.() -> Unit {
+        val block =
+            with(wrapped) {
+                capturedInfo.measuresCount++
+                initializeMeasure(measurables)
+            }
+        return {
+            capturedInfo.lastLayoutInfo = layoutInfo
+            capturedInfo.layoutsCount++
+            block()
         }
+    }
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
@@ -170,13 +179,6 @@ internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wra
         capturedInfo.parentSweepRadians = parentSweepRadians
         return wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
     }
-
-    override fun (Placeable.PlacementScope).placeIfNeeded() =
-        with(wrapped) {
-            capturedInfo.lastLayoutInfo = layoutInfo
-            capturedInfo.layoutsCount++
-            placeIfNeeded()
-        }
 
     override fun DrawScope.draw() =
         with(wrapped) {

@@ -40,7 +40,7 @@ class ProtoLayoutMinSchemaDetectorTest : LintDetectorTest() {
                 int major();
                 int minor();
             }
-        """
+            """
                 .trimIndent()
         )
     private val requiresApiAnnotationStub =
@@ -159,17 +159,17 @@ class ProtoLayoutMinSchemaDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/foo/Bar.kt:6: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
-  private val fieldAssignment = withAnnotation.annotatedMethod()
-                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/Bar.kt:12: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
-    bar()
-    ~~~~~
-src/foo/Bar.kt:14: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
-    withAnnotation.annotatedMethod()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
-            """
+                src/foo/Bar.kt:6: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
+                  private val fieldAssignment = withAnnotation.annotatedMethod()
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Bar.kt:12: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
+                    bar()
+                    ~~~~~
+                src/foo/Bar.kt:14: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
+                    withAnnotation.annotatedMethod()
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                3 errors, 0 warnings
+                """
                     .trimIndent()
             )
 
@@ -254,11 +254,11 @@ src/foo/Bar.kt:14: Error: This API is not guaranteed to be available on the devi
             .run()
             .expect(
                 """
-src/foo/Bar.java:12: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
-    bar();
-    ~~~~~
-1 errors, 0 warnings
-            """
+                src/foo/Bar.java:12: Error: This API is not guaranteed to be available on the device (requires schema 1.200). [ProtoLayoutMinSchema]
+                    bar();
+                    ~~~~~
+                1 errors, 0 warnings
+                """
                     .trimIndent()
             )
 

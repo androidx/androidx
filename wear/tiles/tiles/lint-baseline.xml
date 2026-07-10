@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -14628,9 +14628,9 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Resources.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                Resources.fromProto(legacyResourcesRequestResult.get().toProto()));"
-        errorLine2="                                          ~~~~~~~~~">
+        message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                        resources.toProto().toByteArray(), Base64.DEFAULT));"
+        errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/TileService.java"/>
     </issue>
@@ -14638,8 +14638,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DeviceParameters.hasRendererSchemaVersion can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                            .hasRendererSchemaVersion()) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                    .hasRendererSchemaVersion()) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/TileService.java"/>
     </issue>
@@ -14665,43 +14665,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                                                                resources.toProto())"
-        errorLine2="                                                                                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/TileService.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceParameters.hasRendererSchemaVersion can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                                .hasRendererSchemaVersion()) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/TileService.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                    DeviceParameters deviceParams ="
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/TileService.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Builder.setRendererSchemaVersion can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                                    .setRendererSchemaVersion(DEFAULT_VERSION)"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/TileService.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                                                callback, resources.toProto().toByteArray());"
+        errorLine1="                                                callback, resources.toProto().toByteArray()));"
         errorLine2="                                                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/TileService.java"/>

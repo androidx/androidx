@@ -14,56 +14,128 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION", "UNCHECKED_CAST")
+
 package androidx.xr.scenecore.testing
 
 import android.media.AudioTrack
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.internal.AudioTrackExtensionsWrapper
-import androidx.xr.scenecore.internal.PointSourceParams
-import androidx.xr.scenecore.internal.SoundFieldAttributes
-import androidx.xr.scenecore.internal.SpatializerConstants
+import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
+import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.PointSourceParams
+import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.runtime.SpatializerConstants
+import androidx.xr.scenecore.testing.internal.FakeAudioTrackExtensionsWrapper as InternalFakeAudioTrackExtensionsWrapper
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 
-/** Test-only implementation of [androidx.xr.scenecore.internal.AudioTrackExtensionsWrapper] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
+/** Test-only implementation of [androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper] */
+@Deprecated("Use SceneCoreTestRule instead.")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FakeAudioTrackExtensionsWrapper
+internal constructor(internal var fakeInternal: InternalFakeAudioTrackExtensionsWrapper) :
+    AudioTrackExtensionsWrapper {
 
-    private var pointSourceParamsMap: MutableMap<AudioTrack, PointSourceParams?> = mutableMapOf()
+    public constructor() : this(InternalFakeAudioTrackExtensionsWrapper())
+
+    private val entityWrappers = mutableMapOf<InternalFakeEntity, FakeEntity>()
 
     /**
-     * Returns the [androidx.xr.scenecore.internal.PointSourceParams] of the AudioTrack.
+     * A proxy implementation of [Map] that translates internal entity representations back to their
+     * public wrapper counterparts upon retrieval.
      *
-     * @param track The AudioTrack to get the PointSourceParams from.
-     * @return The PointSourceParams of the AudioTrack.
+     * This proxy works in conjunction with the [setPointSourceParams] methods. When
+     * [setPointSourceParams] is called with an [AudioTrack] (which implicitly updates the
+     * underlying [entityMap]) or an [AudioTrack.Builder] (which implicitly updates the underlying
+     * [entityBuilderMap]), the mapping between the external [FakeEntity] and its corresponding
+     * [InternalFakeEntity] is recorded in the `entityWrappers` map.
+     *
+     * Later, when external tests inspect [entityMap] or [entityBuilderMap], this proxy uses that
+     * recorded mapping to intercept read operations ([get], [values], [entries]) and correctly
+     * restore the exact external [FakeEntity] instances that were originally provided.
+     *
+     * @param K The type of the keys maintained by this map (typically [AudioTrack] or
+     *   [AudioTrack.Builder]).
+     * @property delegate The underlying internal map containing [InternalFakeEntity] values.
      */
-    override fun getPointSourceParams(track: AudioTrack): PointSourceParams? {
-        return pointSourceParamsMap[track]
+    private inner class EntityMapProxy<K>(private val delegate: Map<K, Entity?>) :
+        Map<K, Entity?> by delegate {
+        override fun get(key: K): Entity? {
+            val internalEntity = delegate[key] as? InternalFakeEntity
+            return internalEntity?.let { entityWrappers[it] }
+        }
+
+        override val values: Collection<Entity?>
+            get() =
+                delegate.values.map { internal ->
+                    (internal as? InternalFakeEntity)?.let { entityWrappers[it] }
+                }
+
+        override val entries: Set<Map.Entry<K, Entity?>>
+            get() =
+                delegate.entries
+                    .map { entry ->
+                        java.util.AbstractMap.SimpleEntry(
+                            entry.key,
+                            (entry.value as? InternalFakeEntity)?.let { entityWrappers[it] },
+                        ) as Map.Entry<K, Entity?>
+                    }
+                    .toSet()
     }
 
     /**
      * For test purposes only.
      *
-     * This map allows tests to control the [androidx.xr.scenecore.internal.SoundFieldAttributes]
-     * returned by [getSoundFieldAttributes] for specific [AudioTrack] instances. By pre-configuring
-     * entries in this map, tests can simulate various sound field configurations for different
-     * audio tracks.
-     *
-     * If an [AudioTrack] is not found as a key in this map, [getSoundFieldAttributes] for that
-     * track will default to returning `null`.
+     * This map allows tests to inspect the [PointSourceParams] that were set on a specific
+     * [AudioTrack] via the [setPointSourceParams] method. It is also used by the fake
+     * [getPointSourceParams] to return a value, allowing tests to control its behavior.
      */
-    public var soundFieldAttributesMap: MutableMap<AudioTrack, SoundFieldAttributes?> =
-        mutableMapOf()
+    public val pointSourceParamsMap: Map<AudioTrack, PointSourceParams?>
+        get() = fakeInternal.pointSourceParamsMap
 
     /**
-     * Returns the SoundFieldAttributes of the AudioTrack.
+     * For test purposes only.
      *
-     * @param track The AudioTrack to get the SoundFieldAttributes from.
-     * @return The SoundFieldAttributes of the AudioTrack.
+     * This map allows tests to inspect the [Entity] that were set on a specific [AudioTrack] via
+     * the [setPointSourceParams] method.
      */
-    override fun getSoundFieldAttributes(track: AudioTrack): SoundFieldAttributes? {
-        return soundFieldAttributesMap[track]
-    }
+    public val entityMap: Map<AudioTrack, Entity?>
+        get() = EntityMapProxy(fakeInternal.entityMap)
 
-    private var _spatialSourceTypeMap: MutableMap<AudioTrack, Int> = mutableMapOf()
+    /**
+     * For test purposes only.
+     *
+     * This map allows tests to inspect the [PointSourceParams] that were associated with an
+     * [AudioTrack.Builder] via the [setPointSourceParams] builder method. This is useful for
+     * verifying that the correct parameters were passed during the audio track configuration
+     * process.
+     */
+    public val pointSourceParamsBuilderMap: Map<AudioTrack.Builder, PointSourceParams?>
+        get() = fakeInternal.pointSourceParamsBuilderMap
+
+    /**
+     * For test purposes only.
+     *
+     * This map allows tests to inspect the [Entity] that were associated with an
+     * [AudioTrack.Builder] via the [setPointSourceParams] builder method. This is useful for
+     * verifying that the correct parameters were passed during the audio track configuration
+     * process.
+     */
+    public val entityBuilderMap: Map<AudioTrack.Builder, Entity?>
+        get() = EntityMapProxy(fakeInternal.entityBuilderMap)
+
+    public val soundFieldAttributesMap: MutableMap<AudioTrack, SoundFieldAttributes?>
+        get() = fakeInternal.soundFieldAttributesMap
+
+    /**
+     * For test purposes only.
+     *
+     * This map allows tests to inspect the [SoundFieldAttributes] that were associated with an
+     * [AudioTrack.Builder] via the [setSoundFieldAttributes] builder method. This is useful for
+     * verifying that the correct attributes were passed during the audio track configuration
+     * process.
+     */
+    public val soundFieldAttributesBuilderMap: Map<AudioTrack.Builder, SoundFieldAttributes?>
+        get() = fakeInternal.soundFieldAttributesBuilderMap
 
     /**
      * For test purposes only.
@@ -74,89 +146,82 @@ public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
      *
      * Populate this map with [AudioTrack] instances as keys and their desired spatial source type
      * (an `Int` constant) as values. Valid source types include:
-     * - [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_BYPASS]
-     * - [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_POINT_SOURCE]
-     * - [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_SOUND_FIELD]
-     *
-     * The custom setter for this property validates that all values in an assigned map are one of
-     * the valid source types. If the validation fails, the assignment is ignored, and the map
-     * remains unchanged.
+     * - [androidx.xr.scenecore.runtime.SpatializerConstants.Companion.SOURCE_TYPE_BYPASS]
+     * - [androidx.xr.scenecore.runtime.SpatializerConstants.Companion.SOURCE_TYPE_POINT_SOURCE]
+     * - [androidx.xr.scenecore.runtime.SpatializerConstants.Companion.SOURCE_TYPE_SOUND_FIELD]
      *
      * If an [AudioTrack] is not found as a key in this map, [getSpatialSourceType] will default to
-     * returning [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_BYPASS].
+     * returning [androidx.xr.scenecore.runtime.SpatializerConstants.Companion.SOURCE_TYPE_BYPASS].
      */
     public var spatialSourceTypeMap: MutableMap<AudioTrack, Int>
-        get() = _spatialSourceTypeMap
-        set(newMap) {
-            if (
-                newMap.values.all {
-                    it in
-                        listOf(
-                            SpatializerConstants.SOURCE_TYPE_BYPASS,
-                            SpatializerConstants.SOURCE_TYPE_POINT_SOURCE,
-                            SpatializerConstants.SOURCE_TYPE_SOUND_FIELD,
-                        )
-                }
-            ) {
-                _spatialSourceTypeMap = newMap
-            }
+        get() = fakeInternal.spatialSourceTypeMap
+        set(value) {
+            fakeInternal.spatialSourceTypeMap = value
         }
 
     /**
-     * Returns the spatial source type of the AudioTrack.
-     *
-     * @param track The AudioTrack to get the spatial source type from.
-     * @return The spatial source type of the AudioTrack.
+     * For test purposes only. If non-null, methods in this class can throw this exception to
+     * simulate runtime failures.
      */
+    public var fakeExtensionException: Throwable? = null
+
+    override fun getPointSourceParams(track: AudioTrack): PointSourceParams? {
+        return fakeInternal.getPointSourceParams(track)
+    }
+
+    override fun getSoundFieldAttributes(track: AudioTrack): SoundFieldAttributes? {
+        return fakeInternal.getSoundFieldAttributes(track)
+    }
+
     @SpatializerConstants.SourceType
     override fun getSpatialSourceType(track: AudioTrack): Int {
-        return (spatialSourceTypeMap[track] ?: SpatializerConstants.SOURCE_TYPE_BYPASS)
+        return fakeInternal.getSpatialSourceType(track)
     }
 
-    /**
-     * Sets the PointSourceParams of the AudioTrack.
-     *
-     * The new PointSourceParams will be applied if the
-     * [androidx.xr.scenecore.internal.SpatializerConstants.SourceType] of the AudioTrack was either
-     * [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_BYPASS] or
-     * [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_POINT_SOURCE]. If
-     * the [androidx.xr.scenecore.internal.SpatializerConstants.SourceType] was
-     * [androidx.xr.scenecore.internal.SpatializerConstants.Companion.SOURCE_TYPE_SOUND_FIELD], then
-     * this method will have no effect.
-     *
-     * @param track The AudioTrack to set the PointSourceParams on.
-     * @param params The PointSourceParams to set.
-     */
-    override fun setPointSourceParams(track: AudioTrack, params: PointSourceParams) {
-        when (getSpatialSourceType(track)) {
-            SpatializerConstants.SOURCE_TYPE_BYPASS,
-            SpatializerConstants.SOURCE_TYPE_POINT_SOURCE -> {
-                pointSourceParamsMap[track] = params
-            }
+    override fun setPointSourceParams(
+        track: AudioTrack,
+        params: PointSourceParams,
+        entity: Entity?,
+    ) {
+        fakeExtensionException?.let { throw it }
+
+        val fakeEntity = entity as? FakeEntity
+        val internalEntity = fakeEntity?.fakeInternal as? InternalFakeEntity
+        if (fakeEntity != null && internalEntity != null) {
+            entityWrappers[internalEntity] = fakeEntity
         }
+
+        fakeInternal.setPointSourceParams(track, params, internalEntity)
     }
 
-    /**
-     * Sets the PointSourceParams of the AudioTrack.
-     *
-     * @param builder The AudioTrack.Builder to set the PointSourceParams on.
-     * @param params The PointSourceParams to set.
-     * @return The AudioTrack.Builder with the PointSourceAttributes set.
-     */
     override fun setPointSourceParams(
         builder: AudioTrack.Builder,
         params: PointSourceParams,
-    ): AudioTrack.Builder = builder
+        entity: Entity?,
+    ): AudioTrack.Builder {
 
-    /**
-     * Sets the SoundFieldAttributes of the AudioTrack.
-     *
-     * @param builder The AudioTrack.Builder to set the SoundFieldAttributes on.
-     * @param attributes The SoundFieldAttributes to set.
-     * @return The AudioTrack.Builder with the SoundFieldAttributes set.
-     */
+        val fakeEntity = entity as? FakeEntity
+        val internalEntity = fakeEntity?.fakeInternal as? InternalFakeEntity
+        if (fakeEntity != null && internalEntity != null) {
+            entityWrappers[internalEntity] = fakeEntity
+        }
+
+        fakeInternal.setPointSourceParams(builder, params, internalEntity)
+        return builder
+    }
+
     override fun setSoundFieldAttributes(
         builder: AudioTrack.Builder,
         attributes: SoundFieldAttributes,
-    ): AudioTrack.Builder = builder
+    ): AudioTrack.Builder {
+        fakeInternal.setSoundFieldAttributes(builder, attributes)
+        return builder
+    }
+
+    /**
+     * For test purposes only. Manually sets the [SoundFieldAttributes] for a given [AudioTrack].
+     */
+    public fun setSoundFieldAttributes(track: AudioTrack, attributes: SoundFieldAttributes) {
+        fakeInternal.soundFieldAttributesMap[track] = attributes
+    }
 }

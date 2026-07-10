@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -22,6 +24,7 @@ import org.jspecify.annotations.NonNull;
  * easing function including quantize functions it is used with the "spline(0,0.3,0.3,0.5,...0.9,1)"
  * it should start at 0 and end at one 1
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StepCurve extends Easing {
     //    private static final boolean DEBUG = false;
     @NonNull private final MonotonicCurveFit mCurveFit;

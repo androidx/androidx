@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -37,5 +38,43 @@ class AppFunctionSearchSpecTest {
     fun constructor_minSchemaVersionPositive_doesNotThrow() {
         val spec = AppFunctionSearchSpec(minSchemaVersion = 1)
         assertThat(spec.minSchemaVersion).isEqualTo(1)
+    }
+
+    @Test
+    fun constructor_packageNamesEmpty_throws() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                AppFunctionSearchSpec(packageNames = emptySet())
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("Cannot filter by empty set of package names.")
+    }
+
+    @Test
+    fun constructor_packageNamesNotEmpty_doesNotThrow() {
+        val spec = AppFunctionSearchSpec(packageNames = setOf("com.example.app"))
+        assertThat(spec.packageNames).containsExactly("com.example.app")
+    }
+
+    @Test
+    fun constructor_functionNamesEmpty_throws() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                AppFunctionSearchSpec(functionNames = emptySet())
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("Cannot filter by empty set of function names.")
+    }
+
+    @Test
+    fun constructor_functionNamesNotEmpty_doesNotThrow() {
+        val spec =
+            AppFunctionSearchSpec(
+                functionNames = setOf(AppFunctionName("com.example.app", "functionName"))
+            )
+        assertThat(spec.functionNames)
+            .containsExactly(AppFunctionName("com.example.app", "functionName"))
     }
 }

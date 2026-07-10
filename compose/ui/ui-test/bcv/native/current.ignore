@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.ui.test/IdlingResource from androidx.compose.ui:ui-test
-[linuxX64]: Removed declaration androidx.compose.ui.test/DeviceConfigurationOverride(androidx.compose.ui.test/DeviceConfigurationOverride, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui-test
-[linuxX64]: Removed declaration Override(kotlin/Function0<kotlin/Unit>) from androidx.compose.ui.test/DeviceConfigurationOverride
-[linuxX64]: Added declaration Override(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.ui.test/DeviceConfigurationOverride
+[linuxX64]: Added declaration (androidx.compose.ui.test/SemanticsNodeInteraction).androidx.compose.ui.test/assertTextEquals(kotlin/Array<out kotlin/String>, kotlin/Boolean, kotlin/Boolean) to androidx.compose.ui:ui-test
+[linuxX64]: Added declaration androidx.compose.ui.test/hasTextExactly(kotlin/Array<out kotlin/String>, kotlin/Boolean, kotlin/Boolean) to androidx.compose.ui:ui-test

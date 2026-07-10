@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -27,14 +26,15 @@ import androidx.build.Version
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(project(":annotation:annotation"))
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.17.0")
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinTestJunit)
+    implementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {
@@ -48,7 +48,7 @@ android {
         abortOnError = false
     }
     namespace = "androidx.lint.integration.tests"
-    compileSdk = 36
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
 }
 
 

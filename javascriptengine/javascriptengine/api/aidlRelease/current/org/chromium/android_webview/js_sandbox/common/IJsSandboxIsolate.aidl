@@ -39,4 +39,5 @@ interface IJsSandboxIsolate {
   boolean provideNamedData(String name, in android.content.res.AssetFileDescriptor afd) = 2;
   void evaluateJavascriptWithFd(in android.content.res.AssetFileDescriptor afd, in org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback callback) = 3;
   void setConsoleCallback(org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback callback) = 4;
+  org.chromium.android_webview.js_sandbox.common.IMessagePort provideMessagePort(in String name, in org.chromium.android_webview.js_sandbox.common.IMessagePort port) = 5;
 }

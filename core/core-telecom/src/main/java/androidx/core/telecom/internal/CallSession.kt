@@ -16,6 +16,9 @@
 
 package androidx.core.telecom.internal
 
+import android.annotation.SuppressLint
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.OutcomeReceiver
 import android.os.ParcelUuid
@@ -36,7 +39,9 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEn
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveEarpieceIfWiredEndpointPresent
+import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
 import java.util.function.Consumer
+import kotlin.Int
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -65,21 +70,22 @@ internal open class CallSession(
     private val mCallSessionId: Int = CallEndpointUuidTracker.startSession()
     private var mPlatformInterface: CallControl? = null
     // cache the latest current and available endpoints
-    private var mCurrentCallEndpoint: CallEndpointCompat? = null
+    @VisibleForTesting internal var mCurrentCallEndpoint: CallEndpointCompat? = null
     private var mAvailableEndpoints: MutableList<CallEndpointCompat> = mutableListOf()
-    private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
+    @VisibleForTesting internal var mLastClientRequestedEndpoint: CallEndpointCompat? = null
     // use CompletableDeferred objects to signal when all the endpoint values have initially
     // been received from the platform.
     private val mIsCurrentEndpointSet = CompletableDeferred<Unit>()
     private val mIsAvailableEndpointsSet = CompletableDeferred<Unit>()
-    private val mIsCurrentlyDisplayingVideo = attributes.isVideoCall()
+    private var mCallType: Int = 0
+    @VisibleForTesting internal val mUnrequestedVideoManager = UnrequestedVideoManager()
     internal val mJetpackToPlatformCallEndpoint: HashMap<ParcelUuid, CallEndpoint> = HashMap()
     /**
      * Stores the audio endpoint that was initially preferred by the client when the call was
      * started. This is used to detect and correct scenarios where the platform might incorrectly
      * override this preference at the beginning of the call.
      */
-    private var mPreferredStartingCallEndpoint: CallEndpointCompat? = null
+    @VisibleForTesting internal var mPreferredStartingCallEndpoint: CallEndpointCompat? = null
     /**
      * Flag to ensure that the logic to [avoidSpeakerOverrideOnCallStart] is only attempted once
      * after the initial conditions are met (i.e., a previous endpoint is known). This prevents
@@ -89,6 +95,10 @@ internal open class CallSession(
      * been processed.
      */
     private var mWasPreferredOverrideChecked: Boolean = false
+    /**
+     * Flag to ensure that the logic to switch the starting call endpoint is only attempted once.
+     */
+    @VisibleForTesting internal var mAlreadyRequestedStartingEndpointSwitch: Boolean = false
     private val mVideoCallSpeakerManager = VideoCallSpeakerManager(bluetoothDeviceChecker)
 
     init {
@@ -96,6 +106,14 @@ internal open class CallSession(
             val state =
                 if (attributes.isOutgoingCall()) CallStateEvent.DIALING else CallStateEvent.RINGING
             onStateChangedCallback.emit(state)
+            val initialCallType =
+                if (attributes.isVideoCall()) {
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                } else {
+                    CallAttributesCompat.CALL_TYPE_AUDIO_CALL
+                }
+            mCallType = initialCallType
+            callChannels.callTypeChannel.trySend(initialCallType)
         }
     }
 
@@ -168,10 +186,63 @@ internal open class CallSession(
         }
         maybeSwitchToSpeakerOnHeadsetDisconnect(mCurrentCallEndpoint!!, previousCallEndpoint)
         avoidSpeakerOverrideOnCallStart(previousCallEndpoint, mCurrentCallEndpoint)
+
+        enforceVideoCallSpeakerFallback(mCurrentCallEndpoint!!)
+        maybeRerouteToEarpiece(isEndpointChange = true)
+
         // clear out the last user requested CallEndpoint. It's only used to determine if the
         // change in current endpoints was intentional for maybeSwitchToSpeakerOnHeadsetDisconnect
         if (mLastClientRequestedEndpoint?.type == endpoint.endpointType) {
             mLastClientRequestedEndpoint = null
+        }
+    }
+
+    /**
+     * A strict enforcer that ensures video calls never linger on the earpiece. If the platform
+     * routes to the earpiece unexpectedly, this immediately forces it to the speaker, UNLESS a
+     * Bluetooth headset is available or the user explicitly requested the earpiece.
+     */
+    private fun enforceVideoCallSpeakerFallback(endpoint: CallEndpointCompat) {
+        // We only care about video calls
+        if (mCallType != CallAttributesCompat.CALL_TYPE_VIDEO_CALL) {
+            return
+        }
+
+        // If the client explicitly requested the earpiece, respect their choice
+        if (isEarpieceEndpoint(mLastClientRequestedEndpoint)) {
+            return
+        }
+
+        // Prevent duplicate requests: if we (via switchToSpeakerForVideoCallIfNeeded)
+        // or the user just requested the speaker, and that request is still in flight,
+        // don't spam the platform with another request.
+        if (isSpeakerEndpoint(mLastClientRequestedEndpoint)) {
+            Log.d(
+                TAG,
+                "enforceVideoCallSpeakerFallback: Switch to SPEAKER already in flight. Skipping.",
+            )
+            return
+        }
+
+        // Delegate to the manager. This safely checks if we are on the earpiece AND
+        // ensures no non-watch Bluetooth devices are available before overriding.
+        if (
+            mVideoCallSpeakerManager.shouldSwitchToSpeaker(
+                isVideoCall = true, // We already checked mCallType above
+                currentEndpoint = endpoint,
+                availableEndpoints = mAvailableEndpoints,
+            )
+        ) {
+            Log.i(
+                TAG,
+                "enforceVideoCallSpeakerFallback: Video call landed on EARPIECE " +
+                    "with no BT headset available. Forcing back to SPEAKER.",
+            )
+            CoroutineScope(coroutineContext).launch {
+                getSpeakerEndpoint(mAvailableEndpoints)?.let { speakerEndpoint ->
+                    requestEndpointChange(speakerEndpoint)
+                }
+            }
         }
     }
 
@@ -193,14 +264,31 @@ internal open class CallSession(
         nextEndpoint: CallEndpointCompat?,
     ) {
         if (mWasPreferredOverrideChecked) {
-            Log.d(TAG, "avoidSpeakerOverrideOnCallStart: Already checked." + "Skipping.")
+            Log.d(TAG, "avoidSpeakerOverrideOnCallStart: Already checked. Skipping.")
             return
         }
 
-        // We need a prevEndpoint to reliably determine the transition.
-        // If prevEndpoint is null, it means this is likely the very first endpoint update,
-        // or the state is not yet stable enough for this specific check.
-        // Wait for a subsequent onCallEndpointChanged callback where prevEndpoint is available.
+        // Check 1: Did the user explicitly request the current 'nextEndpoint' if it's SPEAKER?
+        // This check is performed before the prevEndpoint == null check because if the user
+        // intentionally switched to SPEAKER, we should mark this stabilization check as
+        // completed even if it was the very first endpoint update. This value is cleared after
+        // the platform confirms the change in `onCallEndpointChanged`.
+        if (
+            mLastClientRequestedEndpoint != null &&
+                isSpeakerEndpoint(mLastClientRequestedEndpoint) &&
+                isSpeakerEndpoint(nextEndpoint)
+        ) {
+            Log.i(
+                TAG,
+                "avoidSpeakerOverrideOnCallStart: User explicitly requested SPEAKER " +
+                    "($mLastClientRequestedEndpoint). Current endpoint is $nextEndpoint. " +
+                    "Assuming intentional. No override.",
+            )
+            mWasPreferredOverrideChecked = true
+            return
+        }
+
+        // We need a prevEndpoint to reliably determine the transition for the automatic override.
         if (prevEndpoint == null) {
             Log.d(
                 TAG,
@@ -223,30 +311,8 @@ internal open class CallSession(
                 "nextEndpoint=[$nextEndpoint]",
         )
 
-        // Check 1: Did the user explicitly request the current 'nextEndpoint' if it's SPEAKER?
-        // `mLastClientRequestedEndpoint` would have been set by your app calling
-        // `requestEndpointChange`. This value is cleared after the platform confirms the change
-        // in `onCallEndpointChanged`, so it correctly reflects the *intent leading to the
-        // current `nextEndpoint`*.
-        if (
-            mLastClientRequestedEndpoint != null &&
-                isSpeakerEndpoint(
-                    mLastClientRequestedEndpoint
-                ) && // User explicitly asked for SPEAKER
-                isSpeakerEndpoint(nextEndpoint) // And the current endpoint IS SPEAKER
-        ) {
-            Log.i(
-                TAG,
-                "avoidSpeakerOverrideOnCallStart: User explicitly requested SPEAKER " +
-                    "($mLastClientRequestedEndpoint). Current endpoint is $nextEndpoint. " +
-                    "Assuming intentional. No override.",
-            )
-            return // Do not proceed with automatic override
-        }
-
         // Check 2: bug fix logic - an unexpected switch from PreferredStartingCallEndpoint
-        // to SPEAKER. This runs if the change to SPEAKER was not an explicit user request
-        // for SPEAKER.
+        // to SPEAKER.
         if (
             mPreferredStartingCallEndpoint != null &&
                 mPreferredStartingCallEndpoint == prevEndpoint &&
@@ -353,8 +419,16 @@ internal open class CallSession(
                     delay(DELAY_INITIAL_ENDPOINT_SWITCH)
                     Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay END")
                 }
-                val res = requestEndpointChange(startingCallEndpoint)
-                Log.i(TAG, "switchStartingCallEndpointOnCallStart: result=$res")
+                if (!mAlreadyRequestedStartingEndpointSwitch) {
+                    val res = requestEndpointChange(startingCallEndpoint)
+                    Log.i(TAG, "switchStartingCallEndpointOnCallStart: result=$res")
+                } else {
+                    Log.i(
+                        TAG,
+                        "switchStartingCallEndpointOnCallStart: skipping switch as it was " +
+                            "already requested",
+                    )
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "switchStartingCallEndpointOnCallStart: hit exception=[$e]")
@@ -373,7 +447,7 @@ internal open class CallSession(
     ) {
         try {
             if (
-                mIsCurrentlyDisplayingVideo &&
+                (mCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL) &&
                     /* Only switch if the users headset disconnects & earpiece is defaulted */
                     isEarpieceEndpoint(newEndpoint) &&
                     isWiredHeadsetOrBtEndpoint(previousEndpoint) &&
@@ -411,6 +485,38 @@ internal open class CallSession(
 
     override fun onEvent(event: String, extras: Bundle) {
         CoroutineScope(coroutineContext).launch { onEventCallback(event, extras) }
+    }
+
+    override fun onVideoStateChanged(videoState: Int) {
+        if (mUnrequestedVideoManager.isUnrequestedVideoUpgradeBug(mCallType, videoState)) {
+            mUnrequestedVideoManager.handleUnrequestedVideoStateUpgrade(
+                mPlatformInterface,
+                mCallType,
+            ) {
+                maybeRerouteToEarpiece(isEndpointChange = false)
+            }
+        } else {
+            mCallType = videoState
+            CoroutineScope(coroutineContext).launch {
+                callChannels.callTypeChannel.send(videoState)
+            }
+            // if the call is upgraded to a video call, switch the audio route to speaker
+            // on behalf of the user if the call audio route is the earpiece
+            mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
+        }
+    }
+
+    private fun maybeRerouteToEarpiece(isEndpointChange: Boolean) {
+        mUnrequestedVideoManager.maybeRerouteToEarpiece(
+            mCurrentCallEndpoint,
+            mAvailableEndpoints,
+            mPreferredStartingCallEndpoint,
+            mLastClientRequestedEndpoint,
+            isEndpointChange,
+            mCallType,
+        ) {
+            CoroutineScope(coroutineContext).launch { requestEndpointChange(it) }
+        }
     }
 
     /**
@@ -476,6 +582,12 @@ internal open class CallSession(
         mPlatformInterface?.answer(videoState, Runnable::run, CallControlReceiver(result))
         val callControlResult = result.await()
         moveState(callControlResult, CallStateEvent.ACTIVE)
+        if (callControlResult is CallControlResult.Success) {
+            if (VERSION.SDK_INT < VERSION_CODES.VANILLA_ICE_CREAM) {
+                mCallType = videoState
+                callChannels.callTypeChannel.trySend(videoState)
+            }
+        }
         return callControlResult
     }
 
@@ -493,6 +605,7 @@ internal open class CallSession(
         // onCurrentCallEndpointChanged. This is helpful for determining if the user intentionally
         // requested a CallEndpoint switch or a headset was disconnected ...
         mLastClientRequestedEndpoint = endpoint
+        mAlreadyRequestedStartingEndpointSwitch = true
         val potentiallyRemappedEndpoint: CallEndpoint =
             if (mJetpackToPlatformCallEndpoint.containsKey(endpoint.identifier)) {
                 mJetpackToPlatformCallEndpoint[endpoint.identifier]!!
@@ -513,6 +626,35 @@ internal open class CallSession(
             mLastClientRequestedEndpoint = null
         }
         return platformResult
+    }
+
+    @SuppressLint("NewApi")
+    suspend fun requestVideoState(videoState: Int): CallControlResult {
+        mCallType = videoState
+        return if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM) {
+            val platformInterface = mPlatformInterface
+            // Handle testing case: if the platform interface is null, bypass the
+            // deferred completion and return immediately to prevent hanging.
+            if (platformInterface == null) {
+                mCallType = videoState
+                CallControlResult.Success()
+            } else {
+                val result = CompletableDeferred<CallControlResult>()
+                platformInterface.requestVideoState(
+                    videoState,
+                    Runnable::run,
+                    CallControlReceiver(result),
+                )
+                // requestVideoState cannot fail in the platform so mCallType can be
+                // updated immediately
+                mCallType = videoState
+                result.await()
+            }
+        } else {
+            mCallType = videoState
+            callChannels.callTypeChannel.send(videoState)
+            return CallControlResult.Success()
+        }
     }
 
     suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
@@ -551,7 +693,10 @@ internal open class CallSession(
     override fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(coroutineContext).launch {
             try {
-                onAnswerCallback(videoState)
+                val jetpackCallType = toCallTypeCompat(videoState)
+                mCallType = jetpackCallType
+                callChannels.callTypeChannel.trySend(jetpackCallType)
+                onAnswerCallback(jetpackCallType)
                 wasCompleted.accept(true)
                 onStateChangedCallback.emit(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
@@ -627,6 +772,12 @@ internal open class CallSession(
             return session.requestEndpointChange(endpoint)
         }
 
+        override suspend fun requestCallType(
+            callType: @CallAttributesCompat.Companion.CallType Int
+        ): CallControlResult {
+            return session.requestVideoState(callType)
+        }
+
         // Send these events out to the client to collect
         override val currentCallEndpoint: Flow<CallEndpointCompat> =
             callChannels.currentEndpointChannel.receiveAsFlow()
@@ -635,6 +786,10 @@ internal open class CallSession(
             callChannels.availableEndpointChannel.receiveAsFlow()
 
         override val isMuted: Flow<Boolean> = callChannels.isMutedChannel.receiveAsFlow()
+
+        override fun callTypeFlow(): Flow<Int> {
+            return session.callChannels.callTypeChannel.receiveAsFlow()
+        }
     }
 
     override fun close() {

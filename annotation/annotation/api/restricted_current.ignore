@@ -1,0 +1,113 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.annotation.CheckResult#suggest():
+    Source breaking change: method androidx.annotation.CheckResult.suggest() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ChecksSdkIntAtLeast#api():
+    Source breaking change: method androidx.annotation.ChecksSdkIntAtLeast.api() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ChecksSdkIntAtLeast#codename():
+    Source breaking change: method androidx.annotation.ChecksSdkIntAtLeast.codename() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ChecksSdkIntAtLeast#extension():
+    Source breaking change: method androidx.annotation.ChecksSdkIntAtLeast.extension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ChecksSdkIntAtLeast#lambda():
+    Source breaking change: method androidx.annotation.ChecksSdkIntAtLeast.lambda() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ChecksSdkIntAtLeast#parameter():
+    Source breaking change: method androidx.annotation.ChecksSdkIntAtLeast.parameter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.DeprecatedSinceApi#api():
+    Source breaking change: method androidx.annotation.DeprecatedSinceApi.api() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.DeprecatedSinceApi#message():
+    Source breaking change: method androidx.annotation.DeprecatedSinceApi.message() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Dimension#unit():
+    Source breaking change: method androidx.annotation.Dimension.unit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Discouraged#message():
+    Source breaking change: method androidx.annotation.Discouraged.message() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.FloatRange#from():
+    Source breaking change: method androidx.annotation.FloatRange.from() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.FloatRange#fromInclusive():
+    Source breaking change: method androidx.annotation.FloatRange.fromInclusive() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.FloatRange#to():
+    Source breaking change: method androidx.annotation.FloatRange.to() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.FloatRange#toInclusive():
+    Source breaking change: method androidx.annotation.FloatRange.toInclusive() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.GuardedBy#value():
+    Source breaking change: method androidx.annotation.GuardedBy.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#attributeId():
+    Source breaking change: method androidx.annotation.InspectableProperty.attributeId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#enumMapping():
+    Source breaking change: method androidx.annotation.InspectableProperty.enumMapping() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#flagMapping():
+    Source breaking change: method androidx.annotation.InspectableProperty.flagMapping() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#hasAttributeId():
+    Source breaking change: method androidx.annotation.InspectableProperty.hasAttributeId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#name():
+    Source breaking change: method androidx.annotation.InspectableProperty.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty#valueType():
+    Source breaking change: method androidx.annotation.InspectableProperty.valueType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty.EnumEntry#name():
+    Source breaking change: method androidx.annotation.InspectableProperty.EnumEntry.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty.EnumEntry#value():
+    Source breaking change: method androidx.annotation.InspectableProperty.EnumEntry.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty.FlagEntry#mask():
+    Source breaking change: method androidx.annotation.InspectableProperty.FlagEntry.mask() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty.FlagEntry#name():
+    Source breaking change: method androidx.annotation.InspectableProperty.FlagEntry.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.InspectableProperty.FlagEntry#target():
+    Source breaking change: method androidx.annotation.InspectableProperty.FlagEntry.target() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.IntDef#flag():
+    Source breaking change: method androidx.annotation.IntDef.flag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.IntDef#open():
+    Source breaking change: method androidx.annotation.IntDef.open() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.IntDef#value():
+    Source breaking change: method androidx.annotation.IntDef.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.IntRange#from():
+    Source breaking change: method androidx.annotation.IntRange.from() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.IntRange#to():
+    Source breaking change: method androidx.annotation.IntRange.to() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.LongDef#flag():
+    Source breaking change: method androidx.annotation.LongDef.flag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.LongDef#open():
+    Source breaking change: method androidx.annotation.LongDef.open() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.LongDef#value():
+    Source breaking change: method androidx.annotation.LongDef.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ReplaceWith#expression():
+    Source breaking change: method androidx.annotation.ReplaceWith.expression() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.ReplaceWith#imports():
+    Source breaking change: method androidx.annotation.ReplaceWith.imports() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresApi#api():
+    Source breaking change: method androidx.annotation.RequiresApi.api() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresApi#value():
+    Source breaking change: method androidx.annotation.RequiresApi.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresExtension#extension():
+    Source breaking change: method androidx.annotation.RequiresExtension.extension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresExtension#version():
+    Source breaking change: method androidx.annotation.RequiresExtension.version() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresFeature#enforcement():
+    Source breaking change: method androidx.annotation.RequiresFeature.enforcement() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresFeature#name():
+    Source breaking change: method androidx.annotation.RequiresFeature.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission#allOf():
+    Source breaking change: method androidx.annotation.RequiresPermission.allOf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission#anyOf():
+    Source breaking change: method androidx.annotation.RequiresPermission.anyOf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission#conditional():
+    Source breaking change: method androidx.annotation.RequiresPermission.conditional() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission#value():
+    Source breaking change: method androidx.annotation.RequiresPermission.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission.Read#value():
+    Source breaking change: method androidx.annotation.RequiresPermission.Read.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresPermission.Write#value():
+    Source breaking change: method androidx.annotation.RequiresPermission.Write.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RestrictTo#value():
+    Source breaking change: method androidx.annotation.RestrictTo.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Size#max():
+    Source breaking change: method androidx.annotation.Size.max() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Size#min():
+    Source breaking change: method androidx.annotation.Size.min() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Size#multiple():
+    Source breaking change: method androidx.annotation.Size.multiple() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.Size#value():
+    Source breaking change: method androidx.annotation.Size.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.StringDef#open():
+    Source breaking change: method androidx.annotation.StringDef.open() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.StringDef#value():
+    Source breaking change: method androidx.annotation.StringDef.value() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.VisibleForTesting#otherwise():
+    Source breaking change: method androidx.annotation.VisibleForTesting.otherwise() can no longer be resolved from Kotlin source

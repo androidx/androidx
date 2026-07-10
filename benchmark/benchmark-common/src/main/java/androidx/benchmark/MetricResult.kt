@@ -91,6 +91,7 @@ public class MetricResult(
         status.putDouble("${prefix}${bundleName}_min", min)
         status.putDouble("${prefix}${bundleName}_median", median)
         status.putDouble("${prefix}${bundleName}_stddev", standardDeviation)
+        status.putDouble("${prefix}${bundleName}_max", max)
     }
 
     public fun putPercentilesInBundle(status: Bundle, prefix: String) {

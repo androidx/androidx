@@ -18,13 +18,16 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
@@ -41,17 +44,29 @@ import java.util.List;
  * like injecting the width of the component int draw rect As well as supporting generalized
  * animation floats. The floats represent a RPN style calculator
  */
-public class IntegerExpression extends Operation implements VariableSupport, Serializable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class IntegerExpression extends Operation
+        implements VariableSupport, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.INTEGER_EXPRESSION;
     private static final String CLASS_NAME = "IntegerExpression";
     public int mId;
     private int mMask;
     private int mPreMask;
-    public final int @NonNull [] mSrcValue;
+    public int @NonNull [] mSrcValue;
     public int @Nullable [] mPreCalcValue;
     private float mLastChange = Float.NaN;
     public static final int MAX_SIZE = 320;
     @NonNull IntegerExpressionEvaluator mExp = new IntegerExpressionEvaluator();
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public IntegerExpression(int id, int mask, int @NonNull [] value) {
         this.mId = id;
@@ -183,15 +198,26 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int mask = buffer.readInt();
-        int len = buffer.readInt();
-        if (len > MAX_SIZE) {
-            throw new RuntimeException("buffer corrupt integer expression " + len);
+        int valueLen = buffer.readInt();
+
+        if (valueLen > MAX_SIZE) {
+            throw new RuntimeException("buffer corrupt integer expression " + valueLen);
         }
-        int[] values = new int[len];
-        for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readInt();
+        int[] values = new int[valueLen];
+        for (int i = 0; i < valueLen; i++) {
+            int v = buffer.readInt();
+            if (isId(mask, i, v)) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    values[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveId(v);
+                } else {
+                    values[i] = v;
+                }
+            } else {
+                values[i] = v;
+            }
         }
 
         operations.add(new IntegerExpression(id, mask, values));
@@ -203,12 +229,15 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Expression that computes an integer")
-                .field(DocumentedOperation.INT, "id", "id of integer")
-                .field(INT, "mask", "bits representing operators or other id's")
-                .field(INT, "length", "length of array")
-                .field(INT_ARRAY, "values", "length", "Array of ints");
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .description("Define an integer via dynamic expression")
+                .field(DocumentedOperation.INT, "id", "The ID of the resulting integer")
+                .field(
+                        INT,
+                        "mask",
+                        "Bitmask representing whether each value is a constant or an ID")
+                .field(INT, "length", "The number of elements in the expression")
+                .field(INT_ARRAY, "values", "The array of constants, IDs, and operators (RPN)");
     }
 
     @NonNull
@@ -235,7 +264,7 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
                 .addTags(SerializeTags.EXPRESSION)
                 .addType(CLASS_NAME)
                 .add("id", mId)
-                .add("mask", mId)
+                .add("mask", mMask)
                 .addIntExpressionSrc("srcValues", mSrcValue, mMask);
     }
 }

@@ -18,7 +18,7 @@ package androidx.pdf.annotation.drawer
 
 import android.graphics.Canvas
 import android.graphics.Matrix
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.PdfObject
 
 /**
  * Fake implementation of [PdfObjectDrawer] for testing purposes. It records the arguments of the

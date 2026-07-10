@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.graphics.shapes.Cubic
@@ -30,6 +31,7 @@ import androidx.graphics.shapes.Feature
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.TransformResult
+import androidx.graphics.shapes.toPath
 
 /**
  * Utility functions providing more idiomatic ways of transforming RoundedPolygons and transforming
@@ -70,10 +72,11 @@ fun RoundedPolygon.toPath(path: Path = Path()): Path {
  * @param path an optional [Path] object which, if supplied, will avoid the function having to
  *   create a new [Path] object
  */
-fun Morph.toPath(progress: Float, path: Path = Path()): Path {
-    pathFromCubics(path, asCubics(progress))
-    return path
-}
+fun Morph.toPath(progress: Float, path: Path = Path()) =
+    path.also {
+        // Mutate the internal Android's path.
+        toPath(progress, it.asAndroidPath())
+    }
 
 /**
  * Gets a [Path] representation for a [Feature] shape. This [Path] can be used to draw the feature.

@@ -16,33 +16,12 @@
 
 package androidx.compose.material3
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.core.os.ConfigurationCompat
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 /** Returns the default [CalendarLocale]. */
 @Composable
 @ReadOnlyComposable
 @OptIn(ExperimentalMaterial3Api::class)
-internal actual fun defaultLocale(): CalendarLocale {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        Locale24.defaultLocale()
-    } else {
-        ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
-    }
-}
-
-@RequiresApi(24)
-private class Locale24 {
-    companion object {
-        @Composable
-        @ReadOnlyComposable
-        fun defaultLocale(): CalendarLocale {
-            return LocalConfiguration.current.locales[0]
-        }
-    }
-}
+internal actual fun defaultLocale(): CalendarLocale = LocalLocale.current.platformLocale

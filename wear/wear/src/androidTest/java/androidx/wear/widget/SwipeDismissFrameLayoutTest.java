@@ -25,6 +25,7 @@ import static androidx.wear.widget.util.MoreViewAssertions.withPositiveVerticalS
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Intent;
 import android.graphics.RectF;
@@ -51,7 +52,6 @@ import androidx.wear.widget.util.ArcSwipe;
 import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
 
-import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -223,6 +223,7 @@ public class SwipeDismissFrameLayoutTest {
 
     @Test
     public void testSwipeDoesNotDismissViewIfScrollable() throws Throwable {
+        assumeFalse("Test fails on cuttlefish b/466081422", Build.MODEL.contains("Cuttlefish"));
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(
@@ -246,6 +247,7 @@ public class SwipeDismissFrameLayoutTest {
 
     @Test
     public void testEdgeSwipeDoesDismissViewIfScrollable() {
+        assumeFalse("Test fails on cuttlefish b/466081422", Build.MODEL.contains("Cuttlefish"));
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(
@@ -350,7 +352,7 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     private void assumeNotCuttlefishWear() {
-        Assume.assumeFalse(
+        assumeFalse(
                 "Unable to test: Cuttlefish Wear devices do not work with these tests",
                 mCuttleFishWearPattern.matcher(Build.MODEL).find()
         );

@@ -106,6 +106,8 @@ class PdfViewerFragmentV2TestSuite {
                 .register(fragment.pdfScrollIdlingResource.countingIdlingResource)
             IdlingRegistry.getInstance()
                 .register(fragment.pdfSearchViewVisibleIdlingResource.countingIdlingResource)
+            IdlingRegistry.getInstance()
+                .register(fragment.pdfFirstLoadIdlingResource.countingIdlingResource)
         }
     }
 
@@ -119,6 +121,8 @@ class PdfViewerFragmentV2TestSuite {
                 .unregister(fragment.pdfScrollIdlingResource.countingIdlingResource)
             IdlingRegistry.getInstance()
                 .unregister(fragment.pdfSearchViewVisibleIdlingResource.countingIdlingResource)
+            IdlingRegistry.getInstance()
+                .unregister(fragment.pdfFirstLoadIdlingResource.countingIdlingResource)
         }
         scenario.close()
         Intents.release()
@@ -138,6 +142,7 @@ class PdfViewerFragmentV2TestSuite {
 
         Espresso.onIdle()
         scenario.onFragment {
+            it.setThumbnailToggleButtonVisibility(false)
             Preconditions.checkArgument(
                 it.documentLoaded,
                 "Unable to load document due to ${it.documentError?.message}",
@@ -146,7 +151,10 @@ class PdfViewerFragmentV2TestSuite {
 
         // Swipe actions
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeUp())
-        scenario.onFragment { it.pdfScrollIdlingResource.increment() }
+        scenario.onFragment {
+            it.pdfScrollIdlingResource.increment()
+            it.getPdfViewInstance().fastScrollVisibility = PdfView.FastScrollVisibility.AUTO_HIDE
+        }
 
         // Cause Espresso to wait for IdlingResources before performing the assertion below
         // which doesn't use Espresso APIs.
@@ -342,6 +350,8 @@ class PdfViewerFragmentV2TestSuite {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     @Test
     fun testPdfViewerFragment_whenFindInFileIsVisible_scrubberShouldBeInvisible() {
         scenarioLoadDocument(
@@ -502,6 +512,8 @@ class PdfViewerFragmentV2TestSuite {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     @Test
     fun testPdfViewerFragment_whenSelectAllClicked_allContentShouldBeSelected() {
         // Load the document and assert loading view is displayed
@@ -770,6 +782,44 @@ class PdfViewerFragmentV2TestSuite {
                 assertEquals(expectedSelectionBoundsSize, selection?.bounds?.size)
             }
         }
+    }
+
+    @Test
+    fun testPdfView_firstContentLoadEvent_firstContentLoadOnlyOnce() {
+
+        var pdfView: PdfView?
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val inputStream = context.assets.open(TEST_DOCUMENT_FILE)
+        scenario.moveToState(Lifecycle.State.STARTED)
+
+        var onFirstContentLoadCount = 0
+
+        scenario.onFragment { fragment ->
+            fragment.requireActivity().requestedOrientation =
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            pdfView = fragment.getPdfViewInstance()
+            pdfView.addOnFirstContentLoadListener { onFirstContentLoadCount += 1 }
+
+            // load document
+            fragment.pdfLoadingIdlingResource.increment()
+            fragment.pdfFirstLoadIdlingResource.increment()
+            fragment.documentUri = TestUtils.saveStream(inputStream, fragment.requireContext())
+        }
+
+        Espresso.onIdle()
+        assertEquals(1, onFirstContentLoadCount)
+
+        // swipe up to create more onDraw calls, check event was fired once
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeUp())
+        scenario.onFragment { it.pdfScrollIdlingResource.increment() }
+        Espresso.onIdle()
+        assertEquals(1, onFirstContentLoadCount)
+
+        // recheck event should not fire
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeDown())
+        scenario.onFragment { it.pdfScrollIdlingResource.increment() }
+        Espresso.onIdle()
+        assertEquals(1, onFirstContentLoadCount)
     }
 
     private fun longPressSelection(

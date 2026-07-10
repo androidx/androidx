@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,13 +25,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.wear:wear-core:1.0.0-beta01")
-    api(libs.kotlinStdlib)
+    api("androidx.wear:wear-core:1.1.0")
     api(libs.guavaListenableFuture)
     api("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     api(libs.kotlinCoroutinesCore)
@@ -70,7 +67,6 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_REMOTE_INTERACTIONS
     inceptionYear = "2020"
     description = "Android Wear Remote Interactions"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:wear-remote-interactions-samples"))
     enableRobolectric()
 }

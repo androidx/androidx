@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,49 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
-
-import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    // TODO: b/409058039 - Remove arcore and scenecore dependencies once the Fakes have been moved.
-    api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
     implementation(libs.truth)
-    implementation("com.google.ar:impress:0.0.6")
+    // forcing guava upgrade due to CVE-2023-2976, see b/503192928
+    implementation("com.google.guava:guava:32.0.1-android")
+    // forcing junit upgrade (pulled transitively by truth) due to CVE-2020-15250, see b/503192928
+    implementation("junit:junit:4.13.1")
+
+    // Forcing this upgrade due to CVE-2026-0636 (pulled in transitively by robolectric).
+    // For more information, see b/522695454
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+
+    implementation(libs.testCoreKtx)
+    implementation(libs.robolectric)
+    implementation(libs.mockitoKotlin4)
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(project(":kruth:kruth"))
+    testImplementation(libs.testRules)
     testImplementation("androidx.appcompat:appcompat:1.2.0")
-
-    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }
 
 android {
-    // TODO: b/409058039 - Drop back to 23 (default) once dependency on scenecore is removed.
-    defaultConfig {
-        minSdk = 24
-    }
     namespace = "androidx.xr.runtime.testing"
 }
 
@@ -67,4 +67,9 @@ androidx {
     inceptionYear = "2024"
     description = "A fake implementation of the XR runtime used in unit tests."
     enableRobolectric()
+}
+
+// TODO: (b/441951699) Remove this if we have tests.
+tasks.withType(Test) {
+    failOnNoDiscoveredTests = false
 }

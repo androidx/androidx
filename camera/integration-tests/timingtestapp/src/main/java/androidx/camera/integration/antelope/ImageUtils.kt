@@ -257,7 +257,7 @@ fun writeFileAfterQ(activity: MainActivity, bytes: ByteArray) {
     val resolver: ContentResolver = activity.contentResolver
     val contentValues =
         ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp().toString() + ".jpg")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp() + ".jpg")
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             put(MediaStore.MediaColumns.RELATIVE_PATH, PHOTOS_PATH)
         }

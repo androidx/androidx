@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import kotlin.reflect.KClass
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 private val fakeRequestNumbers = atomic(0L)
@@ -48,7 +48,7 @@ public class FakeRequestMetadata(
 
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 
     public companion object {
         /** Initialize FakeRequestMetadata based on a specific [Request] object. */

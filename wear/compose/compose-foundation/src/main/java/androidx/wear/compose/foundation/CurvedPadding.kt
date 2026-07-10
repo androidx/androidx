@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -165,7 +166,9 @@ internal class PaddingWrapper(child: CurvedChild, val paddingValues: ArcPaddingV
     private var beforePx = 0f
     private var afterPx = 0f
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
         outerPx = paddingValues.calculateOuterPadding(curvedLayoutDirection.radial).toPx()
         innerPx = paddingValues.calculateInnerPadding(curvedLayoutDirection.radial).toPx()
         beforePx =
@@ -182,7 +185,7 @@ internal class PaddingWrapper(child: CurvedChild, val paddingValues: ArcPaddingV
                     curvedLayoutDirection.angular,
                 )
                 .toPx()
-        with(wrapped) { initializeMeasure(measurables) }
+        return with(wrapped) { initializeMeasure(measurables) }
     }
 
     override fun doEstimateThickness(maxRadius: Float) =

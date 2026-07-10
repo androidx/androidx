@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -28,15 +27,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.core.location.altitude"
-
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
 }
 
 dependencies {
@@ -49,7 +43,6 @@ dependencies {
     implementation("androidx.room:room-common:2.7.1")
     implementation("androidx.sqlite:sqlite:2.5.1")
     implementation(libs.autoValueAnnotations)
-    implementation(libs.kotlinStdlib)
 
     annotationProcessor(libs.autoValue)
     annotationProcessor("androidx.room:room-compiler:2.7.1")
@@ -67,5 +60,4 @@ androidx {
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"
     description = "Provides compatibility APIs concerning location altitudes."
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

@@ -16,20 +16,28 @@
 
 package androidx.compose.ui.tooling.animation
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.DecayAnimation
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.ui.tooling.AnimationDebugMutableState
+import androidx.compose.ui.tooling.animation.TriggerComposeAnimation.Companion.parse
+import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
+import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
+import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
+import androidx.compose.ui.tooling.animation.search.UnsupportedSearchInfo
 import androidx.compose.ui.tooling.data.CallGroup
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.findAll
 import androidx.compose.ui.tooling.firstOrNull
+import androidx.compose.ui.tooling.isAnimationPreviewEnabled
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -72,24 +80,26 @@ private inline fun <reified T> Group.findData(includeGrandchildren: Boolean = fa
 
 /** Contains tree parsers for different animation types. */
 @OptIn(UiToolingDataApi::class)
-internal class AnimationSearch(
-    private val clock: () -> PreviewAnimationClock,
-    private val onSeek: () -> Unit,
-) {
-    private val transitionSearch = TransitionSearch { clock().trackTransition(it) }
-    private val animatedContentSearch = AnimatedContentSearch { clock().trackAnimatedContent(it) }
+internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
+
+    private val triggerSearch =
+        if (isAnimationPreviewEnabled) listOf(TriggerSearch { clock().trackTrigger(it) })
+        else emptyList()
+
+    private val transitionSearch = TransitionSearch { clock().trackComposeAnimation(it) }
+    private val animatedContentSearch = AnimatedContentSearch { clock().trackComposeAnimation(it) }
     private val animatedVisibilitySearch = AnimatedVisibilitySearch {
-        clock().trackAnimatedVisibility(it, onSeek)
+        clock().trackComposeAnimation(it)
     }
 
     private fun animateXAsStateSearch() =
         if (AnimateXAsStateComposeAnimation.apiAvailable)
-            setOf(AnimateXAsStateSearch() { clock().trackAnimateXAsState(it) })
+            setOf(AnimateXAsStateSearch() { clock().trackComposeAnimation(it) })
         else emptyList()
 
     private fun infiniteTransitionSearch() =
         if (InfiniteTransitionComposeAnimation.apiAvailable)
-            setOf(InfiniteTransitionSearch() { clock().trackInfiniteTransition(it) })
+            setOf(InfiniteTransitionSearch() { clock().trackComposeAnimation(it) })
         else emptySet()
 
     /** All supported animations. */
@@ -97,15 +107,22 @@ internal class AnimationSearch(
         setOf(transitionSearch, animatedVisibilitySearch) +
             animateXAsStateSearch() +
             infiniteTransitionSearch() +
+            triggerSearch +
             (if (AnimatedContentComposeAnimation.apiAvailable) setOf(animatedContentSearch)
             else emptySet())
 
     private fun unsupportedSearch() =
         if (UnsupportedComposeAnimation.apiAvailable)
             setOf(
-                AnimateContentSizeSearch { clock().trackAnimateContentSize(it) },
-                TargetBasedSearch { clock().trackTargetBasedAnimations(it) },
-                DecaySearch { clock().trackDecayAnimations(it) },
+                AnimateContentSizeSearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "animateContentSize"))
+                },
+                TargetBasedSearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "TargetBasedAnimation"))
+                },
+                DecaySearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "DecayAnimation"))
+                },
             )
         else emptyList()
 
@@ -144,13 +161,14 @@ internal class AnimationSearch(
         slotTrees.forEach { tree ->
             val groups = tree.findAll { true }
             setToSearch.forEach { it.addAnimations(groups) }
-            // Remove all AnimatedVisibility parent transitions from the transitions list,
+            // Remove all AnimatedContent, AnimatedVisibility and parent transitions from the
+            // transitions list,
             // otherwise we'd duplicate them in the Android Studio Animation Preview because we
             // will track them separately.
-            transitionSearch.animations.removeAll(animatedVisibilitySearch.animations)
-            // Remove all AnimatedContent parent transitions from the transitions list, so we can
-            // ignore these animations while support is not added to Animation Preview.
-            transitionSearch.animations.removeAll(animatedContentSearch.animations)
+            val transitionsToExclude =
+                animatedVisibilitySearch.animations.map { it.transition }.toSet() +
+                    animatedContentSearch.animations.map { it.transition }.toSet()
+            transitionSearch.animations.removeAll { transitionsToExclude.contains(it.transition) }
         }
         // Make the clock track all the animations found.
         setToTrack.forEach { it.track() }
@@ -211,11 +229,6 @@ internal class AnimationSearch(
     class DecaySearch(trackAnimation: (DecayAnimation<*, *>) -> Unit) :
         RememberSearch<DecayAnimation<*, *>>(DecayAnimation::class, trackAnimation)
 
-    data class InfiniteTransitionSearchInfo(
-        val infiniteTransition: InfiniteTransition,
-        val toolingState: ToolingState<Long>,
-    )
-
     class InfiniteTransitionSearch(trackAnimation: (InfiniteTransitionSearchInfo) -> Unit) :
         Search<InfiniteTransitionSearchInfo>(trackAnimation) {
 
@@ -243,13 +256,15 @@ internal class AnimationSearch(
                     val infiniteTransition = it.findData<InfiniteTransition>()
                     val toolingOverride = findToolingOverride(it)
                     if (infiniteTransition != null && toolingOverride != null) {
-                        if (toolingOverride.value == null) {
-                            toolingOverride.value = ToolingState(0L)
-                        }
+
+                        val toolingState =
+                            toolingOverride.value as? ToolingState<Long> ?: ToolingState(0L)
+
                         InfiniteTransitionSearchInfo(
-                            infiniteTransition,
-                            (toolingOverride.value as? ToolingState<Long>) ?: ToolingState(0L),
-                        )
+                                infiniteTransition,
+                                ToolingOverride(override = toolingOverride, state = toolingState),
+                            )
+                            .apply { this.attach() }
                     } else null
                 }
         }
@@ -264,21 +279,13 @@ internal class AnimationSearch(
             group.findData<MutableState<State<Long>?>>(true)
     }
 
-    data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
-        val animatable: Animatable<T, V>,
-        val animationSpec: AnimationSpec<T>,
-        val toolingState: ToolingState<T>,
-    )
-
     /** Search for animateXAsState() and animateValueAsState() animations. */
     class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
         Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group)?.let {
-                findAnimatable<Any?>(it) != null &&
-                    findAnimationSpec<Any?>(it) != null &&
-                    findToolingOverride<Any?>(it) != null
+                findToolingHandle<Any?, AnimationVector>(it) != null
             } ?: false
         }
 
@@ -296,59 +303,25 @@ internal class AnimationSearch(
         private fun <T> findAnimations(
             groups: Collection<Group>
         ): List<AnimateXAsStateSearchInfo<T, AnimationVector>> {
-            // How "animateXAsState" calls organized:
-            // Group with name "animateXAsState", for example animateDpAsState, animateIntAsState
-            //    children
-            //    * Group with name "animateValueAsState"
-            //          children
-            //          * Group with name "remember" and data with type Animatable
-            //
-            // To distinguish Animatable within "animateXAsState" calls from other Animatables,
-            // first "animateValueAsState" calls are found.
-            //  Find Animatable within "animateValueAsState" call.
             return groups
                 .mapNotNull { toAnimationGroup(it) }
                 .mapNotNull {
-                    val animatable = findAnimatable<T>(it)
-                    val spec = findAnimationSpec<T>(it)
-                    val toolingOverride = findToolingOverride<T>(it)
-                    if (animatable != null && spec != null && toolingOverride != null) {
-                        if (toolingOverride.value == null) {
-                            toolingOverride.value = ToolingState(animatable.value)
-                        }
-                        AnimateXAsStateSearchInfo(
-                            animatable,
-                            spec,
-                            (toolingOverride.value as? ToolingState<T>)
-                                ?: ToolingState(animatable.value),
-                        )
+                    val toolingHandle = findToolingHandle<T, AnimationVector>(it)
+                    if (toolingHandle != null) {
+                        AnimateXAsStateSearchInfo(toolingHandle).apply { this.attach() }
                     } else null
                 }
         }
 
         /**
-         * animateValueAsState declares a mutableStateOf<State<T>?>, starting as null, that we can
-         * use to override the animatable value in Animation Preview. We do that by getting the
-         * [MutableState] from the slot table and directly setting its value. animateValueAsState
-         * will use the tooling override if this value is not null.
+         * animateValueAsState declares a tooling handle that we can use to override the animatable
+         * value in Animation Preview. animateValueAsState will use the tooling override if this
+         * value is not null.
          */
-        private fun <T> findToolingOverride(group: Group): MutableState<State<T>?>? {
-            return group.findRememberedData<MutableState<State<T>?>>().firstOrNull()
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun <T> findAnimationSpec(group: CallGroup): AnimationSpec<T>? {
-            val rememberStates = group.children.filter { it.name == REMEMBER_UPDATED_STATE }
-            return (rememberStates + rememberStates.flatMap { it.children })
-                .flatMap { it.data }
-                .filterIsInstance<State<T>>()
-                .map { it.value }
-                .filterIsInstance<AnimationSpec<T>>()
-                .firstOrNull()
-        }
-
-        private fun <T> findAnimatable(group: CallGroup): Animatable<T, AnimationVector>? {
-            return group.findRememberedData<Animatable<T, AnimationVector>>().firstOrNull()
+        private fun <T, V : AnimationVector> findToolingHandle(
+            group: Group
+        ): AnimateValueAsStateToolingHandle<T, V>? {
+            return group.findRememberedData<AnimateValueAsStateToolingHandle<T, V>>().firstOrNull()
         }
     }
 
@@ -381,15 +354,20 @@ internal class AnimationSearch(
     }
 
     /** Search for updateTransition() animations. */
-    class TransitionSearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class TransitionSearch(trackAnimation: (TransitionSearchInfo) -> Unit) :
+        Search<TransitionSearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<*>>()
+                    .map { TransitionSearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */
@@ -400,15 +378,20 @@ internal class AnimationSearch(
     }
 
     /** Search for AnimatedVisibility animations. */
-    class AnimatedVisibilitySearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class AnimatedVisibilitySearch(trackAnimation: (AnimatedVisibilitySearchInfo) -> Unit) :
+        Search<AnimatedVisibilitySearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<Boolean>>()
+                    .map { AnimatedVisibilitySearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */
@@ -426,15 +409,20 @@ internal class AnimationSearch(
     }
 
     /** Search for AnimatedContent animations. */
-    class AnimatedContentSearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class AnimatedContentSearch(trackAnimation: (AnimatedContentSearchInfo) -> Unit) :
+        Search<AnimatedContentSearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<*>>()
+                    .map { AnimatedContentSearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */
@@ -446,6 +434,33 @@ internal class AnimationSearch(
                         updateTransitionCall.name == UPDATE_TRANSITION
                     }
                 }
+        }
+    }
+
+    /** Search for [AnimationDebugMutableState]s. */
+    class TriggerSearch(track: (TriggerComposeAnimation<*>) -> Unit) :
+        Search<TriggerComposeAnimation<*>>(track) {
+        override fun hasAnimation(group: Group): Boolean {
+            return group.data.contains { element: Any? -> element is AnimationDebugMutableState<*> }
+        }
+
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithState =
+                groups
+                    .filter { it.name == REMEMBER }
+                    .filter { it.data.any { data -> data is AnimationDebugMutableState<*> } }
+
+            val triggers =
+                groupsWithState
+                    .flatMap { group ->
+                        group.data.filterIsInstance<AnimationDebugMutableState<*>>().map {
+                            it.parse()
+                        }
+                    }
+                    .filterNotNull()
+                    .distinctBy { it.animationObject }
+
+            animations.addAll(triggers)
         }
     }
 }

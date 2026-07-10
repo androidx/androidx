@@ -41,18 +41,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.compose.spatial.ApplicationSubspace
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.draw.alpha
+import androidx.xr.compose.subspace.draw.scale
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.alpha
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.scale
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.components.CUJButton
@@ -77,7 +77,7 @@ class Animation : ComponentActivity() {
     private fun ValueBasedAnimationsApp() {
         MainPanelContent()
 
-        ApplicationSubspace {
+        Subspace {
             val (showSidePanel, updateShowSidePanel) = remember { mutableStateOf(false) }
             val toggleSidePanel: () -> Unit = { updateShowSidePanel(!showSidePanel) }
             val desiredWidth = 300.dp
@@ -114,6 +114,7 @@ class Animation : ComponentActivity() {
                             .offset(z = zOffset * 2)
                             .alpha(animatedAlpha.value)
                 ) {
+                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
                     PanelContent(
                         "Faded in content",
                         "Show side Panel",
@@ -136,6 +137,7 @@ class Animation : ComponentActivity() {
                                 .offset(z = zOffset)
                                 .scale(sidePanelAnimatedScale.value)
                     ) {
+                        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
                         PanelContent(
                             "Grown content",
                             "Hide side panel",
@@ -170,6 +172,7 @@ class Animation : ComponentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @SubspaceComposable
@@ -179,6 +182,7 @@ class Animation : ComponentActivity() {
         showButton: Boolean,
         buttonOnClick: () -> Unit,
     ) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
         Box(modifier = Modifier.background(Purple80).fillMaxSize()) {
             Column {
                 Row(modifier = Modifier.fillMaxWidth()) {

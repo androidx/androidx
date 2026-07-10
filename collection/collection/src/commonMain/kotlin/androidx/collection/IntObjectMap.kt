@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE", "FacadeClassJvmName")
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -677,7 +678,20 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
      * with [key].
      */
     public inline fun getOrPut(key: Int, defaultValue: () -> V): V {
-        return get(key) ?: defaultValue().also { set(key, it) }
+        val index = findInsertIndex(key)
+        return if (index < 0)
+            defaultValue().also {
+                val insertIndex = index.inv()
+                keys[insertIndex] = key
+                values[insertIndex] = it
+            }
+        else
+            @Suppress("UNCHECKED_CAST")
+            values[index] as V?
+                ?: defaultValue().also {
+                    keys[index] = key
+                    values[index] = it
+                }
     }
 
     /**
@@ -687,7 +701,7 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
      * the underlying storage and cause allocations.
      */
     public operator fun set(key: Int, value: V) {
-        val index = findAbsoluteInsertIndex(key)
+        val index = findInsertIndex(key).let { index -> if (index < 0) index.inv() else index }
         keys[index] = key
         values[index] = value
     }
@@ -700,7 +714,7 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
      * [key], or `null` if the key was not present in the map.
      */
     public fun put(key: Int, value: V): V? {
-        val index = findAbsoluteInsertIndex(key)
+        val index = findInsertIndex(key).let { index -> if (index < 0) index.inv() else index }
         val oldValue = values[index]
         keys[index] = key
         values[index] = value
@@ -803,11 +817,12 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
 
     /**
      * Scans the hash table to find the index at which we can store a value for the give [key]. If
-     * the key already exists in the table, its index will be returned, otherwise the index of an
-     * empty slot will be returned. Calling this function may cause the internal storage to be
+     * the key already exists in the table, its index will be returned, otherwise the `index.inv()`
+     * of an empty slot will be returned. Calling this function may cause the internal storage to be
      * reallocated if the table is full.
      */
-    private fun findAbsoluteInsertIndex(key: Int): Int {
+    @PublishedApi
+    internal fun findInsertIndex(key: Int): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -845,7 +860,7 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
         growthLimit -= if (isEmpty(metadata, index)) 1 else 0
         writeMetadata(metadata, _capacity, index, hash2.toLong())
 
-        return index
+        return index.inv()
     }
 
     /**

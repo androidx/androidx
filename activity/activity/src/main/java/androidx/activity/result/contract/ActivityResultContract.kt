@@ -26,12 +26,12 @@ import android.content.Intent
  *
  * @see androidx.activity.result.ActivityResultCaller
  */
-abstract class ActivityResultContract<I, O> {
+public abstract class ActivityResultContract<I, O> {
     /** Create an intent that can be used for [android.app.Activity.startActivityForResult]. */
-    abstract fun createIntent(context: Context, input: I): Intent
+    public abstract fun createIntent(context: Context, input: I): Intent
 
     /** Convert result obtained from [android.app.Activity.onActivityResult] to [O]. */
-    abstract fun parseResult(resultCode: Int, intent: Intent?): O
+    public abstract fun parseResult(resultCode: Int, intent: Intent?): O
 
     /**
      * An optional method you can implement that can be used to potentially provide a result in lieu
@@ -40,7 +40,7 @@ abstract class ActivityResultContract<I, O> {
      * @return the result wrapped in a [SynchronousResult] or `null` if the call should proceed to
      *   start an activity.
      */
-    open fun getSynchronousResult(context: Context, input: I): SynchronousResult<O>? {
+    public open fun getSynchronousResult(context: Context, input: I): SynchronousResult<O>? {
         return null
     }
 
@@ -48,5 +48,5 @@ abstract class ActivityResultContract<I, O> {
      * The wrapper for a result provided in [getSynchronousResult]. This allows differentiating
      * between a null [T] synchronous result and no synchronous result at all.
      */
-    class SynchronousResult<T>(val value: T)
+    public class SynchronousResult<T>(public val value: T)
 }

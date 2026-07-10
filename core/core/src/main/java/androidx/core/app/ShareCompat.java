@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -276,6 +277,7 @@ public final class ShareCompat {
         private final @NonNull Intent mIntent;
 
         private @Nullable CharSequence mChooserTitle;
+        private @Nullable IntentSender mIntentSender;
         private @Nullable ArrayList<String> mToAddresses;
         private @Nullable ArrayList<String> mCcAddresses;
         private @Nullable ArrayList<String> mBccAddresses;
@@ -404,7 +406,7 @@ public final class ShareCompat {
          * @return A chooser Intent for the currently configured sharing action
          */
         public @NonNull Intent createChooserIntent() {
-            return Intent.createChooser(getIntent(), mChooserTitle);
+            return Intent.createChooser(getIntent(), mChooserTitle, mIntentSender);
         }
 
         /**
@@ -433,6 +435,18 @@ public final class ShareCompat {
          */
         public @NonNull IntentBuilder setChooserTitle(@StringRes int resId) {
             return setChooserTitle(mContext.getText(resId));
+        }
+
+        /**
+         * Set the IntentSender that will be used for the activity chooser callback
+         * when the user makes a choice.
+         *
+         * @param intentSender IntentSender to use
+         * @return This IntentBuilder for method chaining
+         */
+        public @NonNull IntentBuilder setIntentSender(@Nullable IntentSender intentSender) {
+            mIntentSender = intentSender;
+            return this;
         }
 
         /**

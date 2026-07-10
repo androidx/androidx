@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class AsWireComplicationTextTest {
     @Test
     public fun plainText() {
@@ -140,6 +141,7 @@ public class AsWireComplicationTextTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class FromWireComplicationTextTest {
     @Test
     public fun plainText() {

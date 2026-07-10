@@ -248,6 +248,7 @@ class AudioStreamImplTest {
             onSilenceStateChanged: ((List<Boolean>) -> Unit)? = null,
         ) {
             val captor = onSilenceStateChanged?.let { ArgumentCaptor<Boolean>() }
+            @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
             onSilencedCallback.verifyAcceptCall(
                 java.lang.Boolean::class.java,
                 inOder,

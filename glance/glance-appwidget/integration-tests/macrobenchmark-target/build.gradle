@@ -18,11 +18,9 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
     implementation(project(":profileinstaller:profileinstaller"))
@@ -30,13 +28,12 @@ dependencies {
 
 android {
     namespace = "androidx.glance.appwidget.macrobenchmark.target"
-    compileSdk = 35
+    compileSdk { version = release(37) }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
 

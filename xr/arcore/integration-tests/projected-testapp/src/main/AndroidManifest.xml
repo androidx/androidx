@@ -16,19 +16,56 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application android:label="Projected perception runtime App">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application android:label="JXR ARCore Projected Tests">
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
         <activity
-            android:name="androidx.xr.arcore.projected.testapp.ProjectedTestAppActivity"
+            android:name=".ProjectedTestAppActivity"
             android:exported="true"
-            android:label="Projected test activity">
+            android:label="Geospatial and Tracking testcase"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".InertialTrackingActivity"
+            android:configChanges="uiMode"
+            android:label="Inertial Tracking testcase"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".ConfigProjectedGeospatialActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Projected Geospatial Dashboard">
+        </activity>
+        <activity
+            android:name=".LowPowerGeospatialActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Modern UI Projected Geospatial">
+        </activity>
+        <activity
+            android:name=".tiltgesture.TiltGestureTrackingActivity"
+            android:configChanges="uiMode"
+            android:label="TiltGesture testcase"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:label="ARCore Projected Test App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="androidx.xr.projected.CATEGORY_PROJECTED" />
-                <category android:name="androidx.xr.projected.CATEGORY_PROJECTED_LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.google.android.ar.API_KEY" android:value="AIzaSyAMIem9luEMnV2-bkzZuL0n9pZf1E7FuP8"/>
     </application>
-
 </manifest>
 

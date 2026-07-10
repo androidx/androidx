@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -32,8 +31,8 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.material.ripple"
-        compileSdk = 35
     }
     jvmStubs()
     linuxX64Stubs()
@@ -41,67 +40,29 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.compose.foundation:foundation:1.7.1")
-                api(project(":compose:runtime:runtime"))
+        commonMain.dependencies {
+            api("androidx.compose.foundation:foundation:1.7.1")
+            api(project(":compose:runtime:runtime"))
 
-                implementation("androidx.collection:collection:1.5.0")
-                implementation("androidx.compose.animation:animation:1.7.1")
-                implementation("androidx.compose.ui:ui-util:1.7.1")
-            }
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.compose.animation:animation:1.7.1")
+            implementation("androidx.compose.ui:ui-util:1.7.1")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
     }
 }

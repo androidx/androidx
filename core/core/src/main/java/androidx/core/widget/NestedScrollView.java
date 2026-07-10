@@ -164,6 +164,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * mScroller.isFinished() (flinging begins when the user lifts their finger).
      */
     private boolean mIsBeingDragged = false;
+    private boolean mIsTracingDrag = false;
 
     /**
      * Determines speed during touch scrolling
@@ -230,6 +231,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private OnScrollChangeListener mOnScrollChangeListener;
 
+    private boolean mIsScrollToTopEnabled = true;
+
     @VisibleForTesting
     final DifferentialMotionFlingTargetImpl mDifferentialMotionFlingTarget =
             new DifferentialMotionFlingTargetImpl();
@@ -266,6 +269,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         setFillViewport(a.getBoolean(0, false));
 
         a.recycle();
+
+        final TypedArray b = context.obtainStyledAttributes(attrs, R.styleable.NestedScrollView,
+                defStyleAttr, 0);
+        ViewCompat.saveAttributeDataForStyleable(this,
+                context, R.styleable.NestedScrollView, attrs, b, defStyleAttr, 0);
+        setScrollToTopEnabled(
+                b.getBoolean(R.styleable.NestedScrollView_isScrollToTopEnabled, true));
+        b.recycle();
 
         mParentHelper = new NestedScrollingParentHelper(this);
         mChildHelper = new NestedScrollingChildHelper(this);
@@ -783,6 +794,22 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
+    private void beginDragTrace() {
+        if (!mIsTracingDrag) {
+            androidx.core.os.TraceCompat.beginAsyncSection(
+                    "NestedScrollView#drag", System.identityHashCode(this));
+            mIsTracingDrag = true;
+        }
+    }
+
+    private void endDragTrace() {
+        if (mIsTracingDrag) {
+            androidx.core.os.TraceCompat.endAsyncSection(
+                    "NestedScrollView#drag", System.identityHashCode(this));
+            mIsTracingDrag = false;
+        }
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         if (disallowIntercept) {
@@ -838,6 +865,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (yDiff > mTouchSlop
                         && (getNestedScrollAxes() & ViewCompat.SCROLL_AXIS_VERTICAL) == 0) {
                     mIsBeingDragged = true;
+                    beginDragTrace();
                     mLastMotionY = y;
                     initVelocityTrackerIfNotExists();
                     mVelocityTracker.addMovement(ev);
@@ -854,6 +882,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 final int y = (int) ev.getY();
                 if (!inChild((int) ev.getX(), y)) {
                     mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
+                    if (mIsBeingDragged) {
+                        beginDragTrace();
+                    } else {
+                        endDragTrace();
+                    }
                     recycleVelocityTracker();
                     break;
                 }
@@ -876,6 +909,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 */
                 mScroller.computeScrollOffset();
                 mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
+                if (mIsBeingDragged) {
+                    beginDragTrace();
+                } else {
+                    endDragTrace();
+                }
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
                 break;
             }
@@ -884,6 +922,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             case MotionEvent.ACTION_UP:
                 /* Release the drag */
                 mIsBeingDragged = false;
+                endDragTrace();
                 mActivePointerId = INVALID_POINTER;
                 recycleVelocityTracker();
                 if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0, getScrollRange())) {
@@ -966,6 +1005,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         parent.requestDisallowInterceptTouchEvent(true);
                     }
                     mIsBeingDragged = true;
+                    beginDragTrace();
                     if (deltaY > 0) {
                         deltaY -= mTouchSlop;
                     } else {
@@ -1048,6 +1088,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private void endTouchDrag() {
         mActivePointerId = INVALID_POINTER;
         mIsBeingDragged = false;
+        endDragTrace();
 
         recycleVelocityTracker();
         stopNestedScroll(ViewCompat.TYPE_TOUCH);
@@ -1904,6 +1945,45 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     // This should be considered private, it is package private to avoid a synthetic ancestor.
     void smoothScrollTo(int x, int y, int scrollDurationMs, boolean withNestedScrolling) {
         smoothScrollBy(x - getScrollX(), y - getScrollY(), scrollDurationMs, withNestedScrolling);
+    }
+
+    /**
+     * Sets whether this NestedScrollView should consume system-level scroll-to-top events.
+     * <p>
+     * When set to true (default), this view will scroll to the top when a system trigger
+     * occurs, provided the view is currently scrolled down.
+     *
+     * @param enabled true to enable scroll-to-top behavior, false to disable.
+     */
+    public void setScrollToTopEnabled(boolean enabled) {
+        mIsScrollToTopEnabled = enabled;
+    }
+
+    /**
+     * Indicates whether this NestedScrollView allows system-level scroll-to-top event consumption.
+     *
+     * @return True if scroll-to-top consumption is enabled, false otherwise.
+     */
+    public boolean isScrollToTopEnabled() {
+        return mIsScrollToTopEnabled;
+    }
+
+    /**
+     * Called when a scroll-to-top command is received.
+     *
+     * @param x The x-coordinate of the scroll-to-top command, in the coordinate
+     *          space of this view.
+     * @return true if the event was consumed and should not be propagated to other
+     * potential handlers.
+     */
+    @SuppressWarnings("MissingOverride")
+    public boolean onScrollToTop(int x) {
+        if (mIsScrollToTopEnabled && canScrollVertically(-1)) {
+            smoothScrollTo(getScrollX(), 0);
+            return true;
+        }
+
+        return false;
     }
 
     /**

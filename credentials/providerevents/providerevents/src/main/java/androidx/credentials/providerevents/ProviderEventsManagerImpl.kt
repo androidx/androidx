@@ -19,14 +19,19 @@ package androidx.credentials.providerevents
 import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.providerevents.exception.ClearExportException
+import androidx.credentials.providerevents.exception.ClearExportProviderConfigurationException
 import androidx.credentials.providerevents.exception.ImportCredentialsException
 import androidx.credentials.providerevents.exception.ImportCredentialsProviderConfigurationException
 import androidx.credentials.providerevents.exception.RegisterExportException
 import androidx.credentials.providerevents.exception.RegisterExportProviderConfigurationException
 import androidx.credentials.providerevents.internal.ProviderEventsApiProviderFactory
+import androidx.credentials.providerevents.transfer.ClearExportRequest
+import androidx.credentials.providerevents.transfer.ClearExportResponse
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
 import androidx.credentials.providerevents.transfer.ProviderImportCredentialsResponse
 import androidx.credentials.providerevents.transfer.RegisterExportRequest
+import androidx.credentials.providerevents.transfer.RegisterExportResponse
 import java.util.concurrent.Executor
 
 internal class ProviderEventsManagerImpl(private val context: Context) : ProviderEventsManager {
@@ -54,9 +59,8 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
 
     override fun registerExportAsync(
         request: RegisterExportRequest,
-        cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Boolean, RegisterExportException>,
+        callback: CredentialManagerCallback<RegisterExportResponse, RegisterExportException>,
     ) {
         val provider: ProviderEventsApiProvider? =
             ProviderEventsApiProviderFactory().getBestAvailableProvider(context)
@@ -69,6 +73,25 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
             )
             return
         }
-        provider.onRegisterExport(request, cancellationSignal, executor, callback)
+        provider.onRegisterExport(request, executor, callback)
+    }
+
+    override fun clearExportAsync(
+        request: ClearExportRequest,
+        executor: Executor,
+        callback: CredentialManagerCallback<ClearExportResponse, ClearExportException>,
+    ) {
+        val provider: ProviderEventsApiProvider? =
+            ProviderEventsApiProviderFactory().getBestAvailableProvider(context)
+        if (provider == null) {
+            callback.onError(
+                ClearExportProviderConfigurationException(
+                    "clearExport: no provider dependencies found - please ensure " +
+                        "the desired provider dependencies are added"
+                )
+            )
+            return
+        }
+        provider.onClearExport(request, executor, callback)
     }
 }

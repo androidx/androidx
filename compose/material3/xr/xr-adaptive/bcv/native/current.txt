@@ -1,0 +1,13 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material3.xr:xr-adaptive>
+open annotation class androidx.compose.material3.xr.adaptive/ExperimentalMaterial3XrAdaptiveApi : kotlin/Annotation { // androidx.compose.material3.xr.adaptive/ExperimentalMaterial3XrAdaptiveApi|null[0]
+    constructor <init>() // androidx.compose.material3.xr.adaptive/ExperimentalMaterial3XrAdaptiveApi.<init>|<init>(){}[0]
+}
+
+final fun androidx.compose.material3.xr.adaptive/WithAdaptiveXrComponents(kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.material3.xr.adaptive/WithAdaptiveXrComponents|WithAdaptiveXrComponents(kotlin.Boolean;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]

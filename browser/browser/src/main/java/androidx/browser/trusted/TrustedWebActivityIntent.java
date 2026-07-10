@@ -18,6 +18,7 @@ package androidx.browser.trusted;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -118,8 +119,21 @@ public final class TrustedWebActivityIntent {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
         for (Uri uri : mFileHandlingUris) {
-            context.grantUriPermission(mIntent.getPackage(), uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            boolean hasReadPermission = context.checkCallingOrSelfUriPermission(uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+            if (!hasReadPermission) continue;
+
+            boolean hasWritePermission = context.checkCallingOrSelfUriPermission(uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+
+            if (hasWritePermission) {
+                context.grantUriPermission(mIntent.getPackage(), uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            } else {
+                context.grantUriPermission(mIntent.getPackage(), uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
         }
     }
 

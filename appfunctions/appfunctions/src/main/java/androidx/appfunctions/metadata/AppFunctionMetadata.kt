@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.appfunctions.metadata
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.GenericDocumentUtils
+import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
+import androidx.appfunctions.internal.SchemaAppFunctionInventory
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -36,6 +42,7 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
  *   obtain the input/output information, and call the function accordingly.
  */
 public class AppFunctionMetadata
+// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
 constructor(
     /**
@@ -60,7 +67,62 @@ constructor(
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     /** A description of the AppFunction and its intended use. */
     public val description: String = "",
+    /**
+     * Deprecation details about the function, if the AppFunction is deprecated. This will be `null`
+     * if the function is not deprecated.
+     */
+    public val deprecation: AppFunctionDeprecationMetadata? = null,
+    /** The name of the AppFunction. */
+    internal val name: AppFunctionName = AppFunctionName(packageName, id),
+    /** The metadata of the package providing this AppFunction. */
+    internal val packageMetadata: AppFunctionPackageMetadata =
+        AppFunctionPackageMetadata(
+            packageName = packageName,
+            appFunctions = listOf(),
+            components = components,
+        ),
 ) {
+    @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        /** The name of the AppFunction. */
+        name: AppFunctionName,
+        /**
+         * The predefined schema of the AppFunction. If null, it indicates this function is not
+         * implement a particular predefined schema.
+         */
+        schema: AppFunctionSchemaMetadata?,
+        /** The parameters of the AppFunction. */
+        parameters: List<AppFunctionParameterMetadata>,
+        /** The response of the AppFunction. */
+        response: AppFunctionResponseMetadata,
+        /** The metadata of the package providing this AppFunction. */
+        packageMetadata: AppFunctionPackageMetadata,
+        // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
+        //  static info only, in line with platform class, hence using a default false value until
+        //  we migrate.
+        /** Indicates whether the function is enabled currently or not. */
+        isEnabled: Boolean,
+        /** A description of the AppFunction and its intended use. */
+        description: String = "",
+        /**
+         * Deprecation details about the function, if the AppFunction is deprecated. This will be
+         * `null` if the function is not deprecated.
+         */
+        deprecation: AppFunctionDeprecationMetadata? = null,
+    ) : this(
+        id = name.functionIdentifier,
+        packageName = name.packageName,
+        isEnabled = isEnabled,
+        schema = schema,
+        parameters = parameters,
+        response = response,
+        components = packageMetadata.components,
+        description = description,
+        deprecation = deprecation,
+        packageMetadata = packageMetadata,
+        name = name,
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -76,6 +138,9 @@ constructor(
         if (response != other.response) return false
         if (components != other.components) return false
         if (description != other.description) return false
+        if (deprecation != other.deprecation) return false
+        if (name != other.name) return false
+        if (packageMetadata != other.packageMetadata) return false
 
         return true
     }
@@ -90,6 +155,9 @@ constructor(
             response,
             components,
             description,
+            deprecation,
+            name,
+            packageMetadata,
         )
     }
 
@@ -101,13 +169,15 @@ constructor(
         append("schema=$schema, ")
         append("parameters=$parameters, ")
         append("response=$response, ")
-        append("components=$components")
-        append("description=$description")
+        append("components=$components, ")
+        append("description='$description', ")
+        append("deprecation=$deprecation, ")
+        append("packageMetadata=$packageMetadata, ")
+        append("name=$name")
         append(")")
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun copy(
+    internal fun copy(
         id: String = this.id,
         packageName: String = this.packageName,
         isEnabled: Boolean = this.isEnabled,
@@ -116,6 +186,9 @@ constructor(
         response: AppFunctionResponseMetadata = this.response,
         components: AppFunctionComponentsMetadata = this.components,
         description: String = this.description,
+        deprecation: AppFunctionDeprecationMetadata? = this.deprecation,
+        name: AppFunctionName = this.name,
+        packageMetadata: AppFunctionPackageMetadata = this.packageMetadata,
     ): AppFunctionMetadata {
         return AppFunctionMetadata(
             id = id,
@@ -126,7 +199,232 @@ constructor(
             response = response,
             components = components,
             description = description,
+            deprecation = deprecation,
+            name = name,
+            packageMetadata = packageMetadata,
         )
+    }
+
+    /** Specifies the lifecycle scope of an AppFunction. */
+    @Retention(AnnotationRetention.SOURCE)
+    @androidx.annotation.IntDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class AppFunctionScope
+
+    public companion object {
+
+        // TODO(b/501032667): Update links to the androidx verions of
+        // ExecuteAppFunctionRequest.setActivityId,
+        // getAppFunctionStates, getAppFunctionActivityStates,
+        // registerAppFunction
+        /**
+         * A constant indicating an app function is globally-scoped.
+         *
+         * There can be at most one app function implementation with the same name available with
+         * this scope. This is useful for functions that are tied to a singleton component, such as
+         * a foreground service.
+         *
+         * When using [android.app.appfunctions.AppFunctionManager.registerAppFunction], the
+         * function remains registered until it is explicitly unregistered or the calling context is
+         * destroyed.
+         *
+         * To execute a globally-scoped function, the caller of
+         * [androidx.appfunctions.AppFunctionManager.executeAppFunction] must not use
+         * [android.app.appfunctions.ExecuteAppFunctionRequest#setActivityId] (or set it to null),
+         * otherwise [androidx.appfunctions.AppFunctionFunctionNotFoundException] will be returned.
+         *
+         * This is always the scope for [androidx.appfunctions.AppFunctionService]-based functions.
+         *
+         * **IMPORTANT:** Functions provided with
+         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
+         * for such functions if you are absolutely sure there can be only one instance of that
+         * activity.
+         */
+        @Suppress("InlinedApi")
+        public const val SCOPE_GLOBAL: Int =
+            android.app.appfunctions.AppFunctionMetadata.SCOPE_GLOBAL
+
+        /**
+         * A constant indicating an app function is activity-scoped.
+         *
+         * Multiple app function implementations with the same name can exist simultaneously, each
+         * registered from a different [android.app.Activity] instance, which is identified by an
+         * [android.app.appfunctions.AppFunctionActivityId].
+         *
+         * Functions with this scope must be registered by an
+         * [androidx.appfunctions.AppFunctionManager] that is created from an [android.app.Activity]
+         * context.
+         *
+         * To execute an activity-scoped function, the caller of
+         * [androidx.appfunctions.AppFunctionManager.executeAppFunction] must use
+         * [android.app.appfunctions.ExecuteAppFunctionRequest#setActivityId], otherwise
+         * [androidx.appfunctions.AppFunctionFunctionNotFoundException] will be returned.
+         *
+         * To discover the specific activities where an activity-scoped function is currently
+         * registered, see [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] and
+         * [android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates].
+         *
+         * The function remains registered until it is explicitly unregistered or the activity is
+         * destroyed.
+         *
+         * **IMPORTANT:** Functions provided with
+         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
+         * for such functions if you are absolutely sure there can be only one instance of that
+         * activity.
+         */
+        @Suppress("InlinedApi")
+        public const val SCOPE_ACTIVITY: Int =
+            android.app.appfunctions.AppFunctionMetadata.SCOPE_ACTIVITY
+
+        /**
+         * Converts [android.app.appfunctions.AppFunctionMetadata] to
+         * [androidx.appfunctions.metadata.AppFunctionMetadata].
+         */
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionMetadata(
+            platformMetadata: android.app.appfunctions.AppFunctionMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionMetadata? {
+            val document =
+                GenericDocumentUtils.fromPlatformToJetpackGenericDocument(
+                    platformMetadata.metadataDocument
+                )
+            val staticMetadataDocument =
+                safeCastToDocumentClass<AppFunctionMetadataDocument>(document) ?: return null
+
+            val schemaMetadata =
+                platformMetadata.schemaMetadata?.let { platformSchema ->
+                    AppFunctionSchemaMetadata(
+                        category = platformSchema.category,
+                        name = platformSchema.name,
+                        version = platformSchema.version,
+                    )
+                }
+
+            val packageMetadata =
+                AppFunctionPackageMetadata.fromPlatformAppFunctionPackageMetadata(
+                    platformPackageMetadata = platformMetadata.packageMetadata,
+                    schemaAppFunctionInventory = schemaAppFunctionInventory,
+                    schemaMetadata = schemaMetadata,
+                    isFromDynamicIndexer =
+                        isAppFunctionMetadataDocumentFromDynamicIndexer(staticMetadataDocument),
+                )
+
+            return create(
+                appFunctionName =
+                    AppFunctionName.fromPlatformAppFunctionName(platformMetadata.name),
+                staticMetadataDocument = staticMetadataDocument,
+                isEnabled = staticMetadataDocument.isEnabledByDefault,
+                packageMetadata = packageMetadata,
+                schemaAppFunctionInventory = schemaAppFunctionInventory,
+            )
+        }
+
+        /** Creates an [AppFunctionMetadata] from static metadata details. */
+        internal fun create(
+            appFunctionName: AppFunctionName,
+            staticMetadataDocument: AppFunctionMetadataDocument,
+            isEnabled: Boolean,
+            packageMetadata: AppFunctionPackageMetadata,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionMetadata? {
+            val schemaName = staticMetadataDocument.schemaName
+            val schemaCategory = staticMetadataDocument.schemaCategory
+            val schemaVersion = staticMetadataDocument.schemaVersion ?: 0L
+            val schemaMetadata =
+                if (schemaName != null && schemaCategory != null && schemaVersion > 0) {
+                    AppFunctionSchemaMetadata(
+                        category = schemaCategory,
+                        name = schemaName,
+                        version = schemaVersion,
+                    )
+                } else {
+                    if (schemaName != null || schemaCategory != null || schemaVersion != 0L) {
+                        Log.e(
+                            APP_FUNCTIONS_TAG,
+                            "Unexpected state: schemaName=$schemaName, " +
+                                "schemaCategory=$schemaCategory, " +
+                                "schemaVersion=$schemaVersion",
+                        )
+                    }
+                    null
+                }
+
+            val parameterMetadata =
+                getAppFunctionParameterMetadata(
+                    staticMetadataDocument,
+                    schemaMetadata,
+                    schemaAppFunctionInventory,
+                ) ?: return null
+            val responseMetadata =
+                getAppFunctionResponseMetadata(
+                    staticMetadataDocument,
+                    schemaMetadata,
+                    schemaAppFunctionInventory,
+                ) ?: return null
+
+            val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
+
+            return AppFunctionMetadata(
+                name = appFunctionName,
+                schema = schemaMetadata,
+                parameters = parameterMetadata,
+                response = responseMetadata,
+                packageMetadata = packageMetadata,
+                isEnabled = isEnabled,
+                description = staticMetadataDocument.description ?: "",
+                deprecation = deprecationMetadata,
+            )
+        }
+
+        private fun getAppFunctionParameterMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): List<AppFunctionParameterMetadata>? {
+            if (isAppFunctionMetadataDocumentFromDynamicIndexer(appFunctionMetadataDocument)) {
+                return appFunctionMetadataDocument.parameters?.map(
+                    AppFunctionParameterMetadataDocument::toAppFunctionParameterMetadata
+                ) ?: emptyList()
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.schemaFunctionsMap?.get(schemaMetadata)?.parameters
+            }
+        }
+
+        private fun getAppFunctionResponseMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument,
+            schemaMetadata: AppFunctionSchemaMetadata?,
+            schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
+        ): AppFunctionResponseMetadata? {
+            if (isAppFunctionMetadataDocumentFromDynamicIndexer(appFunctionMetadataDocument)) {
+                return checkNotNull(appFunctionMetadataDocument.response)
+                    .toAppFunctionResponseMetadata()
+            }
+
+            return if (schemaMetadata == null) {
+                null
+            } else {
+                schemaAppFunctionInventory?.schemaFunctionsMap?.get(schemaMetadata)?.response
+            }
+        }
+
+        private fun getAppFunctionDeprecationMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument
+        ): AppFunctionDeprecationMetadata? {
+            return appFunctionMetadataDocument.deprecation?.toAppFunctionDeprecationMetadata()
+        }
+
+        internal fun isAppFunctionMetadataDocumentFromDynamicIndexer(
+            document: AppFunctionMetadataDocument
+        ): Boolean {
+            return document.response != null
+        }
     }
 }
 
@@ -136,6 +434,7 @@ constructor(
  * This class is used to generate AppFunctionInventory and an intermediate representation to persist
  * the metadata in AppSearch.
  */
+// TODO(b/438412432): Hide this API as internal.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class CompileTimeAppFunctionMetadata(
     /**
@@ -159,14 +458,19 @@ public data class CompileTimeAppFunctionMetadata(
     public val parameters: List<AppFunctionParameterMetadata>,
     /** The response of the AppFunction. */
     public val response: AppFunctionResponseMetadata,
+    // TODO: b/444163595 - Remove once components are moved to package metadata
     /** Reusable components that could be shared within the function specification. */
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     /** A description of the AppFunction and its intended use. */
     public val description: String = "",
+    /**
+     * Deprecation details about the function, if the AppFunction is deprecated. This will be `null`
+     * if the function is not deprecated.
+     */
+    public val deprecation: AppFunctionDeprecationMetadata? = null,
 ) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun copy(
+    internal fun copy(
         id: String? = null,
         isEnabledByDefault: Boolean? = null,
         schema: AppFunctionSchemaMetadata? = null,
@@ -174,6 +478,7 @@ public data class CompileTimeAppFunctionMetadata(
         response: AppFunctionResponseMetadata? = null,
         components: AppFunctionComponentsMetadata? = null,
         description: String? = null,
+        deprecation: AppFunctionDeprecationMetadata? = null,
     ): CompileTimeAppFunctionMetadata {
         return CompileTimeAppFunctionMetadata(
             id = id ?: this.id,
@@ -183,6 +488,7 @@ public data class CompileTimeAppFunctionMetadata(
             response = response ?: this.response,
             components = components ?: this.components,
             description = description ?: this.description,
+            deprecation = deprecation ?: this.deprecation,
         )
     }
 
@@ -191,8 +497,7 @@ public data class CompileTimeAppFunctionMetadata(
      *
      * This method is used to persist the [CompileTimeAppFunctionMetadata] in a database.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
+    internal fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
         return AppFunctionMetadataDocument(
             id = id,
             isEnabledByDefault = isEnabledByDefault,
@@ -202,36 +507,62 @@ public data class CompileTimeAppFunctionMetadata(
             parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
             response = response.toAppFunctionResponseMetadataDocument(),
             description = description,
+            deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
         )
     }
 }
 
 /** Represents the persistent storage format of [AppFunctionMetadata]. */
-@Document(name = "AppFunctionStaticMetadata")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class AppFunctionMetadataDocument(
-    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
+@Document(name = AppFunctionMetadataDocument.SCHEMA_TYPE)
+@Suppress("InlinedApi")
+internal data class AppFunctionMetadataDocument(
+    @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
     /** The id of the AppFunction. */
-    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
+    @Document.Id val id: String = APP_FUNCTION_ID_EMPTY,
     /**
      * Indicates whether the function is enabled by default.
      *
      * This represents the initial configuration and might not represent the current enabled state,
      * as it could be modified at runtime.
      */
-    @Document.BooleanProperty(name = "enabledByDefault") public val isEnabledByDefault: Boolean,
+    @Document.BooleanProperty(name = "enabledByDefault") val isEnabledByDefault: Boolean,
     /** The category of the schema, used to group related schemas. */
-    @Document.StringProperty public val schemaCategory: String?,
+    @Document.StringProperty val schemaCategory: String?,
     /** The unique name of the schema within its category. */
-    @Document.StringProperty public val schemaName: String?,
+    @Document.StringProperty val schemaName: String?,
     /** The version of the schema. This is used to track the changes to the schema over time. */
-    @Document.LongProperty public val schemaVersion: Long?,
+    @Document.LongProperty val schemaVersion: Long?,
     // Below properties are nullable as they won't be populated in the underlying GD created by
     // legacy AppSearch indexer.
     /** The parameters of the AppFunction. */
-    @Document.DocumentProperty public val parameters: List<AppFunctionParameterMetadataDocument>?,
+    @Document.DocumentProperty val parameters: List<AppFunctionParameterMetadataDocument>?,
     /** The response of the AppFunction. */
-    @Document.DocumentProperty public val response: AppFunctionResponseMetadataDocument?,
+    @Document.DocumentProperty val response: AppFunctionResponseMetadataDocument?,
     /** A description of the AppFunction and its intended use. */
-    @Document.StringProperty public val description: String? = null,
-)
+    @Document.StringProperty val description: String? = null,
+    /** Indicates whether the function is deprecated or not. */
+    @Document.DocumentProperty val deprecation: AppFunctionDeprecationMetadataDocument? = null,
+    /** The lifecycle scope of the AppFunction. */
+    @Document.StringProperty(name = android.app.appfunctions.AppFunctionMetadata.PROPERTY_SCOPE)
+    val scope: String? = null,
+) {
+    companion object {
+        const val SCHEMA_TYPE = "AppFunctionStaticMetadata"
+
+        fun getPackageFromSchemaName(schemaName: String): String? {
+            return when {
+                schemaName.startsWith("${SCHEMA_TYPE}-") -> {
+                    schemaName.substringAfter("${SCHEMA_TYPE}-")
+                }
+
+                schemaName.startsWith("${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-") -> {
+                    schemaName.substringAfter(
+                        "${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-"
+                    )
+                }
+
+                else -> null
+            }
+        }
+    }
+}

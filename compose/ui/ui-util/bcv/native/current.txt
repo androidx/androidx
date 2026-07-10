@@ -10,8 +10,8 @@ open annotation class androidx.compose.ui/ExperimentalComposeUiApi : kotlin/Anno
     constructor <init>() // androidx.compose.ui/ExperimentalComposeUiApi.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.compose.ui/ExperimentalIndirectTouchTypeApi : kotlin/Annotation { // androidx.compose.ui/ExperimentalIndirectTouchTypeApi|null[0]
-    constructor <init>() // androidx.compose.ui/ExperimentalIndirectTouchTypeApi.<init>|<init>(){}[0]
+open annotation class androidx.compose.ui/ExperimentalMediaQueryApi : kotlin/Annotation { // androidx.compose.ui/ExperimentalMediaQueryApi|null[0]
+    constructor <init>() // androidx.compose.ui/ExperimentalMediaQueryApi.<init>|<init>(){}[0]
 }
 
 open annotation class androidx.compose.ui/InternalComposeUiApi : kotlin/Annotation { // androidx.compose.ui/InternalComposeUiApi|null[0]

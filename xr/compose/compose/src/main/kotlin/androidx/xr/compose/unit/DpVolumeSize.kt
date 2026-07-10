@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
  * Represents the size of a volume in density-independent pixels ([Dp]).
  *
  * This class provides a convenient way to store and manipulate the [width], [height], and [depth]
- * of a 3D volume in Dp. It also provides methods to convert to and from [Dimensions] in meters.
+ * of a 3D volume in Dp. It also provides methods to convert to and from
+ * [androidx.xr.scenecore.runtime.Dimensions] in meters.
  *
  * @property width the size of the volume along the x dimension, in Dp.
  * @property height the size of the volume along the y dimension, in Dp.

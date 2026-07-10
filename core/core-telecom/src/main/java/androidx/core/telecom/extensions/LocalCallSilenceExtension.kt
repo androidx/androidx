@@ -16,8 +16,6 @@
 
 package androidx.core.telecom.extensions
 
-import androidx.core.telecom.util.ExperimentalAppActions
-
 /**
  * Add support for this remote surface to display information related to the local call silence
  * state for this call.
@@ -30,7 +28,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  *
  * @see ExtensionInitializationScope.addLocalCallSilenceExtension
  */
-@ExperimentalAppActions
 public interface LocalCallSilenceExtension {
     /**
      * Update all of the remote surfaces that the local call silence state of this call has changed.
@@ -38,4 +35,14 @@ public interface LocalCallSilenceExtension {
      * @param isSilenced The new local call silence state associated with this call.
      */
     public suspend fun updateIsLocallySilenced(isSilenced: Boolean)
+
+    /**
+     * Updates whether the user is allowed to change the silence state on remote surfaces. This
+     * should be set to 'false' when the user is in a state where audio input is disabled by the a
+     * moderator or the environment (e.g. hardware limitations).
+     *
+     * @param canUserUpdateSilence True if the user can toggle silence, false if the control should
+     *   be disabled.
+     */
+    public suspend fun updateCanUserUpdateSilence(canUserUpdateSilence: Boolean)
 }

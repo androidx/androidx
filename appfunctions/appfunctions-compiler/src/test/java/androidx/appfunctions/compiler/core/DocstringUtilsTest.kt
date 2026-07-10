@@ -42,6 +42,12 @@ class DocstringUtilsTest {
     }
 
     @Test
+    fun getPropertyDescriptionsFromKDoc_multipleTags() {
+        assertThat(getPropertyDescriptionsFromKDoc(MULTI_TAG_DOCSTRING))
+            .containsExactly("property", "description.")
+    }
+
+    @Test
     fun getParamDescriptionsFromKDoc_noParams() {
         assertThat(getParamDescriptionsFromKDoc(NO_PARAMS_DOCSTRING)).isEmpty()
     }
@@ -75,9 +81,10 @@ class DocstringUtilsTest {
         assertThat(sanitizeKDoc(CUSTOM_TAG_DOCSTRING))
             .isEqualTo(
                 """
-                    Fake docstring to test param descriptions.
-                    
-                    @customTag Custom tag content."""
+                Fake docstring to test param descriptions.
+
+                @customTag Custom tag content.
+                """
                     .trimIndent()
             )
     }

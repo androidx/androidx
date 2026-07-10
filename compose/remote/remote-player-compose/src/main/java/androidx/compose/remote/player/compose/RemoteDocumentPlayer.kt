@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.player.compose
 
+import androidx.activity.compose.LocalFullyDrawnReporterOwner
+import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.player.view.RemoteComposeDocument
-import androidx.compose.remote.player.view.state.StateUpdater
+import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.core.action.NamedActionHandler
+import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
+import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.remote.player.core.platform.TypefaceResolver
+import androidx.compose.remote.player.core.state.StateUpdater
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,21 +41,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.doOnPreDraw
 
 /** A player of a [CoreDocument] */
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteDocumentPlayer(
     document: CoreDocument,
     documentWidth: Int,
     documentHeight: Int,
     modifier: Modifier = Modifier,
     debugMode: Int = 0,
+    init: (RemoteComposePlayer) -> Unit = {},
+    update: (RemoteComposePlayer) -> Unit = {},
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    bitmapLoader: BitmapLoader? = null,
+    typefaceResolver: TypefaceResolver? = null,
 ) {
     var inDarkTheme by remember { mutableStateOf(false) }
     var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
 
-    val remoteDoc = remember(document) { RemoteComposeDocument(document) }
+    val remoteDoc = remember(document) { RemoteDocument(document) }
 
     inDarkTheme =
         when (AppCompatDelegate.getDefaultNightMode()) {
@@ -64,11 +84,57 @@ public fun RemoteDocumentPlayer(
             Theme.LIGHT
         }
 
-    RemoteComposePlayer(
-        document = remoteDoc,
-        modifier = modifier.size(documentWidth.dp, documentHeight.dp),
-        theme = playbackTheme,
-        debugMode = debugMode,
-        onNamedAction = onNamedAction,
+    val androidViewModifier =
+        modifier.then(
+            if (RemoteComposePlayerFlags.shouldPlayerWrapContentSize) {
+                // The modifier defaults to wrapContentSize, meaning the view will size itself to
+                // the content of the RemoteComposePlayer. However, this can be overridden by the
+                // external modifier provided to RemoteDocumentPlayer.
+                Modifier.wrapContentSize()
+            } else {
+                Modifier.size(documentWidth.dp, documentHeight.dp)
+            }
+        )
+    val fullyDrawnReporter = LocalFullyDrawnReporterOwner.current?.fullyDrawnReporter
+    DisposableEffect(fullyDrawnReporter) {
+        fullyDrawnReporter?.addReporter()
+        onDispose { fullyDrawnReporter?.removeReporter() }
+    }
+    AndroidView(
+        modifier = androidViewModifier,
+        factory = {
+            RemoteComposePlayer(it).apply {
+                doOnPreDraw { fullyDrawnReporter?.removeReporter() }
+                init(this)
+                bitmapLoader?.let(::setBitmapLoader)
+                typefaceResolver?.let(::setTypefaceResolver)
+            }
+        },
+        update = { remoteComposePlayer ->
+            remoteComposePlayer.setTheme(playbackTheme)
+            remoteComposePlayer.setDocument(remoteDoc)
+            remoteComposePlayer.setDebug(debugMode)
+            remoteComposePlayer.document.document.clearActionCallbacks()
+            remoteComposePlayer.document.document.addIdActionListener { id, value ->
+                onAction.invoke(id, value)
+            }
+            remoteComposePlayer.document.document.addActionCallback(
+                object :
+                    StateUpdaterActionCallback(
+                        remoteComposePlayer.stateUpdater,
+                        object : NamedActionHandler {
+                            override fun execute(
+                                name: String,
+                                value: Any?,
+                                stateUpdater: StateUpdater,
+                            ) {
+                                onNamedAction.invoke(name, value, stateUpdater)
+                            }
+                        },
+                    ) {}
+            )
+            // use
+            update(remoteComposePlayer)
+        },
     )
 }

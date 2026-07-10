@@ -5,10 +5,10 @@ package androidx.customview.poolingcontainer {
     method public static void addPoolingContainerListener(android.view.View, androidx.customview.poolingcontainer.PoolingContainerListener listener);
     method public static void callPoolingContainerOnRelease(android.view.View);
     method public static void callPoolingContainerOnReleaseForChildren(android.view.ViewGroup);
-    method public static boolean isPoolingContainer(android.view.View);
-    method public static boolean isWithinPoolingContainer(android.view.View);
+    method @InaccessibleFromKotlin public static boolean isPoolingContainer(android.view.View);
+    method @InaccessibleFromKotlin public static boolean isWithinPoolingContainer(android.view.View);
     method public static void removePoolingContainerListener(android.view.View, androidx.customview.poolingcontainer.PoolingContainerListener listener);
-    method public static void setPoolingContainer(android.view.View, boolean);
+    method @InaccessibleFromKotlin public static void setPoolingContainer(android.view.View, boolean);
     property public static boolean android.view.View.isPoolingContainer;
     property public static boolean android.view.View.isWithinPoolingContainer;
   }

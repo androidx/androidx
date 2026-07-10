@@ -17,20 +17,24 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.wear.compose.material3.test.R
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class NonClickableCardTest {
-    @get:Rule val rule: ComposeContentTestRule = createComposeRule()
+    @get:Rule val rule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun non_clickable_card_has_no_click_action() {
@@ -90,6 +94,43 @@ class NonClickableCardTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasNoClickAction()
+    }
+
+    @Test
+    fun non_clickable_app_card_provides_local_content_color_to_slots() {
+        var actualColor = Color.Unspecified
+        var expectedColor = Color.Unspecified
+        rule.setContentWithTheme {
+            val colors = CardDefaults.cardColors()
+            expectedColor = colors.contentColor
+            CompositionLocalProvider(LocalContentColor provides Color.Red) {
+                AppCard(
+                    appName = { Text("App") },
+                    title = { Text("Title") },
+                    appImage = { actualColor = LocalContentColor.current },
+                    modifier = Modifier.testTag(TEST_TAG),
+                ) {
+                    Text("Content")
+                }
+            }
+        }
+        assertEquals(expectedColor, actualColor)
+    }
+
+    @Test
+    fun non_clickable_title_card_provides_local_content_color_to_content() {
+        var actualColor = Color.Unspecified
+        var expectedColor = Color.Unspecified
+        rule.setContentWithTheme {
+            val colors = CardDefaults.cardColors()
+            expectedColor = colors.contentColor
+            CompositionLocalProvider(LocalContentColor provides Color.Red) {
+                TitleCard(title = { Text("Title") }, modifier = Modifier.testTag(TEST_TAG)) {
+                    actualColor = LocalContentColor.current
+                }
+            }
+        }
+        assertEquals(expectedColor, actualColor)
     }
 
     @Composable

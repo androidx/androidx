@@ -15,41 +15,40 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-    sourceSets {
-        String testUtilDir = 'src/testUtil/java'
-        test {
-            java.srcDir testUtilDir
-        }
-        androidTest {
-            java.srcDir testUtilDir
-        }
-    }
     namespace = "androidx.window"
+}
+
+androidComponents {
+    def testUtilDir = "src/testUtil/java"
+    onVariants(selector().all()) { variant ->
+        def unitTestSources = (variant as HasUnitTest).unitTest.sources
+        unitTestSources.java.addStaticSourceDirectory(testUtilDir)
+        unitTestSources.kotlin.addStaticSourceDirectory(testUtilDir)
+
+        def androidTestSources = (variant as HasAndroidTest).androidTest.sources
+        androidTestSources.java.addStaticSourceDirectory(testUtilDir)
+        androidTestSources.kotlin.addStaticSourceDirectory(testUtilDir)
+    }
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.collection:collection:1.4.2")
@@ -57,7 +56,8 @@ dependencies {
     implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
-    def extensions_version = "androidx.window.extensions:extensions:1.5.0"
+    def extensions_version = project(":window:extensions:extensions")
+    def sidecar_version = "androidx.window.sidecar:sidecar:1.0.0"
     // A compile only dependency on extensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)
@@ -68,7 +68,7 @@ dependencies {
     // transitively. The androidTestCompile is added because tests are not getting the dependency
     // transitively.
     androidTestCompileOnly(extensions_core_version)
-    compileOnly(project(":window:sidecar:sidecar"))
+    compileOnly(sidecar_version)
     compileOnly(extensions_version)
 
     testImplementation(libs.testCore)
@@ -79,7 +79,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(extensions_version)
-    testImplementation(compileOnly(project(":window:sidecar:sidecar")))
+    testImplementation(compileOnly(sidecar_version))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -94,8 +94,8 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(extensions_core_version)
-    androidTestImplementation(project(":window:sidecar:sidecar"))
-    androidTestImplementation(extensions_version)
+    androidTestImplementation(compileOnly(sidecar_version))
+    androidTestImplementation(compileOnly(extensions_version))
 }
 
 androidx {

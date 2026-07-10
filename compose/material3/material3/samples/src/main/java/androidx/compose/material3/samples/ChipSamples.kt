@@ -126,6 +126,31 @@ fun FilterChipSample() {
 @Preview
 @Sampled
 @Composable
+fun FilterChipWithCornerMorphingSample() {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Filter chip") },
+        shapes = FilterChipDefaults.shapes(),
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
 fun ElevatedFilterChipSample() {
     var selected by remember { mutableStateOf(false) }
     ElevatedFilterChip(
@@ -144,6 +169,44 @@ fun ElevatedFilterChipSample() {
             } else {
                 null
             },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun ElevatedFilterChipWithCornerMorphingSample() {
+    var selected by remember { mutableStateOf(false) }
+    ElevatedFilterChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Filter chip") },
+        shapes = FilterChipDefaults.shapes(),
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            },
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "Localized Description",
+                modifier = Modifier.size(FilterChipDefaults.IconSize),
+            )
+        },
     )
 }
 
@@ -180,6 +243,62 @@ fun FilterChipWithLeadingIconSample() {
 @Preview
 @Sampled
 @Composable
+fun FilterChipWithTrailingIconSample() {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Filter chip") },
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            },
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "Localized Description",
+                modifier = Modifier.size(FilterChipDefaults.IconSize),
+            )
+        },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun FilterChipWithCustomSpacingSample() {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Filter chip") },
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            },
+        horizontalArrangement = FilterChipDefaults.horizontalArrangement(4.dp),
+    )
+}
+
+@Preview
+@Sampled
+@Composable
 fun InputChipSample() {
     var selected by remember { mutableStateOf(false) }
     InputChip(
@@ -198,6 +317,26 @@ fun InputChipWithAvatarSample() {
         selected = selected,
         onClick = { selected = !selected },
         label = { Text("Input Chip") },
+        avatar = {
+            Icon(
+                Icons.Filled.Person,
+                contentDescription = "Localized description",
+                Modifier.size(InputChipDefaults.AvatarSize),
+            )
+        },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun InputChipWithCornerMorphingSample() {
+    var selected by remember { mutableStateOf(false) }
+    InputChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Input Chip") },
+        shapes = InputChipDefaults.shapes(),
         avatar = {
             Icon(
                 Icons.Filled.Person,

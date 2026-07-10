@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
+
 package androidx.wear.tiles.samples.tile
 
 import android.content.Context
@@ -22,16 +24,15 @@ import androidx.wear.protolayout.DimensionBuilders.dp
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.DimensionBuilders.weight
 import androidx.wear.protolayout.LayoutElementBuilders
-import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId
-import androidx.wear.protolayout.ResourceBuilders.ImageResource
-import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.TimelineBuilders.Timeline.fromLayoutElement
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32
 import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
 import androidx.wear.protolayout.expression.dynamicDataMapOf
 import androidx.wear.protolayout.expression.intAppDataKey
 import androidx.wear.protolayout.expression.mapTo
+import androidx.wear.protolayout.layout.androidImageResource
+import androidx.wear.protolayout.layout.imageResource
 import androidx.wear.protolayout.material3.AvatarButtonStyle.Companion.largeAvatarButtonStyle
 import androidx.wear.protolayout.material3.ButtonDefaults.filledVariantButtonColors
 import androidx.wear.protolayout.material3.CardColors
@@ -68,108 +69,54 @@ import androidx.wear.protolayout.modifiers.loadAction
 import androidx.wear.protolayout.types.LayoutString
 import androidx.wear.protolayout.types.asLayoutConstraint
 import androidx.wear.protolayout.types.layoutString
+import androidx.wear.tiles.Material3TileService
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
-import androidx.wear.tiles.TileService
 import androidx.wear.tiles.samples.R
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.wear.tiles.tile
 import kotlin.random.Random
 
-private const val RESOURCES_VERSION = "0"
-
 /** Base playground tile service for testing out features. */
-class PlaygroundTileService : TileService() {
-    override fun onTileResourcesRequest(
-        requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<ResourceBuilders.Resources> = resources()
-
-    override fun onTileRequest(
+class PlaygroundTileService : Material3TileService() {
+    override suspend fun MaterialScope.tileResponse(
         requestParams: RequestBuilders.TileRequest
-    ): ListenableFuture<TileBuilders.Tile> = tile(requestParams, this)
+    ): TileBuilders.Tile = tile(timeline = fromLayoutElement(tileLayout()))
 }
-
-private const val AVATAR_ID = "id"
-private const val ICON_ID = "icon"
-
-private fun resources() =
-    Futures.immediateFuture(
-        ResourceBuilders.Resources.Builder()
-            .addIdToImageMapping(
-                AVATAR_ID,
-                ImageResource.Builder()
-                    .setAndroidResourceByResId(
-                        AndroidImageResourceByResId.Builder()
-                            .setResourceId(R.drawable.avatar)
-                            .build()
-                    )
-                    .build(),
-            )
-            .addIdToImageMapping(
-                ICON_ID,
-                ImageResource.Builder()
-                    .setAndroidResourceByResId(
-                        AndroidImageResourceByResId.Builder()
-                            .setResourceId(R.drawable.baseline_blender_24)
-                            .build()
-                    )
-                    .build(),
-            )
-            .setVersion(RESOURCES_VERSION)
-            .build()
-    )
-
-private fun tile(
-    requestParams: RequestBuilders.TileRequest,
-    context: Context,
-): ListenableFuture<TileBuilders.Tile> =
-    Futures.immediateFuture(
-        TileBuilders.Tile.Builder()
-            .setResourcesVersion(RESOURCES_VERSION)
-            .setTileTimeline(
-                TimelineBuilders.Timeline.fromLayoutElement(tileLayout(requestParams, context))
-            )
-            .build()
-    )
 
 private fun getFooValue(): Int = Random.nextInt(1000)
 
-private fun tileLayout(
-    requestParams: RequestBuilders.TileRequest,
-    context: Context,
-): LayoutElementBuilders.LayoutElement =
-    materialScope(context = context, deviceConfiguration = requestParams.deviceConfiguration) {
-        val fooKey = intAppDataKey("foo")
-        val dynamicFooValue = DynamicInt32.from(fooKey).format()
-        primaryLayout(
-            mainSlot = { graphicDataCardSample() },
-            margins = MAX_PRIMARY_LAYOUT_MARGIN,
-            titleSlot = { text("Title".layoutString) },
-            bottomSlot = {
-                textEdgeButton(
-                    onClick =
-                        clickable(
-                            action = loadAction(dynamicDataMapOf(fooKey mapTo getFooValue()))
-                        ),
-                    modifier = LayoutModifier.contentDescription("EdgeButton"),
-                ) {
-                    text(
-                        LayoutString(
-                            staticValue = "Edge ---",
-                            dynamicValue = dynamicFooValue,
-                            "999".asLayoutConstraint(),
-                        )
+private fun MaterialScope.tileLayout(): LayoutElementBuilders.LayoutElement {
+    val fooKey = intAppDataKey("foo")
+    val dynamicFooValue = DynamicInt32.from(fooKey).format()
+    return primaryLayout(
+        mainSlot = { graphicDataCardSample() },
+        margins = MAX_PRIMARY_LAYOUT_MARGIN,
+        titleSlot = { text("Title".layoutString) },
+        bottomSlot = {
+            textEdgeButton(
+                onClick =
+                    clickable(action = loadAction(dynamicDataMapOf(fooKey mapTo getFooValue()))),
+                modifier = LayoutModifier.contentDescription("EdgeButton"),
+            ) {
+                text(
+                    LayoutString(
+                        staticValue = "Edge ---",
+                        dynamicValue = dynamicFooValue,
+                        "999".asLayoutConstraint(),
                     )
-                }
-            },
-        )
-    }
+                )
+            }
+        },
+    )
+}
 
 private fun MaterialScope.avatarButtonSample() =
     avatarButton(
         onClick = clickable(),
         modifier = LayoutModifier.contentDescription("Avatar button"),
-        avatarContent = { avatarImage(AVATAR_ID) },
+        avatarContent = {
+            avatarImage(resource = imageResource(androidImageResource(R.drawable.avatar)))
+        },
         style = largeAvatarButtonStyle(),
         horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_END,
         labelContent = { text("Primary label overflowing".layoutString) },
@@ -181,7 +128,9 @@ private fun MaterialScope.pillShapeButton() =
         onClick = clickable(),
         modifier = LayoutModifier.contentDescription("Pill button"),
         width = expand(),
-        iconContent = { icon(ICON_ID) },
+        iconContent = {
+            icon(resource = imageResource(androidImageResource(R.drawable.baseline_blender_24)))
+        },
         labelContent = { text("Primary label".layoutString) },
         secondaryLabelContent = { text("Secondary label".layoutString) },
     )
@@ -191,7 +140,9 @@ private fun MaterialScope.compactShapeButton() =
         onClick = clickable(),
         modifier = LayoutModifier.contentDescription("Compact button"),
         width = expand(),
-        iconContent = { icon(ICON_ID) },
+        iconContent = {
+            icon(resource = imageResource(androidImageResource(R.drawable.baseline_blender_24)))
+        },
         labelContent = { text("Overflowing compact button".layoutString) },
     )
 
@@ -202,7 +153,9 @@ private fun MaterialScope.oneSlotButtons() = buttonGroup {
             modifier = LayoutModifier.contentDescription("Icon button"),
             width = expand(),
             height = expand(),
-            iconContent = { icon(ICON_ID) },
+            iconContent = {
+                icon(resource = imageResource(androidImageResource(R.drawable.baseline_blender_24)))
+            },
         )
     }
     buttonGroupItem {
@@ -212,7 +165,9 @@ private fun MaterialScope.oneSlotButtons() = buttonGroup {
             width = expand(),
             height = expand(),
             shape = shapes.none,
-            iconContent = { icon(ICON_ID) },
+            iconContent = {
+                icon(resource = imageResource(androidImageResource(R.drawable.baseline_blender_24)))
+            },
         )
     }
     buttonGroupItem {
@@ -243,7 +198,7 @@ private fun MaterialScope.appCardSample() =
         title = { text("Title Card!".layoutString, maxLines = 1) },
         content = { text("Content of this Card!".layoutString, maxLines = 1) },
         label = { text("Hello and welcome Tiles in AndroidX!".layoutString) },
-        avatar = { avatarImage(AVATAR_ID) },
+        avatar = { avatarImage(resource = imageResource(androidImageResource(R.drawable.avatar))) },
         time = { text("NOW".layoutString) },
     )
 
@@ -265,7 +220,12 @@ private fun MaterialScope.graphicDataCardSample() =
                         dynamicProgress = DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
                     )
                 },
-                iconContent = { icon(ICON_ID) },
+                iconContent = {
+                    icon(
+                        resource =
+                            imageResource(androidImageResource(R.drawable.baseline_blender_24))
+                    )
+                },
             )
         },
     )
@@ -309,7 +269,7 @@ private fun MaterialScope.dataCards() = buttonGroup {
             colors = filledTonalCardColors(),
             style = extraLargeDataCardStyle(),
             title = { this.text("1km".layoutString) },
-            secondaryText = { this.text(AVATAR_ID.layoutString) },
+            secondaryText = { this.text("id".layoutString) },
             content = { this.text("Run".layoutString) },
         )
     }

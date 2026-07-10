@@ -42,6 +42,7 @@ import java.util.UUID
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
@@ -51,6 +52,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class JpegBytes2DiskTest {
 
     private val operation = JpegBytes2Disk()

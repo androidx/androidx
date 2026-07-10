@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("HighSpeedVideoSessionConfigKt")
+
 package androidx.camera.video
 
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.util.Range
+import androidx.annotation.NonNull
+import androidx.annotation.Nullable
 import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -52,7 +56,9 @@ import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
  * - [videoCapture] and [preview] must not have their target frame rates set explicitly.
  * - [videoCapture] must not have its mirror mode set.
  * - If [preview] is present, its resolution selector, target resolution and target aspect ratio
- *   must not be set. [preview] will get the same resolution as [videoCapture].
+ *   must not be set. [preview] will get the same resolution as [videoCapture]. Note that the
+ *   preview stream will not operate at the high frame rate as [VideoCapture]; instead, it is
+ *   typically limited to at least 30 FPS by the camera system to ensure a smooth display.
  * - [ViewPort] and [CameraEffect] are not supported.
  *
  * Recording a high-speed video follows the same process as recording a regular video. This involves
@@ -85,23 +91,54 @@ import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
  *   with a specific [HighSpeedVideoSessionConfig], or an [IllegalArgumentException] will be thrown
  *   when binding to lifecycle.
  * @property isSlowMotionEnabled Whether to apply slow-motion effects to the recorded video.
- * @throws IllegalArgumentException if any of the constraints are violated.
  * @See androidx.camera.lifecycle.ProcessCameraProvider.bindToLifecycle
  * @See Recorder.getHighSpeedVideoCapabilities
  */
-@ExperimentalHighSpeedVideo
-@OptIn(ExperimentalSessionConfig::class)
 public class HighSpeedVideoSessionConfig
-@JvmOverloads
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     public val videoCapture: VideoCapture<*>,
     public val preview: Preview? = null,
     frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
     public val isSlowMotionEnabled: Boolean = false,
-) : SessionConfig(listOfNotNull(videoCapture, preview), frameRateRange = frameRateRange) {
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    public override val sessionType: Int = SESSION_TYPE_HIGH_SPEED
+    /**
+     * Whether to use auto rotation. When enabled, CameraX will monitor the device motion sensor and
+     * set the target rotation for [videoCapture].
+     *
+     * @see HighSpeedVideoSessionConfig.Builder.setAutoRotationEnabled
+     */
+    isAutoRotationEnabled: Boolean = false,
+) :
+    SessionConfig(
+        listOfNotNull(videoCapture, preview),
+        frameRateRange = frameRateRange,
+        isAutoRotationEnabled = isAutoRotationEnabled,
+        sessionType = SESSION_TYPE_HIGH_SPEED,
+    ) {
+    /**
+     * Creates a [HighSpeedVideoSessionConfig] from the given parameters.
+     *
+     * @param videoCapture The [VideoCapture] use case for video recording.
+     * @param preview Optional [Preview] use case for displaying a preview during recording.
+     * @param frameRateRange The desired frame rate range for high-speed video recording. The value
+     *   must be one of the supported frame rates queried by
+     *   [CameraInfo.getSupportedFrameRateRanges] with a specific [HighSpeedVideoSessionConfig], or
+     *   an [IllegalArgumentException] will be thrown when binding to lifecycle.
+     * @param isSlowMotionEnabled Whether to apply slow-motion effects to the recorded video.
+     */
+    @JvmOverloads
+    public constructor(
+        videoCapture: VideoCapture<*>,
+        preview: Preview? = null,
+        frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
+        isSlowMotionEnabled: Boolean = false,
+    ) : this(
+        videoCapture,
+        preview,
+        frameRateRange,
+        isSlowMotionEnabled,
+        isAutoRotationEnabled = false,
+    )
 
     /**
      * Builder for [HighSpeedVideoSessionConfig]
@@ -109,19 +146,75 @@ constructor(
      * @param videoCapture The [VideoCapture] use case for video recording.
      */
     public class Builder(private val videoCapture: VideoCapture<*>) {
-        private var preview: Preview? = null
-        private var frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED
-        private var isSlowMotionEnabled: Boolean = false
+        private var _preview: Preview? = null
+
+        /** The [Preview] use case for displaying a preview during recording. */
+        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
+        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
+        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
+        @get:Nullable
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        public var preview: Preview?
+            get() = _preview
+            set(value) {
+                _preview = value
+            }
+
+        private var _frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED
+
+        /** The desired frame rate range for high-speed video recording. */
+        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
+        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
+        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
+        @get:NonNull
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        public var frameRateRange: Range<Int>
+            get() = _frameRateRange
+            set(value) {
+                _frameRateRange = value
+            }
+
+        private var _isSlowMotionEnabled: Boolean = false
+
+        /** Whether to apply slow-motion effects to the recorded video. */
+        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
+        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
+        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
+        @get:NonNull
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        public var isSlowMotionEnabled: Boolean
+            get() = _isSlowMotionEnabled
+            set(value) {
+                _isSlowMotionEnabled = value
+            }
+
+        private var _isAutoRotationEnabled: Boolean = false
+
+        /** Whether to use auto rotation. */
+        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
+        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
+        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
+        @get:NonNull
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        public var isAutoRotationEnabled: Boolean
+            get() = _isAutoRotationEnabled
+            set(value) {
+                _isAutoRotationEnabled = value
+            }
 
         /** Sets the [Preview] use case for displaying a preview during recording. */
         public fun setPreview(preview: Preview?): Builder {
-            this.preview = preview
+            this._preview = preview
             return this
         }
 
         /** Sets whether to apply slow-motion effects to the recorded video. */
         public fun setSlowMotionEnabled(enabled: Boolean): Builder {
-            isSlowMotionEnabled = enabled
+            _isSlowMotionEnabled = enabled
             return this
         }
 
@@ -131,7 +224,18 @@ constructor(
          * See [HighSpeedVideoSessionConfig.frameRateRange] for more details.
          */
         public fun setFrameRateRange(frameRateRange: Range<Int>): Builder {
-            this.frameRateRange = frameRateRange
+            this._frameRateRange = frameRateRange
+            return this
+        }
+
+        /**
+         * Sets whether to use auto rotation.
+         *
+         * When enabled, CameraX will monitor the device motion sensor and set the target rotation
+         * for VideoCapture.
+         */
+        public fun setAutoRotationEnabled(autoRotationEnabled: Boolean): Builder {
+            this._isAutoRotationEnabled = autoRotationEnabled
             return this
         }
 
@@ -139,9 +243,10 @@ constructor(
         public fun build(): HighSpeedVideoSessionConfig {
             return HighSpeedVideoSessionConfig(
                 videoCapture = videoCapture,
-                preview = preview,
-                frameRateRange = frameRateRange,
-                isSlowMotionEnabled = isSlowMotionEnabled,
+                preview = _preview,
+                frameRateRange = _frameRateRange,
+                isSlowMotionEnabled = _isSlowMotionEnabled,
+                isAutoRotationEnabled = _isAutoRotationEnabled,
             )
         }
     }
@@ -152,6 +257,17 @@ constructor(
         if (isSlowMotionEnabled) {
             (videoCapture.output as Recorder).videoEncodingFrameRate = SLOW_MOTION_ENCODE_FRAME_RATE
         }
+    }
+
+    override fun toString(): String {
+        return "HighSpeedVideoSessionConfig@" +
+            "${Integer.toHexString(System.identityHashCode(this))} {" +
+            "videoCapture=$videoCapture, " +
+            "preview=$preview, " +
+            "frameRateRange=$frameRateRange, " +
+            "isSlowMotionEnabled=$isSlowMotionEnabled, " +
+            "isAutoRotationEnabled=$isAutoRotationEnabled" +
+            "}"
     }
 
     private fun validateSettingsOrThrow(videoCapture: VideoCapture<*>, preview: Preview?) {
@@ -188,3 +304,24 @@ constructor(
         private const val SLOW_MOTION_ENCODE_FRAME_RATE = 30
     }
 }
+
+/**
+ * Creates a [HighSpeedVideoSessionConfig] using a Kotlin DSL.
+ *
+ * Example usage:
+ * ```
+ * val highSpeedConfig = highSpeedVideoSessionConfig(videoCapture) {
+ *     isAutoRotationEnabled = true
+ *     preview = preview
+ * }
+ * ```
+ *
+ * @param videoCapture The [VideoCapture] use case for video recording.
+ * @param block A lambda to configure the [HighSpeedVideoSessionConfig.Builder].
+ */
+@JvmSynthetic
+public inline fun highSpeedVideoSessionConfig(
+    videoCapture: VideoCapture<*>,
+    crossinline block: HighSpeedVideoSessionConfig.Builder.() -> Unit,
+): HighSpeedVideoSessionConfig =
+    HighSpeedVideoSessionConfig.Builder(videoCapture).apply(block).build()

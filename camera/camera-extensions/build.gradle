@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,7 +25,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -36,19 +34,17 @@ dependencies {
     api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.lifecycle:lifecycle-common:2.3.1")
     implementation(libs.androidx.annotation)
     annotationProcessor(libs.autoValue)
 
-    compileOnly(project(":camera:camera-extensions-stub"))
-
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
-    testImplementation(project(":camera:camera-extensions-stub"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -59,12 +55,10 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
-    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
@@ -72,9 +66,7 @@ dependencies {
     }
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":camera:camera-testlib-extensions"))
-    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.junit)
@@ -84,12 +76,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
-
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
+    compileSdk { version = release(36) }
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
@@ -100,6 +87,7 @@ android {
 androidx {
     name = "Camera Extensions"
     type = SoftwareType.PUBLISHED_LIBRARY
+    samples(project(":camera:camera-extensions:camera-extensions-samples"))
     inceptionYear = "2019"
     description = "OEM Extensions for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."

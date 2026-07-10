@@ -37,6 +37,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class ConfigTest {
     private static final String OPTION_ID = "OptionID";
     private static final String KEY = "Key";

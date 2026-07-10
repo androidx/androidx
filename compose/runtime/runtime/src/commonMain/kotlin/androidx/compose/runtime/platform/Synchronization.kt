@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.platform
 
-internal expect class SynchronizedObject
+@PublishedApi internal expect class SynchronizedObject
 
 /**
  * Returns [ref] as a [SynchronizedObject] on platforms where [Any] is a valid [SynchronizedObject],

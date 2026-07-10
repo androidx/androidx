@@ -112,66 +112,6 @@ class VideoEncoderConfigDefaultResolverTest {
     }
 
     @Test
-    fun bitrateRangeInVideoSpecClampsBitrate() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
-        val surfaceSize720p = EncoderProfilesUtil.RESOLUTION_720P
-
-        // Get default bit rate for this size
-        val defaultConfig =
-            VideoEncoderConfigDefaultResolver(
-                    DEFAULT_MIME_TYPE,
-                    TIMEBASE,
-                    DEFAULT_VIDEO_SPEC,
-                    surfaceSize720p,
-                    DynamicRange.SDR,
-                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
-                )
-                .get()
-        val defaultBitrate = defaultConfig.bitrate
-
-        // Create video spec with limit 20% higher than default.
-        val higherBitrate = (defaultBitrate * 1.2).toInt()
-        val higherVideoSpec =
-            VideoSpec.builder().setBitrate(Range(higherBitrate, Int.MAX_VALUE)).build()
-
-        // Create video spec with limit 20% lower than default.
-        val lowerBitrate = (defaultBitrate * 0.8).toInt()
-        val lowerVideoSpec = VideoSpec.builder().setBitrate(Range(0, lowerBitrate)).build()
-
-        assertThat(
-                VideoEncoderConfigDefaultResolver(
-                        DEFAULT_MIME_TYPE,
-                        TIMEBASE,
-                        higherVideoSpec,
-                        surfaceSize720p,
-                        DynamicRange.SDR,
-                        SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
-                    )
-                    .get()
-                    .bitrate
-            )
-            .isEqualTo(higherBitrate)
-
-        assertThat(
-                VideoEncoderConfigDefaultResolver(
-                        DEFAULT_MIME_TYPE,
-                        TIMEBASE,
-                        lowerVideoSpec,
-                        surfaceSize720p,
-                        DynamicRange.SDR,
-                        SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
-                    )
-                    .get()
-                    .bitrate
-            )
-            .isEqualTo(lowerBitrate)
-    }
-
-    @Test
     fun frameRateIsDefault_whenNoExpectedRangeProvided() {
         // Skip for b/264902324
         assumeFalse(
@@ -273,7 +213,7 @@ class VideoEncoderConfigDefaultResolverTest {
         )
         val dynamicRangeToExpectedProfiles =
             mapOf(
-                DynamicRange.SDR to CodecProfileLevel.HEVCProfileMain,
+                DynamicRange.SDR to EncoderProfilesProxy.CODEC_PROFILE_NONE,
                 DynamicRange.HLG_10_BIT to CodecProfileLevel.HEVCProfileMain10,
                 DynamicRange.HDR10_10_BIT to CodecProfileLevel.HEVCProfileMain10HDR10,
                 DynamicRange.HDR10_PLUS_10_BIT to CodecProfileLevel.HEVCProfileMain10HDR10Plus,
@@ -305,7 +245,7 @@ class VideoEncoderConfigDefaultResolverTest {
 
         for (entry in dynamicRangeToExpectedProfiles) {
             testMimeAndDynamicRangeResolveToProfile(
-                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                MediaFormat.MIMETYPE_VIDEO_AV1,
                 entry.key,
                 entry.value,
             )

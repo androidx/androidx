@@ -548,7 +548,7 @@ package androidx.wear.tiles {
     method @Deprecated public int getValue();
   }
 
-  @Deprecated public static final class LayoutElementBuilders.FontVariantProp.Builder {
+  @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp.Builder {
     ctor @Deprecated public LayoutElementBuilders.FontVariantProp.Builder();
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp build();
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp.Builder setValue(int);
@@ -778,6 +778,19 @@ package androidx.wear.tiles {
     ctor @Deprecated public LayoutElementBuilders.VerticalAlignmentProp.Builder();
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp build();
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
+  }
+
+  public abstract class Material3TileService extends androidx.wear.tiles.TileService {
+    ctor public Material3TileService();
+    ctor public Material3TileService(optional boolean allowDynamicTheme);
+    ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme);
+    ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme, optional kotlinx.coroutines.CoroutineScope? serviceScope);
+    ctor @BytecodeOnly public Material3TileService(boolean, androidx.wear.protolayout.material3.ColorScheme!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent requestParams);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void onTileLeaveEvent(androidx.wear.tiles.EventBuilders.TileLeaveEvent requestParams);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method protected abstract suspend Object? tileResponse(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.tiles.RequestBuilders.TileRequest requestParams, kotlin.coroutines.Continuation<? super androidx.wear.tiles.TileBuilders.Tile>);
   }
 
   @Deprecated public final class ModifiersBuilders {
@@ -1043,6 +1056,17 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
+  public final class TileKt {
+    method @KotlinOnly public static androidx.wear.tiles.TileBuilders.Tile tile(androidx.wear.protolayout.TimelineBuilders.Timeline timeline, optional kotlin.time.Duration? freshness, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.StateBuilders.State? state, optional String? resourcesVersion);
+    method @BytecodeOnly public static androidx.wear.tiles.TileBuilders.Tile tile-hhJSO8g(androidx.wear.protolayout.TimelineBuilders.Timeline, kotlin.time.Duration?, @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.StateBuilders.State?, String?);
+    method @BytecodeOnly public static androidx.wear.tiles.TileBuilders.Tile! tile-hhJSO8g$default(androidx.wear.protolayout.TimelineBuilders.Timeline!, kotlin.time.Duration!, androidx.wear.protolayout.StateBuilders.State!, String!, int, Object!);
+    method @KotlinOnly public static androidx.wear.protolayout.TimelineBuilders.TimeInterval timeInterval(kotlin.time.Duration start, kotlin.time.Duration end);
+    method @BytecodeOnly public static androidx.wear.protolayout.TimelineBuilders.TimeInterval timeInterval-QTBD994(long, long);
+    method public static androidx.wear.protolayout.TimelineBuilders.Timeline timeline(androidx.wear.protolayout.TimelineBuilders.TimelineEntry... entries);
+    method public static androidx.wear.protolayout.TimelineBuilders.TimelineEntry timelineEntry(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement layout, optional androidx.wear.protolayout.TimelineBuilders.TimeInterval? validity);
+    method @BytecodeOnly public static androidx.wear.protolayout.TimelineBuilders.TimelineEntry! timelineEntry$default(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement!, androidx.wear.protolayout.TimelineBuilders.TimeInterval!, int, Object!);
+  }
+
   public abstract class TileService extends android.app.Service {
     ctor public TileService();
     method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor);
@@ -1058,7 +1082,10 @@ package androidx.wear.tiles {
     method @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources!> onTileResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
+    field public static final String METADATA_GROUP_KEY = "androidx.wear.tiles.GROUP";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
+    field public static final String METADATA_SCHEMA_MAJOR_VERSION_KEY = "tiles_schema_major_version";
+    field public static final String METADATA_SCHEMA_MINOR_VERSION_KEY = "tiles_schema_minor_version";
   }
 
   public interface TileUpdateRequester {

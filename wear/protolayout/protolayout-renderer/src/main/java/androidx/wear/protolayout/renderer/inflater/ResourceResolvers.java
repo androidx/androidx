@@ -288,7 +288,7 @@ public class ResourceResolvers {
             if (drawable != null) {
                 return Futures.immediateFuture(drawable);
             }
-        } catch (ResourceAccessException e) {
+        } catch (ResourceAccessException | RuntimeException e) {
             return Futures.immediateFailedFuture(e);
         }
 

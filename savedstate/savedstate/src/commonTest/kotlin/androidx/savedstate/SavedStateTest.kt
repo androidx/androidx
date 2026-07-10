@@ -19,6 +19,8 @@ package androidx.savedstate
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.Test
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 
 @IgnoreWebTarget
 internal class SavedStateTest : RobolectricTest() {
@@ -1436,6 +1438,66 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     // endregion
+
+    // region Kotlin Serialization
+    @Test
+    fun getKotlinSerializable_whenSet_returnsValue() {
+        val expected = TestUser(id = 42, name = "Alice")
+
+        val underTest = savedState {
+            // Testing the reified inline function
+            putKotlinSerializable(KEY_1, expected)
+        }
+
+        val actual =
+            underTest.read {
+                // Testing the reified inline function
+                getKotlinSerializable<TestUser>(KEY_1)
+            }
+
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun getKotlinSerializable_withExplicitSerializer_whenSet_returnsValue() {
+        val expected = TestUser(id = 99, name = "Bob")
+        val serializer = serializer<TestUser>()
+
+        val underTest = savedState { putKotlinSerializable(serializer, KEY_1, expected) }
+
+        val actual = underTest.read { getKotlinSerializable(serializer, KEY_1) }
+
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun getKotlinSerializable_whenNotSet_throws() {
+        assertThrows<IllegalArgumentException> {
+            savedState().read { getKotlinSerializable<TestUser>(KEY_1) }
+        }
+    }
+
+    @Test
+    fun getKotlinSerializable_whenSet_differentType_throws() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+
+        assertThrows<IllegalArgumentException> {
+            underTest.read { getKotlinSerializable<TestUser>(KEY_1) }
+        }
+    }
+
+    @Test
+    fun getKotlinSerializable_whenSetNull_throws() {
+        val underTest = savedState { putNull(KEY_1) }
+
+        assertThrows<IllegalArgumentException> {
+            underTest.read { getKotlinSerializable<TestUser>(KEY_1) }
+        }
+    }
+
+    // endregion
+
+    @Serializable private data class TestUser(val id: Int, val name: String)
 
     private companion object TestUtils {
         const val KEY_1 = "KEY_1"

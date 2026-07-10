@@ -19,7 +19,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -32,11 +31,13 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinStdlib)
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     namespace = "androidx.recyclerview.benchmark"
 }
 

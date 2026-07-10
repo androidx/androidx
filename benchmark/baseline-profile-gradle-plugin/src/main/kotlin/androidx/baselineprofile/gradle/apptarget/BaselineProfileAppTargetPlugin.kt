@@ -277,6 +277,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
 
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
+            supportsDirectories = supportsFeature(AgpFeature.DIRECTORYSET_HAS_DIRECTORIES),
             extensionSourceSets = extension.sourceSets,
             fromToMapping = baselineProfileExtendedToOriginalTypeMap,
         )
@@ -336,6 +337,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
 
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
+            supportsDirectories = supportsFeature(AgpFeature.DIRECTORYSET_HAS_DIRECTORIES),
             extensionSourceSets = extension.sourceSets,
             fromToMapping = baselineProfileExtendedToOriginalTypeMap,
         )
@@ -387,6 +389,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
 
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
+            supportsDirectories = supportsFeature(AgpFeature.DIRECTORYSET_HAS_DIRECTORIES),
             extensionSourceSets = extension.sourceSets,
             fromToMapping = benchmarkExtendedToOriginalTypeMap,
         )

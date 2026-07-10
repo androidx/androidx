@@ -81,7 +81,9 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.mId = mIdConv;
     document.mCreationTimestampMillis = mCreationTimestampMillisConv;
     document.mScore = mScoreConv;
-    document.setTtlMillis(mTtlMillisConv);
+    if (mTtlMillisConv != null) {
+      document.setTtlMillis(mTtlMillisConv);
+    }
     document.mString = mStringConv;
     return document;
   }

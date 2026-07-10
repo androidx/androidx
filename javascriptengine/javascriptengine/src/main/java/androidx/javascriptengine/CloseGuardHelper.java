@@ -19,9 +19,10 @@ package androidx.javascriptengine;
 import android.os.Build;
 import android.util.CloseGuard;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Helper for accessing CloseGuard on API levels that support it.

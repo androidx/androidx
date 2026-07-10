@@ -16,14 +16,11 @@
 
 package androidx.credentials.providerevents.exception
 
-import androidx.annotation.RestrictTo
-
 /**
  * During the import credentials flow, this is thrown when a user intentionally cancels an
  * operation. When this happens, the application should handle logic accordingly, typically
- * indicates that the user does not want to see Provider Manager anymore.
+ * indicates that the user does not want to see the provider selector UI anymore.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImportCredentialsCancellationException(errorMessage: String? = null) :
     ImportCredentialsException(TYPE_IMPORT_CREDENTIALS_CANCELLATION_EXCEPTION, errorMessage) {
     internal companion object {

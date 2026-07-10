@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.camera.camera2.pipe.compat
+
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
@@ -21,7 +23,7 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraColorSpaceProfiles
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * Implementation of the color space profile interface using Camera2 library.
@@ -31,20 +33,22 @@ import kotlin.reflect.KClass
 internal class Camera2StreamConfigurationMap(
     private val streamConfigurationMap: StreamConfigurationMap
 ) : CameraStreamConfigurationMap {
-    override fun getOutputFormats(): IntArray {
-        return streamConfigurationMap.outputFormats
+    override fun getOutputFormats(): List<StreamFormat> {
+        return streamConfigurationMap.outputFormats.map { StreamFormat(it) }
     }
 
-    override fun getValidOutputFormatsForInput(inputFormat: StreamFormat): IntArray {
-        return streamConfigurationMap.getValidOutputFormatsForInput(inputFormat.value)
+    override fun getValidOutputFormatsForInput(inputFormat: StreamFormat): List<StreamFormat> {
+        return streamConfigurationMap.getValidOutputFormatsForInput(inputFormat.value).map {
+            StreamFormat(it)
+        }
     }
 
-    override fun getInputFormats(): IntArray {
-        return streamConfigurationMap.inputFormats
+    override fun getInputFormats(): List<StreamFormat> {
+        return streamConfigurationMap.inputFormats.map { StreamFormat(it) }
     }
 
-    override fun getInputSizes(format: StreamFormat): Array<Size> {
-        return streamConfigurationMap.getInputSizes(format.value) ?: emptyArray()
+    override fun getInputSizes(format: StreamFormat): List<Size> {
+        return streamConfigurationMap.getInputSizes(format.value)?.toList<Size>() ?: emptyList()
     }
 
     override fun isOutputSupportedFor(format: StreamFormat): Boolean {
@@ -59,32 +63,33 @@ internal class Camera2StreamConfigurationMap(
         return streamConfigurationMap.isOutputSupportedFor(surface)
     }
 
-    override fun <T> getOutputSizes(klass: Class<T>): Array<Size> {
-        return streamConfigurationMap.getOutputSizes(klass) ?: emptyArray()
+    override fun <T> getOutputSizes(klass: Class<T>): List<Size> {
+        return streamConfigurationMap.getOutputSizes(klass)?.toList() ?: emptyList()
     }
 
-    override fun getOutputSizes(format: StreamFormat): Array<Size> {
-        return streamConfigurationMap.getOutputSizes(format.value) ?: emptyArray()
+    override fun getOutputSizes(format: StreamFormat): List<Size> {
+        return streamConfigurationMap.getOutputSizes(format.value)?.toList() ?: emptyList()
     }
 
-    override fun getHighSpeedVideoSizes(): Array<Size> {
-        return streamConfigurationMap.highSpeedVideoSizes
+    override fun getHighSpeedVideoSizes(): List<Size> {
+        return streamConfigurationMap.highSpeedVideoSizes.toList()
     }
 
-    override fun getHighSpeedVideoFpsRangesFor(size: Size): Array<Range<Int>> {
-        return streamConfigurationMap.getHighSpeedVideoFpsRangesFor(size)
+    override fun getHighSpeedVideoFpsRangesFor(size: Size): List<Range<Int>> {
+        return streamConfigurationMap.getHighSpeedVideoFpsRangesFor(size)?.toList() ?: emptyList()
     }
 
-    override fun getHighSpeedVideoFpsRanges(): Array<Range<Int>> {
-        return streamConfigurationMap.highSpeedVideoFpsRanges
+    override fun getHighSpeedVideoFpsRanges(): List<Range<Int>> {
+        return streamConfigurationMap.highSpeedVideoFpsRanges.toList()
     }
 
-    override fun getHighSpeedVideoSizesFor(fpsRange: Range<Int>): Array<Size> {
-        return streamConfigurationMap.getHighSpeedVideoSizesFor(fpsRange)
+    override fun getHighSpeedVideoSizesFor(fpsRange: Range<Int>): List<Size> {
+        return streamConfigurationMap.getHighSpeedVideoSizesFor(fpsRange).toList()
     }
 
-    override fun getHighResolutionOutputSizes(format: StreamFormat): Array<Size> {
-        return streamConfigurationMap.getHighResolutionOutputSizes(format.value) ?: emptyArray()
+    override fun getHighResolutionOutputSizes(format: StreamFormat): List<Size> {
+        return streamConfigurationMap.getHighResolutionOutputSizes(format.value)?.toList()
+            ?: emptyList()
     }
 
     override fun getOutputMinFrameDuration(format: StreamFormat, size: Size): Long {
@@ -104,9 +109,10 @@ internal class Camera2StreamConfigurationMap(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
         return when (type) {
-            StreamConfigurationMap::class -> streamConfigurationMap as T
+            StreamConfigurationMap::class.java -> streamConfigurationMap as T
+            Camera2StreamConfigurationMap::class.java -> this as T
             else -> null
         }
     }

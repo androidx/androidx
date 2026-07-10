@@ -24,7 +24,7 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
-    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ComparableSubject<ComparableT> to androidx.kruth.ComparableSubject<T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<T>):
     Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.GuavaOptionalSubject to androidx.kruth.GuavaOptionalSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<K,V>):

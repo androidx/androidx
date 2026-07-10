@@ -16,6 +16,8 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.intListOf
+import androidx.collection.mutableIntListOf
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -119,6 +121,218 @@ class SnapshotFlowTests {
         yield()
 
         assertEquals(listOf(1, 2, 1, 2), results)
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun sharingOneSnapshotFlowManager_watchingSameStateObject() = runTest {
+        val state = mutableStateOf(false)
+
+        val manager = SnapshotFlowManager()
+
+        val result1 = mutableListOf<Boolean>()
+        val collector1 =
+            snapshotFlow(manager) { state.value }.onEach { result1.add(it) }.launchIn(this)
+
+        val collector2Done = Latch().also { it.closeLatch() }
+        val result2 = mutableListOf<Boolean>()
+        val collector2 =
+            snapshotFlow(manager) { state.value }
+                .onEach {
+                    result2.add(it)
+                    if (result2.size == 2) {
+                        collector2Done.openLatch()
+                    }
+                }
+                .launchIn(this + Dispatchers.Unconfined)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.value = true
+
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        collector2Done.await()
+        assertEquals(listOf(false, true), result1)
+        assertEquals(listOf(false, true), result2)
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun sharingOneSnapshotFlowManager_watchingDifferentStateObjects() = runTest {
+        var state1 by mutableIntStateOf(0)
+        var state2 by mutableIntStateOf(0)
+
+        val manager = SnapshotFlowManager()
+
+        val result1 = mutableIntListOf()
+        val collector1 = snapshotFlow(manager) { state1 }.onEach { result1.add(it) }.launchIn(this)
+
+        val collector2Done = Latch().also { it.closeLatch() }
+        val collector2 =
+            snapshotFlow(manager) { state2 }
+                .onEach {
+                    if (it == 2) {
+                        collector2Done.openLatch()
+                    }
+                }
+                .launchIn(this + Dispatchers.Unconfined)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state1++
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        state2++
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        state1++
+        state2++
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        collector2Done.await()
+        assertEquals(intListOf(0, 1, 2), result1)
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
+    /**
+     * We previously encountered crashes in scenarios like the following:
+     *
+     * Setup: Two `snapshotFlow`s, `snapshotFlowA` and `snapshotFlowB`, are managed by the same
+     * manager and watch the same state object
+     *
+     * Crash trace:
+     * 1. The state object is changed and the manager's apply observer is run
+     * 2. The manager's apply observer signals `snapshotFlowA` to rerun its block
+     * 3. The block of `snapshotFlowA` modifies the state object again and runs the manager's apply
+     *    observer again, which causes the blocks of `snapshotFlowA` and `snapshotFlowB` to be rerun
+     * 4. The apply observer invocation started in step 1 still needs to signal `snapshotFlowB` to
+     *    rerun its block, but when attempting to do so, encounters state that was corrupted by the
+     *    other invocation started in step 3
+     *
+     * This test serves as a regression test against such crashes, e.g. b/508270881.
+     */
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun snapshotFlowManagerApplyObserverCorruption() = runTest {
+        val state = mutableIntStateOf(0)
+
+        val manager = SnapshotFlowManager()
+
+        val collector1 = snapshotFlow(manager) { state.intValue }.launchIn(this)
+
+        val collector2Done = Latch().also { it.closeLatch() }
+        val collector2 =
+            snapshotFlow(manager) { state.intValue }
+                .onEach {
+                    if (it == 1) {
+                        state.intValue = 2
+                        Snapshot.sendApplyNotifications()
+                    }
+                    if (it == 2) {
+                        collector2Done.openLatch()
+                    }
+                }
+                .launchIn(this + Dispatchers.Unconfined)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.intValue = 1
+        Snapshot.sendApplyNotifications()
+
+        collector2Done.await()
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun cancelSoleManagedSnapshotFlowThenReuseManager() = runTest {
+        val state = mutableStateOf(false)
+
+        val manager = SnapshotFlowManager()
+
+        val results = mutableListOf<Boolean>()
+
+        val collector1 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.value = true
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        collector1.cancel()
+        val collector2 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+        val collector3 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+
+        yield()
+
+        state.value = false
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        assertEquals(listOf(false, true, true, true, false, false), results)
+
+        collector2.cancel()
+        collector3.cancel()
+    }
+
+    @Test
+    fun twoSnapshotFlowsWithDistinctManagers() = runTest {
+        val state = mutableStateOf(false)
+
+        val result1 = mutableListOf<Boolean>()
+        val collector1 = snapshotFlow { state.value }.onEach { result1.add(it) }.launchIn(this)
+
+        val collector2Done = Latch().also { it.closeLatch() }
+        val result2 = mutableListOf<Boolean>()
+        val collector2 =
+            snapshotFlow { state.value }
+                .onEach {
+                    result2.add(it)
+                    if (result2.size == 2) {
+                        collector2Done.openLatch()
+                    }
+                }
+                .launchIn(this + Dispatchers.Unconfined)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.value = true
+
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        collector2Done.await()
+        assertEquals(listOf(false, true), result1)
+        assertEquals(listOf(false, true), result2)
 
         collector1.cancel()
         collector2.cancel()

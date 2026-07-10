@@ -128,7 +128,6 @@ public class ContextThemeWrapperTest {
 
     @Test
     public void testApplyOverrideDensityConfiguration() {
-        // Configuration.densityDpi is only available on API 17 and above
         final int realDensity = mContext.getResources().getConfiguration().densityDpi;
         final int expectedDensity = realDensity + 1;
 

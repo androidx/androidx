@@ -65,6 +65,24 @@ internal data class Keyline(
 internal class KeylineList internal constructor(keylines: List<Keyline>) :
     List<Keyline> by keylines {
 
+    val minSize: Float
+    val maxSize: Float
+
+    init {
+        var min = Float.MAX_VALUE
+        var max = 0f
+        keylines.fastForEach {
+            if (it.size < min) {
+                min = it.size
+            }
+            if (it.size > max) {
+                max = it.size
+            }
+        }
+        minSize = min
+        maxSize = max
+    }
+
     /**
      * Returns the index of the pivot keyline used to calculate all other keyline offsets and
      * unadjusted offsets.
@@ -311,7 +329,7 @@ private class KeylineListScopeImpl : KeylineListScope {
         // to the list. The last focal item index will be found when `create` is called by starting
         // from firstFocalIndex and incrementing the index until the next item's size does not
         // equal focalItemSize.
-        if (size > focalItemSize) {
+        if (!isAnchor && size > focalItemSize) {
             firstFocalIndex = tmpKeylines.lastIndex
             focalItemSize = size
         }
@@ -358,9 +376,15 @@ private class KeylineListScopeImpl : KeylineListScope {
                         } else {
                             itemSpacing / 2f
                         }
+                    // Count the number of item spaces between the center of the viewport and the
+                    // first focal item. We then need to use this count to get a total item spacing
+                    // number to subtract for an accurate pivot offset.
+                    val itemSpaceCounts = (focalItemCount / 2) * itemSpacing
+
                     (carouselMainAxisSize / 2) -
                         ((focalItemSize / 2) * focalItemCount) -
-                        itemSpacingSplit
+                        itemSpacingSplit -
+                        itemSpaceCounts
                 }
                 CarouselAlignment.End -> carouselMainAxisSize - (focalItemSize / 2)
                 // Else covers and defaults to CarouselAlignment.Start

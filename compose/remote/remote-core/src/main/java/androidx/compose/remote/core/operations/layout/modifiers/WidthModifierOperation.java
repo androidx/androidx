@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.WireBuffer;
@@ -31,10 +32,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Set the width dimension on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifierOperation extends DimensionModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_WIDTH;
     public static final String CLASS_NAME = "WidthModifierOperation";
-    private @Nullable WidthInModifierOperation mWidthIn = null;
+    private @Nullable DimensionInModifierOperation mWidthIn = null;
 
     /**
      * The name of the class
@@ -76,7 +78,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         Type type = Type.fromInt(buffer.readInt());
-        float value = buffer.readFloat();
+        float value = buffer.readNanId();
         Operation op = new WidthModifierOperation(type, value);
         operations.add(op);
     }
@@ -117,9 +119,9 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the animation")
-                .field(INT, "type", "")
-                .field(FLOAT, "value", "");
+                .description("Set the width dimension on a component")
+                .field(INT, "type", "The type of dimension rule (0=FIXED, 1=WRAP, etc.)")
+                .field(FLOAT, "value", "The width value");
     }
 
     /**
@@ -127,7 +129,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      *
      * @param widthInConstraints width constraints
      */
-    public void setWidthIn(@NonNull WidthInModifierOperation widthInConstraints) {
+    public void setWidthIn(@NonNull DimensionInModifierOperation widthInConstraints) {
         mWidthIn = widthInConstraints;
     }
 
@@ -136,7 +138,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      *
      * @return width in constraints
      */
-    public @Nullable WidthInModifierOperation getWidthIn() {
+    public @Nullable DimensionInModifierOperation getWidthIn() {
         return mWidthIn;
     }
 

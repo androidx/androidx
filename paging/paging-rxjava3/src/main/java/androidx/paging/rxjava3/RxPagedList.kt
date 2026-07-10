@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // TODO(): Remove when migrating from PagedList
+// Facade class name cannot be updated, the Kt name has been released
+// TODO(): Remove deprecation when migrating from PagedList
+@file:Suppress("DEPRECATION", "FacadeClassJvmName")
 
 package androidx.paging.rxjava3
 

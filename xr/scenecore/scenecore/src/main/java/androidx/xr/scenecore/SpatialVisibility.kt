@@ -16,36 +16,30 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
-
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.FIELD,
-    AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.TYPE,
-)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(
-    SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
-    SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
-    SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
-    SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
-)
-internal annotation class SpatialVisibilityValue
-
 /** Spatial Visibility states of content within the user's field of view. */
-public object SpatialVisibility {
-    /** Unknown spatial visibility state. */
-    public const val SPATIAL_VISIBILITY_UNKNOWN: Int = 0
-    /** The content is fully outside the user's field of view. */
-    public const val SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW: Int = 1
-    /** The content is partially within the user's field of view, but not fully inside of it. */
-    public const val SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW: Int = 2
-    /** The content is fully within the user's field of view. */
-    public const val SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW: Int = 3
+public class SpatialVisibility private constructor(private val value: Int) {
+
+    public companion object {
+        /** Unknown spatial visibility state. */
+        @JvmField public val UNKNOWN: SpatialVisibility = SpatialVisibility(1)
+
+        /** The content is fully outside the user's field of view. */
+        @JvmField public val OUTSIDE_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(2)
+
+        /** The content is partially within the user's field of view, but not fully inside of it. */
+        @JvmField
+        public val PARTIALLY_WITHIN_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(3)
+
+        /** The content is fully within the user's field of view. */
+        @JvmField public val WITHIN_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(4)
+    }
+
+    override fun toString(): String =
+        when (this) {
+            UNKNOWN -> "UNKNOWN"
+            OUTSIDE_FIELD_OF_VIEW -> "OUTSIDE_FIELD_OF_VIEW"
+            PARTIALLY_WITHIN_FIELD_OF_VIEW -> "PARTIALLY_WITHIN_FIELD_OF_VIEW"
+            WITHIN_FIELD_OF_VIEW -> "WITHIN_FIELD_OF_VIEW"
+            else -> "UNKNOWN ($value)"
+        }
 }

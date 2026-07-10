@@ -16,10 +16,10 @@
 
 package androidx.aab
 
-import androidx.aab.cli.VERBOSE
-import java.io.InputStream
 import java.security.MessageDigest
 import java.util.zip.CRC32
+import kotlin.collections.map
+import kotlin.collections.sumOf
 import org.jf.dexlib2.Opcodes
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
 
@@ -50,7 +50,45 @@ data class DexInfo(
 
     /** r8 markers */
     val r8Markers: List<R8Marker>,
+
+    /**
+     * top level (non-inner) classes which appear to be minified (based on starting with lowercase
+     * identifier)
+     */
+    val minifiedClassCountLowercase: Int,
+    /** top level (non-inner) classes which appear to be minified (based on length heuristic) */
+    val minifiedClassCountLengthHeuristic: Int,
+    val noPackageClassCount: Int,
+    val classInfo: List<ClassInfo>,
 ) {
+    /**
+     * Used to hold onto dex data captured during parsing, for later extraction into DexInfo (once
+     * strings are loaded from resources)
+     */
+    class DeferredDexFile(val entryName: String, val compressedSize: Long, val bytes: ByteArray)
+
+    class ClassInfo(
+        val packageName: String,
+        className: String,
+        val size: Int,
+        val usedByXml: Boolean,
+    ) {
+        val fullName: String = if (packageName.isEmpty()) className else "$packageName.$className"
+        val startsWithLowerCase = className[0].isLowerCase()
+        val classNameAppearsMinified =
+            className.length <= 2 || className.length <= 3 && hasObfuscatedPackageName()
+
+        private fun hasObfuscatedPackageName(): Boolean {
+            val parts = packageName.split("\\.".toRegex())
+            for (part in parts) {
+                if (part.length > 2) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
     init {
         require(uncompressedSize >= 0) { "Uncompressed size must be non-negative" }
     }
@@ -73,12 +111,59 @@ data class DexInfo(
     }
 
     companion object {
+        const val DEBUG_XML = false
 
-        fun from(entryName: String, compressedSize: Long, src: InputStream): DexInfo {
+        internal fun packageNameForType(type: String?): String {
+            val parts = type!!.split("\\.".toRegex())
+            val sb = StringBuilder()
+            for (i in 0 until parts.size - 1) {
+                val part = parts[i]
+                if (part.isNotEmpty()) {
+                    if (sb.isNotEmpty()) {
+                        sb.append('.')
+                    }
+                    sb.append(part)
+                }
+            }
+            return sb.toString()
+        }
+
+        private fun signatureToType(signature: String): String {
+            return if (signature.isEmpty()) {
+                signature
+            } else {
+                when (signature[0]) {
+                    'L' -> signature.substring(1, signature.length - 1).replace('/', '.')
+                    '[' -> // We strip arrays as we only care about the underlying type used.
+                    signatureToType(signature.substring(1))
+                    else -> ""
+                }
+            }
+        }
+
+        private fun classNameForType(type: String): String {
+            val parts = type.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            return if (parts.isEmpty()) {
+                ""
+            } else {
+                parts[parts.size - 1]
+            }
+        }
+
+        fun List<DeferredDexFile>.toDexInfo(xmlStrings: MutableSet<String>): List<DexInfo> {
+            return map { from(it, xmlStrings) }
+                .also {
+                    if (DEBUG_XML) {
+                        xmlStrings.forEach { println("    remaining xml string : $it") }
+                    }
+                }
+        }
+
+        fun from(deferredDexFile: DeferredDexFile, xmlStrings: MutableSet<String>): DexInfo {
             val crc = CRC32()
             val sha256 = MessageDigest.getInstance("SHA-256")
 
-            val bytes = src.readAllBytes()
+            val bytes = deferredDexFile.bytes
             crc.update(bytes)
             sha256.update(bytes)
             val dexFile = DexBackedDexFile(Opcodes.getDefault(), bytes)
@@ -92,6 +177,35 @@ data class DexInfo(
                     r8MapId = it
                 }
             }
+            var minifiedClassCountLowercase = 0
+            var minifiedClassCountLengthHeuristic = 0
+            var noPackage = 0
+            var classCount = 0
+            val classInfo = mutableListOf<ClassInfo>()
+
+            dexFile.classes.forEach { cls ->
+                val isTopLevel = !cls.type.contains("$")
+                if (!isTopLevel) return@forEach
+
+                classCount++
+
+                val type = signatureToType(cls.type)
+                val packageName = packageNameForType(type)
+                val className = classNameForType(type)
+                val usedByXml = type in xmlStrings
+
+                if (usedByXml) {
+                    xmlStrings.remove(type)
+                }
+
+                ClassInfo(packageName, className, cls.size, usedByXml).apply {
+                    if (startsWithLowerCase) minifiedClassCountLowercase++
+                    if (classNameAppearsMinified) minifiedClassCountLengthHeuristic++
+                    if (packageName.isEmpty()) noPackage++
+                    classInfo.add(this)
+                }
+            }
+            check(classCount == classInfo.size)
 
             // Finalize the SHA-256 hash and format it as a hex string.
             val sha256Bytes = sha256.digest()
@@ -100,37 +214,85 @@ data class DexInfo(
 
             // 4. Return the results in the data class.
             return DexInfo(
-                entryName = entryName,
+                entryName = deferredDexFile.entryName,
                 crc32 = crc32Hex,
                 sha256 = sha256Hex,
                 uncompressedSize = bytes.size.toLong(),
-                compressedSize = compressedSize,
+                compressedSize = deferredDexFile.compressedSize,
                 r8MapId = r8MapId,
                 r8Markers = r8Markers,
+                minifiedClassCountLowercase = minifiedClassCountLowercase,
+                minifiedClassCountLengthHeuristic = minifiedClassCountLengthHeuristic,
+                noPackageClassCount = noPackage,
+                classInfo = classInfo,
             )
         }
 
-        val CSV_TITLES =
-            listOf("dex_totalSizeMb") +
-                if (VERBOSE) {
-                    listOf("dex_names", "dex_sortedChecksumsSha256", "dex_sortedChecksumsCrc32")
-                } else {
-                    emptyList()
-                }
-
-        fun List<DexInfo>.csvEntries(): List<String> {
-            return listOf((this.sumOf { it.uncompressedSize } / (1024.0 * 1024)).toString()) +
-                if (VERBOSE)
-                    listOf(
-                        joinToString(INTERNAL_CSV_SEPARATOR) { it.entryName },
-                        // NOTE: we individually sort each of these, so they aren't associated with
-                        // each other, but they are easy to compare when joined
-                        this.map { it.sha256 }.sorted().joinToString(INTERNAL_CSV_SEPARATOR),
-                        this.map { it.crc32 }.sorted().joinToString(INTERNAL_CSV_SEPARATOR),
-                    )
-                else {
-                    emptyList()
-                }
-        }
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_totalSizeMb",
+                    description = "Total size of dex in MB",
+                    calculate = {
+                        (it.sumOf { dex -> dex.uncompressedSize } / (1024.0 * 1024)).toString()
+                    },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_classTotalSizeMb",
+                    description = "Total size of dex in MB calculated from classes",
+                    calculate = {
+                        (it.sumOf { dex -> dex.classInfo.sumOf { clazz -> clazz.size } } /
+                                (1024.0 * 1024))
+                            .toString()
+                    },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_minifiedClassesLower",
+                    description =
+                        "Number of (outer) classes in dex that match the lowercase heuristic, indicating obfuscation",
+                    calculate = { it.sumOf { it.minifiedClassCountLowercase }.toString() },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_minifiedClassesLength",
+                    description =
+                        "Number of (outer) classes in dex that match the length heuristic, indicating obfuscation",
+                    calculate = { it.sumOf { it.minifiedClassCountLengthHeuristic }.toString() },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_noPackageClasses",
+                    description =
+                        "Number of (outer) classes in dex that have no package, indicating use of -repackageclasses",
+                    calculate = { it.sumOf { it.noPackageClassCount }.toString() },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_classes",
+                    description = "Number of (outer) classes in dex",
+                    calculate = { it.sumOf { it.classInfo.size }.toString() },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_names",
+                    description = "Dex file paths",
+                    requiresVerbose = true,
+                    calculate = { it.joinToString(INTERNAL_CSV_SEPARATOR) { dex -> dex.entryName } },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_sortedChecksumsSha256",
+                    description =
+                        "Sorted sha256 checksums for each dex file, for validating with R8 json",
+                    requiresVerbose = true,
+                    calculate = {
+                        it.map { dex -> dex.sha256 }.sorted().joinToString(INTERNAL_CSV_SEPARATOR)
+                    },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_sortedChecksumsCrc32",
+                    description =
+                        "Sorted crc32 checksums for each dex file, for validating with profiles",
+                    requiresVerbose = true,
+                    calculate = {
+                        it.map { dex -> dex.sha256 }.sorted().joinToString(INTERNAL_CSV_SEPARATOR)
+                    },
+                ),
+            )
     }
 }

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,10 +25,8 @@ import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.google.protobuf")
 }
 
 dependencies {
@@ -40,16 +37,20 @@ dependencies {
     api("androidx.compose.ui:ui-unit:1.6.0")
     api("androidx.collection:collection-ktx:1.4.3")
 
-    implementation("androidx.core:core-ktx:1.7.0")
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(project(":compose:remote:remote-creation"))
+
+    implementation('androidx.core:core-ktx:1.7.0')
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.core:core-remoteviews:1.1.0")
     implementation(project(":glance:glance-appwidget-proto"))
-    implementation(libs.kotlinStdlib)
     implementation("androidx.compose.ui:ui-util:1.6.5")
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -69,9 +70,9 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":glance:glance-material3"))
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
-    androidTestImplementation("androidx.room:room-runtime:2.4.3")
+    androidTestImplementation("androidx.room:room-runtime:2.7.0")
     androidTestImplementation("androidx.core:core-ktx:1.7.0")
-    androidTestImplementation("androidx.work:work-testing:2.7.1")
+    androidTestImplementation("androidx.work:work-testing:2.11.2")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.kotlinCoroutinesTest)
@@ -86,18 +87,14 @@ dependencies {
 }
 
 android {
-    resourcePrefix "glance_"
+    resourcePrefix = "glance_"
     buildTypes {
         debug {
             pseudoLocalesEnabled = true
         }
     }
     namespace = "androidx.glance.appwidget"
-
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
-    compileSdk = 35
+    compileSdk { version = release(37) }
 }
 
 androidx {

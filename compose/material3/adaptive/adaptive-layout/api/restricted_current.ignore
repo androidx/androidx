@@ -1,41 +1,21 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#getSaveableStateHolder():
-    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.getSaveableStateHolder()
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#paneExpansionDraggable(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState, androidx.compose.ui.unit.Dp, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>):
-    Source breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.paneExpansionDraggable(androidx.compose.ui.Modifier,androidx.compose.material3.adaptive.layout.PaneExpansionState,androidx.compose.ui.unit.Dp,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#paneExpansionDraggable-TDGSqEk(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState, float, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.paneExpansionDraggable-TDGSqEk(androidx.compose.ui.Modifier,androidx.compose.material3.adaptive.layout.PaneExpansionState,float,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp):
-    Source breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight(androidx.compose.ui.Modifier,androidx.compose.ui.unit.Dp)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight(androidx.compose.ui.Modifier, float):
-    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight(androidx.compose.ui.Modifier,float)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight-3ABfNKs(androidx.compose.ui.Modifier, float):
-    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight-3ABfNKs(androidx.compose.ui.Modifier,float)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp):
-    Source breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth(androidx.compose.ui.Modifier,androidx.compose.ui.unit.Dp)
-AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth-3ABfNKs(androidx.compose.ui.Modifier, float):
-    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth-3ABfNKs(androidx.compose.ui.Modifier,float)
-
-
-ParameterNameChange: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth(androidx.compose.ui.Modifier, float) parameter #1:
-    Source breaking change: Attempted to change parameter name from width to proportion in method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth
-
-
-RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAlwaysAvoid():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAlwaysAvoid()
-RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAvoidOccluding():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAvoidOccluding()
-RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAvoidSeparating():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAvoidSeparating()
-RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getNeverAvoid():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getNeverAvoid()
-RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#PaneScaffoldDirective(int, float, int, float, float, java.util.List<androidx.compose.ui.geometry.Rect>):
-    Binary breaking change: Removed constructor androidx.compose.material3.adaptive.layout.PaneScaffoldDirective(int,float,int,float,float,java.util.List<androidx.compose.ui.geometry.Rect>)
-RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#copy(int, float, int, float, float, java.util.List<androidx.compose.ui.geometry.Rect>):
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.copy(int,float,int,float,float,java.util.List<androidx.compose.ui.geometry.Rect>)
-RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getDefaultPanePreferredWidth():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getDefaultPanePreferredWidth()
-RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getHorizontalPartitionSpacerSize():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getHorizontalPartitionSpacerSize()
-RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getVerticalPartitionSpacerSize():
-    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getVerticalPartitionSpacerSize()
+BecameUnchecked: androidx.compose.material3.adaptive.layout.LevitatedPaneScrimKt:
+    Removed class androidx.compose.material3.adaptive.layout.LevitatedPaneScrimKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneExpansionDraggableModifierKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneExpansionDraggableModifierKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneExpansionStateKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneExpansionStateKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneMotionKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneMotionKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValueKt:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValueKt from compatibility checked API surface

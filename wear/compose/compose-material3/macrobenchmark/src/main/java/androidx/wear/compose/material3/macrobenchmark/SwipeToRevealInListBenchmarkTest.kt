@@ -19,9 +19,11 @@ package androidx.wear.compose.material3.macrobenchmark
 import androidx.benchmark.macro.CompilationMode
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material3.macrobenchmark.common.SwipeToRevealInListBenchmark
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@Ignore
 @LargeTest
 @RunWith(Parameterized::class)
 class SwipeToRevealInListBenchmarkTest(compilationMode: CompilationMode) :

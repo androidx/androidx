@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Marquee modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MarqueeModifier implements RecordingModifier.Element {
     int mIterations;
     int mAnimationMode;

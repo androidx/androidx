@@ -1,0 +1,71 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+android {
+    compileSdk { version = release(37) }
+    namespace = "androidx.compose.remote.integration.demos"
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
+}
+
+androidx {
+    name = "Remote Compose demos"
+    inceptionYear = "2025"
+    description = "Demo app for the Remote Compose players and Frontend APIs."
+}
+
+dependencies {
+
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":compose:remote:remote-creation-core"))
+    implementation(project(":compose:remote:remote-player-compose"))
+    implementation(project(":compose:remote:remote-player-view"))
+    implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-tooling-preview"))
+    implementation("androidx.activity:activity-compose:1.5.0")
+    implementation("androidx.compose.foundation:foundation:1.8.1")
+    implementation(project(":navigation3:navigation3-runtime"))
+    implementation(project(":navigation3:navigation3-ui"))
+    implementation("androidx.compose.foundation:foundation-layout:1.8.1")
+    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.runtime:runtime:1.8.1")
+    implementation("androidx.compose.ui:ui:1.8.2")
+    implementation("androidx.compose.ui:ui-text:1.8.1")
+    implementation("androidx.compose.ui:ui-tooling:1.8.1")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.8.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation(project(":datastore:datastore-preferences"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":test:uiautomator:uiautomator"))
+    androidTestImplementation(project(":test:uiautomator:uiautomator-shell"))
+    androidTestImplementation(project(":tracing:tracing"))
+}

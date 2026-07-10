@@ -53,6 +53,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     BanInlineOptIn.ISSUE,
                     BanKeepAnnotation.ISSUE,
                     BanThreadSleep.ISSUE,
+                    BanLoopMainThreadForAtLeast.ISSUE,
                     TargetApiAnnotationUsageDetector.ISSUE,
                     // If you add more SampledAnnotationDetector issues here, you
                     // MUST also update `buildSrc/lint_samples.xml` to ensure they
@@ -89,6 +90,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     ClassVerificationFailureDetector.METHOD_CALL_ISSUE,
                     ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE,
                     ScreenshotTestSdkSuppressAnnotationEnforcer.ISSUE,
+                    ExperimentalCompanionWithNonExperimentalElementsDetector.ISSUE,
+                    MissingRobolectricSdkConfigDetector.ISSUE,
+                    KotlinRunTestReturnResultDetector.RUN_TEST_RESULT_UNUSED_ISSUE,
                 )
             }
     }

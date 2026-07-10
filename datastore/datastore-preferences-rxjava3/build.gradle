@@ -15,32 +15,37 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    sourceSets {
-        test.java.srcDirs += "src/test-common/java"
-        androidTest.java.srcDirs += "src/test-common/java"
-    }
     namespace = "androidx.datastore.preferences.rxjava3"
+}
+
+androidComponents {
+    def sharedTestDir = "src/test-common/java"
+    onVariants(selector().all()) { variant ->
+        (variant as HasUnitTest).unitTest.sources.java.addStaticSourceDirectory(sharedTestDir)
+        (variant as HasAndroidTest).androidTest.sources.java.addStaticSourceDirectory(sharedTestDir)
+    }
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
     api(libs.rxjava3)
@@ -70,4 +75,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains wrappers for using DataStore using RxJava2"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

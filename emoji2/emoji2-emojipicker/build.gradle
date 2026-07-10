@@ -15,24 +15,23 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import com.android.build.gradle.internal.tasks.MergeJavaResourceTask
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.core:core:1.9.0")
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.9.0")
@@ -65,4 +64,11 @@ androidx {
             "emoji in current and older devices"
     legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
+}
+
+// Workaround for b/488424384
+tasks.withType(MergeJavaResourceTask).configureEach {
+    it.doFirst {
+        it.incrementalStateFile.get().asFile.delete()
+    }
 }

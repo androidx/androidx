@@ -25,5 +25,8 @@
         <activity
             android:name="androidx.preference.tests.WithInterfaceTestActivity"
             android:theme="@style/PreferenceTestTheme"/>
+        <activity
+            android:name="androidx.preference.PreferenceTestHelperActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
     </application>
 </manifest>

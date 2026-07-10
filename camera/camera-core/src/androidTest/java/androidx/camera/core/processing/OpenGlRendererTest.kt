@@ -18,7 +18,9 @@ package androidx.camera.core.processing
 
 import android.graphics.SurfaceTexture
 import android.hardware.DataSpace
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.OutputConfiguration
 import android.opengl.Matrix
 import android.os.Build
@@ -27,10 +29,6 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
-import androidx.camera.camera2.internal.compat.params.DynamicRangeConversions
-import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -112,7 +110,7 @@ class OpenGlRendererTest {
     private lateinit var glDispatcher: CoroutineDispatcher
     private lateinit var glRenderer: OpenGlRenderer
     private lateinit var cameraId: String
-    private lateinit var cameraCharacteristicsCompat: CameraCharacteristicsCompat
+    private lateinit var cameraCharacteristics: CameraCharacteristics
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
     private var lensFacing = LENS_FACING_BACK
@@ -511,12 +509,7 @@ class OpenGlRendererTest {
     private fun prepareCamera() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
         cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
-        val cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
-        cameraCharacteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraCharacteristics,
-                cameraId,
-            )
+        cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
     }
 
     private fun assumeDynamicRange(dynamicRange: DynamicRange) {
@@ -524,12 +517,10 @@ class OpenGlRendererTest {
             // SDR is always supported.
             return
         }
-        val supportedDynamicRange =
-            DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristicsCompat)
-                .supportedDynamicRanges
+        val supportedDynamicRange = getSupportedDynamicRangeProfiles()
         assumeTrue(
             "$dynamicRange is not in supported set $supportedDynamicRange",
-            supportedDynamicRange.contains(dynamicRange),
+            supportedDynamicRange.contains(dynamicRange.toDynamicRangeProfile()),
         )
     }
 
@@ -564,14 +555,22 @@ class OpenGlRendererTest {
         )
     }
 
-    @RequiresApi(33)
     private fun DynamicRange.toDynamicRangeProfile(): Long {
-        val dynamicRangeProfiles =
-            DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristicsCompat)
-                .toDynamicRangeProfiles()!!
-        return DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
-            this,
-            dynamicRangeProfiles,
-        )!!
+        return when (this) {
+            DynamicRange.SDR -> DynamicRangeProfiles.STANDARD
+            DynamicRange.HLG_10_BIT -> DynamicRangeProfiles.HLG10
+            else -> throw IllegalArgumentException("Not support in this test")
+        }
+    }
+
+    private fun getSupportedDynamicRangeProfiles(): Set<Long> {
+        return if (Build.VERSION.SDK_INT >= 33) {
+            // Dynamic range API is from API 33.
+            cameraCharacteristics
+                .get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
+                ?.supportedProfiles ?: setOf(DynamicRangeProfiles.STANDARD)
+        } else {
+            setOf(DynamicRangeProfiles.STANDARD)
+        }
     }
 }

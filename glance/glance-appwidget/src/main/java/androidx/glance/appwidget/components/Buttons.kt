@@ -18,36 +18,27 @@ package androidx.glance.appwidget.components
 import android.os.Build
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.ButtonColors
 import androidx.glance.ButtonDefaults
-import androidx.glance.ColorFilter
+import androidx.glance.Emittable
+import androidx.glance.EmittableWithText
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
 import androidx.glance.action.NoRippleOverride
 import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.R
-import androidx.glance.appwidget.cornerRadius
-import androidx.glance.appwidget.enabled
-import androidx.glance.background
-import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
-import androidx.glance.layout.Row
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.padding
-import androidx.glance.layout.size
-import androidx.glance.layout.width
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
+import androidx.glance.appwidget.isAtLeastApi31
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -111,7 +102,7 @@ public fun FilledButton(
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ): Unit =
-    M3TextButton(
+    M3TextButtonElement(
         text = text,
         modifier = modifier,
         enabled = enabled,
@@ -187,7 +178,7 @@ public fun OutlineButton(
     val bg: ColorProvider = contentColor
     val fg: ColorProvider = contentColor
 
-    M3TextButton(
+    M3TextButtonElement(
         text = text,
         onClick = onClick,
         modifier = modifier,
@@ -197,6 +188,7 @@ public fun OutlineButton(
         backgroundResource = R.drawable.glance_component_btn_outline,
         backgroundTint = bg,
         maxLines = maxLines,
+        isOutlineButton = true,
     )
 }
 
@@ -261,7 +253,7 @@ public fun SquareIconButton(
     backgroundColor: ColorProvider = GlanceTheme.colors.primary,
     contentColor: ColorProvider = GlanceTheme.colors.onPrimary,
 ): Unit =
-    M3IconButton(
+    M3IconButtonElement(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
         backgroundColor = backgroundColor,
@@ -337,7 +329,7 @@ public fun CircleIconButton(
     backgroundColor: ColorProvider? = GlanceTheme.colors.background,
     contentColor: ColorProvider = GlanceTheme.colors.onSurface,
 ): Unit =
-    M3IconButton(
+    M3IconButtonElement(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
         backgroundColor = backgroundColor,
@@ -348,11 +340,12 @@ public fun CircleIconButton(
         onClick = onClick,
     )
 
-private enum class IconButtonShape(
-    @DrawableRes val shape: Int,
-    @DimenRes val cornerRadius: Int,
-    @DrawableRes val ripple: Int,
-    val defaultSize: Dp,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class IconButtonShape(
+    @DrawableRes public val shape: Int,
+    @DimenRes public val cornerRadius: Int,
+    @DrawableRes public val ripple: Int,
+    public val defaultSize: Dp,
 ) {
     Square(
         R.drawable.glance_component_btn_square,
@@ -372,8 +365,12 @@ private enum class IconButtonShape(
     ),
 }
 
+/**
+ * This is a placeholder emittable. If [androidx.glance.Backend] is RemoteViews, it will be turned
+ * into a tree of emittables during the normalize step.
+ */
 @Composable
-private fun M3IconButton(
+private fun M3IconButtonElement(
     imageProvider: ImageProvider,
     contentDescription: String?,
     contentColor: ColorProvider,
@@ -383,102 +380,150 @@ private fun M3IconButton(
     modifier: GlanceModifier,
     enabled: Boolean,
 ) {
-
-    val backgroundModifier =
-        if (backgroundColor == null) GlanceModifier
-        else
-            GlanceModifier.background(
-                ImageProvider(shape.shape),
-                colorFilter = ColorFilter.tint(backgroundColor),
+    var finalModifier =
+        if (enabled)
+            modifier.clickable(
+                onClick = onClick,
+                rippleOverride =
+                    if (isAtLeastApi31) NoRippleOverride
+                    else R.drawable.glance_component_m3_button_ripple,
             )
+        else modifier
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier =
-            GlanceModifier.size(
-                    shape.defaultSize
-                ) // acts as a default if not overridden by [modifier]
-                .then(modifier)
-                .then(backgroundModifier)
-                .clickable(onClick = onClick, rippleOverride = shape.ripple)
-                .enabled(enabled)
-                .then(maybeRoundCorners(shape.cornerRadius)),
-    ) {
-        Image(
-            provider = imageProvider,
-            contentDescription = contentDescription,
-            colorFilter = ColorFilter.tint(contentColor),
-            modifier = GlanceModifier.size(24.dp),
-        )
-    }
+    finalModifier =
+        if (contentDescription != null) {
+            finalModifier.semantics { this.contentDescription = contentDescription }
+        } else {
+            finalModifier
+        }
+
+    GlanceNode(
+        factory = ::EmittableM3IconButton,
+        update = {
+            this.set(imageProvider) { this.imageProvider = it }
+            this.set(contentColor) { this.contentColor = it }
+            this.set(backgroundColor) { this.backgroundColor = it }
+            this.set(shape) { this.shape = it }
+            this.set(finalModifier) { this.modifier = it }
+            this.set(enabled) { this.enabled = it }
+        },
+    )
 }
 
 @Composable
-private fun M3TextButton(
+private fun M3TextButtonElement(
     text: String,
     onClick: Action,
     modifier: GlanceModifier,
     enabled: Boolean = true,
     icon: ImageProvider?,
     contentColor: ColorProvider,
-    @DrawableRes backgroundResource: Int,
+    backgroundResource: Int,
     backgroundTint: ColorProvider,
     maxLines: Int,
+    isOutlineButton: Boolean = false, // used for remote compose
 ) {
-    val iconSize = 18.dp
-    val totalHorizontalPadding = if (icon != null) 24.dp else 16.dp
-
-    val Text =
-        @Composable {
-            Text(
-                text = text,
-                style = TextStyle(color = contentColor, fontSize = 14.sp, FontWeight.Medium),
-                maxLines = maxLines,
+    val finalModifier =
+        if (enabled)
+            modifier.clickable(
+                onClick = onClick,
+                rippleOverride =
+                    if (isAtLeastApi31) NoRippleOverride
+                    else R.drawable.glance_component_m3_button_ripple,
             )
-        }
+        else modifier
 
-    Box(
-        modifier =
-            modifier
-                .padding(start = 16.dp, end = totalHorizontalPadding, top = 10.dp, bottom = 10.dp)
-                .background(
-                    imageProvider = ImageProvider(backgroundResource),
-                    colorFilter = ColorFilter.tint(backgroundTint),
-                )
-                .enabled(enabled)
-                .clickable(
-                    onClick = onClick,
-                    rippleOverride =
-                        if (isAtLeastApi31) NoRippleOverride
-                        else R.drawable.glance_component_m3_button_ripple,
-                )
-                .then(maybeRoundCorners(R.dimen.glance_component_button_corners)),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (icon != null) {
-            Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
-                Image(
-                    provider = icon,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(contentColor),
-                    modifier = GlanceModifier.size(iconSize),
-                ) // TODO: do we need a content description for a button icon?
-                Spacer(GlanceModifier.width(8.dp))
-                Text()
-            }
-        } else {
-            Box(GlanceModifier.size(iconSize)) {
-                // for accessibility only: force button to be the same min height as the icon
-                // version.
-                // remove once b/290677181 is addressed
-            }
-            Text()
-        }
+    GlanceNode(
+        factory = ::EmittableM3TextButton,
+        update = {
+            this.set(text) { this.text = it }
+            this.set(finalModifier) { this.modifier = it }
+            this.set(enabled) { this.enabled = it }
+            this.set(icon) { this.icon = it }
+            this.set(contentColor) { this.contentColor = it }
+            this.set(backgroundResource) { this.backgroundResource = it }
+            this.set(backgroundTint) { this.backgroundTint = it }
+            this.set(maxLines) { this.maxLines = it }
+            this.set(isOutlineButton) { this.isOutlineButton = it }
+        },
+    )
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class EmittableM3TextButton
+private constructor(
+    public override var text: String,
+    public override var modifier: GlanceModifier,
+    public var enabled: Boolean = true,
+    public var icon: ImageProvider?,
+    public var contentColor: ColorProvider,
+    public @DrawableRes var backgroundResource: Int,
+    public var backgroundTint: ColorProvider,
+    public override var maxLines: Int,
+    public var isOutlineButton: Boolean,
+) : EmittableWithText() {
+
+    /** No-arg constructor for when its constructed as a [GlanceNode] */
+    public constructor() :
+        this(
+            text = "",
+            modifier = GlanceModifier,
+            enabled = false,
+            icon = null,
+            contentColor = ColorProvider(androidx.compose.ui.graphics.Color.Transparent),
+            backgroundResource = 0,
+            backgroundTint = ColorProvider(androidx.compose.ui.graphics.Color.Transparent),
+            maxLines = -1,
+            isOutlineButton = false,
+        )
+
+    override fun copy(): Emittable {
+        return EmittableM3TextButton(
+            text = text,
+            modifier = modifier,
+            enabled = enabled,
+            icon = icon,
+            contentColor = contentColor,
+            backgroundResource = backgroundResource,
+            backgroundTint = backgroundTint,
+            maxLines = maxLines,
+            isOutlineButton = isOutlineButton,
+        )
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class EmittableM3IconButton
+private constructor(
+    public var imageProvider: ImageProvider?,
+    public var contentColor: ColorProvider?,
+    public var backgroundColor: ColorProvider?,
+    public var shape: IconButtonShape,
+    public override var modifier: GlanceModifier,
+    public var enabled: Boolean,
+) : Emittable {
+
+    public constructor() :
+        this(
+            imageProvider = null,
+            contentColor = null,
+            backgroundColor = null,
+            shape = IconButtonShape.Circle,
+            modifier = GlanceModifier,
+            enabled = false,
+        )
+
+    override fun copy(): Emittable {
+        return EmittableM3IconButton(
+            imageProvider = imageProvider,
+            contentColor = contentColor,
+            backgroundColor = backgroundColor,
+            shape = shape,
+            modifier = modifier,
+            enabled = enabled,
+        )
     }
 }
 
 private val isAtLeastApi31
     get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-
-private fun maybeRoundCorners(@DimenRes radius: Int) =
-    if (isAtLeastApi31) GlanceModifier.cornerRadius(radius) else GlanceModifier

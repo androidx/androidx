@@ -20,4 +20,5 @@ package androidx.compose.foundation.text
  * This is a temporary workaround and should be removed after proper mouse handling is settled
  * (b/171402426).
  */
+@Suppress("KmpDeprecationMismatch") // deprecated in android
 internal expect val isInTouchMode: Boolean

@@ -56,7 +56,7 @@ internal constructor(
     // Application context is sufficient for all our needs, so store that to avoid leaking
     // unused resources. For attribution, ContextUtil.getApplicationContext() will retain the
     // attribution tag from the original context.
-    private val applicationContext: Context = ContextUtil.getApplicationContext(context)
+    private val applicationContext: Context = ContextUtil.getPersistentApplicationContext(context)
     private var eventListener: Consumer<VideoRecordEvent>? = null
     private var listenerExecutor: Executor? = null
     private var isAudioEnabled: Boolean = false

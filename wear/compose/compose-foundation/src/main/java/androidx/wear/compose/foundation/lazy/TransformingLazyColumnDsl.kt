@@ -20,18 +20,23 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.trace
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
-import androidx.wear.compose.foundation.lazy.layout.LazyLayoutIntervalContent
-import androidx.wear.compose.foundation.lazy.layout.MutableIntervalList
 
 /** Receiver scope being used by the item content parameter of [TransformingLazyColumn]. */
 @TransformingLazyColumnScopeMarker
@@ -87,6 +92,50 @@ public sealed interface TransformingLazyColumnItemScope {
             ),
         fadeOutSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
     ): Modifier
+
+    /**
+     * This modifier allows items to choose a preferred content padding for the list, if they are
+     * placed at the top or bottom edge. When this item is at the top or bottom of the layout, the
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of these vertical padding
+     * values and its own contentPadding parameter.
+     *
+     * The vertical padding values are expected to be provided by design systems, such as the
+     * recommended values in Material3 `ButtonDefaults`, `CardDefaults`, `ListHeaderDefaults` and so
+     * on.
+     *
+     * This modifier can be used to ensure that, when a list item is at the top or bottom of the
+     * list, the distance from the item to the screen edge is sufficient (such as to avoid the item
+     * being clipped by edges of a round screen).
+     *
+     * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+     * @param top The preferred top content padding for the list, when this item is placed at the
+     *   top edge. Used when either this is the first item for a layout that is not reversed, or
+     *   this is the last item for a reversed layout.
+     * @param bottom The preferred bottom content padding for the list, when this item is placed at
+     *   the bottom edge. Used when either this is the last item for a layout that is not reversed,
+     *   or this is the first item for a reversed layout.
+     */
+    public fun Modifier.minimumVerticalContentPadding(top: Dp, bottom: Dp): Modifier
+
+    /**
+     * This modifier allows items to choose a preferred content padding for the list, if they are
+     * placed at the top or bottom edge. When this item is at the top or bottom of the layout, the
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of this vertical padding
+     * value and its own contentPadding parameter.
+     *
+     * The vertical padding values are expected to be provided by design systems, such as the
+     * recommended values in Material3 `ButtonDefaults`, `CardDefaults`, `ListHeaderDefaults` and so
+     * on.
+     *
+     * This modifier can be used to ensure that, when a list item is at the top or bottom of the
+     * list, the distance from the item to the screen edge is sufficient (such as to avoid the item
+     * being clipped by edges of a round screen).
+     *
+     * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+     * @param padding The preferred content padding for the list, when this item is placed at either
+     *   the top or bottom edges.
+     */
+    public fun Modifier.minimumVerticalContentPadding(padding: Dp): Modifier
 }
 
 /** Receiver scope which is used by [TransformingLazyColumn]. */
@@ -192,6 +241,7 @@ public inline fun <T> TransformingLazyColumnScope.itemsIndexed(
     }
 
 internal class TransformingLazyColumnItemScopeImpl(
+    val key: Any,
     val index: Int,
     val state: TransformingLazyColumnState,
     val reduceMotionEnabled: Boolean,
@@ -200,14 +250,28 @@ internal class TransformingLazyColumnItemScopeImpl(
     private val _scrollProgress: TransformingLazyColumnItemScrollProgress
         get() =
             trace("wear-compose:tlc:scrollProgress") {
-                with(state.layoutInfo.visibleItems) {
-                    val firstItem =
-                        firstOrNull()
-                            ?: return@trace TransformingLazyColumnItemScrollProgress.Unspecified
-                    val delta = index - firstItem.index
-                    if (delta in indices) this[delta].scrollProgress
-                    else TransformingLazyColumnItemScrollProgress.Unspecified
+                val visibleItems = state.layoutInfo.visibleItems
+                val fastResolvedItemByIndex =
+                    visibleItems.getOrNull(index - (visibleItems.firstOrNull()?.index ?: 0))
+                val resolvedItem =
+                    if (fastResolvedItemByIndex?.key == key) {
+                        fastResolvedItemByIndex
+                    } else {
+                        visibleItems.fastFirstOrNull { it.key == key }
+                    }
+                if (resolvedItem != null) {
+                    return@trace resolvedItem.scrollProgress
                 }
+
+                val animatedProgress = state.animator.getAnimation(key)?.animatedScrollProgress
+                if (
+                    animatedProgress != null &&
+                        animatedProgress != TransformingLazyColumnItemScrollProgress.Unspecified
+                ) {
+                    return@trace animatedProgress
+                }
+
+                TransformingLazyColumnItemScrollProgress.Unspecified
             }
 
     override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress
@@ -234,6 +298,12 @@ internal class TransformingLazyColumnItemScopeImpl(
         } else {
             this then LazyLayoutAnimateItemElement(fadeInSpec, placementSpec, fadeOutSpec)
         }
+
+    override fun Modifier.minimumVerticalContentPadding(top: Dp, bottom: Dp): Modifier =
+        this then MinimumVerticalContentPaddingElement(top = top, bottom = bottom)
+
+    override fun Modifier.minimumVerticalContentPadding(padding: Dp): Modifier =
+        this then Modifier.minimumVerticalContentPadding(top = padding, bottom = padding)
 }
 
 internal class TransformingLazyColumnCompositeParentDataModifier(
@@ -253,6 +323,8 @@ internal class TransformingLazyColumnCompositeParentDataModifier(
 internal data class TransformingLazyColumnParentData(
     val heightProvider: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? = null,
     val animationSpecs: LazyLayoutAnimationSpecsNode? = null,
+    val minimumTopContentPadding: Dp? = null,
+    val minimumBottomContentPadding: Dp? = null,
 )
 
 internal class TransformingLazyColumnScopeImpl(
@@ -298,3 +370,33 @@ internal class TransformingLazyColumnInterval(
     override val type: ((index: Int) -> Any?),
     val item: @Composable TransformingLazyColumnItemScope.(index: Int) -> Unit,
 ) : LazyLayoutIntervalContent.Interval
+
+private data class MinimumVerticalContentPaddingElement(val top: Dp, val bottom: Dp) :
+    ModifierNodeElement<MinimumVerticalContentPaddingNode>() {
+    override fun create() = MinimumVerticalContentPaddingNode(top, bottom)
+
+    override fun update(node: MinimumVerticalContentPaddingNode) {
+        node.top = top
+        node.bottom = bottom
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "MinimumVerticalContentPadding"
+        properties["top"] = top
+        properties["bottom"] = bottom
+    }
+}
+
+private class MinimumVerticalContentPaddingNode(var top: Dp, var bottom: Dp) :
+    Modifier.Node(), ParentDataModifierNode {
+    override fun Density.modifyParentData(parentData: Any?): Any {
+        return if (parentData is TransformingLazyColumnParentData) {
+            parentData.copy(minimumTopContentPadding = top, minimumBottomContentPadding = bottom)
+        } else {
+            TransformingLazyColumnParentData(
+                minimumTopContentPadding = top,
+                minimumBottomContentPadding = bottom,
+            )
+        }
+    }
+}

@@ -1,0 +1,91 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.scenecore.testing.internal
+
+import androidx.xr.scenecore.runtime.InputEvent
+import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.PointerCaptureComponent
+import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState
+import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
+import java.util.concurrent.Executor
+
+/** Test-only implementation of [FakePointerCaptureComponent] */
+internal class FakePointerCaptureComponent(
+    /**
+     * The executor on which to invoke the
+     * [androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener] callbacks.
+     *
+     * If this is non-null, listener callbacks will be dispatched via this executor. If it is null,
+     * callbacks will be invoked synchronously on the thread that calls [onStateChanged]. This can
+     * be set in tests to simulate different threading behaviors.
+     */
+    internal val executor: Executor? = null,
+    /**
+     * The [androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener] that receives
+     * callbacks upon a simulated pointer capture state change.
+     *
+     * Tests can provide a listener at construction to verify that state changes, triggered via the
+     * [onStateChanged] function, are dispatched correctly. If this is null, calls to
+     * [onStateChanged] will be ignored.
+     */
+    internal val stateListener: StateListener? = null,
+) : FakeComponent(), PointerCaptureComponent {
+
+    /**
+     * This property reflects the `inputListener` parameter that was passed to the runtime's factory
+     * method [FakeSceneRuntime.createPointerCaptureComponent]. Tests can inspect this value to
+     * verify that the component was created with the correct configuration.
+     */
+    var inputListener: InputEventListener? = null
+        internal set
+
+    /**
+     * Simulates a pointer capture state change event, invoking the registered [stateListener].
+     *
+     * This function is a test utility to manually trigger the state change callback. It respects
+     * the provided [executor], dispatching the callback to it if non-null, or invoking it
+     * synchronously otherwise.
+     *
+     * @param newState The new
+     *   [androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState] to propagate to
+     *   the listener.
+     */
+    fun onStateChanged(@PointerCaptureState newState: Int) {
+        if (stateListener != null) {
+            executor?.let { currentExecutor ->
+                currentExecutor.execute { stateListener.onStateChanged(newState) }
+            } ?: run { stateListener!!.onStateChanged(newState) }
+        }
+    }
+
+    /**
+     * Simulates an input event from the runtime, invoking the registered [inputListener]
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It respects the provided [executor], dispatching the callback to it if non-null,
+     * or invoking it synchronously otherwise.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    fun onInputEvent(event: InputEvent) {
+        inputListener?.let {
+            executor?.let { currentExecutor ->
+                currentExecutor.execute { inputListener!!.onInputEvent(event) }
+            } ?: run { inputListener!!.onInputEvent(event) }
+        }
+    }
+}

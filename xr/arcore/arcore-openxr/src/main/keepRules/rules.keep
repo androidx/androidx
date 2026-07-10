@@ -1,0 +1,93 @@
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.openxr.AnchorState { *; }
+
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.openxr.AnchorStateKt { *; }
+
+-if class androidx.xr.arcore.Anchor
+-keep class androidx.xr.arcore.openxr.OpenXrAnchorKt { *; }
+
+-if class androidx.xr.arcore.ArDevice
+-keep class androidx.xr.arcore.openxr.DeviceState { *; }
+
+-if class androidx.xr.arcore.AugmentedImage
+-keep class androidx.xr.arcore.openxr.AugmentedImageState { *; }
+
+-if class androidx.xr.arcore.AugmentedImage
+-keep class androidx.xr.arcore.openxr.OpenXrAugmentedImageDatabase { *; }
+
+-if class androidx.xr.arcore.AugmentedImage
+-keep class androidx.xr.arcore.openxr.OpenXrAugmentedImageDatabase$OpenXrAugmentedImageDatabaseEntry { *; }
+
+-if class androidx.xr.arcore.AugmentedObject
+-keep class androidx.xr.arcore.openxr.AugmentedObjectState { *; }
+
+-if class androidx.xr.arcore.Depth
+-keep class androidx.xr.arcore.openxr.OpenXrDepth { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeData { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeDataKt { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeStatus { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeStatus$Companion { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeTrackingState { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyeTrackingState$Companion { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyesInfo { *; }
+
+-if class androidx.xr.arcore.Eye
+-keep class androidx.xr.arcore.openxr.EyesInfoKt { *; }
+
+-if class androidx.xr.arcore.Face
+-keep class androidx.xr.arcore.openxr.FaceState { *; }
+
+-if class androidx.xr.arcore.Face
+-keep class androidx.xr.arcore.openxr.FaceStateKt { *; }
+
+-if class androidx.xr.arcore.Geospatial
+-keep class androidx.xr.arcore.openxr.OpenXrGeospatial { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.openxr.OpenXrPlane { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.openxr.OpenXrPlaneKt { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.openxr.PlaneState { *; }
+
+-if class androidx.xr.arcore.Plane
+-keep class androidx.xr.arcore.openxr.PlaneStateKt { *; }
+
+-if class androidx.xr.arcore.QrCode
+-keep class androidx.xr.arcore.openxr.OpenXrQrCode { *; }
+
+-if class androidx.xr.arcore.QrCode
+-keep class androidx.xr.arcore.openxr.QrCodeState { *; }
+
+-if class androidx.xr.arcore.RenderViewpoint
+-keep class androidx.xr.arcore.openxr.OpenXrRenderViewpoint { *; }
+
+-if class androidx.xr.arcore.RenderViewpoint
+-keep class androidx.xr.arcore.openxr.ViewCameraState { *; }
+
+-if class androidx.xr.arcore.openxr.OpenXrPerceptionManager {
+    androidx.xr.arcore.openxr.ViewCameraState[] nativeGetViewCameras(boolean, long);
+}
+-keep class androidx.xr.arcore.openxr.ViewCameraState { *; }
+
+-if class androidx.xr.arcore.openxr.OpenXrPerceptionManager {
+    androidx.xr.arcore.openxr.HitData[] nativeHitTest(int, float, float, float, float, float, float, long);
+}
+-keep class androidx.xr.arcore.openxr.HitData { *; }

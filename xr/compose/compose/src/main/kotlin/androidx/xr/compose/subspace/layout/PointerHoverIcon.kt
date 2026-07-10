@@ -71,8 +71,10 @@ internal class SpatialPointerHoverIconNode(internal var icon: SpatialPointerIcon
 
     override fun CoreEntityScope.modifyCoreEntity() {
         if (!isComponentAttached) {
-            check(coreEntity.addComponent(component)) {
-                "Could not add SpatialPointerComponent to Core Entity"
+            coreEntity.onEntityAttached {
+                check(coreEntity.addComponent(component) == true) {
+                    "Could not add SpatialPointerComponent to Core Entity"
+                }
             }
             isComponentAttached = true
         }

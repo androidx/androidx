@@ -51,6 +51,7 @@ class CustomTestPdfViewerFragment : PdfViewerFragment() {
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PdfViewerFragmentTest {
 
     @Test

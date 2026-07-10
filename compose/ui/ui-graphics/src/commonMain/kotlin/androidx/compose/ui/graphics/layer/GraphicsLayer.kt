@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -228,6 +229,28 @@ expect class GraphicsLayer {
      * [record] or [IntSize.Zero] if [record] was not previously invoked.
      */
     val outline: Outline
+
+    /**
+     * Configures the outsets for this [GraphicsLayer]. GraphicsLayer implicitly clips to its bounds
+     * when promoted to an offscreen buffer such as when [alpha] is set to a value less than 1.0f or
+     * a [colorFilter] is applied. Outsets can be used to increase the visual bounds of the layer to
+     * avoid clipping the underlying content in case the layer is promoted to an offscreen buffer.
+     * Note that increasing the outsets will also increase the overhead of the Offscreen buffer
+     * since it increases its bounds. This does not affect [clip], [shadowElevation] or
+     * transformations.
+     *
+     * @param left The number of pixels to extend the layer to the left
+     * @param top The number of pixels to extend the layer to the top
+     * @param right The number of pixels to extend the layer to the right
+     * @param bottom The number of pixels to extend the layer to the bottom
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutsetsSample
+     */
+    fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int,
+    )
 
     /**
      * Specifies the given path to be configured as the outline for this [GraphicsLayer]. When

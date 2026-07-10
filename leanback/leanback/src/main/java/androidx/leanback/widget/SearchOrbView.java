@@ -274,6 +274,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      *
      * @return the drawable used as the icon
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable Drawable getOrbIcon() {
         return mIconDrawable;
     }
@@ -335,6 +336,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     /**
      * Returns the {@link Colors} used to display the search orb.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable Colors getOrbColors() {
         return mColors;
     }

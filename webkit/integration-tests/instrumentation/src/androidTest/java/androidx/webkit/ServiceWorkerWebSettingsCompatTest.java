@@ -48,9 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -121,7 +119,6 @@ public class ServiceWorkerWebSettingsCompatTest {
         private boolean mAllowContentAccess;
         private boolean mAllowFileAccess;
         private boolean mBlockNetworkLoads;
-        private Set<String> mRequestedHeaderOriginAllowList;
         private boolean mInterceptCookies;
 
         ServiceWorkerWebSettingsCompatCache(ServiceWorkerWebSettingsCompat settingsCompat) {
@@ -136,10 +133,6 @@ public class ServiceWorkerWebSettingsCompatTest {
             }
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS)) {
                 mBlockNetworkLoads = settingsCompat.getBlockNetworkLoads();
-            }
-            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
-                mRequestedHeaderOriginAllowList =
-                        settingsCompat.getRequestedWithHeaderOriginAllowList();
             }
             if (isFeatureSupported(WebViewFeature.COOKIE_INTERCEPT)) {
                 mInterceptCookies =
@@ -159,9 +152,6 @@ public class ServiceWorkerWebSettingsCompatTest {
             }
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS)) {
                 mSettings.setBlockNetworkLoads(mBlockNetworkLoads);
-            }
-            if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
-                mSettings.setRequestedWithHeaderOriginAllowList(mRequestedHeaderOriginAllowList);
             }
             if (isFeatureSupported(WebViewFeature.COOKIE_INTERCEPT)) {
                 mSettings.setIncludeCookiesOnShouldInterceptRequestEnabled(mInterceptCookies);
@@ -258,50 +248,14 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
     }
 
-
-    @Test
-    public void testSetAppPackageNameXRequestedWithHeaderAllowList() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST);
-
-        Assert.assertTrue("The allow-list should be empty by default",
-                mSettings.getRequestedWithHeaderOriginAllowList().isEmpty());
-
-        try (MockWebServer server = getServiceWorkerMockServer();
-             WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
-
-            webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
-
-            HttpUrl url = server.url(INDEX_HTML_PATH);
-            String requestOrigin = url.scheme() + "://" + url.host() + ":" + url.port();
-            Set<String> allowList = Collections.singleton(requestOrigin);
-            mSettings.setRequestedWithHeaderOriginAllowList(allowList);
-
-            Assert.assertEquals("The allow-list should be returned once set", allowList,
-                    mSettings.getRequestedWithHeaderOriginAllowList());
-
-            String requestUrl = url.toString();
-            webViewOnUiThread.loadUrl(requestUrl);
-
-            RecordedRequest request;
-            do {
-                // Wait until we get the request for the text content
-                request = server.takeRequest(5, TimeUnit.SECONDS);
-            } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
-            Assert.assertNotNull("Test timed out while waiting for expected request", request);
-            Assert.assertEquals(TEST_APK_NAME, request.getHeader("X-Requested-With"));
-            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
-        }
-    }
-
     /**
-     * Create, configure and start a MockWebServer to test the X-Requested-With header for
-     * ServiceWorkers.
+     * Create, configure and start a MockWebServer to test ServiceWorkers.
      */
     static MockWebServer getServiceWorkerMockServer() throws IOException {
         MockWebServer server = new MockWebServer();
         server.setDispatcher(new Dispatcher() {
             @Override
-            public MockResponse dispatch(RecordedRequest request) {
+            public @NonNull MockResponse dispatch(@NonNull RecordedRequest request) {
                 MockResponse response = new MockResponse();
                 switch (request.getPath()) {
                     case INDEX_HTML_PATH:

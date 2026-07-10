@@ -358,19 +358,19 @@ object CardDefaults {
 
     /**
      * Recommended aspect ratio [Float] to get square images, can be applied using the modifier
-     * [Modifier.aspectRatio].
+     * [androidx.compose.foundation.layout.aspectRatio].
      */
     const val SquareImageAspectRatio = 1f
 
     /**
      * Recommended aspect ratio [Float] for vertical images, can be applied using the modifier
-     * [Modifier.aspectRatio].
+     * [androidx.compose.foundation.layout.aspectRatio].
      */
     const val VerticalImageAspectRatio = 2f / 3
 
     /**
      * Recommended aspect ratio [Float] for horizontal images, can be applied using the modifier
-     * [Modifier.aspectRatio].
+     * [androidx.compose.foundation.layout.aspectRatio].
      */
     const val HorizontalImageAspectRatio = 16f / 9
 

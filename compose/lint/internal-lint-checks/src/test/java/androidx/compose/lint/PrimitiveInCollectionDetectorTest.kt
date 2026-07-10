@@ -511,14 +511,14 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
         val ContainsIntClass =
             kotlin(
                 """
-            package androidx.compose.lint
+                package androidx.compose.lint
 
-            @JvmInline value class ContainsInt(val value: Int) {
-                 companion object {
-                    val companionField = 0
-                 }
-            }
-            """
+                @JvmInline value class ContainsInt(val value: Int) {
+                     companion object {
+                        val companionField = 0
+                     }
+                }
+                """
                     .trimIndent()
             )
 
@@ -529,11 +529,11 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
                 checksum = 0x8b98db3a,
                 source =
                     """
-                package test
+                    package test
 
-                @JvmInline
-                value class SimpleValueClass(val value: Int)
-            """
+                    @JvmInline
+                    value class SimpleValueClass(val value: Int)
+                    """
                         .trimIndent(),
                 """
             META-INF/main.kotlin_module:

@@ -18,6 +18,7 @@ package androidx.aab.analysis
 
 import androidx.aab.ApkInfo
 import androidx.aab.BundleInfo
+import androidx.aab.CsvColumn
 import androidx.aab.DexInfo
 import androidx.aab.ProfInfo
 import androidx.aab.analysis.BaselineProfileIssues.getPartlyCorruptedProfileIssue
@@ -63,10 +64,22 @@ data class ProfileAnalysis(
         return SubScore("Baseline Profile", score, 20, listOfNotNull(issue))
     }
 
-    fun csvEntries() = listOf(getScore().toString(), status.toString())
-
     companion object {
-        val CSV_TITLES = listOf("profile_score", "profile_status")
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<ProfileAnalysis>(
+                    "profile_score",
+                    "experimental - Score for profile quality, out of 20",
+                    requiresVerbose = true,
+                    calculate = { it.getScore().toString() },
+                ),
+                CsvColumn(
+                    "profile_status",
+                    "Status of baseline profile (detects presence and corruption)",
+                    requiresVerbose = false,
+                    calculate = { it.status.toString() },
+                ),
+            )
 
         fun getProfileAnalysis(dexInfo: List<DexInfo>, profileInfo: ProfInfo?): ProfileAnalysis {
             val setOfDexCrc32FromDex = (dexInfo.map { it.crc32 }.toSet())

@@ -134,6 +134,11 @@ public class TrustedWebActivityServiceTest {
                     throws RemoteException {
                 mTestCallback.onExtraCallback(callbackName, args);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
 
         mService.extraCommand(

@@ -19,12 +19,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation("androidx.core:core:1.1.0")
-    api(libs.kotlinStdlib)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     api(libs.kotlinCoroutinesGuava)
     // Add dependencies here
     compileOnly files("../../wear_sdk/wear-sdk.jar")
@@ -38,7 +37,8 @@ dependencies {
 android {
     namespace = "androidx.wear.watchfacepush"
     defaultConfig {
-        minSdk = 36
+        minSdk { version = release(33) }
+        compileSdk { version = release(36) }
     }
 }
 

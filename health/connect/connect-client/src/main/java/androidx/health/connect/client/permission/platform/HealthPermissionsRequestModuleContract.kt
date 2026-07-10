@@ -19,14 +19,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
-import androidx.annotation.RestrictTo
 
 /**
  * An [ActivityResultContract] to request Health Connect system permissions.
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class HealthPermissionsRequestModuleContract :
     ActivityResultContract<Set<String>, Set<String>>() {
 

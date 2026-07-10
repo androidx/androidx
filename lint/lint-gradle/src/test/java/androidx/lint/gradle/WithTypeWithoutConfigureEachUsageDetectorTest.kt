@@ -37,7 +37,7 @@ class WithTypeWithoutConfigureEachUsageDetectorTest :
                 fun configure(project: Project) {
                     project.tasks.withType(Example::class.java) {}
                 }
-            """
+                """
                     .trimIndent()
             )
 
@@ -66,7 +66,7 @@ class WithTypeWithoutConfigureEachUsageDetectorTest :
                 fun configure(project: Project) {
                     project.tasks.withType(Example::class.java).configureEach {}
                 }
-            """
+                """
                     .trimIndent()
             )
         check(input).expectClean()

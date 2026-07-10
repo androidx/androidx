@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.graphics.ColorSpace
+import android.hardware.HardwareBuffer
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
@@ -33,9 +34,11 @@ import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Handler
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -224,6 +227,20 @@ internal object Api28Compat {
     fun discardFreeBuffers(imageReader: ImageReader) {
         imageReader.discardFreeBuffers()
     }
+
+    @JvmStatic
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> unwrapAsHardwareBuffer(image: Image, type: Class<T>): T? {
+        if (type == HardwareBuffer::class.java) {
+            return image.getHardwareBuffer() as T?
+        }
+        return null
+    }
+
+    @JvmStatic
+    fun getHardwareBuffer(image: Image): HardwareBuffer? {
+        return image.hardwareBuffer
+    }
 }
 
 @RequiresApi(29)
@@ -348,6 +365,19 @@ internal object Api31Compat {
         extension: Int,
         klass: Class<*>,
     ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
+
+    @JvmStatic
+    fun getEstimatedCaptureLatencyRangeMillis(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        captureSize: Size,
+        imageFormat: Int,
+    ): Range<Long>? =
+        extensionCharacteristics.getEstimatedCaptureLatencyRangeMillis(
+            extension,
+            captureSize,
+            imageFormat,
+        )
 }
 
 @RequiresApi(33)
@@ -437,6 +467,13 @@ internal object Api33Compat {
                     setDefaultHardwareBufferFormat(defaultHardwareBufferFormat)
             }
             .build()
+    }
+
+    @JvmStatic fun getDataSpace(image: Image) = image.dataSpace
+
+    @JvmStatic
+    fun setDataSpace(image: Image, value: Int) {
+        image.dataSpace = value
     }
 }
 
@@ -536,5 +573,22 @@ internal object Api35Compat {
         cameraCharacteristics: CameraCharacteristics
     ): List<CameraCharacteristics.Key<*>>? {
         return cameraCharacteristics.availableSessionCharacteristicsKeys
+    }
+
+    @JvmStatic
+    fun getExtensionKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+    ): Set<CameraCharacteristics.Key<*>> {
+        return extensionCharacteristics.getKeys(extension)
+    }
+
+    @JvmStatic
+    fun <T> getExtensionCharacteristic(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        key: CameraCharacteristics.Key<T>,
+    ): T? {
+        return extensionCharacteristics.get(extension, key)
     }
 }

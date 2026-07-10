@@ -129,7 +129,6 @@ internal constructor(
         public val activeDuration: Duration,
     ) {
 
-        @RestrictTo(Scope.LIBRARY)
         internal fun toProto(): DataProto.ExerciseUpdate.ActiveDurationCheckpoint =
             DataProto.ExerciseUpdate.ActiveDurationCheckpoint.newBuilder()
                 .setTimeEpochMs(time.toEpochMilli())
@@ -158,7 +157,6 @@ internal constructor(
         }
 
         internal companion object {
-            @RestrictTo(Scope.LIBRARY)
             internal fun fromProto(
                 proto: DataProto.ExerciseUpdate.ActiveDurationCheckpoint
             ): ActiveDurationCheckpoint? =

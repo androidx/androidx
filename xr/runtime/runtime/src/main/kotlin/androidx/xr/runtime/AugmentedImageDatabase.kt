@@ -1,0 +1,89 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.runtime
+
+import android.graphics.Bitmap
+
+/** Database of target images used by the tracker via [Config.augmentedImageDatabase]. */
+public class AugmentedImageDatabase {
+
+    private val _entries: MutableList<AugmentedImageDatabaseEntry> = mutableListOf()
+
+    /**
+     * @property entries the list of [AugmentedImageDatabaseEntry] objects currently in the database
+     */
+    public val entries: List<AugmentedImageDatabaseEntry>
+        get() = _entries.toList()
+
+    /**
+     * Creates a copy of this [AugmentedImageDatabase]
+     *
+     * @return a new [AugmentedImageDatabase] instance with the same entries
+     */
+    public fun copy(): AugmentedImageDatabase {
+        val newDatabase = AugmentedImageDatabase()
+        newDatabase._entries.addAll(this._entries)
+        return newDatabase
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AugmentedImageDatabase) return false
+
+        if (_entries != other._entries) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return _entries.hashCode()
+    }
+
+    /**
+     * Adds a bitmap to the database as a tracking target.
+     *
+     * @param mode the mode used to detect the image
+     * @param bitmap the bitmap of the image in [android.graphics.Bitmap.Config.ARGB_8888] format
+     * @param widthInMeters the physical width of the image in meters. If zero, the physical width
+     *   will be estimated if the device supports it. If physical size estimation is not supported,
+     *   configuring the [Session] adding an entry with widthInMeters being 0f or lower will throw
+     *   an [IllegalArgumentException]
+     * @return the zero-based positional index of the image within the database
+     * @throws [IllegalArgumentException] if the bitmap format is different from `ARGB_8888`
+     */
+    @JvmOverloads
+    public fun addAugmentedImageDatabaseEntry(
+        mode: AugmentedImageDatabaseEntryMode,
+        bitmap: Bitmap,
+        widthInMeters: Float = 0f,
+    ): Int {
+        if (bitmap.config != Bitmap.Config.ARGB_8888) {
+            throw IllegalArgumentException("Unsupported bitmap format.")
+        }
+
+        val imageDatabaseEntry = AugmentedImageDatabaseEntry(bitmap, mode, widthInMeters)
+        _entries.add(imageDatabaseEntry)
+        return _entries.indexOf(imageDatabaseEntry)
+    }
+
+    /**
+     * Returns a string representation of [AugmentedImageDatabase] for debugging.
+     *
+     * Note: Not intended for production use.
+     */
+    override fun toString(): String = "AugmentedImageDatabase(entries=$entries)"
+}

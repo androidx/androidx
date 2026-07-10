@@ -27,6 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
@@ -37,6 +38,7 @@ private const val IMAGE_ANALYSIS = 0x8
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class StreamSharingForceEnablerTest(
     private val brand: String,
     private val model: String,

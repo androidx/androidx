@@ -59,7 +59,8 @@ public class RegistryManagerJavaTest {
                 new CredentialManagerCallback<RegisterCredentialsResponse,
                         RegisterCredentialsException>() {
                     @Override
-                    public void onResult(RegisterCredentialsResponse result) {}
+                    public void onResult(RegisterCredentialsResponse result) {
+                    }
 
                     @Override
                     public void onError(@NonNull RegisterCredentialsException e) {
@@ -74,6 +75,35 @@ public class RegistryManagerJavaTest {
     }
 
     @Test
+    public void registerCreationOptionsAsync_noOptionalModule_throws() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<RegisterCreationOptionsException> resultCaptor = new AtomicReference<>();
+
+        mRegistryManager.registerCreationOptionsAsync(
+                new RegisterCreationOptionsRequest("type", "id", "options".getBytes(),
+                        "matcher".getBytes(), "create") {
+                },
+                null,
+                Runnable::run,
+                new CredentialManagerCallback<RegisterCreationOptionsResponse,
+                        RegisterCreationOptionsException>() {
+                    @Override
+                    public void onResult(RegisterCreationOptionsResponse result) {
+                    }
+
+                    @Override
+                    public void onError(@NonNull RegisterCreationOptionsException e) {
+                        resultCaptor.set(e);
+                        latch.countDown();
+                    }
+                }
+        );
+        latch.await(100L, TimeUnit.MILLISECONDS);
+        assertThat(resultCaptor.get()).isInstanceOf(
+                RegisterCreationOptionsConfigurationException.class);
+    }
+
+    @Test
     public void clearCredentialRegistryAsync_noOptionalModule_throws() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Exception> resultCaptor = new AtomicReference<>();
@@ -84,7 +114,8 @@ public class RegistryManagerJavaTest {
                 new CredentialManagerCallback<ClearCredentialRegistryResponse,
                         ClearCredentialRegistryException>() {
                     @Override
-                    public void onResult(ClearCredentialRegistryResponse result) {}
+                    public void onResult(ClearCredentialRegistryResponse result) {
+                    }
 
                     @Override
                     public void onError(@NonNull ClearCredentialRegistryException e) {
@@ -99,8 +130,36 @@ public class RegistryManagerJavaTest {
     }
 
     @Test
+    public void clearCreationOptionsAsync_noOptionalModule_throws() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Exception> resultCaptor = new AtomicReference<>();
+
+        mRegistryManager.clearCreationOptionsAsync(
+                new ClearCreationOptionsRequest(true),
+                Runnable::run,
+                new CredentialManagerCallback<ClearCreationOptionsResponse,
+                        ClearCreationOptionsException>() {
+                    @Override
+                    public void onResult(ClearCreationOptionsResponse result) {
+                    }
+
+                    @Override
+                    public void onError(@NonNull ClearCreationOptionsException e) {
+                        resultCaptor.set(e);
+                        latch.countDown();
+                    }
+                }
+        );
+        latch.await(100L, TimeUnit.MILLISECONDS);
+        assertThat(resultCaptor.get()).isInstanceOf(
+                ClearCreationOptionsConfigurationException.class);
+    }
+
+    @Test
     public void constant() {
         assertThat(RegistryManager.ACTION_GET_CREDENTIAL).isEqualTo(
                 "androidx.credentials.registry.provider.action.GET_CREDENTIAL");
+        assertThat(RegistryManager.ACTION_CREATE_CREDENTIAL).isEqualTo(
+                "androidx.credentials.registry.provider.action.CREATE_CREDENTIAL");
     }
 }

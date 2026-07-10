@@ -17,6 +17,8 @@
 package androidx.build.playground
 
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask.Companion.extractGradleVersion
+import com.google.common.truth.Truth.assertThat
+import java.util.Properties
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import org.junit.Test
@@ -45,20 +47,73 @@ class VerifyPlaygroundGradleConfigurationTaskTest {
             "7.3-rc-2",
             extractGradleVersion(
                 "https\\://services.gradle.org/distributions/gradle-7.3-rc-2-all.zip"
-            )
+            ),
         )
         // androidx
         assertEquals(
             "7.3-rc-1",
-            extractGradleVersion(
-                "../../../../tools/external/gradle/gradle-7.3-rc-1-bin.zip"
-            )
+            extractGradleVersion("../../../../tools/external/gradle/gradle-7.3-rc-1-bin.zip"),
         )
         assertEquals(
             "7.3",
-            extractGradleVersion(
-                "https\\://services.gradle.org/distributions/gradle-7.3-all.zip"
-            )
+            extractGradleVersion("https\\://services.gradle.org/distributions/gradle-7.3-all.zip"),
         )
+    }
+
+    @Test
+    fun testValidateProperties_whenNewOrMismatch() {
+        val rootProps =
+            Properties().apply {
+                put("prop1", "value1")
+                put("prop2", "value2")
+                put("ignored", "value3")
+                put("newProp", "newValue")
+            }
+        val playgroundProps =
+            Properties().apply {
+                put("prop1", "value1")
+                put("prop2", "mismatch")
+                put("ignored", "different")
+            }
+        val ignoredProperties = setOf("ignored")
+        val expectedProperties = mapOf("expected" to "expectedValue")
+
+        val errors =
+            validateProperties(rootProps, playgroundProps, expectedProperties, ignoredProperties)
+
+        assertThat(errors).hasSize(2)
+        assertThat(errors)
+            .containsExactly(
+                "prop2: AndroidX value: value2, Playground value: mismatch",
+                "newProp: AndroidX value: newValue, Playground value: null",
+            )
+    }
+
+    @Test
+    fun testExpectedPropertiesWhenWrongValue() {
+        val rootProps = Properties().apply { put("expected", "expectedValue") }
+        val playgroundProps = Properties().apply { put("expected", "wrongValue") }
+        val ignoredProperties = emptySet<String>()
+        val expectedProperties = mapOf("expected" to "expectedValue")
+
+        val errors =
+            validateProperties(rootProps, playgroundProps, expectedProperties, ignoredProperties)
+        assertThat(errors).hasSize(1)
+        assertThat(errors)
+            .containsExactly(
+                "Expected playground property 'expected' to have value 'expectedValue' but was 'wrongValue'"
+            )
+    }
+
+    @Test
+    fun testExpectedPropertiesWhenMismatchWhenExpected() {
+        val rootProps = Properties().apply { put("expected", "rootValue") }
+        val playgroundProps = Properties().apply { put("expected", "expectedValue") }
+        val ignoredProperties = emptySet<String>()
+        val expectedProperties = mapOf("expected" to "expectedValue")
+
+        val errors =
+            validateProperties(rootProps, playgroundProps, expectedProperties, ignoredProperties)
+        assertThat(errors).isEmpty()
     }
 }

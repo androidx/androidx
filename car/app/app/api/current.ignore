@@ -1,3 +1,11 @@
 // Baseline format: 1.0
-AddedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_TINTABLE_INDICATOR_ICON_URI_LIST:
-    Added field androidx.car.app.mediaextensions.MetadataExtras.KEY_TINTABLE_INDICATOR_ICON_URI_LIST
+BecameUnchecked: androidx.car.app.hardware.climate:
+    Removed package androidx.car.app.hardware.climate from compatibility checked API surface
+BecameUnchecked: androidx.car.app.media.model:
+    Removed package androidx.car.app.media.model from compatibility checked API surface
+BecameUnchecked: androidx.car.app.mediaextensions.analytics.client:
+    Removed package androidx.car.app.mediaextensions.analytics.client from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.signin:
+    Removed package androidx.car.app.model.signin from compatibility checked API surface
+BecameUnchecked: androidx.car.app.suggestion.model:
+    Removed package androidx.car.app.suggestion.model from compatibility checked API surface

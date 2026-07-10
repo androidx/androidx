@@ -26,7 +26,7 @@ private const val LambdaAnnotation = "com.android.tools.r8.annotations.LambdaMet
 private val SELECTOR_EXPR = Regex("(\\\$(lambda-)?[0-9]+)+$")
 
 data class LambdaLocation(
-    val lambdaClassName: String,
+    val packageName: String,
     val fileName: String,
     val startLine: Int,
     val endLine: Int,
@@ -38,13 +38,7 @@ data class LambdaLocation(
         fileName: String,
         startLine: Int,
         endLine: Int,
-    ) : this(clazz.name, fileName, startLine, endLine)
-
-    val packageName: String
-        get() = lambdaClassName.substringBeforeLast(".")
-
-    val lambdaName: String
-        get() = findLambdaSelector(lambdaClassName)
+    ) : this(clazz.name.substringBeforeLast("."), fileName, startLine, endLine)
 
     companion object {
         init {
@@ -112,7 +106,8 @@ data class LambdaLocation(
             val fileName = location["file"] as? String ?: return null
             val startLine = location["startLine"] as? Int ?: return null
             val endLine = location["endLine"] as? Int ?: return null
-            return LambdaLocation(internalName, fileName, startLine, endLine)
+            val packageName = internalName.substringBeforeLast(".")
+            return LambdaLocation(packageName, fileName, startLine, endLine)
         }
 
         @SuppressLint("BanUncheckedReflection")

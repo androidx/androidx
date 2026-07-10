@@ -14,29 +14,49 @@
  * limitations under the License.
  */
 
+
+import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlinSerialization)
 }
 
-dependencies {
-    api("androidx.navigation:navigation-compose:2.8.0")
-    implementation(project(":compose:material:material"))
-    implementation(libs.kotlinStdlib)
-    implementation(libs.kotlinSerializationCore)
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk { version = release(35) }
+        namespace = "androidx.compose.material.navigation"
+    }
+    jvmStubs()
+    linuxX64Stubs()
 
-    androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation("androidx.navigation:navigation-testing:2.7.7")
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testRules)
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api("androidx.navigation:navigation-compose:2.9.6")
+            implementation(project(":compose:material:material"))
+            implementation(libs.kotlinSerializationCore)
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.navigation:navigation-testing:2.9.6")
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.testRules)
+        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+        jvmStubsMain.dependsOn(nonAndroidMain)
+        jvmStubsTest.dependsOn(nonAndroidTest)
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
+    }
 }
 
 androidx {
@@ -47,9 +67,4 @@ androidx {
     description = "Compose Material integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:material:material-navigation-samples"))
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.material.navigation"
 }

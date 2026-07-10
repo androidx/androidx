@@ -16,23 +16,18 @@
 
 package androidx.build.dependencyTracker
 
-import androidx.build.gitclient.getChangedFilesFromChangeInfoProvider
-import androidx.build.gitclient.getHeadShaFromManifestProvider
+import androidx.build.gitclient.getChangedFilesFromChangeInfoAndManifest
+import androidx.build.gitclient.getHeadShaFromManifest
 import com.google.gson.JsonSyntaxException
 import org.gradle.api.GradleException
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ChangeInfoProvidersTest {
-    @get:Rule var folder: TemporaryFolder = TemporaryFolder()
-
     @Test
     fun findChangedFilesSince_oneChange() {
         checkChangedFiles(
@@ -227,45 +222,28 @@ class ChangeInfoProvidersTest {
     }
 
     private fun checkChangedFiles(changeInfoContent: String, expectedChangedFiles: List<String>) {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val changeInfoFile = folder.newFile()
-        changeInfoFile.writeText(changeInfoContent)
-        val project = ProjectBuilder.builder().build()
-        val changedFilesProvider =
-            project.getChangedFilesFromChangeInfoProvider(
-                project.providers.provider { manifestFile.absolutePath },
-                project.providers.provider { changeInfoFile.absolutePath },
+        val changedFiles =
+            getChangedFilesFromChangeInfoAndManifest(
+                changeInfoContent,
+                basicManifest,
                 frameworksSupportPath,
             )
-        val changedFiles = changedFilesProvider.get()
         assertEquals(expectedChangedFiles, changedFiles)
     }
 
     @Test
     fun headShaFromManifest() {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val project = ProjectBuilder.builder().build()
-        val headShaProvider =
-            project.getHeadShaFromManifestProvider(
-                project.providers.provider { manifestFile.absolutePath },
-                frameworksSupportPath,
-            )
-        assertEquals(frameworksSupportSha, headShaProvider.get())
+        assertEquals(
+            frameworksSupportSha,
+            getHeadShaFromManifest(basicManifest, frameworksSupportPath),
+        )
     }
 
     @Test
     fun missingProjectHeadShaFromManifest() {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val project = ProjectBuilder.builder().build()
-        val headShaProvider =
-            project.getHeadShaFromManifestProvider(
-                project.providers.provider { manifestFile.absolutePath },
-                "missing/project/path",
-            )
-        assertThrows(GradleException::class.java) { headShaProvider.get() }
+        assertThrows(GradleException::class.java) {
+            getHeadShaFromManifest(basicManifest, "missing/project/path")
+        }
     }
 }
 

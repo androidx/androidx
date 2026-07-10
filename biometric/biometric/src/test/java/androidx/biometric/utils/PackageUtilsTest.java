@@ -25,24 +25,27 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class PackageUtilsTest {
     @Rule
     public final MockitoRule mocks = MockitoJUnit.rule();
 
-    @Mock private Context mContext;
-    @Mock private PackageManager mPackageManager;
+    @Mock
+    private Context mContext;
+    @Mock
+    private PackageManager mPackageManager;
 
     @Test
     @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)

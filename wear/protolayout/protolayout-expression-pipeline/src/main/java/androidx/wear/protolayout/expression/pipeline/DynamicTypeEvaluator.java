@@ -89,6 +89,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +121,8 @@ public class DynamicTypeEvaluator {
                 }
 
                 @Override
-                public void releaseQuota(int quota) {}
+                public void releaseQuota(int quota) {
+                }
             };
 
     private static final @NonNull QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
@@ -151,15 +153,17 @@ public class DynamicTypeEvaluator {
     private final @NonNull QuotaManager mAnimationQuotaManager;
     private final @NonNull QuotaManager mDynamicTypesQuotaManager;
     private final @NonNull EpochTimePlatformDataSource mTimeDataSource;
+    private final boolean mEnableExpressionDeduplication;
 
     /** Configuration for creating {@link DynamicTypeEvaluator}. */
     public static final class Config {
         private final @Nullable StateStore mStateStore;
         private final @Nullable QuotaManager mAnimationQuotaManager;
         private final @Nullable QuotaManager mDynamicTypesQuotaManager;
+        private final boolean mEnableExpressionDeduplication;
 
         private final @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
-                        mSourceKeyToDataProviders = new ArrayMap<>();
+                mSourceKeyToDataProviders = new ArrayMap<>();
 
         private final @Nullable PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
         private final @Nullable Supplier<Instant> mClock;
@@ -168,12 +172,14 @@ public class DynamicTypeEvaluator {
                 @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable QuotaManager dynamicTypesQuotaManager,
+                boolean enableExpressionDeduplication,
                 @NonNull Map<PlatformDataKey<?>, PlatformDataProvider> sourceKeyToDataProviders,
                 @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier,
                 @Nullable Supplier<Instant> clock) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
+            this.mEnableExpressionDeduplication = enableExpressionDeduplication;
             this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
             this.mPlatformTimeUpdateNotifier = platformTimeUpdateNotifier;
             this.mClock = clock;
@@ -184,12 +190,24 @@ public class DynamicTypeEvaluator {
             private @Nullable StateStore mStateStore = null;
             private @Nullable QuotaManager mAnimationQuotaManager = null;
             private @Nullable QuotaManager mDynamicTypesQuotaManager = null;
+            private boolean mEnableExpressionDeduplication = false;
 
             private final @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
                     mSourceKeyToDataProviders = new ArrayMap<>();
 
             private @Nullable PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier = null;
             private @Nullable Supplier<Instant> mClock = null;
+
+            /**
+             * Sets whether to enable caching and deduplication of dynamic types. Defaults to {@code
+             * false}.
+             */
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setEnableExpressionDeduplication(boolean enableExpressionDeduplication) {
+                mEnableExpressionDeduplication = enableExpressionDeduplication;
+                return this;
+            }
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -234,7 +252,7 @@ public class DynamicTypeEvaluator {
              * One data key must not have multiple providers, or an exception will be thrown.
              *
              * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key set
-             *     or if a key has multiple data providers.
+             *                                  or if a key has multiple data providers.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             public @NonNull Builder addPlatformDataProvider(
@@ -284,6 +302,7 @@ public class DynamicTypeEvaluator {
                         mStateStore,
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
+                        mEnableExpressionDeduplication,
                         mSourceKeyToDataProviders,
                         mPlatformTimeUpdateNotifier,
                         mClock);
@@ -315,6 +334,12 @@ public class DynamicTypeEvaluator {
          */
         public @Nullable QuotaManager getDynamicTypesQuotaManager() {
             return mDynamicTypesQuotaManager;
+        }
+
+        /** Returns whether deduplication of dynamic types is enabled. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public boolean isExpressionDeduplicationEnabled() {
+            return mEnableExpressionDeduplication;
         }
 
         /** Returns any available mapping between source key and its data provider. */
@@ -352,6 +377,7 @@ public class DynamicTypeEvaluator {
                         ? config.getDynamicTypesQuotaManager()
                         : NO_OP_QUOTA_MANAGER;
         this.mPlatformDataStore = new PlatformDataStore(config.getPlatformDataProviders());
+        this.mEnableExpressionDeduplication = config.isExpressionDeduplicationEnabled();
         PlatformTimeUpdateNotifier notifier = config.getPlatformTimeUpdateNotifier();
         if (notifier == null) {
             notifier = new PlatformTimeUpdateNotifierImpl();
@@ -368,11 +394,17 @@ public class DynamicTypeEvaluator {
      * called on the returned object.
      *
      * @throws EvaluationException when {@link QuotaManager} fails to allocate enough quota to bind
-     *     the {@link DynamicTypeBindingRequest}.
+     *                             the {@link DynamicTypeBindingRequest}.
      */
     public @NonNull BoundDynamicType bind(@NonNull DynamicTypeBindingRequest request)
             throws EvaluationException {
-        BoundDynamicTypeImpl boundDynamicType = request.callBindOn(this);
+        BoundDynamicTypeImpl boundDynamicType;
+        try {
+            boundDynamicType = request.callBindOn(this);
+        } catch (RuntimeException e) {
+            throw new EvaluationException(
+                    "Failed to construct dynamic type graph: " + e.getMessage());
+        }
         int dynamicNodeCost = boundDynamicType.getDynamicNodeCost();
         if (!mDynamicTypesQuotaManager.tryAcquireQuota(dynamicNodeCost)) {
             throw new EvaluationException(
@@ -384,13 +416,90 @@ public class DynamicTypeEvaluator {
         return boundDynamicType;
     }
 
+    /** A wrapper for a proto message that provides content-based equality. */
+    private static class SubtreeWrapper {
+        private final Object mProtoMessage;
+
+        SubtreeWrapper(Object protoMessage) {
+            this.mProtoMessage = protoMessage;
+        }
+
+        @Override
+        public int hashCode() {
+            return DynamicProtoHashEquals.hashCode(mProtoMessage);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof SubtreeWrapper)) {
+                return false;
+            }
+            SubtreeWrapper that = (SubtreeWrapper) obj;
+            return DynamicProtoHashEquals.equals(mProtoMessage, that.mProtoMessage);
+        }
+    }
+
+    private static class Port<T> implements DynamicTypeValueReceiverWithPreUpdate<T> {
+        private final List<DynamicTypeValueReceiverWithPreUpdate<T>> mConsumers = new ArrayList<>();
+
+        void addConsumer(DynamicTypeValueReceiverWithPreUpdate<T> consumer) {
+            mConsumers.add(consumer);
+        }
+
+        @Override
+        public void onPreUpdate() {
+            for (DynamicTypeValueReceiverWithPreUpdate<T> consumer : mConsumers) {
+                consumer.onPreUpdate();
+            }
+        }
+
+        @Override
+        public void onData(@NonNull T newData) {
+            for (DynamicTypeValueReceiverWithPreUpdate<T> consumer : mConsumers) {
+                consumer.onData(newData);
+            }
+        }
+
+        @Override
+        public void onInvalidated() {
+            for (DynamicTypeValueReceiverWithPreUpdate<T> consumer : mConsumers) {
+                consumer.onInvalidated();
+            }
+        }
+    }
+
+    /**
+     * A cache for {@link DynamicDataNode} instances. This is used to avoid creating duplicate nodes
+     * for the same subtree.
+     */
+    private static class NodesCache {
+        private final Map<SubtreeWrapper, Port<?>> mCache = new HashMap<>();
+
+        @SuppressWarnings("unchecked")
+        @Nullable <T> Port<T> get(Object protoMessage) {
+            return (Port<T>) mCache.get(new SubtreeWrapper(protoMessage));
+        }
+
+        <T> void put(Object protoMessage, Port<T> port) {
+            mCache.put(new SubtreeWrapper(protoMessage), port);
+        }
+    }
+
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicString stringSource,
             @NonNull ULocale locale,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<String> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(stringSource, consumer, locale, resultBuilder);
+        bindRecursively(
+                stringSource,
+                consumer,
+                locale,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -399,7 +508,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(int32Source, consumer, resultBuilder);
+        bindRecursively(
+                int32Source,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -408,7 +521,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicFloat floatSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(floatSource, consumer, resultBuilder);
+        bindRecursively(
+                floatSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -417,7 +534,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(colorSource, consumer, resultBuilder);
+        bindRecursively(
+                colorSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -426,7 +547,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicDuration durationSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Duration> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(durationSource, consumer, resultBuilder);
+        bindRecursively(
+                durationSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -435,7 +560,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicInstant instantSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(instantSource, consumer, resultBuilder);
+        bindRecursively(
+                instantSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -444,7 +573,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicZonedDateTime zdtSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(zdtSource, consumer, resultBuilder);
+        bindRecursively(
+                zdtSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -453,7 +586,11 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicBool boolSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Boolean> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(boolSource, consumer, resultBuilder);
+        bindRecursively(
+                boolSource,
+                consumer,
+                resultBuilder,
+                mEnableExpressionDeduplication ? new NodesCache() : null);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -465,88 +602,110 @@ public class DynamicTypeEvaluator {
             @NonNull DynamicString stringSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<String> consumer,
             @NonNull ULocale locale,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<String> port = cache.get(stringSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<String> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<String> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(stringSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (stringSource.getInnerCase()) {
             case FIXED:
-                node = new FixedStringNode(stringSource.getFixed(), consumer);
+                node = new FixedStringNode(stringSource.getFixed(), downstreamConsumer);
                 break;
-            case INT32_FORMAT_OP:
-                {
-                    NumberFormatter formatter =
-                            new NumberFormatter(stringSource.getInt32FormatOp(), locale);
-                    Int32FormatNode int32FormatNode = new Int32FormatNode(formatter, consumer);
-                    node = int32FormatNode;
-                    bindRecursively(
-                            stringSource.getInt32FormatOp().getInput(),
-                            int32FormatNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case FLOAT_FORMAT_OP:
-                {
-                    NumberFormatter formatter =
-                            new NumberFormatter(stringSource.getFloatFormatOp(), locale);
-                    FloatFormatNode floatFormatNode = new FloatFormatNode(formatter, consumer);
-                    node = floatFormatNode;
-                    bindRecursively(
-                            stringSource.getFloatFormatOp().getInput(),
-                            floatFormatNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
-                    node =
-                            new StateStringNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<String> conditionalNode = new ConditionalOpNode<>(consumer);
+            case INT32_FORMAT_OP: {
+                NumberFormatter formatter =
+                        new NumberFormatter(stringSource.getInt32FormatOp(), locale);
+                Int32FormatNode int32FormatNode =
+                        new Int32FormatNode(formatter, downstreamConsumer);
+                node = int32FormatNode;
+                bindRecursively(
+                        stringSource.getInt32FormatOp().getInput(),
+                        int32FormatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case FLOAT_FORMAT_OP: {
+                NumberFormatter formatter =
+                        new NumberFormatter(stringSource.getFloatFormatOp(), locale);
+                FloatFormatNode floatFormatNode =
+                        new FloatFormatNode(formatter, downstreamConsumer);
+                node = floatFormatNode;
+                bindRecursively(
+                        stringSource.getFloatFormatOp().getInput(),
+                        floatFormatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case STATE_SOURCE: {
+                DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
+                node =
+                        new StateStringNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<String> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalStringOp op = stringSource.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            locale,
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            locale,
-                            resultBuilder);
+                ConditionalStringOp op = stringSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
-            case CONCAT_OP:
-                {
-                    StringConcatOpNode concatNode = new StringConcatOpNode(consumer);
-                    node = concatNode;
-                    bindRecursively(
-                            stringSource.getConcatOp().getInputLhs(),
-                            concatNode.getLhsIncomingCallback(),
-                            locale,
-                            resultBuilder);
-                    bindRecursively(
-                            stringSource.getConcatOp().getInputRhs(),
-                            concatNode.getRhsIncomingCallback(),
-                            locale,
-                            resultBuilder);
-                    break;
-                }
+                node = conditionalNode;
+                break;
+            }
+            case CONCAT_OP: {
+                StringConcatOpNode concatNode = new StringConcatOpNode(downstreamConsumer);
+                node = concatNode;
+                bindRecursively(
+                        stringSource.getConcatOp().getInputLhs(),
+                        concatNode.getLhsIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        stringSource.getConcatOp().getInputRhs(),
+                        concatNode.getRhsIncomingCallback(),
+                        locale,
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicString has no inner source set");
             default:
@@ -563,107 +722,130 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Integer> port = cache.get(int32Source);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Integer> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Integer> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(int32Source, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<Integer> node;
 
         switch (int32Source.getInnerCase()) {
             case FIXED:
-                node = new FixedInt32Node(int32Source.getFixed(), consumer);
+                node = new FixedInt32Node(int32Source.getFixed(), downstreamConsumer);
                 break;
-            case PLATFORM_SOURCE:
-                {
-                    node =
-                            new LegacyPlatformInt32SourceNode(
-                                    mPlatformDataStore, int32Source.getPlatformSource(), consumer);
-                    break;
-                }
-            case ARITHMETIC_OPERATION:
-                {
-                    ArithmeticInt32Node arithmeticNode =
-                            new ArithmeticInt32Node(int32Source.getArithmeticOperation(), consumer);
-                    node = arithmeticNode;
+            case PLATFORM_SOURCE: {
+                node =
+                        new LegacyPlatformInt32SourceNode(
+                                mPlatformDataStore,
+                                int32Source.getPlatformSource(),
+                                downstreamConsumer);
+                break;
+            }
+            case ARITHMETIC_OPERATION: {
+                ArithmeticInt32Node arithmeticNode =
+                        new ArithmeticInt32Node(
+                                int32Source.getArithmeticOperation(), downstreamConsumer);
+                node = arithmeticNode;
 
-                    bindRecursively(
-                            int32Source.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            int32Source.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                bindRecursively(
+                        int32Source.getArithmeticOperation().getInputLhs(),
+                        arithmeticNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        int32Source.getArithmeticOperation().getInputRhs(),
+                        arithmeticNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
-                    node =
-                            new StateInt32SourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<Integer> conditionalNode = new ConditionalOpNode<>(consumer);
+                break;
+            }
+            case STATE_SOURCE: {
+                DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
+                node =
+                        new StateInt32SourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<Integer> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalInt32Op op = int32Source.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder);
+                ConditionalInt32Op op = int32Source.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
-            case FLOAT_TO_INT:
-                {
-                    FloatToInt32Node conversionNode =
-                            new FloatToInt32Node(int32Source.getFloatToInt(), consumer);
-                    node = conversionNode;
+                node = conditionalNode;
+                break;
+            }
+            case FLOAT_TO_INT: {
+                FloatToInt32Node conversionNode =
+                        new FloatToInt32Node(int32Source.getFloatToInt(), downstreamConsumer);
+                node = conversionNode;
 
-                    bindRecursively(
-                            int32Source.getFloatToInt().getInput(),
-                            conversionNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case DURATION_PART:
-                {
-                    GetDurationPartOpNode durationPartOpNode =
-                            new GetDurationPartOpNode(int32Source.getDurationPart(), consumer);
-                    node = durationPartOpNode;
+                bindRecursively(
+                        int32Source.getFloatToInt().getInput(),
+                        conversionNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case DURATION_PART: {
+                GetDurationPartOpNode durationPartOpNode =
+                        new GetDurationPartOpNode(
+                                int32Source.getDurationPart(), downstreamConsumer);
+                node = durationPartOpNode;
 
-                    bindRecursively(
-                            int32Source.getDurationPart().getInput(),
-                            durationPartOpNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case ZONED_DATE_TIME_PART:
-                {
-                    GetZonedDateTimePartOpNode zdtPartOpNode =
-                            new GetZonedDateTimePartOpNode(
-                                    int32Source.getZonedDateTimePart(), consumer);
-                    node = zdtPartOpNode;
+                bindRecursively(
+                        int32Source.getDurationPart().getInput(),
+                        durationPartOpNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case ZONED_DATE_TIME_PART: {
+                GetZonedDateTimePartOpNode zdtPartOpNode =
+                        new GetZonedDateTimePartOpNode(
+                                int32Source.getZonedDateTimePart(), downstreamConsumer);
+                node = zdtPartOpNode;
 
-                    bindRecursively(
-                            int32Source.getZonedDateTimePart().getInput(),
-                            zdtPartOpNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
+                bindRecursively(
+                        int32Source.getZonedDateTimePart().getInput(),
+                        zdtPartOpNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case ANIMATABLE_FIXED:
 
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -672,7 +854,9 @@ public class DynamicTypeEvaluator {
                 // value.
                 node =
                         new AnimatableFixedInt32Node(
-                                int32Source.getAnimatableFixed(), consumer, mAnimationQuotaManager);
+                                int32Source.getAnimatableFixed(),
+                                downstreamConsumer,
+                                mAnimationQuotaManager);
                 break;
             case ANIMATABLE_DYNAMIC:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -682,11 +866,16 @@ public class DynamicTypeEvaluator {
                 AnimatableDynamicInt32 dynamicNode = int32Source.getAnimatableDynamic();
                 DynamicAnimatedInt32Node animationNode =
                         new DynamicAnimatedInt32Node(
-                                consumer, dynamicNode.getAnimationSpec(), mAnimationQuotaManager);
+                                downstreamConsumer,
+                                dynamicNode.getAnimationSpec(),
+                                mAnimationQuotaManager);
                 node = animationNode;
 
                 bindRecursively(
-                        dynamicNode.getInput(), animationNode.getInputCallback(), resultBuilder);
+                        dynamicNode.getInput(),
+                        animationNode.getInputCallback(),
+                        resultBuilder,
+                        cache);
                 break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInt32 has no inner source set");
@@ -704,56 +893,79 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicDuration durationSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Duration> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Duration> port = cache.get(durationSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Duration> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Duration> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(durationSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (durationSource.getInnerCase()) {
             case BETWEEN:
-                BetweenInstancesNode betweenInstancesNode = new BetweenInstancesNode(consumer);
+                BetweenInstancesNode betweenInstancesNode =
+                        new BetweenInstancesNode(downstreamConsumer);
                 node = betweenInstancesNode;
                 bindRecursively(
                         durationSource.getBetween().getStartInclusive(),
                         betweenInstancesNode.getLhsIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         durationSource.getBetween().getEndExclusive(),
                         betweenInstancesNode.getRhsIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 break;
             case FIXED:
-                node = new FixedDurationNode(durationSource.getFixed(), consumer);
+                node = new FixedDurationNode(durationSource.getFixed(), downstreamConsumer);
                 break;
             case CONDITIONAL_OP:
-                ConditionalOpNode<Duration> conditionalNode = new ConditionalOpNode<>(consumer);
+                ConditionalOpNode<Duration> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
                 ConditionalDurationOp op = durationSource.getConditionalOp();
                 bindRecursively(
                         op.getCondition(),
                         conditionalNode.getConditionIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfTrue(),
                         conditionalNode.getTrueValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfFalse(),
                         conditionalNode.getFalseValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
 
                 node = conditionalNode;
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
-                    node =
-                            new StateDurationSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
+            case STATE_SOURCE: {
+                DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
+                node =
+                        new StateDurationSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");
             default:
@@ -770,23 +982,40 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicZonedDateTime zdtSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<ZonedDateTime> port = cache.get(zdtSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<ZonedDateTime> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(zdtSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (zdtSource.getInnerCase()) {
-            case INSTANT_TO_ZONED_DATE_TIME:
-                {
-                    InstantToZonedDateTimeOpNode conversionNode =
-                            new InstantToZonedDateTimeOpNode(
-                                    zdtSource.getInstantToZonedDateTime(), consumer);
-                    node = conversionNode;
+            case INSTANT_TO_ZONED_DATE_TIME: {
+                InstantToZonedDateTimeOpNode conversionNode =
+                        new InstantToZonedDateTimeOpNode(
+                                zdtSource.getInstantToZonedDateTime(), downstreamConsumer);
+                node = conversionNode;
 
-                    bindRecursively(
-                            zdtSource.getInstantToZonedDateTime().getInstant(),
-                            conversionNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
+                bindRecursively(
+                        zdtSource.getInstantToZonedDateTime().getInstant(),
+                        conversionNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicZonedDateTime has no inner source set");
             default:
@@ -803,48 +1032,68 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicInstant instantSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Instant> port = cache.get(instantSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Instant> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Instant> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(instantSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (instantSource.getInnerCase()) {
             case FIXED:
-                node = new FixedInstantNode(instantSource.getFixed(), consumer);
+                node = new FixedInstantNode(instantSource.getFixed(), downstreamConsumer);
                 break;
             case PLATFORM_SOURCE:
-                node = new PlatformTimeSourceNode(mTimeDataSource, consumer);
+                node = new PlatformTimeSourceNode(mTimeDataSource, downstreamConsumer);
                 break;
             case CONDITIONAL_OP:
-                ConditionalOpNode<Instant> conditionalNode = new ConditionalOpNode<>(consumer);
+                ConditionalOpNode<Instant> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
                 ConditionalInstantOp op = instantSource.getConditionalOp();
                 bindRecursively(
                         op.getCondition(),
                         conditionalNode.getConditionIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfTrue(),
                         conditionalNode.getTrueValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfFalse(),
                         conditionalNode.getFalseValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
 
                 node = conditionalNode;
                 break;
 
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
-                    node =
-                            new StateInstantSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
+            case STATE_SOURCE: {
+                DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
+                node =
+                        new StateInstantSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInstant has no inner source set");
             default:
@@ -861,74 +1110,95 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicFloat floatSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Float> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Float> port = cache.get(floatSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Float> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Float> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(floatSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (floatSource.getInnerCase()) {
             case FIXED:
-                node = new FixedFloatNode(floatSource.getFixed(), consumer);
+                node = new FixedFloatNode(floatSource.getFixed(), downstreamConsumer);
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
-                    node =
-                            new StateFloatSourceNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
-            case ARITHMETIC_OPERATION:
-                {
-                    ArithmeticFloatNode arithmeticNode =
-                            new ArithmeticFloatNode(floatSource.getArithmeticOperation(), consumer);
-                    node = arithmeticNode;
+            case STATE_SOURCE: {
+                DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
+                node =
+                        new StateFloatSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case ARITHMETIC_OPERATION: {
+                ArithmeticFloatNode arithmeticNode =
+                        new ArithmeticFloatNode(
+                                floatSource.getArithmeticOperation(), downstreamConsumer);
+                node = arithmeticNode;
 
-                    bindRecursively(
-                            floatSource.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            floatSource.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                bindRecursively(
+                        floatSource.getArithmeticOperation().getInputLhs(),
+                        arithmeticNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        floatSource.getArithmeticOperation().getInputRhs(),
+                        arithmeticNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case INT32_TO_FLOAT_OPERATION:
-                {
-                    Int32ToFloatNode toFloatNode = new Int32ToFloatNode(consumer);
-                    node = toFloatNode;
+                break;
+            }
+            case INT32_TO_FLOAT_OPERATION: {
+                Int32ToFloatNode toFloatNode = new Int32ToFloatNode(downstreamConsumer);
+                node = toFloatNode;
 
-                    bindRecursively(
-                            floatSource.getInt32ToFloatOperation().getInput(),
-                            toFloatNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case CONDITIONAL_OP:
-                {
-                    ConditionalOpNode<Float> conditionalNode = new ConditionalOpNode<>(consumer);
+                bindRecursively(
+                        floatSource.getInt32ToFloatOperation().getInput(),
+                        toFloatNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case CONDITIONAL_OP: {
+                ConditionalOpNode<Float> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
-                    ConditionalFloatOp op = floatSource.getConditionalOp();
-                    bindRecursively(
-                            op.getCondition(),
-                            conditionalNode.getConditionIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfTrue(),
-                            conditionalNode.getTrueValueIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            op.getValueIfFalse(),
-                            conditionalNode.getFalseValueIncomingCallback(),
-                            resultBuilder);
+                ConditionalFloatOp op = floatSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    node = conditionalNode;
-                    break;
-                }
+                node = conditionalNode;
+                break;
+            }
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
                 // we didn't have static value set, constructor has put QuotaManager that don't
@@ -936,7 +1206,9 @@ public class DynamicTypeEvaluator {
                 // value.
                 node =
                         new AnimatableFixedFloatNode(
-                                floatSource.getAnimatableFixed(), consumer, mAnimationQuotaManager);
+                                floatSource.getAnimatableFixed(),
+                                downstreamConsumer,
+                                mAnimationQuotaManager);
                 break;
             case ANIMATABLE_DYNAMIC:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -946,11 +1218,16 @@ public class DynamicTypeEvaluator {
                 AnimatableDynamicFloat dynamicNode = floatSource.getAnimatableDynamic();
                 DynamicAnimatedFloatNode animationNode =
                         new DynamicAnimatedFloatNode(
-                                consumer, dynamicNode.getAnimationSpec(), mAnimationQuotaManager);
+                                downstreamConsumer,
+                                dynamicNode.getAnimationSpec(),
+                                mAnimationQuotaManager);
                 node = animationNode;
 
                 bindRecursively(
-                        dynamicNode.getInput(), animationNode.getInputCallback(), resultBuilder);
+                        dynamicNode.getInput(),
+                        animationNode.getInputCallback(),
+                        resultBuilder,
+                        cache);
                 break;
 
             case INNER_NOT_SET:
@@ -969,12 +1246,29 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Integer> port = cache.get(colorSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Integer> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Integer> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(colorSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (colorSource.getInnerCase()) {
             case FIXED:
-                node = new FixedColorNode(colorSource.getFixed(), consumer);
+                node = new FixedColorNode(colorSource.getFixed(), downstreamConsumer);
                 break;
             case STATE_SOURCE:
                 DynamicProto.StateColorSource stateSource = colorSource.getStateSource();
@@ -984,7 +1278,7 @@ public class DynamicTypeEvaluator {
                                         ? mStateStore
                                         : mPlatformDataStore,
                                 stateSource,
-                                consumer);
+                                downstreamConsumer);
                 break;
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -993,7 +1287,9 @@ public class DynamicTypeEvaluator {
                 // value.
                 node =
                         new AnimatableFixedColorNode(
-                                colorSource.getAnimatableFixed(), consumer, mAnimationQuotaManager);
+                                colorSource.getAnimatableFixed(),
+                                downstreamConsumer,
+                                mAnimationQuotaManager);
                 break;
             case ANIMATABLE_DYNAMIC:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -1003,28 +1299,37 @@ public class DynamicTypeEvaluator {
                 AnimatableDynamicColor dynamicNode = colorSource.getAnimatableDynamic();
                 DynamicAnimatedColorNode animationNode =
                         new DynamicAnimatedColorNode(
-                                consumer, dynamicNode.getAnimationSpec(), mAnimationQuotaManager);
+                                downstreamConsumer,
+                                dynamicNode.getAnimationSpec(),
+                                mAnimationQuotaManager);
                 node = animationNode;
 
                 bindRecursively(
-                        dynamicNode.getInput(), animationNode.getInputCallback(), resultBuilder);
+                        dynamicNode.getInput(),
+                        animationNode.getInputCallback(),
+                        resultBuilder,
+                        cache);
                 break;
             case CONDITIONAL_OP:
-                ConditionalOpNode<Integer> conditionalNode = new ConditionalOpNode<>(consumer);
+                ConditionalOpNode<Integer> conditionalNode =
+                        new ConditionalOpNode<>(downstreamConsumer);
 
                 ConditionalColorOp op = colorSource.getConditionalOp();
                 bindRecursively(
                         op.getCondition(),
                         conditionalNode.getConditionIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfTrue(),
                         conditionalNode.getTrueValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
                 bindRecursively(
                         op.getValueIfFalse(),
                         conditionalNode.getFalseValueIncomingCallback(),
-                        resultBuilder);
+                        resultBuilder,
+                        cache);
 
                 node = conditionalNode;
                 break;
@@ -1044,86 +1349,107 @@ public class DynamicTypeEvaluator {
     private void bindRecursively(
             @NonNull DynamicBool boolSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Boolean> consumer,
-            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+            @NonNull List<DynamicDataNode<?>> resultBuilder,
+            @Nullable NodesCache cache) {
+        if (cache != null) {
+            Port<Boolean> port = cache.get(boolSource);
+            if (port != null) {
+                port.addConsumer(consumer);
+                return;
+            }
+        }
+
+        DynamicTypeValueReceiverWithPreUpdate<Boolean> downstreamConsumer = consumer;
+        if (cache != null) {
+            Port<Boolean> newPort = new Port<>();
+            newPort.addConsumer(consumer);
+            cache.put(boolSource, newPort);
+            downstreamConsumer = newPort;
+        }
+
         DynamicDataNode<?> node;
 
         switch (boolSource.getInnerCase()) {
             case FIXED:
-                node = new FixedBoolNode(boolSource.getFixed(), consumer);
+                node = new FixedBoolNode(boolSource.getFixed(), downstreamConsumer);
                 break;
-            case STATE_SOURCE:
-                {
-                    DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
-                    node =
-                            new StateBoolNode(
-                                    stateSource.getSourceNamespace().isEmpty()
-                                            ? mStateStore
-                                            : mPlatformDataStore,
-                                    stateSource,
-                                    consumer);
-                    break;
-                }
-            case INT32_COMPARISON:
-                {
-                    ComparisonInt32Node compNode =
-                            new ComparisonInt32Node(boolSource.getInt32Comparison(), consumer);
-                    node = compNode;
+            case STATE_SOURCE: {
+                DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
+                node =
+                        new StateBoolNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                downstreamConsumer);
+                break;
+            }
+            case INT32_COMPARISON: {
+                ComparisonInt32Node compNode =
+                        new ComparisonInt32Node(
+                                boolSource.getInt32Comparison(), downstreamConsumer);
+                node = compNode;
 
-                    bindRecursively(
-                            boolSource.getInt32Comparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            boolSource.getInt32Comparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                bindRecursively(
+                        boolSource.getInt32Comparison().getInputLhs(),
+                        compNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getInt32Comparison().getInputRhs(),
+                        compNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case LOGICAL_OP:
-                {
-                    LogicalBoolOp logicalNode =
-                            new LogicalBoolOp(boolSource.getLogicalOp(), consumer);
-                    node = logicalNode;
+                break;
+            }
+            case LOGICAL_OP: {
+                LogicalBoolOp logicalNode =
+                        new LogicalBoolOp(boolSource.getLogicalOp(), downstreamConsumer);
+                node = logicalNode;
 
-                    bindRecursively(
-                            boolSource.getLogicalOp().getInputLhs(),
-                            logicalNode.getLhsIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            boolSource.getLogicalOp().getInputRhs(),
-                            logicalNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                bindRecursively(
+                        boolSource.getLogicalOp().getInputLhs(),
+                        logicalNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getLogicalOp().getInputRhs(),
+                        logicalNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
-            case NOT_OP:
-                {
-                    NotBoolOp notNode = new NotBoolOp(consumer);
-                    node = notNode;
-                    bindRecursively(
-                            boolSource.getNotOp().getInput(),
-                            notNode.getIncomingCallback(),
-                            resultBuilder);
-                    break;
-                }
-            case FLOAT_COMPARISON:
-                {
-                    ComparisonFloatNode compNode =
-                            new ComparisonFloatNode(boolSource.getFloatComparison(), consumer);
-                    node = compNode;
+                break;
+            }
+            case NOT_OP: {
+                NotBoolOp notNode = new NotBoolOp(downstreamConsumer);
+                node = notNode;
+                bindRecursively(
+                        boolSource.getNotOp().getInput(),
+                        notNode.getIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                break;
+            }
+            case FLOAT_COMPARISON: {
+                ComparisonFloatNode compNode =
+                        new ComparisonFloatNode(
+                                boolSource.getFloatComparison(), downstreamConsumer);
+                node = compNode;
 
-                    bindRecursively(
-                            boolSource.getFloatComparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
-                            resultBuilder);
-                    bindRecursively(
-                            boolSource.getFloatComparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
-                            resultBuilder);
+                bindRecursively(
+                        boolSource.getFloatComparison().getInputLhs(),
+                        compNode.getLhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
+                bindRecursively(
+                        boolSource.getFloatComparison().getInputRhs(),
+                        compNode.getRhsIncomingCallback(),
+                        resultBuilder,
+                        cache);
 
-                    break;
-                }
+                break;
+            }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicBool has no inner source set");
             default:

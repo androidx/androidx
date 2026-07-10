@@ -17,8 +17,8 @@
 package androidx.car.app.model;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.RowConstraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -32,9 +32,9 @@ import java.util.Objects;
  * A section within the {@code SectionedItemTemplate} that contains {@link Row}s - good for
  * showcasing small icons and longer text for every entry.
  */
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
+@RequiresCarApi(8)
 public final class RowSection extends Section<Row> {
     // Set to < 0 when this section is not a selection group; otherwise, a valid index of mItems
     private final int mInitialSelectedIndex;
@@ -111,7 +111,6 @@ public final class RowSection extends Section<Row> {
      *     <li>Each {@link Row} must conform to {@link RowConstraints#ROW_CONSTRAINTS_FULL_LIST}
      * </ul>
      */
-    @ExperimentalCarApi
     public static final class Builder extends BaseBuilder<Row, Builder> {
         private int mInitialSelectedIndex = -1;
 

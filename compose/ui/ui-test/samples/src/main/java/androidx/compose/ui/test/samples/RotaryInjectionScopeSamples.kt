@@ -17,11 +17,9 @@
 package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performRotaryScrollInput
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun rotaryInputScroll() {
     composeTestRule.onNodeWithTag("myComponent").performRotaryScrollInput {

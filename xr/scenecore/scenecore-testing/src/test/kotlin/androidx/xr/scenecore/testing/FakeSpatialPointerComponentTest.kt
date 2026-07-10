@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
-import androidx.xr.scenecore.internal.SpatialPointerIcon
+import androidx.xr.scenecore.runtime.SpatialPointerIcon
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -33,14 +35,34 @@ class FakeSpatialPointerComponentTest {
     }
 
     @Test
+    fun onAttach_PanelEntity_attachesSuccessfully() {
+        val panelEntity = FakePanelEntity()
+
+        assertThat(panelEntity.addComponent(underTest)).isTrue()
+    }
+
+    @Test
+    fun onAttach_NonPanelEntity_failedToAttach() {
+        val anchorEntity = FakeAnchorEntity()
+        val gltfEntity = FakeGltfEntity()
+        val surfaceEntity = FakeSurfaceEntity()
+        val subspaceNodeEntity = FakeSubspaceNodeEntity()
+
+        assertThat(anchorEntity.addComponent(underTest)).isFalse()
+        assertThat(gltfEntity.addComponent(underTest)).isFalse()
+        assertThat(surfaceEntity.addComponent(underTest)).isFalse()
+        assertThat(subspaceNodeEntity.addComponent(underTest)).isFalse()
+    }
+
+    @Test
     fun setSpatialPointerIcon_getSpatialPointerIconReturnsSetIcon() {
         // Default value.
-        check(underTest.getSpatialPointerIcon() == SpatialPointerIcon.TYPE_NONE)
+        check(underTest.spatialPointerIcon == SpatialPointerIcon.TYPE_NONE)
 
-        underTest.setSpatialPointerIcon(SpatialPointerIcon.TYPE_CIRCLE)
-        assertThat(underTest.getSpatialPointerIcon()).isEqualTo(SpatialPointerIcon.TYPE_CIRCLE)
+        underTest.spatialPointerIcon = SpatialPointerIcon.TYPE_CIRCLE
+        assertThat(underTest.spatialPointerIcon).isEqualTo(SpatialPointerIcon.TYPE_CIRCLE)
 
-        underTest.setSpatialPointerIcon(SpatialPointerIcon.TYPE_DEFAULT)
-        assertThat(underTest.getSpatialPointerIcon()).isEqualTo(SpatialPointerIcon.TYPE_DEFAULT)
+        underTest.spatialPointerIcon = SpatialPointerIcon.TYPE_DEFAULT
+        assertThat(underTest.spatialPointerIcon).isEqualTo(SpatialPointerIcon.TYPE_DEFAULT)
     }
 }

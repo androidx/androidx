@@ -18,6 +18,7 @@ package androidx.appsearch.compiler;
 
 import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_SCOPE_CLASS;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
 import com.google.auto.service.AutoService;
@@ -79,8 +80,11 @@ public class DocumentMapGenerator {
         if (restrictGeneratedCodeToLib) {
             // Add @RestrictTo(LIBRARY_GROUP) to the generated class
             genClass.addAnnotation(
-                    AnnotationSpec.builder(RESTRICT_TO_ANNOTATION_CLASS)
-                            .addMember(/* name= */"value", "$T.LIBRARY", RESTRICT_TO_SCOPE_CLASS)
+                    AnnotationSpec.builder(toJavaPoet(RESTRICT_TO_ANNOTATION_CLASS))
+                            .addMember(
+                                    /* name= */"value",
+                                    "$T.LIBRARY",
+                                    toJavaPoet(RESTRICT_TO_SCOPE_CLASS))
                             .build());
         }
 

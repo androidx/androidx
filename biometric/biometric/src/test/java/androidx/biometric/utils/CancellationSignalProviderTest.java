@@ -22,6 +22,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,19 +32,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.core.os" })
+@RunWith(AndroidJUnit4.class)
+@Config(instrumentedPackages = {"androidx.core.os"})
 @DoNotInstrument
 @SuppressWarnings("deprecation")
 public class CancellationSignalProviderTest {
     @Rule
     public final MockitoRule mocks = MockitoJUnit.rule();
-    @Mock private android.os.CancellationSignal mBiometricCancellationSignal;
-    @Mock private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
+    @Mock
+    private android.os.CancellationSignal mBiometricCancellationSignal;
+    @Mock
+    private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
 
     private CancellationSignalProvider.Injector mFieldMockInjector;
     private CancellationSignalProvider.Injector mNewMockInjector;

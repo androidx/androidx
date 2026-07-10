@@ -22,9 +22,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.system.Os
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.security.state.SecurityPatchState.Companion.USE_VENDOR_SPL
 import androidx.webkit.WebViewCompat
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.util.regex.Pattern
 
 /**
@@ -40,7 +44,15 @@ import java.util.regex.Pattern
  * security-related information, which is crucial for maintaining the security integrity of the
  * device.
  */
-public open class SecurityStateManagerCompat(private val context: Context) {
+public open class SecurityStateManagerCompat
+@JvmOverloads
+constructor(
+    private val context: Context,
+    private val systemSupplementalPatchConfigFiles: Array<String> =
+        SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+    private val vendorSupplementalPatchConfigFiles: Array<String> =
+        VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+) {
 
     public companion object {
         private const val TAG = "SecurityStateManager"
@@ -50,21 +62,59 @@ public open class SecurityStateManagerCompat(private val context: Context) {
             "ro.vendor.build.security_patch"
         private const val ANDROID_MODULE_METADATA_PROVIDER: String = "com.android.modulemetadata"
 
+        private val SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES: Array<String> =
+            arrayOf(
+                "/system/etc/security/supplemental_security_patches.xml",
+                "/system_ext/etc/security/supplemental_security_patches.xml",
+                "/product/etc/security/supplemental_security_patches.xml",
+            )
+        private val VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES: Array<String> =
+            arrayOf(
+                "/vendor/etc/security/supplemental_security_patches.xml",
+                "/odm/etc/security/supplemental_security_patches.xml",
+            )
+
+        /**
+         * The system supplemental patches key returned as part of the {@code Bundle} from {@code
+         * getGlobalSecurityState}.
+         *
+         * The value is a {@code String[]} containing CVE IDs.
+         */
+        public const val KEY_SYSTEM_SUPPLEMENTAL_PATCHES: String =
+            "system_supplemental_security_patches"
+
+        /**
+         * The vendor supplemental patches key returned as part of the {@code Bundle} from {@code
+         * getGlobalSecurityState}.
+         *
+         * The value is a {@code String[]} containing CVE IDs.
+         */
+        public const val KEY_VENDOR_SUPPLEMENTAL_PATCHES: String =
+            "vendor_supplemental_security_patches"
+
         /**
          * The system SPL key returned as part of the {@code Bundle} from {@code
          * getGlobalSecurityState}.
+         *
+         * The value is a {@code String} representing the security patch level in "YYYY-MM-DD"
+         * format.
          */
         public const val KEY_SYSTEM_SPL: String = "system_spl"
 
         /**
          * The vendor SPL key returned as part of the {@code Bundle} from {@code
          * getGlobalSecurityState}.
+         *
+         * The value is a {@code String} representing the security patch level in "YYYY-MM-DD"
+         * format.
          */
         public const val KEY_VENDOR_SPL: String = "vendor_spl"
 
         /**
          * The kernel version key returned as part of the {@code Bundle} from {@code
          * getGlobalSecurityState}.
+         *
+         * The value is a {@code String} representing the kernel version in "X.X.XX" format.
          */
         public const val KEY_KERNEL_VERSION: String = "kernel_version"
     }
@@ -80,35 +130,62 @@ public open class SecurityStateManagerCompat(private val context: Context) {
      * @return A Bundle containing keys and values representing the security state of the system,
      *   vendor, and kernel.
      */
+    @JvmOverloads
     public open fun getGlobalSecurityState(
         moduleMetadataProviderPackageName: String = ANDROID_MODULE_METADATA_PROVIDER
     ): Bundle {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            return getGlobalSecurityStateFromService()
-        }
-        return Bundle().apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                putString(KEY_SYSTEM_SPL, Build.VERSION.SECURITY_PATCH)
-                if (USE_VENDOR_SPL) {
-                    putString(KEY_VENDOR_SPL, getVendorSpl())
+        // The method of obtaining the security state bundle varies by SDK version:
+        // - On SDK < 35 (VANILLA_ICE_CREAM), the bundle is constructed manually from various
+        //   system properties and package manager queries. Supplemental patches are loaded manually
+        //   from configuration files.
+        // - On SDK = 35 and 36 (BAKLAVA), the bundle is retrieved from the SecurityStateManager
+        //   system service, but with supplemental patches loaded manually.
+        // - On SDK > 36, the bundle is retrieved from the SecurityStateManager system service, with
+        //   no supplemental patches needed.
+
+        val bundle =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                getGlobalSecurityStateFromService()
+            } else {
+                Bundle().apply {
+                    putString(KEY_SYSTEM_SPL, Build.VERSION.SECURITY_PATCH)
+                    if (USE_VENDOR_SPL) {
+                        putString(KEY_VENDOR_SPL, getVendorSpl())
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        if (moduleMetadataProviderPackageName.isNotEmpty()) {
+                            putString(
+                                moduleMetadataProviderPackageName,
+                                getPackageVersion(moduleMetadataProviderPackageName),
+                            )
+                        }
+                    }
+                    val kernelVersion = getKernelVersion()
+                    if (kernelVersion.isNotEmpty()) {
+                        putString(KEY_KERNEL_VERSION, kernelVersion)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        addWebViewPackages(this)
+                    }
                 }
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (moduleMetadataProviderPackageName.isNotEmpty()) {
-                    putString(
-                        moduleMetadataProviderPackageName,
-                        getPackageVersion(moduleMetadataProviderPackageName),
-                    )
-                }
-            }
-            val kernelVersion = getKernelVersion()
-            if (kernelVersion.isNotEmpty()) {
-                putString(KEY_KERNEL_VERSION, kernelVersion)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                addWebViewPackages(this)
+
+        // The SecurityStateManager service does not include supplemental security patches before
+        // Android C. For these older platform versions, the patches are loaded manually
+        // from XML configuration files.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.BAKLAVA) {
+            var systemSupplementalPatches =
+                loadSupplementalPatchesFromFiles(systemSupplementalPatchConfigFiles)
+            var vendorSupplementalPatches =
+                loadSupplementalPatchesFromFiles(vendorSupplementalPatchConfigFiles)
+
+            bundle.apply {
+                putStringArray(KEY_SYSTEM_SUPPLEMENTAL_PATCHES, systemSupplementalPatches)
+                putStringArray(KEY_VENDOR_SUPPLEMENTAL_PATCHES, vendorSupplementalPatches)
             }
         }
+
+        return bundle
     }
 
     /**
@@ -236,6 +313,45 @@ public open class SecurityStateManagerCompat(private val context: Context) {
                 as String
         } catch (e: Exception) {
             return ""
+        }
+    }
+
+    internal fun loadSupplementalPatchesFromFiles(filePaths: Array<String>): Array<String> {
+        return filePaths
+            .flatMap { path -> parseSupplementalPatchFile(path).toList() }
+            .distinct()
+            .toTypedArray()
+    }
+
+    internal fun parseSupplementalPatchFile(configFilePath: String): Array<String> {
+        val configFile = File(configFilePath)
+
+        // Return if file does not exist
+        if (!configFile.exists()) {
+            return emptyArray()
+        }
+
+        return try {
+            FileInputStream(configFile).use { inputStream ->
+                // Call the static read method. Handle potential null return.
+                val securityPatches: SecurityPatchesXmlParser? =
+                    SecurityPatchesXmlParser.read(inputStream)
+
+                if (securityPatches != null) {
+                    // Use the getPatch() method, not property access
+                    val patches = securityPatches.getPatch()
+                    patches.mapNotNull { patch -> patch.id }.toTypedArray()
+                } else {
+                    Log.e(TAG, "Failed to parse XML, read returned null for: $configFilePath")
+                    emptyArray()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to read supplemental security patch file: $configFilePath", e)
+            emptyArray()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse supplemental security patch file: $configFilePath", e)
+            emptyArray()
         }
     }
 }

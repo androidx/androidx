@@ -18,7 +18,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 dependencies {
     api(libs.jspecify)
@@ -33,12 +32,9 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
-    testImplementation("org.robolectric:annotations:4.14")
-    testImplementation("org.robolectric:shadowapi:4.14")
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.testExtJunit)
@@ -50,7 +46,6 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(libs.guavaAndroid)
@@ -59,7 +54,7 @@ dependencies {
     androidTestImplementation(libs.testMonitor)
 }
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
     namespace = "androidx.camera.effects"
 }
 androidx {

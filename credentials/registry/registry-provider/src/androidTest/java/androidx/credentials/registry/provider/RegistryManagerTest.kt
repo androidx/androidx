@@ -57,6 +57,23 @@ class RegistryManagerTest {
         }
 
     @Test
+    fun registerCreationOptions_noOptionalModule_throws() =
+        runBlocking<Unit> {
+            assertThrows<RegisterCreationOptionsConfigurationException> {
+                registryManager.registerCreationOptions(
+                    object :
+                        RegisterCreationOptionsRequest(
+                            "type",
+                            "id",
+                            ByteArray(4),
+                            ByteArray(8),
+                            "intentAction",
+                        ) {}
+                )
+            }
+        }
+
+    @Test
     fun clearCredentialRegistry_noOptionalModule_throws() =
         runBlocking<Unit> {
             assertThrows<ClearCredentialRegistryConfigurationException> {
@@ -64,6 +81,23 @@ class RegistryManagerTest {
                     ClearCredentialRegistryRequest(
                         deletePerTypeConfig =
                             ClearCredentialRegistryRequest.PerTypeConfig(
+                                isDeleteAll = false,
+                                type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+                                registryIds = listOf("registry-id1", "registry-id2"),
+                            )
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun clearCreationOptions_noOptionalModule_throws() =
+        runBlocking<Unit> {
+            assertThrows<ClearCreationOptionsConfigurationException> {
+                registryManager.clearCreationOptions(
+                    ClearCreationOptionsRequest(
+                        deletePerTypeConfig =
+                            ClearCreationOptionsRequest.PerTypeConfig(
                                 isDeleteAll = false,
                                 type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
                                 registryIds = listOf("registry-id1", "registry-id2"),

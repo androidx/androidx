@@ -372,6 +372,17 @@
         </activity>
 
         <activity
+            android:name=".app.ToolbarSubtitleActivity"
+            android:exported="true"
+            android:label="@string/toolbar_subtitle"
+            android:theme="@style/Theme.Custom.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.androidx.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".app.DialogUsage"
             android:exported="true"
             android:label="@string/dialog_usage"

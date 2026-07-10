@@ -19,6 +19,7 @@ package androidx.pdf.viewer.fragment
 import android.net.Uri
 import android.util.SparseArray
 import androidx.lifecycle.SavedStateHandle
+import androidx.pdf.PdfFeature
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.viewer.coroutines.toListDuring
@@ -31,16 +32,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,7 +76,12 @@ class PdfDocumentViewSearchScenarioTest {
         pdfDocumentViewModel =
             PdfDocumentViewModel(
                 savedStateHandle,
-                FakePdfLoader(FakePdfDocument(searchResults = searchResults)),
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = searchResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
             )
     }
 
@@ -342,37 +349,50 @@ class PdfDocumentViewSearchScenarioTest {
             assertEquals(totalSearchMatches, updatedHighlightData.highlightBounds.size)
         }
 
-    @Ignore("Need more investigation on why it's failing on post submits. b/386727907")
     @Test
     fun test_pdfDocumentViewModel_noSearchOnSameQuery() = runTest {
-        var counter = 0
-        val collectorJob = launch { pdfDocumentViewModel.searchViewUiState.collect { counter++ } }
-
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
         setupViewModel(fakeResults)
+
+        val searchUiStates = mutableListOf<SearchViewUiState>()
+        val collectedJob =
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                pdfDocumentViewModel.searchViewUiState.collect { searchUiStates.add(it) }
+            }
+
+        // Assert initially closed state is collected
+        assertEquals(1, searchUiStates.size)
+        assertTrue(searchUiStates.first() is SearchViewUiState.Closed)
+
         pdfDocumentViewModel.loadDocument(uri = documentUri, password = null)
-        // wait for document to load
-        advanceUntilIdle()
+        // Wait for document to load
+        pdfDocumentViewModel.fragmentUiScreenState.first { it is PdfFragmentUiState.DocumentLoaded }
+
         // turn on search
         pdfDocumentViewModel.updateSearchState(true)
         // assert search view Init state is collected
-        assertEquals(1, counter)
+        assertTrue(searchUiStates[1] is SearchViewUiState.Init)
         assertTrue(pdfDocumentViewModel.searchViewUiState.value is SearchViewUiState.Init)
 
         // start search
         pdfDocumentViewModel.searchDocument(query = SEARCH_QUERY, visiblePageRange = IntRange(0, 1))
-        // wait for search operation to complete
-        advanceUntilIdle()
+        // wait for result
+        pdfDocumentViewModel.searchViewUiState.first { it is SearchViewUiState.Active }
+
         // assert new state emitted after search completion
-        assertEquals(2, counter)
+        assertEquals(3, searchUiStates.size)
+        val activeState = searchUiStates[2] as SearchViewUiState.Active
+        assertEquals(SEARCH_QUERY, activeState.query)
+        assertEquals(1, activeState.currentMatch)
+        assertEquals(10, activeState.totalMatches)
 
         // search with the same query again
         pdfDocumentViewModel.searchDocument(query = SEARCH_QUERY, visiblePageRange = IntRange(0, 1))
         advanceUntilIdle()
         // Assert no new state is emitted
-        assertEquals(2, counter)
+        assertEquals(3, searchUiStates.size)
 
-        collectorJob.cancel()
+        collectedJob.cancel()
     }
 
     @Test
@@ -409,7 +429,15 @@ class PdfDocumentViewSearchScenarioTest {
             }
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
         val pdfDocumentViewModel =
-            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+            PdfDocumentViewModel(
+                state,
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = fakeResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
+            )
 
         val searchStates = pdfDocumentViewModel.searchViewUiState.take(3).toList()
         // assert initially search view is closed
@@ -438,7 +466,15 @@ class PdfDocumentViewSearchScenarioTest {
 
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
         val pdfDocumentViewModel =
-            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+            PdfDocumentViewModel(
+                state,
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = fakeResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
+            )
         // wait for document load to complete after init.
         advanceUntilIdle()
 

@@ -123,8 +123,8 @@ class FloatNodes {
                 Log.e(TAG, "ArithmeticException in ArithmeticFloatNode", ex);
                 return Float.NaN;
             }
-            throw new IllegalArgumentException(
-                    "Unknown operation type in ArithmeticFloatNode: " + opType);
+            Log.e(TAG, "Unknown operation type in ArithmeticFloatNode: " + opType);
+            return Float.NaN;
         }
     }
 

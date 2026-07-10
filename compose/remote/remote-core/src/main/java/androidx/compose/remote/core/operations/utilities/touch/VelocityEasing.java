@@ -15,21 +15,7 @@
  */
 package androidx.compose.remote.core.operations.utilities.touch;
 
-/*
- * Copyright (C) 2024 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.Nullable;
 
@@ -38,6 +24,7 @@ import org.jspecify.annotations.Nullable;
  * easing function is also constrained by the configure To have: a maximum time to stop, a maximum
  * velocity, a maximum acceleration
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VelocityEasing {
     private static final boolean DEBUG = false;
 
@@ -336,6 +323,7 @@ public class VelocityEasing {
         mTotalEasingDuration = (float) (easingDuration + mStage[last].mStartTime);
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Easing {
         double get(double t);
 

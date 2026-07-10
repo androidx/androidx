@@ -200,14 +200,19 @@ private fun rememberAndroidExternalSurfaceState(): AndroidExternalSurfaceState {
 value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
     companion object {
         /** The [Surface]'s window layer is positioned behind the parent window. */
-        val Behind = AndroidExternalSurfaceZOrder(0)
+        val Behind
+            get() = AndroidExternalSurfaceZOrder(0)
+
         /**
          * The [Surface]'s window layer is positioned behind the parent window but above other
          * [Surface] window layers marked [Behind].
          */
-        val MediaOverlay = AndroidExternalSurfaceZOrder(1)
+        val MediaOverlay
+            get() = AndroidExternalSurfaceZOrder(1)
+
         /** The [Surface]'s window layer is positioned above the parent window. */
-        val OnTop = AndroidExternalSurfaceZOrder(2)
+        val OnTop
+            get() = AndroidExternalSurfaceZOrder(2)
     }
 }
 
@@ -410,8 +415,8 @@ private fun rememberAndroidEmbeddedExternalSurfaceState(): AndroidEmbeddedExtern
  * performance reasons.
  *
  * @param modifier Modifier to be applied to the [AndroidExternalSurface]
- * @param isOpaque Whether the managed surface should be opaque or transparent. If transparent and
- *   [isMediaOverlay] is `false`, the surface will be positioned above the parent window.
+ * @param isOpaque Whether the managed surface should be opaque or transparent. If transparent, the
+ *   surface will be positioned above the parent window.
  * @param surfaceSize Sets the surface size independently of the layout size of this
  *   [AndroidExternalSurface]. If set to [IntSize.Zero], the surface size will be equal to the
  *   [AndroidExternalSurface] layout size.

@@ -38,9 +38,7 @@ import androidx.appsearch.builtintypes.Account;
 import androidx.appsearch.builtintypes.PotentialAction;
 import androidx.appsearch.builtintypes.Thing;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -2968,6 +2966,45 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+    @Document(name = "EmailWithAnnEmbedding")
+    static class EmailWithAnnEmbedding extends EmailWithEmbedding {
+        @Document.EmbeddingProperty(indexingType =
+                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+        EmbeddingVector mTitleAnnEmbedding;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            EmailWithAnnEmbedding email = (EmailWithAnnEmbedding) o;
+            return Objects.equals(mTitleAnnEmbedding, email.mTitleAnnEmbedding);
+        }
+
+        public static EmailWithAnnEmbedding createSampleDoc() {
+            EmbeddingVector embedding1 =
+                    new EmbeddingVector(new float[]{1, 2, 3}, "model1");
+            EmbeddingVector embedding2 =
+                    new EmbeddingVector(new float[]{-1, -2, -3}, "model2");
+            EmbeddingVector embedding3 =
+                    new EmbeddingVector(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, "model3");
+            EmbeddingVector embedding4 =
+                    new EmbeddingVector(new float[]{-0.1f, -0.2f, -0.3f, -0.4f}, "model3");
+            EmbeddingVector embedding5 =
+                    new EmbeddingVector(new float[]{1, 2}, "model4");
+            EmailWithAnnEmbedding email = new EmailWithAnnEmbedding();
+            email.mNamespace = "namespace";
+            email.mId = "id";
+            email.mCreationTimestampMillis = 1000;
+            email.mSender = "sender";
+            email.mSenderEmbedding = embedding1;
+            email.mTitleEmbedding = embedding2;
+            email.mReceiverEmbeddings = Collections.singletonList(embedding3);
+            email.mBodyEmbeddings = new EmbeddingVector[]{embedding3, embedding4};
+            email.mTitleAnnEmbedding = embedding5;
+            return email;
+        }
+    }
+
     @Test
     public void testEmbeddingGenericDocumentConversion() throws Exception {
         EmailWithEmbedding inEmail = EmailWithEmbedding.createSampleDoc();
@@ -3124,6 +3161,33 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(outputDocument).isEqualTo(email);
     }
 
+    @Test
+    public void testEmbeddingAnnIndexing() throws Exception {
+        AppSearchSchema schema = AppSearchSchema.fromDocumentClass(EmailWithAnnEmbedding.class);
+        assertThat(schema.getSchemaType()).isEqualTo("EmailWithAnnEmbedding");
+        List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
+
+        AppSearchSchema.PropertyConfig titleAnnEmbeddingProp = null;
+        for (AppSearchSchema.PropertyConfig prop : properties) {
+            if (prop.getName().equals("titleAnnEmbedding")) {
+                titleAnnEmbeddingProp = prop;
+                break;
+            }
+        }
+        assertThat(titleAnnEmbeddingProp).isNotNull();
+        assertThat(
+                ((AppSearchSchema.EmbeddingPropertyConfig) titleAnnEmbeddingProp).getIndexingType())
+                .isEqualTo(AppSearchSchema.EmbeddingPropertyConfig
+                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR);
+
+        // Also test document conversion
+        EmailWithAnnEmbedding inEmail = EmailWithAnnEmbedding.createSampleDoc();
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(inEmail);
+        EmailWithAnnEmbedding outEmail = genericDocument.toDocumentClass(
+                EmailWithAnnEmbedding.class);
+        assertThat(inEmail).isEqualTo(outEmail);
+    }
+
     @Document
     static class EmailWithBlobHandle {
         @Document.Namespace
@@ -3196,9 +3260,8 @@ public abstract class AnnotationProcessorTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandleSearch() throws Exception {
-        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.BLOB_STORAGE));
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_BLOB_HANDLE));
 
         mSession.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addDocumentClasses(EmailWithBlobHandle.class)
@@ -3259,12 +3322,22 @@ public abstract class AnnotationProcessorTestBase {
         }
 
         public static EmailWithAccount createSampleDoc() {
-            Account account1 = new Account("", "", "com.google",
-                    "accountName1", "accountId1");
-            Account account2 = new Account("namespace", "", "com.google",
-                    "accountName2", /*accountId=*/"");
-            Account account3 = new Account("", "id", "com.google",
-                    /*accountName=*/"", "accountId3");
+
+            Account account1 = new Account.Builder("namespace", "id1")
+                    .setAccountType("com.google")
+                    .setAccountName("accountName1")
+                    .setAccountId("accountId1")
+                    .build();
+            Account account2 = new Account.Builder("namespace", "id2")
+                    .setAccountType("com.google")
+                    .setAccountName("accountName2")
+                    .setAccountId("accountId2")
+                    .build();
+            Account account3 = new Account.Builder("namespace", "id3")
+                    .setAccountType("com.google")
+                    .setAccountName("accountName3")
+                    .setAccountId("accountId3")
+                    .build();
 
             EmailWithAccount email = new EmailWithAccount();
             email.mNamespace = "namespace";
@@ -3316,8 +3389,15 @@ public abstract class AnnotationProcessorTestBase {
                 .build()).get();
 
         // Create and add 2 documents with null accountName or accountId
-        Account account1 = new Account("", "a1", "com.google", "accountName",  /*accountId=*/ "");
-        Account account2 = new Account("", "a2", "com.google", "accountName", "accountId");
+        Account account1 = new Account.Builder("namespace", "a1")
+                .setAccountType("com.google")
+                .setAccountName("accountName")
+                .build();
+        Account account2 = new Account.Builder("namespace", "a2")
+                .setAccountType("com.google")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
 
         EmailWithAccount email1 = new EmailWithAccount();
         email1.mNamespace = "namespace";
@@ -3364,7 +3444,11 @@ public abstract class AnnotationProcessorTestBase {
 
         // Create and add a document
         EmailWithAccount email = new EmailWithAccount();
-        Account account = new Account("", "", "com.google", "accountName", "accountId");
+        Account account = new Account.Builder(/*namespace=*/"", /*id=*/"")
+                .setAccountType("com.google")
+                .setAccountName("accountName")
+                .setAccountId("accountId")
+                .build();
         email.mNamespace = "namespace";
         email.mId = "id";
         email.mCreationTimestampMillis = 1000;
@@ -3399,7 +3483,10 @@ public abstract class AnnotationProcessorTestBase {
 
         // Create and add a document
         EmailWithAccount email = new EmailWithAccount();
-        Account account = new Account("", "", "com.google", "accountName", /*accountId=*/"");
+        Account account = new Account.Builder(/*namespace=*/"", /*id=*/"")
+                .setAccountType("com.google")
+                .setAccountName("accountName")
+                .build();
         email.mNamespace = "namespace";
         email.mId = "id";
         email.mCreationTimestampMillis = 1000;

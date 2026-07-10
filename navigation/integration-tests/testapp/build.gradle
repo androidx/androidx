@@ -17,16 +17,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":navigation:navigation-common"))
     implementation(project(":navigation:navigation-fragment"))
     implementation(project(":navigation:navigation-runtime"))
     implementation(project(":navigation:navigation-ui"))
-    implementation("androidx.activity:activity:1.10.1")
+    implementation("androidx.activity:activity:1.12.1")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.1")
@@ -44,7 +42,7 @@ dependencies {
 
 android {
     namespace = "androidx.navigation.testapp"
-    compileSdk = 36
+    compileSdk { version = release(36) }
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

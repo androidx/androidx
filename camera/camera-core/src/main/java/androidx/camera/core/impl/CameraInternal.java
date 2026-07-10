@@ -197,6 +197,13 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
         // Default no-op for the interface to maintain backward compatibility.
     }
 
+    /**
+     * Returns true if the camera has been removed and is no longer valid.
+     */
+    default boolean isRemoved() {
+        return false;
+    }
+
     /** Returns the global CameraControlInternal attached to this camera. */
     @NonNull CameraControlInternal getCameraControlInternal();
 

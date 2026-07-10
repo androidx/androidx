@@ -32,6 +32,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,6 +40,10 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceTest {
+    @Before
+    fun checkDeviceSupport() {
+        assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
+    }
 
     @Test
     fun record_basic() {
@@ -100,34 +105,34 @@ class PerfettoTraceTest {
         verifyRecordSuccess(
             PerfettoConfig.Text(
                 """
-        # basic config generated from https://ui.perfetto.dev/#!/record
-        buffers: {
-            size_kb: 63488
-            fill_policy: RING_BUFFER
-        }
-        buffers: {
-            size_kb: 2048
-            fill_policy: RING_BUFFER
-        }
-        data_sources: {
-            config {
-                name: "linux.ftrace"
-                ftrace_config {
-                    ftrace_events: "ftrace/print"
-                    atrace_categories: "am"
-                    atrace_categories: "dalvik"
-                    atrace_categories: "gfx"
-                    atrace_categories: "view"
-                    atrace_categories: "wm"
+                # basic config generated from https://ui.perfetto.dev/#!/record
+                buffers: {
+                    size_kb: 63488
+                    fill_policy: RING_BUFFER
                 }
-            }
-        }
-        duration_ms: 10000
-        flush_period_ms: 30000
-        incremental_state_config {
-            clear_period_ms: 5000
-        }
-    """
+                buffers: {
+                    size_kb: 2048
+                    fill_policy: RING_BUFFER
+                }
+                data_sources: {
+                    config {
+                        name: "linux.ftrace"
+                        ftrace_config {
+                            ftrace_events: "ftrace/print"
+                            atrace_categories: "am"
+                            atrace_categories: "dalvik"
+                            atrace_categories: "gfx"
+                            atrace_categories: "view"
+                            atrace_categories: "wm"
+                        }
+                    }
+                }
+                duration_ms: 10000
+                flush_period_ms: 30000
+                incremental_state_config {
+                    clear_period_ms: 5000
+                }
+                """
                     .trimIndent()
             )
         )

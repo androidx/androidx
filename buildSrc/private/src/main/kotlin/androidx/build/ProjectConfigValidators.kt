@@ -36,6 +36,7 @@ private val mavenNameMap =
     mapOf(
         "android for cars" to "car",
         "android wear" to "wear",
+        "compose glimmer" to "glimmer",
         "internationalization" to "i18n",
         "kotlin extensions" to "ktx",
         "lint checks" to "lint",

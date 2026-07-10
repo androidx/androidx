@@ -35,8 +35,11 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.projected.R
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,13 +54,15 @@ import org.robolectric.util.ReflectionHelpers
  */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@OptIn(ExperimentalProjectedApi::class)
+@Suppress("DEPRECATION")
 class ProjectedPermissionsResultContractTest {
 
     private val appContext: Application = getApplicationContext()
     private val virtualDeviceManager = appContext.getSystemService(VirtualDeviceManager::class.java)
     private lateinit var virtualDevice: VirtualDevice
 
-    @get:Rule val composeTestRule = createEmptyComposeRule()
+    @get:Rule val composeTestRule = createEmptyComposeRule(StandardTestDispatcher())
 
     private val deviceScopedContext: Context by lazy {
         appContext.createDeviceContext(virtualDevice.deviceId)
@@ -113,7 +118,6 @@ class ProjectedPermissionsResultContractTest {
             val request = getLastRequestedPermission(activity)!!
             assertThat(request.requestedPermissions.toList())
                 .isEqualTo(NOT_DEVICE_SCOPED_PERMISSIONS)
-            assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
         }
     }
 
@@ -126,8 +130,8 @@ class ProjectedPermissionsResultContractTest {
             // verify that no request is made
             assertThat(request).isNull()
 
-            val continueButtonText = appContext.getString(R.string.continue_button)
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val continueButtonText = appContext.getString(R.string.projected_continue_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
 
             // verify that the rationale text and buttons are visible
             composeTestRule.onNodeWithText("My rationale").assertIsDisplayed()
@@ -141,7 +145,6 @@ class ProjectedPermissionsResultContractTest {
             request = getLastRequestedPermission(activity)!!
             assertThat(request.requestedPermissions.toList())
                 .isEqualTo(NOT_DEVICE_SCOPED_PERMISSIONS)
-            assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
         }
     }
 
@@ -220,7 +223,7 @@ class ProjectedPermissionsResultContractTest {
             )
         ) { activity, projectedActivityScenario ->
             // user rejects rationale
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
             composeTestRule.onNodeWithText(cancelButtonText).performClick()
 
             val request = getLastRequestedPermission(activity)
@@ -261,7 +264,7 @@ class ProjectedPermissionsResultContractTest {
             )
         ) { activity, projectedActivityScenario ->
             // user rejects rationale
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
             composeTestRule.onNodeWithText(cancelButtonText).performClick()
 
             val request = getLastRequestedPermission(activity)
@@ -307,8 +310,8 @@ class ProjectedPermissionsResultContractTest {
                 ),
             )
         ) { activity, projectedActivityScenario ->
-            val continueButtonText = appContext.getString(R.string.continue_button)
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val continueButtonText = appContext.getString(R.string.projected_continue_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
 
             // user taps on cancel button for the first rationale
             composeTestRule.onNodeWithText(cancelButtonText).performClick()
@@ -365,121 +368,12 @@ class ProjectedPermissionsResultContractTest {
     }
 
     @Test
-    fun requestDeviceScopedPermissions_requestsPermissionsForBothHostAndProjectedDevice() {
-        launchHostActivity(
-            listOf(
-                ProjectedPermissionsRequestParams(
-                    permissions =
-                        listOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO),
-                    rationale = null,
-                )
-            )
-        ) { activity, projectedActivityScenario ->
-            // first request
-            var request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.CAMERA)
-            assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
-            acceptPermissionsRequestFor(request, activity)
-            // second request
-            request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.CAMERA)
-            assertThat(request.deviceId).isEqualTo(virtualDevice.deviceId)
-            acceptPermissionsRequestFor(request, activity)
-            // third request
-            request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.RECORD_AUDIO)
-            assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
-            acceptPermissionsRequestFor(request, activity)
-            // fourth request
-            request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.RECORD_AUDIO)
-            assertThat(request.deviceId).isEqualTo(virtualDevice.deviceId)
-            acceptPermissionsRequestFor(request, activity)
-            // verify results sent to the app
-            val resultReceivedByAppActivity = projectedActivityScenario.result
-            assertThat(
-                    ProjectedPermissionsResultContract()
-                        .parseResult(
-                            resultReceivedByAppActivity.resultCode,
-                            resultReceivedByAppActivity.resultData,
-                        )
-                )
-                .isEqualTo(
-                    mapOf(
-                        Manifest.permission.CAMERA to true,
-                        Manifest.permission.RECORD_AUDIO to true,
-                    )
-                )
-        }
-    }
-
-    @Test
-    fun requestDeviceScopedPermissions_userAcceptsHostPermissionButDeclinesProjected_sendsDeclineToApp() {
-        launchHostActivity(
-            listOf(
-                ProjectedPermissionsRequestParams(
-                    permissions = listOf(Manifest.permission.CAMERA),
-                    rationale = null,
-                )
-            )
-        ) { activity, projectedActivityScenario ->
-            var request = getLastRequestedPermission(activity)!!
-
-            acceptPermissionsRequestFor(request, activity)
-            request = getLastRequestedPermission(activity)!!
-            declinePermissionsRequestFor(request, activity)
-
-            val resultReceivedByAppActivity = projectedActivityScenario.result
-            assertThat(
-                    ProjectedPermissionsResultContract()
-                        .parseResult(
-                            resultReceivedByAppActivity.resultCode,
-                            resultReceivedByAppActivity.resultData,
-                        )
-                )
-                .isEqualTo(mapOf(Manifest.permission.CAMERA to false))
-        }
-    }
-
-    @Test
-    fun requestDeviceScopedPermissions_userDeclinesHostPermissionAndAcceptsProjected_sendsDeclineToApp() {
-        launchHostActivity(
-            listOf(
-                ProjectedPermissionsRequestParams(
-                    permissions = listOf(Manifest.permission.CAMERA),
-                    rationale = null,
-                )
-            )
-        ) { activity, projectedActivityScenario ->
-            var request = getLastRequestedPermission(activity)!!
-
-            declinePermissionsRequestFor(request, activity)
-            request = getLastRequestedPermission(activity)!!
-            acceptPermissionsRequestFor(request, activity)
-
-            val resultReceivedByAppActivity = projectedActivityScenario.result
-            assertThat(
-                    ProjectedPermissionsResultContract()
-                        .parseResult(
-                            resultReceivedByAppActivity.resultCode,
-                            resultReceivedByAppActivity.resultData,
-                        )
-                )
-                .isEqualTo(mapOf(Manifest.permission.CAMERA to false))
-        }
-    }
-
-    @Test
     fun multipleRequests_sendsCorrectResult() {
         // This test verifies a user journey with multiple requests, which some accepted, some
         // declined,
         // and some rejected at the rationale screen.
-        val continueButtonText = appContext.getString(R.string.continue_button)
-        val cancelButtonText = appContext.getString(R.string.cancel_button)
+        val continueButtonText = appContext.getString(R.string.projected_continue_button)
+        val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
 
         launchHostActivity(
             listOf(
@@ -516,24 +410,18 @@ class ProjectedPermissionsResultContractTest {
             // user continues
             composeTestRule.onNodeWithText(continueButtonText).performClick()
             var request = getLastRequestedPermission(activity)!!
-            // RECORD_AUDIO is device-scoped, so separate requests for host and projected device are
-            // made
             assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.RECORD_AUDIO)
-            assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
-            // user declines host's audio permission
-            declinePermissionsRequestFor(request, activity)
-            request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.RECORD_AUDIO)
+                .containsExactly(
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                )
             assertThat(request.deviceId).isEqualTo(virtualDevice.deviceId)
-            // user accepts projected's device audio permission
-            acceptPermissionsRequestFor(request, activity)
-            request = getLastRequestedPermission(activity)!!
-            assertThat(request.requestedPermissions.toList())
-                .containsExactly(Manifest.permission.BLUETOOTH_CONNECT)
-            // user accepts bluetooth permission
-            acceptPermissionsRequestFor(request, activity)
+            // user declines audio permission and accepts bluetooth permissions
+            respondToPermissionsRequest(
+                request,
+                activity,
+                intArrayOf(PackageManager.PERMISSION_DENIED, PackageManager.PERMISSION_GRANTED),
+            )
             composeTestRule.onNodeWithText("My rationale 3").assertIsDisplayed()
             // user continues, declines the calendar permission, and grants the contacts permission
             composeTestRule.onNodeWithText(continueButtonText).performClick()
@@ -659,8 +547,8 @@ class ProjectedPermissionsResultContractTest {
                 // verify that no request is made
                 assertThat(request).isNull()
             }
-            val continueButtonText = appContext.getString(R.string.continue_button)
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val continueButtonText = appContext.getString(R.string.projected_continue_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
 
             // verify that the rationale text and buttons are visible
             composeTestRule.onNodeWithText("My rationale").assertIsDisplayed()
@@ -674,7 +562,6 @@ class ProjectedPermissionsResultContractTest {
                 val request = getLastRequestedPermission(activity)!!
                 assertThat(request.requestedPermissions.toList())
                     .isEqualTo(NOT_DEVICE_SCOPED_PERMISSIONS)
-                assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
                 // simulate the user accepting the request
                 acceptPermissionsRequestFor(request, activity)
 
@@ -707,8 +594,8 @@ class ProjectedPermissionsResultContractTest {
                 ),
             )
         ) { hostActivityScenario, projectedActivityScenario ->
-            val continueButtonText = appContext.getString(R.string.continue_button)
-            val cancelButtonText = appContext.getString(R.string.cancel_button)
+            val continueButtonText = appContext.getString(R.string.projected_continue_button)
+            val cancelButtonText = appContext.getString(R.string.projected_cancel_button)
             // user taps on continue button on the first rationale screen
             composeTestRule.onNodeWithText(continueButtonText).performClick()
             hostActivityScenario.onActivity { activity ->
@@ -731,7 +618,6 @@ class ProjectedPermissionsResultContractTest {
                 // verify the correct permission is requested
                 assertThat(request.requestedPermissions)
                     .isEqualTo(arrayOf(Manifest.permission.BLUETOOTH_CONNECT))
-                assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
                 // simulate the user accepting the request
                 acceptPermissionsRequestFor(request, activity)
                 // verify results sent to the app activity
@@ -765,7 +651,7 @@ class ProjectedPermissionsResultContractTest {
                 ),
             )
         ) { hostActivityScenario, projectedActivityScenario ->
-            val continueButtonText = appContext.getString(R.string.continue_button)
+            val continueButtonText = appContext.getString(R.string.projected_continue_button)
             // user taps on continue button on the first rationale screen
             composeTestRule.onNodeWithText(continueButtonText).performClick()
             hostActivityScenario.onActivity { activity ->
@@ -787,15 +673,8 @@ class ProjectedPermissionsResultContractTest {
                 // verify the correct permission is requested
                 assertThat(request.requestedPermissions)
                     .isEqualTo(arrayOf(Manifest.permission.CAMERA))
-                assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
-                // simulate the user accepting the request
-                acceptPermissionsRequestFor(request, activity)
-                // Since CAMERA is device-scoped, we should request the Projected device-scoped
-                // permission
-                request = getLastRequestedPermission(activity)!!
-                assertThat(request.requestedPermissions)
-                    .isEqualTo(arrayOf(Manifest.permission.CAMERA))
                 assertThat(request.deviceId).isEqualTo(virtualDevice.deviceId)
+                // simulate the user declining the request
                 declinePermissionsRequestFor(request, activity)
                 // verify results sent to the app activity
                 val resultReceivedByAppActivity = projectedActivityScenario.result
@@ -1071,7 +950,6 @@ class ProjectedPermissionsResultContractTest {
                     // verify the correct permission from permissionResultList2 is requested
                     assertThat(request.requestedPermissions)
                         .isEqualTo(arrayOf(Manifest.permission.BLUETOOTH_CONNECT))
-                    assertThat(request.deviceId).isEqualTo(Context.DEVICE_ID_DEFAULT)
                     // simulate the user accepting the request
                     acceptPermissionsRequestFor(request, hostActivity)
                     // verify results sent to the new app activity
@@ -1089,6 +967,7 @@ class ProjectedPermissionsResultContractTest {
     }
 
     @Test
+    @Ignore("b/508189550 - Ignoring since this feature is deprecated.")
     fun newHostActivityIntentWithRationale_requestsNewPermissionsAndSendNewResultsToNewAppActivity() {
         // This test involves:
         // 1. User launching a projected activity that launches the GoToHostProjectedActivity
@@ -1152,8 +1031,9 @@ class ProjectedPermissionsResultContractTest {
 
                                 // Get button texts for Compose finders
                                 val continueButtonText =
-                                    appContext.getString(R.string.continue_button)
-                                val cancelButtonText = appContext.getString(R.string.cancel_button)
+                                    appContext.getString(R.string.projected_continue_button)
+                                val cancelButtonText =
+                                    appContext.getString(R.string.projected_cancel_button)
 
                                 // Verify that the new rationale is displayed
                                 composeTestRule.onNodeWithText("rationale 3").assertIsDisplayed()
@@ -1170,8 +1050,6 @@ class ProjectedPermissionsResultContractTest {
                                     val request = getLastRequestedPermission(hostActivity)!!
                                     assertThat(request.requestedPermissions)
                                         .isEqualTo(arrayOf(Manifest.permission.BLUETOOTH_CONNECT))
-                                    assertThat(request.deviceId)
-                                        .isEqualTo(Context.DEVICE_ID_DEFAULT)
                                     // simulate the user accepting the request
                                     acceptPermissionsRequestFor(request, hostActivity)
                                     // verify results sent to the new app activity

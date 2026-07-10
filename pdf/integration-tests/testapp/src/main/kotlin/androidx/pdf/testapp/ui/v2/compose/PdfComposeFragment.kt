@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui.v2.compose
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +30,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.pdf.compose.PdfViewer
 import androidx.pdf.compose.PdfViewerState
+import androidx.pdf.testapp.R
 import androidx.pdf.testapp.databinding.FragmentComposeBinding
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * [Fragment] with a [androidx.compose.runtime.Composable] content view, for testing of [PdfViewer]
@@ -40,7 +41,6 @@ import androidx.pdf.testapp.databinding.FragmentComposeBinding
  * [View]s to exist in the layout. This will follow the recommended UDF architecture for Compose-
  * based UIs. The Fragment is simply a container for Compose in an otherwise View-based app.
  */
-@SuppressLint("RestrictedApiAndroidX")
 class PdfComposeFragment() : Fragment() {
     private lateinit var composeView: ComposeView
 
@@ -48,6 +48,8 @@ class PdfComposeFragment() : Fragment() {
 
     private val filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { viewModel.documentUri = it }
+
+    private val CommentKey = Any()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,6 +69,24 @@ class PdfComposeFragment() : Fragment() {
                         state = pdfViewerState,
                         pdfDocument =
                             viewModel.loadedDocumentStateFlow.collectAsStateWithLifecycle().value,
+                        appendContextMenuComponents = {
+                            item(
+                                CommentKey,
+                                getString(R.string.comment_menu_item),
+                                getString(R.string.comment_menu_item),
+                            ) {
+                                container?.let {
+                                    Snackbar.make(
+                                            container,
+                                            "Comment item clicked",
+                                            Snackbar.LENGTH_SHORT,
+                                        )
+                                        .show()
+                                }
+                                close()
+                                pdfViewerState.clearCurrentSelection()
+                            }
+                        },
                     )
                 }
             }

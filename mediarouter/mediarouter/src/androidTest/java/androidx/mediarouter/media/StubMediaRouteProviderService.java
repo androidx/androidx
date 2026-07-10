@@ -20,9 +20,10 @@ import android.content.Context;
 import android.content.IntentFilter;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +143,11 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
                         .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_DISCONNECTED)
                         .build());
                 publishRoutes();
+            }
+
+            @Override
+            public void onRelease() {
+                mControllers.remove(mRouteId);
             }
 
             @Override

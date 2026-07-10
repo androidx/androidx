@@ -1,3 +1,18 @@
+com.google.errorprone.annotations
+org.checkerframework.afu.annotator
+org.checkerframework.afu.annotator.find
+org.checkerframework.afu.annotator.scanner
+org.checkerframework.afu.annotator.specification
+org.checkerframework.afu.scenelib
+org.checkerframework.afu.scenelib.el
+org.checkerframework.afu.scenelib.field
+org.checkerframework.afu.scenelib.io
+org.checkerframework.afu.scenelib.io.classfile
+org.checkerframework.afu.scenelib.tools
+org.checkerframework.afu.scenelib.toys
+org.checkerframework.afu.scenelib.type
+org.checkerframework.afu.scenelib.util
+org.checkerframework.afu.scenelib.util.coll
 org.checkerframework.checker.builder.qual
 org.checkerframework.checker.calledmethods
 org.checkerframework.checker.calledmethods.builder
@@ -17,6 +32,7 @@ org.checkerframework.checker.i18nformatter
 org.checkerframework.checker.i18nformatter.qual
 org.checkerframework.checker.i18nformatter.util
 org.checkerframework.checker.index
+org.checkerframework.checker.index.growonly
 org.checkerframework.checker.index.inequality
 org.checkerframework.checker.index.lowerbound
 org.checkerframework.checker.index.qual
@@ -32,6 +48,8 @@ org.checkerframework.checker.lock
 org.checkerframework.checker.lock.qual
 org.checkerframework.checker.mustcall
 org.checkerframework.checker.mustcall.qual
+org.checkerframework.checker.nonempty
+org.checkerframework.checker.nonempty.qual
 org.checkerframework.checker.nullness
 org.checkerframework.checker.nullness.qual
 org.checkerframework.checker.nullness.util
@@ -44,11 +62,14 @@ org.checkerframework.checker.regex
 org.checkerframework.checker.regex.qual
 org.checkerframework.checker.regex.util
 org.checkerframework.checker.resourceleak
+org.checkerframework.checker.rlccalledmethods
 org.checkerframework.checker.signature
 org.checkerframework.checker.signature.qual
 org.checkerframework.checker.signedness
 org.checkerframework.checker.signedness.qual
 org.checkerframework.checker.signedness.util
+org.checkerframework.checker.sqlquotes
+org.checkerframework.checker.sqlquotes.qual
 org.checkerframework.checker.tainting
 org.checkerframework.checker.tainting.qual
 org.checkerframework.checker.units
@@ -87,7 +108,6 @@ org.checkerframework.dataflow.cfg.visualize
 org.checkerframework.dataflow.constantpropagation
 org.checkerframework.dataflow.expression
 org.checkerframework.dataflow.livevariable
-Classes using for live variable analysis.
 org.checkerframework.dataflow.qual
 org.checkerframework.dataflow.reachingdef
 org.checkerframework.dataflow.util
@@ -107,9 +127,13 @@ org.checkerframework.framework.util
 org.checkerframework.framework.util.defaults
 org.checkerframework.framework.util.dependenttypes
 org.checkerframework.framework.util.element
-org.checkerframework.framework.util.typeinference
-org.checkerframework.framework.util.typeinference.constraint
-org.checkerframework.framework.util.typeinference.solver
+org.checkerframework.framework.util.typeinference8
+org.checkerframework.framework.util.typeinference8.bound
+org.checkerframework.framework.util.typeinference8.constraint
+org.checkerframework.framework.util.typeinference8.types
+org.checkerframework.framework.util.typeinference8.util
 org.checkerframework.javacutil
+org.checkerframework.javacutil.javacparse
 org.checkerframework.javacutil.trees
 org.checkerframework.taglet
+org.jmlspecs.annotation

@@ -27,13 +27,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.ExposedDropdownMenuDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -263,7 +264,7 @@ fun traverseDescendantsDemo() {
  * ⤷ Column B (TraversableBackgroundModifierNode) ⤷ Box D (NON-TRAVERSABLE Box) ⤷ Box E
  * (TraversableBackgroundModifierNode) ⤷ Box F (NON-TRAVERSABLE Box)
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TraverseModifierDemo() {
 
@@ -330,6 +331,8 @@ fun TraverseModifierDemo() {
                 onExpandedChange = { nodeMenuExpanded = !nodeMenuExpanded },
             ) {
                 TextField(
+                    modifier =
+                        Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     readOnly = true,
                     value = nodeMenuSelectedOptionText,
                     onValueChange = { /* No-op */ },
@@ -345,13 +348,12 @@ fun TraverseModifierDemo() {
                 ) {
                     nodeMenuOptions.forEach { selectionOption ->
                         DropdownMenuItem(
+                            text = { Text(text = selectionOption) },
                             onClick = {
                                 nodeMenuSelectedOptionText = selectionOption
                                 nodeMenuExpanded = false
-                            }
-                        ) {
-                            Text(text = selectionOption)
-                        }
+                            },
+                        )
                     }
                 }
             }
@@ -364,6 +366,8 @@ fun TraverseModifierDemo() {
                 onExpandedChange = { traversalMenuExpanded = !traversalMenuExpanded },
             ) {
                 TextField(
+                    modifier =
+                        Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     readOnly = true,
                     value = traversalMenuSelectedOptionText,
                     onValueChange = { /* No-op */ },
@@ -379,13 +383,12 @@ fun TraverseModifierDemo() {
                 ) {
                     traversalMenuOptions.forEach { selectionOption ->
                         DropdownMenuItem(
+                            text = { Text(text = selectionOption) },
                             onClick = {
                                 traversalMenuSelectedOptionText = selectionOption
                                 traversalMenuExpanded = false
-                            }
-                        ) {
-                            Text(text = selectionOption)
-                        }
+                            },
+                        )
                     }
                 }
             }

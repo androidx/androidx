@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
           android:id="@+id/mr_expandable_area"
           android:layout_width="fill_parent"
           android:layout_height="fill_parent">
@@ -100,6 +100,6 @@
                         android:theme="?attr/mediaRouteControlPanelThemeOverlay" />
             </LinearLayout>
         </FrameLayout>
-        <include layout="@layout/abc_alert_dialog_button_bar_material" />
+        <include layout="@layout/abc_alert_dialog_button_bar_material" tools:ignore="PrivateResource" />
     </LinearLayout>
 </FrameLayout>

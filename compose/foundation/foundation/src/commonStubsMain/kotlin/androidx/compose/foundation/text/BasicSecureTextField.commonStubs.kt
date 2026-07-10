@@ -20,4 +20,5 @@ import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.runtime.Composable
 
 @Composable
-internal actual fun platformAllowsRevealLastTyped(): Boolean = implementedInJetBrainsFork()
+internal actual fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisibilitySettings =
+    implementedInJetBrainsFork()

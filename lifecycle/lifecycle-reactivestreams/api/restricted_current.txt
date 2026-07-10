@@ -2,7 +2,8 @@
 package androidx.lifecycle {
 
   public final class LiveDataReactiveStreams {
-    method public static <T> androidx.lifecycle.LiveData<T> fromPublisher(org.reactivestreams.Publisher<T>);
+    method @InaccessibleFromKotlin public static <T> androidx.lifecycle.LiveData<T> fromPublisher(org.reactivestreams.Publisher<T>);
+    method @KotlinOnly public static <T> androidx.lifecycle.LiveData<T> toLiveData(org.reactivestreams.Publisher<T>);
     method @Deprecated public static <T> org.reactivestreams.Publisher<T> toPublisher(androidx.lifecycle.LifecycleOwner lifecycle, androidx.lifecycle.LiveData<T> liveData);
     method public static <T> org.reactivestreams.Publisher<T> toPublisher(androidx.lifecycle.LiveData<T>, androidx.lifecycle.LifecycleOwner lifecycle);
   }

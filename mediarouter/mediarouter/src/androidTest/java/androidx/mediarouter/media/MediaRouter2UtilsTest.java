@@ -20,12 +20,17 @@ import static androidx.mediarouter.media.MediaRouter2Utils.KEY_CONTROL_FILTERS;
 import static androidx.mediarouter.media.MediaRouter2Utils.KEY_DEVICE_TYPE;
 import static androidx.mediarouter.media.MediaRouter2Utils.KEY_EXTRAS;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -36,6 +41,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /** Test for {@link MediaRouter2Utils}. */
 @SmallTest
@@ -45,6 +52,8 @@ public class MediaRouter2UtilsTest {
 
     private static final String FAKE_MEDIA_ROUTE_DESCRIPTOR_ID = "fake_id";
     private static final String FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME = "fake_name";
+    private static final String FAKE_PERMISSION_ONE = "some.permission.one";
+    private static final String FAKE_PERMISSION_TWO = "some.permission.two";
     /**
      * Placeholder bundle for {@link MediaRouter2Utils#toMediaRouteDescriptor} to accept passed
      * {@link MediaRoute2Info} instances as valid.
@@ -144,5 +153,94 @@ public class MediaRouter2UtilsTest {
         assertEquals(
                 MediaRoute2Info.TYPE_REMOTE_TV,
                 MediaRouter2Utils.toFwkMediaRoute2Info(descriptor).getType());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void toMediaRouteDescriptor_withoutRequiredPermissions_noErrors() {
+        MediaRoute2Info routeInfo =
+                new MediaRoute2Info.Builder(
+                        FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .addFeature(MediaRoute2Info.FEATURE_REMOTE_PLAYBACK)
+                        .setExtras(PLACEHOLDER_EXTRAS_BUNDLE)
+                        .build();
+
+        MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(routeInfo);
+
+        assertThat(descriptor.getRequiredPermissions()).isEmpty();
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void toMediaRouteDescriptor_withRequiredPermissions_setsCorrectPermissions() {
+        MediaRoute2Info routeInfo =
+                new MediaRoute2Info.Builder(
+                        FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .addFeature(MediaRoute2Info.FEATURE_REMOTE_PLAYBACK)
+                        .setExtras(PLACEHOLDER_EXTRAS_BUNDLE)
+                        .setRequiredPermissions(
+                                List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)))
+                        .build();
+
+        MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(routeInfo);
+        assertThat(descriptor).isNotNull();
+        assertThat(descriptor.getRequiredPermissions()).containsExactlyElementsIn(
+                List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void toFwkMediaRoute2Info_withoutRequiredPermissions_noErrors() {
+        MediaRouteDescriptor descriptor =
+                new MediaRouteDescriptor.Builder(
+                        FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .build();
+
+        // This should not get any exceptions.
+        MediaRoute2Info routeInfo = MediaRouter2Utils.toFwkMediaRoute2Info(descriptor);
+
+        assertThat(routeInfo.getRequiredPermissions()).isEmpty();
+    }
+
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void toFwkMediaRoute2Info_withRequiredPermissions_setsCorrectPermissions() {
+        MediaRouteDescriptor descriptor =
+                new MediaRouteDescriptor.Builder(
+                        FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .setRequiredPermissions(
+                                List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)))
+                        .build();
+
+        MediaRoute2Info routeInfo = MediaRouter2Utils.toFwkMediaRoute2Info(descriptor);
+
+        assertThat(routeInfo.getRequiredPermissions()).containsExactlyElementsIn(
+                List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @Test
+    public void toMediaRouteDescriptor_withPollutedControlFilters_ignoresInvalidTypes() {
+        Bundle extras = new Bundle();
+        extras.putBundle(KEY_EXTRAS, new Bundle());
+        extras.putInt(KEY_DEVICE_TYPE, MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
+        ArrayList<Parcelable> pollutedList = new ArrayList<>();
+        pollutedList.add(new IntentFilter("fakeControlAction"));
+        pollutedList.add(new Intent());
+        extras.putParcelableArrayList(KEY_CONTROL_FILTERS, pollutedList);
+        MediaRoute2Info routeInfo =
+                new MediaRoute2Info.Builder(
+                                FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .addFeature(MediaRoute2Info.FEATURE_REMOTE_PLAYBACK)
+                        .setExtras(extras)
+                        .build();
+
+        MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(routeInfo);
+
+        assertThat(descriptor).isNotNull();
+        List<IntentFilter> controlFilters = descriptor.getControlFilters();
+        assertThat(controlFilters).hasSize(1);
+        assertEquals("fakeControlAction", controlFilters.get(0).getAction(0));
     }
 }

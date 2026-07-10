@@ -19,13 +19,11 @@ package androidx.pdf.view
 import android.graphics.Point
 import android.net.Uri
 import android.view.ViewGroup
-import androidx.pdf.models.FormEditRecord
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -64,114 +62,6 @@ class PdfViewStateChangeTest {
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
             close()
         }
-    }
-
-    @Test
-    fun restoreFormFillingState() = runTest {
-        // Create 2 instances of pdfDocument.
-        // First will be assigned to pdfView and edits will be applied on top of it before the
-        // pdfView is recreated.
-        val pdfDocument =
-            FakePdfDocument(pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) })
-        // Second pdfDocument instance. This will not contain any edits and will be supplied to
-        // pdfView post recreate() to emulate process death situation.
-        val emptyEditRecordPdfDocument =
-            FakePdfDocument(
-                pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
-                isLinearized = true,
-            )
-
-        // Don't supply PdfDocument to setupPdfView, as it will cause that document to be set each
-        // time our Activity is created.
-        withContext(Dispatchers.Main) {
-            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, fakePdfDocument = null)
-        }
-        var pdfView: PdfView? = null
-        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
-            // assign the pdfDocument to pdfView
-            onActivity { activity ->
-                activity.findViewById<PdfView>(PDF_VIEW_ID)?.also { it.pdfDocument = pdfDocument }
-            }
-            Espresso.onView(withId(PDF_VIEW_ID)).check { view, noViewFoundException ->
-                view ?: throw noViewFoundException
-                pdfView = view as PdfView
-            }
-            // apply edits to the pdfDocument via the pdfView instance.
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(0, 0, "Hello"))
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(1, 0, "World"))
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(0, 0, "Bye"))
-
-            // recreate the pdfView and assign the emptyEditRecordPdfDocument to it to
-            // emulate process death where the document would loose the edit records.
-            recreate()
-            onActivity { activity ->
-                activity.findViewById<PdfView>(PDF_VIEW_ID)?.also {
-                    it.pdfDocument = emptyEditRecordPdfDocument
-                }
-            }
-
-            emptyEditRecordPdfDocument.waitForRender(0)
-
-            Espresso.onView(withId(PDF_VIEW_ID)).check { view, noViewFoundException ->
-                view ?: throw noViewFoundException
-                pdfView = view as PdfView
-            }
-            // pdfView would work in the background to restore the state of the pdfDocument,
-            // hence we wait for the restoration task to complete.
-            emptyEditRecordPdfDocument.waitForApplyEdit(2)
-        }
-
-        assertThat(pdfView?.pdfDocument).isEqualTo(emptyEditRecordPdfDocument)
-        // FormEditRecords for text fields are compressed to apply the minimum edits to restore
-        // form state. Hence the first edit is ignored, which makes expected size = 2
-        assertThat(emptyEditRecordPdfDocument.formEditRecords).hasSize(2)
-        assertThat(emptyEditRecordPdfDocument.formEditRecords)
-            .isEqualTo(listOf(FormEditRecord(1, 0, "World"), FormEditRecord(0, 0, "Bye")))
-    }
-
-    @Test
-    fun doNotRestoreFormFillingState_whenActivityRecreated() = runTest {
-        val pdfDocument =
-            FakePdfDocument(List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) })
-        withContext(Dispatchers.Main) {
-            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, pdfDocument)
-        }
-
-        var pdfView: PdfView? = null
-        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
-            Espresso.onView(withId(PDF_VIEW_ID)).check { view, noViewFoundException ->
-                view ?: throw noViewFoundException
-                pdfView = view as PdfView
-            }
-            // apply edits to the pdfDocument via the pdfView instance.
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(0, 0, "Hello"))
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(1, 0, "World"))
-            pdfView?.pdfDocument?.applyEdit(0, FormEditRecord(0, 0, "Bye"))
-
-            // PdfDocument will be set naturally following recreation by the onCreate callback
-            // configured in setupPdfView
-            recreate()
-
-            pdfDocument.waitForRender(0)
-
-            Espresso.onView(withId(PDF_VIEW_ID)).check { view, noViewFoundException ->
-                view ?: throw noViewFoundException
-                pdfView = view as PdfView
-            }
-        }
-
-        assertThat(pdfView?.pdfDocument).isEqualTo(pdfDocument)
-        // Assert that the state of pdfDocument in pdfView is restored
-        assertThat(pdfView?.pdfDocument?.formEditRecords).hasSize(3)
-        // Assert that the state of edit records are intact (not compressed)
-        assertThat(pdfView?.pdfDocument?.formEditRecords)
-            .isEqualTo(
-                listOf(
-                    FormEditRecord(0, 0, "Hello"),
-                    FormEditRecord(1, 0, "World"),
-                    FormEditRecord(0, 0, "Bye"),
-                )
-            )
     }
 
     @Test

@@ -41,6 +41,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,7 @@ import java.util.List;
 
 /** Test class to verify {@link TestSplitAttributesCalculatorParams} in Java. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SplitAttributesCalculatorParamsTestingJavaTest {
     private static final Rect TEST_BOUNDS = new Rect(0, 0, 2000, 2000);
     private static final WindowMetrics TEST_METRICS = new WindowMetrics(TEST_BOUNDS,
@@ -71,7 +73,7 @@ public class SplitAttributesCalculatorParamsTestingJavaTest {
         assertEquals(0, params.getParentConfiguration().diff(new Configuration()));
         assertEquals(DEFAULT_SPLIT_ATTRIBUTES, params.getDefaultSplitAttributes());
         assertTrue(params.areDefaultConstraintsSatisfied());
-        assertEquals(new WindowLayoutInfo(Collections.emptyList()),
+        assertEquals(WindowLayoutInfoTesting.createWindowLayoutInfo(Collections.emptyList()),
                 params.getParentWindowLayoutInfo());
         assertNull(params.getSplitRuleTag());
 

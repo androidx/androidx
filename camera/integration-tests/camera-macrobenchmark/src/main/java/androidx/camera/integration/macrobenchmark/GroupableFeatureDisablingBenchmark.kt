@@ -18,11 +18,9 @@ package androidx.camera.integration.macrobenchmark
 
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.GROUPABLE_FEATURE_DISABLING_ACTIVITY
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.grantCameraPermission
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.measureStartupDefault
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -42,10 +40,6 @@ class GroupableFeatureDisablingBenchmark(
     private val lens: Int,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = cameraXConfigName == CameraPipeConfig::class.simpleName)
 
     private lateinit var device: UiDevice
 
@@ -76,7 +70,6 @@ class GroupableFeatureDisablingBenchmark(
                 CameraUtil.getAvailableCameraSelectors().forEach { selector ->
                     val lens = selector.lensFacing
                     add(arrayOf(Camera2Config::class.simpleName, lens))
-                    add(arrayOf(CameraPipeConfig::class.simpleName, lens))
                 }
             }
     }

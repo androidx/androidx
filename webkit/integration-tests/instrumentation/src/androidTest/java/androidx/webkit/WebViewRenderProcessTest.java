@@ -34,6 +34,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -115,6 +116,7 @@ public class WebViewRenderProcessTest {
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Ignore("b/461444173")
     public void testGetWebViewRenderProcess() throws Throwable {
         Assume.assumeTrue("Test requires multi-process mode",
                 WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)

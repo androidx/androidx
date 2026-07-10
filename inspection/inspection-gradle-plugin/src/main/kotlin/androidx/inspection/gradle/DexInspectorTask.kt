@@ -117,7 +117,7 @@ fun Project.registerBundleInspectorTask(
             task.minSdkVersion = libraryExtension.defaultConfig.minSdk!!
             task.d8Executable.setFrom(
                 configurations.detachedConfiguration(
-                    dependencies.create("com.android.tools:r8:8.2.47")
+                    dependencies.create("com.android.tools:r8:8.11.18")
                 )
             )
             task.jars.from(jar.get().archiveFile)

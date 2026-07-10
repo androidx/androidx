@@ -31,6 +31,7 @@ import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
@@ -65,6 +66,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationText implements Parcelable, TimeDependentText, Serializable {
+    private static final String TAG = "ComplicationText";
 
     @Override
     public boolean equals(Object o) {
@@ -123,7 +125,9 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
                 + ", mTimeDependentText="
                 + mTimeDependentText
                 + ", mDynamicText="
-                + mDynamicText
+                + (Log.isLoggable("ComplicationData", Log.VERBOSE) || mDynamicText == null
+                        ? mDynamicText
+                        : "VALUE_HIDDEN_UNLESS_VERBOSE")
                 + "}";
     }
 
@@ -276,7 +280,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    private final @Nullable CharSequence mSurroundingText;
+    private @Nullable CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
@@ -431,9 +435,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
     private void checkFields() {
         if (mSurroundingText == null && mTimeDependentText == null && mDynamicText == null) {
-            throw new IllegalStateException(
-                    "One of mSurroundingText, mTimeDependentText and mDynamicText must be "
-                            + "non-null");
+            Log.w(TAG, "ComplicationText has no text fields set, defaulting to empty string");
+            mSurroundingText = "";
         }
     }
 

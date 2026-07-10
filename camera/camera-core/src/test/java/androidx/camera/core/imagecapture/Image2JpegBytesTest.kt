@@ -43,6 +43,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [Image2JpegBytes] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class Image2JpegBytesTest {
 
     private val operation = Image2JpegBytes(DeviceQuirks.getAll())

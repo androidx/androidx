@@ -16,19 +16,31 @@
 
 package androidx.appfunctions
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
+import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionResponseMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.AssumptionViolatedException
 import org.junit.Test
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class ExecuteAppFunctionResponseTest {
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun toPlatformExtensionClass_success() {
         assumeAppFunctionExtensionLibraryAvailable()
-        val appFunctionData = AppFunctionData.Builder("").setString("testString", "value").build()
+        val appFunctionData = TEST_APP_FUNCTION_DATA
         val response = ExecuteAppFunctionResponse.Success(appFunctionData)
         val platformResponse = response.toPlatformExtensionClass()
 
@@ -49,10 +61,10 @@ class ExecuteAppFunctionResponseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-    fun toPlatformClass_success() {
-        val appFunctionData = AppFunctionData.Builder("").setString("testString", "value").build()
+    fun toPlatformExecuteAppFunctionResponse_success() {
+        val appFunctionData = TEST_APP_FUNCTION_DATA
         val response = ExecuteAppFunctionResponse.Success(appFunctionData)
-        val platformResponse = response.toPlatformClass()
+        val platformResponse = response.toPlatformExecuteAppFunctionResponse()
 
         assertThat(platformResponse.resultDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(platformResponse.extras.isEmpty()).isTrue()
@@ -62,7 +74,7 @@ class ExecuteAppFunctionResponseTest {
         bundle.putLong("longKey", 123L)
         val appFunctionDataWithExtras = AppFunctionData(appFunctionData.genericDocument, bundle)
         val responseWithExtras = ExecuteAppFunctionResponse.Success(appFunctionDataWithExtras)
-        val platformResponseWithExtras = responseWithExtras.toPlatformClass()
+        val platformResponseWithExtras = responseWithExtras.toPlatformExecuteAppFunctionResponse()
 
         assertThat(platformResponseWithExtras.resultDocument)
             .isEqualTo(appFunctionData.genericDocument)
@@ -70,16 +82,18 @@ class ExecuteAppFunctionResponseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun fromPlatformExtensionClass_success() {
         assumeAppFunctionExtensionLibraryAvailable()
-        val appFunctionData = AppFunctionData.Builder("").setString("testString", "value").build()
+        val appFunctionData = TEST_APP_FUNCTION_DATA
         val platformResponse =
             com.android.extensions.appfunctions.ExecuteAppFunctionResponse(
                 appFunctionData.genericDocument
             )
         val response =
-            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(platformResponse)
+            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(
+                platformResponse,
+                TEST_APP_FUNCTION_METADATA,
+            )
 
         assertThat(response.returnValue.genericDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(response.returnValue.extras.isEmpty).isTrue()
@@ -87,14 +101,47 @@ class ExecuteAppFunctionResponseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-    fun fromPlatformClass_success() {
-        val appFunctionData = AppFunctionData.Builder("").setString("testString", "value").build()
+    fun toCompatExecuteAppFunctionResponse_success() {
+        val appFunctionData = TEST_APP_FUNCTION_DATA
         val platformResponse =
             android.app.appfunctions.ExecuteAppFunctionResponse(appFunctionData.genericDocument)
-        val response = ExecuteAppFunctionResponse.Success.fromPlatformClass(platformResponse)
+        val response =
+            platformResponse.toCompatExecuteAppFunctionResponse(TEST_APP_FUNCTION_METADATA)
 
         assertThat(response.returnValue.genericDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(response.returnValue.extras.isEmpty).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun toPlatformExecuteAppFunctionResponseWithUriGrants_success() {
+        val uriGrant =
+            AppFunctionUriGrant(
+                uri = android.net.Uri.parse("content://com.example/1"),
+                modeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        val appFunctionData =
+            AppFunctionData.Builder(
+                    TEST_APP_FUNCTION_URI_GRANT_METADATA.parameters,
+                    AppFunctionComponentsMetadata(),
+                )
+                .setAppFunctionData(
+                    "uriGrant",
+                    AppFunctionData.serialize(uriGrant, AppFunctionUriGrant::class.java),
+                )
+                .build()
+
+        val response = ExecuteAppFunctionResponse.Success(appFunctionData)
+        val platformResponse = response.toPlatformExecuteAppFunctionResponse()
+
+        assertThat(platformResponse.resultDocument).isEqualTo(appFunctionData.genericDocument)
+        assertThat(platformResponse.extras.isEmpty()).isTrue()
+
+        val platformUriGrants = platformResponse.uriGrants
+        assertThat(platformUriGrants).hasSize(1)
+        assertThat(platformUriGrants[0].uri)
+            .isEqualTo(android.net.Uri.parse("content://com.example/1"))
+        assertThat(platformUriGrants[0].modeFlags).isEqualTo(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
     private fun assumeAppFunctionExtensionLibraryAvailable() {
@@ -104,5 +151,83 @@ class ExecuteAppFunctionResponseTest {
         } catch (e: ClassNotFoundException) {
             throw AssumptionViolatedException("Unable to find AppFunction extension library", e)
         }
+    }
+
+    companion object {
+        private val TEST_APP_FUNCTION_URI_GRANT_METADATA =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = "testPackage",
+                        functionIdentifier = "testUriGrant",
+                    ),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "uriGrant",
+                            isRequired = false,
+                            dataType =
+                                AppFunctionObjectTypeMetadata(
+                                    properties =
+                                        mapOf(
+                                            "uri" to
+                                                AppFunctionObjectTypeMetadata(
+                                                    properties =
+                                                        mapOf(
+                                                            "uri" to
+                                                                AppFunctionStringTypeMetadata(
+                                                                    isNullable = false
+                                                                )
+                                                        ),
+                                                    required = listOf("uri"),
+                                                    isNullable = false,
+                                                    qualifiedName = "android.net.Uri",
+                                                ),
+                                            "modeFlags" to
+                                                AppFunctionIntTypeMetadata(isNullable = false),
+                                        ),
+                                    required = listOf("uri", "modeFlags"),
+                                    qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
+                                    isNullable = true,
+                                ),
+                        )
+                    ),
+                response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "testPackage",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                isEnabled = true,
+            )
+        private val TEST_APP_FUNCTION_METADATA =
+            AppFunctionMetadata(
+                name = AppFunctionName(packageName = "testPackage", functionIdentifier = "testId"),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "testString",
+                            isRequired = true,
+                            dataType = AppFunctionStringTypeMetadata(isNullable = false),
+                        )
+                    ),
+                response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "testPackage",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                isEnabled = true,
+            )
+
+        private val TEST_APP_FUNCTION_DATA: AppFunctionData =
+            AppFunctionData.Builder(
+                    TEST_APP_FUNCTION_METADATA.parameters,
+                    AppFunctionComponentsMetadata(),
+                )
+                .setString("testString", "value")
+                .build()
     }
 }

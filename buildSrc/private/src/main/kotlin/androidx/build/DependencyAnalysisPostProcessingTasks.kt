@@ -222,7 +222,8 @@ internal fun Project.configureDependencyAnalysisPlugin() {
     // DAGP currently doesn't support KMP, enable KMP projects when b/394970486 is resolved
     // Enable CI check for published libraries
     if (
-        multiplatformExtension == null && androidXExtension.type == SoftwareType.PUBLISHED_LIBRARY
+        multiplatformExtension == null &&
+            androidXExtension.type.get() == SoftwareType.PUBLISHED_LIBRARY
     ) {
         addToBuildOnServer(reportDependencyAnalysisAdviceTask)
     }

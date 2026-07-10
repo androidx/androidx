@@ -46,7 +46,7 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:colorPrimary">@color/settings_background</item>
-        <item name="android:colorAccent">?attr/defaultBrandColor</item>
+        <item name="android:colorAccent" tools:ignore="PrivateResource">?attr/defaultBrandColor</item>
     </style>
     <style name="Theme.Example.Leanback.Onboarding" parent="Theme.Leanback.Onboarding">
         <item name="onboardingLogoStyle">@style/Widget.Example.Leanback.OnboardingLogoStyle</item>

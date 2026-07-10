@@ -20,6 +20,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfLoader
+import androidx.pdf.RenderParams
 
 class FakePdfLoader(private val fakePdfDocument: PdfDocument) : PdfLoader {
 
@@ -29,5 +30,6 @@ class FakePdfLoader(private val fakePdfDocument: PdfDocument) : PdfLoader {
         uri: Uri,
         fileDescriptor: ParcelFileDescriptor,
         password: String?,
+        renderParams: RenderParams,
     ): PdfDocument = fakePdfDocument
 }

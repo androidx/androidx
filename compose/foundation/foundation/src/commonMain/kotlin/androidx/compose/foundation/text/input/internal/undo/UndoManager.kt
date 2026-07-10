@@ -136,10 +136,11 @@ internal class UndoManager<T>(
                     value.redoStack.fastForEach { with(itemSaver) { add(save(it)) } }
                 }
 
-                @Suppress("UNCHECKED_CAST")
                 override fun restore(value: Any): UndoManager<T> {
-                    val list = value as List<Any>
-                    val (capacity, undoSize, redoSize) = (list as List<Int>)
+                    @Suppress("UNCHECKED_CAST") val list = value as List<Any>
+                    val capacity = list[0] as Int
+                    val undoSize = list[1] as Int
+                    val redoSize = list[2] as Int
                     var i = 3
                     val undoStackItems = buildList {
                         while (i < undoSize + 3) {

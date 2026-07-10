@@ -17,7 +17,7 @@
 package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingResult
-import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
+import androidx.core.uwb.RangingResult.RangingResultFailure
 import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.common.TestCommons.Companion.COMPLEX_CHANNEL
 import androidx.core.uwb.common.TestCommons.Companion.LOCAL_ADDRESS
@@ -161,7 +161,7 @@ class UwbClientSessionScopeImplTest {
                 sessionFlow
                     .cancellable()
                     .onEach {
-                        if (it is RangingResultPeerDisconnected) {
+                        if (it is RangingResultFailure) {
                             peerDisconnected = true
                         }
                     }
@@ -207,7 +207,7 @@ class UwbClientSessionScopeImplTest {
             CoroutineScope(Dispatchers.Main.immediate).launch {
                 sharedFlow
                     .onEach {
-                        if (it is RangingResultPeerDisconnected) {
+                        if (it is RangingResultFailure) {
                             peerDisconnected = true
                         }
                     }
@@ -217,7 +217,7 @@ class UwbClientSessionScopeImplTest {
             CoroutineScope(Dispatchers.Main.immediate).launch {
                 sharedFlow
                     .onEach {
-                        if (it is RangingResultPeerDisconnected) {
+                        if (it is RangingResultFailure) {
                             peerDisconnected2 = true
                         }
                     }

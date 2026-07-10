@@ -151,6 +151,41 @@ public class MediaRouterActiveScanThrottlingHelperTest {
         assertFalse(helper.finalizeActiveScanAndScheduleSuppressActiveScanRunnable());
     }
 
+    @Test
+    public void testIsActiveScanTimedOut_shouldReturnFalseForInactiveScan() {
+        long currentTime = SystemClock.elapsedRealtime();
+        MediaRouterActiveScanThrottlingHelper helper =
+                new MediaRouterActiveScanThrottlingHelper(mRunnable);
+
+        helper.reset();
+
+        assertFalse(helper.isActiveScanTimedOut(/* shouldActivelyScan= */ false, currentTime));
+    }
+
+    @Test
+    public void testIsActiveScanTimedOut_returnsTrueForActiveScanRequestedWithinThresholdTime() {
+        long currentTime = SystemClock.elapsedRealtime();
+        MediaRouterActiveScanThrottlingHelper helper =
+                new MediaRouterActiveScanThrottlingHelper(mRunnable);
+
+        helper.reset();
+
+        assertTrue(helper.isActiveScanTimedOut(/* shouldActivelyScan= */ true, currentTime));
+    }
+
+    @Test
+    public void testIsActiveScanTimedOut_returnsFalseForActiveScanRequestedBeyondThresholdTime() {
+        long currentTime = SystemClock.elapsedRealtime();
+        MediaRouterActiveScanThrottlingHelper helper =
+                new MediaRouterActiveScanThrottlingHelper(mRunnable);
+
+        helper.reset();
+
+        assertFalse(
+                helper.isActiveScanTimedOut(
+                        /* shouldActivelyScan= */ true, currentTime - MAX_ACTIVE_SCAN_DURATION_MS));
+    }
+
     private void resetCountDownLatch() {
         mCountDownLatch = new CountDownLatch(1);
     }

@@ -24,8 +24,10 @@ import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExp
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ATAN2;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.CBRT;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.CEIL;
+import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.CHANGE_SIGN;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.CLAMP;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.COPY_SIGN;
+import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.CUBIC;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.DEG;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.DIV;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.EXP;
@@ -55,6 +57,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
+import androidx.compose.remote.core.operations.utilities.easing.CubicEasing;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -295,6 +298,13 @@ public class AnimatedFloatExpressionTest {
         assertEquals("deg", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.DEG));
         assertEquals("rad", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.RAD));
         assertEquals("ceil", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CEIL));
+        assertEquals(
+                "change_sign",
+                AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CHANGE_SIGN));
+        assertEquals(
+                "a_spline_loop",
+                AnimatedFloatExpression.toMathName(AnimatedFloatExpression.A_SPLINE_LOOP));
+        assertEquals("cubic", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CUBIC));
     }
 
     @Test
@@ -480,5 +490,29 @@ public class AnimatedFloatExpressionTest {
         s += "]";
         System.out.println(s);
         return s;
+    }
+
+    @Test
+    public void testCubic() {
+        AnimatedFloatExpression e = new AnimatedFloatExpression();
+        CubicEasing c = new CubicEasing();
+        c.setup(0.4f, 0.0f, 0.2f, 1f);
+        assertEquals(0f, eval(e, 0.4f, 0.0f, 0.2f, 1f, 0f, CUBIC), 0f);
+        assertEquals(1f, eval(e, 0.4f, 0.0f, 0.2f, 1f, 1f, CUBIC), 0f);
+        assertEquals(c.get(0.5f), eval(e, 0.4f, 0.0f, 0.2f, 1f, 0.5f, CUBIC), 0f);
+        assertEquals(c.get(0.3f), eval(e, 0.4f, 0.0f, 0.2f, 1f, 0.3f, CUBIC), 0f);
+        assertEquals(c.get(0.75f), eval(e, 0.4f, 0.0f, 0.2f, 1f, 0.75f, CUBIC), 0f);
+        // overshoot
+        assertEquals(0f, eval(e, 0.4f, 0.0f, 0.2f, 1f, -2f, CUBIC), 0f);
+        assertEquals(1f, eval(e, 0.4f, 0.0f, 0.2f, 1f, 22f, CUBIC), 0f);
+    }
+
+    @Test
+    public void testChangeSign() {
+        AnimatedFloatExpression e = new AnimatedFloatExpression();
+        assertEquals(-1f, eval(e, 1f, CHANGE_SIGN), 0f);
+        assertEquals(1f, eval(e, -1f, CHANGE_SIGN), 0f);
+        assertEquals(0f, eval(e, 0f, CHANGE_SIGN), 0f);
+        assertEquals(-123.321f, eval(e, 123.321f, CHANGE_SIGN), 0f);
     }
 }

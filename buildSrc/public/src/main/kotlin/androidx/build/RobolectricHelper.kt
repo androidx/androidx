@@ -72,7 +72,7 @@ internal fun configureRobolectric(project: Project) {
                             hostTest.configureTestTask { configureJvmTestTask(project, it) }
                         }
                     }
-                project.configurations.named("androidUnitTestImplementation").configure {
+                project.configurations.named("androidHostTestImplementation").configure {
                     configuration ->
                     configuration.dependencies.add(project.getLibraryByName("robolectric"))
                 }

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.navigation.ui.AppBarConfiguration#getDrawerLayout():
+    Source breaking change: method androidx.navigation.ui.AppBarConfiguration.getDrawerLayout() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ui.AppBarConfiguration#getFallbackOnNavigateUpListener():
+    Source breaking change: method androidx.navigation.ui.AppBarConfiguration.getFallbackOnNavigateUpListener() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ui.AppBarConfiguration#getOpenableLayout():
+    Source breaking change: method androidx.navigation.ui.AppBarConfiguration.getOpenableLayout() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ui.AppBarConfiguration#getTopLevelDestinations():
+    Source breaking change: method androidx.navigation.ui.AppBarConfiguration.getTopLevelDestinations() can no longer be resolved from Kotlin source

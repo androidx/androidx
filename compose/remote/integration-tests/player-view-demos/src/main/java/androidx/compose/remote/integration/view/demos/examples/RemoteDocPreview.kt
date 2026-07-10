@@ -1,0 +1,84 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.integration.view.demos.examples
+
+import androidx.annotation.RawRes
+import androidx.compose.remote.creation.RemoteComposeContext
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.platform.LocalResources
+
+/**
+ * Build a [RemoteDocument] from a [RemoteComposeContext] display it in the Android Studio Preview.
+ */
+@Composable
+@Suppress("RestrictedApiAndroidX")
+internal fun RemoteDocumentPreview(remoteComposeContext: RemoteComposeContext) {
+    val doc = remoteComposeContext.writer
+    RemoteDocumentPreview(doc)
+}
+
+/**
+ * Build a [RemoteDocument] from a [RemoteComposeWriter] display it in the Android Studio Preview.
+ */
+@Composable
+@Suppress("RestrictedApiAndroidX")
+internal fun RemoteDocumentPreview(remoteComposeWriter: RemoteComposeWriter) {
+    val buffer = remoteComposeWriter.buffer.buffer.cloneBytes()
+    val remoteDocument = RemoteDocument(buffer)
+
+    RemoteDocumentPreview(remoteDocument)
+}
+
+/** Build a [RemoteDocument] from a raw resource id and display it in the Android Studio Preview. */
+@Composable
+@Suppress("RestrictedApiAndroidX")
+internal fun RemoteDocumentPreview(@RawRes resId: Int) {
+    val resources = LocalResources.current
+    val result by
+        produceState<Result<RemoteDocument>?>(null, resId) {
+            value = runCatching {
+                val bytes = resources.openRawResource(resId).use { it.readBytes() }
+                RemoteDocument(bytes)
+            }
+        }
+
+    when (val res = result) {
+        null -> {
+            /* loading */
+        }
+        else -> {
+            res.onSuccess { RemoteDocumentPreview(it) }
+                .onFailure {
+                    RemoteContentPreview {
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+                            RemoteText("Failed to load file with id: $resId")
+                        }
+                    }
+                }
+        }
+    }
+}

@@ -18,7 +18,7 @@ package androidx.health.connect.client.changes
 /**
  * Abstraction to represent a change in Health Connect.
  *
- * @see androidx.health.data.client.response.ChangesResponse
+ * @see androidx.health.connect.client.response.ChangesResponse
  * @see UpsertionChange
  * @see DeletionChange
  */

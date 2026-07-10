@@ -19,10 +19,11 @@ package androidx.javascriptengine;
 import android.content.res.AssetFileDescriptor;
 import android.os.ParcelFileDescriptor;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -54,7 +55,7 @@ interface IsolateState {
 
     void clearConsoleCallback();
 
-    void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes);
+    void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes);
 
     void close();
 
@@ -76,4 +77,8 @@ interface IsolateState {
             @NonNull Consumer<TerminationInfo> callback);
 
     void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback);
+
+    @NonNull
+    MessagePort provideMessagePort(@NonNull String name, @NonNull Executor executor,
+            @NonNull MessagePortClient client);
 }

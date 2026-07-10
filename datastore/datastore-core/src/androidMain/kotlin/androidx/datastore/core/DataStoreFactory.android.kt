@@ -19,8 +19,10 @@ package androidx.datastore.core
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.util.getContextFromScope
+import androidx.tracing.Tracer
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -109,13 +111,41 @@ public actual object DataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope,
+    ): DataStore<T> {
+        return DataStore.Builder(storage = storage, context = getContextFromScope(scope))
+            .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
+            .addMigrations(migrations)
+            .build()
+    }
+
+    /**
+     * Create an instance of SingleProcessDataStore with tracing enabled.
+     *
+     * @param storage Storage for the type T used with DataStore. The type T must be immutable.
+     * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+     *   [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     *   serializers when data can not be de-serialized.
+     * @param migrations Migrations are run before any access to data can occur. Migrations must be
+     *   idempotent.
+     * @param scope The scope in which IO operations and transform functions will execute.
+     * @param tracer The [Tracer] used to instrument and trace DataStore operations.
+     * @return a new DataStore instance with the provided configuration.
+     */
+    @JvmOverloads
+    // TODO(b/486189894): When androidx.tracing becomes available in all target platforms
+    //  supported by DataStore, this function can be revised and moved to common.
+    public fun <T> createWithTracing(
+        storage: Storage<T>,
+        tracer: Tracer,
+        corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler(),
+        migrations: List<DataMigration<T>> = listOf(),
+        scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
     ): DataStore<T> =
-        DataStoreImpl(
-            storage = storage,
-            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            scope = scope,
-        )
+        DataStore.Builder(storage = storage, context = getContextFromScope(scope))
+            .setCorruptionHandler(corruptionHandler)
+            .addMigrations(migrations)
+            .setTracer(tracer)
+            .build()
 
     /**
      * Create an instance of SingleProcessDataStore that can be used during direct boot.
@@ -148,15 +178,16 @@ public actual object DataStoreFactory {
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     ): DataStore<T> {
-        return DataStoreImpl(
-            storage =
-                FileStorage(
-                    serializer = serializer,
-                    produceFile = { context.deviceProtectedDataStoreFile(fileName) },
-                ),
-            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            scope = scope,
-        )
+        return DataStore.Builder(
+                storage =
+                    FileStorage(
+                        serializer = serializer,
+                        produceFile = { context.deviceProtectedDataStoreFile(fileName) },
+                    ),
+                context = getContextFromScope(scope),
+            )
+            .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
+            .addMigrations(migrations)
+            .build()
     }
 }

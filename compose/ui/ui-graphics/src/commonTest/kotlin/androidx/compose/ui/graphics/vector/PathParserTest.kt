@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathOperation
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class PathParserTest {
     @Test
@@ -131,6 +133,89 @@ class PathParserTest {
         parser.parsePathString("q5, 5, 8, 8 V5").toPath(quadPath)
         assertEquals(1, quadPath.lineToPoints.size)
         assertEquals(8f, quadPath.lineToPoints[0].x)
+    }
+
+    @Test
+    fun separators() {
+        val pathData =
+            listOf(
+                "M5.25,3.9H3.76a0.73 0.73 ,0,0,0-0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73   ,0,0,0-0.54 0.22",
+                "M5.25,3.9H3.76a0.73   0.73  ,  0,  0,  0-0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73 0 0 0-0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73, 0, 0, 0 -0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73,0,0,0-0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73 ,  0 , 0  ,   0 -0.54 0.22",
+                "M5.25,3.9H3.76a0.73 0.73 ,,0,0,,0-0.54 0.22",
+                "M5.25,3.9H3.76,a0.73 0.73 ,  0 , 0  ,   0 -0.54 0.22",
+            )
+        for (data in pathData) {
+            val parser = PathParser()
+            val nodes = parser.parsePathString(data).toNodes()
+
+            assertEquals(3, nodes.size)
+
+            assertTrue(nodes[0] is PathNode.MoveTo)
+            val moveTo = nodes[0] as PathNode.MoveTo
+            assertEquals(5.25f, moveTo.x, 1e-6f)
+            assertEquals(3.9f, moveTo.y, 1e-6f)
+
+            assertTrue(nodes[1] is PathNode.HorizontalTo)
+            val horizontalTo = nodes[1] as PathNode.HorizontalTo
+            assertEquals(3.76f, horizontalTo.x, 1e-6f)
+
+            assertTrue(nodes[2] is PathNode.RelativeArcTo)
+            val arcTo = nodes[2] as PathNode.RelativeArcTo
+            assertEquals(0.73f, arcTo.horizontalEllipseRadius, 1e-6f)
+            assertEquals(0.73f, arcTo.verticalEllipseRadius, 1e-6f)
+            assertFalse(arcTo.isMoreThanHalf)
+            assertFalse(arcTo.isPositiveArc)
+            assertEquals(-0.54f, arcTo.arcStartDx, 1e-6f)
+            assertEquals(0.22f, arcTo.arcStartDy, 1e-6f)
+        }
+    }
+
+    @Test
+    fun ellipticalArcFlagsTest() {
+        val pathData =
+            listOf(
+                "M 25 100 a 75 75 0 10150 0 a 75 75 0 10-150 0",
+                "M 25 100 a 75 75 0 1 0150 0 a 75 75 0 1 0-150 0",
+                "M 25 100 a 75 75 0 10 150 0 a 75 75 0 10 -150 0",
+                "M 25 100 a 75 75 0 1 0 150 0 a 75 75 0 1 0 -150 0",
+                "M 25 100 a 75 75 0 10150 0 a 75 75 0 1 0-150 0",
+                "M 25 100 a 75 75 0 1 0150 0 a 75 75 0 10-150 0",
+            )
+
+        for (data in pathData) {
+            val parser = PathParser()
+            val nodes = parser.parsePathString(data).toNodes()
+
+            assertEquals(3, nodes.size)
+
+            assertTrue(nodes[0] is PathNode.MoveTo)
+            val moveTo = nodes[0] as PathNode.MoveTo
+            assertEquals(25f, moveTo.x)
+            assertEquals(100f, moveTo.y)
+
+            assertTrue(nodes[1] is PathNode.RelativeArcTo)
+            val arcToFirst = nodes[1] as PathNode.RelativeArcTo
+            assertEquals(75f, arcToFirst.horizontalEllipseRadius)
+            assertEquals(75f, arcToFirst.verticalEllipseRadius)
+            assertTrue(arcToFirst.isMoreThanHalf)
+            assertFalse(arcToFirst.isPositiveArc)
+            assertEquals(150f, arcToFirst.arcStartDx)
+            assertEquals(0f, arcToFirst.arcStartDy)
+
+            assertTrue(nodes[2] is PathNode.RelativeArcTo)
+            val arcToSecond = nodes[2] as PathNode.RelativeArcTo
+            assertEquals(75f, arcToSecond.horizontalEllipseRadius)
+            assertEquals(75f, arcToSecond.verticalEllipseRadius)
+            assertTrue(arcToSecond.isMoreThanHalf)
+            assertFalse(arcToSecond.isPositiveArc)
+            assertEquals(-150f, arcToSecond.arcStartDx)
+            assertEquals(0f, arcToSecond.arcStartDy)
+        }
     }
 
     /**

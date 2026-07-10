@@ -401,8 +401,19 @@ package androidx.window.extensions.layout {
   }
 
   public class WindowLayoutInfo {
-    ctor public WindowLayoutInfo(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
+    ctor @Deprecated public WindowLayoutInfo(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
     method public java.util.List<androidx.window.extensions.layout.DisplayFeature!> getDisplayFeatures();
+    method public int getEngagementModeFlags();
+    method public boolean hasEngagementModeFlag(int);
+    field public static final int ENGAGEMENT_MODE_FLAG_AUDIO_ON = 2; // 0x2
+    field public static final int ENGAGEMENT_MODE_FLAG_VISUALS_ON = 1; // 0x1
+  }
+
+  public static final class WindowLayoutInfo.Builder {
+    ctor public WindowLayoutInfo.Builder();
+    method public androidx.window.extensions.layout.WindowLayoutInfo build();
+    method public androidx.window.extensions.layout.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
+    method public androidx.window.extensions.layout.WindowLayoutInfo.Builder setEngagementModeFlags(int);
   }
 
 }

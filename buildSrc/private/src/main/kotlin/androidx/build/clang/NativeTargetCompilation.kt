@@ -108,9 +108,9 @@ internal constructor(
                     listOf("windows-x86/include", "windows-x86/include/win32")
                 }
                 Family.OSX -> {
-                    // it is OK that we are using x86 here, they are the same files (openjdk only
+                    // it is OK that we are using arm64 here, they are the same files (openjdk only
                     // distinguishes between unix and windows).
-                    listOf("darwin-x86/include", "darwin-x86/include/darwin")
+                    listOf("darwin-arm64/include", "darwin-arm64/include/darwin")
                 }
                 Family.LINUX -> {
                     listOf("linux-x86/include", "linux-x86/include/linux")

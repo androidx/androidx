@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -34,7 +33,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.animation"
-        compileSdk = 35
+        compileSdk { version = release(37) }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -42,77 +41,40 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
+        commonMain.dependencies {
+            api(project(":compose:animation:animation-core"))
+            api("androidx.compose.foundation:foundation-layout:1.10.0")
+            api(project(":compose:runtime:runtime"))
+            api("androidx.compose.ui:ui-geometry:1.10.0")
 
-                api(project(":compose:animation:animation-core"))
-                api(project(":compose:foundation:foundation-layout"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui-geometry"))
-
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation(project(":compose:ui:ui-graphics"))
-
-                implementation("androidx.collection:collection:1.5.0")
-            }
+            implementation("androidx.compose.ui:ui:1.10.0")
+            implementation("androidx.compose.ui:ui-util:1.10.0")
+            implementation("androidx.compose.ui:ui-graphics:1.10.0")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.leakcanary)
+            implementation(libs.leakcanaryInstrumentation)
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:material3:material3"))
+            implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
+            implementation(project(":compose:test-utils"))
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.leakcanary)
-                implementation(libs.leakcanaryInstrumentation)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:material3:material3"))
-                implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
-                implementation(project(":compose:test-utils"))
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
         }
     }
 }
@@ -129,11 +91,3 @@ androidx {
     samples(project(":compose:animation:animation:animation-samples"))
 }
 
-//TODO(b/407640608): Fix to work without this block for PaneMotionTest.test_allDefaultPaneMotionTransitions
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
-    }
-}

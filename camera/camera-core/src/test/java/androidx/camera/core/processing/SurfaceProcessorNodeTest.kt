@@ -51,11 +51,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [SurfaceProcessorNode]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class SurfaceProcessorNodeTest {
 
     companion object {
@@ -590,7 +592,7 @@ class SurfaceProcessorNodeTest {
     }
 
     private fun createSurfaceProcessorNode() {
-        node = SurfaceProcessorNode(FakeCamera(), surfaceProcessorInternal)
+        node = SurfaceProcessorNode(FakeCamera(), surfaceProcessorInternal, null)
     }
 
     private fun provideSurfaces(nodeOutput: SurfaceProcessorNode.Out) {

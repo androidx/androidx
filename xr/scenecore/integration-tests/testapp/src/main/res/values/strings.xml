@@ -23,8 +23,7 @@
     <string name="switch_to_fsm_button_text">Switch To FSM</string>
     <string name="switch_to_hsm_button_text">Switch To HSM</string>
     <string name="spatial_capabilities_test">Spatial Capabilities Test</string>
-    <string name="spawn_anchor_entity_button_text">Spawn Anchor Entity</string>
-
+    <string name="spawn_anchor_space_button_text">Spawn Anchor Space</string>
     <string name="cuj_activity_panel_test">Activity Panel Test Case</string>
     <string name="cuj_anchor_test">Anchoring Test Case</string>
     <string name="cuj_spatial_capabilities_test">Spatial Capabilities Test Case</string>
@@ -35,6 +34,8 @@
     <string name="cuj_transformation_test">Transformation APIs Test Case</string>
     <string name="cuj_scene_viewer_test">3D Model Viewer - SceneViewer XR Test Case</string>
     <string name="cuj_standalone_test">Positional Test Case</string>
+    <string name="cuj_gltf_model_material_texture_test">GLTF Model Material Texture Test Case</string>
+    <string name="cuj_mesh_entity_test">Mesh Entity Test Case</string>
     <string name="cuj_movable_test">AnchorPlacement Test Case</string>
     <string name="cuj_panel_rounded_corner">Rounded Corners Test Case</string>
     <string name="cuj_head_locked_ui_test">Headlocked UI Test Case </string>
@@ -44,9 +45,18 @@
     <string name="cuj_spatial_audio_test">Spatial Audio Point Source Test Case</string>
     <string name="cuj_spatial_audio_ambisonic_test">Spatial Audio Ambisonic/SoundField Test Case</string>
     <string name="cuj_spatial_audio_setting_pointsourceparams_test">Spatial Audio Setting PointSourceParams Test Case</string>
+    <string name="cuj_spatial_audio_components_test">Spatial Audio Components Test Case</string>
     <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
     <string name="cuj_hit_test">Digital Hit Test Case</string>
     <string name="cuj_accessibility_test">Accessibility Test Case</string>
+    <string name="cuj_surface_entity_custom_mesh_test">Surface Entity Custom Mesh Test Case</string>
+    <string name="cuj_surface_entity_imagetest">Surface Entity Image Display Test Case</string>
+    <string name="cuj_surface_entity_interaction_test">Surface Entity Interaction Test Case</string>
+    <string name="cuj_surface_entity_playbacktest">Surface Entity Playback Test Case</string>
+    <string name="dev_memory_leak_test">Memory Leak (Dev) Test Case</string>
+    <string name="cuj_panel_coordinates_test">Panel Coordinates Test</string>
+    <string name="cuj_gltf_model_animation_test">GLTF Model Animation Test Case</string>
+    <string name="cuj_hand_tracking_test">Hand Tracking Test</string>
 
     <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
     <string name="panel_text" description="Arbitrary test string which appears in a TestPanel. [CHAR_LIMIT=30]">Dragons!!</string>
@@ -98,12 +108,21 @@
     <string name="horizontal" description="Checkbox label for the Horizontal plane Type option. [CHAR_LIMIT=30]">Horizontal</string>
     <string name="vertical" description="Checkbox label for the Vertical plane Type option. [CHAR_LIMIT=30]">Vertical</string>
     <string name="movable_panel_test" description="Label for the main panel. [CHAR_LIMIT=30]">Movable Panel Test</string>
+    <string name="enable_movable_component" description="Label for the master switch that enables or disables the MovableComponent functionality on the panel. [CHAR_LIMIT=30]">Enable MovableComponent</string>
+    <string name="movable_type_anchorable" description="Radio button label for selecting the Anchorable type of MovableComponent. [CHAR_LIMIT=30]">Anchorable</string>
+    <string name="movable_type_system" description="Radio button label for selecting the System Movable type of MovableComponent. [CHAR_LIMIT=30]">System Movable</string>
+    <string name="movable_type_custom" description="Radio button label for selecting the Custom Movable type of MovableComponent. [CHAR_LIMIT=30]">Custom Movable</string>
+    <string name="custom_behavior" description="Header text for the options that configure the custom behavior of the MovableComponent. [CHAR_LIMIT=30]">Custom Behavior</string>
+    <string name="custom_behavior_translation_only" description="Radio button label for the custom behavior that only updates the entity's translation (position). [CHAR_LIMIT=40]">Only update translation</string>
+    <string name="custom_behavior_rotation_only" description="Radio button label for the custom behavior that only updates the entity's rotation. [CHAR_LIMIT=40]">Only update rotation</string>
+
 
     <!-- inputmoveresize -->
     <string name="movable_label" description="Label for switch that enables main panel move [CHAR_LIMIT=30]">Movable</string>
     <string name="resizable_label" description="Label for switch that enables main panel resize [CHAR_LIMIT=30]">Resizable</string>
     <string name="system_movable_label" description="Label for the aspect ratio radio button [CHAR LIMIT=50]">System Movable</string>
     <string name="scale_in_z_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Scale In Z</string>
+    <string name="gltf_movable" description="Label for switch that enables GLTF movable [CHAR_LIMIT=30]">GLTF Movable</string>
 
     <string name="launch_settings_app_in_fsm">Launch Settings App in a new task in FSM</string>
     <string name="launch_settings_app_in_fsm_with_environment_inherited">Launch Settings App in a new task in FSM with environment inherited</string>

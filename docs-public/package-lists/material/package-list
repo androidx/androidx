@@ -18,11 +18,15 @@ com.google.android.material.color
 com.google.android.material.datepicker
 com.google.android.material.dialog
 com.google.android.material.divider
+com.google.android.material.dockedtoolbar
+com.google.android.material.drawable
 com.google.android.material.elevation
 com.google.android.material.expandable
 com.google.android.material.floatingactionbutton
+com.google.android.material.floatingtoolbar
 com.google.android.material.imageview
 com.google.android.material.lists
+com.google.android.material.loadingindicator
 com.google.android.material.materialswitch
 com.google.android.material.math
 com.google.android.material.motion
@@ -49,3 +53,4 @@ com.google.android.material.timepicker
 com.google.android.material.transformation
 com.google.android.material.transition
 com.google.android.material.transition.platform
+

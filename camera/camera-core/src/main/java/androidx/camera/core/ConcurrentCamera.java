@@ -35,6 +35,10 @@ import java.util.List;
  * {@link PackageManager#FEATURE_CAMERA_CONCURRENT} to see whether this device is supporting
  * concurrent camera or not.
  *
+ * <p>Concurrent camera also supports composition mode, where multiple camera streams are
+ * composited into a single stream. This can be used for Picture-in-Picture or other custom
+ * layouts. Use {@link CompositionSettings} to configure the layout of each camera stream.
+ *
  * <p>CameraX currently only supports dual concurrent camera, which allows two cameras
  * operating at the same time, with at most two {@link UseCase}s bound for each. The max
  * resolution is 720p or 1440p, more details in the following link, see
@@ -58,6 +62,57 @@ public class ConcurrentCamera {
      */
     public @NonNull List<Camera> getCameras() {
         return mCameras;
+    }
+
+    /**
+     * Sets the composition settings for concurrent camera.
+     *
+     * <p>This method can be used to dynamically update the composition settings of the concurrent
+     * cameras, for example, to change the position or size of a Picture-in-Picture window.
+     *
+     * <p>The composition settings will be applied to the cameras in the order they were bound.
+     * The first composition setting is for the primary camera, and the second is for the
+     * secondary camera.
+     *
+     * <p>The size of the {@code compositionSettings} list must be equal to the number of the
+     * cameras that were bound using {@code bindToLifecycle}.
+     *
+     * <p>The following code snippet demonstrates how to update the composition settings for a
+     * dual camera setup:
+     * <pre>
+     * {@code
+     * List<SingleCameraConfig> singleCameraConfigs = Arrays.asList(config1, config2);
+     * ConcurrentCamera concurrentCamera = cameraProvider.bindToLifecycle(singleCameraConfigs);
+     *
+     * // Primary becomes PiP, Secondary becomes full screen
+     * CompositionSettings primary = new CompositionSettings.Builder()
+     *         .setOffset(0.5f, 0.5f)
+     *         .setScale(0.3f, 0.3f)
+     *         .setZOrder(1) // Display on top
+     *         .build();
+     * CompositionSettings secondary = new CompositionSettings.Builder()
+     *         .setZOrder(0)
+     *         .build();
+     *
+     * // The size of the list must match the number of cameras bound (in this case, 2)
+     * concurrentCamera.setCompositionSettings(Arrays.asList(primary, secondary));
+     * }
+     * </pre>
+     *
+     * @param compositionSettings A list of {@link CompositionSettings} for the concurrent
+     *                            cameras. The size of the list must be equal to the number of
+     *                            the cameras that were bound using {@code bindToLifecycle}.
+     * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
+     * @throws IllegalArgumentException if the size of the composition settings list does not
+     *                                  match the number of cameras bound.
+     */
+    public void setCompositionSettings(
+             @NonNull List<CompositionSettings> compositionSettings) {
+        if (!mCameras.isEmpty()) {
+            // ConcurrentCamera only has one camera in composition mode
+            Camera camera = mCameras.get(0);
+            camera.setCompositionSettings(compositionSettings);
+        }
     }
 
     /**

@@ -142,8 +142,8 @@ public inline fun <reified T : Any> rememberSerializable(
  * serialization-based mechanism.
  *
  * This overload is intended for cases where the state type cannot be stored directly in a Bundle,
- * but can be serialized with [kotlinx.serialization]. This is particularly useful for custom or
- * complex data types that are `@Serializable`.
+ * but can be serialized with [kotlinx.serialization.KSerializer]. This is particularly useful for
+ * custom or complex data types that are `@Serializable`.
  *
  * @param inputs A set of inputs such that, when any of them have changed, the state will reset and
  *   [init] will be rerun. Note: state restoration does NOT validate against inputs used before the

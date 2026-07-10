@@ -16,19 +16,15 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState.Companion.enableMethodTracingAffectsMeasurementError
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
 import androidx.tracing.trace
-import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,12 +98,11 @@ constructor(internal val state: MicrobenchmarkRunningState) {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MicrobenchmarkRunningState
-internal constructor(metrics: MetricsContainer, val yieldThreadPeriodically: Boolean) {
+internal constructor(internal var metrics: MetricsContainer, val yieldThreadPeriodically: Boolean) {
     internal var warmupEstimatedIterationTimeNs: Long = 0
     internal var warmupIterations: Int = 0
     internal var totalThermalThrottleSleepSeconds: Long = 0
     internal var maxIterationsPerRepeat = 0
-    internal var metrics: MetricsContainer = metrics
     internal var metricResults = mutableListOf<MetricResult>()
     internal var profilerResults = mutableListOf<Profiler.ResultFile>()
     internal var paused = false
@@ -230,14 +225,14 @@ internal fun captureMicroPerfettoTrace(
                 ),
             // TODO(290918736): add support for Perfetto SDK Tracing in
             //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
-            perfettoSdkConfig =
-                if (
-                    config?.perfettoSdkTracingEnabled == true &&
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                ) {
-                    PerfettoCapture.PerfettoSdkConfig(
-                        InstrumentationRegistry.getInstrumentation().context.packageName,
-                        PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
+            tracingLibraryConfig =
+                if (config?.perfettoSdkTracingEnabled == true) {
+                    PerfettoCapture.TracingLibraryConfig(
+                        targetPackage =
+                            InstrumentationRegistry.getInstrumentation().context.packageName,
+                        processState =
+                            PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
+                        enablePerfettoSdk = true,
                     )
                 } else {
                     null
@@ -352,18 +347,6 @@ internal class Microbenchmark(
 
     private fun processProfilerResults(perfettoTracePath: String?): List<Profiler.ResultFile> {
         // prepare profiling result files
-        perfettoTracePath?.apply {
-            // trace completed, and copied into shell writeable dir
-            val file = File(this)
-            file.appendUiState(
-                UiState(
-                    timelineStart = null,
-                    timelineEnd = null,
-                    highlightPackage =
-                        InstrumentationRegistry.getInstrumentation().context.packageName,
-                )
-            )
-        }
         state.profilerResults.forEach {
             it.convertBeforeSync?.invoke()
             if (perfettoTracePath != null) {

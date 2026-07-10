@@ -21,6 +21,9 @@ import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.CoroutineScopeKt;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
@@ -32,6 +35,8 @@ class InstantWorkTaskExecutor implements TaskExecutor {
 
     private Executor mSynchronousExecutor = new SynchronousExecutor();
     private SerialExecutorImpl mSerialExecutor = new SerialExecutorImpl(mSynchronousExecutor);
+    private final CoroutineScope mCoroutineScope =
+            CoroutineScopeKt.CoroutineScope(getTaskCoroutineDispatcher());
 
     @NonNull Executor getSynchronousExecutor() {
         return mSynchronousExecutor;
@@ -45,5 +50,10 @@ class InstantWorkTaskExecutor implements TaskExecutor {
     @Override
     public @NonNull SerialExecutor getSerialTaskExecutor() {
         return mSerialExecutor;
+    }
+
+    @Override
+    public @NonNull CoroutineScope getCoroutineScope() {
+        return mCoroutineScope;
     }
 }

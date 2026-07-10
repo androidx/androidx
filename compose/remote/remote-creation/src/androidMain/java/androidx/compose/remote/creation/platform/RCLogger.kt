@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation.platform
 
 import android.util.Log
-import androidx.compose.remote.core.Platform
+import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RcPlatformServices
 
 public interface RCLogger {
-    public fun log(category: Platform.LogCategory, message: String)
+    public fun log(category: RcPlatformServices.LogCategory, message: String)
 
     public object None : RCLogger {
-        public override fun log(category: Platform.LogCategory, message: String) {}
+        public override fun log(category: RcPlatformServices.LogCategory, message: String) {}
     }
 
     public object AndroidLog : RCLogger {
-        public override fun log(category: Platform.LogCategory, message: String) {
+        public override fun log(category: RcPlatformServices.LogCategory, message: String) {
             when (category) {
-                Platform.LogCategory.DEBUG -> Log.d(Tag, message)
-                Platform.LogCategory.INFO -> Log.i(Tag, message)
-                Platform.LogCategory.WARN -> Log.w(Tag, message)
+                RcPlatformServices.LogCategory.DEBUG -> Log.d(Tag, message)
+                RcPlatformServices.LogCategory.INFO -> Log.i(Tag, message)
+                RcPlatformServices.LogCategory.WARN -> Log.w(Tag, message)
                 else -> Log.e(Tag, message)
             }
         }

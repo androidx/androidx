@@ -14,97 +14,67 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore
 
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.testing.FakePerceptionRuntimeFactory
-import androidx.xr.scenecore.internal.ActivitySpace as RtActivitySpace
-import androidx.xr.scenecore.internal.GltfModelResource as RtGltfModel
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
-import androidx.xr.scenecore.internal.PanelEntity as RtPanelEntity
-import androidx.xr.scenecore.internal.SpatialCapabilities as RtSpatialCapabilities
+import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.testing.FakeGltfModelResource
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.Futures
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 
 @RunWith(AndroidJUnit4::class)
 class GltfModelTest {
 
-    private val mFakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
-    private val mockPlatformAdapter = mock<JxrPlatformAdapter>()
+    private lateinit var sceneRuntime: SceneRuntime
+    private lateinit var renderingRuntime: RenderingRuntime
+    private lateinit var session: Session
 
-    private val mockActivitySpace = mock<RtActivitySpace>()
-    private val mockPanelEntityImpl = mock<RtPanelEntity>()
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
 
     @Before
-    fun setup() {
-        mockPlatformAdapter.stub {
-            on { activitySpace }.thenReturn(mockActivitySpace)
-            on { activitySpaceRootImpl }.thenReturn(mockActivitySpace)
-            on { perceptionSpaceActivityPose }.thenReturn(mock())
-            on { spatialCapabilities }.thenReturn(RtSpatialCapabilities(0))
-            on { mainPanelEntity }.thenReturn(mockPanelEntityImpl)
-        }
+    fun setup(): Unit = runBlocking {
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(activity, testDispatcher)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
+        sceneRuntime = session.sceneRuntime
+        renderingRuntime = session.renderingRuntime
     }
 
     @SdkSuppress(minSdkVersion = 27)
     @Test
     fun createGltfByAssetNameTest() = runTest {
-        val mockRtGltfModel = mock<RtGltfModel>()
-        mockPlatformAdapter.stub {
-            on { loadGltfByAssetName("FakeAsset.glb") }
-                .thenReturn(Futures.immediateFuture(mockRtGltfModel))
-        }
-        val session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(
-                        mFakePerceptionRuntimeFactory.createRuntime(activity),
-                        mockPlatformAdapter,
-                    ),
-            )
+        val gltfModel = GltfModel.create(session, Paths.get("FakeAsset.glb"))
 
-        val gltfModel: GltfModel = GltfModel.create(session, Paths.get("FakeAsset.glb"))
-
-        verify(mockPlatformAdapter).loadGltfByAssetName("FakeAsset.glb")
+        assertThat((gltfModel.model as FakeGltfModelResource).assetName).isEqualTo("FakeAsset.glb")
     }
 
     @Test
     fun createGltfByByteArrayTest() = runTest {
-        val mockRtGltfModel = mock<RtGltfModel>()
-        mockPlatformAdapter.stub {
-            on { loadGltfByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.zip") }
-                .thenReturn(Futures.immediateFuture(mockRtGltfModel))
-        }
-        val session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(
-                        mFakePerceptionRuntimeFactory.createRuntime(activity),
-                        mockPlatformAdapter,
-                    ),
-            )
+        val gltfModel = GltfModel.create(session, byteArrayOf(1, 2, 3), "FakeAsset.zip")
 
-        val gltfModel: GltfModel = GltfModel.create(session, byteArrayOf(1, 2, 3), "FakeAsset.zip")
-
-        verify(mockPlatformAdapter).loadGltfByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.zip")
+        assertThat((gltfModel.model as FakeGltfModelResource).assetData)
+            .isEqualTo(byteArrayOf(1, 2, 3))
+        assertThat(gltfModel.model.assetKey).isEqualTo("FakeAsset.zip")
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -112,15 +82,6 @@ class GltfModelTest {
     fun gltfModel_createAsync_fails() = runTest {
         val hardcodedPathString = "/data/data/com.example.myapp/myfolder/myfile.txt"
         val absolutePath: Path? = Paths.get(hardcodedPathString)
-        val session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(
-                        mFakePerceptionRuntimeFactory.createRuntime(activity),
-                        mockPlatformAdapter,
-                    ),
-            )
 
         val exception =
             assertFailsWith<IllegalArgumentException> { GltfModel.create(session, absolutePath!!) }

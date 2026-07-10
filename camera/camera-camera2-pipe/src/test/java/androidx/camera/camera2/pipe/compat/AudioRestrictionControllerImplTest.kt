@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -33,9 +34,11 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class AudioRestrictionControllerImplTest {
     private val testScope = TestScope()
     private val threads = FakeThreads.fromTestScope(testScope)
@@ -43,13 +46,14 @@ class AudioRestrictionControllerImplTest {
     private val cameraGraph2: CameraGraph = mock()
     private val listener1: AudioRestrictionController.Listener = mock()
     private val listener2: AudioRestrictionController.Listener = mock()
-    private val cameraPipeLifetime = CameraPipeLifetime()
+    private val cameraPipeJob = Job()
+    private val cameraPipeLifetime = CameraPipeLifetime(cameraPipeJob)
 
     @Test
     fun setAudioRestrictionMode_ListenerUpdatedToHighestMode() =
         testScope.runTest {
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
             audioRestrictionController.addListener(listener2)
 
@@ -78,7 +82,7 @@ class AudioRestrictionControllerImplTest {
     fun setGlobalAudioRestrictionMode_ListenerUpdatedToHighestMode() =
         testScope.runTest {
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
             audioRestrictionController.addListener(listener2)
 
@@ -105,7 +109,7 @@ class AudioRestrictionControllerImplTest {
     fun setAudioRestrictionMode_lowerModeNotOverrideHigherMode() =
         testScope.runTest {
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
 
             audioRestrictionController.updateCameraGraphAudioRestrictionMode(
@@ -128,7 +132,7 @@ class AudioRestrictionControllerImplTest {
     fun setGlobalAudioRestrictionMode_lowerModeNotOverrideHigherMode() =
         testScope.runTest {
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
 
             audioRestrictionController.updateCameraGraphAudioRestrictionMode(
@@ -148,7 +152,7 @@ class AudioRestrictionControllerImplTest {
     fun removeCameraGraphAudioRestriction_associatedModeUpdated() =
         testScope.runTest {
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
 
             audioRestrictionController.updateCameraGraphAudioRestrictionMode(
@@ -175,7 +179,7 @@ class AudioRestrictionControllerImplTest {
         testScope.runTest {
             val mode = AUDIO_RESTRICTION_VIBRATION
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
 
             audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
@@ -192,7 +196,7 @@ class AudioRestrictionControllerImplTest {
         testScope.runTest {
             val mode = AUDIO_RESTRICTION_VIBRATION
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
 
             audioRestrictionController.globalAudioRestrictionMode = mode
             advanceUntilIdle()
@@ -209,7 +213,7 @@ class AudioRestrictionControllerImplTest {
         testScope.runTest {
             val mode = AUDIO_RESTRICTION_VIBRATION
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
             audioRestrictionController.addListener(listener2)
             audioRestrictionController.removeListener(listener1)
@@ -223,11 +227,12 @@ class AudioRestrictionControllerImplTest {
         }
 
     @Test
+    @Config(sdk = [Config.ALL_SDKS])
     fun belowRBuild_addListenerNoOp() =
         testScope.runTest {
             val mode = AUDIO_RESTRICTION_VIBRATION
             val audioRestrictionController =
-                AudioRestrictionControllerImpl(threads, cameraPipeLifetime)
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
             audioRestrictionController.addListener(listener1)
 
             audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)

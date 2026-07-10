@@ -39,12 +39,14 @@ import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.List;
 
 /** Tests for {@link CarAppExtender}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public final class CarAppExtenderTest {
     private static final String NOTIFICATION_CHANNEL_ID = "test carextender channel id";

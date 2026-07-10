@@ -19,7 +19,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -28,10 +27,10 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
 
     namespace = "androidx.wear.protolayout.material3.samples"

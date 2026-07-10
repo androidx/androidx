@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,28 +25,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":fragment:fragment"))
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    implementation(libs.androidx.annotation)
-    implementation(libs.jspecify)
-    androidTestImplementation("androidx.activity:activity-ktx:1.8.1") {
-        because "Mirror fragment dependency graph for -ktx artifacts"
-    }
-    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
-    androidTestImplementation("androidx.savedstate:savedstate:1.2.1")
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
 androidx {
@@ -55,6 +36,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2018"
     description = "Kotlin extensions for 'fragment' artifact"
+    doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 
 android {

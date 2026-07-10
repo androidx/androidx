@@ -293,12 +293,37 @@
   <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
   <string name="short_msg_template_demo_title">Short Message Template Demo</string>
 
-  <!-- SectionedItemTemplateDemo -->
-  <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
+    <!-- SectionedItemTemplateDemo -->
+    <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
+    <string name="condensed_item_demo_title">Condensed Item Demo</string>
+
+  <!-- SectionedItemAlphaJumpDemo -->
+  <string name="sectioned_item_alpha_jump_demo_title">Sectioned Item AlphaJump enabled Demo</string>
   <string name="sectioned_item_template_radio_button_section_title">Radio Button Section</string>
   <string name="sectioned_item_template_toggle_section_title">Toggle Section</string>
   <string name="sectioned_item_template_lots_of_rows_section_title">Lots of Rows Section</string>
   <string name="sectioned_item_template_grid_item_section_title">Grid Item Section</string>
+
+    <!--SectionedItemSimpleListDemoScreen -->
+    <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
+    <string name="sectioned_item_list_one_title">List 1</string>
+    <string name="sectioned_item_list_two_title">List 2</string>
+    <string name="sectioned_item_list_subtext">Subtext under each list</string>
+
+    <!--EndImageAndActionsDemo -->
+    <string name="end_image_and_action_demo_title">End Image and Actions Demo</string>
+
+    <!-- ChipDemo -->
+    <string name="chip_demo_title">Chip Demo</string>
+
+    <!-- ProgressBarDemo -->
+    <string name="progress_bar_demo_title">Progress Bar Demo</string>
+
+    <!-- SectionHeaderDemo -->
+    <string name="section_header_demo_title">Section Header Demo</string>
+
+    <!-- SpotlightSectionDemo -->
+    <string name="spotlight_section_demo_title">Spotlight Section Demo</string>
 
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
@@ -339,6 +364,7 @@
   <string name="tab_template_demo_title">Tab Template Demo</string>
   <string name="tab_title_message">Message Tab</string>
   <string name="tab_title_pane">Pane Tab</string>
+  <string name="tab_title_sectioned_item">Sectioned Item Tab</string>
   <string name="tab_title_list">List Tab</string>
   <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
   <string name="tab_title_search">Search Tab</string>
@@ -420,12 +446,8 @@
   <string name="secondary_action_toast">Secondary Action is selected</string>
   <string name="row_primary_action_toast">Row primary action is selected</string>
 
-
-  <!--SectionedItemListDemoScreen -->
-  <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
-  <string name="sectioned_item_list_one_title">List 1</string>
-  <string name="sectioned_item_list_two_title">List 2</string>
-  <string name="sectioned_item_list_subtext">Subtext under each list</string>
+    <!--RowEndImageAndActionsDemoScreen -->
+    <string name="row_end_image_and_actions_demo_title">Row End Image And Actions Demo</string>
 
   <!-- EmptyListDemoScreen -->
   <string name="empty_list_demo_title">Empty List Demo</string>
@@ -493,6 +515,9 @@
   <string name="latest_feature_title">Latest Features</string>
   <string name="loading_toggle_enabled">Loading enabled</string>
   <string name="loading_toggle_disabled">Loading disabled</string>
+  <string name="app_theme_title">Use App Theme</string>
+  <string name="app_theme_enabled">App Theme enabled</string>
+  <string name="app_theme_disabled">App Theme disabled</string>
   <string name="loading_screen">Loading screen</string>
   <string name="vector_toggle_details">Toggle to add/remove color</string>
     <string name="map_template_toggle_demo_title">Map Template with Toggles</string>
@@ -504,4 +529,6 @@
   <string name="map_with_content_demo_title">Map With Content Demos</string>
   <string name="map_with_message_demo_title">Map With Message Template Demo</string>
   <string name="map_with_grid_demo_title">Map With Grid Template Demo</string>
+  <string name="banner_demo_title">Banner Demo</string>
+  <string name="enhanced_header_demo_title">Enhanced Header Demo</string>
 </resources>

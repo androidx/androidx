@@ -142,14 +142,16 @@ internal class TilesConnectionBinder(
                                 name: ComponentName?,
                                 service: IBinder?,
                             ) {
+                                if (continuation.isCompleted) {
+                                    return
+                                }
                                 val boundTileProvider = TileProvider.Stub.asInterface(service)
                                 continuation.resume(boundTileProvider)
                             }
 
                             override fun onServiceDisconnected(name: ComponentName?) {
                                 // This is called when the remote side hangs up, but will be
-                                // dispatched
-                                // from an unknown thread. Ignore it for now.
+                                // dispatched from an unknown thread. Ignore it for now.
                             }
                         }
 

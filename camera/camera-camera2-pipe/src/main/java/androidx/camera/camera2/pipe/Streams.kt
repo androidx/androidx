@@ -204,7 +204,7 @@ public interface OutputStream {
                 streamUseHint: StreamUseHint? = null,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config =
-                // TODO: b/430431303 - Move this lazy/non-lazy selection logic to backend
+                // TODO(b/430431303): Move this lazy/non-lazy selection logic to backend
                 if (outputType.isLazilyConfigurable()) {
                     LazyOutputConfig(
                         size,
@@ -504,7 +504,10 @@ public class ImageSourceConfig(
     public val usageFlags: Long? = null,
     public val defaultDataSpace: Int? = null,
     public val defaultHardwareBufferFormat: Int? = null,
-)
+) {
+    // Only allowed to be set to true on multi-output streams.
+    public var enableConcurrentOutputs: Boolean = false
+}
 
 /** This identifies a single output. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

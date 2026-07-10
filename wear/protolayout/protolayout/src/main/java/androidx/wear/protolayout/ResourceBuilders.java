@@ -37,6 +37,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
+import androidx.wear.protolayout.expression.pipeline.DynamicProtoHashEquals;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
@@ -494,7 +495,9 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getResourceId(),
                     getAnimatedImageFormat(),
-                    progress != null ? Arrays.hashCode(progress.toDynamicFloatByteArray()) : null);
+                    progress != null
+                            ? DynamicProtoHashEquals.hashCode(progress.toDynamicFloatProto())
+                            : null);
         }
 
         @Override
@@ -507,16 +510,13 @@ public final class ResourceBuilders {
             }
             AndroidSeekableAnimatedImageResourceByResId that =
                     (AndroidSeekableAnimatedImageResourceByResId) obj;
-            DynamicFloat thatProgress = that.getProgress();
             DynamicFloat progress = getProgress();
+            DynamicFloat thatProgress = that.getProgress();
             return that.getResourceId() == getResourceId()
                     && that.getAnimatedImageFormat() == getAnimatedImageFormat()
-                    && (thatProgress == progress
-                            || (thatProgress != null
-                                    && progress != null
-                                    && Arrays.equals(
-                                            thatProgress.toDynamicFloatByteArray(),
-                                            progress.toDynamicFloatByteArray())));
+                    && DynamicProtoHashEquals.equals(
+                            progress != null ? progress.toDynamicFloatProto() : null,
+                            thatProgress != null ? thatProgress.toDynamicFloatProto() : null);
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -649,7 +649,9 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getRawResourceId(),
                     Trigger.hash(getStartTrigger()),
-                    progress != null ? Arrays.hashCode(progress.toDynamicFloatByteArray()) : null);
+                    progress != null
+                            ? DynamicProtoHashEquals.hashCode(progress.toDynamicFloatProto())
+                            : null);
         }
 
         @Override
@@ -661,16 +663,13 @@ public final class ResourceBuilders {
                 return false;
             }
             AndroidLottieResourceByResId that = (AndroidLottieResourceByResId) obj;
-            DynamicFloat thatProgress = that.getProgress();
             DynamicFloat progress = getProgress();
+            DynamicFloat thatProgress = that.getProgress();
             return that.getRawResourceId() == getRawResourceId()
                     && Trigger.equal(that.getStartTrigger(), getStartTrigger())
-                    && (thatProgress == progress
-                            || (thatProgress != null
-                                    && progress != null
-                                    && Arrays.equals(
-                                            thatProgress.toDynamicFloatByteArray(),
-                                            progress.toDynamicFloatByteArray())));
+                    && DynamicProtoHashEquals.equals(
+                            progress != null ? progress.toDynamicFloatProto() : null,
+                            thatProgress != null ? thatProgress.toDynamicFloatProto() : null);
         }
 
         /**
@@ -1134,7 +1133,7 @@ public final class ResourceBuilders {
         @RequiresSchemaVersion(major = 1, minor = 600)
         public static @NonNull LottieProperty colorForSlot(
                 @NonNull String sid, @NonNull ColorProp color) {
-            return new LottieSlotColorFilter.Builder().setSid(sid).setColor(color).build();
+            return new LottieColorForSlot.Builder().setSid(sid).setColor(color).build();
         }
 
         /** Get the protocol buffer representation of this object. */
@@ -1157,7 +1156,7 @@ public final class ResourceBuilders {
     public static @NonNull LottieProperty lottiePropertyFromProto(
             ResourceProto.@NonNull LottieProperty proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasSlotColor()) {
-            return LottieSlotColorFilter.fromProto(proto.getSlotColor(), fingerprint);
+            return LottieColorForSlot.fromProto(proto.getSlotColor(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of LottieProperty");
     }
@@ -1172,12 +1171,12 @@ public final class ResourceBuilders {
      * the specified slot ID.
      */
     @RequiresSchemaVersion(major = 1, minor = 600)
-    static final class LottieSlotColorFilter extends LottieProperty {
-        private final ResourceProto.LottieSlotColorFilter mImpl;
+    static final class LottieColorForSlot extends LottieProperty {
+        private final ResourceProto.LottieColorForSlot mImpl;
         private final @Nullable Fingerprint mFingerprint;
 
-        LottieSlotColorFilter(
-                ResourceProto.LottieSlotColorFilter impl, @Nullable Fingerprint fingerprint) {
+        LottieColorForSlot(
+                ResourceProto.LottieColorForSlot impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -1208,19 +1207,19 @@ public final class ResourceBuilders {
 
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public static @NonNull LottieSlotColorFilter fromProto(
-                ResourceProto.@NonNull LottieSlotColorFilter proto,
+        public static @NonNull LottieColorForSlot fromProto(
+                ResourceProto.@NonNull LottieColorForSlot proto,
                 @Nullable Fingerprint fingerprint) {
-            return new LottieSlotColorFilter(proto, fingerprint);
+            return new LottieColorForSlot(proto, fingerprint);
         }
 
-        static @NonNull LottieSlotColorFilter fromProto(
-                ResourceProto.@NonNull LottieSlotColorFilter proto) {
+        static @NonNull LottieColorForSlot fromProto(
+                ResourceProto.@NonNull LottieColorForSlot proto) {
             return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
-        ResourceProto.@NonNull LottieSlotColorFilter toProto() {
+        ResourceProto.@NonNull LottieColorForSlot toProto() {
             return mImpl;
         }
 
@@ -1232,14 +1231,14 @@ public final class ResourceBuilders {
 
         @Override
         public @NonNull String toString() {
-            return "LottieSlotColorFilter{" + "sid=" + getSid() + ", color=" + getColor() + "}";
+            return "LottieColorForSlot{" + "sid=" + getSid() + ", color=" + getColor() + "}";
         }
 
-        /** Builder for {@link LottieSlotColorFilter}. */
+        /** Builder for {@link LottieColorForSlot}. */
         @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LottieProperty.Builder {
-            private final ResourceProto.LottieSlotColorFilter.Builder mImpl =
-                    ResourceProto.LottieSlotColorFilter.newBuilder();
+            private final ResourceProto.LottieColorForSlot.Builder mImpl =
+                    ResourceProto.LottieColorForSlot.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1002991796);
 
             /** Creates an instance of {@link Builder}. */
@@ -1267,7 +1266,7 @@ public final class ResourceBuilders {
             public @NonNull Builder setColor(@NonNull ColorProp color) {
                 if (color.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "LottieSlotColorFilter.Builder.setColor doesn't support dynamic"
+                            "LottieColorForSlot.Builder.setColor doesn't support dynamic"
                                     + " values.");
                 }
                 mImpl.setColor(color.toProto());
@@ -1278,8 +1277,8 @@ public final class ResourceBuilders {
 
             /** Builds an instance from accumulated values. */
             @Override
-            public @NonNull LottieSlotColorFilter build() {
-                return new LottieSlotColorFilter(mImpl.build(), mFingerprint);
+            public @NonNull LottieColorForSlot build() {
+                return new LottieColorForSlot(mImpl.build(), mFingerprint);
             }
         }
     }

@@ -27,6 +27,7 @@ import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.internal.utils.SizeUtil;
@@ -65,9 +66,11 @@ class QualityRatioToResolutionsTable {
 
     // Key: Quality
     // Value: the height range of Quality
-    private static final Map<Quality, Range<Integer>> sQualityRangeMap = new HashMap<>();
+    @VisibleForTesting
+    static final Map<Quality, Range<Integer>> sQualityRangeMap = new HashMap<>();
     static {
         sQualityRangeMap.put(Quality.UHD, Range.create(2160, 4319));
+        sQualityRangeMap.put(Quality.QHD, Range.create(1440, 2159));
         sQualityRangeMap.put(Quality.FHD, Range.create(1080, 1439));
         sQualityRangeMap.put(Quality.HD, Range.create(720, 1079));
         sQualityRangeMap.put(Quality.SD, Range.create(241, 719));
@@ -118,6 +121,42 @@ class QualityRatioToResolutionsTable {
             @AspectRatio.Ratio int aspectRatio) {
         List<Size> qualityRatioRow = getQualityRatioRow(quality, aspectRatio);
         return qualityRatioRow != null ? new ArrayList<>(qualityRatioRow) : new ArrayList<>(0);
+    }
+
+    @Override
+    public @NonNull String toString() {
+        StringBuilder sb = new StringBuilder("QualityRatioToResolutionsTable {\n");
+        for (Quality quality : sQualityRangeMap.keySet()) {
+            Quality.ConstantQuality constantQuality = (Quality.ConstantQuality) quality;
+            sb.append("  ").append(constantQuality.getName()).append(":\n");
+
+            List<Integer> ratios = new ArrayList<>();
+            ratios.add(RATIO_DEFAULT);
+            ratios.addAll(sAspectRatioMap.keySet());
+
+            for (int ratio : ratios) {
+                List<Size> resolutions = getQualityRatioRow(quality, ratio);
+                String ratioLabel = getRatioLabel(ratio);
+                sb.append("    ").append(ratioLabel).append(" -> ")
+                        .append(resolutions != null ? resolutions : "null")
+                        .append("\n");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private @NonNull String getRatioLabel(@AspectRatio.Ratio int ratio) {
+        switch (ratio) {
+            case RATIO_DEFAULT:
+                return "DEFAULT";
+            case RATIO_4_3:
+                return "4:3";
+            case RATIO_16_9:
+                return "16:9";
+            default:
+                return "UNKNOWN (" + ratio + ")";
+        }
     }
 
     private void addProfileSizesToTable(@NonNull Map<Quality, Size> profileQualityToSizeMap) {

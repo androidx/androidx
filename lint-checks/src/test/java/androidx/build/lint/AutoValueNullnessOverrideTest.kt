@@ -33,13 +33,13 @@ class AutoValueNullnessOverrideTest :
         val input =
             java(
                 """
-                    package test.pkg;
-                    import com.google.auto.value.AutoValue;
-                    import org.jspecify.annotations.Nullable;
-                    @AutoValue
-                    public abstract class Foo {
-                        public abstract @Nullable String getString();
-                    }
+                package test.pkg;
+                import com.google.auto.value.AutoValue;
+                import org.jspecify.annotations.Nullable;
+                @AutoValue
+                public abstract class Foo {
+                    public abstract @Nullable String getString();
+                }
                 """
                     .trimIndent()
             )
@@ -52,21 +52,21 @@ class AutoValueNullnessOverrideTest :
             arrayOf(
                 java(
                     """
-                        package test.pkg;
-                        import com.google.auto.value.AutoValue;
-                        @AutoValue
-                        public abstract class Foo extends ParentClass {
-                        }
+                    package test.pkg;
+                    import com.google.auto.value.AutoValue;
+                    @AutoValue
+                    public abstract class Foo extends ParentClass {
+                    }
                     """
                         .trimIndent()
                 ),
                 java(
                     """
-                        package test.pkg;
-                        import org.jspecify.annotations.Nullable;
-                        public abstract class ParentClass {
-                            public abstract @Nullable String getString();
-                        }
+                    package test.pkg;
+                    import org.jspecify.annotations.Nullable;
+                    public abstract class ParentClass {
+                        public abstract @Nullable String getString();
+                    }
                     """
                         .trimIndent()
                 ),
@@ -90,18 +90,18 @@ class AutoValueNullnessOverrideTest :
                 .files(
                     java(
                         """
-                            package androidx.example;
-                            import org.jspecify.annotations.NonNull;
-                            import org.jspecify.annotations.Nullable;
-                            public abstract class SuperClass {
-                                public abstract @Nullable String getNullableStringNotOverridden();
-                                public abstract @NonNull String getNonNullStringNotOverridden();
-                                public abstract String getUnannotatedStringNotOverridden();
+                        package androidx.example;
+                        import org.jspecify.annotations.NonNull;
+                        import org.jspecify.annotations.Nullable;
+                        public abstract class SuperClass {
+                            public abstract @Nullable String getNullableStringNotOverridden();
+                            public abstract @NonNull String getNonNullStringNotOverridden();
+                            public abstract String getUnannotatedStringNotOverridden();
 
-                                public abstract @Nullable String getNullableStringOverridden();
+                            public abstract @Nullable String getNullableStringOverridden();
 
-                                public abstract @Nullable String getNullableStringOverrideNotAbstract();
-                            }
+                            public abstract @Nullable String getNullableStringOverrideNotAbstract();
+                        }
                         """
                             .trimIndent()
                     ),
@@ -120,19 +120,19 @@ class AutoValueNullnessOverrideTest :
                 .files(
                     java(
                         """
-                            package test.pkg;
-                            import com.google.auto.value.AutoValue;
-                            import androidx.example.SuperClass;
-                            @AutoValue
-                            public abstract class Foo extends SuperClass {
-                                @Override
-                                public abstract @Nullable String getNullableStringOverridden();
+                        package test.pkg;
+                        import com.google.auto.value.AutoValue;
+                        import androidx.example.SuperClass;
+                        @AutoValue
+                        public abstract class Foo extends SuperClass {
+                            @Override
+                            public abstract @Nullable String getNullableStringOverridden();
 
-                                @Override
-                                public abstract @Nullable String getNullableStringOverrideNotAbstract() {
-                                    return null;
-                                }
+                            @Override
+                            public abstract @Nullable String getNullableStringOverrideNotAbstract() {
+                                return null;
                             }
+                        }
                         """
                             .trimIndent()
                     ),
@@ -149,18 +149,18 @@ class AutoValueNullnessOverrideTest :
 
         val expected =
             """
-                src/main/java/test/pkg/Foo.java:5: Error: Methods need @Nullable overrides for AutoValue: getNullableStringNotOverridden() [AutoValueNullnessOverride]
-                public abstract class Foo extends SuperClass {
-                                      ~~~
-                1 errors, 0 warnings
+            src/main/java/test/pkg/Foo.java:5: Error: Methods need @Nullable overrides for AutoValue: getNullableStringNotOverridden() [AutoValueNullnessOverride]
+            public abstract class Foo extends SuperClass {
+                                  ~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Fix for src/main/java/test/pkg/Foo.java line 5: Replace with ...:
-                @@ -6 +6
-                + @Override
-                + public abstract @Nullable String getNullableStringNotOverridden();
+            Fix for src/main/java/test/pkg/Foo.java line 5: Replace with ...:
+            @@ -6 +6
+            + @Override
+            + public abstract @Nullable String getNullableStringNotOverridden();
             """
                 .trimIndent()
 
@@ -171,26 +171,26 @@ class AutoValueNullnessOverrideTest :
         private val autovalueStub =
             kotlin(
                 """
-                    package com.google.auto.value
-                    annotation class AutoValue
+                package com.google.auto.value
+                annotation class AutoValue
                 """
                     .trimIndent()
             )
         private val jspecifyNullableStub =
             kotlin(
                 """
-                    package org.jspecify.annotations
-                    @Target(AnnotationTarget.TYPE)
-                    annotation class Nullable
+                package org.jspecify.annotations
+                @Target(AnnotationTarget.TYPE)
+                annotation class Nullable
                 """
                     .trimIndent()
             )
         private val jspecifyNonNullStub =
             kotlin(
                 """
-                    package org.jspecify.annotations
-                    @Target(AnnotationTarget.TYPE)
-                    annotation class NonNull
+                package org.jspecify.annotations
+                @Target(AnnotationTarget.TYPE)
+                annotation class NonNull
                 """
                     .trimIndent()
             )

@@ -17,9 +17,11 @@
 package androidx.aab.analysis
 
 import androidx.aab.BundleInfo
+import androidx.aab.CsvColumn
 import androidx.aab.analysis.LibraryAnalysis.Companion.getLibraryAnalysis
 import androidx.aab.analysis.ProfileAnalysis.Companion.getProfileAnalysis
 import androidx.aab.analysis.R8Analysis.Companion.getR8Analysis
+import androidx.aab.mapAll
 
 /**
  * Container for analyzed bundle information, grouped by analysis section.
@@ -37,24 +39,13 @@ class AnalyzedBundleInfo(val bundleInfo: BundleInfo) {
         listOf(profileAnalysis, r8Analysis, libraryAnalysis).map { it.getSubScore() }.print()
     }
 
-    fun toCsvLine(): String {
-        val entries =
-            (profileAnalysis.csvEntries() +
-                r8Analysis.csvEntries() +
-                libraryAnalysis.csvEntries() +
-                bundleInfo.csvEntries())
-        check(entries.size == CSV_TITLES.size) {
-            "CSV Entry count (${entries.size}) didn't match header count ${CSV_TITLES.size}"
-        }
-        return entries.joinToString(", ")
-    }
-
     companion object {
-        val CSV_TITLES =
-            ProfileAnalysis.CSV_TITLES +
-                R8Analysis.CSV_TITLES +
-                LibraryAnalysis.CSV_TITLES +
-                BundleInfo.CSV_TITLES
-        val CSV_HEADER = CSV_TITLES.joinToString(", ")
+        val CSV_COLUMNS: List<CsvColumn<AnalyzedBundleInfo>> =
+            ProfileAnalysis.CSV_COLUMNS.mapAll<ProfileAnalysis, AnalyzedBundleInfo> {
+                it.profileAnalysis
+            } +
+                R8Analysis.CSV_COLUMNS.mapAll { it.r8Analysis } +
+                LibraryAnalysis.CSV_COLUMNS.mapAll { it.libraryAnalysis } +
+                BundleInfo.CSV_COLUMNS.mapAll { it.bundleInfo }
     }
 }

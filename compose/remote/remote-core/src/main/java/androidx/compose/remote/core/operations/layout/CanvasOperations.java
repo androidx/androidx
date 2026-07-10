@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a list of canvas operations. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CanvasOperations extends PaintOperation
         implements VariableSupport, Container, Serializable {
     private static final int OP_CODE = Operations.CANVAS_OPERATIONS;
@@ -54,7 +56,9 @@ public class CanvasOperations extends PaintOperation
             }
             if (operation instanceof ComponentValue) {
                 ComponentValue v = (ComponentValue) operation;
-                mComponent.addComponentValue(v);
+                if (mComponent != null) {
+                    mComponent.addComponentValue(v);
+                }
             }
         }
     }
@@ -150,8 +154,8 @@ public class CanvasOperations extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Operations", OP_CODE, name())
-                .description("Impulse Process that runs a list of operations");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .description("A collection of canvas operations");
     }
 
     @Override

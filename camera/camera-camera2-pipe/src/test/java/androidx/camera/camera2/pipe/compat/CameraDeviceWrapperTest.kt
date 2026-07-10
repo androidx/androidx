@@ -22,26 +22,30 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import kotlin.test.Test
-import kotlin.test.assertFalse
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 
 @Suppress("deprecation")
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraDeviceWrapperTest {
     private val cameraId = CameraId("0")
-    private val cameraMetadata = FakeCameraMetadata(cameraId = cameraId)
+    private val cameraMetadata =
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
     private val cameraDevice: CameraDevice = mock()
     private val cameraErrorListener: CameraErrorListener = mock()
     private val testScope = TestScope()
@@ -75,9 +79,8 @@ class CameraDeviceWrapperTest {
             androidCameraDevice.onDeviceClosed()
             advanceUntilIdle()
 
-            assertFalse(
-                androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1)
-            )
+            assertThat(androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1))
+                .isFalse()
             verify(sessionStateCallback1, times(1)).onSessionFinalized()
         }
 

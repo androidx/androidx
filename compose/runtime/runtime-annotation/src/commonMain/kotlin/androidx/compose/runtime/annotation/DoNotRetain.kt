@@ -17,13 +17,14 @@
 package androidx.compose.runtime.annotation
 
 /**
- * Annotates that a class should not be retained (i.e. used in the return type of the `calculation`
- * lambda given to the `retain {}` method in `androidx.compose.runtime`).
+ * Annotates that a class should not be retained. Types annotated with [DoNotRetain] should not be
+ * used in the return type of the `calculation` lambda given to the `retain {}` method in
+ * `androidx.compose.runtime`, or as a key input to `retain`.
  *
  * When present on a class, a lint error will be reported when the class or any of its subclasses
- * appear as the generic type of a call to `retain`. The associated inspection only checks the
- * direct return type of the `calculation` lambda, but retained values should hold no strong
- * references, direct or indirect, to any type marked as [DoNotRetain].
+ * appear as the generic type of a call to `retain` or as a `key` parameter. The associated
+ * inspection only checks the direct return type of the `calculation` lambda, but retained values
+ * should hold no strong references, direct or indirect, to any type marked as [DoNotRetain].
  *
  * Generally, this annotation is expected to be used on resources that will be leaked if they are
  * retained. Additional or other rationale may be provided by specifying an [explanation], which

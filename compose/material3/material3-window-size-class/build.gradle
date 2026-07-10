@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -33,7 +32,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.windowsizeclass"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -41,66 +40,36 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation("androidx.compose.ui:ui-util:1.8.1")
-                api("androidx.compose.runtime:runtime:1.8.1")
-                api("androidx.compose.ui:ui:1.8.2")
-                api("androidx.compose.ui:ui-unit:1.8.1")
-            }
+        commonMain.dependencies {
+            implementation("androidx.compose.ui:ui-util:1.8.1")
+            api("androidx.compose.runtime:runtime:1.8.1")
+            api("androidx.compose.ui:ui:1.8.2")
+            api("androidx.compose.ui:ui-unit:1.8.1")
         }
 
-        commonTest {
-            dependencies {
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.window:window:1.0.0")
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation-experimental:1.4.1")
-                implementation("androidx.window:window:1.0.0")
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.foundation:foundation:1.6.0")
+            implementation(project(":compose:runtime:runtime"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation("androidx.compose.foundation:foundation:1.6.0")
-                implementation(project(":compose:runtime:runtime"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.truth)
         }
     }
 }
@@ -113,4 +82,3 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
 }
-

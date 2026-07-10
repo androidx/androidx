@@ -81,19 +81,22 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
          * Position FAB at the bottom of the screen at the start, above the [BottomAppBar] (if it
          * exists)
          */
-        val Start = FabPosition(0)
+        val Start
+            get() = FabPosition(0)
 
         /**
          * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
          * exists)
          */
-        val Center = FabPosition(1)
+        val Center
+            get() = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
          * exists)
          */
-        val End = FabPosition(2)
+        val End
+            get() = FabPosition(2)
     }
 
     override fun toString(): String {
@@ -169,9 +172,10 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
  *   content color for [backgroundColor], or, if it is not a color from the theme, this will keep
  *   the same value set above this Surface.
  * @param content content of your screen. The lambda receives an [PaddingValues] that should be
- *   applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
- *   properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
- *   the child of the scroll, and not on the scroll itself.
+ *   applied to the content root via [androidx.compose.foundation.layout.padding] and
+ *   [androidx.compose.foundation.layout.consumeWindowInsets] to properly offset top and bottom
+ *   bars. If using [androidx.compose.foundation.verticalScroll], apply this modifier to the child
+ *   of the scroll, and not on the scroll itself.
  */
 @Composable
 fun Scaffold(
@@ -295,9 +299,10 @@ fun Scaffold(
  *   content color for [backgroundColor], or, if it is not a color from the theme, this will keep
  *   the same value set above this Surface.
  * @param content content of your screen. The lambda receives an [PaddingValues] that should be
- *   applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
- *   properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
- *   the child of the scroll, and not on the scroll itself.
+ *   applied to the content root via [androidx.compose.foundation.layout.padding] and
+ *   [androidx.compose.foundation.layout.consumeWindowInsets] to properly offset top and bottom
+ *   bars. If using [androidx.compose.foundation.verticalScroll], apply this modifier to the child
+ *   of the scroll, and not on the scroll itself.
  */
 @Composable
 fun Scaffold(

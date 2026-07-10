@@ -42,7 +42,7 @@ fun SliderSample() {
 @Composable
 fun ChangedSliderSample() {
     val initialValue = 4.5f
-    var value by remember { mutableStateOf(initialValue) }
+    var value by remember { mutableStateOf(5.0f) }
     Slider(
         value = value,
         onValueChange = { value = it },
@@ -66,7 +66,7 @@ fun SliderSegmentedSample() {
         value = value,
         onValueChange = { value = it },
         valueRange = 1f..4f,
-        steps = 7,
+        steps = 2,
         segmented = true,
     )
 }

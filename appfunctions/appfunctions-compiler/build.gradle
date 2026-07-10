@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,18 +29,22 @@ plugins {
     id("kotlin")
 }
 
+// Ensure that the runtime SDK contains AppFunction framework APIs to prevent
+// compilation errors.
+project.ext.set("androidx.compileSdk", 36)
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kspApi)
 
     implementation("androidx.annotation:annotation:1.7.0")
     implementation("com.squareup:kotlinpoet:2.0.0")
 
     testImplementationAarAsJar(project(":appfunctions:appfunctions"))
-    testImplementationAarAsJar(project(":appfunctions:appfunctions-service"))
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":appfunctions:appfunctions-stubs"))
+
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 

@@ -87,7 +87,6 @@ public class WebkitToCompatConverter {
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat} into a
      * {@link ServiceWorkerWebSettings}.
      */
-    @RequiresApi(24)
     public @NonNull ServiceWorkerWebSettings convertServiceWorkerSettings(
             /* SupportLibServiceWorkerSettings */ @NonNull InvocationHandler
             serviceWorkerSettings) {

@@ -16,8 +16,8 @@
 
 package androidx.build.binarycompatibilityvalidator
 
-import androidx.binarycompatibilityvalidator.KlibDumpParser
-import androidx.binarycompatibilityvalidator.ParseException
+import androidx.binarycompatibilityvalidator.MergedKlibDumpParser
+import java.text.ParseException
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -104,7 +104,7 @@ private abstract class UpdateAbiWorker : WorkAction<UpdateAbiParameters> {
     @OptIn(ExperimentalLibraryAbiReader::class)
     override fun execute() {
         try {
-            KlibDumpParser(parameters.abiFile.get().asFile).parse()
+            MergedKlibDumpParser(parameters.abiFile.get().asFile).parse()
         } catch (e: ParseException) {
             System.err.println(
                 "Successfully updated API file but parser was unable to parse the generated output. " +

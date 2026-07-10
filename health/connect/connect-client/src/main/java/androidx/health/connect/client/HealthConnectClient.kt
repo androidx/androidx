@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
@@ -37,11 +38,14 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
+import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_MATCHMAKING
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_PHR
 import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
 import androidx.health.connect.client.feature.createExceptionDueToFeatureUnavailable
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
+import androidx.health.connect.client.matchmaking.MatchmakingRequest
+import androidx.health.connect.client.matchmaking.MatchmakingResponse
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_MEDICAL_DATA_VACCINES
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_MEDICAL_DATA
@@ -70,6 +74,9 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_MIN_VERSION_CODE
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.platform.client.utils.isTargetSignatureValid
 import kotlin.reflect.KClass
 
 @JvmDefaultWithCompatibility
@@ -317,7 +324,7 @@ interface HealthConnectClient {
      * }
      * ```
      *
-     * @param changesToken A Changes-Token that represents a specific point in time in Android
+     * @param changesToken A changes token that represents a specific point in time in Android
      *   Health Platform.
      * @return a [ChangesResponse] with changes since provided [changesToken].
      * @throws android.os.RemoteException For any IPC transportation failures.
@@ -325,6 +332,26 @@ interface HealthConnectClient {
      * @see getChangesToken
      */
     suspend fun getChanges(changesToken: String): ChangesResponse
+
+    /**
+     * Same as [getChanges] method but also allows specifying a preferred [pageSize].
+     *
+     * [pageSize] is a soft limit that serves as a recommendation to the system. The system makes
+     * best attempt to limit the number of returned change logs, however in certain cases the
+     * response might exceed the [pageSize].
+     *
+     * @param changesToken A changes token that represents a specific point in time in Android
+     *   Health Platform.
+     * @param pageSize The (soft) limit of change logs to return, must be within [1, 5000].
+     * @return a [ChangesResponse] with changes since provided [changesToken].
+     * @throws android.os.RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @see getChangesToken
+     */
+    suspend fun getChanges(
+        changesToken: String,
+        @IntRange(from = 1, to = 5000) pageSize: Int,
+    ): ChangesResponse
 
     /**
      * Inserts or updates a list of [MedicalResource]s using [UpsertMedicalResourceRequest]s.
@@ -719,12 +746,97 @@ interface HealthConnectClient {
         )
     }
 
-    companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
+    /**
+     * Checks if launching the intent returned by [createMatchmakingIntent] with the same arguments
+     * will result in showing at least one matching application or device.
+     * - Returns `true` if the flow launched by [createMatchmakingIntent] would display at least one
+     *   matching data source, allowing the user to take action.
+     * - Returns `false` if the launched flow would immediately return
+     *   [android.app.Activity.RESULT_CANCELED] because there are no relevant data sources to show.
+     *
+     * @param request [MatchmakingRequest].
+     * @return [MatchmakingResponse].
+     * @throws UnsupportedOperationException if the feature is not available.
+     * @see createMatchmakingIntent
+     *
+     * This feature is dependent on the version of HealthConnect installed on the device. To check
+     * if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_MATCHMAKING] as an argument. An
+     * [UnsupportedOperationException] would be thrown if the feature is not available.
+     */
+    @ExperimentalMatchmakingApi
+    suspend fun checkIfMatchmakingIsPossible(request: MatchmakingRequest): MatchmakingResponse {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_MATCHMAKING,
+            "HealthConnectClient#checkIfMatchmakingIsPossible()",
+        )
+    }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
+    /**
+     * Creates an [Intent] to launch a Health Connect flow where users can:
+     * - **Discover compatible data sources:** See other installed data sources that have not yet
+     *   granted permissions to write some of the [androidx.health.connect.client.records.Record]
+     *   classes the calling app can read.
+     * - **Grant missing permissions:** Easily grant these discovered data sources the necessary
+     *   write permissions for health data record types that haven't been granted yet. Only record
+     *   types the calling package is permitted to read are being considered.
+     *
+     * This flow helps users connect new data sources to Health Connect, by matching record types
+     * readable by the calling package to appropriate writing data sources.
+     *
+     * This intent must be launched using [androidx.activity.result.ActivityResultLauncher] rather
+     * than [android.app.Activity.startActivity]. The launched activity may return a result code
+     * indicating the user's interaction with the flow:
+     * - [android.app.Activity.RESULT_OK]: The user has successfully granted permissions to at least
+     *   one application or device.
+     * - [android.app.Activity.RESULT_CANCELED]: The user has canceled the flow, either by closing
+     *   the activity or by not granting any permissions. [android.app.Activity.RESULT_CANCELED] can
+     *   also occur if the intent was launched when no matching apps are available. This can be
+     *   avoided by ensuring [checkIfMatchmakingIsPossible] returns `true` before launching the
+     *   intent.
+     *
+     * The launched flow will only show packages that have declared, but not yet been granted write
+     * permissions (that have not been denied by the user twice) for at least one of the relevant
+     * record types, and for the relevant included/excluded data sources:
+     * - **If [MatchmakingRequest.recordTypes] is not empty:** The launched screen will focus on
+     *   data sources capable of writing data for at least one of the specified health record types.
+     *   The user can then grant write permissions to these discovered data sources specifically for
+     *   these types. Record types the calling app does not have permission to read are ignored.
+     * - **If [MatchmakingRequest.recordTypes] is empty:** The system first determines all health
+     *   data record types for which the calling package has already been granted read permission.
+     *   The launched flow will then display data sources capable of writing any of these record
+     *   types, where the user can grant write permissions for these types.
+     * - **If [MatchmakingRequest.includedDataSources] is not empty:** Only data sources whose
+     *   package names are present in this set are considered for matchmaking.
+     * - **If [MatchmakingRequest.excludedDataSources] is not empty:** Data sources whose package
+     *   names are present in this set are excluded from matchmaking.
+     * - **If both are empty:** All compatible data sources are considered.
+     *
+     * Note: If a data source is an app, the calling app must have visibility of the package name
+     * (e.g. declared in the manifest inside `<queries>`). If a data source is a device, the calling
+     * app does not need to declare it in the manifest.
+     *
+     * [MatchmakingRequest.includedDataSources] and [MatchmakingRequest.excludedDataSources] cannot
+     * both be set at the same time.
+     *
+     * @param request [MatchmakingRequest].
+     * @return [Intent] configured to show the matchmaking flow.
+     * @throws UnsupportedOperationException if the feature is not available.
+     * @see checkIfMatchmakingIsPossible
+     *
+     * This feature is dependent on the version of HealthConnect installed on the device. To check
+     * if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_MATCHMAKING] as an argument.
+     */
+    @ExperimentalMatchmakingApi
+    fun createMatchmakingIntent(request: MatchmakingRequest): Intent {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_MATCHMAKING,
+            "HealthConnectClient#createMatchmakingIntent()",
+        )
+    }
+
+    companion object {
         /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
@@ -736,11 +848,15 @@ interface HealthConnectClient {
                 "android.health.connect.action.HEALTH_HOME_SETTINGS"
             else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal val ACTION_HEALTH_CONNECT_MANAGE_DATA =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 "android.health.connect.action.MANAGE_HEALTH_DATA"
             else "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+
+        internal val ACTION_HEALTH_CONNECT_MATCHMAKING =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "android.health.connect.action.MATCHMAKING"
+            else ""
 
         /**
          * The Health Connect SDK is unavailable on this device at the time. This can be due to the
@@ -791,11 +907,7 @@ interface HealthConnectClient {
                 in Build.VERSION_CODES.UPSIDE_DOWN_CAKE..Int.MAX_VALUE ->
                     Api34Impl.getSdkStatus(context)
                 in Build.VERSION_CODES.P..Build.VERSION_CODES.TIRAMISU ->
-                    if (isPackageInstalled(context.packageManager, providerPackageName)) {
-                        SDK_AVAILABLE
-                    } else {
-                        SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-                    }
+                    getProviderStatus(context.packageManager, providerPackageName)
                 else -> return SDK_UNAVAILABLE
             }
         }
@@ -861,22 +973,32 @@ interface HealthConnectClient {
             }
         }
 
-        private fun isPackageInstalled(
+        private fun getProviderStatus(
             packageManager: PackageManager,
             packageName: String,
             versionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE,
-        ): Boolean {
+        ): Int {
             val packageInfo: PackageInfo =
                 try {
                     @Suppress("Deprecation") // getPackageInfo deprecated in T
                     packageManager.getPackageInfo(packageName, /* flags= */ 0)
                 } catch (e: PackageManager.NameNotFoundException) {
-                    return false
+                    return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
                 }
-            return (packageInfo.applicationInfo?.enabled == true) &&
+            if (packageInfo.applicationInfo?.enabled != true) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            if (!isTargetSignatureValid(packageManager, packageName)) {
+                return SDK_UNAVAILABLE
+            }
+            if (
                 (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
                     PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode) &&
-                hasBindableService(packageManager, packageName)
+                    hasBindableService(packageManager, packageName)
+            ) {
+                return SDK_AVAILABLE
+            }
+            return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
         }
 
         internal fun hasBindableService(
@@ -891,7 +1013,6 @@ interface HealthConnectClient {
         }
 
         /** Tag used in SDK debug logs. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val HEALTH_CONNECT_CLIENT_TAG = "HealthConnectClient"
     }
 

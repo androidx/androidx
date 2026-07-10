@@ -23,10 +23,12 @@ import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils
 import androidx.window.core.Bounds
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.FoldingFeature.STATE_HALF_OPENED
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.extensions.layout.WindowLayoutInfo.ENGAGEMENT_MODE_FLAG_VISUALS_ON
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
@@ -71,6 +73,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
                 WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val oemFeature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
+            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
             val oemInfo = OEMWindowLayoutInfo(listOf(oemFeature))
             val localFeature = HardwareFoldingFeature(Bounds(featureBounds), HINGE, HALF_OPENED)
             val expected = WindowLayoutInfo(listOf(localFeature))
@@ -90,6 +93,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
                 WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val oemFeature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
+            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
             val oemInfo = OEMWindowLayoutInfo(listOf(oemFeature))
             val localFeature = HardwareFoldingFeature(Bounds(featureBounds), HINGE, HALF_OPENED)
             val expected = WindowLayoutInfo(listOf(localFeature))
@@ -153,6 +157,66 @@ class ExtensionsWindowLayoutInfoAdapterTest {
                 "Expected invalid FoldingFeatures to be filtered but had $invalidFeatures",
                 invalidFeatures.isEmpty(),
             )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testTranslate_engagementMode() {
+        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= 10)
+        activityScenario.scenario.onActivity { activity ->
+            val windowMetrics =
+                WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity)
+            val oemInfo =
+                OEMWindowLayoutInfo.Builder()
+                    .setEngagementModeFlags(ENGAGEMENT_MODE_FLAG_VISUALS_ON)
+                    .build()
+
+            val translated = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemInfo)
+
+            assertEquals(
+                setOf(WindowLayoutInfo.EngagementMode.VISUALS_ON),
+                translated.engagementModes,
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testTranslate_engagementMode_defaultValue() {
+        assumeTrue(ExtensionsUtil.safeVendorApiLevel < 10)
+        activityScenario.scenario.onActivity { activity ->
+            val windowMetrics =
+                WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity)
+            @Suppress("Deprecation") // OEMWindowLayoutInfo constructor is deprecated
+            val oemInfo = OEMWindowLayoutInfo(emptyList())
+
+            val translated = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemInfo)
+
+            assertEquals(
+                setOf(
+                    WindowLayoutInfo.EngagementMode.VISUALS_ON,
+                    WindowLayoutInfo.EngagementMode.AUDIO_ON,
+                ),
+                translated.engagementModes,
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testTranslate_engagementMode_EmptyWhenFlagsAreZero() {
+        // This test only runs on API 10+ where flags can be explicitly 0 (indicating no modes on)
+        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= 10)
+        activityScenario.scenario.onActivity { activity ->
+            val windowMetrics =
+                WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity)
+
+            val oemInfo = OEMWindowLayoutInfo.Builder().setEngagementModeFlags(0).build()
+
+            val translated = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemInfo)
+
+            assertTrue(translated.engagementModes.isEmpty())
         }
     }
 }

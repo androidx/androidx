@@ -16,9 +16,11 @@
 
 package androidx.appfunctions
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
 /** Represents a response of an execution of an app function. */
 public sealed interface ExecuteAppFunctionResponse {
@@ -31,8 +33,7 @@ public sealed interface ExecuteAppFunctionResponse {
          */
         public val returnValue: AppFunctionData
     ) : ExecuteAppFunctionResponse {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun toPlatformExtensionClass():
+        internal fun toPlatformExtensionClass():
             com.android.extensions.appfunctions.ExecuteAppFunctionResponse {
             return com.android.extensions.appfunctions.ExecuteAppFunctionResponse(
                 returnValue.genericDocument,
@@ -40,13 +41,43 @@ public sealed interface ExecuteAppFunctionResponse {
             )
         }
 
+        /**
+         * Converts [ExecuteAppFunctionResponse] to
+         * [android.app.appfunctions.ExecuteAppFunctionResponse].
+         *
+         * @return The converted [android.app.appfunctions.ExecuteAppFunctionResponse].
+         */
         @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun toPlatformClass(): android.app.appfunctions.ExecuteAppFunctionResponse {
+        public fun toPlatformExecuteAppFunctionResponse():
+            android.app.appfunctions.ExecuteAppFunctionResponse {
+            if (Build.VERSION.SDK_INT >= 37) {
+                val uriGrants = buildList {
+                    returnValue.visitAppFunctionUriGrants { uriGrant ->
+                        add(uriGrant.toPlatformClass())
+                    }
+                }
+                return android.app.appfunctions.ExecuteAppFunctionResponse(
+                    returnValue.genericDocument,
+                    returnValue.extras,
+                    uriGrants,
+                )
+            }
             return android.app.appfunctions.ExecuteAppFunctionResponse(
                 returnValue.genericDocument,
                 returnValue.extras,
             )
+        }
+
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        internal fun grantUriAccess(context: Context, callingPackageName: String) {
+            returnValue.visitAppFunctionUriGrants { uriGrant ->
+                context.grantUriPermission(
+                    callingPackageName,
+                    uriGrant.uri,
+                    @Suppress("WrongConstant") // modeFlags is a subset of Intent flags
+                    uriGrant.modeFlags,
+                )
+            }
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -63,19 +94,36 @@ public sealed interface ExecuteAppFunctionResponse {
                 android.app.appfunctions.ExecuteAppFunctionResponse.PROPERTY_RETURN_VALUE
 
             @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public fun fromPlatformExtensionClass(
-                response: com.android.extensions.appfunctions.ExecuteAppFunctionResponse
+            internal fun fromPlatformExtensionClass(
+                response: com.android.extensions.appfunctions.ExecuteAppFunctionResponse,
+                functionMetadata: AppFunctionMetadata,
             ): Success {
-                return Success(AppFunctionData(response.resultDocument, response.extras))
+                return Success(
+                    AppFunctionData(response.resultDocument, response.extras)
+                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                )
             }
 
+            /**
+             * Creates [ExecuteAppFunctionResponse] from
+             * [android.app.appfunctions.ExecuteAppFunctionResponse].
+             *
+             * The resulting response object is validated against the provided
+             * [AppFunctionMetadata].
+             *
+             * @param functionMetadata the [AppFunctionMetadata] of the function that was executed.
+             * @return The created [ExecuteAppFunctionResponse].
+             */
             @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public fun fromPlatformClass(
-                response: android.app.appfunctions.ExecuteAppFunctionResponse
+            @JvmStatic
+            public fun android.app.appfunctions.ExecuteAppFunctionResponse
+                .toCompatExecuteAppFunctionResponse(
+                functionMetadata: AppFunctionMetadata
             ): Success {
-                return Success(AppFunctionData(response.resultDocument, response.extras))
+                return Success(
+                    AppFunctionData(this.resultDocument, this.extras)
+                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                )
             }
         }
     }

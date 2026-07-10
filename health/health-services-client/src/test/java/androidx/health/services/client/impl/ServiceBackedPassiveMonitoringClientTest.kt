@@ -61,6 +61,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ServiceBackedPassiveMonitoringClientTest {
 
     private lateinit var client: ServiceBackedPassiveMonitoringClient
@@ -499,5 +500,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             unregisterCallbackPackageNames += packageName
             statusCallbackAction.invoke(statusCallback)
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

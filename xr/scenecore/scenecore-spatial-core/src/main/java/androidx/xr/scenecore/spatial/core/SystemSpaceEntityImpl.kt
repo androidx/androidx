@@ -1,0 +1,152 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.xr.scenecore.spatial.core
+
+import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.math.Vector3.Companion.abs
+import androidx.xr.scenecore.runtime.CleanupAction
+import androidx.xr.scenecore.runtime.SystemSpaceEntity
+import com.android.extensions.xr.XrExtensions
+import com.android.extensions.xr.node.Node
+import com.android.extensions.xr.node.NodeTransform
+import java.io.Closeable
+import java.lang.ref.WeakReference
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.atomic.AtomicReference
+
+/**
+ * A parentless system-controlled JXRCore Entity that defines its own coordinate space.
+ *
+ * It is expected to be the soft root of its own parent-child entity hierarchy.
+ */
+@RestrictTo(
+    RestrictTo.Scope.LIBRARY_GROUP
+) // TODO(b/452961674): Review RestrictTo annotations in SceneCore.
+public abstract class SystemSpaceEntityImpl
+internal constructor(
+    context: Context,
+    node: Node,
+    extensions: XrExtensions,
+    sceneNodeRegistry: SceneNodeRegistry,
+    executor: ScheduledExecutorService,
+) : AndroidXrEntity(context, node, extensions, sceneNodeRegistry, executor), SystemSpaceEntity {
+    // Transform for this space's origin in the underlying platform reference space.
+    internal val platformReferenceSpaceTransform = AtomicReference<Matrix4?>(null)
+    @VisibleForTesting internal var _worldSpaceScale: Vector3 = Vector3(1f, 1f, 1f)
+    // Visible for testing.
+    public lateinit var nodeTransformCloseable: Closeable
+    private var originChangedListener: Runnable? = null
+    private var originChangedExecutor: Executor = scheduledExecutor
+
+    private val systemSpaceCleanupAction = SystemSpaceCleanupAction()
+
+    init {
+        // The underlying CPM node is always expected to be updated in response to changes to
+        // the coordinate space represented by a SystemSpaceEntityImpl so we subscribe at
+        // construction.
+        subscribeToNodeTransform(node, executor)
+        registerCleanup(executor, systemSpaceCleanupAction)
+    }
+
+    private class SystemSpaceCleanupAction : CleanupAction({}) {
+        @Volatile var nodeTransformCloseable: Closeable? = null
+        private val cleanupAction = CleanupAction {
+            try {
+                nodeTransformCloseable?.close()
+            } catch (_: Exception) {
+                // Don't throw when in dispose.
+            }
+            nodeTransformCloseable = null
+        }
+
+        override fun run() = cleanupAction.run()
+    }
+
+    /** Called when the underlying space's origin has changed. */
+    public fun onOriginChanged() {
+        originChangedListener?.let { originChangedExecutor.execute(it) }
+    }
+
+    /** Registers the SDK layer / application's listener for space origin updates. */
+    override fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?) {
+        originChangedListener = listener
+        originChangedExecutor = executor ?: scheduledExecutor
+    }
+
+    public override val poseInPlatformReferenceSpace: Pose?
+        /**
+         * Returns the pose relative to a platform reference space.
+         *
+         * The underlying platform reference space is the space returned by
+         * [XrExtensions.getOpenXrWorldReferenceSpaceType]
+         */
+        get() = platformReferenceSpaceTransform.get()?.unscaled()?.toPose()
+
+    /**
+     * Sets the pose and scale of the entity in a platform reference space and should call the
+     * onOriginChanged() callback to signal a change in the underlying space.
+     *
+     * @param platformReferenceSpaceTransform 4x4 transformation matrix of the entity in a platform
+     *   reference space. The platform reference space is of the type defined by the
+     *   [XrExtensions.getOpenXrWorldReferenceSpaceType] method.
+     */
+    public fun setPlatformReferenceSpaceTransform(platformReferenceSpaceTransform: Matrix4) {
+        if (platformReferenceSpaceTransform == Matrix4.Zero) {
+            return
+        }
+        this.platformReferenceSpaceTransform.set(platformReferenceSpaceTransform)
+        // TODO: b/353511649 - Make SystemSpaceEntityImpl thread safe.
+        // Matrix4.scale returns either a positive or negative scale based on the rotation
+        // matrix determinant, but we keep it positive for now to avoid any unexpected issues.
+        // SpaceFlinger might apply a scale to the task node, for example if the user caused the
+        // main panel to scale in Homespace mode.
+        val actualScale = platformReferenceSpaceTransform.scale
+        // TODO: b/367780918 - Use the original scale, when the new matrix decomposition is tested
+        // thoroughly.
+        _worldSpaceScale = abs(actualScale)
+        this.setScaleInternal(_worldSpaceScale.copy())
+        onOriginChanged()
+    }
+
+    /**
+     * Subscribes to the node's transform update events and caches the pose by calling
+     * setPlatformReferenceSpaceTransform().
+     *
+     * @param node The node to subscribe to.
+     * @param executor The executor to run the callback on.
+     */
+    private fun subscribeToNodeTransform(node: Node, executor: ScheduledExecutorService) {
+        val weakThis = WeakReference(this)
+        nodeTransformCloseable =
+            node.subscribeToTransform(executor) { transform: NodeTransform ->
+                weakThis
+                    .get()
+                    ?.setPlatformReferenceSpaceTransform(
+                        RuntimeUtils.getMatrix(transform.transform)
+                    )
+            }
+        systemSpaceCleanupAction.nodeTransformCloseable = nodeTransformCloseable
+    }
+
+    override val worldSpaceScale: Vector3
+        get() = _worldSpaceScale
+}

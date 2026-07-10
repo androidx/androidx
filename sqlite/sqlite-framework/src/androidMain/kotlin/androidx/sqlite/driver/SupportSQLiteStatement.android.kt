@@ -22,7 +22,6 @@ import android.database.Cursor.FIELD_TYPE_FLOAT
 import android.database.Cursor.FIELD_TYPE_INTEGER
 import android.database.Cursor.FIELD_TYPE_NULL
 import android.database.Cursor.FIELD_TYPE_STRING
-import androidx.annotation.VisibleForTesting
 import androidx.sqlite.SQLITE_DATA_BLOB
 import androidx.sqlite.SQLITE_DATA_FLOAT
 import androidx.sqlite.SQLITE_DATA_INTEGER
@@ -33,6 +32,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteProgram
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.throwSQLiteException
+import androidx.sqlite.util.getStatementPrefix
 
 private typealias SupportStatement = androidx.sqlite.db.SupportSQLiteStatement
 
@@ -51,16 +51,22 @@ internal sealed class SupportSQLiteStatement(
 
     public companion object {
         public fun create(db: SupportSQLiteDatabase, sql: String): SupportSQLiteStatement {
-            val sqlString = sql.trim().uppercase()
+            val sqlString = sql.trim()
             val sqlPrefix = getStatementPrefix(sqlString)
             if (sqlPrefix == null) {
                 return OtherSQLiteStatement(db, sql)
             }
             val transactionOp = getTransactionOperation(sqlPrefix, sqlString)
-            return if (transactionOp != null) {
+            if (transactionOp != null) {
                 // Special-case statement for transactions
-                TransactionSQLiteStatement(db, sql, transactionOp)
-            } else if (isRowStatement(sqlPrefix)) {
+                return TransactionSQLiteStatement(db, sql, transactionOp)
+            }
+            // Special-case statements for certain PRAGMA with dedicated APIs
+            val specialOp = getSpecialOperation(sqlPrefix, sqlString)
+            if (specialOp is SpecialOperation.JournalModeOperation) {
+                return JournalModeSetStatement(db, sql, RowSQLiteStatement(db, sql))
+            }
+            return if (isRowStatement(sqlPrefix)) {
                 // Statements that return rows (SQLITE_ROW)
                 RowSQLiteStatement(db, sql)
             } else {
@@ -70,82 +76,43 @@ internal sealed class SupportSQLiteStatement(
         }
 
         private fun getTransactionOperation(prefix: String, sql: String): TransactionOperation? =
-            when (prefix) {
-                "END",
-                "COM" -> TransactionOperation.END
-                "ROL" ->
-                    if (sql.contains(" TO ")) {
+            when {
+                "END".equals(prefix, ignoreCase = true) ||
+                    "COM".equals(prefix, ignoreCase = true) -> TransactionOperation.END
+                "ROL".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains(" TO ", ignoreCase = true)) {
                         null
                     } else {
                         TransactionOperation.ROLLBACK
                     }
-                "BEG" -> {
-                    if (sql.contains("EXCLUSIVE")) {
+                "BEG".equals(prefix, ignoreCase = true) ->
+                    if (sql.contains("EXCLUSIVE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_EXCLUSIVE
-                    } else if (sql.contains("IMMEDIATE")) {
+                    } else if (sql.contains("IMMEDIATE", ignoreCase = true)) {
                         TransactionOperation.BEGIN_IMMEDIATE
                     } else {
                         TransactionOperation.BEGIN_DEFERRED
+                    }
+                else -> null
+            }
+
+        private fun getSpecialOperation(prefix: String, sql: String): SpecialOperation? =
+            when {
+                // TODO: Consider handling foreign_keys with setForeignKeyConstraintsEnabled()
+                "PRA".equals(prefix, ignoreCase = true) -> {
+                    if (sql.lowercase().substringAfter("journal_mode", "").contains("=")) {
+                        SpecialOperation.JournalModeOperation
+                    } else {
+                        null
                     }
                 }
                 else -> null
             }
 
         private fun isRowStatement(prefix: String) =
-            when (prefix) {
-                "SEL",
-                "PRA",
-                "WIT" -> true
-                else -> false
-            }
-
-        /**
-         * Returns the 3-character prefix of the SQL statement or null if the statement is
-         * malformed.
-         */
-        @VisibleForTesting
-        internal fun getStatementPrefix(sql: String): String? {
-            val index = getStatementPrefixIndex(sql)
-            if (index < 0 || index > sql.length) {
-                // Bad comment syntax or incomplete statement
-                return null
-            }
-            return sql.substring(index, minOf(index + 3, sql.length))
-        }
-
-        /**
-         * Return the index of the first character past comments and whitespace.
-         *
-         * Taken from SQLiteDatabase.getSqlStatementPrefixOffset() implementation.
-         */
-        private fun getStatementPrefixIndex(s: String): Int {
-            val limit: Int = s.length - 2
-            if (limit < 0) return -1
-            var i = 0
-            while (i < limit) {
-                val c = s[i]
-                when {
-                    c <= ' ' -> i++
-                    c == '-' -> {
-                        if (s[i + 1] != '-') return i
-                        i = s.indexOf('\n', i + 2)
-                        if (i < 0) return -1
-                        i++
-                    }
-                    c == '/' -> {
-                        if (s[i + 1] != '*') return i
-                        i++
-                        do {
-                            i = s.indexOf('*', i + 1)
-                            if (i < 0) return -1
-                        } while (i + 1 < limit && s[i + 1] != '/')
-                        i += 2
-                    }
-                    else -> return i
-                }
-            }
-            return -1
-        }
+            "SEL".equals(prefix, ignoreCase = true) ||
+                "PRA".equals(prefix, ignoreCase = true) ||
+                "WIT".equals(prefix, ignoreCase = true)
 
         private enum class TransactionOperation {
             END,
@@ -153,6 +120,10 @@ internal sealed class SupportSQLiteStatement(
             BEGIN_EXCLUSIVE,
             BEGIN_IMMEDIATE,
             BEGIN_DEFERRED,
+        }
+
+        private sealed class SpecialOperation {
+            object JournalModeOperation : SpecialOperation()
         }
     }
 
@@ -251,6 +222,24 @@ internal sealed class SupportSQLiteStatement(
 
         override fun close() {
             isClosed = true
+        }
+    }
+
+    private class JournalModeSetStatement(
+        db: SupportSQLiteDatabase,
+        sql: String,
+        private val delegate: SupportSQLiteStatement,
+    ) : SupportSQLiteStatement(db, sql), SQLiteStatement by delegate {
+        override fun step(): Boolean {
+            val result = delegate.step()
+            // For WAL-mode Android has a dedicate API since it reconfigures the internal connection
+            // pool to increase the max amount of connections.
+            if (getText(0).equals("wal", ignoreCase = true)) {
+                db.enableWriteAheadLogging()
+            } else {
+                db.disableWriteAheadLogging()
+            }
+            return result
         }
     }
 

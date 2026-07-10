@@ -40,7 +40,7 @@ ONLY_TEST_TASK_FAILED_SIGNAL_FILE_PATH="$OUT_DIR/androidx-settings-plugins/only_
 if [ $BUILD_EXIT_CODE -ne 0 ]; then
     # If the build fails and the signal file does NOT exist, it's a genuine build failure.
     # The signal file is only created when test tasks are the sole cause of failure.
-    if [ ! -f "$ONLY_TEST_TASK_FAILED_SIGNAL_FILE_PATH" ]; then
+    if [ ! -f "$ONLY_TEST_TASK_FAILED_SIGNAL_FILE_PATH" ] || [ $BUILD_EXIT_CODE -ne 1 ]; then
         echo "Gradle build failed (exit code $BUILD_EXIT_CODE)."
         exit $BUILD_EXIT_CODE
     fi

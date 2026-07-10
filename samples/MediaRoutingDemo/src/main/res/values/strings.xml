@@ -65,4 +65,11 @@
     <string name="settings_activity_show_system_routes">Show system routes</string>
 
     <string name="system_routing_activity_bluetooth_denied">Bluetooth sources will not be shown without access to Bluetooth</string>
+
+    <string name="device_suggestions_activity_label">Device Suggestions</string>
+    <string name="suggest_a_device">Suggest a device</string>
+    <string name="suggest_another_device">Suggest another device</string>
+    <string name="clear_suggested_device">Clear suggested device</string>
+    <string name="suggested_device">Suggested device</string>
+    <string name="suggested_device_format">%1$s: %2$s</string>
 </resources>

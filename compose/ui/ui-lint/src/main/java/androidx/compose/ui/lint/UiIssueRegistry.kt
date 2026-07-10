@@ -32,8 +32,10 @@ class UiIssueRegistry : IssueRegistry() {
             listOf(
                 ComposedModifierDetector.UnnecessaryComposedModifier,
                 LocalContextResourcesConfigurationReadDetector.LocalContextConfigurationRead,
+                LocalContextResourcesConfigurationReadDetector.LocalContextGetResourceValueCall,
                 LocalContextResourcesConfigurationReadDetector.LocalContextResourcesRead,
                 ConfigurationScreenWidthHeightDetector.ConfigurationScreenWidthHeight,
+                NonObservableLocaleDetector.NonObservableLocale,
                 ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
                 ModifierDeclarationDetector.ModifierFactoryReturnType,
                 ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,

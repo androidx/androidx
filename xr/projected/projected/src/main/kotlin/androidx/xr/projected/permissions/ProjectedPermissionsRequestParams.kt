@@ -16,6 +16,8 @@
 
 package androidx.xr.projected.permissions
 
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+
 /**
  * Class representing data for requesting permissions from a Projected activity.
  *
@@ -25,6 +27,7 @@ package androidx.xr.projected.permissions
  *   permission request will only be triggered after the user accepts the rationale. See
  *   [ProjectedPermissionsResultContract] for details.
  */
+@ExperimentalProjectedApi
 public class ProjectedPermissionsRequestParams(
     public val permissions: List<String>,
     public val rationale: String?,

@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -40,7 +41,8 @@ import java.util.Set;
 
 /** The response class of {@link AppSearchSession#setSchemaAsync} */
 @SafeParcelable.Class(creator = "SetSchemaResponseCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class SetSchemaResponse extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -183,9 +185,8 @@ public final class SetSchemaResponse extends AbstractSafeParcelable {
 
         /**
          * Creates a new {@link SetSchemaResponse.Builder} from the given SetSchemaResponse.
-         *
-         * @exportToFramework:hide
          */
+        @HideInPlatform
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder(@NonNull SetSchemaResponse setSchemaResponse) {
             Preconditions.checkNotNull(setSchemaResponse);

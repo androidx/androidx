@@ -348,7 +348,7 @@ private class FixedDpInsets(
 private val EmptyWindowInsets = FixedIntInsets(0, 0, 0, 0)
 
 /**
- * An [WindowInsets] that comes straight from [androidx.core.graphics.Insets], whose value can be
+ * An [WindowInsets] that comes straight from `androidx.core.graphics.Insets`, whose value can be
  * updated.
  */
 @Stable

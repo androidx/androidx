@@ -158,7 +158,7 @@ public fun MutableVec.populateFrom(point: PointF): MutableVec {
     return this
 }
 
-/** Constructs a [Rect] with the same coordinates as the [Box] */
+/** Constructs a [RectF] with the same coordinates as the [Box] */
 public fun Box.toRectF(): RectF = RectF(xMin, yMin, xMax, yMax)
 
 /**

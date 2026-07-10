@@ -41,6 +41,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ComplicationDataEqualityTest {
     @get:Rule val expect = Expect.create()
 
@@ -113,16 +114,32 @@ class ComplicationDataEqualityTest {
             { setIcon(Icon.createWithContentUri("2")).build() },
         ),
         BURN_IN_PROTECTION_ICON(
-            { setBurnInProtectionIcon(Icon.createWithContentUri("1")).build() },
-            { setBurnInProtectionIcon(Icon.createWithContentUri("2")).build() },
+            {
+                setBurnInProtectionIcon(Icon.createWithContentUri("1"))
+                    .setIcon(Icon.createWithContentUri("1"))
+                    .build()
+            },
+            {
+                setBurnInProtectionIcon(Icon.createWithContentUri("2"))
+                    .setIcon(Icon.createWithContentUri("2"))
+                    .build()
+            },
         ),
         SMALL_IMAGE(
             { setSmallImage(Icon.createWithContentUri("1")).build() },
             { setSmallImage(Icon.createWithContentUri("2")).build() },
         ),
         BURN_IN_PROTECTION_SMALL_IMAGE(
-            { setBurnInProtectionSmallImage(Icon.createWithContentUri("1")).build() },
-            { setBurnInProtectionSmallImage(Icon.createWithContentUri("2")).build() },
+            {
+                setBurnInProtectionSmallImage(Icon.createWithContentUri("1"))
+                    .setSmallImage(Icon.createWithContentUri("1"))
+                    .build()
+            },
+            {
+                setBurnInProtectionSmallImage(Icon.createWithContentUri("2"))
+                    .setSmallImage(Icon.createWithContentUri("2"))
+                    .build()
+            },
         ),
         SMALL_IMAGE_STYLE(
             { setSmallImageStyle(ComplicationData.IMAGE_STYLE_ICON).build() },

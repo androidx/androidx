@@ -19,7 +19,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -34,7 +33,7 @@ android {
         enable.add("CameraXQuirksClassDetector")
     }
 
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.camera.featurecombinationquery"
 }
 

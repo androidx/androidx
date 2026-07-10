@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -34,38 +33,16 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.test.junit4.accessibility"
-        compileSdk = 35
+        compileSdk { version = release(37) }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-
-        commonTest {
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":compose:ui:ui-test-junit4"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidMain.dependencies {
+            api(project(":compose:ui:ui-test-junit4"))
+            api("androidx.annotation:annotation:1.8.1")
+            api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
         }
     }
 }

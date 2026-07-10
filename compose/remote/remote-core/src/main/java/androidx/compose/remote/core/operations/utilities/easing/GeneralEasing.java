@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** Provides and interface to create easing functions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GeneralEasing extends Easing {
     float @NonNull [] mEasingData = new float[0];
     @NonNull Easing mEasingCurve = new CubicEasing(CUBIC_STANDARD);
@@ -55,7 +58,7 @@ public class GeneralEasing extends Easing {
             case CUBIC_CUSTOM:
                 mEasingCurve =
                         new CubicEasing(
-                                mEasingData[1], mEasingData[2], mEasingData[3], mEasingData[5]);
+                                mEasingData[1], mEasingData[2], mEasingData[3], mEasingData[4]);
                 break;
             case EASE_OUT_BOUNCE:
                 mEasingCurve = new BounceCurve(type);

@@ -19,6 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastCoerceAtMost
 
 /**
  * Contains useful information about the currently displayed layout state of a [Pager]. This
@@ -94,3 +95,15 @@ sealed interface PagerLayoutInfo {
 
 internal val PagerLayoutInfo.mainAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
+
+internal fun PagerLayoutInfo.calculateContentSize(pageCount: Int): Int {
+    val contentPadding = beforeContentPadding + afterContentPadding
+    if (pageCount == 0) return contentPadding
+
+    val contentSizeWithoutSpacing = pageSize * pageCount.toLong()
+    val totalSpacing = (pageCount.toLong() - 1) * pageSpacing
+
+    val totalSize = contentSizeWithoutSpacing + totalSpacing + contentPadding
+
+    return totalSize.fastCoerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+}

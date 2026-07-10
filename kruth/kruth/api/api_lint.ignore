@@ -8,9 +8,9 @@ ArrayReturn: androidx.kruth.IterableSubject#containsExactlyElementsIn(Object[]) 
 ArrayReturn: androidx.kruth.IterableSubject#containsNoneIn(Object[]) parameter #0:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 ArrayReturn: androidx.kruth.Kruth#assertThat(T[]) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
 AutoBoxing: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer) parameter #1:
@@ -108,6 +108,6 @@ MissingBuildMethod: androidx.kruth.StandardSubjectBuilder:
 
 
 TopLevelBuilder: androidx.kruth.SimpleSubjectBuilder:
-    Builder should be defined as inner class: androidx.kruth.SimpleSubjectBuilder
+    Builder should be defined as nested class: androidx.kruth.SimpleSubjectBuilder
 TopLevelBuilder: androidx.kruth.StandardSubjectBuilder:
-    Builder should be defined as inner class: androidx.kruth.StandardSubjectBuilder
+    Builder should be defined as nested class: androidx.kruth.StandardSubjectBuilder

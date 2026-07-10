@@ -104,6 +104,7 @@ class AnnotatedAppFunctionSchemaDefinition(private val classDeclaration: KSClass
             parameters = parameterTypeMetadataList,
             response = AppFunctionResponseMetadata(responseTypeMetadata, description = ""),
             components = AppFunctionComponentsMetadata(sharedDataTypeMap),
+            deprecation = null, // Schema Inventory should not care about this
         )
     }
 }

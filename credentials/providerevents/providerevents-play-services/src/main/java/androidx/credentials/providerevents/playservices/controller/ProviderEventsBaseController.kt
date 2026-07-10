@@ -26,12 +26,6 @@ internal class ProviderEventsBaseController() {
 
         // Generic controller request code used by all controllers
         @JvmStatic internal val CONTROLLER_REQUEST_CODE: Int = 1
-
-        const val EXTRA_REQUEST_JSON =
-            "androidx.identitycredentials.extra.IMPORT_CREDENTIALS_REQUEST_JSON"
-        const val EXTRA_PACKAGE_NAME_KEY = "androidx.identitycredentials.extra.CALLING_PACKAGE_NAME"
-        const val EXTRA_SIGNING_INFO_KEY = "androidx.identitycredentials.extra.SIGNING_INFO"
-
         /** ---- Data Constants to pass between the controllers and the hidden activity---- */
 
         // error name for unknown import error

@@ -16,137 +16,204 @@
 
 package androidx.pdf.annotation.processor
 
-import androidx.pdf.annotation.createPdfAnnotationDataList
+import androidx.pdf.DraftEditOperation
+import androidx.pdf.DraftEditResult
+import androidx.pdf.PdfEditApplyException
+import androidx.pdf.TestDraftEditOperation
+import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.MAX_BATCH_SIZE_IN_BYTES
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.unflatten
 import androidx.pdf.service.FakePdfDocumentRemote
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class BatchPdfAnnotationsProcessorTest {
-    @Test
-    fun test_process_singleBatchSuccessfully_returnsAnnotationResult() {
-        // Arrange
-        val remoteDocument = FakePdfDocumentRemote()
-        val processor = BatchPdfAnnotationsProcessor(remoteDocument)
-        val annotations = createPdfAnnotationDataList(numAnnots = 1, pathLength = 10)
+    private lateinit var processor: BatchPdfAnnotationsProcessor
+    private lateinit var fakeRemoteDocument: FakePdfDocumentRemote
 
-        // Act
-        val result = processor.process(annotations)
-
-        // Assert
-        assertThat(result.success.size).isEqualTo(1)
-        assertThat(result.success[0].editId).isEqualTo(annotations[0].editId)
+    @Before
+    fun setUp() {
+        fakeRemoteDocument = FakePdfDocumentRemote()
+        processor = BatchPdfAnnotationsProcessor(fakeRemoteDocument)
     }
 
     @Test
-    fun test_process_multipleBatchesSuccessfully_returnsAnnotationResult() {
-        // Arrange
-        val remoteDocument = FakePdfDocumentRemote()
-        val processor = BatchPdfAnnotationsProcessor(remoteDocument)
-        val annotations = createPdfAnnotationDataList(numAnnots = 2, pathLength = 10000)
+    fun process_singleBatchSuccess_returnsAllIds() {
+        val operations = createParcelableOperations(count = 3)
+        fakeRemoteDocument.setBehavior(DraftEditResult.Success(listOf("id0", "id1", "id2")))
 
-        // Act
-        val result = processor.process(annotations)
+        val result = mutableListOf<String>()
+        processor.process(operations) {
+            result.addAll(it.map { appliedEdit -> appliedEdit.editId })
+        }
 
-        // Assert
-        assertThat(result.success.size).isEqualTo(2)
-        assertThat(result.success[0].editId).isEqualTo(annotations[0].editId)
-        assertThat(result.success[1].editId).isEqualTo(annotations[1].editId)
+        assertThat(result).containsExactly("id0", "id1", "id2").inOrder()
     }
 
     @Test
-    fun test_process_multipleBatchesWithSingleFailure_returnsAnnotationResult() {
-        // Arrange
-        val remoteDocument = FakePdfDocumentRemote()
-        val processor = BatchPdfAnnotationsProcessor(remoteDocument)
-        val annotations =
-            createPdfAnnotationDataList(numAnnots = 2, pathLength = 10000, invalidRatio = 0.5f)
+    fun process_multipleBatchesSuccess_returnsAllCombinedIds() {
+        val numOperations = 5
+        val operations =
+            createParcelableOperations(
+                count = numOperations,
+                simulatedSizePerOperation = MAX_BATCH_SIZE_IN_BYTES / numOperations,
+            )
 
-        // Act
-        val result = processor.process(annotations)
+        // We need to configure the fake to handle sequential calls
+        fakeRemoteDocument.setSequentialBehaviors(
+            DraftEditResult.Success(listOf("id0", "id1", "id2", "id3")),
+            DraftEditResult.Success(listOf("id4")),
+        )
 
-        // Assert
-        assertThat(result.success.size).isEqualTo(1)
-        assertThat(result.failures.size).isEqualTo(1)
-        assertThat(result.failures[0]).isEqualTo(annotations[0].annotation)
-        assertThat(result.success[0].editId).isEqualTo(annotations[1].editId)
+        val result = mutableListOf<String>()
+        processor.process(operations) {
+            result.addAll(it.map { appliedEdit -> appliedEdit.editId })
+        }
+
+        assertThat(result).containsExactly("id0", "id1", "id2", "id3", "id4").inOrder()
     }
 
     @Test
-    fun test_process_multipleBatchesWithAllFailures_returnsAnnotationResult() {
-        // Arrange
-        val remoteDocument = FakePdfDocumentRemote()
-        val processor = BatchPdfAnnotationsProcessor(remoteDocument)
-        val annotations =
-            createPdfAnnotationDataList(numAnnots = 2, pathLength = 10000, invalidRatio = 1f)
+    fun process_firstBatchFailure_throwsExceptionWithNoAppliedIds() {
+        val operations = createParcelableOperations(count = 3)
+        fakeRemoteDocument.setBehavior(
+            DraftEditResult.Failure(
+                failedBatchIndex = 0,
+                appliedIds = emptyList(),
+                errorMessage = "Fail",
+            )
+        )
 
-        // Act
-        val result = processor.process(annotations)
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(operations) {} }
 
-        // Assert
-        assertThat(result.failures.size).isEqualTo(2)
-        assertThat(result.failures[0]).isEqualTo(annotations[0].annotation)
-        assertThat(result.failures[1]).isEqualTo(annotations[1].annotation)
+        assertThat(exception.failureIndex).isEqualTo(0)
+        assertThat(exception.appliedEditIds).isEmpty()
     }
 
     @Test
-    fun test_unflatten_singleBatch_returnsSingleSublist() {
-        // Arrange
-        val maxSizeInBytes = 1200
-        val annotationDataList = createPdfAnnotationDataList(numAnnots = 1, pathLength = 10)
+    fun process_firstBatchPartialFailure_throwsExceptionWithPartialIds() {
+        val operations = createParcelableOperations(count = 3)
+        // Batch fails at index 1 (2nd item)
+        fakeRemoteDocument.setBehavior(
+            DraftEditResult.Failure(
+                failedBatchIndex = 1,
+                appliedIds = listOf("id0"),
+                errorMessage = "Fail",
+            )
+        )
 
-        // Act
-        val result = annotationDataList.unflatten(maxSizeInBytes)
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(operations) {} }
 
-        // Assert
-        assertThat(result.size).isEqualTo(1)
-        assertThat(result[0]).isEqualTo(annotationDataList)
+        assertThat(exception.failureIndex).isEqualTo(1)
+        assertThat(exception.appliedEditIds).containsExactly("id0")
     }
 
     @Test
-    fun test_unflatten_multipleBatches_returnsMultipleSublists() {
-        // Arrange
-        val maxSizeInBytes = 2500
-        val annotationDataList = createPdfAnnotationDataList(numAnnots = 3, pathLength = 10)
+    fun process_secondBatchFailure_throwsExceptionWithFirstBatchIds() {
+        val randomNoise = 1000
+        val numOperations = 10
+        val numBatches = 2
+        val operations =
+            createParcelableOperations(
+                count = numOperations,
+                simulatedSizePerOperation =
+                    ((MAX_BATCH_SIZE_IN_BYTES * numBatches) - randomNoise) / numOperations,
+            )
 
-        // Act
-        val result = annotationDataList.unflatten(maxSizeInBytes)
+        val expectedIds = listOf("id0", "id1", "id2", "id3", "id4")
 
-        // Assert
-        assertThat(result.size).isEqualTo(2)
-        assertThat(result[0].size).isEqualTo(2)
-        assertThat(result[0]).isEqualTo(listOf(annotationDataList[0], annotationDataList[1]))
-        assertThat(result[1].size).isEqualTo(1)
-        assertThat(result[1]).isEqualTo(listOf(annotationDataList[2]))
+        fakeRemoteDocument.setSequentialBehaviors(
+            DraftEditResult.Success(expectedIds),
+            DraftEditResult.Failure(
+                failedBatchIndex = 0,
+                appliedIds = emptyList(),
+                errorMessage = "Fail",
+            ),
+        )
+
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(operations) {} }
+
+        assertThat(exception.failureIndex).isEqualTo(5)
+        assertThat(exception.appliedEditIds).isEqualTo(expectedIds)
     }
 
     @Test
-    fun test_unflatten_exactSizeLimit_returnsSingleSublist() {
-        // Arrange
-        val maxSizeInBytes = 1072
-        val annotationDataList = createPdfAnnotationDataList(numAnnots = 1, pathLength = 10)
-
-        // Act
-        val result = annotationDataList.unflatten(maxSizeInBytes)
-
-        // Assert
-        assertThat(result.size).isEqualTo(1)
-        assertThat(result[0]).isEqualTo(annotationDataList)
+    fun process_emptyList_returnsEmptyList() {
+        val result = processor.process(emptyList()) {}
+        assertThat(result).isEmpty()
     }
 
     @Test
-    fun test_unflatten_firstItemExceedsLimit_returnsSingleItemSublist() {
-        // Arrange
-        val maxSizeInBytes = 1000
-        val annotationDataList = createPdfAnnotationDataList(numAnnots = 2, pathLength = 10)
+    fun unflatten_listUnderLimit_returnsSingleBatch() {
+        // Create small item
+        val item = TestDraftEditOperation("1", 100)
+        val list = listOf(item)
+        val limit = 200
 
-        // Act
-        val result = annotationDataList.unflatten(maxSizeInBytes)
+        val batches = list.unflatten(limit)
 
-        // Assert
-        assertThat(result.size).isEqualTo(0)
+        assertThat(batches).hasSize(1)
+        assertThat(batches[0]).containsExactly(item)
+    }
+
+    @Test
+    fun unflatten_listOverLimit_splitsIntoMultipleBatches() {
+        // Items size 100 each, Limit 150 -> Should be 1 item per batch
+        val item1 = TestDraftEditOperation("1", 100)
+        val item2 = TestDraftEditOperation("2", 100)
+        val list = listOf(item1, item2)
+        val limit = 150
+
+        val batches = list.unflatten(limit)
+
+        assertThat(batches).hasSize(2)
+        assertThat(batches[0]).containsExactly(item1)
+        assertThat(batches[1]).containsExactly(item2)
+    }
+
+    @Test
+    fun unflatten_itemExceedsLimit_omitsItem() {
+        val smallItem = TestDraftEditOperation("small", 50)
+        val hugeItem = TestDraftEditOperation("huge", 200)
+        val list = listOf(smallItem, hugeItem)
+        val limit = 100
+
+        val batches = list.unflatten(limit)
+
+        assertThat(batches).hasSize(1)
+        assertThat(batches[0]).containsExactly(smallItem)
+        // hugeItem is dropped
+    }
+
+    @Test
+    fun unflatten_accumulatesItemsUntilLimit() {
+        val item1 = TestDraftEditOperation("1", 30)
+        val item2 = TestDraftEditOperation("2", 30)
+        val item3 = TestDraftEditOperation("3", 30) // 120 total
+        val list = listOf(item1, item2, item3)
+        val limit = 100
+
+        // Should fit item1(40) + item2(40) = 80 in batch 1.
+        // item3(40) goes to batch 2.
+        val batches = list.unflatten(limit)
+
+        assertThat(batches).hasSize(2)
+        assertThat(batches[0]).containsExactly(item1, item2)
+        assertThat(batches[1]).containsExactly(item3)
+    }
+
+    private fun createParcelableOperations(
+        count: Int,
+        simulatedSizePerOperation: Int = 100,
+    ): List<DraftEditOperation> {
+        return List(count) { i -> TestDraftEditOperation("id$i", simulatedSizePerOperation) }
     }
 }

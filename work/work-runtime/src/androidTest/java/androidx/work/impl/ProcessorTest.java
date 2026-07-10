@@ -31,7 +31,7 @@ import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
-import androidx.work.worker.InfiniteTestWorker;
+import androidx.work.worker.NeverResolvedWorker;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testStartWork_doesNotStartWorkTwice() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class).build();
         WorkGenerationalId id = generationalId(work.getWorkSpec());
         insertWork(work);
         assertThat(mProcessor.startWork(new StartStopToken(id)), is(true));
@@ -74,7 +74,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testHasWork() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class).build();
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));

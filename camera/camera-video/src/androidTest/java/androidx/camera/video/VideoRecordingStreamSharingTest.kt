@@ -19,10 +19,12 @@ package androidx.camera.video
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /** Tests video recording with StreamSharing enabled. */
+@SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
 class VideoRecordingStreamSharingTest(

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.datastore.core.okio
 
 import androidx.datastore.core.InterProcessCoordinator

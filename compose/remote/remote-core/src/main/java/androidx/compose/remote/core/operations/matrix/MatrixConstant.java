@@ -15,15 +15,16 @@
  */
 package androidx.compose.remote.core.operations.matrix;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -33,12 +34,24 @@ import java.util.Arrays;
 import java.util.List;
 
 /** This is for a constant matrix */
-public class MatrixConstant extends Operation implements Serializable, MatrixAccess {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MatrixConstant extends Operation
+        implements Serializable, MatrixAccess, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.MATRIX_CONSTANT;
     private static final String CLASS_NAME = "MatrixConstant";
-    private final int mMatrixId;
+    private int mMatrixId;
     private final int mType;
     private float @NonNull [] mValues;
+
+    @Override
+    public int getId() {
+        return mMatrixId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mMatrixId = id;
+    }
 
     public MatrixConstant(int matrixId, int type, float @NonNull [] values) {
         this.mMatrixId = matrixId;
@@ -111,7 +124,7 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int type = buffer.readInt();
         int len = buffer.readInt();
         if (len > 16 || len < 0) {
@@ -119,7 +132,7 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
         }
         float[] matrix = new float[len];
         for (int i = 0; i < len; i++) {
-            matrix[i] = buffer.readFloat();
+            matrix[i] = buffer.readNanId();
         }
         operations.add(new MatrixConstant(id, type, matrix));
     }
@@ -130,10 +143,13 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of float")
-                .field(FLOAT, "value", "32-bit float value");
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_constant")
+                .description("A constant matrix and its associated ID")
+                .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
+                .field(DocumentedOperation.INT, "type", "The type of matrix")
+                .field(DocumentedOperation.FLOAT_ARRAY, "values", "The matrix values");
     }
 
     @Override

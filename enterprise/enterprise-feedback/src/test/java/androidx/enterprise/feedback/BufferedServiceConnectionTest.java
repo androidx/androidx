@@ -54,6 +54,7 @@ import java.util.concurrent.Executor;
 
 /** Tests {@link BufferedServiceConnection}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class BufferedServiceConnectionTest {
 

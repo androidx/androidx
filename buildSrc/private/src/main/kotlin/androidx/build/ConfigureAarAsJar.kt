@@ -48,8 +48,6 @@ internal fun configureAarAsJarForConfiguration(project: Project, configurationNa
         }
 
     project.configurations.named(configurationName) { config ->
-        config.dependencies.add(
-            project.dependencies.create(aarAsJarConfig.get().incoming.artifactView {}.files)
-        )
+        config.dependencies.add(project.dependencies.create(aarAsJarConfig.get().incoming.files))
     }
 }

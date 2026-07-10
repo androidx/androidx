@@ -34,6 +34,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * A class for retrieving accurate display modes for a display.
@@ -208,6 +209,37 @@ public final class DisplayCompat {
         }
         // No platform has rounded corners before API 31 (S).
         return null;
+    }
+
+    /**
+     * Returns the {@link DisplayShapeCompat} of the given display.
+     */
+    @NonNull
+    public static DisplayShapeCompat getShape(@NonNull Context context, @NonNull Display display) {
+
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(display);
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            return DisplayShapeCompat.toDisplayShapeCompat(display.getShape());
+        }
+
+        final Point workaroundSize = getCurrentDisplaySizeFromWorkarounds(context, display);
+
+        final RoundedCornerCompat topLeft = getRoundedCorner(display,
+                RoundedCornerCompat.POSITION_TOP_LEFT);
+        final RoundedCornerCompat topRight = getRoundedCorner(display,
+                RoundedCornerCompat.POSITION_TOP_RIGHT);
+        final RoundedCornerCompat bottomRight = getRoundedCorner(
+                display, RoundedCornerCompat.POSITION_BOTTOM_RIGHT);
+        final RoundedCornerCompat bottomLeft = getRoundedCorner(display,
+                RoundedCornerCompat.POSITION_BOTTOM_LEFT);
+
+        return DisplayShapeCompat.create(workaroundSize.x, workaroundSize.y, false,
+                topLeft != null ? topLeft.getRadius() : 0,
+                topRight != null ? topRight.getRadius() : 0,
+                bottomRight != null ? bottomRight.getRadius() : 0,
+                bottomLeft != null ? bottomLeft.getRadius() : 0);
     }
 
     static class Api23Impl {

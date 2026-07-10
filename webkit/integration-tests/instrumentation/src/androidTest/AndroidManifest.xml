@@ -21,7 +21,7 @@
     <!-- Note: we must specify this because our local server uses
          http://localhost URLs (and P defaults to blocking cleartext traffic).
          -->
-    <application android:label="AndroidX Webkit Unittests"
+    <application android:label="Jetpack Webkit Unittests"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"

@@ -27,10 +27,12 @@ import androidx.car.app.TestUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link PaneTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class PaneTemplateTest {
     Header mHeader = new Header.Builder()
@@ -352,6 +354,15 @@ public class PaneTemplateTest {
                                         .setTitle("bar")
                                         .addEndHeaderAction(Action.BACK)
                                         .build()).build());
+    }
+
+    @Test
+    public void createInstance_setBanner() {
+        Banner banner = new Banner.Builder().setTitle("Banner").build();
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build())
+                .setBanner(banner)
+                .build();
+        assertThat(template.getBanner()).isEqualTo(banner);
     }
 
     private static Pane.Builder getPane() {

@@ -15,7 +15,7 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
-import androidx.compose.remote.core.operations.Utils;
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -24,6 +24,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 
 /** This Matrix class is used to represent up to 4x4 matrix. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Matrix {
     int mDim0 = 4;
     int mDim1 = 4;
@@ -563,7 +564,7 @@ public class Matrix {
                 sTempInVec = new float[4];
                 sTempOutVec = new float[4];
                 sTempInVec[3] = 1;
-                Utils.log("perspective transform ");
+                // perspective transform
             }
             System.arraycopy(input, 0, sTempInVec, 0, input.length);
         }

@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.OptIn
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -54,11 +53,7 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     // Don't use CameraUtil.grantCameraPermissionAndPreTest. This test verifies the CameraX
@@ -151,23 +146,6 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
                 // Clean up bindings for the next iteration or test completion.
                 instrumentation.runOnMainSync { cameraProvider.unbindAll() }
             }
-        }
-    }
-
-    @Test
-    fun configImplTypeIsCorrect(): Unit = runBlocking {
-        withTimeout(10000) {
-            ProcessCameraProvider.configureInstance(cameraXConfig)
-            cameraProvider = ProcessCameraProvider.getInstance(context).await()
-
-            assertThat(cameraProvider.configImplType)
-                .isEqualTo(
-                    if (implName == CameraPipeConfig::class.simpleName) {
-                        CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_PIPE
-                    } else {
-                        CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2
-                    }
-                )
         }
     }
 }

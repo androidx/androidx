@@ -21,12 +21,12 @@ import android.view.View
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.compose.ui.node.OwnerScope
+import androidx.compose.ui.semantics.AdjustedSemanticsNode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.util.fastForEach
@@ -37,13 +37,15 @@ import androidx.compose.ui.util.fastForEach
  */
 internal class SemanticsNodeCopy(
     semanticsNode: SemanticsNode,
-    currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>,
+    currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>,
 ) {
     val unmergedConfig = semanticsNode.unmergedConfig
-    val children: MutableIntSet = MutableIntSet(semanticsNode.replacedChildren.size)
+    val children: MutableIntSet
 
     init {
-        semanticsNode.replacedChildren.fastForEach { child ->
+        val replacedChildren = semanticsNode.replacedChildren
+        children = MutableIntSet(replacedChildren.size)
+        replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
                 children.add(child.id)
             }

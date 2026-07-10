@@ -18,24 +18,25 @@ package androidx.camera.extensions.internal
 
 import android.content.Context
 import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCharacteristics
-import android.util.Pair
-import android.util.Size
+import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
+import androidx.camera.extensions.ExtensionSessionConfig
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -46,9 +47,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -61,24 +59,26 @@ class ImageCaptureConfigProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    // Tests in this class majorly use mock objects to run the test. No matter which extension
-    // mode is use, it should not affect the test results.
-    @ExtensionMode.Mode private val extensionMode = ExtensionMode.NONE
-    private var cameraSelector = CameraSelector.Builder().build()
+    private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val fakeLifecycleOwner = FakeLifecycleOwner()
 
     private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var extensionsManager: ExtensionsManager
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
 
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider = ProcessCameraProvider.awaitInstance(context)
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         fakeLifecycleOwner.startAndResume()
     }
 
     @After
     fun cleanUp(): Unit = runBlocking {
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
@@ -86,72 +86,44 @@ class ImageCaptureConfigProviderTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 33)
     fun canSetSupportedResolutionsToConfigTest(): Unit = runBlocking {
-        assumeTrue(CameraUtil.deviceHasCamera())
+        val cameraXExtensionMode = ExtensionMode.NIGHT
+        assumeTrue(
+            ExtensionsTestUtil.isExtensionAvailable(
+                extensionsManager,
+                cameraSelector.lensFacing!!,
+                cameraXExtensionMode,
+            )
+        )
+        val cameraManager = context.getSystemService(CameraManager::class.java)
+        val camera2ExtensionMode =
+            Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode(cameraXExtensionMode)
+        val expectedJpegOutputSizes =
+            cameraManager
+                .getCameraExtensionCharacteristics(
+                    CameraUtil.getCameraIdWithLensFacing(cameraSelector.lensFacing!!)!!
+                )
+                .getExtensionSupportedSizes(camera2ExtensionMode, ImageFormat.JPEG)
 
-        // getSupportedResolutions supported since version 1.1
-        val version = ExtensionVersion.getRuntimeVersion()
-        assumeTrue(version != null && version >= Version.VERSION_1_1)
+        val imageCapture = ImageCapture.Builder().build()
 
-        val mockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl::class.java)
-
-        Mockito.`when`(mockImageCaptureExtenderImpl.isExtensionAvailable(any(), any()))
-            .thenReturn(true)
-
-        val targetFormatResolutionsPairList = generateImageCaptureSupportedResolutions()
-        Mockito.`when`(mockImageCaptureExtenderImpl.supportedResolutions)
-            .thenReturn(targetFormatResolutionsPairList)
-
-        val vendorExtender = BasicVendorExtender(mockImageCaptureExtenderImpl, null)
-        val preview = createImageCaptureWithExtenderImpl(vendorExtender)
+        val sessionConfig =
+            ExtensionSessionConfig(cameraXExtensionMode, extensionsManager, imageCapture)
 
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
         }
 
         val resultFormatResolutionsPairList =
-            (preview.currentConfig as ImageOutputConfig).supportedResolutions
+            (imageCapture.currentConfig as ImageOutputConfig).supportedResolutions
 
         // Checks the result and target pair lists are the same
         for (resultPair in resultFormatResolutionsPairList) {
-            val firstTargetSizes =
-                targetFormatResolutionsPairList
-                    .filter { it.first == resultPair.first }
-                    .map { it.second }
-                    .first()
-
-            Truth.assertThat(mutableListOf(resultPair.second)).containsExactly(firstTargetSizes)
-        }
-    }
-
-    private suspend fun createImageCaptureWithExtenderImpl(
-        basicVendorExtender: BasicVendorExtender
-    ): ImageCapture {
-        withContext(Dispatchers.Main) {
-            val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
-            basicVendorExtender.init(camera.cameraInfo)
-        }
-        return ImageCapture.Builder()
-            .also {
-                ImageCaptureConfigProvider(basicVendorExtender).apply {
-                    updateBuilderConfig(it, basicVendorExtender)
-                }
+            if (resultPair.first == ImageFormat.JPEG) {
+                assertThat(resultPair.second.toList())
+                    .containsExactlyElementsIn(expectedJpegOutputSizes.toTypedArray())
             }
-            .build()
-    }
-
-    private fun generateImageCaptureSupportedResolutions(): List<Pair<Int, Array<Size>>> {
-        val formatResolutionsPairList = mutableListOf<Pair<Int, Array<Size>>>()
-        val cameraInfo = cameraProvider.availableCameraInfos[0] as CameraInfoInternal
-        val characteristics = cameraInfo.cameraCharacteristics as CameraCharacteristics
-        val map = characteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-
-        // Retrieves originally supported resolutions from CameraCharacteristics for JPEG
-        // format to return.
-        map?.getOutputSizes(ImageFormat.JPEG)?.let {
-            formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, it))
         }
-
-        return formatResolutionsPairList
     }
 }

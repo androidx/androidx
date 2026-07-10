@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
@@ -82,7 +81,6 @@ fun platformTextInputModifierNodeSample() {
 }
 
 @Suppress("UNUSED_PARAMETER")
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun InterceptPlatformTextInputSample() {
@@ -117,7 +115,6 @@ fun InterceptPlatformTextInputSample() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 fun disableSoftKeyboardSample() {
     /**

@@ -16,9 +16,10 @@
 
 package androidx.collection.integration;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Integration (actually build) test that LongSparseArray can be subclassed.

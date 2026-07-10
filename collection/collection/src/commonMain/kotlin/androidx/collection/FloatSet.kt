@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -22,6 +23,7 @@
     "ConstPropertyName",
     "PrivatePropertyName",
     "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 @file:OptIn(ExperimentalContracts::class)
 

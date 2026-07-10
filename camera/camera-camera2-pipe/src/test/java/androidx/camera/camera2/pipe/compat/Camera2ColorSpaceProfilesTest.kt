@@ -137,7 +137,7 @@ class Camera2ColorSpaceProfilesTest {
 
     @Test
     fun unwrapAs_supportedType() {
-        val unwrapped = camera2ColorSpaceProfiles.unwrapAs(ColorSpaceProfiles::class)
+        val unwrapped = camera2ColorSpaceProfiles.unwrapAs(ColorSpaceProfiles::class.java)
 
         Truth.assertThat(unwrapped).isNotNull()
         Truth.assertThat(unwrapped).isSameInstanceAs(mockColorSpaceProfiles)
@@ -145,6 +145,6 @@ class Camera2ColorSpaceProfilesTest {
 
     @Test
     fun unwrapAs_UnsupportedType() {
-        Truth.assertThat(camera2ColorSpaceProfiles.unwrapAs(ColorSpace::class)).isNull()
+        Truth.assertThat(camera2ColorSpaceProfiles.unwrapAs(ColorSpace::class.java)).isNull()
     }
 }

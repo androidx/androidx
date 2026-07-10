@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.core.view.RoundedCornerCompat#RoundedCornerCompat(int, int, int, int):
-    Removed constructor androidx.core.view.RoundedCornerCompat(int,int,int,int)

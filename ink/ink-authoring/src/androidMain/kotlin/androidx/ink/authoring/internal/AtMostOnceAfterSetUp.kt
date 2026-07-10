@@ -17,16 +17,11 @@
 package androidx.ink.authoring.internal
 
 import androidx.annotation.CheckResult
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A utility that creates [Runnable] objects that can be [run][Runnable.run] more than once, with
- * the guarantee that [callback] is executed only once.
- *
- * It operates in a cycle that alternates between two distinct phases - a setup phase and an
- * execution phase. The setup phase consists of calling [setUp] one or more times and registering
- * each resulting [Runnable] to be [run][Runnable.run] later. The execution phase is when those
- * [Runnable] objects are [run][Runnable.run], de-duplicated such that [callback] is executed only
- * once. After this, a new cycle is begun by entering the setup phase again.
+ * A thread-safe utility that creates [Runnable] objects that can be [run][Runnable.run] more than
+ * once, with the guarantee that [callback] is executed only once until the next call to [setUp].
  *
  * This is useful with a callback framework that doesn't deduplicate the [Runnable] instances that
  * it is given (e.g. [android.view.View.postOnAnimation]), initiated from call sites where there is
@@ -59,42 +54,25 @@ import androidx.annotation.CheckResult
 internal class AtMostOnceAfterSetUp(private val callback: () -> Unit) {
 
     /**
-     * Flipped to `true` by [setUp] to allow [callback] to execute again, and flipped back to
-     * `false` when [callback] is run to allow for another cycle.
+     * True between the most recent call to [setUp] and the first subsequent execution of the
+     * returned [Runnable].
      */
-    private var isSetUp = false
+    private val isSetUp = AtomicBoolean(false)
 
-    /**
-     * This will be [run][Runnable.run] once for each call to [setUp], so use [isSetUp] state to
-     * ensure that [callback] is executed only once despite potentially multiple calls to [setUp]
-     * and therefore multiple [runs][Runnable.run] of this [Runnable].
-     */
+    /** Runs [callback] exactly once after the most recent call to [setUp]. */
     private val runnable = Runnable {
-        // Do nothing if `callback` has already been executed.
-        if (!isSetUp) return@Runnable
-
-        // `callback` is being executed, so set the flag to ensure it cannot be executed again until
-        // `setUp` is called again in the setup phase of the next cycle.
-        isSetUp = false
-        callback()
+        if (isSetUp.getAndSet(false)) {
+            callback()
+        }
     }
 
     /**
-     * Returns a [Runnable], which when [run][Runnable.run], executes [callback] if [callback]
-     * hasn't yet been executed, or does nothing if [callback] has already been executed by a
-     * previous call to [Runnable.run]. After [callback] has been executed, a subsequent call to
-     * [setUp] will start the cycle anew and allow [callback] to be executed as a response to one or
-     * more [setUp] calls (and [running][Runnable.run] their resulting [Runnable] objects).
-     *
-     * Be sure to use the return value [Runnable], for example by registering it with
-     * [android.view.View.postOnAnimation].
+     * Returns a [Runnable] which executes [callback] the first time it is run after the most recent
+     * call to [setUp] and does nothing until [setUp] is called again.
      */
     @CheckResult
     fun setUp(): Runnable {
-        // Mark `callback` as able to be executed, but just once until `setUp` is called again to
-        // flip
-        // this flag back to `true`.
-        isSetUp = true
+        isSetUp.set(true)
         return runnable
     }
 }

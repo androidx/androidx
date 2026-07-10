@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlin.test.assertFailsWith
@@ -96,6 +97,36 @@ class MetricResultTest {
         assertEquals(MetricResult.lerp(0.0, 1000.0, 0.75), 750.0, 0.0)
         assertEquals(MetricResult.lerp(0.0, 1000.0, 0.25), 250.0, 0.0)
         assertEquals(MetricResult.lerp(500.0, 1000.0, 0.25), 625.0, 0.0)
+    }
+
+    @Test
+    fun putInBundle() {
+        val metricResult = MetricResult("test", (0..1).map { it.toDouble() })
+        Bundle().apply {
+            metricResult.putInBundle(this, prefix = "prefix_")
+
+            // can't use equality check, since Bundle doesn't implement equals(), and
+            // toString() comparison doesn't seem safe
+            assertEquals(0.5, getDouble("prefix_test_median"), 0.001)
+            assertEquals(0.71, getDouble("prefix_test_stddev"), 0.01)
+            assertEquals(1.0, getDouble("prefix_test_max"), 0.001)
+            assertEquals(0.0, getDouble("prefix_test_min"), 0.001)
+        }
+    }
+
+    @Test
+    fun putPercentilesInBundle() {
+        val metricResult = MetricResult("test", (0..100).map { it.toDouble() })
+        Bundle().apply {
+            metricResult.putPercentilesInBundle(this, prefix = "prefix_")
+
+            // can't use equality check, since Bundle doesn't implement equals(), and
+            // toString() comparison doesn't seem safe
+            assertEquals(50.0, getDouble("prefix_test_p50"), 0.1)
+            assertEquals(90.0, getDouble("prefix_test_p90"), 0.1)
+            assertEquals(95.0, getDouble("prefix_test_p95"), 0.1)
+            assertEquals(99.0, getDouble("prefix_test_p99"), 0.1)
+        }
     }
 
     @Test

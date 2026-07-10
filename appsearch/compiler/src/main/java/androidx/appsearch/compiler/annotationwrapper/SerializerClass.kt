@@ -15,14 +15,12 @@
  */
 package androidx.appsearch.compiler.annotationwrapper
 
-import androidx.appsearch.compiler.ProcessingException
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
+import androidx.appsearch.compiler.XProcessingException
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 
 /**
  * Represents a class that can convert between some custom type and a property's actual type.
@@ -35,13 +33,13 @@ data class SerializerClass(
     val kind: Kind,
 
     /** The serializer class element. */
-    val element: TypeElement,
+    val element: XTypeElement,
 
     /** The zero-param constructor. Present on every serializer class. */
-    val defaultConstructor: ExecutableElement,
+    val defaultConstructor: XConstructorElement,
 
     /** The custom type that can be serialized using the serializer class. */
-    val customType: TypeMirror,
+    val customType: XType,
 ) {
     enum class Kind(
         /**
@@ -51,21 +49,21 @@ data class SerializerClass(
          * which, in turn, boils down to a [String] within a `GenericDocument`.
          */
         // TypeName is an immutable 3P type
-        val actualTypeInGenericDoc: TypeName
+        val actualTypeInGenericDoc: XTypeName
     ) {
-        STRING_SERIALIZER(actualTypeInGenericDoc = ClassName.get(String::class.java)),
-        LONG_SERIALIZER(actualTypeInGenericDoc = TypeName.LONG),
+        STRING_SERIALIZER(actualTypeInGenericDoc = XTypeName.STRING),
+        LONG_SERIALIZER(actualTypeInGenericDoc = XTypeName.PRIMITIVE_LONG),
     }
 
     companion object {
         /**
-         * Creates a serializer class given its [TypeElement].
+         * Creates a serializer class given its [XTypeElement].
          *
-         * @throws ProcessingException If the `clazz` does not have a zero-param constructor.
+         * @throws XProcessingException If the `clazz` does not have a zero-param constructor.
          */
-        @Throws(ProcessingException::class)
-        fun create(clazz: TypeElement, kind: Kind): SerializerClass {
-            val deserializeMethod: ExecutableElement = findDeserializeMethod(clazz, kind)
+        @Throws(XProcessingException::class)
+        fun create(clazz: XTypeElement, kind: Kind): SerializerClass {
+            val deserializeMethod: XMethodElement = findDeserializeMethod(clazz, kind)
             return SerializerClass(
                 kind = kind,
                 element = clazz,
@@ -77,26 +75,25 @@ data class SerializerClass(
         /**
          * Returns the zero-param constructor in the `clazz`.
          *
-         * @throws ProcessingException If no such constructor exists or it's private.
+         * @throws XProcessingException If no such constructor exists or it's private.
          */
-        @Throws(ProcessingException::class)
-        private fun findDefaultConstructor(clazz: TypeElement): ExecutableElement {
-            val constructor: ExecutableElement =
-                clazz.enclosedElements
+        @Throws(XProcessingException::class)
+        private fun findDefaultConstructor(clazz: XTypeElement): XConstructorElement {
+            val constructor: XConstructorElement =
+                clazz
+                    .getConstructors()
                     .stream()
-                    .filter { it.kind == ElementKind.CONSTRUCTOR }
-                    .map { it as ExecutableElement }
                     .filter { it.parameters.isEmpty() }
                     .findFirst()
-                    .orElseThrow<ProcessingException> {
-                        ProcessingException(
+                    .orElseThrow {
+                        XProcessingException(
                             "Serializer ${clazz.qualifiedName} must have a zero-param " +
                                 "constructor",
                             clazz,
                         )
                     }
-            if (constructor.modifiers.contains(Modifier.PRIVATE)) {
-                throw ProcessingException(
+            if (constructor.isPrivate()) {
+                throw XProcessingException(
                     "The zero-param constructor of serializer ${clazz.qualifiedName} must not " +
                         "be private",
                     constructor,
@@ -106,33 +103,34 @@ data class SerializerClass(
         }
 
         /** Returns the `T deserialize(PropertyType)` method. */
-        private fun findDeserializeMethod(clazz: TypeElement, kind: Kind): ExecutableElement {
-            return clazz.enclosedElements
-                .stream()
-                .filter { it.kind == ElementKind.METHOD }
-                .map { it as ExecutableElement }
+        private fun findDeserializeMethod(clazz: XTypeElement, kind: Kind): XMethodElement {
+            for (method in clazz.getDeclaredMethods()) {
                 // The type-system enforces there is one method satisfying these constraints
-                .filter {
-                    it.simpleName.contentEquals("deserialize") &&
-                        !it.modifiers.contains(Modifier.STATIC) &&
+                if (
+                    method.name == "deserialize" &&
+                        !method.isStatic()
                         // Direct equality check with the param's type should be sufficient.
                         // Don't need to allow for subtypes because mActualTypeInGenericDoc can
                         // only be a primitive type or String which is a final class.
-                        hasSingleParamOfExactType(it, kind.actualTypeInGenericDoc)
+                        &&
+                        hasSingleParamOfExactType(method, kind.actualTypeInGenericDoc)
+                ) {
+                    return method
                 }
-                .findFirst()
-                // Should never throw because param type is enforced by the type-system
-                .get()
+            }
+            throw IllegalStateException(
+                "Couldn't find deserialize method in ${clazz.qualifiedName}"
+            )
         }
 
         private fun hasSingleParamOfExactType(
-            method: ExecutableElement,
-            expectedType: TypeName,
+            method: XMethodElement,
+            expectedType: XTypeName,
         ): Boolean {
             if (method.parameters.size != 1) {
                 return false
             }
-            val firstParamType = TypeName.get(method.parameters.first().asType())
+            val firstParamType = method.parameters.first().type.asTypeName()
             return firstParamType == expectedType
         }
     }

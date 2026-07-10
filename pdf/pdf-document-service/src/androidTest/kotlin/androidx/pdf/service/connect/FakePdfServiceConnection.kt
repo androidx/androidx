@@ -33,22 +33,27 @@ class FakePdfServiceConnection(
     override var documentBinder: PdfDocumentRemote? = null,
     override var needsToReopenDocument: Boolean = false,
     private val onServiceConnected: () -> Unit = {},
+    private val onServiceDisconnected: () -> Unit = {},
+    private val documentRemote: PdfDocumentRemote? = null,
 ) : PdfServiceConnection {
 
     override val pendingJobs: Queue<Job> = ConcurrentLinkedQueue()
 
     override suspend fun connect(uri: Uri) {
-        documentBinder = PdfDocumentRemoteImpl(PdfDocumentRendererFactoryImpl())
+        documentBinder = documentRemote ?: PdfDocumentRemoteImpl(PdfDocumentRendererFactoryImpl())
         onServiceConnected(null, null)
     }
 
     override fun disconnect() {
         documentBinder?.closePdfDocument()
+        onServiceDisconnected(null)
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         onServiceConnected()
     }
 
-    override fun onServiceDisconnected(name: ComponentName?) {}
+    override fun onServiceDisconnected(name: ComponentName?) {
+        onServiceDisconnected()
+    }
 }

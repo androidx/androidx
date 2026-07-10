@@ -95,5 +95,10 @@ public class OnItemVisibilityChangedDelegateImpl implements
                     }
             );
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

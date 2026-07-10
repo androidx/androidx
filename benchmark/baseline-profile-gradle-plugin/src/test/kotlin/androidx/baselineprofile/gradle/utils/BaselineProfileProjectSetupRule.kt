@@ -131,6 +131,8 @@ class BaselineProfileProjectSetupRule(
                         "-Xmx4g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g",
                     )
                     props.setProperty("android.useAndroidX", "true")
+                    // b/443311090
+                    props.setProperty("android.newDsl", "false")
                     props.store(it, null)
                 }
 
@@ -369,13 +371,13 @@ class AppTargetModule(
     fun setup(
         buildGradleContent: String =
             """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofile.apptarget")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
+            plugins {
+                id("com.android.application")
+                id("androidx.baselineprofile.apptarget")
+            }
+            android {
+                namespace 'com.example.namespace'
+            }
             """
                 .trimIndent()
     ) {
@@ -733,10 +735,10 @@ class ConsumerModule(
             flavorsBlock =
                 if (flavors)
                     """
-                flavorDimensions = ["version"]
-                free { dimension "version" }
-                paid { dimension "version" }
-            """
+                    flavorDimensions = ["version"]
+                    free { dimension "version" }
+                    paid { dimension "version" }
+                    """
                         .trimIndent()
                 else "",
             dependencyOnProducerProject = dependencyOnProducerProject,
@@ -744,8 +746,8 @@ class ConsumerModule(
             buildTypesBlock =
                 if (buildTypeAnotherRelease)
                     """
-                anotherRelease { initWith(release) }
-        """
+                    anotherRelease { initWith(release) }
+                    """
                         .trimIndent()
                 else "",
             addAppTargetPlugin = addAppTargetPlugin,
@@ -804,6 +806,47 @@ class ConsumerModule(
                 $additionalGradleCodeBlock
 
             """
+                .trimIndent()
+        )
+    }
+
+    fun setupKotlinMultiplatformLibrary(
+        otherPluginsBlock: String = "",
+        dependenciesBlock: String = "",
+        dependencyOnProducerProject: Boolean = true,
+        additionalGradleCodeBlock: String = "",
+    ) {
+        isLibraryModule = true
+        // Use appendText() directly here to avoid the android() block.
+        rule.buildFile.appendText(
+            """
+            plugins {
+                id("org.jetbrains.kotlin.multiplatform")
+                id("com.android.kotlin.multiplatform.library")
+                id("androidx.baselineprofile.consumer")
+                $otherPluginsBlock
+            }
+
+            kotlin {
+              androidLibrary {
+                namespace = "com.example.namespace"
+                compileSdk = ${rule.props.compileSdk}
+              }
+              sourceSets {
+                androidMain.dependencies {
+                  $dependenciesBlock
+                }
+              }
+            }
+            baselineProfile {
+              variants {
+                androidMain {
+                  ${if (dependencyOnProducerProject) """from(project(":$producerName"))""" else ""}
+                }
+              }
+            }
+            $additionalGradleCodeBlock
+        """
                 .trimIndent()
         )
     }

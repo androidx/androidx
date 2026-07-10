@@ -22,39 +22,32 @@ import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
 import androidx.build.checkapi.ApiType
 import androidx.build.checkapi.getBcvFileDirectory
-import androidx.build.checkapi.getBuiltBcvFileDirectory
 import androidx.build.checkapi.getRequiredCompatibilityApiFileFromDir
 import androidx.build.checkapi.shouldWriteVersionedApiFile
 import androidx.build.getDistributionDirectory
-import androidx.build.getLibraryByName
+import androidx.build.getLibraryClasspath
 import androidx.build.getSupportRootFolder
+import androidx.build.isKlibCrossCompilationEnabled
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.metalava.UpdateApiTask
+import androidx.build.multiplatformExtension
+import androidx.build.nativeTargets
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
-import java.lang.IllegalStateException
-import kotlinx.validation.KlibDumpMetadata
-import kotlinx.validation.KotlinKlibExtractAbiTask
-import kotlinx.validation.KotlinKlibMergeAbiTask
-import kotlinx.validation.api.klib.KlibSignatureVersion
-import kotlinx.validation.api.klib.KlibTarget
-import kotlinx.validation.toKlibTarget
-import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.abi.tools.KlibTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
@@ -62,17 +55,14 @@ private const val GENERATE_NAME = "generateAbi"
 private const val CHECK_NAME = "checkAbi"
 private const val CHECK_RELEASE_NAME = "checkAbiRelease"
 private const val UPDATE_NAME = "updateAbi"
-private const val EXTRACT_NAME = "extractAbi"
-private const val EXTRACT_RELEASE_NAME = "extractAbiRelease"
 private const val IGNORE_CHANGES_NAME = "ignoreAbiChanges"
 
 private const val KLIB_DUMPS_DIRECTORY = "klib"
-private const val KLIB_MERGE_DIRECTORY = "merged"
-private const val KLIB_EXTRACTED_DIRECTORY = "extracted"
 private const val NATIVE_SUFFIX = "native"
 internal const val CURRENT_API_FILE_NAME = "current.txt"
 private const val IGNORE_FILE_NAME = "current.ignore"
 private const val ABI_GROUP_NAME = "abi"
+private const val CROSS_COMPILATION_FLAG = "kotlin.native.enableKlibsCrossCompilation"
 
 class BinaryCompatibilityValidation(
     val project: Project,
@@ -90,10 +80,9 @@ class BinaryCompatibilityValidation(
             val checkAll: TaskProvider<Task> = project.tasks.register(CHECK_NAME)
             val updateAll: TaskProvider<Task> = project.tasks.register(UPDATE_NAME)
             configureKlibTasks(project, checkAll, updateAll)
-            project.tasks.named("check").configure { it.dependsOn(checkAll) }
-            project.addToCheckTask(checkAll)
-            project.addToBuildOnServer(checkAll)
-            if (HostManager.hostIsMac) {
+            if (project.multiplatformExtension?.hasUnsupportedTargets() == false) {
+                project.addToCheckTask(checkAll)
+                project.addToBuildOnServer(checkAll)
                 project.tasks.named("updateApi", UpdateApiTask::class.java) {
                     it.dependsOn(updateAll)
                 }
@@ -108,33 +97,46 @@ class BinaryCompatibilityValidation(
         if (kotlinMultiplatformExtension.nativeTargets().isEmpty()) {
             return
         }
-        val runtimeClasspath: ConfigurableFileCollection =
-            project.files(project.prepareKlibValidationClasspath())
+        val runtimeClasspath: FileCollection =
+            project.getLibraryClasspath("kotlinCompilerEmbeddable")
+        val abiToolsClasspath: FileCollection = project.getLibraryClasspath("kotlinAbiTools")
         val projectAbiDir = project.getBcvFileDirectory().dir(NATIVE_SUFFIX)
         val currentIgnoreFile = projectAbiDir.file(IGNORE_FILE_NAME)
-        val buildAbiDir = project.getBuiltBcvFileDirectory().map { it.dir(NATIVE_SUFFIX) }
 
         val klibDumpDir = project.layout.buildDirectory.dir(KLIB_DUMPS_DIRECTORY)
-        val klibMergeFile =
-            klibDumpDir.map { it.dir(KLIB_MERGE_DIRECTORY) }.map { it.file(CURRENT_API_FILE_NAME) }
-        val klibExtractedFileDir = klibDumpDir.map { it.dir(KLIB_EXTRACTED_DIRECTORY) }
+        val klibDumpFile = klibDumpDir.map { it.file(CURRENT_API_FILE_NAME) }
 
-        val generateAbi = project.generateAbiTask(klibMergeFile, runtimeClasspath)
+        // A project can only build/validate its ABI on the current host when all of its targets are
+        // supported there, or when the unsupported (Apple) targets can be cross-compiled. The
+        // latter
+        // is exactly what `kotlin.native.enableKlibsCrossCompilation` controls; it is disabled when
+        // the project, or one of its dependencies (including a prebuilt one), uses C-interop.
+        val cannotCrossCompileProperty =
+            project.objects
+                .property(Boolean::class.javaObjectType)
+                .value(project.isKlibCrossCompilationEnabled().map { enabled -> !enabled })
+        val generateAbi =
+            project.generateAbiTask(
+                klibDumpFile,
+                abiToolsClasspath,
+                kotlinMultiplatformExtension.hasUnsupportedTargets(),
+                cannotCrossCompileProperty,
+            )
         val generatedAndMergedApiFile: Provider<RegularFileProperty> =
-            generateAbi.map { it.mergedApiFile }
+            generateAbi.map { it.abiFile }
         val updateKlibAbi =
             project.updateKlibAbiTask(projectAbiDir, generatedAndMergedApiFile, runtimeClasspath)
 
-        val extractKlibAbi =
-            project.extractKlibAbiTask(projectAbiDir, klibExtractedFileDir, runtimeClasspath)
-        val extractedProjectFile = extractKlibAbi.map { it.outputAbiFile }
         val checkKlibAbi =
-            project.checkKlibAbiTask(extractedProjectFile, generatedAndMergedApiFile, projectAbiDir)
+            project.checkKlibAbiTask(
+                projectAbiDir.file(CURRENT_API_FILE_NAME),
+                generatedAndMergedApiFile,
+                projectAbiDir,
+            )
         val checkKlibAbiRelease =
             project.checkKlibAbiReleaseTask(
                 generatedAndMergedApiFile,
                 projectAbiDir,
-                klibExtractedFileDir,
                 currentIgnoreFile,
                 runtimeClasspath,
             )
@@ -147,14 +149,11 @@ class BinaryCompatibilityValidation(
             checkTask.dependsOn(checkKlibAbi)
             checkKlibAbiRelease?.let { releaseCheck -> checkTask.dependsOn(releaseCheck) }
         }
-
-        // add each target as an input to the merge task
-        project.configureKlibTargets(generateAbi, buildAbiDir, runtimeClasspath)
     }
 
     /* Check that the current ABI definition is up to date. */
     private fun Project.checkKlibAbiTask(
-        projectApiFile: Provider<RegularFileProperty>,
+        projectApiFile: RegularFile,
         generatedApiFile: Provider<RegularFileProperty>,
         projectAbiDir: Directory,
     ) =
@@ -184,35 +183,19 @@ class BinaryCompatibilityValidation(
     private fun Project.checkKlibAbiReleaseTask(
         mergedApiFile: Provider<RegularFileProperty>,
         klibApiDir: Directory,
-        klibExtractDir: Provider<Directory>,
         ignoreFile: RegularFile,
-        runtimeClasspath: ConfigurableFileCollection,
+        runtimeClasspath: FileCollection,
     ) =
         project.getRequiredCompatibilityAbiLocation(NATIVE_SUFFIX)?.let { requiredCompatFile ->
-            val extractReleaseTask =
-                project.tasks.register(EXTRACT_RELEASE_NAME, KotlinKlibExtractAbiTask::class.java) {
-                    it.strictValidation.set(HostManager.hostIsMac)
-                    it.targetsToRemove.set(
-                        project.provider {
-                            unsupportedNativeTargetNames().map { targetName ->
-                                instantiateKlibTarget(targetName)
-                            }
-                        }
-                    )
-                    it.inputAbiFile.set(klibApiDir.file(requiredCompatFile.name))
-                    it.outputAbiFile.set(klibExtractDir.map { it.file(requiredCompatFile.name) })
-                    it.runtimeClasspath.from(runtimeClasspath)
-                    (it as DefaultTask).group = ABI_GROUP_NAME
-                }
+            val previousApiDump = klibApiDir.file(requiredCompatFile.name)
+            val referenceVersionProvider = provider { requiredCompatFile.nameWithoutExtension }
             project.tasks.register(IGNORE_CHANGES_NAME, IgnoreAbiChangesTask::class.java) {
                 it.currentApiDump.set(mergedApiFile.map { fileProperty -> fileProperty.get() })
-                it.previousApiDump.set(
-                    extractReleaseTask.map { extract -> extract.outputAbiFile.get() }
-                )
+                it.previousApiDump.set(previousApiDump)
                 it.dependencies.set(
                     kotlinMultiplatformExtension.nativeTargets().map { target ->
                         DependenciesForTarget(
-                            konanTargetNameMapping[target.konanTarget.name]!!,
+                            KlibTarget.fromKonanTargetName(target.konanTarget.name).targetName,
                             target.compileDependencyFiles(),
                         )
                     }
@@ -220,32 +203,23 @@ class BinaryCompatibilityValidation(
                 it.ignoreFile.set(ignoreFile)
                 it.runtimeClasspath.from(runtimeClasspath)
                 it.projectVersion = provider { projectVersion.toString() }
-                it.referenceVersion =
-                    extractReleaseTask.map { extract ->
-                        extract.outputAbiFile.get().asFile.nameWithoutExtension
-                    }
+                it.referenceVersion = referenceVersionProvider
             }
             project.tasks.register(CHECK_RELEASE_NAME, CheckAbiIsCompatibleTask::class.java) {
                 it.dependencies.set(
                     kotlinMultiplatformExtension.nativeTargets().map { target ->
                         DependenciesForTarget(
-                            konanTargetNameMapping[target.konanTarget.name]!!,
+                            KlibTarget.fromKonanTargetName(target.konanTarget.name).targetName,
                             target.compileDependencyFiles(),
                         )
                     }
                 )
                 it.currentApiDump.set(mergedApiFile.map { fileProperty -> fileProperty.get() })
-                it.previousApiDump.set(
-                    extractReleaseTask.map { extract -> extract.outputAbiFile.get() }
-                )
+                it.previousApiDump.set(previousApiDump)
                 it.projectVersion = provider { projectVersion.toString() }
-                it.referenceVersion =
-                    extractReleaseTask.map { extract ->
-                        extract.outputAbiFile.get().asFile.nameWithoutExtension
-                    }
+                it.referenceVersion = referenceVersionProvider
                 it.ignoreFile.set(ignoreFile)
                 it.group = ABI_GROUP_NAME
-                it.dependsOn(extractReleaseTask)
                 it.runtimeClasspath.from(runtimeClasspath)
                 it.cacheEvenIfNoOutputs()
             }
@@ -255,7 +229,7 @@ class BinaryCompatibilityValidation(
     private fun Project.updateKlibAbiTask(
         klibApiDir: Directory,
         mergedKlibFile: Provider<RegularFileProperty>,
-        runtimeClasspath: ConfigurableFileCollection,
+        runtimeClasspath: FileCollection,
     ) =
         project.tasks.register(
             UPDATE_NAME.appendCapitalized(NATIVE_SUFFIX),
@@ -266,118 +240,45 @@ class BinaryCompatibilityValidation(
             it.version.set(projectVersion.toString())
             it.shouldWriteVersionedApiFile.set(project.shouldWriteVersionedApiFile())
             it.group = ABI_GROUP_NAME
-            it.unsupportedNativeTargetNames.set(unsupportedNativeTargetNames())
             it.runtimeClasspath.from(runtimeClasspath)
         }
 
-    /**
-     * Extracts the targets that are supported on the current machine from the current file in the
-     * project directory so they can be validated with checkAbi. For example on linux, extract all
-     * current non-mac targets from the dump.
-     */
-    private fun Project.extractKlibAbiTask(
-        klibApiDir: Directory,
-        extractDir: Provider<Directory>,
-        runtimeClasspath: ConfigurableFileCollection,
+    /* Generate ABI dump files in build directory */
+    private fun Project.generateAbiTask(
+        mergeFile: Provider<RegularFile>,
+        runtimeClasspath: FileCollection,
+        hasUnsupportedTargets: Boolean,
+        cannotCrossCompileProperty: Property<Boolean>,
     ) =
-        project.tasks.register(EXTRACT_NAME, KotlinKlibExtractAbiTask::class.java) {
-            it.strictValidation.set(HostManager.hostIsMac)
-            it.targetsToRemove.set(
-                project.provider {
-                    unsupportedNativeTargetNames().map { targetName ->
-                        instantiateKlibTarget(targetName)
+        project.tasks.register(GENERATE_NAME, GenerateAbiTask::class.java) {
+            // This only affects the external process launched by this task,
+            // NOT the core Kotlin compilation tasks in the same build.
+            it.runtimeClasspath.from(runtimeClasspath)
+            it.abiFile.set(mergeFile)
+            it.excludedAnnotatedWith.addAll(nonPublicMarkers)
+            it.klibs.set(
+                kotlinMultiplatformExtension.nativeTargets().map { target ->
+                    val klibTarget =
+                        KlibTarget.fromKonanTargetName(target.konanTarget.name)
+                            .configureName(target.targetName)
+                    objects.newInstance(KlibTargetInfo::class.java).apply {
+                        targetName = klibTarget.configurableName
+                        canonicalTargetName = klibTarget.targetName
+                        klibFiles =
+                            target.compilations.getByName(MAIN_COMPILATION_NAME).output.classesDirs
                     }
                 }
             )
-            it.inputAbiFile.set(klibApiDir.file(CURRENT_API_FILE_NAME))
-            it.outputAbiFile.set(extractDir.map { it.file(CURRENT_API_FILE_NAME) })
-            it.runtimeClasspath.from(runtimeClasspath)
-            (it as DefaultTask).group = ABI_GROUP_NAME
-        }
-
-    /* Merge target specific dumps into single file located in [mergeDir] */
-    private fun Project.generateAbiTask(
-        mergeFile: Provider<RegularFile>,
-        runtimeClasspath: ConfigurableFileCollection,
-    ) =
-        project.tasks.register(GENERATE_NAME, KotlinKlibMergeAbiTask::class.java) {
-            it.mergedApiFile.set(mergeFile)
-            it.runtimeClasspath.from(runtimeClasspath)
-            (it as DefaultTask).group = ABI_GROUP_NAME
-        }
-
-    private fun Project.configureKlibTargets(
-        mergeTask: TaskProvider<KotlinKlibMergeAbiTask>,
-        abiBuildDir: Provider<Directory>,
-        runtimeClasspath: ConfigurableFileCollection,
-    ) {
-        val generatedDumps = objects.setProperty(KlibDumpMetadata::class.java)
-        mergeTask.configure { it.dumps.addAll(generatedDumps) }
-        kotlinMultiplatformExtension.nativeTargets().configureEach { currentTarget ->
-            val mainCompilation =
-                currentTarget.compilations.findByName(MAIN_COMPILATION_NAME) ?: return@configureEach
-
-            val target = currentTarget.toKlibTarget()
-
-            val isEnabled =
-                currentTarget is KotlinNativeTarget &&
-                    HostManager().isEnabled(currentTarget.konanTarget)
-            if (isEnabled) {
-                val buildTargetAbi =
-                    configureKlibCompilation(
-                        mainCompilation,
-                        target,
-                        abiBuildDir.map { it.dir(target.targetName) },
-                        runtimeClasspath,
-                    )
-                generatedDumps.add(
-                    KlibDumpMetadata(
-                        target,
-                        objects.fileProperty().also {
-                            it.set(buildTargetAbi.flatMap { it.outputAbiFile })
-                        },
-                    )
+            it.group = ABI_GROUP_NAME
+            val projectPath = project.path
+            it.doFirst {
+                runHostCompatibilityChecks(
+                    projectPath,
+                    hasUnsupportedTargets,
+                    cannotCrossCompileProperty.get(),
                 )
             }
         }
-    }
-
-    private fun supportedNativeTargetNames(): Set<String> {
-        val hostManager = HostManager()
-        return kotlinMultiplatformExtension
-            .nativeTargets()
-            .filter { hostManager.isEnabled(it.konanTarget) }
-            .map { it.klibTargetName() }
-            .toSet()
-    }
-
-    private fun allNativeTargetNames(): Set<String> =
-        kotlinMultiplatformExtension.nativeTargets().map { it.klibTargetName() }.toSet()
-
-    private fun unsupportedNativeTargetNames(): Set<String> =
-        allNativeTargetNames() - supportedNativeTargetNames()
-
-    private fun Project.configureKlibCompilation(
-        compilation: KotlinCompilation<*>,
-        target: KlibTarget,
-        outputFileDir: Provider<Directory>,
-        runtimeClasspath: ConfigurableFileCollection,
-    ): TaskProvider<KotlinKlibAbiBuildTask> {
-        val buildTask =
-            tasks.register(
-                GENERATE_NAME.appendCapitalized(target.targetName),
-                KotlinKlibAbiBuildTask::class.java,
-            ) {
-                it.nonPublicMarkers.addAll(nonPublicMarkers)
-                it.target.set(target)
-                it.klibFile.from(compilation.output.classesDirs)
-                it.signatureVersion.set(KlibSignatureVersion.LATEST)
-                it.outputAbiFile.set(outputFileDir.map { it.file(CURRENT_API_FILE_NAME) })
-                it.runtimeClasspath.from(runtimeClasspath)
-                (it as DefaultTask).group = ABI_GROUP_NAME
-            }
-        return buildTask
-    }
 }
 
 private fun Project.getRequiredCompatibilityAbiLocation(suffix: String) =
@@ -388,18 +289,31 @@ private fun Project.getRequiredCompatibilityAbiLocation(suffix: String) =
         enforceVersionContinuity = isWriteVersionedApiFilesEnabled(),
     )
 
-private fun KotlinMultiplatformExtension.nativeTargets() =
-    targets.withType(KotlinNativeTarget::class.java).matching {
-        it.platformType == KotlinPlatformType.native
+private fun KotlinMultiplatformExtension.hasUnsupportedTargets(): Boolean {
+    val hostManager = HostManager()
+    return nativeTargets().any { !hostManager.isEnabled(it.konanTarget) }
+}
+
+private fun runHostCompatibilityChecks(
+    projectPath: String,
+    hasUnsupportedTargets: Boolean,
+    cannotCrossCompile: Boolean,
+) {
+    if (!hasUnsupportedTargets) {
+        // running on mac, or project has no mac targets. No further checks necessary
+        return
     }
+    if (cannotCrossCompile) {
+        // It's impossible to run these tasks on the current host, because the unsupported targets
+        // use cinterop and so cannot be cross-compiled here.
+        throw GradleException(
+            """
+            Project $projectPath uses cinterop (or depends on a project that uses cinterop) and cannot be compiled on the current host (${HostManager.host}).
 
-private fun KotlinNativeTarget.klibTargetName(): String =
-    instantiateKlibTarget(targetName, konanTargetNameMapping[konanTarget.name]!!).toString()
-
-private fun Project.prepareKlibValidationClasspath(): Configuration {
-    return project.configurations.detachedConfiguration(
-        project.dependencies.create(getLibraryByName("kotlinCompilerEmbeddable"))
-    )
+            ABI checks and updates need to compile all targets to run. Please run these tasks on a Mac machine which can build all targets.
+        """
+        )
+    }
 }
 
 // Not ideal to have a list instead of a pattern to match but this is all the API supports right now
@@ -418,8 +332,8 @@ private val nonPublicMarkers =
         "androidx.camera.core.ExperimentalUseCaseApi",
         "androidx.car.app.annotations.ExperimentalCarApi",
         "androidx.compose.animation.ExperimentalAnimationApi",
+        "androidx.compose.animation.ExperimentalLookaheadAnimationVisualDebugApi",
         "androidx.compose.animation.ExperimentalSharedTransitionApi",
-        "androidx.compose.animation.core.ExperimentalAnimatableApi",
         "androidx.compose.animation.core.ExperimentalAnimationSpecApi",
         "androidx.compose.animation.core.ExperimentalTransitionApi",
         "androidx.compose.animation.core.InternalAnimationApi",
@@ -427,15 +341,26 @@ private val nonPublicMarkers =
         "androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi",
         "androidx.compose.foundation.ExperimentalFoundationApi",
         "androidx.compose.foundation.InternalFoundationApi",
+        "androidx.compose.foundation.layout.ExperimentalGridApi",
+        "androidx.compose.foundation.layout.ExperimentalFlexBoxApi",
         "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+        "androidx.compose.foundation.style.ExperimentalFoundationStyleApi",
         "androidx.compose.material.ExperimentalMaterialApi",
+        "androidx.compose.material3.ExperimentalMaterial3Api",
+        "androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi",
+        "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+        "androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi",
+        "androidx.compose.remote.creation.ExperimentalRemoteCreationApi",
         "androidx.compose.runtime.ExperimentalComposeApi",
         "androidx.compose.runtime.ExperimentalComposeRuntimeApi",
         "androidx.compose.runtime.InternalComposeApi",
         "androidx.compose.runtime.InternalComposeTracingApi",
         "androidx.compose.ui.ExperimentalComposeUiApi",
+        "androidx.compose.ui.ExperimentalIndirectPointerApi",
         "androidx.compose.ui.ExperimentalIndirectTouchTypeApi",
+        "androidx.compose.ui.ExperimentalMediaQueryApi",
         "androidx.compose.ui.InternalComposeUiApi",
+        "androidx.compose.ui.graphics.ExperimentalGraphicsApi",
         "androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi",
         "androidx.compose.ui.node.InternalCoreApi",
         "androidx.compose.ui.test.ExperimentalTestApi",
@@ -450,8 +375,14 @@ private val nonPublicMarkers =
         "androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi",
         "androidx.health.connect.client.ExperimentalDeduplicationApi",
         "androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi",
-        "androidx.ink.authoring.ExperimentalLatencyDataApi",
+        "androidx.ink.authoring.ExperimentalInkHandoffApi",
+        "androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi",
+        "androidx.ink.authoring.ExperimentalInkLatencyDataApi",
+        "androidx.ink.brush.ExperimentalInkAnimationApi",
+        "androidx.ink.brush.ExperimentalInkBrushCompatibilityApi",
         "androidx.ink.brush.ExperimentalInkCustomBrushApi",
+        "androidx.ink.strokes.ExperimentalInkEraserApi",
+        "androidx.ink.nativeloader.InkInternalOnlyApi",
         "androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi",
         "androidx.paging.ExperimentalPagingApi",
         "androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.RegisterSourceOptIn",
@@ -459,59 +390,18 @@ private val nonPublicMarkers =
         "androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn",
         "androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext11OptIn",
         "androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext12OptIn",
-        "androidx.privacysandbox.ui.core.ExperimentalFeatures.DelegatingAdapterApi",
-        "androidx.room.ExperimentalRoomApi",
-        "androidx.room.compiler.processing.ExperimentalProcessingApi",
+        "androidx.room3.ExperimentalRoomApi",
+        "androidx.room3.compiler.processing.ExperimentalProcessingApi",
+        "androidx.tracing.ExperimentalContextPropagation",
+        "androidx.tracing.wire.ExperimentalRingBufferApi",
         "androidx.tv.foundation.ExperimentalTvFoundationApi",
         "androidx.wear.compose.foundation.ExperimentalWearFoundationApi",
         "androidx.wear.compose.material.ExperimentalWearMaterialApi",
         "androidx.window.core.ExperimentalWindowApi",
+        "androidx.window.core.ExperimentalWindowCoreApi",
     )
 
 const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"
-
-// Copied from
-// https://github.com/Kotlin/binary-compatibility-validator/blob/49b5b551643b58199c7a67c530e4a8926275f0ab/src/main/kotlin/api/klib/TargetHierarchy.kt#L113C1-L140C2
-internal val konanTargetNameMapping =
-    mapOf(
-        "android_x64" to "androidNativeX64",
-        "android_x86" to "androidNativeX86",
-        "android_arm32" to "androidNativeArm32",
-        "android_arm64" to "androidNativeArm64",
-        "ios_arm64" to "iosArm64",
-        "ios_x64" to "iosX64",
-        "ios_simulator_arm64" to "iosSimulatorArm64",
-        "watchos_arm32" to "watchosArm32",
-        "watchos_arm64" to "watchosArm64",
-        "watchos_x64" to "watchosX64",
-        "watchos_simulator_arm64" to "watchosSimulatorArm64",
-        "watchos_device_arm64" to "watchosDeviceArm64",
-        "tvos_arm64" to "tvosArm64",
-        "tvos_x64" to "tvosX64",
-        "tvos_simulator_arm64" to "tvosSimulatorArm64",
-        "linux_x64" to "linuxX64",
-        "mingw_x64" to "mingwX64",
-        "macos_x64" to "macosX64",
-        "macos_arm64" to "macosArm64",
-        "linux_arm64" to "linuxArm64",
-        "ios_arm32" to "iosArm32",
-        "watchos_x86" to "watchosX86",
-        "linux_arm32_hfp" to "linuxArm32Hfp",
-        "mingw_x86" to "mingwX86",
-        "wasm-wasi" to "wasmWasi",
-        "wasm-js" to "wasmJs",
-    )
-
-// b/410631668
-private fun instantiateKlibTarget(
-    targetName: String,
-    configurableName: String = targetName,
-): KlibTarget {
-    val constructor =
-        KlibTarget::class.java.constructors.find { it.parameterCount == 2 }
-            ?: throw IllegalStateException("Constructor for KlibTarget doesn't exist")
-    return constructor.newInstance(targetName, configurableName) as KlibTarget
-}
 
 private fun KotlinNativeTarget.compileDependencyFiles(): FileCollection =
     compilations.getByName(MAIN_COMPILATION_NAME).compileDependencyFiles.filter {

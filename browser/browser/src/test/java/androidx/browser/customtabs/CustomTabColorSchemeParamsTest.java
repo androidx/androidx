@@ -28,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
@@ -37,6 +38,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CustomTabColorSchemeParamsTest {
     @Test

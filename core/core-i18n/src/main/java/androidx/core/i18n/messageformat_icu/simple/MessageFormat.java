@@ -2292,6 +2292,7 @@ public class MessageFormat extends Format {
         return newFormat;
     }
 
+    @SuppressWarnings("deprecation")
     private static final Locale rootLocale = new Locale("");  // Locale.ROOT only @since 1.6
 
     private static final int findKeyword(String s, String[] list) {

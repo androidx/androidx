@@ -23,7 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.FrameLayout
+import android.widget.ImageButton
 import androidx.annotation.RequiresExtension
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
@@ -54,12 +54,15 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     constructor(pdfStylingOptions: PdfStylingOptions) : super(pdfStylingOptions)
 
     val pdfLoadingIdlingResource = PdfIdlingResource(PDF_LOAD_RESOURCE_NAME)
+    val pdfFirstLoadIdlingResource = PdfIdlingResource(PDF_FIRST_LOAD_RESOURCE_NAME)
     val pdfScrollIdlingResource = PdfIdlingResource(PDF_SCROLL_RESOURCE_NAME)
     val pdfSearchFocusIdlingResource = PdfIdlingResource(PDF_SEARCH_FOCUS_RESOURCE_NAME)
     val pdfSearchViewVisibleIdlingResource =
         PdfIdlingResource(PDF_SEARCH_VIEW_VISIBLE_RESOURCE_NAME)
-    private var hostView: FrameLayout? = null
+    private var hostView: ConstraintLayout? = null
     private var search: FloatingActionButton? = null
+
+    private var pdfThumbnailToggleButton: ImageButton? = null
 
     private val _currentSelection = MutableStateFlow<Selection?>(null)
     val currentSelection: StateFlow<Selection?>
@@ -83,8 +86,10 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
         val view = super.onCreateView(inflater, container, savedInstanceState) as ConstraintLayout
 
         // Inflate the custom layout for this fragment
-        hostView = inflater.inflate(R.layout.fragment_host, container, false) as FrameLayout
+        hostView = inflater.inflate(R.layout.fragment_host, container, false) as ConstraintLayout
         hostView?.let { hostView -> handleInsets(hostView) }
+
+        pdfThumbnailToggleButton = hostView!!.findViewById(R.id.pdf_thumbnail_toggle_button)
 
         // Add the default PDF viewer to the custom layout
         hostView?.addView(view)
@@ -146,6 +151,8 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     @OptIn(ExperimentalPdfApi::class)
     override fun onPdfViewCreated(pdfView: PdfView) {
         super.onPdfViewCreated(pdfView)
+        pdfView.addOnFirstContentLoadListener { pdfFirstLoadIdlingResource.decrement() }
+
         pdfView.addOnSelectionChangedListener(
             object : PdfView.OnSelectionChangedListener {
                 override fun onSelectionChanged(newSelection: Selection?) {
@@ -157,6 +164,10 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
 
     fun setIsAnnotationIntentResolvable(value: Boolean) {
         setAnnotationIntentResolvability(value)
+    }
+
+    fun setThumbnailToggleButtonVisibility(visible: Boolean) {
+        pdfThumbnailToggleButton?.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {
@@ -175,12 +186,9 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    override fun onLoadDocumentSuccess() {
+    override fun onLoadDocumentSuccess(document: PdfDocument) {
         documentLoaded = true
         pdfLoadingIdlingResource.decrement()
-    }
-
-    override fun onLoadDocumentSuccess(document: PdfDocument) {
         pdfDocument = document
     }
 
@@ -208,6 +216,7 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     companion object {
         // Resource name must be unique to avoid conflicts while running multiple test scenarios
         private val PDF_LOAD_RESOURCE_NAME = "PdfLoad-${UUID.randomUUID()}"
+        private val PDF_FIRST_LOAD_RESOURCE_NAME = "PdfFirstLoad-${UUID.randomUUID()}"
         private val PDF_SCROLL_RESOURCE_NAME = "PdfScroll-${UUID.randomUUID()}"
         private val PDF_SEARCH_FOCUS_RESOURCE_NAME = "PdfSearchFocus-${UUID.randomUUID()}"
         private val PDF_SEARCH_VIEW_VISIBLE_RESOURCE_NAME =

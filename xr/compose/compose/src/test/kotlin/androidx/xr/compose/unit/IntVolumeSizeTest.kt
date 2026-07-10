@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,33 @@
 
 package androidx.xr.compose.unit
 
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
-import com.android.extensions.xr.ShadowConfig
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IntVolumeSizeTest {
-    private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    private lateinit var session: Session
 
     @Before
     fun setUp() {
-        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
-            .setDefaultDpPerMeter(1f)
+        session = composeTestRule.configureFakeSession(defaultDpPerMeter = 2000f)
     }
 
     @Test
@@ -47,26 +56,13 @@ class IntVolumeSizeTest {
 
     @Test
     fun toDimensionsInMeters_returnsCorrectDimensions() {
-        val intVolumeSize = IntVolumeSize(9, 9, 9)
+        val intVolumeSize = IntVolumeSize(2000, 2000, 2000)
 
-        val dimensions = intVolumeSize.toDimensionsInMeters(UNIT_DENSITY)
+        val dimensions = intVolumeSize.toDimensionsInMeters(session.scene.virtualPixelDensity)
 
-        assertThat(dimensions.width).isWithin(0.0003f).of(9.0f)
-        assertThat(dimensions.height).isWithin(0.0003f).of(9.0f)
-        assertThat(dimensions.depth).isWithin(0.0003f).of(9.0f)
-    }
-
-    @Test
-    fun toDimensionsInMeters_returnsCorrectDimensions_doubleDensity() {
-        val intVolumeSize = IntVolumeSize(9, 9, 9)
-        val DOUBLE_DENSITY = Density(density = 2.0f, fontScale = 2.0f)
-
-        val dimensions = intVolumeSize.toDimensionsInMeters(DOUBLE_DENSITY)
-
-        // When pixels are twice as dense, we expect the Meters equivalent to be half.
-        assertThat(dimensions.width).isWithin(0.0002f).of(4.5f)
-        assertThat(dimensions.height).isWithin(0.0002f).of(4.5f)
-        assertThat(dimensions.depth).isWithin(0.0002f).of(4.5f)
+        assertThat(dimensions.width).isWithin(0.0003f).of(1.0f)
+        assertThat(dimensions.height).isWithin(0.0003f).of(1.0f)
+        assertThat(dimensions.depth).isWithin(0.0003f).of(1.0f)
     }
 
     @Test
@@ -78,20 +74,20 @@ class IntVolumeSizeTest {
 
     @Test
     fun intVolumeSize_fromMeters_returnsCorrectIntVolumeSize() {
-        val dimensions = FloatSize3d(9.0f, 9.0f, 9.0f)
+        val dimensions = FloatSize3d(1.0f, 1.0f, 1.0f)
 
-        val intVolumeSize = dimensions.toIntVolumeSize(UNIT_DENSITY)
+        val intVolumeSize = dimensions.toIntVolumeSize(session.scene.virtualPixelDensity)
 
-        assertThat(intVolumeSize).isEqualTo(IntVolumeSize(9, 9, 9))
+        assertThat(intVolumeSize).isEqualTo(IntVolumeSize(2000, 2000, 2000))
     }
 
     @Test
     fun toDimensionsInMeters_andFromMeters_returnsCorrectIntVolumeSize() {
-        val intVolumeSize = IntVolumeSize(10000, 10000, 10000)
+        val intVolumeSize = IntVolumeSize(1000, 1000, 1000)
 
-        val dimensions = intVolumeSize.toDimensionsInMeters(UNIT_DENSITY)
-        val fromMetersIntVolumeSize = dimensions.toIntVolumeSize(UNIT_DENSITY)
+        val dimensions = intVolumeSize.toDimensionsInMeters(session.scene.virtualPixelDensity)
+        val fromMetersIntVolumeSize = dimensions.toIntVolumeSize(session.scene.virtualPixelDensity)
 
-        assertThat(fromMetersIntVolumeSize).isEqualTo(IntVolumeSize(10000, 10000, 10000))
+        assertThat(fromMetersIntVolumeSize).isEqualTo(IntVolumeSize(1000, 1000, 1000))
     }
 }

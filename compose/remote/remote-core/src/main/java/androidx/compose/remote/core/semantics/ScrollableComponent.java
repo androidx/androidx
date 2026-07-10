@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.layout.Component;
 
@@ -28,6 +29,7 @@ import org.jspecify.annotations.Nullable;
  * vertically. It provides methods for checking scroll support, performing scroll operations, and
  * querying the scroll range and current position.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ScrollableComponent extends AccessibilitySemantics {
     int SCROLL_NONE = 0;
     int SCROLL_HORIZONTAL = 1;

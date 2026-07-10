@@ -27,25 +27,29 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class KeyguardUtilsTest {
     @Rule
     public final MockitoRule mocks = MockitoJUnit.rule();
 
-    @Mock private AccessibilityService mAccessibilityService;
-    @Mock private Context mContext;
-    @Mock private KeyguardManager mKeyguardManager;
+    @Mock
+    private AccessibilityService mAccessibilityService;
+    @Mock
+    private Context mContext;
+    @Mock
+    private KeyguardManager mKeyguardManager;
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.M)

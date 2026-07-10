@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.SoftwareType
+
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
@@ -31,74 +24,50 @@ plugins {
 }
 
 androidXMultiplatform {
+    desktop()
     androidLibrary {
         namespace = "androidx.tracing"
-    }
-    mac {
-        binaries.framework {
-            baseName = "AndroidXTracing"
-        }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
-    def signpostCompilation = createNativeCompilation("signpost") {
-        configureEachTarget { nativeCompilation ->
-            nativeCompilation.includes.from(
-                    project.layout.projectDirectory.dir("src/appleMain/objc/include")
-            )
-            nativeCompilation.sources.from(
-                    fileTree(project.layout.projectDirectory.dir("src/appleMain/objc"))
-                            .matching { include "**/*.mm" }
-            )
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(libs.androidx.annotation)
+            implementation("androidx.annotation:annotation:1.10.0")
+            implementation("androidx.collection:collection:1.6.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
+        }
+
+        desktopTest.dependencies {
+            implementation(libs.kotlinTestJunit)
+            implementation(libs.truth)
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
         }
     }
+}
 
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
-        }
-
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("androidx.annotation:annotation:1.8.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-            }
-        }
-
-        appleMain {
-            dependsOn(commonMain)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    signpostCompilation.configureTarget(target.konanTarget)
-                    createCinterop(target, signpostCompilation)
-
-                    target.compilations["main"].defaultSourceSet.dependsOn(appleMain)
-                } else {
-                    throw new GradleException("unknown native target ${target}")
-                }
-            }
-        }
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.tracing.DelicateTracingApi")
     }
 }
 
 androidx {
     name = "Tracing"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Android Tracing"
     deviceTests {

@@ -39,7 +39,7 @@ import kotlin.random.Random.Default.nextInt
  * When testing, make sure to explicitly provide a registry instance whenever calling
  * [ActivityResultCaller.registerForActivityResult], to be able to inject a test instance.
  */
-abstract class ActivityResultRegistry {
+public abstract class ActivityResultRegistry {
     private val rcToKey = mutableMapOf<Int, String>()
     private val keyToRc = mutableMapOf<String, Int>()
     private val keyToLifecycleContainers = mutableMapOf<String, LifecycleContainer>()
@@ -59,7 +59,7 @@ abstract class ActivityResultRegistry {
      * @param options Additional options for how the Activity should be started.
      */
     @MainThread
-    abstract fun <I, O> onLaunch(
+    public abstract fun <I, O> onLaunch(
         requestCode: Int,
         contract: ActivityResultContract<I, O>,
         input: I,
@@ -78,7 +78,7 @@ abstract class ActivityResultRegistry {
      * @param callback the activity result callback
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
-    fun <I, O> register(
+    public fun <I, O> register(
         key: String,
         lifecycleOwner: LifecycleOwner,
         contract: ActivityResultContract<I, O>,
@@ -158,7 +158,7 @@ abstract class ActivityResultRegistry {
      * @param callback the activity result callback
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
-    fun <I, O> register(
+    public fun <I, O> register(
         key: String,
         contract: ActivityResultContract<I, O>,
         callback: ActivityResultCallback<O>,
@@ -242,7 +242,7 @@ abstract class ActivityResultRegistry {
      *
      * @param outState the place to put state into
      */
-    fun onSaveInstanceState(outState: Bundle) {
+    public fun onSaveInstanceState(outState: Bundle) {
         outState.putIntegerArrayList(
             KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
             ArrayList(keyToRc.values),
@@ -257,7 +257,7 @@ abstract class ActivityResultRegistry {
      *
      * @param savedInstanceState the place to restore from
      */
-    fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+    public fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             return
         }
@@ -306,7 +306,7 @@ abstract class ActivityResultRegistry {
      *   will be called.
      */
     @MainThread
-    fun dispatchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+    public fun dispatchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         val key = rcToKey[requestCode] ?: return false
         doDispatch(key, resultCode, data, keyToCallback[key])
         return true
@@ -320,7 +320,7 @@ abstract class ActivityResultRegistry {
      * @return true if there is a callback registered for the given request code, false otherwise.
      */
     @MainThread
-    fun <O> dispatchResult(requestCode: Int, result: O): Boolean {
+    public fun <O> dispatchResult(requestCode: Int, result: O): Boolean {
         val key = rcToKey[requestCode] ?: return false
         val callbackAndContract = keyToCallback[key]
         if (callbackAndContract?.callback == null) {

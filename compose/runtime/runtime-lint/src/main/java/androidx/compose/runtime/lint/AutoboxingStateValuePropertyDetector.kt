@@ -70,8 +70,8 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         val readWriteAccess = (element.sourcePsi as? KtExpression)?.readWriteAccess()
         val accessKind =
             when {
-                readWriteAccess?.isRead == true -> "Reading"
                 readWriteAccess?.isWrite == true -> "Assigning"
+                readWriteAccess?.isRead == true -> "Reading"
                 else -> {
                     // We may (i.e., not necessary) go back to use this part only after
                     // https://youtrack.jetbrains.com/issue/KT-78076 is fixed/available.

@@ -26,6 +26,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -52,6 +53,11 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         return listOf(prop.publicApiFile, prop.restrictedApiFile, prop.apiLevelsFile)
     }
 
+    @OutputDirectory
+    fun getTaskOutputDirectory(): File {
+        return apiLocation.get().multiplatformApiDirectory
+    }
+
     @get:Internal abstract val currentVersion: Property<Version>
 
     /**
@@ -69,13 +75,17 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
 
     @TaskAction
     fun exec() {
-        check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
-        check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
-        check(compiledSources.files.isNotEmpty()) {
-            "Compiled sources " + compiledSources + " is empty!"
-        }
-        compiledSources.files.forEach { compiled ->
-            check(compiled.exists()) { "File " + compiled + " does not exist" }
+        // Only require an android jar, sources, and a classpath when there is a main jvm/android
+        // target that will have an API surface generated.
+        if (hasJvmOrAndroidTarget.get()) {
+            check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
+            check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
+            check(compiledSources.files.isNotEmpty()) {
+                "Compiled sources " + compiledSources + " is empty!"
+            }
+            compiledSources.files.forEach { compiled ->
+                check(compiled.exists()) { "File " + compiled + " does not exist" }
+            }
         }
 
         val levelsArgs =
@@ -95,10 +105,12 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             generateRestrictToLibraryGroupAPIs,
             levelsArgs,
-            k2UastEnabled.get(),
             kotlinSourceLevel.get(),
             workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath,
+            multiplatform.get(),
+            hasJvmOrAndroidTarget.get(),
+            configFile = configFile.get().asFile,
         )
     }
 }

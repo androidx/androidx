@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import com.android.build.api.artifact.SingleArtifact
@@ -26,17 +25,19 @@ import com.android.build.api.artifact.SingleArtifact
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
     sourceSets {
         // This is required because of release variant specific code used by hilt.
         releaseLibrariesOnly {
-            java.srcDirs += "src/release/"
+            kotlin.directories.add("src/release/")
         }
     }
     buildTypes {
@@ -54,7 +55,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)

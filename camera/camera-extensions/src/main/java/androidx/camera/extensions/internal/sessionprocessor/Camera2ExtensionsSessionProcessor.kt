@@ -29,13 +29,10 @@ import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.OutputSurfaceConfiguration
-import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessor.CaptureSessionRequestProcessor
-import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.CameraExtensionsControl
 import androidx.camera.extensions.CameraExtensionsInfo
@@ -101,10 +98,13 @@ public class Camera2ExtensionsSessionProcessor(
                     ) {
                         cameraCaptureResult.captureResult
                             ?.get(CaptureResult.EXTENSION_CURRENT_TYPE)
-                            ?.let {
-                                val cameraXMode = convertCamera2ModeToCameraXMode(it)
-                                if (currentExtensionType.getAndSet(cameraXMode) != cameraXMode) {
-                                    extensionStrengthLiveData?.postValue(it)
+                            ?.let { camera2Mode ->
+                                convertCamera2ModeToCameraXMode(camera2Mode)?.let { cameraXMode ->
+                                    if (
+                                        currentExtensionType.getAndSet(cameraXMode) != cameraXMode
+                                    ) {
+                                        currentExtensionTypeLiveData?.postValue(cameraXMode)
+                                    }
                                 }
                             }
                     }
@@ -157,55 +157,6 @@ public class Camera2ExtensionsSessionProcessor(
 
     override fun getImplementationType(): Pair<Int, Int> {
         return Pair.create(SessionProcessor.TYPE_CAMERA2_EXTENSION, camera2ExtensionMode)
-    }
-
-    override fun setParameters(config: Config) {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#setParameters should not be invoked!"
-        )
-    }
-
-    override fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#onCaptureSessionStart should not be invoked!"
-        )
-    }
-
-    override fun onCaptureSessionEnd() {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#onCaptureSessionEnd should not be invoked!"
-        )
-    }
-
-    override fun startRepeating(
-        tagBundle: TagBundle,
-        callback: SessionProcessor.CaptureCallback,
-    ): Int {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#startRepeating should not be invoked!"
-        )
-    }
-
-    override fun stopRepeating() {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#stopRepeating should not be invoked!"
-        )
-    }
-
-    override fun startCapture(
-        postviewEnabled: Boolean,
-        tagBundle: TagBundle,
-        callback: SessionProcessor.CaptureCallback,
-    ): Int {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#startCapture should not be invoked!"
-        )
-    }
-
-    override fun abortCapture(captureSequenceId: Int) {
-        throw UnsupportedOperationException(
-            "Camera2ExtensionsSessionProcessor#abortCapture should not be invoked!"
-        )
     }
 
     override fun isExtensionStrengthAvailable(): Boolean =

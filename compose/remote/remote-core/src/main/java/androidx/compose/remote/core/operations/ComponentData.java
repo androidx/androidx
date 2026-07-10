@@ -15,5 +15,8 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
+
 /** Tagging interface to operations providing data within a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ComponentData {}

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.util
 
+import android.os.Build
 import android.view.InputDevice
 import android.view.InputEvent
 import android.view.KeyEvent
@@ -24,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MultiModalInjectionScopeImpl
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 import com.google.common.collect.Ordering
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
@@ -36,6 +38,8 @@ const val TypeMouse = MotionEvent.TOOL_TYPE_MOUSE
 const val SourceTouchscreen = InputDevice.SOURCE_TOUCHSCREEN
 const val SourceMouse = InputDevice.SOURCE_MOUSE
 
+const val SourceIndirectTouch = InputDevice.SOURCE_TOUCH_NAVIGATION
+
 internal fun SemanticsNodeInteraction.assertNoTouchGestureInProgress() {
     val failMessage = "Can't verify if a touch is in progress: failed to create an injection scope"
     val node = fetchSemanticsNode(failMessage)
@@ -45,6 +49,18 @@ internal fun SemanticsNodeInteraction.assertNoTouchGestureInProgress() {
 
 internal fun InputDispatcher.assertNoTouchGestureInProgress() {
     assertThat(isTouchInProgress).isFalse()
+}
+
+internal fun SemanticsNodeInteraction.assertNoIndirectPointerGestureInProgress() {
+    val failMessage =
+        "Can't verify if a indirect pointer gesture is in progress: failed to create an injection scope"
+    val node = fetchSemanticsNode(failMessage)
+    val scope = MultiModalInjectionScopeImpl(node, testContext)
+    assertThat(scope.inputDispatcher.isIndirectPointerGestureInProgress).isFalse()
+}
+
+internal fun InputDispatcher.assertNoIndirectPointerGestureInProgress() {
+    assertThat(isIndirectPointerGestureInProgress).isFalse()
 }
 
 /**
@@ -115,6 +131,50 @@ internal fun InputEvent.verifyTouchPointer(expectedPointerId: Int, expectedPosit
     }
 }
 
+internal fun InputEvent.verifyIndirectPointerEvent(
+    expectedPointerCount: Int,
+    expectedAction: Int,
+    expectedActionIndex: Int,
+    expectedRelativeTime: Long,
+) {
+    if (this is MotionEvent) {
+        assertThat(pointerCount).isEqualTo(expectedPointerCount)
+        assertThat(actionMasked).isEqualTo(expectedAction)
+        assertThat(actionIndex).isEqualTo(expectedActionIndex)
+        assertThat(relativeTime).isEqualTo(expectedRelativeTime)
+        assertThat(source).isEqualTo(SourceIndirectTouch)
+    } else {
+        throw AssertionError(
+            "A indirect pointer event must be of type MotionEvent, " +
+                "not ${this::class.simpleName}"
+        )
+    }
+}
+
+internal fun InputEvent.verifyIndirectPointerEventPointers(
+    expectedPointerId: Int,
+    expectedPosition: Offset,
+) {
+    if (this is MotionEvent) {
+        var index = -1
+        for (i in 0 until pointerCount) {
+            if (getPointerId(i) == expectedPointerId) {
+                index = i
+                break
+            }
+        }
+        assertThat(index).isAtLeast(0)
+        assertThat(getX(index)).isEqualTo(expectedPosition.x)
+        assertThat(getY(index)).isEqualTo(expectedPosition.y)
+        assertThat(getToolType(index)).isEqualTo(TypeFinger)
+    } else {
+        throw AssertionError(
+            "A indirect pointer event must be of type MotionEvent, " +
+                "not ${this::class.simpleName}"
+        )
+    }
+}
+
 internal fun InputEvent.verifyMouseEvent(
     expectedAction: Int,
     expectedRelativeTime: Long,
@@ -141,6 +201,74 @@ internal fun InputEvent.verifyMouseEvent(
     } else {
         throw AssertionError(
             "A mouse event must be of type MotionEvent, " + "not ${this::class.simpleName}"
+        )
+    }
+}
+
+internal fun InputEvent.verifyTrackpadEvent(
+    expectedAction: Int,
+    expectedRelativeTime: Long,
+    expectedPosition: Offset,
+    expectedButtonState: Int,
+    vararg expectedAxisValues: Pair<Int, Float>, // <axis, value>
+    expectedClassification: Int = MotionEvent.CLASSIFICATION_NONE,
+    expectedPointerCount: Int = 1,
+    expectedActionIndex: Int = 0,
+    expectedMetaState: Int = 0,
+) {
+    if (this is MotionEvent) {
+        assertWithMessage("pointerCount").that(pointerCount).isEqualTo(expectedPointerCount)
+        assertWithMessage("pointerId").that(getPointerId(0)).isEqualTo(0)
+        assertWithMessage("actionMasked").that(actionMasked).isEqualTo(expectedAction)
+        assertWithMessage("actionIndex").that(actionIndex).isEqualTo(expectedActionIndex)
+        assertWithMessage("relativeTime").that(relativeTime).isEqualTo(expectedRelativeTime)
+        assertWithMessage("x").that(x).isEqualTo(expectedPosition.x)
+        assertWithMessage("y").that(y).isEqualTo(expectedPosition.y)
+        assertWithMessage("buttonState").that(buttonState).isEqualTo(expectedButtonState)
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertWithMessage("classification")
+                .that(classification)
+                .isEqualTo(expectedClassification)
+        }
+        assertWithMessage("source").that(source).isEqualTo(SourceMouse)
+        assertWithMessage("toolType").that(getToolType(0)).isEqualTo(TypeFinger)
+        assertWithMessage("metaState").that(metaState).isEqualTo(expectedMetaState)
+        expectedAxisValues.forEach { (axis, expectedValue) ->
+            assertWithMessage("axisValue($axis)").that(getAxisValue(axis)).isEqualTo(expectedValue)
+        }
+    } else {
+        throw AssertionError(
+            "A trackpad event must be of type MotionEvent, " + "not ${this::class.simpleName}"
+        )
+    }
+}
+
+/**
+ * Verifies a specific pointer event with the given [expectedPointerId] for a trackpad.
+ *
+ * Although a trackpad looks like a mouse event with just a single pointer, some gestures are
+ * interpreted by the system to create fake finger events, which then look like multiple touchscreen
+ * fingers.
+ */
+internal fun InputEvent.verifyTrackpadFakePointerEvent(
+    expectedPointerId: Int,
+    expectedPosition: Offset,
+) {
+    if (this is MotionEvent) {
+        var index = -1
+        for (i in 0 until pointerCount) {
+            if (getPointerId(i) == expectedPointerId) {
+                index = i
+                break
+            }
+        }
+        assertThat(index).isAtLeast(0)
+        assertThat(getX(index)).isEqualTo(expectedPosition.x)
+        assertThat(getY(index)).isEqualTo(expectedPosition.y)
+        assertThat(getToolType(index)).isEqualTo(TypeFinger)
+    } else {
+        throw AssertionError(
+            "A trackpad event must be of type MotionEvent, " + "not ${this::class.simpleName}"
         )
     }
 }

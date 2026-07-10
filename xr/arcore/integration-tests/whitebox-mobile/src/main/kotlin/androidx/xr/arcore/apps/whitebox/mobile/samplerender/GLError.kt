@@ -36,10 +36,16 @@ public fun maybeThrowGLException(reason: String, api: String) {
 }
 
 /** Logs a message with the given logcat priority if a GL error occurred. */
-public fun maybeLogGLError(priority: Int, tag: String, reason: String, api: String) {
+public fun maybeLogGLError(level: Int, reason: String, api: String) {
     val errorCodes: IntList? = getGlErrors()
     if (errorCodes != null) {
-        Log.println(priority, tag, formatErrorMessage(reason, api, errorCodes))
+        when (level) {
+            Log.VERBOSE -> Log.v("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.DEBUG -> Log.d("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.INFO -> Log.i("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.WARN -> Log.w("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.ERROR -> Log.e("JetpackXR", formatErrorMessage(reason, api, errorCodes))
+        }
     }
 }
 

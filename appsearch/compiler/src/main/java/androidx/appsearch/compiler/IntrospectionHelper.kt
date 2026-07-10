@@ -19,134 +19,129 @@ import androidx.appsearch.compiler.AnnotatedGetterOrField.Companion.tryCreateFor
 import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation
 import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation
-import com.google.auto.common.MoreTypes
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.compat.XConverters.toJavac
+import androidx.room.compiler.processing.isArray
+import androidx.room.compiler.processing.isField
+import androidx.room.compiler.processing.isMethod
 import com.google.auto.value.AutoValue
-import com.squareup.javapoet.ClassName
 import java.util.ArrayDeque
 import java.util.Deque
 import java.util.WeakHashMap
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.ArrayType
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.ExecutableType
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.Elements
-import javax.lang.model.util.Types
 import kotlin.metadata.isNullable
 import kotlin.metadata.jvm.KotlinClassMetadata
 
 /** Utilities for working with data structures representing parsed Java code. */
-class IntrospectionHelper internal constructor(private val env: ProcessingEnvironment) {
-    private val typeUtils: Types = env.typeUtils
-    private val elementUtils: Elements = env.elementUtils
-
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
+@OptIn(ExperimentalProcessingApi::class)
+class IntrospectionHelper internal constructor(private val env: XProcessingEnv) {
     // Non-boxable objects
-    val blobHandleType: TypeMirror =
-        elementUtils.getTypeElement(APPSEARCH_BLOB_HANDLE_CLASS.canonicalName()).asType()
-    val collectionType: TypeMirror =
-        elementUtils.getTypeElement(java.util.Collection::class.java.name).asType()
-    val embeddingType: TypeMirror =
-        elementUtils.getTypeElement(EMBEDDING_VECTOR_CLASS.canonicalName()).asType()
-    val genericDocumentType: TypeMirror =
-        elementUtils.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType()
-    val listType: TypeMirror = elementUtils.getTypeElement(java.util.List::class.java.name).asType()
-    @JvmField
-    val stringType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.String::class.java.name).asType()
+    val blobHandleType: XType = env.requireType(APPSEARCH_BLOB_HANDLE_CLASS.canonicalName)
+    val collectionType: XType = env.requireType(java.util.Collection::class.java.name)
+    val embeddingType: XType = env.requireType(EMBEDDING_VECTOR_CLASS.canonicalName)
+    val genericDocumentType: XType = env.requireType(GENERIC_DOCUMENT_CLASS.canonicalName)
+    val listType: XType = env.requireType(java.util.List::class.java.name)
+    val stringType: XType = env.requireType(java.lang.String::class.java.name)
 
     // Boxable objects
-    val booleanBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Boolean::class.java.name).asType()
-    val byteBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Byte::class.java.name).asType()
-    val byteBoxArrayType: TypeMirror = typeUtils.getArrayType(byteBoxType)
-    val doubleBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Double::class.java.name).asType()
-    val floatBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Float::class.java.name).asType()
-    val integerBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Integer::class.java.name).asType()
-    val longBoxType: TypeMirror =
-        elementUtils.getTypeElement(java.lang.Long::class.java.name).asType()
+    val booleanBoxType: XType = env.requireType(java.lang.Boolean::class.java.name)
+    val byteBoxType: XType = env.requireType(java.lang.Byte::class.java.name)
+    val byteBoxArrayType: XType = env.getArrayType(byteBoxType)
+    val doubleBoxType: XType = env.requireType(java.lang.Double::class.java.name)
+    val floatBoxType: XType = env.requireType(java.lang.Float::class.java.name)
+    val integerBoxType: XType = env.requireType(java.lang.Integer::class.java.name)
+    val longBoxType: XType = env.requireType(java.lang.Long::class.java.name)
 
     // Primitive versions of boxable objects
-    @JvmField val booleanPrimitiveType: TypeMirror = typeUtils.unboxedType(booleanBoxType)
-    val bytePrimitiveType: TypeMirror = typeUtils.unboxedType(byteBoxType)
-    @JvmField val bytePrimitiveArrayType: TypeMirror = typeUtils.getArrayType(bytePrimitiveType)
-    @JvmField val doublePrimitiveType: TypeMirror = typeUtils.unboxedType(doubleBoxType)
-    val floatPrimitiveType: TypeMirror = typeUtils.unboxedType(floatBoxType)
-    @JvmField val intPrimitiveType: TypeMirror = typeUtils.unboxedType(integerBoxType)
-    @JvmField val longPrimitiveType: TypeMirror = typeUtils.unboxedType(longBoxType)
+    @JvmField val booleanPrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_BOOLEAN)
+    val bytePrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_BYTE)
+    @JvmField val bytePrimitiveArrayType: XType = env.getArrayType(bytePrimitiveType)
+    @JvmField val doublePrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_DOUBLE)
+    val floatPrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_FLOAT)
+    @JvmField val intPrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_INT)
+    @JvmField val longPrimitiveType: XType = env.requireType(XTypeName.PRIMITIVE_LONG)
 
-    private val allMethodsCache = WeakHashMap<TypeElement, LinkedHashSet<ExecutableElement>>()
+    private val allMethodsCache = WeakHashMap<XTypeElement, List<MethodTypeAndElement>>()
 
     companion object {
         const val GEN_CLASS_PREFIX: String = "$\$__AppSearch__"
         const val APPSEARCH_PKG: String = "androidx.appsearch.app"
 
         @JvmField
-        val APPSEARCH_SCHEMA_CLASS: ClassName = ClassName.get(APPSEARCH_PKG, "AppSearchSchema")
+        val APPSEARCH_SCHEMA_CLASS: XClassName = XClassName.get(APPSEARCH_PKG, "AppSearchSchema")
 
         @JvmField
-        val PROPERTY_CONFIG_CLASS: ClassName = APPSEARCH_SCHEMA_CLASS.nestedClass("PropertyConfig")
+        val PROPERTY_CONFIG_CLASS: XClassName = APPSEARCH_SCHEMA_CLASS.nestedClass("PropertyConfig")
 
         const val APPSEARCH_EXCEPTION_PKG: String = "androidx.appsearch.exceptions"
 
         @JvmField
-        val APPSEARCH_EXCEPTION_CLASS: ClassName =
-            ClassName.get(APPSEARCH_EXCEPTION_PKG, "AppSearchException")
+        val APPSEARCH_EXCEPTION_CLASS: XClassName =
+            XClassName.get(APPSEARCH_EXCEPTION_PKG, "AppSearchException")
 
         const val APPSEARCH_ANNOTATION_PKG: String = "androidx.appsearch.annotation"
 
         const val DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME: String = "Document"
 
         @JvmField
-        val DOCUMENT_ANNOTATION_CLASS: ClassName =
-            ClassName.get(APPSEARCH_ANNOTATION_PKG, DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME)
+        val DOCUMENT_ANNOTATION_CLASS: XClassName =
+            XClassName.get(APPSEARCH_ANNOTATION_PKG, DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME)
 
         @JvmField
-        val GENERIC_DOCUMENT_CLASS: ClassName = ClassName.get(APPSEARCH_PKG, "GenericDocument")
+        val GENERIC_DOCUMENT_CLASS: XClassName = XClassName.get(APPSEARCH_PKG, "GenericDocument")
 
-        val EMBEDDING_VECTOR_CLASS: ClassName = ClassName.get(APPSEARCH_PKG, "EmbeddingVector")
+        val EMBEDDING_VECTOR_CLASS: XClassName = XClassName.get(APPSEARCH_PKG, "EmbeddingVector")
 
-        val APPSEARCH_BLOB_HANDLE_CLASS: ClassName =
-            ClassName.get(APPSEARCH_PKG, "AppSearchBlobHandle")
+        val APPSEARCH_BLOB_HANDLE_CLASS: XClassName =
+            XClassName.get(APPSEARCH_PKG, "AppSearchBlobHandle")
 
-        val BUILDER_PRODUCER_CLASS: ClassName =
+        val BUILDER_PRODUCER_CLASS: XClassName =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer")
 
         @JvmField
-        val DOCUMENT_CLASS_FACTORY_CLASS: ClassName =
-            ClassName.get(APPSEARCH_PKG, "DocumentClassFactory")
+        val DOCUMENT_CLASS_FACTORY_CLASS: XClassName =
+            XClassName.get(APPSEARCH_PKG, "DocumentClassFactory")
 
         @JvmField
-        val RESTRICT_TO_ANNOTATION_CLASS: ClassName =
-            ClassName.get("androidx.annotation", "RestrictTo")
+        val RESTRICT_TO_ANNOTATION_CLASS: XClassName =
+            XClassName.get("androidx.annotation", "RestrictTo")
 
         @JvmField
-        val RESTRICT_TO_SCOPE_CLASS: ClassName = RESTRICT_TO_ANNOTATION_CLASS.nestedClass("Scope")
+        val RESTRICT_TO_SCOPE_CLASS: XClassName = RESTRICT_TO_ANNOTATION_CLASS.nestedClass("Scope")
 
         @JvmField
-        val DOCUMENT_CLASS_MAPPING_CONTEXT_CLASS: ClassName =
-            ClassName.get(APPSEARCH_PKG, "DocumentClassMappingContext")
+        val DOCUMENT_CLASS_MAPPING_CONTEXT_CLASS: XClassName =
+            XClassName.get(APPSEARCH_PKG, "DocumentClassMappingContext")
+
+        @JvmField
+        val REQUIRES_API_ANNOTATION_CLASS = XClassName.get("androidx.annotation", "RequiresApi")
+
+        @JvmField val OPT_IN_ANNOTATION_CLASS = XClassName.get("androidx.annotation", "OptIn")
+
+        @JvmField val KOTLIN_OPT_IN_ANNOTATION_CLASS = XClassName.get("kotlin", "OptIn")
+
+        @JvmField
+        val EXPERIMENTAL_APP_SEARCH_API_ANNOTATION_CLASS =
+            XClassName.get("androidx.appsearch.app", "ExperimentalAppSearchApi")
 
         /**
          * Returns `androidx.appsearch.annotation.Document` annotation element from the input
          * element's annotations. Returns null if no such annotation is found.
          */
         @JvmStatic
-        fun getDocumentAnnotation(element: Element): AnnotationMirror? {
-            val annotations: List<AnnotationMirror> =
-                getAnnotations(element, DOCUMENT_ANNOTATION_CLASS)
+        fun getDocumentAnnotation(element: XElement): XAnnotation? {
+            val annotations: List<XAnnotation> = getAnnotations(element, DOCUMENT_ANNOTATION_CLASS)
             return annotations.firstOrNull()
         }
 
@@ -155,10 +150,11 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          * specified by the annotation's class name. Returns null if no annotation of such kind is
          * found.
          */
-        fun getAnnotations(element: Element, className: ClassName): List<AnnotationMirror> {
-            return element.annotationMirrors
+        fun getAnnotations(element: XElement, className: XClassName): List<XAnnotation> {
+            return element
+                .getAllAnnotations()
                 .stream()
-                .filter { it.annotationType.toString() == className.canonicalName() }
+                .filter { it.qualifiedName == className.canonicalName }
                 .toList()
         }
 
@@ -166,11 +162,17 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          * Returns the property type of the given property. Properties are represented by an
          * annotated Java element that is either a Java field or a getter method.
          */
-        fun getPropertyType(property: Element): TypeMirror {
-            var propertyType = property.asType()
-            if (property.kind == ElementKind.METHOD) {
-                propertyType = (propertyType as ExecutableType).returnType
-            }
+        fun getPropertyType(property: XElement): XType {
+            val propertyType: XType =
+                if (property.isField()) {
+                    property.type
+                } else if (property.isMethod()) {
+                    property.returnType
+                } else {
+                    throw UnsupportedOperationException(
+                        "Don't know how to get type of element $property"
+                    )
+                }
             return propertyType
         }
 
@@ -179,9 +181,9 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          * for inner class Foo.Bar.
          */
         @JvmStatic
-        fun getDocumentClassFactoryForClass(pkg: String, className: String): ClassName {
+        fun getDocumentClassFactoryForClass(pkg: String, className: String): XClassName {
             val genClassName: String = GEN_CLASS_PREFIX + className.replace(".", "$\$__")
-            return ClassName.get(pkg, genClassName)
+            return XClassName.get(pkg, genClassName)
         }
 
         /**
@@ -189,9 +191,9 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          * for inner class Foo.Bar.
          */
         @JvmStatic
-        fun getDocumentClassFactoryForClass(clazz: ClassName): ClassName {
-            val className = clazz.canonicalName().substring(clazz.packageName().length + 1)
-            return getDocumentClassFactoryForClass(clazz.packageName(), className)
+        fun getDocumentClassFactoryForClass(clazz: XClassName): XClassName {
+            val className = clazz.canonicalName.substring(clazz.packageName.length + 1)
+            return getDocumentClassFactoryForClass(clazz.packageName, className)
         }
 
         /**
@@ -200,30 +202,29 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          * this ordering is important because super classes must appear first in the list than child
          * classes to make property overrides work.
          */
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         @JvmStatic
-        fun generateClassHierarchy(element: TypeElement): List<TypeElement> {
-            val hierarchy: Deque<TypeElement> = ArrayDeque<TypeElement>()
-            if (element.getAnnotation(AutoValue::class.java) != null) {
+        fun generateClassHierarchy(element: XTypeElement): List<XTypeElement> {
+            val hierarchy: Deque<XTypeElement> = ArrayDeque<XTypeElement>()
+            if (element.hasAnnotation(AutoValue::class)) {
                 // We don't allow classes annotated with both Document and AutoValue to extend
                 // classes.
                 // Because of how AutoValue is set up, there is no way to add a constructor to
                 // populate fields of super classes.
                 // There should just be the generated class and the original annotated class
-                val superClass = MoreTypes.asTypeElement(element.superclass)
+                val superClass = element.superClass?.typeElement
                 if (
-                    !superClass.qualifiedName.contentEquals(
-                        java.lang.Object::class.java.canonicalName
-                    )
+                    superClass != null &&
+                        superClass.qualifiedName != java.lang.Object::class.java.canonicalName
                 ) {
-                    throw ProcessingException(
+                    throw XProcessingException(
                         "A class annotated with AutoValue and Document cannot have a superclass",
                         element,
                     )
                 }
                 hierarchy.add(element)
             } else {
-                val visited = mutableSetOf<TypeElement>()
+                val visited = mutableSetOf<XTypeElement>()
                 generateClassHierarchyHelper(element, element, hierarchy, visited)
             }
             return hierarchy.toList()
@@ -234,28 +235,32 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          *
          * Returns an empty list if no errors i.e. the method is a valid getter.
          */
-        fun validateIsGetter(method: ExecutableElement): MutableList<ProcessingException> {
-            val errors = mutableListOf<ProcessingException>()
+        fun validateIsGetter(method: XMethodElement): MutableList<XProcessingException> {
+            val errors = mutableListOf<XProcessingException>()
             if (method.parameters.isNotEmpty()) {
                 errors.add(
-                    ProcessingException("Getter cannot be used: should take no parameters", method)
+                    XProcessingException("Getter cannot be used: should take no parameters", method)
                 )
             }
-            if (method.modifiers.contains(Modifier.PRIVATE)) {
-                errors.add(ProcessingException("Getter cannot be used: private visibility", method))
+            if (method.isPrivate()) {
+                errors.add(
+                    XProcessingException("Getter cannot be used: private visibility", method)
+                )
             }
-            if (method.modifiers.contains(Modifier.STATIC)) {
-                errors.add(ProcessingException("Getter cannot be used: must not be static", method))
+            if (method.isStatic()) {
+                errors.add(
+                    XProcessingException("Getter cannot be used: must not be static", method)
+                )
             }
             return errors
         }
 
-        @Throws(ProcessingException::class)
+        @Throws(XProcessingException::class)
         private fun generateClassHierarchyHelper(
-            leafElement: TypeElement,
-            currentClass: TypeElement,
-            hierarchy: Deque<TypeElement>,
-            visited: MutableSet<TypeElement>,
+            leafElement: XTypeElement,
+            currentClass: XTypeElement,
+            hierarchy: Deque<XTypeElement>,
+            visited: MutableSet<XTypeElement>,
         ) {
             if (
                 currentClass.qualifiedName.contentEquals(java.lang.Object::class.java.canonicalName)
@@ -264,8 +269,8 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
             }
             // If you inherit from an AutoValue class, you have to implement the static methods.
             // That defeats the purpose of AutoValue
-            if (currentClass.getAnnotation(AutoValue::class.java) != null) {
-                throw ProcessingException(
+            if (currentClass.hasAnnotation(AutoValue::class)) {
+                throw XProcessingException(
                     "A class annotated with Document cannot inherit from a class " +
                         "annotated with AutoValue",
                     leafElement,
@@ -282,20 +287,20 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
             if (getDocumentAnnotation(currentClass) != null) {
                 hierarchy.addFirst(currentClass)
             }
-            val superclass = currentClass.superclass
+            val superclass = currentClass.superClass
             // If currentClass is an interface, then superclass could be NONE.
-            if (superclass.kind != TypeKind.NONE) {
+            if (superclass != null && !superclass.isNone()) {
                 generateClassHierarchyHelper(
                     leafElement,
-                    MoreTypes.asTypeElement(superclass),
+                    superclass.typeElement!!,
                     hierarchy,
                     visited,
                 )
             }
-            for (implementedInterface in currentClass.interfaces) {
+            for (implementedInterface in currentClass.superInterfaces) {
                 generateClassHierarchyHelper(
                     leafElement,
-                    MoreTypes.asTypeElement(implementedInterface),
+                    implementedInterface.typeElement!!,
                     hierarchy,
                     visited,
                 )
@@ -308,8 +313,9 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
          */
         @JvmStatic
         fun isNonNullKotlinField(getterOrField: AnnotatedGetterOrField): Boolean {
-            val metadata =
-                getterOrField.element.enclosingElement.getAnnotation(Metadata::class.java)
+            val enclosingElement: Element =
+                getterOrField.element.enclosingElement?.toJavac() ?: return false
+            val metadata: Metadata? = enclosingElement.getAnnotation(Metadata::class.java)
             if (metadata != null) {
                 val kotlinMetadata: KotlinClassMetadata = KotlinClassMetadata.readStrict(metadata)
                 if (kotlinMetadata is KotlinClassMetadata.Class) {
@@ -334,12 +340,12 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
      * Returns null if the property cannot be found in the class or interface, or if the property
      * matching the property name is not a document property.
      */
-    @Throws(ProcessingException::class)
+    @Throws(XProcessingException::class)
     fun getDocumentPropertyAnnotation(
-        clazz: TypeElement,
+        clazz: XTypeElement,
         propertyName: String,
     ): DocumentPropertyAnnotation? {
-        for (enclosedElement in clazz.enclosedElements) {
+        for (enclosedElement in clazz.getEnclosedElements()) {
             val getterOrField = tryCreateFor(enclosedElement, env)
             if (
                 getterOrField == null ||
@@ -362,23 +368,18 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
     }
 
     /** Checks whether the property data type is one of the valid types. */
-    fun isFieldOfExactType(property: Element, vararg validTypes: TypeMirror): Boolean {
-        val propertyType: TypeMirror = getPropertyType(property)
+    fun isFieldOfExactType(property: XElement, vararg validTypes: XType): Boolean {
+        val propertyType: XType = getPropertyType(property)
         for (validType in validTypes) {
-            if (propertyType.kind == TypeKind.ARRAY) {
-                if (typeUtils.isSameType((propertyType as ArrayType).componentType, validType)) {
+            if (propertyType.isArray()) {
+                if (propertyType.componentType.isSameType(validType)) {
                     return true
                 }
-            } else if (typeUtils.isAssignable(typeUtils.erasure(propertyType), collectionType)) {
-                if (
-                    typeUtils.isSameType(
-                        (propertyType as DeclaredType).typeArguments.first(),
-                        validType,
-                    )
-                ) {
+            } else if (collectionType.rawType.isAssignableFrom(propertyType.rawType)) {
+                if (validType.isSameType(propertyType.typeArguments.first())) {
                     return true
                 }
-            } else if (typeUtils.isSameType(propertyType, validType)) {
+            } else if (propertyType.isSameType(validType)) {
                 return true
             }
         }
@@ -386,74 +387,17 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
     }
 
     /** Checks whether the property data type is of boolean type. */
-    fun isFieldOfBooleanType(property: Element): Boolean {
+    fun isFieldOfBooleanType(property: XElement): Boolean {
         return isFieldOfExactType(property, booleanBoxType, booleanPrimitiveType)
     }
 
     /** Returns the annotation's params as a map. Includes the default values. */
-    fun getAnnotationParams(annotation: AnnotationMirror): Map<String, Any?> {
-        val values = env.elementUtils.getElementValuesWithDefaults(annotation)
-        val ret = mutableMapOf<String, Any?>()
-        for (entry in values.entries) {
-            val key = entry.key.simpleName.toString()
-            ret[key] = entry.value.value
+    fun getAnnotationParams(annotation: XAnnotation): Map<String, XAnnotationValue> {
+        val ret = mutableMapOf<String, XAnnotationValue>()
+        for (value in annotation.annotationValues) {
+            ret[value.name] = value
         }
         return ret
-    }
-
-    /**
-     * Returns all the methods within a class, whether inherited or declared directly.
-     *
-     * Caches results internally, so it is cheap to call subsequently for the same input.
-     */
-    fun getAllMethods(clazz: TypeElement): LinkedHashSet<ExecutableElement> {
-        return allMethodsCache.computeIfAbsent(clazz) { type: TypeElement ->
-            env.elementUtils
-                .getAllMembers(type)
-                .stream()
-                .filter { it.kind == ElementKind.METHOD }
-                .map { it as ExecutableElement }
-                .collect(Collectors.toCollection { LinkedHashSet() })
-        }
-    }
-
-    /** Whether a type is the same as `long[]`. */
-    fun isPrimitiveLongArray(type: TypeMirror): Boolean {
-        return isArrayOf(type, longPrimitiveType)
-    }
-
-    /** Whether a type is the same as `double[]`. */
-    fun isPrimitiveDoubleArray(type: TypeMirror): Boolean {
-        return isArrayOf(type, doublePrimitiveType)
-    }
-
-    /** Whether a type is the same as `boolean[]`. */
-    fun isPrimitiveBooleanArray(type: TypeMirror): Boolean {
-        return isArrayOf(type, booleanPrimitiveType)
-    }
-
-    private fun isArrayOf(type: TypeMirror, arrayComponentType: TypeMirror): Boolean {
-        return typeUtils.isSameType(type, typeUtils.getArrayType(arrayComponentType))
-    }
-
-    /**
-     * Same as [.validateIsGetter] but additionally verifies that the getter returns the specified
-     * type.
-     */
-    fun validateIsGetterThatReturns(
-        method: ExecutableElement,
-        expectedReturnType: TypeMirror,
-    ): MutableList<ProcessingException> {
-        val errors: MutableList<ProcessingException> = validateIsGetter(method)
-        if (!typeUtils.isAssignable(method.returnType, expectedReturnType)) {
-            errors.add(
-                ProcessingException(
-                    "Getter cannot be used: Does not return $expectedReturnType",
-                    method,
-                )
-            )
-        }
-        return errors
     }
 
     /**
@@ -469,29 +413,56 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
      * generic declaration within `Set<T>` with a return type of `boolean` and a single parameter of
      * type `T`.
      */
-    class MethodTypeAndElement(val type: ExecutableType, val element: ExecutableElement)
+    class MethodTypeAndElement(val type: XMethodType, val element: XMethodElement)
 
     /**
-     * Returns a stream of all the methods (including inherited) within a [DeclaredType].
+     * Returns a stream of all the methods (including inherited) within a type.
      *
      * Does not include constructors.
      */
-    fun getAllMethods(type: DeclaredType): Stream<MethodTypeAndElement> {
-        return elementUtils
-            .getAllMembers(type.asElement() as TypeElement)
-            .stream()
-            .filter { it.kind == ElementKind.METHOD }
-            .map {
-                MethodTypeAndElement(
-                    typeUtils.asMemberOf(type, it) as ExecutableType,
-                    it as ExecutableElement,
-                )
-            }
+    fun getAllMethods(type: XTypeElement): List<MethodTypeAndElement> {
+        return allMethodsCache.computeIfAbsent(type) { type: XTypeElement ->
+            type.getAllMethods().map { MethodTypeAndElement(it.asMemberOf(type.type), it) }.toList()
+        }
     }
 
-    /** Whether the method returns the specified type (or subtype). */
-    fun isReturnTypeMatching(method: ExecutableType, type: TypeMirror): Boolean {
-        return typeUtils.isAssignable(method.returnType, type)
+    /** Whether a type is the same as `long[]`. */
+    fun isPrimitiveLongArray(type: XType): Boolean {
+        return isArrayOf(type, longPrimitiveType)
+    }
+
+    /** Whether a type is the same as `double[]`. */
+    fun isPrimitiveDoubleArray(type: XType): Boolean {
+        return isArrayOf(type, doublePrimitiveType)
+    }
+
+    /** Whether a type is the same as `boolean[]`. */
+    fun isPrimitiveBooleanArray(type: XType): Boolean {
+        return isArrayOf(type, booleanPrimitiveType)
+    }
+
+    private fun isArrayOf(type: XType, arrayComponentType: XType): Boolean {
+        return type.isSameType(env.getArrayType(arrayComponentType))
+    }
+
+    /**
+     * Same as [.validateIsGetter] but additionally verifies that the getter returns the specified
+     * type.
+     */
+    fun validateIsGetterThatReturns(
+        method: XMethodElement,
+        expectedReturnType: XType,
+    ): MutableList<XProcessingException> {
+        val errors: MutableList<XProcessingException> = validateIsGetter(method)
+        if (!expectedReturnType.isAssignableFrom(method.returnType)) {
+            errors.add(
+                XProcessingException(
+                    "Getter cannot be used: Does not return $expectedReturnType",
+                    method,
+                )
+            )
+        }
+        return errors
     }
 
     /**
@@ -505,25 +476,15 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
      *
      * Returns null if no cast is necessary.
      */
-    fun getNarrowingCastType(sourceType: TypeMirror, targetType: TypeMirror): TypeMirror? {
-        if (
-            typeUtils.isSameType(targetType, intPrimitiveType) ||
-                typeUtils.isSameType(targetType, integerBoxType)
-        ) {
-            if (
-                typeUtils.isSameType(sourceType, longPrimitiveType) ||
-                    typeUtils.isSameType(sourceType, longBoxType)
-            ) {
+    fun getNarrowingCastType(sourceType: XType, targetType: XType): XType? {
+        if (targetType.isSameType(intPrimitiveType) || targetType.isSameType(integerBoxType)) {
+            if (sourceType.isSameType(longPrimitiveType) || sourceType.isSameType(longBoxType)) {
                 return intPrimitiveType
             }
         }
-        if (
-            typeUtils.isSameType(targetType, floatPrimitiveType) ||
-                typeUtils.isSameType(targetType, floatBoxType)
-        ) {
+        if (targetType.isSameType(floatPrimitiveType) || targetType.isSameType(floatBoxType)) {
             if (
-                typeUtils.isSameType(sourceType, doublePrimitiveType) ||
-                    typeUtils.isSameType(sourceType, doubleBoxType)
+                sourceType.isSameType(doublePrimitiveType) || sourceType.isSameType(doubleBoxType)
             ) {
                 return floatPrimitiveType
             }
@@ -532,12 +493,11 @@ class IntrospectionHelper internal constructor(private val env: ProcessingEnviro
     }
 
     /** Whether the element is a static method that returns the class it's enclosed within. */
-    fun isStaticFactoryMethod(element: Element): Boolean {
-        if (element.kind != ElementKind.METHOD || !element.modifiers.contains(Modifier.STATIC)) {
+    fun isStaticFactoryMethod(element: XElement): Boolean {
+        if (!element.isMethod() || !element.isStatic()) {
             return false
         }
-        val method = element as ExecutableElement
-        val enclosingType = method.enclosingElement.asType()
-        return typeUtils.isSameType(method.returnType, enclosingType)
+        val enclosingType: XType = element.enclosingElement.type ?: return false
+        return enclosingType.isAssignableFrom(element.returnType)
     }
 }

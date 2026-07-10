@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.vo
+
+import androidx.room3.compiler.codegen.XCodeBlock
+import androidx.room3.compiler.processing.XExecutableElement
+import androidx.room3.compiler.processing.isConstructor
+import androidx.room3.compiler.processing.isMethod
+
+/**
+ * Each Entity / data class we process has a constructor. It might be the empty constructor or a
+ * constructor with properties. It can also be a static factory function, such as in the case of an
+ * AutoValue data class.
+ */
+data class Constructor(val element: XExecutableElement, val params: List<Param>) {
+
+    fun hasProperty(property: Property): Boolean {
+        return params.any {
+            when (it) {
+                is Param.PropertyParam -> it.property === property
+                is Param.EmbeddedParam -> it.embedded.property === property
+                is Param.RelationParam -> it.relation.property === property
+                else -> false
+            }
+        }
+    }
+
+    fun writeConstructor(outVar: String, args: String, builder: XCodeBlock.Builder) {
+        when {
+            element.isConstructor() -> {
+                builder.addStatement(
+                    "%L = %L",
+                    outVar,
+                    XCodeBlock.ofNewInstance(element.enclosingElement.asClassName(), args),
+                )
+            }
+            element.isMethod() -> {
+                builder.addStatement(
+                    "%L = %T.%L(%L)",
+                    outVar,
+                    element.enclosingElement.asClassName(),
+                    element.name,
+                    args,
+                )
+            }
+            else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")
+        }
+    }
+
+    sealed class Param(val name: String, val hasDefaultValue: Boolean) {
+
+        abstract fun log(): String
+
+        class PropertyParam(name: String, hasDefaultValue: Boolean, val property: Property) :
+            Param(name, hasDefaultValue) {
+            override fun log(): String = property.getPath()
+        }
+
+        class EmbeddedParam(
+            name: String,
+            hasDefaultValue: Boolean,
+            val embedded: EmbeddedProperty,
+        ) : Param(name, hasDefaultValue) {
+            override fun log(): String = embedded.property.getPath()
+        }
+
+        class RelationParam(name: String, hasDefaultValue: Boolean, val relation: Relation) :
+            Param(name, hasDefaultValue) {
+            override fun log(): String = relation.property.getPath()
+        }
+
+        class UnmatchedDefaultValueParam(name: String) : Param(name, true) {
+            override fun log(): String = "unmatched"
+        }
+    }
+}

@@ -22,6 +22,7 @@ package androidx.savedstate
 
 import androidx.core.os.bundleOf
 
+@Suppress("TypealiasDefinition")
 public actual typealias SavedState = android.os.Bundle
 
 public actual inline fun savedState(
@@ -34,6 +35,7 @@ public actual inline fun savedState(
         } else {
             initialState.map { (key, value) -> key to value }.toTypedArray()
         }
+    @Suppress("DEPRECATION") // Bridge Map<String, Any?> to Bundle; no safe alternative.
     return bundleOf(*pairs).apply { write(builderAction) }
 }
 

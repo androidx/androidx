@@ -15,10 +15,12 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -32,8 +34,14 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Add a click area to the document */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickArea extends Operation
-        implements RemoteComposeOperation, AccessibleComponent, VariableSupport, Serializable {
+        implements RemoteComposeOperation,
+                AccessibleComponent,
+                VariableSupport,
+                VariableProvider,
+                Serializable,
+                ComponentData {
     private static final int OP_CODE = Operations.CLICK_AREA;
     private static final String CLASS_NAME = "ClickArea";
     int mId;
@@ -47,6 +55,16 @@ public class ClickArea extends Operation
     float mOutRight;
     float mOutBottom;
     int mMetadata;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * Add a click area to the document
@@ -204,13 +222,13 @@ public class ClickArea extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int contentDescription = buffer.readInt();
-        float left = buffer.readFloat();
-        float top = buffer.readFloat();
-        float right = buffer.readFloat();
-        float bottom = buffer.readFloat();
-        int metadata = buffer.readInt();
+        int id = buffer.declareId();
+        int contentDescription = buffer.readId();
+        float left = buffer.readNanId();
+        float top = buffer.readNanId();
+        float right = buffer.readNanId();
+        float bottom = buffer.readNanId();
+        int metadata = buffer.readId();
         ClickArea clickArea =
                 new ClickArea(id, contentDescription, left, top, right, bottom, metadata);
         operations.add(clickArea);
@@ -222,16 +240,22 @@ public class ClickArea extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Protocol Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("click_area")
                 .description("Define a region you can click on")
+                .field(DocumentedOperation.INT, "id", "The id of the click area")
+                .field(
+                        DocumentedOperation.INT,
+                        "contentDescription",
+                        "The content description (as a textId)")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the region")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the region")
                 .field(DocumentedOperation.FLOAT, "right", "The right side of the region")
                 .field(DocumentedOperation.FLOAT, "bottom", "The bottom of the region")
                 .field(
-                        DocumentedOperation.FLOAT,
+                        DocumentedOperation.INT,
                         "metadata",
-                        "user defined string accessible in callback");
+                        "User defined string (as a textId) accessible in callback");
     }
 
     @Override

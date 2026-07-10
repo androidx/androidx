@@ -19,7 +19,9 @@ package androidx.text.vertical
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
+import android.os.Build
 import android.text.TextPaint
+import androidx.test.filters.SdkSuppress
 import androidx.text.vertical.ResolvedOrientation.Rotate
 import androidx.text.vertical.ResolvedOrientation.TateChuYoko
 import androidx.text.vertical.ResolvedOrientation.Upright
@@ -29,7 +31,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TextRunsTest {
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+class LayoutRunTest {
     private val PREFIX = "PREFIX_PREFIX_PREFIX"
     private val SUFFIX = "SUFFIX_SUFFIX_SUFFIX"
     private val JAPANESE_TEXT = "あいうえお"
@@ -47,13 +50,23 @@ class TextRunsTest {
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
 
     private fun getVerticalAdvance(text: String): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
-        return PAINT.measureText(text)
+        try {
+            return PAINT.measureText(text)
+        } finally {
+            PAINT.flags = oldFlags
+        }
     }
 
     private fun getHorizontalAdvance(text: String): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        return PAINT.measureText(text)
+        try {
+            return PAINT.measureText(text)
+        } finally {
+            PAINT.flags = oldFlags
+        }
     }
 
     private fun getHorizontalLineHeight(text: String): Float {
@@ -85,7 +98,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `Upright SingleStyle Latin`() {
+    fun layoutRun_UprightSingleStyleLatin() {
         createLayoutRun(TEXT, LATIN_START, LATIN_END, Upright).run {
             assertThat(start).isEqualTo(LATIN_START)
             assertThat(end).isEqualTo(LATIN_END)
@@ -109,7 +122,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `Upright SingleStyle Japanese`() {
+    fun layoutRun_UprightSingleStyleJapanese() {
         createLayoutRun(TEXT, JAPANESE_START, JAPANESE_END, Upright).run {
             assertThat(start).isEqualTo(JAPANESE_START)
             assertThat(end).isEqualTo(JAPANESE_END)
@@ -133,7 +146,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `Rotate SingleStyle Latin`() {
+    fun layoutRun_RotateSingleStyleLatin() {
         createLayoutRun(TEXT, LATIN_START, LATIN_END, Rotate).run {
             assertThat(start).isEqualTo(LATIN_START)
             assertThat(end).isEqualTo(LATIN_END)
@@ -157,7 +170,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `Rotate SingleStyle Japanese`() {
+    fun layoutRun_RotateSingleStyleJapanese() {
         createLayoutRun(TEXT, JAPANESE_START, JAPANESE_END, Rotate).run {
             assertThat(start).isEqualTo(JAPANESE_START)
             assertThat(end).isEqualTo(JAPANESE_END)
@@ -181,7 +194,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `TateChuYoko SingleStyle Latin Can fit into 1em`() {
+    fun layoutRun_TateChuYokoSingleStyleLatinCanFitInto1em() {
         createLayoutRun(TEXT, LATIN_START, LATIN_START + 1, TateChuYoko).run {
             assertThat(start).isEqualTo(LATIN_START)
             assertThat(end).isEqualTo(LATIN_START + 1)
@@ -206,7 +219,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `TateChuYoko SingleStyle Japanese Can fit into 1em`() {
+    fun layoutRun_TateChuYokoSingleStyleJapaneseCanFitInto1em() {
         createLayoutRun(TEXT, JAPANESE_START, JAPANESE_START + 1, TateChuYoko).run {
             assertThat(start).isEqualTo(JAPANESE_START)
             assertThat(end).isEqualTo(JAPANESE_START + 1)
@@ -231,7 +244,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `TateChuYoko SingleStyle Latin Stretch`() {
+    fun layoutRun_TateChuYokoSingleStyleLatinStretch() {
         createLayoutRun(TEXT, LATIN_START, LATIN_START + 4, TateChuYoko).run {
             assertThat(start).isEqualTo(LATIN_START)
             assertThat(end).isEqualTo(LATIN_START + 4)
@@ -256,7 +269,7 @@ class TextRunsTest {
     }
 
     @Test
-    fun `TateChuYoko SingleStyle Japanese Stretch`() {
+    fun layoutRun_TateChuYokoSingleStyleJapaneseStretch() {
         createLayoutRun(TEXT, JAPANESE_START, JAPANESE_START + 4, TateChuYoko).run {
             assertThat(start).isEqualTo(JAPANESE_START)
             assertThat(end).isEqualTo(JAPANESE_START + 4)

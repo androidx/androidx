@@ -1,0 +1,250 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.core.layout;
+
+import static org.junit.Assert.assertEquals;
+
+import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.RemoteComposeBuffer;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.operations.Theme;
+import androidx.compose.remote.creation.RemoteComposeWriter;
+import androidx.compose.remote.serialization.yaml.YAMLSerializer;
+
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class LayoutTestPlayer {
+
+    /**
+     * Utility test function executing TestOperation on a document
+     *
+     * @param writer
+     * @param ops
+     * @param testParameters
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters) {
+        play(writer, ops, testParameters, 1000, 1000);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document
+     *
+     * @param writer
+     * @param ops
+     * @param testParameters
+     * @param tw1 width
+     * @param th1 height
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1) {
+        play(writer, ops, testParameters, tw1, th1, false);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer
+     * @param bufferSize
+     * @param ops
+     * @param testParameters
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters) {
+        play(byteBuffer, bufferSize, ops, testParameters, 1000, 1000);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer
+     * @param bufferSize
+     * @param ops
+     * @param testParameters
+     * @param tw1
+     * @param th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1) {
+        play(byteBuffer, bufferSize, ops, testParameters, tw1, th1, false);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document
+     *
+     * @param writer the writer generating the tested document
+     * @param ops a list of TestOperation
+     * @param testParameters parameters for the test
+     * @param tw1 document width
+     * @param th1 document height
+     * @param overridePlayerSize if true, set the player size to tw1, th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1,
+            boolean overridePlayerSize) {
+        play(writer.buffer(), writer.bufferSize(), ops, testParameters,
+                tw1, th1, overridePlayerSize);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document raw byte buffer
+     *
+     * @param byteBuffer the serialized document buffer
+     * @param bufferSize the size of the buffer
+     * @param ops a list of TestOperation
+     * @param testParameters parameters for the test
+     * @param tw1 document width
+     * @param th1 document height
+     * @param overridePlayerSize if true, set the player size to tw1, th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            byte[] byteBuffer,
+            int bufferSize,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1,
+            boolean overridePlayerSize) {
+        List<Map<String, Object>> commands = new ArrayList<>();
+
+        CoreDocument doc = new CoreDocument(testParameters.getClock());
+        RemoteComposeBuffer buffer =
+                RemoteComposeBuffer.fromInputStream(
+                        new ByteArrayInputStream(byteBuffer, 0, bufferSize));
+        doc.initFromBuffer(buffer);
+        MockRemoteContext debugContext = new MockRemoteContext();
+        debugContext.setAnimationEnabled(false);
+        debugContext.setDensity(doc.getDensity());
+        if (overridePlayerSize) {
+            debugContext.mWidth = tw1;
+            debugContext.mHeight = th1;
+        } else {
+            debugContext.mWidth = 0;
+            debugContext.mHeight = 0;
+        }
+        doc.initializeContext(debugContext);
+        // Ensure ID_WINDOW_WIDTH/HEIGHT match debugContext size (which might be 0)
+        // rather than the header size from initializeContext.
+        debugContext.loadFloat(RemoteContext.ID_WINDOW_WIDTH, debugContext.mWidth);
+        debugContext.loadFloat(RemoteContext.ID_WINDOW_HEIGHT, debugContext.mHeight);
+        doc.measure(debugContext, 0, tw1, 0, th1);
+
+        doc.paint(debugContext, Theme.UNSPECIFIED);
+        int needsRepaint = doc.needsRepaint();
+        int count = 0;
+        int max = 100;
+
+        // Initial paint of the document
+        while (needsRepaint != 0 && count < max) {
+            debugContext.currentTime += needsRepaint;
+            doc.paint(debugContext, Theme.UNSPECIFIED);
+            count++;
+            needsRepaint = doc.needsRepaint();
+        }
+
+        YAMLSerializer serializer = new YAMLSerializer();
+        doc.serialize(serializer.serializeMap());
+        Map<String, Object> snapshot = (Map<String, Object>) serializer.toObject();
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("description", "Initial State");
+        map.put("command", "Capture");
+        map.put("result", snapshot);
+        commands.add(map);
+
+        // Apply the test operations
+        for (TestOperation op : ops) {
+            boolean forceRepaint = op.apply(debugContext, doc, testParameters, commands);
+
+            // repaint as needed
+            needsRepaint = doc.needsRepaint();
+            if (needsRepaint == 0 && forceRepaint) {
+                needsRepaint = 1;
+            }
+            doc.needsMeasure();
+            count = 0;
+            while (needsRepaint != 0 && count < max) {
+                debugContext.currentTime += needsRepaint;
+                doc.paint(debugContext, Theme.UNSPECIFIED);
+                count++;
+                needsRepaint = doc.needsRepaint();
+            }
+        }
+
+        Yaml yaml = new Yaml();
+        String yamlString = yaml.dump(commands);
+        String testName = testParameters.getName();
+        if (testParameters.captureGoldFiles()) {
+            File file = new File("tests/" + testName + ".layout");
+            System.out.println("Write file to " + file.getPath());
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                OutputStreamWriter osw = new OutputStreamWriter(fos);
+                osw.write(yamlString);
+                osw.flush();
+                osw.close();
+                fos.close();
+            } catch (Exception e) {
+                // handle exception
+            }
+        } else {
+            Path filePath = Paths.get("tests/" + testName + ".layout");
+            try {
+                String fileContent = Files.readString(filePath);
+                assertEquals("Layout Test", fileContent, yamlString);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+}

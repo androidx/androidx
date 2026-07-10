@@ -173,6 +173,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public SearchOrbView.@Nullable Colors getSearchAffordanceColors() {
         return mSearchOrbView.getOrbColors();
     }

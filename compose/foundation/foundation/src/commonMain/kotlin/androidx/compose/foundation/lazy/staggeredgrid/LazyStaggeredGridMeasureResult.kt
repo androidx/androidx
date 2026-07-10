@@ -102,6 +102,9 @@ sealed interface LazyStaggeredGridLayoutInfo {
 
     /** The spacing between items in scroll direction. */
     val mainAxisItemSpacing: Int
+
+    /** Whether the direction of scrolling and layout is reversed. */
+    @get:Suppress("GetterSetterNames") val reverseLayout: Boolean
 }
 
 internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
@@ -142,6 +145,7 @@ internal class LazyStaggeredGridMeasureResult(
     override val afterContentPadding: Int,
     override val mainAxisItemSpacing: Int,
     val coroutineScope: CoroutineScope,
+    override val reverseLayout: Boolean,
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -235,6 +239,7 @@ internal class LazyStaggeredGridMeasureResult(
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = mainAxisItemSpacing,
             coroutineScope = coroutineScope,
+            reverseLayout = reverseLayout,
         )
     }
 }
@@ -271,6 +276,7 @@ internal val EmptyLazyStaggeredGridLayoutInfo =
         density = Density(1f),
         scrollBackAmount = 0f,
         coroutineScope = CoroutineScope(EmptyCoroutineContext),
+        reverseLayout = false,
     )
 
 internal fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
@@ -285,6 +291,16 @@ internal fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
             }
         }
     return itemSizeSum / visibleItems.size + mainAxisItemSpacing
+}
+
+internal fun LazyStaggeredGridLayoutInfo.calculateContentSize(laneCount: Int): Int {
+    val contentPadding = beforeContentPadding + afterContentPadding
+    if (totalItemsCount == 0 || laneCount <= 0) return contentPadding
+
+    val contentSizeWithSpacing =
+        (visibleItemsAverageSize() * totalItemsCount) / laneCount - mainAxisItemSpacing
+
+    return contentSizeWithSpacing + contentPadding
 }
 
 internal val LazyStaggeredGridLayoutInfo.singleAxisViewportSize: Int

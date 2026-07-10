@@ -35,7 +35,6 @@ import org.jspecify.annotations.Nullable;
  * the type of content interacted with, the ID of the triggered action, and potentially
  * details about the specific element (like an image or link).
  */
-@ExperimentalCustomContentAction
 public final class ContentActionSelectedData {
 
     private final Intent mIntent;
@@ -67,6 +66,16 @@ public final class ContentActionSelectedData {
      */
     public @Nullable Uri getPageUrl() {
         return mIntent.getData();
+    }
+
+    /**
+     * Gets the title of the current web page in the Custom Tab when the action was triggered.
+     *
+     * @return The page title as a String, or {@code null} if not present or not applicable.
+     * @see CustomTabsIntent#EXTRA_CONTEXT_PAGE_TITLE
+     */
+    public @Nullable String getPageTitle() {
+        return mIntent.getStringExtra(CustomTabsIntent.EXTRA_CONTEXT_PAGE_TITLE);
     }
 
     /**

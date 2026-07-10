@@ -27,7 +27,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
+
+import org.jspecify.annotations.NonNull;
 
 public class TestUtils {
     /**

@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Tests for {@link ConnectionHolder}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.browser.trusted" })
+@Config(instrumentedPackages = {"androidx.browser.trusted"}, sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ConnectionHolderTest {
     private final TestWrapperFactory mWrapperFactory = new TestWrapperFactory();

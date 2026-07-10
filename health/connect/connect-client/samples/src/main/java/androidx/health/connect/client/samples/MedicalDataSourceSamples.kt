@@ -19,6 +19,7 @@
 package androidx.health.connect.client.samples
 
 import android.net.Uri
+import androidx.annotation.RequiresPermission
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_PERSONAL_HEALTH_RECORD
@@ -29,6 +30,7 @@ import androidx.health.connect.client.records.MedicalDataSource
 import androidx.health.connect.client.request.CreateMedicalDataSourceRequest
 import androidx.health.connect.client.request.GetMedicalDataSourcesRequest
 
+@RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA")
 @OptIn(ExperimentalPersonalHealthRecordApi::class)
 @Sampled
 suspend fun CreateMedicalDataSourceSample(healthConnectClient: HealthConnectClient) {
@@ -52,6 +54,7 @@ suspend fun CreateMedicalDataSourceSample(healthConnectClient: HealthConnectClie
         )
 }
 
+@RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA")
 @OptIn(ExperimentalPersonalHealthRecordApi::class)
 @Sampled
 suspend fun DeleteMedicalDataSourceWithDataSample(healthConnectClient: HealthConnectClient) {
@@ -78,6 +81,7 @@ suspend fun DeleteMedicalDataSourceWithDataSample(healthConnectClient: HealthCon
     healthConnectClient.deleteMedicalDataSourceWithData(medicalDataSource.id)
 }
 
+@RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA")
 @OptIn(ExperimentalPersonalHealthRecordApi::class)
 @Sampled
 suspend fun GetMedicalDataSourcesByRequestSample(
@@ -111,6 +115,7 @@ suspend fun GetMedicalDataSourcesByRequestSample(
         )
 }
 
+@RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA")
 @OptIn(ExperimentalPersonalHealthRecordApi::class)
 @Sampled
 suspend fun GetMedicalDataSourcesByIdsSample(

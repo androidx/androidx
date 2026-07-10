@@ -97,46 +97,4 @@ public class ContentCaptureSessionCompatTest extends
 
         assertNotNull(result);
     }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33)
-    public void testNotifyViewsAppeared_throwsNPEBetweenSDK29And33() {
-        ContentCaptureSession mockContentCaptureSession = mock(ContentCaptureSession.class);
-        ViewStructure mockViewStructure = mock(ViewStructure.class);
-        List<ViewStructure> viewStructures = new ArrayList<>();
-        viewStructures.add(mockViewStructure);
-        ContentCaptureSessionCompat contentCaptureSessionCompat =
-                ContentCaptureSessionCompat.toContentCaptureSessionCompat(
-                        mockContentCaptureSession, mView);
-
-        // Some final methods in the mock object throw NPE.
-        assertThrows(NullPointerException.class,
-                () -> contentCaptureSessionCompat.notifyViewsAppeared(viewStructures));
-    }
-
-    @Test
-    public void testNotifyViewsDisappeared_throwsNPEAboveSDK29() {
-        ContentCaptureSession mockContentCaptureSession = mock(ContentCaptureSession.class);
-        long[] ids = {1L};
-        ContentCaptureSessionCompat contentCaptureSessionCompat =
-                ContentCaptureSessionCompat.toContentCaptureSessionCompat(
-                        mockContentCaptureSession, mView);
-
-        // Some final methods in the mock object throw NPE.
-        assertThrows(NullPointerException.class,
-                () -> contentCaptureSessionCompat.notifyViewsDisappeared(ids));
-    }
-
-    @Test
-    public void testNotifyViewTextChanged_throwsNPEAboveSDK29() {
-        ContentCaptureSession mockContentCaptureSession = mock(ContentCaptureSession.class);
-        ContentCaptureSessionCompat contentCaptureSessionCompat =
-                ContentCaptureSessionCompat.toContentCaptureSessionCompat(
-                        mockContentCaptureSession, mView);
-        AutofillId mockAutofillId = mock(AutofillId.class);
-
-        // Some final methods in the mock object throw NPE.
-        assertThrows(NullPointerException.class,
-                () -> contentCaptureSessionCompat.notifyViewTextChanged(mockAutofillId, "test"));
-    }
 }

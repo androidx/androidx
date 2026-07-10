@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.benchmark.traceprocessor
 
-import androidx.annotation.RequiresApi
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
-import java.io.File
 
 /**
  * Record a Perfetto System Trace for the specified [block].
@@ -41,7 +39,6 @@ import java.io.File
  *
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
-@RequiresApi(23)
 @ExperimentalPerfettoCaptureApi
 fun PerfettoTrace.Companion.record(
     /**
@@ -102,7 +99,6 @@ fun PerfettoTrace.Companion.record(
  *
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
-@RequiresApi(23)
 @ExperimentalPerfettoCaptureApi
 fun PerfettoTrace.Companion.record(
     /**
@@ -113,17 +109,6 @@ fun PerfettoTrace.Companion.record(
     fileLabel: String,
     /** Trace recording configuration. */
     config: PerfettoConfig,
-    /**
-     * Process to emphasize in the tracing UI.
-     *
-     * Used to emphasize the target process, e.g. by pre-populating Studio trace viewer process
-     * selection.
-     *
-     * Defaults to the test's target process. Note that for self-instrumenting tests that measure
-     * another app, you must pass that target app package.
-     */
-    highlightPackage: String =
-        InstrumentationRegistry.getInstrumentation().targetContext.packageName,
     /**
      * Process to trace with userspace tracing, i.e. `androidx.tracing:tracing-perfetto`, ignored
      * below API 30.
@@ -146,21 +131,14 @@ fun PerfettoTrace.Companion.record(
         .record(
             fileLabel = fileLabel,
             config,
-            perfettoSdkConfig =
+            tracingLibraryConfig =
                 userspaceTracingPackage?.let {
-                    PerfettoCapture.PerfettoSdkConfig(it, InitialProcessState.Unknown)
-                },
-            traceCallback = { path ->
-                File(path)
-                    .appendUiState(
-                        UiState(
-                            timelineStart = null,
-                            timelineEnd = null,
-                            highlightPackage = highlightPackage,
-                        )
+                    PerfettoCapture.TracingLibraryConfig(
+                        targetPackage = it,
+                        processState = InitialProcessState.Unknown,
                     )
-                traceCallback?.invoke(PerfettoTrace(path))
-            },
+                },
+            traceCallback = { path -> traceCallback?.invoke(PerfettoTrace(path)) },
             block = block,
         )
 }

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw a Rectangle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawRect extends DrawBase4 {
     private static final int OP_CODE = Operations.DRAW_RECT;
     private static final String CLASS_NAME = "DrawRect";
@@ -69,6 +71,7 @@ public class DrawRect extends DrawBase4 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_rect")
                 .description("Draw the specified rectangle")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the rectangle")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the rectangle")

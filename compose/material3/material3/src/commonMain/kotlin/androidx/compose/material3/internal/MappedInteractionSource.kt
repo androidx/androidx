@@ -23,11 +23,13 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Adapts an [InteractionSource] from one component to another by mapping any interactions by a
- * given offset. Namely used for the pill indicator in [NavigationBarItem] and [NavigationRailItem].
+ * given offset. Namely used for the pill indicator in
+ * [androidx.compose.material3.NavigationBarItem] and
+ * [androidx.compose.material3.NavigationRailItem].
  */
 internal class MappedInteractionSource(
     underlyingInteractionSource: InteractionSource,
-    private val delta: Offset,
+    private val calculateDelta: () -> Offset,
 ) : InteractionSource {
     private val mappedPresses = mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
 
@@ -60,5 +62,5 @@ internal class MappedInteractionSource(
         }
 
     private fun mapPress(press: PressInteraction.Press): PressInteraction.Press =
-        PressInteraction.Press(press.pressPosition - delta)
+        PressInteraction.Press(press.pressPosition - calculateDelta())
 }

@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
  * results in `json`.
  */
 class DarwinBenchmarkPlugin : Plugin<Project> {
+    @Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
     override fun apply(project: Project) {
         val extension =
             project.extensions.create("darwinBenchmark", DarwinBenchmarkPluginExtension::class.java)
@@ -81,7 +82,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
             }
 
         // Configure the XCode Build Service so we don't run too many benchmarks at the same time.
-        project.configureXCodeBuildService()
+        val service = project.configureXCodeBuildService()
 
         val fetchXCodeGenTask =
             project.tasks.register(FETCH_XCODEGEN_TASK, FetchXCodeGenTask::class.java) {
@@ -105,11 +106,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
                 RUN_DARWIN_BENCHMARKS_TASK,
                 RunDarwinBenchmarksTask::class.java,
             ) {
-                val sharedService =
-                    project.gradle.sharedServices.registrations
-                        .getByName(XCodeBuildService.XCODE_BUILD_SERVICE_NAME)
-                        .service
-                it.usesService(sharedService)
+                it.usesService(service)
                 it.xcodeProjectPath.set(
                     generateXCodeProjectTask.flatMap { task -> task.xcProjectPath }
                 )

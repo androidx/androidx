@@ -637,32 +637,32 @@ val SERIALIZABLE_TEST_CLASS =
         "androidx/testSerializable",
         0xdfbaa178,
         """
-package androidx.testSerializable
+        package androidx.testSerializable
 
-import kotlinx.serialization.Serializable
+        import kotlinx.serialization.Serializable
 
-@Serializable class TestClass
-@Serializable object TestObject
-@Serializable data object TestDataObject
-@Serializable object Outer {
-    @Serializable data object InnerObject
-    @Serializable class InnerClass
-    class InnerClassNotUsed
-}
+        @Serializable class TestClass
+        @Serializable object TestObject
+        @Serializable data object TestDataObject
+        @Serializable object Outer {
+            @Serializable data object InnerObject
+            @Serializable class InnerClass
+            class InnerClassNotUsed
+        }
 
-// interface should not require @Serializable
-interface TestInterface
+        // interface should not require @Serializable
+        interface TestInterface
 
-@Serializable class InterfaceChildClass: TestInterface
-@Serializable object InterfaceChildObject: TestInterface
+        @Serializable class InterfaceChildClass: TestInterface
+        @Serializable object InterfaceChildObject: TestInterface
 
-@Serializable abstract class TestAbstract
-@Serializable class AbstractChildClass(): TestAbstract()
-@Serializable object AbstractChildObject: TestAbstract()
+        @Serializable abstract class TestAbstract
+        @Serializable class AbstractChildClass(): TestAbstract()
+        @Serializable object AbstractChildObject: TestAbstract()
 
-@Serializable sealed class SealedClass {
-    @Serializable class SealedSubClass : SealedClass()
-}
+        @Serializable sealed class SealedClass {
+            @Serializable class SealedSubClass : SealedClass()
+        }
         """
             .trimIndent(),
     )
@@ -673,65 +673,65 @@ val TEST_CLASS =
         "androidx/test",
         0x1ed6fc53,
         """
-package androidx.test
+        package androidx.test
 
-val classInstanceRef = TestClass()
+        val classInstanceRef = TestClass()
 
-val classInstanceWithArgRef = TestClassWithArg(15)
+        val classInstanceWithArgRef = TestClassWithArg(15)
 
-val innerClassInstanceRef = Outer.InnerClass(15)
+        val innerClassInstanceRef = Outer.InnerClass(15)
 
-object TestGraph
+        object TestGraph
 
-object TestObject
+        object TestObject
 
-data object TestDataObject
+        data object TestDataObject
 
-class TestClass
+        class TestClass
 
-class TestClassWithArg(val arg: Int)
+        class TestClassWithArg(val arg: Int)
 
-object Outer {
-    data object InnerObject
+        object Outer {
+            data object InnerObject
 
-    data class InnerClass (
-        val innerArg: Int,
-    )
-    class InnerClassNotUsed
-}
+            data class InnerClass (
+                val innerArg: Int,
+            )
+            class InnerClassNotUsed
+        }
 
-interface TestInterface
-class InterfaceChildClass(val arg: Boolean): TestInterface
-object InterfaceChildObject: TestInterface
+        interface TestInterface
+        class InterfaceChildClass(val arg: Boolean): TestInterface
+        object InterfaceChildObject: TestInterface
 
-abstract class TestAbstract
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-object AbstractChildObject: TestAbstract()
+        abstract class TestAbstract
+        class AbstractChildClass(val arg: Boolean): TestAbstract()
+        object AbstractChildObject: TestAbstract()
 
-sealed class SealedClass {
-    class SealedSubClass : SealedClass()
-}
+        sealed class SealedClass {
+            class SealedSubClass : SealedClass()
+        }
 
 
-// classes with companion object to simulate classes marked with @Serializable
-class TestClassComp { companion object }
+        // classes with companion object to simulate classes marked with @Serializable
+        class TestClassComp { companion object }
 
-class TestClassWithArgComp(val arg: Int) { companion object }
+        class TestClassWithArgComp(val arg: Int) { companion object }
 
-object OuterComp {
-    data object InnerObject
+        object OuterComp {
+            data object InnerObject
 
-    data class InnerClassComp (
-        val innerArg: Int,
-    ) { companion object }
-}
+            data class InnerClassComp (
+                val innerArg: Int,
+            ) { companion object }
+        }
 
-class InterfaceChildClassComp(val arg: Boolean): TestInterface { companion object }
+        class InterfaceChildClassComp(val arg: Boolean): TestInterface { companion object }
 
-abstract class TestAbstractComp { companion object }
-class AbstractChildClassComp(val arg: Boolean): TestAbstractComp() { companion object }
-object AbstractChildObjectComp: TestAbstractComp()
-    """
+        abstract class TestAbstractComp { companion object }
+        class AbstractChildClassComp(val arg: Boolean): TestAbstractComp() { companion object }
+        object AbstractChildObjectComp: TestAbstractComp()
+        """
             .trimIndent(),
         """
 META-INF/main.kotlin_module:

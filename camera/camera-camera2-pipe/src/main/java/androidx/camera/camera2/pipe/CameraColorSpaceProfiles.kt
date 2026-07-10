@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import androidx.camera.common.UnsafeWrapper
+import java.lang.Class
 
 /**
  * A compatibility wrapper for color space profiles.
@@ -40,4 +42,26 @@ public interface CameraColorSpaceProfiles : UnsafeWrapper {
         imageFormat: StreamFormat,
         dynamicRangeProfile: OutputStream.DynamicRangeProfile,
     ): Set<CameraColorSpace>
+}
+
+/** Returned for [CameraColorSpaceProfiles] on devices that do not support them. */
+internal object UnsupportedCameraColorSpaceProfiles : CameraColorSpaceProfiles {
+    override fun getSupportedColorSpaces(imageFormat: StreamFormat): Set<CameraColorSpace> =
+        emptySet()
+
+    override fun getSupportedImageFormatsForColorSpace(
+        cameraColorSpace: CameraColorSpace
+    ): Set<StreamFormat> = emptySet()
+
+    override fun getSupportedDynamicRangeProfiles(
+        cameraColorSpace: CameraColorSpace,
+        imageFormat: StreamFormat,
+    ): Set<OutputStream.DynamicRangeProfile> = emptySet()
+
+    override fun getSupportedColorSpacesForDynamicRange(
+        imageFormat: StreamFormat,
+        dynamicRangeProfile: OutputStream.DynamicRangeProfile,
+    ): Set<CameraColorSpace> = emptySet()
+
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 }

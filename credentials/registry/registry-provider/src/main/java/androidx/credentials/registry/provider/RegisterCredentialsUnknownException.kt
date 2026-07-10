@@ -22,7 +22,9 @@ package androidx.credentials.registry.provider
  *
  * @param errorMessage the error message
  */
-public class RegisterCredentialsUnknownException(errorMessage: CharSequence? = null) :
+public class RegisterCredentialsUnknownException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
     RegisterCredentialsException(
         type = TYPE_REGISTER_CREDENTIALS_UNKNOWN_EXCEPTION,
         errorMessage = errorMessage,

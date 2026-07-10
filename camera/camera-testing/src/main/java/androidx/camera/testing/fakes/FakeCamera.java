@@ -61,6 +61,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * A fake camera which will not produce any data, but provides a valid Camera implementation.
  */
+@SuppressWarnings("HiddenSuperclass")
 public class FakeCamera implements CameraInternal {
     private static final String TAG = "FakeCamera";
     private static final String DEFAULT_CAMERA_ID = "0";
@@ -492,6 +493,7 @@ public class FakeCamera implements CameraInternal {
         mConfiguredDeferrableSurfaces.clear();
     }
 
+    @SuppressWarnings("GetterSetterNullability")
     @Override
     public @NonNull CameraConfig getExtendedConfig() {
         return mCameraConfig;
@@ -508,11 +510,32 @@ public class FakeCamera implements CameraInternal {
         return mState == State.RELEASED;
     }
 
-    private void setState(CameraInternal.State state) {
+    /**
+     * Sets the internal state of the camera without an error.
+     *
+     * <p>This is a convenience method for testing that calls
+     * {@link #setState(State, CameraState.StateError)} with a null error.
+     *
+     * @param state The new internal state for the camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setState(CameraInternal.@NonNull State state) {
         setState(state, null);
     }
 
-    private void setState(CameraInternal.State state, CameraState.StateError stateError) {
+    /**
+     * Sets the internal state of the camera, optionally with an error.
+     *
+     * <p>This method is used in tests to simulate various camera lifecycle states and error
+     * conditions. It updates both the internal state observable and the public-facing
+     * {@link CameraState}.
+     *
+     * @param state      The new internal state for the camera.
+     * @param stateError The associated error, or {@code null} if there is no error.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setState(CameraInternal.@NonNull State state,
+            CameraState.@Nullable StateError stateError) {
         mState = state;
         mObservableState.postValue(state);
         if (mCameraInfoInternal instanceof FakeCameraInfoInternal) {
@@ -610,6 +633,7 @@ public class FakeCamera implements CameraInternal {
      * Returns true if {@link #onRemoved()} has been called on this instance.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
     public boolean isRemoved() {
         return mIsRemoved;
     }

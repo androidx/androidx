@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,8 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -50,6 +53,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowWindow;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.ALL_SDKS})
 public class PreviewViewTest {
     private final Context mAppContext = ApplicationProvider.getApplicationContext();
     private PreviewView mPreviewView;
@@ -201,6 +205,48 @@ public class PreviewViewTest {
         }
     }
 
+    @Test
+    public void getScreenFlashReturnsNull_whenControllerSetButNoWindowSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+
+        mPreviewView.setController(cameraController);
+
+        assertThat(mPreviewView.getScreenFlash()).isNull();
+    }
+
+    @Test
+    public void canSetFlashModeScreen_whenWindowSetAndThenControllerSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+        cameraController.setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA);
+
+        mPreviewView.setScreenFlashWindow(mWindow);
+        mPreviewView.setController(cameraController);
+
+        cameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+    }
+
+    @Test
+    public void canSetFlashModeScreen_whenControllerSetAndThenWindowSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+        cameraController.setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA);
+
+        mPreviewView.setController(cameraController);
+        mPreviewView.setScreenFlashWindow(mWindow);
+
+        cameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+    }
+
+    @Test
+    public void setFlashModeScreenThrowsException_whenControllerSetWithoutScreenFlashWindow() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+        cameraController.setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA);
+
+        mPreviewView.setController(cameraController);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> cameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_SCREEN));
+    }
+
     private SurfaceRequest createSurfaceRequestCompatibleWithSurfaceView() {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
         cameraInfoInternal.setImplementationType(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
@@ -218,7 +264,7 @@ public class PreviewViewTest {
     }
 
     @Test
-    @Config(instrumentedPackages = {"androidx.camera.view"})
+    @Config(sdk = {Config.ALL_SDKS}, instrumentedPackages = {"androidx.camera.view"})
     public void registerAndUnregisterDisplayListener_notInEditMode() {
         // 1. Create a spy of the view to track method calls
         PreviewView previewViewSpy = Mockito.spy(mPreviewView);
@@ -241,7 +287,7 @@ public class PreviewViewTest {
     }
 
     @Test
-    @Config(instrumentedPackages = {"androidx.camera.view"})
+    @Config(sdk = {Config.ALL_SDKS}, instrumentedPackages = {"androidx.camera.view"})
     public void doesNotRegisterAndUnregisterDisplayListener_inEditMode() {
         // 1. Create a spy of the view to track method calls
         PreviewView previewViewSpy = Mockito.spy(mPreviewView);

@@ -136,7 +136,10 @@ public class AsyncRequestWorker(appContext: Context, params: WorkerParameters) :
             asMap()
                 .map { (key, value) -> key.name to value }
                 .toTypedArray()
-                .let { bundleOf(ExtraParameters to bundleOf(*it)) }
+                .let {
+                    @Suppress("DEPRECATION") // bundleOf is deprecated
+                    bundleOf(ExtraParameters to bundleOf(*it))
+                }
                 .toBytes()
 
         fun actionParametersFromBytes(bytes: ByteArray): ActionParameters =

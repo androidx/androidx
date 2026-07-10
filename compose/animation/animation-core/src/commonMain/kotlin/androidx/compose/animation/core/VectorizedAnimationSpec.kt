@@ -521,20 +521,23 @@ public value class ArcMode internal constructor(internal val value: Int) {
          * Interpolates using a quarter of an Ellipse where the curve is "above" the center of the
          * Ellipse.
          */
-        public val ArcAbove: ArcMode = ArcMode(ArcSplineArcAbove)
+        public val ArcAbove: ArcMode
+            get() = ArcMode(ArcSplineArcAbove)
 
         /**
          * Interpolates using a quarter of an Ellipse where the curve is "below" the center of the
          * Ellipse.
          */
-        public val ArcBelow: ArcMode = ArcMode(ArcSplineArcBelow)
+        public val ArcBelow: ArcMode
+            get() = ArcMode(ArcSplineArcBelow)
 
         /**
          * An [ArcMode] that forces linear interpolation.
          *
          * You'll likely only use this mode within a keyframe.
          */
-        public val ArcLinear: ArcMode = ArcMode(ArcSplineArcStartLinear)
+        public val ArcLinear: ArcMode
+            get() = ArcMode(ArcSplineArcStartLinear)
     }
 }
 
@@ -875,11 +878,25 @@ private constructor(
     )
 }
 
+// Cache default spring parameters to reduce allocations for the default case.
+private object DefaultSpringAnimations : Animations {
+    private val anim = FloatSpringSpec(Spring.DampingRatioNoBouncy, Spring.StiffnessMedium)
+
+    override fun get(index: Int): FloatSpringSpec = anim
+}
+
 private fun <V : AnimationVector> createSpringAnimations(
     visibilityThreshold: V?,
     dampingRatio: Float,
     stiffness: Float,
 ): Animations {
+    if (
+        visibilityThreshold == null &&
+            dampingRatio == Spring.DampingRatioNoBouncy &&
+            stiffness == Spring.StiffnessMedium
+    ) {
+        return DefaultSpringAnimations
+    }
     return if (visibilityThreshold != null) {
         object : Animations {
             private val anims =

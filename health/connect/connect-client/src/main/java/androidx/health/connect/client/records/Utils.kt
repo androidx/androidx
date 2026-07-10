@@ -23,20 +23,40 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
+// We additionally check for SDK_INT check for Robolectric tests, which doesn't fully support
+// SdkExtensions.
+@RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension10(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM ||
+        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10
+}
+
 @RequiresApi(Build.VERSION_CODES.R)
 internal fun isAtLeastSdkExtension13(): Boolean {
-    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM ||
+        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
 internal fun isAtLeastSdkExtension15(): Boolean {
-    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA ||
+        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
 internal fun isAtLeastSdkExtension16(): Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA ||
         SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 16
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension21(): Boolean {
+    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 21
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension23(): Boolean {
+    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 23
 }
 
 internal fun <T : Comparable<T>> T.requireNotLess(other: T, name: String) {

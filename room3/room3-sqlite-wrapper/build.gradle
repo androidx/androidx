@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+import com.google.devtools.ksp.gradle.KspAATask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.google.devtools.ksp")
+}
+
+dependencies {
+    api(project(":room3:room3-runtime"))
+    api("androidx.sqlite:sqlite:2.7.0-rc01")
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation(project(":room3:room3-runtime"))
+    kspAndroidTest(project(":room3:room3-compiler"))
+    androidTestImplementation(project(":sqlite:sqlite-bundled"))
+}
+
+android {
+    namespace = "androidx.room3.sqlite.wrapper"
+}
+
+androidx {
+    name = "androidx.room3:room3-sqlite-wrapper"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2025"
+    description = "Use SupportSQLite APIs backed by a RoomDatabase"
+}

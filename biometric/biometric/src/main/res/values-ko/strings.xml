@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"지문 인증 대화상자"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"지문 센서를 터치하세요."</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"인식할 수 없음"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"지문 인식 하드웨어를 사용할 수 없습니다."</string>

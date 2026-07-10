@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.nativePaint
 
 /** RenderNode on Q+ devices, where it is officially supported. */
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -210,7 +211,7 @@ internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRender
     private fun RenderNode.applyCompositingStrategy(compositingStrategy: CompositingStrategy) {
         when (compositingStrategy) {
             CompositingStrategy.Offscreen -> {
-                setUseCompositingLayer(true, layerPaint?.asFrameworkPaint())
+                setUseCompositingLayer(true, layerPaint?.nativePaint)
                 setHasOverlappingRendering(true)
             }
             CompositingStrategy.ModulateAlpha -> {

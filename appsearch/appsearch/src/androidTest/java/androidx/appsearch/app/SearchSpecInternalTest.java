@@ -139,6 +139,7 @@ public class SearchSpecInternalTest {
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
                 .addEmbeddingParameters(embedding1, embedding2)
+                .setEmbeddingQueryProbeCount(10)
                 .build();
 
         // Check that copy constructor works.
@@ -149,6 +150,7 @@ public class SearchSpecInternalTest {
                 searchSpec.getDefaultEmbeddingSearchMetricType());
         assertThat(searchSpecCopy.getEmbeddingParameters()).containsExactlyElementsIn(
                 searchSpec.getEmbeddingParameters());
+        assertThat(searchSpecCopy.getEmbeddingQueryProbeCount()).isEqualTo(10);
     }
 
     @Test

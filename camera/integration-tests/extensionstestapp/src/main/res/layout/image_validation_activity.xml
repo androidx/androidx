@@ -17,7 +17,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/constraintLayout"
+    android:id="@+id/image_validation_activity_root"
     android:background="@android:color/darker_gray"
     android:layout_width="match_parent"
     android:layout_height="match_parent">

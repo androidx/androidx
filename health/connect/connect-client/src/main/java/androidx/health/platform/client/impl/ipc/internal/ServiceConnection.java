@@ -16,6 +16,8 @@
 
 package androidx.health.platform.client.impl.ipc.internal;
 
+import static androidx.health.platform.client.utils.SignatureVerification.isTargetSignatureValid;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.content.ComponentName;
@@ -47,7 +49,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  * is associated with one AIDL file .
  *
  * <p>Note: this class is not thread safe and should be called always from the same thread.
- *
  */
 @NotThreadSafe
 @RestrictTo(Scope.LIBRARY)
@@ -63,7 +64,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         /**
          * Called when the connection to the server was lost.
          *
-         * @param connection       Represents this connection to a service.
+         * @param connection Represents this connection to a service.
          * @param reconnectDelayMs Delay before the caller should try to reconnect this connection.
          */
         void onDisconnected(ServiceConnection connection, long reconnectDelayMs);
@@ -84,13 +85,13 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private final Map<ListenerKey, QueueOperation> mRegisteredListeners = new HashMap<>();
     private final Callback mCallback;
 
-    @VisibleForTesting
-    @Nullable IBinder mBinder;
+    @VisibleForTesting @Nullable IBinder mBinder;
 
-    @VisibleForTesting
-    volatile boolean mIsServiceBound;
+    @VisibleForTesting volatile boolean mIsServiceBound;
+
     /** Denotes how many times connection to the service failed and we retried. */
     private int mServiceConnectionRetry;
+
     private final IBinder.DeathRecipient mDeathRecipient;
 
     ServiceConnection(
@@ -102,13 +103,13 @@ public class ServiceConnection implements android.content.ServiceConnection {
         this.mConnectionConfiguration = checkNotNull(connectionConfiguration);
         this.mExecutionTracker = checkNotNull(executionTracker);
         this.mCallback = checkNotNull(callback);
-        this.mDeathRecipient = () -> {
-            Logger.warning(
-                    TAG,
-                    "Binder died for client:"
-                            + mConnectionConfiguration.getClientName());
-            handleRetriableDisconnection(new RemoteException("Binder died"));
-        };
+        this.mDeathRecipient =
+                () -> {
+                    Logger.warning(
+                            TAG,
+                            "Binder died for client:" + mConnectionConfiguration.getClientName());
+                    handleRetriableDisconnection(new RemoteException("Binder died"));
+                };
     }
 
     private String getBindPackageName() {
@@ -182,7 +183,9 @@ public class ServiceConnection implements android.content.ServiceConnection {
                     throwable);
             mCallback.onDisconnected(this, getRetryDelayMs(mServiceConnectionRetry));
         } else {
-            Logger.error(TAG, "Connection disconnected and maximum number of retries reached.",
+            Logger.error(
+                    TAG,
+                    "Connection disconnected and maximum number of retries reached.",
                     throwable);
         }
     }
@@ -331,6 +334,13 @@ public class ServiceConnection implements android.content.ServiceConnection {
             Logger.error(TAG, "Service connected but binder is null.");
             return;
         }
+
+        if (!isTargetSignatureValid(mContext.getPackageManager(), componentName.getPackageName())) {
+            Logger.error(TAG, "Service connected but signature validation failed!");
+            handleNonRetriableDisconnection(new SecurityException("Signature validation failed"));
+            return;
+        }
+
         mServiceConnectionRetry = 0;
         cleanOnDeath(binder);
         this.mBinder = binder;
@@ -357,8 +367,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     @Override
     public void onBindingDied(ComponentName name) {
-        Logger.error(TAG,
-                "Binding died for client '" + mConnectionConfiguration.getClientName() + "'.");
+        Logger.error(
+                TAG, "Binding died for client '" + mConnectionConfiguration.getClientName() + "'.");
         handleRetriableDisconnection(new RemoteException("Binding died"));
     }
 

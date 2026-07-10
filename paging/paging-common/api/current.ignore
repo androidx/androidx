@@ -25,7 +25,139 @@ RemovedFromJava: androidx.paging.PagingDataTransforms#map(androidx.paging.Paging
     Source breaking change: method androidx.paging.PagingDataTransforms.map(androidx.paging.PagingData<T>,kotlin.jvm.functions.Function2<T,kotlin.coroutines.Continuation<? super R>,?>) can no longer be resolved from Java source
 
 
-RemovedFromKotlin: androidx.paging.PagedList#remove(int):
-    Source breaking change: method androidx.paging.PagedList.remove(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.paging.PagedList#size():
-    Source breaking change: method androidx.paging.PagedList.size() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#getAppend():
+    Source breaking change: method androidx.paging.CombinedLoadStates.getAppend() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#getMediator():
+    Source breaking change: method androidx.paging.CombinedLoadStates.getMediator() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#getPrepend():
+    Source breaking change: method androidx.paging.CombinedLoadStates.getPrepend() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#getRefresh():
+    Source breaking change: method androidx.paging.CombinedLoadStates.getRefresh() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#getSource():
+    Source breaking change: method androidx.paging.CombinedLoadStates.getSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#hasError():
+    Source breaking change: method androidx.paging.CombinedLoadStates.hasError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.CombinedLoadStates#isIdle():
+    Source breaking change: method androidx.paging.CombinedLoadStates.isIdle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.DataSource#isInvalid():
+    Source breaking change: method androidx.paging.DataSource.isInvalid() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.ItemSnapshotList#getItems():
+    Source breaking change: method androidx.paging.ItemSnapshotList.getItems() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.ItemSnapshotList#getPlaceholdersAfter():
+    Source breaking change: method androidx.paging.ItemSnapshotList.getPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.ItemSnapshotList#getPlaceholdersBefore():
+    Source breaking change: method androidx.paging.ItemSnapshotList.getPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadState#getEndOfPaginationReached():
+    Source breaking change: method androidx.paging.LoadState.getEndOfPaginationReached() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadState.Error#getError():
+    Source breaking change: method androidx.paging.LoadState.Error.getError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStates#getAppend():
+    Source breaking change: method androidx.paging.LoadStates.getAppend() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStates#getPrepend():
+    Source breaking change: method androidx.paging.LoadStates.getPrepend() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStates#getRefresh():
+    Source breaking change: method androidx.paging.LoadStates.getRefresh() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStates#hasError():
+    Source breaking change: method androidx.paging.LoadStates.hasError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStates#isIdle():
+    Source breaking change: method androidx.paging.LoadStates.isIdle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getConfig():
+    Source breaking change: method androidx.paging.PagedList.getConfig() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getDataSource():
+    Source breaking change: method androidx.paging.PagedList.getDataSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getLastKey():
+    Source breaking change: method androidx.paging.PagedList.getLastKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getLoadedCount():
+    Source breaking change: method androidx.paging.PagedList.getLoadedCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getPositionOffset():
+    Source breaking change: method androidx.paging.PagedList.getPositionOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#getSize():
+    Source breaking change: method androidx.paging.PagedList.getSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#isDetached():
+    Source breaking change: method androidx.paging.PagedList.isDetached() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#isImmutable():
+    Source breaking change: method androidx.paging.PagedList.isImmutable() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.Pager#getFlow():
+    Source breaking change: method androidx.paging.Pager.getFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Append#getInserted():
+    Source breaking change: method androidx.paging.PagingDataEvent.Append.getInserted() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Append#getNewPlaceholdersAfter():
+    Source breaking change: method androidx.paging.PagingDataEvent.Append.getNewPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Append#getOldPlaceholdersAfter():
+    Source breaking change: method androidx.paging.PagingDataEvent.Append.getOldPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Append#getStartIndex():
+    Source breaking change: method androidx.paging.PagingDataEvent.Append.getStartIndex() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropAppend#getDropCount():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropAppend.getDropCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropAppend#getNewPlaceholdersAfter():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropAppend.getNewPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropAppend#getOldPlaceholdersAfter():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropAppend.getOldPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropAppend#getStartIndex():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropAppend.getStartIndex() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropPrepend#getDropCount():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropPrepend.getDropCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropPrepend#getNewPlaceholdersBefore():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropPrepend.getNewPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.DropPrepend#getOldPlaceholdersBefore():
+    Source breaking change: method androidx.paging.PagingDataEvent.DropPrepend.getOldPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Prepend#getInserted():
+    Source breaking change: method androidx.paging.PagingDataEvent.Prepend.getInserted() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Prepend#getNewPlaceholdersBefore():
+    Source breaking change: method androidx.paging.PagingDataEvent.Prepend.getNewPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Prepend#getOldPlaceholdersBefore():
+    Source breaking change: method androidx.paging.PagingDataEvent.Prepend.getOldPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Refresh#getNewList():
+    Source breaking change: method androidx.paging.PagingDataEvent.Refresh.getNewList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataEvent.Refresh#getPreviousList():
+    Source breaking change: method androidx.paging.PagingDataEvent.Refresh.getPreviousList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataPresenter#getLoadStateFlow():
+    Source breaking change: method androidx.paging.PagingDataPresenter.getLoadStateFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataPresenter#getOnPagesUpdatedFlow():
+    Source breaking change: method androidx.paging.PagingDataPresenter.getOnPagesUpdatedFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataPresenter#getSize():
+    Source breaking change: method androidx.paging.PagingDataPresenter.getSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource#getInvalid():
+    Source breaking change: method androidx.paging.PagingSource.getInvalid() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource#getJumpingSupported():
+    Source breaking change: method androidx.paging.PagingSource.getJumpingSupported() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource#getKeyReuseSupported():
+    Source breaking change: method androidx.paging.PagingSource.getKeyReuseSupported() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams#getKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams#getLoadSize():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.getLoadSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams#getPlaceholdersEnabled():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.getPlaceholdersEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams.Append#getKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.Append.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams.Prepend#getKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.Prepend.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadParams.Refresh#getKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadParams.Refresh.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Error#getThrowable():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Error.getThrowable() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Page#getData():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Page.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Page#getItemsAfter():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Page.getItemsAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Page#getItemsBefore():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Page.getItemsBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Page#getNextKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Page.getNextKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingSource.LoadResult.Page#getPrevKey():
+    Source breaking change: method androidx.paging.PagingSource.LoadResult.Page.getPrevKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingState#getAnchorPosition():
+    Source breaking change: method androidx.paging.PagingState.getAnchorPosition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingState#getConfig():
+    Source breaking change: method androidx.paging.PagingState.getConfig() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingState#getPages():
+    Source breaking change: method androidx.paging.PagingState.getPages() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PlaceholderPaddedList#getDataCount():
+    Source breaking change: method androidx.paging.PlaceholderPaddedList.getDataCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PlaceholderPaddedList#getPlaceholdersAfter():
+    Source breaking change: method androidx.paging.PlaceholderPaddedList.getPlaceholdersAfter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PlaceholderPaddedList#getPlaceholdersBefore():
+    Source breaking change: method androidx.paging.PlaceholderPaddedList.getPlaceholdersBefore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PlaceholderPaddedList#getSize():
+    Source breaking change: method androidx.paging.PlaceholderPaddedList.getSize() can no longer be resolved from Kotlin source

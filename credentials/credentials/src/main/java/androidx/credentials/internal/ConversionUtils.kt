@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
@@ -138,6 +139,10 @@ fun toJetpackCreateException(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 fun isValidBase64Url(s: String): Boolean {
-    val base64UrlRegex = Regex("^[A-Za-z0-9\\-_]*\$")
-    return s.matches(base64UrlRegex)
+    return try {
+        Base64.decode(s, Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING)
+        true
+    } catch (e: IllegalArgumentException) {
+        false
+    }
 }

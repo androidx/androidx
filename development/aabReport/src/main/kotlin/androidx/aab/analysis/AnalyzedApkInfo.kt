@@ -20,14 +20,13 @@ import androidx.aab.ApkInfo
 import androidx.aab.analysis.LibraryAnalysis.Companion.getLibraryAnalysis
 import androidx.aab.analysis.ProfileAnalysis.Companion.getProfileAnalysis
 import androidx.aab.analysis.R8Analysis.Companion.getR8Analysis
+import androidx.aab.mapAll
 
 /**
  * Container for analyzed apk information, grouped by analysis section.
  *
  * Note that unlike ApkInfo, this is intentionally not sorted by source of content, but rather
  * developer-facing perf areas
- *
- * // TODO: Merge this with AnalyzedBundleInfo, by using standard interface to query out components
  */
 class AnalyzedApkInfo(val apkInfo: ApkInfo) {
     val profileAnalysis: ProfileAnalysis = apkInfo.getProfileAnalysis()
@@ -39,17 +38,12 @@ class AnalyzedApkInfo(val apkInfo: ApkInfo) {
         listOf(profileAnalysis, r8Analysis, libraryAnalysis).map { it.getSubScore() }.print()
     }
 
-    fun toCsvLine(): String {
-        val entries =
-            (profileAnalysis.csvEntries() + r8Analysis.csvEntries() + apkInfo.csvEntries())
-        check(entries.size == CSV_TITLES.size) {
-            "CSV Entry count (${entries.size}) didn't match header count ${CSV_TITLES.size}"
-        }
-        return entries.joinToString(", ")
-    }
-
     companion object {
-        val CSV_TITLES = ProfileAnalysis.CSV_TITLES + R8Analysis.CSV_TITLES + ApkInfo.CSV_TITLES
-        val CSV_HEADER = CSV_TITLES.joinToString(", ")
+        val CSV_COLUMNS =
+            ProfileAnalysis.CSV_COLUMNS.mapAll<ProfileAnalysis, AnalyzedApkInfo> {
+                it.profileAnalysis
+            } +
+                R8Analysis.CSV_COLUMNS.mapAll { it.r8Analysis } +
+                ApkInfo.CSV_COLUMNS.mapAll { it.apkInfo }
     }
 }

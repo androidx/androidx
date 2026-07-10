@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedPackage: androidx.palette.graphics:
+    Binary breaking change: Removed package androidx.palette.graphics

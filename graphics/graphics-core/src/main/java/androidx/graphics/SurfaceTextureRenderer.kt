@@ -58,8 +58,7 @@ internal class SurfaceTextureRenderer(
     //
     // Currently we go with the original option as it may not be explicit to implementations that
     // the initial detach is necessary here.
-    private class RenderSurfaceTexture(singleBufferMode: Boolean) :
-        SurfaceTexture(singleBufferMode)
+    private class RenderSurfaceTexture(singleBufferMode: Boolean) : SurfaceTexture(singleBufferMode)
 
     private var mIsReleased = false
 

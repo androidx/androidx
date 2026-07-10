@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
@@ -33,12 +34,22 @@ import java.util.List;
  * "tag" the subsequent operations to a given theme. On playback, we can then filter operations
  * depending on the chosen theme.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Theme extends Operation implements RemoteComposeOperation {
     private static final int OP_CODE = Operations.THEME;
     private static final String CLASS_NAME = "Theme";
     int mTheme;
+
+    /** The default the system defines the theme to be LIGHT OR DARK */
+    public static final int SYSTEM = 0;
+
+    /** Theme sections are not used */
     public static final int UNSPECIFIED = -1;
+
+    /** Sections after Theme.DARK are used */
     public static final int DARK = -2;
+
+    /** Sections after Theme.Light are used */
     public static final int LIGHT = -3;
 
     /**
@@ -120,7 +131,8 @@ public class Theme extends Operation implements RemoteComposeOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Protocol Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Document Protocol Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("theme")
                 .description("Set a theme")
                 .field(INT, "THEME", "theme id")
                 .possibleValues("UNSPECIFIED", Theme.UNSPECIFIED)

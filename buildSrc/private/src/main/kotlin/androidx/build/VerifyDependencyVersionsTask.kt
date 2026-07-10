@@ -60,30 +60,17 @@ abstract class VerifyDependencyVersionsTask : DefaultTask() {
     }
 
     private fun verifyDependencyVersion(dependency: AndroidXDependency) {
-        // If the version is unspecified then treat as an alpha version. If the depending project's
-        // version is unspecified then it won't matter, and if the dependency's version is
-        // unspecified then any non alpha project won't be able to depend on it to ensure safety.
-        val projectVersionExtra =
-            if (version.get() == AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
-                "-alpha01"
-            } else {
-                Version(version.get()).extra ?: ""
-            }
-        val dependencyVersionExtra =
-            if (dependency.version == AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
-                "-alpha01"
-            } else {
-                Version(dependency.version).extra ?: ""
-            }
-        val projectReleasePhase = releasePhase(projectVersionExtra)
+        val projectVersion = version.get()
+        val dependencyVersion = dependency.version
+        val projectReleasePhase = releasePhase(projectVersion)
         if (projectReleasePhase < 0) {
-            throw GradleException("Project has unexpected release phase $projectVersionExtra")
+            throw GradleException("Project has unexpected release phase $projectVersion")
         }
-        val dependencyReleasePhase = releasePhase(dependencyVersionExtra)
+        val dependencyReleasePhase = releasePhase(dependencyVersion)
         if (dependencyReleasePhase < 0) {
             throw GradleException(
                 "Dependency ${dependency.group}:${dependency.name}" +
-                    ":${dependency.version} has unexpected release phase $dependencyVersionExtra"
+                    ":${dependency.version} has unexpected release phase $dependencyVersion"
             )
         }
         if (dependencyReleasePhase < projectReleasePhase) {
@@ -97,21 +84,22 @@ abstract class VerifyDependencyVersionsTask : DefaultTask() {
         }
     }
 
-    private fun releasePhase(versionExtra: String): Int {
-        return if (versionExtra == "") {
-            4
-        } else if (versionExtra.startsWith("-rc")) {
-            3
-        } else if (versionExtra.startsWith("-beta")) {
-            2
-        } else if (
-            versionExtra.startsWith("-alpha") ||
-                versionExtra.startsWith("-qpreview") ||
-                versionExtra.startsWith("-dev")
-        ) {
-            1
-        } else {
-            -1
+    private fun releasePhase(versionString: String): Int {
+        // If the version is unspecified then treat as an alpha version. If the depending project's
+        // version is unspecified then it won't matter, and if the dependency's version is
+        // unspecified then any non alpha project won't be able to depend on it to ensure safety.
+        val version =
+            if (versionString != AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
+                Version(versionString)
+            } else {
+                return 1
+            }
+        return when {
+            version.isStable() -> 4
+            version.isRC() -> 3
+            version.isBeta() -> 2
+            version.isAlpha() || version.isDev() || version.isPrereleasePrefix("qpreview") -> 1
+            else -> -1
         }
     }
 }
@@ -137,6 +125,7 @@ internal fun Project.createVerifyDependencyVersionsTask():
             task.androidXDependencySet.set(
                 project.provider {
                     val dependencies = mutableSetOf<AndroidXDependency>()
+                    @Suppress("EagerGradleConfiguration")
                     project.configurations.filter(project::shouldVerifyConfiguration).forEach {
                         configuration ->
                         configuration.allDependencies.filter(::shouldVerifyDependency).forEach {
@@ -180,10 +169,9 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
     if (name.startsWith("androidTest")) return false
     if (name.startsWith("androidAndroidTest")) return false
     if (name.startsWith("androidCommonTest")) return false
-    if (name.startsWith("androidInstrumentedTest")) return false
+    if (name.startsWith("androidDeviceTest")) return false
     if (name.startsWith("androidReleaseUnitTest")) return false
     if (name.startsWith("androidHostTest")) return false
-    if (name.startsWith("androidUnitTest")) return false
     if (name.startsWith("debug")) return false
     if (name.startsWith("androidDebug")) return false
     if (name.startsWith("releaseAndroidTest")) return false
@@ -204,9 +192,12 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
     if (name == "annotationProcessor") return false
     if (name == "errorprone") return false
     if (name.startsWith("lint")) return false
+    if (name == ("androidLintTool")) return false
+    if (name.endsWith("LintChecksClasspath")) return false
     if (name == "metalava") return false
     if (name.startsWith("kotlinBuild")) return false
     if (name.startsWith("kotlinCompiler")) return false
+    if (name.startsWith("kotlinKaptWorkerDependencies")) return false
     if (name.startsWith("kotlinKlib")) return false
     if (name.startsWith("kapt")) return false
     if (name.startsWith("ksp")) return false
@@ -240,6 +231,16 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
     // Don't check KGP internal configuration used for tooling
     if (name == "kotlinInternalAbiValidation") return false
 
+    // don't verify these configurations of KMP projects since we don't publish them anyway
+    if (name.endsWith("CompileKlibraries")) return false
+    if (name.endsWith("CompilationApi")) return false
+    if (name == "jsCompileClasspath") return false
+    if (name == "jsNpmAggregated") return false
+    if (name == "jsRuntimeClasspath") return false
+    if (name == "wasmJsCompileClasspath") return false
+    if (name == "wasmJsNpmAggregated") return false
+    if (name == "wasmJsRuntimeClasspath") return false
+
     // don't verify test configurations of KMP projects
     if (name.contains("TestCompilation")) return false
     if (name.contains("TestCompile")) return false
@@ -254,8 +255,15 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
         return false
     }
 
+    // don't verify swift export because we don't have any libraries that use it
+    if (name == "swiftExportClasspathResolvable") return false
+
     // don't verify baseline profile generating project dependencies
     if (name == "baselineProfile") return false
+    if (name == "releaseBaselineProfile") return false
+
+    // Only used to run kotlinx benchmarks. Artifacts are not published by this configuration.
+    if (name == "benchmarkGenerator.resolver") return false
 
     // don't verify samples
     if (name == "samples") return false

@@ -486,16 +486,18 @@ public class WidgetFrame {
         for (int i = 0; i < n; i++) {
             CLElement tmp = obj.get(i);
             CLKey k = ((CLKey) tmp);
+            String customName = k.content();
             CLElement v = k.getValue();
             String vStr = v.content();
-            if (vStr.matches("#[0-9a-fA-F]+")) {
+            // Validate the length of the string to avoid regex or parsing issues
+            if (vStr != null && vStr.length() < 128 && vStr.matches("#[0-9a-fA-F]+")) {
                 int color = Integer.parseInt(vStr.substring(1), 16);
-                setCustomAttribute(name, TypedValues.Custom.TYPE_COLOR, color);
+                // Ensure we use the parsed key as the custom attribute name
+                setCustomAttribute(customName, TypedValues.Custom.TYPE_COLOR, color);
             } else if (v instanceof CLNumber) {
-                setCustomAttribute(name, TypedValues.Custom.TYPE_FLOAT, v.getFloat());
+                setCustomAttribute(customName, TypedValues.Custom.TYPE_FLOAT, v.getFloat());
             } else {
-                setCustomAttribute(name, TypedValues.Custom.TYPE_STRING, vStr);
-
+                setCustomAttribute(customName, TypedValues.Custom.TYPE_STRING, vStr);
             }
         }
     }

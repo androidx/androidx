@@ -18,13 +18,12 @@ package androidx.camera.testing.impl
 
 import android.util.Log
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.testing.impl.LabTestRule.Companion.isInLabTest
 
 /** Utility functions of parameterized tests. */
 public object ParameterizedTestConfigUtil {
     /**
-     * Generates the parameterized test configs with Camera2Config and CameraPipeConfig.
+     * Generates the parameterized test configs with Camera2Config.
      *
      * If inLabTestRequired is true but the test is not in the lab test environment, an empty list
      * will be returned.
@@ -47,14 +46,6 @@ public object ParameterizedTestConfigUtil {
                             testConfigArray +
                                 Camera2Config::class.simpleName +
                                 Camera2Config.defaultConfig()
-                        )
-                    }
-
-                    if (Log.isLoggable("CameraPipeMH", Log.DEBUG)) {
-                        add(
-                            testConfigArray +
-                                CameraPipeConfig::class.simpleName +
-                                CameraPipeConfig.defaultConfig()
                         )
                     }
                 }

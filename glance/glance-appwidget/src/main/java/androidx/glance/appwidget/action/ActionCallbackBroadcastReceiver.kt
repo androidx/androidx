@@ -21,12 +21,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
-import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AsyncRequestWorker.Companion.toBytes
+import androidx.glance.appwidget.GlanceComponents
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.goAsync
 import androidx.glance.appwidget.logException
@@ -76,7 +76,6 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal companion object {
         internal const val AppWidgetId = "ActionCallbackBroadcastReceiver:appWidgetId"
         internal const val ExtraCallbackClassName = "ActionCallbackBroadcastReceiver:callbackClass"
@@ -87,15 +86,29 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
             callbackClass: Class<out ActionCallback>,
             parameters: ActionParameters,
         ) =
+            createIntent(
+                glanceComponents = translationContext.glanceComponents,
+                appWidgetId = translationContext.appWidgetId,
+                callbackClass = callbackClass,
+                parameters = parameters,
+            )
+
+        internal fun createIntent(
+            glanceComponents: GlanceComponents,
+            appWidgetId: Int,
+            callbackClass: Class<out ActionCallback>,
+            parameters: ActionParameters,
+        ) =
             Intent()
-                .setComponent(translationContext.glanceComponents.actionCallbackBroadcastReceiver)
+                .setComponent(glanceComponents.actionCallbackBroadcastReceiver)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
-                .putExtra(AppWidgetId, translationContext.appWidgetId)
+                .putExtra(AppWidgetId, appWidgetId)
                 .putParameterExtras(parameters)
 
         internal fun Intent.putParameterExtras(parameters: ActionParameters): Intent {
             val parametersPairs =
                 parameters.asMap().map { (key, value) -> key.name to value }.toTypedArray()
+            @Suppress("DEPRECATION") // bundleOf is deprecated
             putExtra(ExtraParameters, bundleOf(*parametersPairs))
             return this
         }

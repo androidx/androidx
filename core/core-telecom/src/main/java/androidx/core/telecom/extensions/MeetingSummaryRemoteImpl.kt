@@ -19,7 +19,6 @@ package androidx.core.telecom.extensions
 import android.util.Log
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.internal.MeetingSummaryStateListener
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.properties.Delegates
@@ -41,10 +40,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @property onParticipantCountChanged A suspend function that is called when the participant count
  *   changes. The function takes the new participant count as an Int parameter.
  */
-@ExperimentalAppActions
 internal class MeetingSummaryRemoteImpl(
     private val callScope: CoroutineScope,
-    private val onCurrentSpeakerChanged: suspend (String) -> Unit,
+    private val onCurrentSpeakerChanged: suspend (CharSequence?) -> Unit,
     private val onParticipantCountChanged: suspend (Int) -> Unit,
 ) : MeetingSummaryRemote {
 
@@ -116,9 +114,20 @@ internal class MeetingSummaryRemoteImpl(
         Log.d(TAG, "connectToRemote:")
         val stateListener =
             MeetingSummaryStateListener(
-                updateCurrentSpeaker = { callScope.launch { onCurrentSpeakerChanged(it) } },
+                updateCurrentSpeaker = { speaker ->
+                    callScope.launch {
+                        val speakerSanitized = speaker?.takeUnless { it == "null" }
+                        onCurrentSpeakerChanged(speakerSanitized)
+                    }
+                },
                 updateParticipantCount = { callScope.launch { onParticipantCountChanged(it) } },
-                finishSync = { callScope.launch { continuation.resume(Unit) } },
+                finishSync = {
+                    callScope.launch {
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
+                },
             )
         try {
             remote.onCreateMeetingSummaryExtension(
@@ -127,7 +136,9 @@ internal class MeetingSummaryRemoteImpl(
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error connecting to remote extension", e)
-            continuation.resumeWithException(e) // Propagate the exception
+            if (continuation.isActive) {
+                continuation.resumeWithException(e) // Propagate the exception
+            }
         }
     }
 }

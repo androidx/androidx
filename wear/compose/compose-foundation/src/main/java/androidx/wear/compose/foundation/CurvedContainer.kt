@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 
 /**
  * Layout scope used for curved containers. This is the base of a DSL that specifies what components
@@ -61,23 +62,24 @@ internal abstract class ContainerChild(
         children.fastForEach { it.SubComposition(CurvedSemanticProperties()) }
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
-        children.fastForEach { node ->
-            with(
-                CurvedMeasureScope(
-                    subDensity = this,
-                    curvedContainerScope.curvedLayoutDirection,
-                    radius,
-                )
-            ) {
-                with(node) { initializeMeasure(measurables) }
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
+        val placementBlocks =
+            children.fastMap { node ->
+                with(
+                    CurvedMeasureScope(
+                        subDensity = this,
+                        curvedContainerScope.curvedLayoutDirection,
+                        radius,
+                        isLookingAhead,
+                    )
+                ) {
+                    with(node) { initializeMeasure(measurables) }
+                }
             }
-        }
+        return { placementBlocks.fastForEach { it() } }
     }
 
     override fun DrawScope.draw() = children.fastForEach { with(it) { draw() } }
-
-    override fun (Placeable.PlacementScope).placeIfNeeded() {
-        children.fastForEach { with(it) { placeIfNeeded() } }
-    }
 }

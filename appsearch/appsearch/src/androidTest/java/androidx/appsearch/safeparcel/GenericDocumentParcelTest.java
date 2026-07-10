@@ -27,9 +27,7 @@ import android.os.Parcel;
 
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.EmbeddingVector;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -82,7 +80,6 @@ public class GenericDocumentParcelTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testPropertyParcel_blobHandleSet_success() throws Exception {
         byte[] data1 = generateRandomBytes(10); // 10 Bytes
         byte[] digest1 = calculateDigest(data1);

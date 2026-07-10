@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.camera2.internal
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.internal.SupportedSurfaceCombination.FeatureSettings
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
@@ -33,6 +35,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.FrameRates.FRAME_RATE_UNLIMITED
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
@@ -60,15 +63,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadow.api.Shadow
-import org.robolectric.shadows.ShadowCameraCharacteristics
 
 @Config(minSdk = 33)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 class StreamUseCaseUtilTest {
-    private val cameraCharacteristics: CameraCharacteristics =
-        ShadowCameraCharacteristics.newCameraCharacteristics()
     private val streamUseCaseOption: androidx.camera.core.impl.Config.Option<Long> =
         androidx.camera.core.impl.Config.Option.create(
             "camera2.cameraCaptureSession.streamUseCase",
@@ -261,26 +260,16 @@ class StreamUseCaseUtilTest {
 
     @Test
     fun isStreamUseCaseSupported_streamUseCaseNotAvailable() {
-        TestCase.assertFalse(
-            StreamUseCaseUtil.isStreamUseCaseSupported(getCameraCharacteristicsCompat(true))
-        )
+        TestCase.assertFalse(StreamUseCaseUtil.isStreamUseCaseSupported(getCameraMetadata(true)))
     }
 
     @Test
     fun shouldUseStreamUseCase_cameraModeNotSupported() {
         TestCase.assertFalse(
             StreamUseCaseUtil.shouldUseStreamUseCase(
-                FeatureSettings.of(
+                SupportedSurfaceCombination.FeatureSettings(
                     CameraMode.CONCURRENT_CAMERA,
-                    /*hasVideoCapture=*/ false,
                     DynamicRange.BIT_DEPTH_8_BIT,
-                    /*isPreviewStabilizationOn=*/ false,
-                    /*isUltraHdrOn=*/ false,
-                    /*isHighSpeedOn=*/ false,
-                    /*isFeatureComboInvocation=*/ false,
-                    /*requiresFeatureComboQuery=*/ false,
-                    /*targetFpsRange=*/ FRAME_RATE_RANGE_UNSPECIFIED,
-                    /*isStrictFpsRequired=*/ false,
                 )
             )
         )
@@ -290,17 +279,9 @@ class StreamUseCaseUtilTest {
     fun shouldUseStreamUseCase_bitDepthNotSupported() {
         TestCase.assertFalse(
             StreamUseCaseUtil.shouldUseStreamUseCase(
-                FeatureSettings.of(
+                SupportedSurfaceCombination.FeatureSettings(
                     CameraMode.DEFAULT,
-                    /*hasVideoCapture=*/ false,
                     DynamicRange.BIT_DEPTH_10_BIT,
-                    /*isPreviewStabilizationOn=*/ false,
-                    /*isUltraHdrOn=*/ false,
-                    /*isHighSpeedOn=*/ false,
-                    /*isFeatureComboInvocation=*/ false,
-                    /*requiresFeatureComboQuery=*/ false,
-                    /*targetFpsRange=*/ FRAME_RATE_RANGE_UNSPECIFIED,
-                    /*isStrictFpsRequired=*/ false,
                 )
             )
         )
@@ -310,17 +291,10 @@ class StreamUseCaseUtilTest {
     fun shouldUseStreamUseCase_highSpeedNotSupported() {
         TestCase.assertFalse(
             StreamUseCaseUtil.shouldUseStreamUseCase(
-                FeatureSettings.of(
+                SupportedSurfaceCombination.FeatureSettings(
                     CameraMode.DEFAULT,
-                    /*hasVideoCapture=*/ false,
                     DynamicRange.BIT_DEPTH_8_BIT,
-                    /*isPreviewStabilizationOn=*/ false,
-                    /*isUltraHdrOn=*/ false,
-                    /*isHighSpeedOn=*/ true,
-                    /*isFeatureComboInvocation=*/ false,
-                    /*requiresFeatureComboQuery=*/ false,
-                    /*targetFpsRange=*/ FRAME_RATE_RANGE_UNSPECIFIED,
-                    /*isStrictFpsRequired=*/ false,
+                    isHighSpeedOn = true,
                 )
             )
         )
@@ -398,7 +372,7 @@ class StreamUseCaseUtilTest {
         suggestedStreamSpecMap[useCaseConfig] =
             getFakeStreamSpecFromFakeUseCaseConfig(useCaseConfig)
         StreamUseCaseUtil.populateStreamUseCaseStreamSpecOptionWithInteropOverride(
-            getCameraCharacteristicsCompat(),
+            getCameraMetadata(false),
             ArrayList(),
             suggestedStreamSpecMap,
             mutableMapOf(),
@@ -406,7 +380,7 @@ class StreamUseCaseUtilTest {
         TestCase.assertTrue(
             suggestedStreamSpecMap[useCaseConfig]!!
                 .implementationOptions!!
-                .retrieveOption<Long>(StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION) ==
+                .retrieveOption(StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION) ==
                 TEST_STREAM_USE_CASE_OPTION_VALUE
         )
     }
@@ -425,7 +399,7 @@ class StreamUseCaseUtilTest {
             )
         val attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec> = HashMap()
         StreamUseCaseUtil.populateStreamUseCaseStreamSpecOptionWithInteropOverride(
-            getCameraCharacteristicsCompat(),
+            getCameraMetadata(false),
             attachedSurfaces,
             mutableMapOf(),
             attachedSurfaceStreamSpecMap,
@@ -464,7 +438,7 @@ class StreamUseCaseUtilTest {
         val attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec> =
             mutableMapOf()
         StreamUseCaseUtil.populateStreamUseCaseStreamSpecOptionWithInteropOverride(
-            getCameraCharacteristicsCompat(),
+            getCameraMetadata(false),
             attachedSurfaces,
             suggestedStreamSpecMap,
             attachedSurfaceStreamSpecMap,
@@ -508,7 +482,7 @@ class StreamUseCaseUtilTest {
             )
         val attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec> = HashMap()
         StreamUseCaseUtil.populateStreamUseCaseStreamSpecOptionWithInteropOverride(
-            getCameraCharacteristicsCompat(),
+            getCameraMetadata(false),
             attachedSurfaces,
             suggestedStreamSpecMap,
             attachedSurfaceStreamSpecMap,
@@ -527,7 +501,7 @@ class StreamUseCaseUtilTest {
             )
         TestCase.assertTrue(
             StreamUseCaseUtil.areStreamUseCasesAvailableForSurfaceConfigs(
-                getCameraCharacteristicsCompat(),
+                getCameraMetadata(false),
                 surfaceConfigList,
             )
         )
@@ -545,7 +519,7 @@ class StreamUseCaseUtilTest {
             )
         TestCase.assertFalse(
             StreamUseCaseUtil.areStreamUseCasesAvailableForSurfaceConfigs(
-                getCameraCharacteristicsCompat(true),
+                getCameraMetadata(true),
                 surfaceConfigList,
             )
         )
@@ -736,6 +710,7 @@ class StreamUseCaseUtilTest {
                 SESSION_TYPE_REGULAR,
                 FRAME_RATE_RANGE_UNSPECIFIED,
                 /*isStrictFrameRateRequired=*/ false,
+                FRAME_RATE_UNLIMITED,
             )
         TestCase.assertTrue(
             StreamUseCaseUtil.areCaptureTypesEligible(
@@ -775,6 +750,7 @@ class StreamUseCaseUtilTest {
                 SESSION_TYPE_REGULAR,
                 FRAME_RATE_RANGE_UNSPECIFIED,
                 /*isStrictFrameRateRequired=*/ false,
+                FRAME_RATE_UNLIMITED,
             )
         TestCase.assertFalse(
             StreamUseCaseUtil.areCaptureTypesEligible(
@@ -935,6 +911,7 @@ class StreamUseCaseUtilTest {
             SESSION_TYPE_REGULAR,
             FRAME_RATE_RANGE_UNSPECIFIED,
             /*isStrictFrameRateRequired=*/ false,
+            FRAME_RATE_UNLIMITED,
         )
     }
 
@@ -949,17 +926,12 @@ class StreamUseCaseUtilTest {
             .build()
     }
 
-    private fun getCameraCharacteristicsCompat(): CameraCharacteristicsCompat {
-        return getCameraCharacteristicsCompat(false)
-    }
-
-    private fun getCameraCharacteristicsCompat(
+    private fun getCameraMetadata(
         noAvailableStreamUseCase: Boolean
-    ): CameraCharacteristicsCompat {
-        val shadowCharacteristics0 =
-            Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
+    ): androidx.camera.camera2.pipe.CameraMetadata {
+        val characteristicsMap: MutableMap<CameraCharacteristics.Key<*>, Any?> = mutableMapOf()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !noAvailableStreamUseCase) {
-            val streamUseCases =
+            val uc =
                 longArrayOf(
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
@@ -968,11 +940,12 @@ class StreamUseCaseUtilTest {
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL.toLong(),
                     CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong(),
                 )
-            shadowCharacteristics0.set(SCALER_AVAILABLE_STREAM_USE_CASES, streamUseCases)
+            characteristicsMap[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES] = uc
         }
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            cameraCharacteristics,
-            CAMERA_ID_0,
+        return FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            cameraId = CameraId.fromCamera2Id(CAMERA_ID_0),
+            characteristicsOverrides = characteristicsMap,
         )
     }
 

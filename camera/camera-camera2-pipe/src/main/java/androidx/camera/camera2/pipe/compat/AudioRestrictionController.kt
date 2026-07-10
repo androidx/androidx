@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRIC
 import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION
 import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION_SOUND
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.config.CameraPipeJob
 import androidx.camera.camera2.pipe.core.CoroutineMutex
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.withLockLaunch
@@ -33,6 +34,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
 /**
@@ -71,12 +74,18 @@ public interface AudioRestrictionController {
 @Singleton
 internal class AudioRestrictionControllerImpl
 @Inject
-internal constructor(threads: Threads, cameraPipeLifetime: CameraPipeLifetime) :
-    AudioRestrictionController {
+internal constructor(
+    threads: Threads,
+    cameraPipeLifetime: CameraPipeLifetime,
+    @CameraPipeJob cameraPipeJob: Job,
+) : AudioRestrictionController {
 
     private val scope =
         CoroutineScope(
-            threads.lightweightDispatcher.plus(CoroutineName("CXCP-AudioRestrictionControllerImpl"))
+            SupervisorJob(cameraPipeJob) +
+                threads.lightweightDispatcher.plus(
+                    CoroutineName("CXCP-AudioRestrictionControllerImpl")
+                )
         )
     private val coroutineMutex = CoroutineMutex()
     private val lock = Any()

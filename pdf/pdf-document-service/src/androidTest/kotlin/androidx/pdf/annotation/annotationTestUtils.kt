@@ -24,7 +24,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation {
+internal fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation {
     val randomPathInputs = createPathPdfObjectList(pathSize)
     return StampAnnotation(
         pageNum,
@@ -33,22 +33,25 @@ fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation 
     )
 }
 
-fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
+internal fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
     return IntArray(size).map { randomizePathPdfObject(pathLength = 10) }
 }
 
-fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
+internal fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
     PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = randomizePathInputs(pathLength))
 
-fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
-    IntArray(pathLength).map {
+internal fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
+    IntArray(pathLength).mapIndexed { index, _ ->
+        val command =
+            if (index == 0) PathPdfObject.PathInput.MOVE_TO else PathPdfObject.PathInput.LINE_TO
         PathPdfObject.PathInput(
             x = abs(Random.Default.nextInt(100, 1000).toFloat()),
             y = abs(Random.Default.nextInt(100, 1000).toFloat()),
+            command = command,
         )
     }
 
-fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
+internal fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
     val left = this.fold(Float.Companion.MAX_VALUE) { acc, input -> min(acc, input.x) }
     val top = this.fold(Float.Companion.MAX_VALUE) { acc, input -> min(acc, input.y) }
     val right = this.fold(Float.Companion.MIN_VALUE) { acc, input -> max(acc, input.x) }
@@ -56,7 +59,7 @@ fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
     return RectF(left, top, right, bottom)
 }
 
-fun List<PathPdfObject>.computeBoundsForPath(): RectF {
+internal fun List<PathPdfObject>.computeBoundsForPath(): RectF {
     val emptyRect =
         RectF(
             Float.Companion.MAX_VALUE,
@@ -70,7 +73,7 @@ fun List<PathPdfObject>.computeBoundsForPath(): RectF {
     return result
 }
 
-fun RectF.merge(other: RectF): RectF =
+internal fun RectF.merge(other: RectF): RectF =
     RectF(
         /* left = */ min(this.left, other.left),
         /* top = */ min(this.top, other.top),

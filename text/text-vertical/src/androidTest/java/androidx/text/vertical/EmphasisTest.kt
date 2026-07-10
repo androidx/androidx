@@ -18,15 +18,18 @@ package androidx.text.vertical
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.os.Build
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class EmphasisTest {
     private val ONE_EM = 10f // make 1em = 10px
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
@@ -40,11 +43,11 @@ class EmphasisTest {
         }
 
         fun <R : Any> withEmphasis(
-            style: Int = EmphasisSpan.DEFAULT_EMPHASIS_STYLE,
+            style: EmphasisStyle = EmphasisSpan.DEFAULT_EMPHASIS_STYLE,
             filled: Boolean = EmphasisSpan.DEFAULT_EMPHASIS_FILL,
             scale: Float = EmphasisSpan.DEFAULT_SCALE,
             block: StyleTextBuilder.() -> R,
-        ) = withSpan(EmphasisSpan(style, filled, scale), block)
+        ) = withSpan(EmphasisSpan(style, filled, scale = scale), block)
 
         fun text(text: CharSequence) {
             result.append(text)
@@ -72,7 +75,7 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest Upright Default Case`() {
+    fun emphasis_UprightDefaultCase() {
         val text = StyleTextBuilder().apply { withEmphasis { text("あいうえお") } }.result
         val originalTextSize = PAINT.textSize
         UprightLayoutRun(text, 0, text.length, PAINT).also {
@@ -99,15 +102,11 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest Upright Customized Case`() {
+    fun emphasis_UprightCustomizedCase() {
         val text =
             StyleTextBuilder()
                 .apply {
-                    withEmphasis(
-                        style = EmphasisSpan.STYLE_TRIANGLE,
-                        filled = false,
-                        scale = 0.7f,
-                    ) {
+                    withEmphasis(style = EmphasisStyle.Triangle, filled = false, scale = 0.7f) {
                         text("あいうえお")
                     }
                 }
@@ -136,7 +135,7 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest Upright Skipping Case`() {
+    fun emphasis_UprightSkippingCase() {
         val text = StyleTextBuilder().apply { withEmphasis { text("あいうえお。") } }.result
         UprightLayoutRun(text, 0, text.length, PAINT).also {
             var emphasisCallCount = 0
@@ -161,7 +160,7 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest Upright SurrogatePair`() {
+    fun emphasis_UprightSurrogatePair() {
         val surrogatePairText = "\uD840\uDC0B\uD83C\uDF4B"
         // The text contains two surrogate pair letters: U+2000B and U+1F34B
         val text = StyleTextBuilder().apply { withEmphasis { text(surrogatePairText) } }.result
@@ -188,7 +187,7 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest TateChuYoko Default Case`() {
+    fun emphasis_TateChuYokoDefaultCase() {
         val text = StyleTextBuilder().apply { withEmphasis { text("12") } }.result
         val originalTextSize = PAINT.textSize
         TateChuYokoLayoutRun(text, 0, text.length, PAINT).also {
@@ -216,15 +215,11 @@ class EmphasisTest {
     }
 
     @Test
-    fun `EmphasisTest TateChuYoko Customized Case`() {
+    fun emphasis_TateChuYokoCustomizedCase() {
         val text =
             StyleTextBuilder()
                 .apply {
-                    withEmphasis(
-                        style = EmphasisSpan.STYLE_TRIANGLE,
-                        filled = false,
-                        scale = 0.7f,
-                    ) {
+                    withEmphasis(style = EmphasisStyle.Triangle, filled = false, scale = 0.7f) {
                         text("12")
                     }
                 }

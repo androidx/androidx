@@ -84,7 +84,7 @@ object DatePickerBenchmark : MacrobenchmarkScreen {
             device.waitForIdle()
             SystemClock.sleep(500)
             repeat(3) { columnIndex ->
-                repeat(20) {
+                repeat(6) {
                     val endY = device.displayHeight * 9 / 10 // scroll down
                     device.swipe(
                         device.displayWidth / 2,

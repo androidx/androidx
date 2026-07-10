@@ -16,8 +16,9 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Indicates that streaming JavaScript code into the JS evaluation environment has failed.

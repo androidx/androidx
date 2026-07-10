@@ -2,19 +2,29 @@
 package androidx.concurrent.futures {
 
   public final class CallbackToFutureAdapter {
-    method public static <T> com.google.common.util.concurrent.ListenableFuture<T!> getFuture(androidx.concurrent.futures.CallbackToFutureAdapter.Resolver<T!>);
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T> getFuture(androidx.concurrent.futures.CallbackToFutureAdapter.Resolver<T>);
   }
 
   public static final class CallbackToFutureAdapter.Completer<T> {
     method public void addCancellationListener(Runnable, java.util.concurrent.Executor);
     method protected void finalize();
-    method public boolean set(T!);
+    method public boolean set(T);
     method public boolean setCancelled();
     method public boolean setException(Throwable);
   }
 
   public static interface CallbackToFutureAdapter.Resolver<T> {
-    method public Object? attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T!>) throws java.lang.Exception;
+    method public Object? attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T>) throws java.lang.Exception;
+  }
+
+  public final class ListenableFutureKt {
+    method public static suspend <T> Object? await(com.google.common.util.concurrent.ListenableFuture<T>, kotlin.coroutines.Continuation<? super T>);
+  }
+
+  public final class SuspendToFutureAdapter {
+    method public <T> com.google.common.util.concurrent.ListenableFuture<T> launchFuture(optional kotlin.coroutines.CoroutineContext context, optional boolean launchUndispatched, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! launchFuture$default(androidx.concurrent.futures.SuspendToFutureAdapter!, kotlin.coroutines.CoroutineContext!, boolean, kotlin.jvm.functions.Function2!, int, Object!);
+    field public static final androidx.concurrent.futures.SuspendToFutureAdapter INSTANCE;
   }
 
 }

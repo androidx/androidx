@@ -16,7 +16,6 @@
 
 package androidx.appfunctions.metadata
 
-import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
 
 /** Represent a function parameter. */
@@ -63,8 +62,7 @@ constructor(
             ")"
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toAppFunctionParameterMetadataDocument(): AppFunctionParameterMetadataDocument {
+    internal fun toAppFunctionParameterMetadataDocument(): AppFunctionParameterMetadataDocument {
         return AppFunctionParameterMetadataDocument(
             name = name,
             isRequired = isRequired,
@@ -76,16 +74,15 @@ constructor(
 
 /** Represents the persistent storage format of [AppFunctionParameterMetadata]. */
 @Document
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class AppFunctionParameterMetadataDocument(
-    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
-    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
-    @Document.StringProperty public val name: String,
-    @Document.BooleanProperty public val isRequired: Boolean,
-    @Document.DocumentProperty public val dataTypeMetadata: AppFunctionDataTypeMetadataDocument,
-    @Document.StringProperty public val description: String? = null,
+internal data class AppFunctionParameterMetadataDocument(
+    @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
+    @Document.Id val id: String = APP_FUNCTION_ID_EMPTY,
+    @Document.StringProperty val name: String,
+    @Document.BooleanProperty val isRequired: Boolean,
+    @Document.DocumentProperty val dataTypeMetadata: AppFunctionDataTypeMetadataDocument,
+    @Document.StringProperty val description: String? = null,
 ) {
-    public fun toAppFunctionParameterMetadata(): AppFunctionParameterMetadata =
+    fun toAppFunctionParameterMetadata(): AppFunctionParameterMetadata =
         AppFunctionParameterMetadata(
             name = name,
             isRequired = isRequired,

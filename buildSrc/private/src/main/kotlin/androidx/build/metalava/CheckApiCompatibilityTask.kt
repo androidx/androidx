@@ -35,8 +35,6 @@ constructor(workerExecutor: WorkerExecutor) : CompatibilityMetalavaTask(workerEx
 
     @TaskAction
     fun exec() {
-        check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
-
         // Don't allow *any* API changes if we're comparing against a finalized API surface within
         // the same major and minor version, e.g. between 1.1.0-beta01 and 1.1.0-beta02 or 1.1.0 and
         // 1.1.1. We'll still allow changes between 1.1.0-alpha05 and 1.1.0-beta01.

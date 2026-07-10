@@ -31,21 +31,23 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.compose.spatial.ApplicationSubspace
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.junit.Ignore
 import org.junit.Rule
@@ -56,19 +58,15 @@ import org.robolectric.junit.rules.ExpectedLogMessagesRule
 @RunWith(AndroidJUnit4::class)
 class CoreEntityTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
     @get:Rule val expectedLogMessagesRule = ExpectedLogMessagesRule()
 
     private class SpatialPanelActivity : ComponentActivity() {}
-
-    @Test
-    fun coreEntity_coreGroupEntity_shouldThrowIfNotGroupEntity() {
-        composeTestRule.setContentWithCompatibilityForXr {}
-
-        val session = composeTestRule.session
-        assertNotNull(session)
-        assertFailsWith<IllegalArgumentException> { CoreGroupEntity(session.scene.activitySpace) }
-    }
 
     @Test
     @Ignore("b/430291253 - behavior is different in presubmit after moving to targetSdk 35")
@@ -77,13 +75,12 @@ class CoreEntityTest {
         var sizeCount = 0
         var mutableSizeCount = 0
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
+            val session = assertNotNull(composeTestRule.session)
             val coreEntity = remember {
                 CoreGroupEntity(
-                        GroupEntity.create(
-                            session = assertNotNull(composeTestRule.session),
-                            name = "Test",
-                        )
+                        session.scene.virtualPixelDensity,
+                        Entity.create(session = session, name = "Test"),
                     )
                     .apply { this.size = IntVolumeSize(size, size, size) }
             }
@@ -126,8 +123,8 @@ class CoreEntityTest {
     @Test
     fun coreBasePanelEntity_androidViewPanel_enabledStateFollowsSizeChanges() {
         var size by mutableStateOf(100.dp)
-        composeTestRule.setContentWithCompatibilityForXr {
-            ApplicationSubspace {
+        composeTestRule.setContent {
+            Subspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
                     SubspaceModifier.width(size).height(size).testTag("panel"),
@@ -154,10 +151,8 @@ class CoreEntityTest {
     @Test
     fun coreBasePanelEntity_spatialPanel_enabledStateFollowsSizeChanges() {
         var size by mutableStateOf(100.dp)
-        composeTestRule.setContentWithCompatibilityForXr {
-            ApplicationSubspace {
-                SpatialPanel(SubspaceModifier.width(size).height(size).testTag("panel")) {}
-            }
+        composeTestRule.setContent {
+            Subspace { SpatialPanel(SubspaceModifier.width(size).height(size).testTag("panel")) {} }
         }
 
         val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
@@ -176,8 +171,8 @@ class CoreEntityTest {
     @Test
     fun coreBasePanelEntity_mainPanel_enabledStateFollowsSizeChanges() {
         var size by mutableStateOf(100.dp)
-        composeTestRule.setContentWithCompatibilityForXr {
-            ApplicationSubspace {
+        composeTestRule.setContent {
+            Subspace {
                 SpatialMainPanel(SubspaceModifier.width(size).height(size).testTag("panel"))
             }
         }
@@ -198,8 +193,8 @@ class CoreEntityTest {
     @Test
     fun coreBasePanelEntity_activityPanel_enabledStateFollowsSizeChanges() {
         var size by mutableStateOf(100.dp)
-        composeTestRule.setContentWithCompatibilityForXr {
-            ApplicationSubspace {
+        composeTestRule.setContent {
+            Subspace {
                 SpatialActivityPanel(
                     intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
                     SubspaceModifier.width(size).height(size).testTag("panel"),
@@ -218,5 +213,146 @@ class CoreEntityTest {
         size = 50.dp
         composeTestRule.waitForIdle()
         assertThat(panelEntity.isEnabled()).isTrue()
+    }
+
+    @Test
+    fun attachEntity_onExistingCoreEntity_replacesAndDisposesOldEntity() {
+        val session = composeTestRule.configureFakeSession()
+        val initialEntity = Entity.create(session = session, name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, initialEntity)
+        val newEntity = Entity.create(session = session, name = "New")
+
+        coreEntity.attachEntity(newEntity)
+
+        assertThat(coreEntity.semanticsEntity).isEqualTo(newEntity)
+        // SceneCore entities are not truly "disposed" in a way we can easily assert, but we can
+        // verify the new entity is the one being used.
+    }
+
+    @Test
+    fun parent_setParent_updatesEntityParent() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val parentCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val childEntity = Entity.create(session = assertNotNull(session), name = "Child")
+        val childCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, childEntity)
+
+        childCoreEntity.parent = parentCoreEntity
+
+        assertThat(childEntity.parent).isEqualTo(testEntity)
+    }
+
+    @Test
+    fun parent_setParentToNull_restoresOriginalParent() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = session, name = "Initial")
+        val parentCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val childEntity = Entity.create(session = session, name = "Child")
+        val originalParent = childEntity.parent
+        val childCoreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, childEntity)
+
+        childCoreEntity.parent = parentCoreEntity
+        assertThat(childEntity.parent).isNotEqualTo(originalParent)
+
+        childCoreEntity.parent = null
+        assertThat(childEntity.parent).isEqualTo(originalParent)
+    }
+
+    @Test
+    fun poseInMeters_setPose_updatesEntityPose() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val newPose = Pose(Vector3(5f, 5f, 5f))
+
+        coreEntity.poseInMeters = newPose
+
+        assertThat(testEntity.getPose()).isEqualTo(newPose)
+    }
+
+    @Test
+    fun poseInMeters_setSamePose_doesNotUpdateEntity() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = session, name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val initialPose = testEntity.getPose()
+
+        // We can't directly check if setPose was called, but we can ensure
+        // the value remains identical.
+        coreEntity.poseInMeters = initialPose
+
+        assertThat(testEntity.getPose()).isEqualTo(initialPose)
+    }
+
+    @Test
+    fun enabled_setEnabled_updatesEntityEnabledState() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        testEntity.setEnabled(true)
+
+        coreEntity.enabled = false
+
+        assertThat(testEntity.isEnabled(includeParents = false)).isFalse()
+    }
+
+    @Test
+    fun scale_setScale_updatesEntityScale() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val newScale = 2.5f
+
+        coreEntity.scale = newScale
+
+        assertThat(testEntity.getScale()).isEqualTo(newScale)
+    }
+
+    @Test
+    fun alpha_setAlpha_updatesEntityAlpha() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val newAlpha = 0.5f
+
+        coreEntity.alpha = newAlpha
+
+        assertThat(testEntity.getAlpha()).isEqualTo(newAlpha)
+    }
+
+    @Test
+    fun contentDescription_setContentDescription_updatesEntityContentDescription() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+        val description = "Test Description"
+
+        coreEntity.contentDescription = description
+
+        assertThat(coreEntity.contentDescription).isEqualTo(description)
+        assertThat(testEntity.contentDescription).isEqualTo(description)
+    }
+
+    @Test
+    fun contentDescription_setNull_updatesEntityWithEmptyStringAndReturnsNull() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        coreEntity.contentDescription = null
+
+        assertThat(testEntity.contentDescription).isEqualTo("")
+        assertThat(coreEntity.contentDescription).isNull()
+    }
+
+    @Test
+    fun contentDescription_returnsNull_whenUnderlyingEntityHasEmptyString() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        testEntity.contentDescription = ""
+
+        assertThat(coreEntity.contentDescription).isNull()
     }
 }

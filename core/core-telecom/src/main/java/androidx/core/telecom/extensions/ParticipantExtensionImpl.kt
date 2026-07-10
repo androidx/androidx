@@ -58,8 +58,8 @@ internal typealias ActionConnector =
  * @param initialParticipants The initial list of Participants that are associated with this call.
  * @param initialActiveParticipant The initial active Participant that is associated with this call.
  */
-@OptIn(ExperimentalAppActions::class)
 @RequiresApi(VERSION_CODES.O)
+@OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
 internal class ParticipantExtensionImpl(
     initialParticipants: List<Participant>,
     initialActiveParticipant: Participant?,
@@ -117,12 +117,14 @@ internal class ParticipantExtensionImpl(
         onHandRaisedChanged: suspend (Boolean) -> Unit,
     ): RaiseHandState {
         val state = RaiseHandStateImpl(participants, initialRaisedHands, onHandRaisedChanged)
+        @OptIn(ExperimentalAppActions::class)
         registerAction(RAISE_HAND_ACTION, connector = state::connect)
         return state
     }
 
     override fun addKickParticipantSupport(onKickParticipant: suspend (Participant) -> Unit) {
         val state = KickParticipantState(participants, onKickParticipant)
+        @OptIn(ExperimentalAppActions::class)
         registerAction(KICK_PARTICIPANT_ACTION) { _, repo, _ -> state.connect(repo) }
     }
 
@@ -243,6 +245,7 @@ internal class ParticipantExtensionImpl(
      * @param remoteActions the actions reported as supported from the remote InCallService side
      * @param binder the interface used to communicate with the remote InCallService.
      */
+    @OptIn(ExperimentalAppActions::class)
     private fun onCreateParticipantExtension(
         coroutineScope: CoroutineScope,
         remoteActions: Set<Int>,

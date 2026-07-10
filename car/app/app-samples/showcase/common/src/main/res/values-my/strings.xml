@@ -222,7 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"နှိပ်ထားသော အတန်း"</string>
     <string name="first_line_text" msgid="6648055806656590336">"စာသား၏ ပထမစာကြောင်း"</string>
     <string name="second_line_text" msgid="38664490158836864">"စာသား၏ ဒုတိယစာကြောင်း"</string>
-    <string name="long_line_text" msgid="8082962600953333087">"အကန့်အသတ်မဲ့မုဒ် (ဥပမာ- ယာဉ်ရပ်နားမှု မုဒ်၊ ကန့်သတ်မြန်နှုန်း အနှေးမုဒ်) တွင် ဤစာသားခွဲက ဖန်သားပြင်အပြည့် ပြနိုင်သည်။ သို့သော် ကန့်သတ်မုဒ် (ဥပမာ- မောင်းနှင်မုဒ်) တွင် ၎င်းက စာကြောင်းနှစ်ကြောင်းမျှသာ တိုသွားမည်။ စမ်းသပ်မှုများအတွက် ဤစာသားခွဲသည် အလွန့်အလွန် ရှည်လျားသည်"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"အကန့်အသတ်မဲ့မုဒ် (ဥပမာ- ယာဉ်ရပ်နားမှု မုဒ်၊ ကန့်သတ်မြန်နှုန်း အနှေးမုဒ်) တွင် ဤစာသားခွဲက စခရင်အပြည့် ပြနိုင်သည်။ သို့သော် ကန့်သတ်မုဒ် (ဥပမာ- မောင်းနှင်မုဒ်) တွင် ၎င်းက စာကြောင်းနှစ်ကြောင်းမျှသာ တိုသွားမည်။ စမ်းသပ်မှုများအတွက် ဤစာသားခွဲသည် အလွန့်အလွန် ရှည်လျားသည်"</string>
     <string name="title_prefix" msgid="3991742709199357049">"ခေါင်းစဉ်"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"စာရင်း ပုံစံသရုပ်ပြချက်"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"မက်ဆေ့ဂျ်အရှည် ပုံစံသရုပ်ပြချက်"</string>
@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"မက်ဆေ့ဂျ်များ ဤနေရာတွင်ပြမည်။\nဒုတိယစာကြောင်းတွင် စာသားပိုထည့်မည်။"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"မက်ဆေ့ဂျ်တိုပုံစံ သရုပ်ပြချက်"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ကဏ္ဍခွဲထားသောဖိုင်ပုံစံ သရုပ်ပြချက်"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"ချုံ့ထားသောဖိုင် သရုပ်ပြ"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ကဏ္ဍခွဲထားသောဖိုင် AlphaJump ဖွင့်ထားသည့် သရုပ်ပြချက်"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ရေဒီယိုခလုတ် ကဏ္ဍ"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ခလုတ်ကဏ္ဍ"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"အတန်းစုစည်းမှု ကဏ္ဍ"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ဇယားကွက်ဖိုင် ကဏ္ဍ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"အပိုင်းခွဲထားသည့် ဖိုင်စာရင်းသရုပ်ပြချက်"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"စာရင်း ၁"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"စာရင်း ၂"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"စာရင်းတစ်ခုစီ၏အောက်ရှိ ရှင်းလင်းချက်"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ပုံနှင့် လုပ်ဆောင်ချက်များ သရုပ်ပြချက်ကို အဆုံးသတ်ရန်"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"ချစ်ပ်သရုပ်ပြ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"ပြီးစီးမှုပြဘား သရုပ်ပြ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"ခေါင်းစီးသရုပ်ပြကဏ္ဍ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"အထူးဖော်ပြမှု ကဏ္ဍ သရုပ်ပြခြင်း"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"အကန့် ပုံစံနမူနာ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"နေရာစာရင်း ပုံစံသရုပ်ပြချက်"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"နေရာများကြည့်ရှုရန်"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"တဘ်ပုံစံ သရုပ်ပြချက်"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"မက်ဆေ့ဂျ်တဘ်"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"အကန့်တဘ်"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"ကဏ္ဍခွဲထားသော အချက်အလက်တဘ်"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"စာရင်းတဘ်"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"တဘ်ခေါင်းစဉ်အရှည် ပါဝင်သော ဇယားကွက်တဘ်"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ရှာဖွေရေးတဘ်"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"အတန်းကိုလည်း ရွေးနိုင်သည်"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ဒုတိယဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"အတန်း၏ ပထမဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"အပိုင်းခွဲထားသည့် ဖိုင်စာရင်းသရုပ်ပြချက်"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"စာရင်း ၁"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"စာရင်း ၂"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"စာရင်းတစ်ခုစီ၏အောက်ရှိ ရှင်းလင်းချက်"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"အတန်းအဆုံး ပုံနှင့် လုပ်ဆောင်ချက်များ သရုပ်ပြခြင်း"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"စာရင်းအလွတ် သရုပ်ပြ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ဤစာရင်းသည် အလွတ်ဖြစ်သည်"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"အထွေထွေ ပုံစံသရုပ်ပြချက်များ"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"အကြောင်းအရာ သရုပ်ပြချက်များပါသည့် မြေပုံ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"မက်ဆေ့ဂျ်ပုံစံ သရုပ်ပြချက်ပါသည့် မြေပုံ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ဇယားကွက်ပုံစံ သရုပ်ပြချက်ပါသည့် မြေပုံ"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

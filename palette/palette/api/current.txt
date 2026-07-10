@@ -61,6 +61,10 @@ package androidx.palette.graphics {
     method @ColorInt public int getTitleTextColor();
   }
 
+  public final class PaletteKt {
+    method public static inline operator androidx.palette.graphics.Palette.Swatch? get(androidx.palette.graphics.Palette, androidx.palette.graphics.Target target);
+  }
+
   public final class Target {
     method public float getLightnessWeight();
     method @FloatRange(from=0, to=1) public float getMaximumLightness();

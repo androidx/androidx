@@ -36,5 +36,5 @@ internal class ThreadLocalDelegate<T> constructor(private val initialValueProvid
     override fun initialValue(): T = initialValueProvider()
 
     @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun getValue(thisObj: Any?, property: KProperty<*>): T = get()!!
+    inline operator fun getValue(thisObj: Any?, property: KProperty<*>): T = get()!!
 }

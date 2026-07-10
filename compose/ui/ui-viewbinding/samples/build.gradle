@@ -15,25 +15,23 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation(project(":compose:ui:ui"))
@@ -56,10 +54,11 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     buildFeatures {
         viewBinding = true
     }

@@ -25,10 +25,12 @@ import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.ConfigurationError
+import androidx.benchmark.CpuInfo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceMirroring
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
+import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
@@ -39,8 +41,9 @@ import androidx.benchmark.createInsightSummaries
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.macro.MacrobenchmarkScope.KillMode
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
+import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
+import androidx.benchmark.runServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assume.assumeFalse
@@ -187,6 +190,29 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                         summary = DeviceMirroring.Error.SUMMARY,
                         message = DeviceMirroring.Error.MESSAGE.trimIndent(),
                     ),
+                    conditionalError(
+                        hasError =
+                            Arguments.requireLockedClocks &&
+                                !DeviceInfo.isEmulator &&
+                                DeviceInfo.isRooted &&
+                                !CpuInfo.locked,
+                        id = CpuInfo.Error.ID,
+                        summary = CpuInfo.Error.SUMMARY,
+                        message = CpuInfo.Error.MESSAGE.trimIndent(),
+                    ),
+                    conditionalError(
+                        hasError = !DeviceInfo.canShellAccessAppFiles,
+                        id = "SHELL-ACCESS-DENIED",
+                        summary = "Shell user cannot access app files",
+                        message =
+                            """
+                            MediaProvider/FUSE is blocking the ADB shell from accessing app data.
+                            This is a known issue on some devices and prevents Jetpack Benchmark from
+                            capturing profiles and traces. The device may simply be incompatible
+                            with Jetpack Benchmark.
+                            """
+                                .trimIndent(),
+                    ),
                 )
                 .sortedBy { it.id }
 
@@ -218,7 +244,7 @@ private fun macrobenchmark(
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
     experimentalConfig: ExperimentalConfig?,
-    perfettoSdkConfig: PerfettoSdkConfig?,
+    tracingLibraryConfig: TracingLibraryConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit,
 ): BenchmarkData.TestResult {
@@ -285,7 +311,7 @@ private fun macrobenchmark(
                     profiler = null, // Don't profile when measuring
                     metrics = metrics,
                     experimentalConfig = experimentalConfig,
-                    perfettoSdkConfig = perfettoSdkConfig,
+                    tracingLibraryConfig = tracingLibraryConfig,
                     setupBlock = setupBlock,
                     measureBlock = measureBlock,
                 )
@@ -304,7 +330,7 @@ private fun macrobenchmark(
                         profiler = MethodTracingProfiler(scope),
                         metrics = emptyList(), // Nothing to measure
                         experimentalConfig = experimentalConfig,
-                        perfettoSdkConfig = perfettoSdkConfig,
+                        tracingLibraryConfig = tracingLibraryConfig,
                         setupBlock = setupBlock,
                         measureBlock = measureBlock,
                     )
@@ -392,18 +418,20 @@ fun macrobenchmarkWithStartupMode(
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit,
 ): BenchmarkData.TestResult {
-    val perfettoSdkConfig =
-        if (Arguments.perfettoSdkTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            PerfettoSdkConfig(
-                packageName,
+    val tracingLibraryConfig =
+        TracingLibraryConfig(
+            targetPackage = packageName,
+            inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+            processState =
                 when (startupMode) {
                     null -> InitialProcessState.Unknown
                     StartupMode.COLD -> InitialProcessState.NotAlive
                     StartupMode.HOT,
                     StartupMode.WARM -> InitialProcessState.Alive
                 },
-            )
-        } else null
+            enablePerfettoSdk = Arguments.perfettoSdkTracingEnable,
+        )
+
     return macrobenchmark(
         uniqueName = uniqueName,
         className = className,
@@ -414,7 +442,7 @@ fun macrobenchmarkWithStartupMode(
         iterations = iterations,
         startupModeMetricHint = startupMode,
         experimentalConfig = experimentalConfig,
-        perfettoSdkConfig = perfettoSdkConfig,
+        tracingLibraryConfig = tracingLibraryConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 // Run setup before killing process

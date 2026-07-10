@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -29,9 +30,8 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates that the return value of the annotated API is ignorable.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Documented
 @Target({METHOD, CONSTRUCTOR, TYPE})

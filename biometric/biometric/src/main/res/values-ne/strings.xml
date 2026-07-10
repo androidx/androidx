@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"फिंगरप्रिन्ट प्रयोग गरी प्रमाणीकरण गर्ने डायलग"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"फिंगरप्रिन्ट सेन्सरमा छुनुहोस्‌"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"पहिचान भएन"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"फिंगरप्रिन्ट हार्डवेयर उपलब्ध छैन।"</string>

@@ -17,16 +17,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "androidx.fragment.testapp"
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation(project(":fragment:fragment-ktx"))

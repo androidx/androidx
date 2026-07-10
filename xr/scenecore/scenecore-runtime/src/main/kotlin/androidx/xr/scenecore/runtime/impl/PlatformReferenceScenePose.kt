@@ -1,0 +1,52 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.scenecore.runtime.impl
+
+import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.ActivitySpace
+import androidx.xr.scenecore.runtime.HitTestResult
+import androidx.xr.scenecore.runtime.ScenePose
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PlatformReferenceScenePose(
+    private val activitySpace: ActivitySpace,
+    private val perceptionPose: Pose?,
+) : BaseScenePose() {
+
+    private val platformReferenceScenePoseHelper: PlatformReferenceScenePoseHelper =
+        PlatformReferenceScenePoseHelper(activitySpace)
+
+    override val activitySpacePose: Pose
+        get() = platformReferenceScenePoseHelper.getActivitySpacePose(poseInPlatformReferenceSpace)
+
+    // This WorldPose is assumed to always have a scale of 1.0f in the reference space.
+    override val activitySpaceScale: Vector3
+        get() = platformReferenceScenePoseHelper.getActivitySpaceScale(Vector3(1f, 1f, 1f))
+
+    override suspend fun hitTest(
+        origin: Vector3,
+        direction: Vector3,
+        @ScenePose.HitTestFilterValue hitTestFilter: Int,
+    ): HitTestResult =
+        activitySpace.hitTestRelativeToActivityPose(origin, direction, hitTestFilter, this)
+
+    /** Returns the pose relative to the reference space (may be null if not ready). */
+    public val poseInPlatformReferenceSpace: Pose?
+        get() = perceptionPose
+}

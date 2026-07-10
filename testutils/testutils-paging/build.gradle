@@ -15,13 +15,13 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 
@@ -43,16 +43,14 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                implementation(project(":paging:paging-common"))
-                implementation(libs.kotlinTest)
-            }
+        commonMain.dependencies {
+            implementation(project(":paging:paging-common"))
+            implementation(libs.kotlinTest)
         }
     }
 }
 
 androidx {
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
     type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

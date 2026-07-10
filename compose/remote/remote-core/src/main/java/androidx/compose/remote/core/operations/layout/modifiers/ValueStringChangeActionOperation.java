@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -34,8 +35,10 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Apply a value change on a string variable. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueStringChangeActionOperation extends Operation implements ActionOperation {
     private static final int OP_CODE = Operations.VALUE_STRING_CHANGE_ACTION;
+    private static final String CLASS_NAME = "ValueStringChangeActionOperation";
 
     int mTargetValueId = -1;
     int mValueId = -1;
@@ -62,7 +65,7 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      */
     @NonNull
     public String serializedName() {
-        return "VALUE_CHANGE";
+        return "VALUE_STRING_CHANGE";
     }
 
     @Override
@@ -80,7 +83,9 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValueId);
+    }
 
     @Override
     public void runAction(
@@ -112,8 +117,8 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
-        int value = buffer.readInt();
+        int valueId = buffer.readId();
+        int value = buffer.readId();
         operations.add(new ValueStringChangeActionOperation(valueId, value));
     }
 
@@ -123,23 +128,17 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ValueStringChangeActionOperation")
-                .description(
-                        "ValueStrin gChange action. "
-                                + " This operation represents a String change (referenced by id) "
-                                + "for the given string id")
-                .field(INT, "TARGET_ID", "Target Value ID")
-                .field(
-                        INT,
-                        "VALUE_ID",
-                        "Value ID to be assigned to the target " + "value as a string");
+        doc.operation("Actions & Events Operations", OP_CODE, CLASS_NAME)
+                .description("Action that sets a new value for a string variable")
+                .field(INT, "targetValueId", "The ID of the string variable to update")
+                .field(INT, "valueId", "The ID of the new string value to assign");
     }
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
         serializer
                 .addTags(SerializeTags.MODIFIER, SerializeTags.ACTION)
-                .addType("ValueIntegerExpressionChangeActionOperation")
+                .addType(CLASS_NAME)
                 .add("targetValueId", mTargetValueId)
                 .add("valueId", mValueId);
     }

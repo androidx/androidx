@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColumnScope.weight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="    RemoteRow(modifier = RemoteModifier.fillMaxWidth().weight(1f), content = content)"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteRowScope.weight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="    RemoteBox(modifier = RemoteModifier.fillMaxHeight().weight(1f).background(color))"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+</issues>

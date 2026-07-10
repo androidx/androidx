@@ -21,40 +21,18 @@ package androidx.camera.camera2.pipe.core
 import android.os.SystemClock
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.DurationUnit
 
 /** A nanosecond timestamp */
 @JvmInline
 public value class TimestampNs constructor(public val value: Long) {
-    public inline operator fun minus(other: TimestampNs): DurationNs =
-        DurationNs(value - other.value)
+    public inline operator fun minus(other: TimestampNs): Duration =
+        (value - other.value).nanoseconds
 
-    public inline operator fun plus(other: DurationNs): TimestampNs =
-        TimestampNs(value + other.value)
-}
-
-@JvmInline
-public value class DurationNs(public val value: Long) {
-    public inline operator fun minus(other: DurationNs): DurationNs =
-        DurationNs(value - other.value)
-
-    public inline operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
-
-    public inline operator fun plus(other: TimestampNs): TimestampNs =
-        TimestampNs(value + other.value)
-
-    public operator fun compareTo(other: DurationNs): Int {
-        return if (value == other.value) {
-            0
-        } else if (value < other.value) {
-            -1
-        } else {
-            1
-        }
-    }
-
-    public companion object {
-        public inline fun fromMs(durationMs: Long): DurationNs = DurationNs(durationMs * 1_000_000L)
-    }
+    public inline operator fun plus(other: Duration): TimestampNs =
+        TimestampNs(value + other.inWholeNanoseconds)
 }
 
 public interface TimeSource {
@@ -69,10 +47,10 @@ public class SystemTimeSource @Inject constructor() : TimeSource {
 public object Timestamps {
     public inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
 
-    public inline fun DurationNs.formatNs(): String = "$this ns"
+    public inline fun Duration.formatNs(): String = "${this.inWholeNanoseconds} ns"
 
-    public inline fun DurationNs.formatMs(decimals: Int = 3): String =
-        "%.${decimals}f ms".format(null, this.value / 1_000_000.0)
+    public inline fun Duration.formatMs(decimals: Int = 3): String =
+        "%.${decimals}f ms".format(null, this.toDouble(DurationUnit.MILLISECONDS))
 
     public inline fun TimestampNs.formatNs(): String = "$this ns"
 
@@ -80,5 +58,5 @@ public object Timestamps {
 
     public inline fun TimestampNs.measureNow(
         timeSource: TimeSource = SystemTimeSource()
-    ): DurationNs = now(timeSource) - this
+    ): Duration = now(timeSource) - this
 }

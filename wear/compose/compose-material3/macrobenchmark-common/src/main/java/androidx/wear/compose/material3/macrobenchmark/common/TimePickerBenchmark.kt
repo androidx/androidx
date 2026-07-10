@@ -50,7 +50,7 @@ object TimePickerBenchmark : MacrobenchmarkScreen {
                 }
             assert(testObjects.size == 3)
 
-            repeat(20) {
+            repeat(6) {
                 for (obj in testObjects) {
                     val x = obj.visibleBounds.centerX()
                     device.swipe(x, startY, x, endY, 10)
@@ -78,7 +78,7 @@ object TimePickerScrollMinutesBenchmark : MacrobenchmarkScreen {
             val endY = device.displayHeight * 9 / 10 // scroll down
             val x = device.displayWidth / 2
 
-            repeat(20) {
+            repeat(6) {
                 device.swipe(x, startY, x, endY, 10)
                 device.waitForIdle()
                 SystemClock.sleep(500)

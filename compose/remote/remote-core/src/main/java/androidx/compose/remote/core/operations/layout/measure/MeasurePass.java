@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.layout.measure;
 
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -25,12 +28,43 @@ import java.util.HashMap;
  * Represents the result of a measure pass on the entire hierarchy TODO: optimize to use a flat
  * array vs the current hashmap
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeasurePass {
     @NonNull HashMap<Integer, ComponentMeasure> mList = new HashMap<>();
+    @Nullable RemoteContext mContext;
 
-    /** Clear the MeasurePass */
+    public void setContext(@Nullable RemoteContext context) {
+        mContext = context;
+    }
+
+    /** Clear the MeasurePass, returning active ComponentMeasure instances to the pool */
     public void clear() {
+        if (mContext != null) {
+            ComponentMeasurePool pool = mContext.getComponentMeasurePool();
+            for (ComponentMeasure measure : mList.values()) {
+                pool.recycle(measure);
+            }
+        }
         mList.clear();
+    }
+
+    /**
+     * Retrieve a ComponentMeasure instance from the context's pool if available,
+     * or instantiate a new one.
+     */
+    public @NonNull ComponentMeasure obtain(
+            int id, float x, float y, float w, float h, int visibility) {
+        if (mContext != null) {
+            return mContext.getComponentMeasurePool().obtain(id, x, y, w, h, visibility);
+        }
+        return new ComponentMeasure(id, x, y, w, h, visibility);
+    }
+
+    /** Recycle a ComponentMeasure instance back into the pool */
+    public void recycle(@NonNull ComponentMeasure measure) {
+        if (mContext != null) {
+            mContext.getComponentMeasurePool().recycle(measure);
+        }
     }
 
     /**
@@ -63,14 +97,14 @@ public class MeasurePass {
      * @return the associated ComponentMeasure
      */
     public @NonNull ComponentMeasure get(@NonNull Component c) {
-        if (!mList.containsKey(c.getComponentId())) {
-            ComponentMeasure measure =
-                    new ComponentMeasure(
-                            c.getComponentId(), c.getX(), c.getY(), c.getWidth(), c.getHeight());
-            mList.put(c.getComponentId(), measure);
-            return measure;
+        int id = c.getComponentId();
+        ComponentMeasure measure = mList.get(id);
+        if (measure == null) {
+            measure = obtain(id, c.getX(), c.getY(), c.getWidth(), c.getHeight(),
+                    Component.Visibility.VISIBLE);
+            mList.put(id, measure);
         }
-        return mList.get(c.getComponentId());
+        return measure;
     }
 
     /**
@@ -80,12 +114,11 @@ public class MeasurePass {
      * @return the associated ComponentMeasure
      */
     public @NonNull ComponentMeasure get(int id) {
-        if (!mList.containsKey(id)) {
-            ComponentMeasure measure =
-                    new ComponentMeasure(id, 0f, 0f, 0f, 0f, Component.Visibility.GONE);
+        ComponentMeasure measure = mList.get(id);
+        if (measure == null) {
+            measure = obtain(id, 0f, 0f, 0f, 0f, Component.Visibility.GONE);
             mList.put(id, measure);
-            return measure;
         }
-        return mList.get(id);
+        return measure;
     }
 }

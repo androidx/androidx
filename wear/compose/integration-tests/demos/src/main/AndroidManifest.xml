@@ -19,7 +19,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher_adaptive"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
@@ -62,6 +62,25 @@
             android:theme="@android:style/Theme.DeviceDefault"
             android:label="NavHostWithNamedArgumentActivity">
         </activity>
+
+        <activity
+            android:name=".ListDetailNavDisplaySampleActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="ListDetailNavDisplaySampleActivity">
+        </activity>
+
+        <activity
+            android:name=".NavDisplayWithOnBackBehaviorSampleActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="NavDisplayWithOnBackBehaviorSampleActivity">
+        </activity>
+
+        <activity
+            android:name="androidx.wear.compose.material3.demos.OneHandedGestureSwipeDismissableNavHostDemoActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="OneHandedGestureSwipeDismissableNavHostDemoActivity">
+        </activity>
+
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>

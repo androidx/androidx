@@ -1,17 +1,4 @@
-plugins {
-    id("java-gradle-plugin")
-    id("groovy")
-}
-
-gradlePlugin {
-    plugins {
-        androidXHostTestFailureHandlerPlugin {
-            id = "AndroidXHostTestFailureHandlerPlugin"
-            implementationClass = "androidx.build.AndroidXHostTestFailureHandlerPlugin"
-        }
-    }
-}
-
-dependencies {
-    implementation(gradleApi())
+project.tasks.withType(Jar).configureEach { task ->
+    task.reproducibleFileOrder = true
+    task.preserveFileTimestamps = false
 }

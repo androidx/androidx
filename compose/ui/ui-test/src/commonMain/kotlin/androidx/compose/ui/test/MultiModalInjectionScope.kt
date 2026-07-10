@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Density
@@ -44,20 +45,48 @@ import kotlin.math.roundToInt
  * @see MouseInjectionScope
  * @see KeyInjectionScope
  * @see RotaryInjectionScope
+ * @see TrackpadInjectionScope
  */
 // TODO(fresen): add better multi modal example when we have key input support
 sealed interface MultiModalInjectionScope : InjectionScope {
     /** Injects all touch events sent by the given [block] */
     fun touch(block: TouchInjectionScope.() -> Unit)
 
+    /**
+     * Injects all indirect pointer events sent by the given [block]. This API requires an active
+     * focus state meaning developers need to request focus to the component or a child of the
+     * component via [SemanticsNodeInteraction.requestFocus()] before calling this function. If no
+     * component is currently focused, the event will not trigger.
+     *
+     * @param indirectPointerEventPrimaryDirectionalMotionAxis The main movement axis (horizontal or
+     *   vertical) for single-directional scrolling when using the touchpad [inputDeviceSize]. For
+     *   instance, if the primary axis is set to X, a display prioritizes scrolling its content (for
+     *   both horizontal and vertical containers) based on the device's X-axis movement. Note that
+     *   this input axis may not correspond directly to the resulting scrolling axis on the display
+     *   (e.g., X-axis movement causing vertical scrolling).
+     * @param inputDeviceSize The dimensions of the external indirect pointer input device that
+     *   provide the boundaries for indirect input. If you go outside these dimensions, the tests
+     *   will throw an exception. Note: This is not related to the screen coordinates.
+     * @param block Block of code/events to execute in indirect scope
+     */
+    fun indirectPointer(
+        indirectPointerEventPrimaryDirectionalMotionAxis:
+            IndirectPointerEventPrimaryDirectionalMotionAxis,
+        inputDeviceSize: IntSize,
+        block: IndirectPointerInjectionScope.() -> Unit,
+    )
+
     /** Injects all mouse events sent by the given [block] */
     fun mouse(block: MouseInjectionScope.() -> Unit)
 
     /** Injects all key events sent by the given [block] */
-    @ExperimentalTestApi fun key(block: KeyInjectionScope.() -> Unit)
+    fun key(block: KeyInjectionScope.() -> Unit)
 
     /** Injects all rotary events sent by the given [block] */
-    @ExperimentalTestApi fun rotary(block: RotaryInjectionScope.() -> Unit)
+    fun rotary(block: RotaryInjectionScope.() -> Unit)
+
+    /** Injects all trackpad events sent by the given [block] */
+    fun trackpad(block: TrackpadInjectionScope.() -> Unit)
 }
 
 internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: TestContext) :
@@ -147,28 +176,58 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
 
     private val touchScope: TouchInjectionScope = TouchInjectionScopeImpl(this)
 
+    private var indirectPointerScope: IndirectPointerInjectionScope? = null
+
     private val mouseScope: MouseInjectionScope = MouseInjectionScopeImpl(this)
 
-    @ExperimentalTestApi private val keyScope: KeyInjectionScope = KeyInjectionScopeImpl(this)
+    private val keyScope: KeyInjectionScope = KeyInjectionScopeImpl(this)
 
-    @ExperimentalTestApi
     private val rotaryScope: RotaryInjectionScope = RotaryInjectionScopeImpl(this)
+
+    private val trackpadScope: TrackpadInjectionScope = TrackpadInjectionScopeImpl(this)
 
     override fun touch(block: TouchInjectionScope.() -> Unit) {
         block.invoke(touchScope)
+    }
+
+    override fun indirectPointer(
+        indirectPointerEventPrimaryDirectionalMotionAxis:
+            IndirectPointerEventPrimaryDirectionalMotionAxis,
+        inputDeviceSize: IntSize,
+        block: IndirectPointerInjectionScope.() -> Unit,
+    ) {
+        // A new MultiModalInjectionScopeImpl is recreated every time this block is called (see
+        // [Actions.kt]), so, generally, it's unlikely these will ever be updated (though we have
+        // support for it).
+        if (indirectPointerScope == null) {
+            indirectPointerScope =
+                IndirectPointerInjectionScopeImpl(
+                    this,
+                    initialInputDeviceSize = inputDeviceSize,
+                    initialAxis = indirectPointerEventPrimaryDirectionalMotionAxis,
+                )
+        } else {
+            (indirectPointerScope as? IndirectPointerInjectionScopeImpl)?.updateConfiguration(
+                size = inputDeviceSize,
+                axis = indirectPointerEventPrimaryDirectionalMotionAxis,
+            )
+        }
+        block.invoke(indirectPointerScope!!)
     }
 
     override fun mouse(block: MouseInjectionScope.() -> Unit) {
         block.invoke(mouseScope)
     }
 
-    @ExperimentalTestApi
     override fun key(block: KeyInjectionScope.() -> Unit) {
         block.invoke(keyScope)
     }
 
-    @ExperimentalTestApi
     override fun rotary(block: RotaryInjectionScope.() -> Unit) {
         block.invoke(rotaryScope)
+    }
+
+    override fun trackpad(block: TrackpadInjectionScope.() -> Unit) {
+        block.invoke(trackpadScope)
     }
 }

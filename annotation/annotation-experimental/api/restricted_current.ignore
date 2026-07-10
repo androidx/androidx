@@ -1,9 +1,11 @@
 // Baseline format: 1.0
-AddedMethod: androidx.annotation.OptIn#OptIn(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...):
-    Added constructor androidx.annotation.OptIn(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...)
-AddedMethod: androidx.annotation.RequiresOptIn#RequiresOptIn(androidx.annotation.RequiresOptIn.Level, String):
-    Added constructor androidx.annotation.RequiresOptIn(androidx.annotation.RequiresOptIn.Level,String)
-AddedMethod: androidx.annotation.experimental.Experimental#Experimental(androidx.annotation.experimental.Experimental.Level):
-    Added constructor androidx.annotation.experimental.Experimental(androidx.annotation.experimental.Experimental.Level)
-AddedMethod: androidx.annotation.experimental.UseExperimental#UseExperimental(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...):
-    Added constructor androidx.annotation.experimental.UseExperimental(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...)
+RemovedFromKotlin: androidx.annotation.OptIn#markerClass():
+    Source breaking change: method androidx.annotation.OptIn.markerClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresOptIn#level():
+    Source breaking change: method androidx.annotation.RequiresOptIn.level() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresOptIn#message():
+    Source breaking change: method androidx.annotation.RequiresOptIn.message() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.experimental.Experimental#level():
+    Source breaking change: method androidx.annotation.experimental.Experimental.level() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.experimental.UseExperimental#markerClass():
+    Source breaking change: method androidx.annotation.experimental.UseExperimental.markerClass() can no longer be resolved from Kotlin source

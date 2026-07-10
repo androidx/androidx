@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** The standard interface to Easing functions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Easing {
     int mType;
 
@@ -58,7 +61,7 @@ public abstract class Easing {
     /** cubic Easing function that just linearly interpolates */
     public static final int CUBIC_LINEAR = 4;
 
-    /** cubic Easing function that goes bacwards and then accelerates */
+    /** cubic Easing function that goes backwards and then accelerates */
     public static final int CUBIC_ANTICIPATE = 5;
 
     /** cubic Easing function that overshoots and then goes back */

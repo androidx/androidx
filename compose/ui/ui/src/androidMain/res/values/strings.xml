@@ -58,5 +58,5 @@
     <!-- Accessibility pane title for a snackbar -->
     <string name="snackbar_pane_title">Alert</string>
     <!-- Item on toolbar menu. This action is used to request autofill. -->
-    <string name="autofill">Autofill</string>
+    <string name="androidx_compose_ui_autofill">Autofill</string>
 </resources>

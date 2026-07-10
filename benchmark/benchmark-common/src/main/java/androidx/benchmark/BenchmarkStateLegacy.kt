@@ -100,8 +100,9 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
                         arrayOf(
                             TimeCapture(),
                             CpuEventCounterCapture(
-                                MicrobenchmarkPhase.cpuEventCounter,
-                                Arguments.cpuEventCounterMask,
+                                cpuEventCounter = MicrobenchmarkPhase.cpuEventCounter,
+                                mask = Arguments.cpuEventCounterMask,
+                                validateMeasurements = true,
                             ),
                         )
                     } else {
@@ -135,7 +136,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * Decreasing iteration count used when running a multi-iteration measurement phase Used to
      * determine when a main measurement stage finishes.
      */
-    @Suppress("ShowingMemberInHiddenClass")
+    @field:Suppress("ShowingMemberInHiddenClass")
     @JvmField
     @PublishedApi // previously used by [BenchmarkState.keepRunningInline()]
     internal var iterationsRemaining: Int = -1

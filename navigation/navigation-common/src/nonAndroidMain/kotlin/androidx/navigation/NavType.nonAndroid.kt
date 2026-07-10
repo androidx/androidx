@@ -48,6 +48,10 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
 
     public actual open fun valueEquals(value: T, other: T): Boolean = value == other
 
+    public override fun toString(): String {
+        return name
+    }
+
     public actual companion object {
         @JvmStatic
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")

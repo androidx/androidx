@@ -29,19 +29,19 @@ import androidx.annotation.IntDef
  * Contract.
  */
 @SuppressLint("BanParcelableUsage")
-class IntentSenderRequest
+public class IntentSenderRequest
 internal constructor(
     /** The intentSender from this IntentSenderRequest. */
-    val intentSender: IntentSender,
+    public val intentSender: IntentSender,
     /**
      * The intent from this IntentSender request. If non-null, this will be provided as the intent
      * parameter to IntentSender#sendIntent.
      */
-    val fillInIntent: Intent? = null,
+    public val fillInIntent: Intent? = null,
     /** The flag mask from this IntentSender request. */
-    val flagsMask: Int = 0,
+    public val flagsMask: Int = 0,
     /** The flag values from this IntentSender request. */
-    val flagsValues: Int = 0,
+    public val flagsValues: Int = 0,
 ) : Parcelable {
 
     @Suppress("DEPRECATION")
@@ -66,7 +66,7 @@ internal constructor(
     }
 
     /** A builder for constructing [IntentSenderRequest] instances. */
-    class Builder(private val intentSender: IntentSender) {
+    public class Builder(private val intentSender: IntentSender) {
         private var fillInIntent: Intent? = null
         private var flagsMask = 0
         private var flagsValues = 0
@@ -77,7 +77,7 @@ internal constructor(
          * @param pendingIntent the pendingIntent containing with the intentSender to go in the
          *   IntentSenderRequest.
          */
-        constructor(pendingIntent: PendingIntent) : this(pendingIntent.intentSender)
+        public constructor(pendingIntent: PendingIntent) : this(pendingIntent.intentSender)
 
         @IntDef(
             flag = true,
@@ -123,7 +123,7 @@ internal constructor(
          *   provided as the intent parameter to IntentSender#sendIntent.
          * @return This builder.
          */
-        fun setFillInIntent(fillInIntent: Intent?): Builder {
+        public fun setFillInIntent(fillInIntent: Intent?): Builder {
             this.fillInIntent = fillInIntent
             return this
         }
@@ -137,7 +137,7 @@ internal constructor(
          *   IntentSender that you would like to change.
          * @return This builder.
          */
-        fun setFlags(@Flag values: Int, mask: Int): Builder {
+        public fun setFlags(@Flag values: Int, mask: Int): Builder {
             flagsValues = values
             flagsMask = mask
             return this
@@ -148,15 +148,15 @@ internal constructor(
          *
          * @return the newly constructed IntentSenderRequest.
          */
-        fun build(): IntentSenderRequest {
+        public fun build(): IntentSenderRequest {
             return IntentSenderRequest(intentSender, fillInIntent, flagsMask, flagsValues)
         }
     }
 
-    companion object {
+    public companion object {
         @Suppress("unused")
         @JvmField
-        val CREATOR: Parcelable.Creator<IntentSenderRequest> =
+        public val CREATOR: Parcelable.Creator<IntentSenderRequest> =
             object : Parcelable.Creator<IntentSenderRequest> {
                 override fun createFromParcel(inParcel: Parcel): IntentSenderRequest {
                     return IntentSenderRequest(inParcel)

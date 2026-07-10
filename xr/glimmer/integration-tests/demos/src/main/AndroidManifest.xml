@@ -19,7 +19,7 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <application
-            android:label="Glimmer Demos"
+            android:label="Jetpack Compose Glimmer Demos"
             android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
             android:allowBackup="false" android:icon="@mipmap/ic_launcher"
             android:enableOnBackInvokedCallback="true">
@@ -33,6 +33,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ProjectedDemoActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@style/AppTheme"
+            android:requiredDisplayCategory="xr_projected">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>

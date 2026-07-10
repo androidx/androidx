@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.sqlite.driver.bundled.BundledSQLiteDriver#getThreadingMode():
+    Source breaking change: method androidx.sqlite.driver.bundled.BundledSQLiteDriver.getThreadingMode() can no longer be resolved from Kotlin source

@@ -26,10 +26,13 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import sqlite3.SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION
+import sqlite3.SQLITE_ERROR
 import sqlite3.SQLITE_OK
 import sqlite3.SQLITE_OPEN_CREATE
 import sqlite3.SQLITE_OPEN_READWRITE
+import sqlite3.sqlite3_compileoption_used
 import sqlite3.sqlite3_db_config
+import sqlite3.sqlite3_extended_result_codes
 import sqlite3.sqlite3_open_v2
 import sqlite3.sqlite3_threadsafe
 
@@ -77,11 +80,25 @@ public class NativeSQLiteDriver : SQLiteDriver {
             throwSQLiteException(resultCode, null)
         }
 
-        // Enable the C function to load extensions but not the load_extension() SQL function.
-        resultCode =
-            sqlite3_db_config(dbPointer.value!!, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, 0)
+        // Enable extended error codes
+        resultCode = sqlite3_extended_result_codes(dbPointer.value!!, 1)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, null)
+        }
+
+        // Enable the C function to load extensions but not the load_extension() SQL function.
+        if (extensions.isNotEmpty()) {
+            if (sqlite3_compileoption_used("OMIT_LOAD_EXTENSION") == 1) {
+                throwSQLiteException(
+                    SQLITE_ERROR,
+                    "Found extensions but sqlite3_load_extension() is omitted.",
+                )
+            }
+            resultCode =
+                sqlite3_db_config(dbPointer.value!!, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, 0)
+            if (resultCode != SQLITE_OK) {
+                throwSQLiteException(resultCode, null)
+            }
         }
 
         val connection = NativeSQLiteConnection(dbPointer.value!!)

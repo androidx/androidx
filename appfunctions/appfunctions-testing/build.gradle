@@ -15,31 +15,33 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import com.google.devtools.ksp.gradle.KspAATask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     implementation(project(":appfunctions:appfunctions"))
-    implementation(project(":appfunctions:appfunctions-service"))
+    implementation(libs.kotlinCoroutinesAndroid)
     implementation("junit:junit:4.13.2")
     implementation(libs.robolectric)
 
     // Internal dependencies
     implementation("androidx.annotation:annotation:1.9.0")
+
+    // Forcing this upgrade due to CVE-2026-0636. For more information, see b/505222436
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(libs.truth)
@@ -56,7 +58,7 @@ ksp {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(37) }
     namespace = "androidx.appfunctions.testing"
 }
 
@@ -66,4 +68,12 @@ androidx {
     inceptionYear = "2025"
     description = "AppFunctions Testing Library."
     enableRobolectric()
+}
+
+// TODO(b/456071824): Remove this workaround
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
+}
+tasks.withType(KspAATask).configureEach {
+    it.kspConfig.incremental.set(false)
 }

@@ -1,0 +1,204 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+        - type: BOX
+          id: 2
+          x: 425.0
+          y: 475.0
+          width: 150.0
+          height: 50.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: LayoutComputeOperation
+              list:
+              - {type: DataDynamicListFloat, id: 2097194, values: '[425.0, 475.0,
+                  150.0, 50.0, 1000.0, 1000.0]'}
+              - arrayId: 2097194
+                index: {type: Value, value: 2.0}
+                value: {type: Value, value: 150.0}
+            - type: LayoutComputeOperation
+              list:
+              - {type: DataDynamicListFloat, id: 2097195, values: '[425.0, 475.0,
+                  150.0, 50.0, 1000.0, 1000.0]'}
+              - type: FloatExpression
+                id: 42
+                srcValues:
+                - {type: Variable, id: 43}
+                - {type: Value, value: 4.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Variable, id: 43}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Instruction, instruction: '-'}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: /}
+                animation: null
+              - arrayId: 2097195
+                index: {type: Value, value: 0.0}
+                value: {type: Variable, id: 42, value: 425.0}
+              - type: FloatExpression
+                id: 43
+                srcValues:
+                - {type: Variable, id: 43}
+                - {type: Value, value: 5.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Variable, id: 43}
+                - {type: Value, value: 3.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Instruction, instruction: '-'}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: /}
+                animation: null
+              - arrayId: 2097195
+                index: {type: Value, value: 1.0}
+                value: {type: Variable, id: 43, value: 475.0}
+            - type: HeightModifierOperation
+              height: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 50.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+        - type: BOX
+          id: 2
+          x: 425.0
+          y: 475.0
+          width: 150.0
+          height: 50.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: LayoutComputeOperation
+              list:
+              - {type: DataDynamicListFloat, id: 2097194, values: '[425.0, 475.0,
+                  150.0, 50.0, 1000.0, 1000.0]'}
+              - arrayId: 2097194
+                index: {type: Value, value: 2.0}
+                value: {type: Value, value: 150.0}
+            - type: LayoutComputeOperation
+              list:
+              - {type: DataDynamicListFloat, id: 2097195, values: '[425.0, 475.0,
+                  150.0, 50.0, 1000.0, 1000.0]'}
+              - type: FloatExpression
+                id: 42
+                srcValues:
+                - {type: Variable, id: 43}
+                - {type: Value, value: 4.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Variable, id: 43}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Instruction, instruction: '-'}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: /}
+                animation: null
+              - arrayId: 2097195
+                index: {type: Value, value: 0.0}
+                value: {type: Variable, id: 42, value: 425.0}
+              - type: FloatExpression
+                id: 43
+                srcValues:
+                - {type: Variable, id: 43}
+                - {type: Value, value: 5.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Variable, id: 43}
+                - {type: Value, value: 3.0}
+                - {type: Instruction, instruction: A_DEREF}
+                - {type: Instruction, instruction: '-'}
+                - {type: Value, value: 2.0}
+                - {type: Instruction, instruction: /}
+                animation: null
+              - arrayId: 2097195
+                index: {type: Value, value: 1.0}
+                value: {type: Variable, id: 43, value: 475.0}
+            - type: HeightModifierOperation
+              height: {type: Value, value: 50.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 150.0, height: 50.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: START

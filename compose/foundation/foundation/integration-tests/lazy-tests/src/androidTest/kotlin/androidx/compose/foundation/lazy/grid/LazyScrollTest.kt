@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -39,6 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +48,8 @@ import org.junit.Test
 @MediumTest
 // @RunWith(Parameterized::class)
 class LazyScrollTest { // (private val orientation: Orientation)
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(testDispatcher)
 
     private val vertical: Boolean
         get() = true // orientation == Orientation.Vertical
@@ -418,6 +420,8 @@ class LazyScrollTest { // (private val orientation: Orientation)
         rule.mainClock.autoAdvance = false
 
         scope.launch { state.animateScrollToItem(toIndex, toOffset) }
+
+        testDispatcher.scheduler.runCurrent()
 
         while (!state.isScrollInProgress) {
             Thread.sleep(5)

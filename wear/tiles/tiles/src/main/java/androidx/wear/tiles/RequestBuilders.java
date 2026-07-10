@@ -22,6 +22,7 @@ import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.ProtoLayoutScope;
 import androidx.wear.protolayout.StateBuilders.State;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
+import androidx.wear.protolayout.expression.VersionBuilders;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.tiles.proto.RequestProto;
@@ -85,9 +86,24 @@ public final class RequestBuilders {
             this(impl, /* scope= */ null);
         }
 
+        @SuppressWarnings("RestrictedApiAndroidX") // Tiles is allowed to use ProtoLayout's APIs
         TileRequest(RequestProto.TileRequest impl, @Nullable ProtoLayoutScope scope) {
             this.mImpl = impl;
-            this.mScope = scope != null ? scope : new ProtoLayoutScope();
+            if (scope != null) {
+                this.mScope = scope;
+                return;
+            }
+
+            // If no scope is provided, check the device configuration for a schema version.
+            if (impl.getDeviceConfiguration().hasRendererSchemaVersion()) {
+                this.mScope =
+                        new ProtoLayoutScope(
+                                VersionBuilders.VersionInfo.fromProto(
+                                        impl.getDeviceConfiguration().getRendererSchemaVersion()));
+            } else {
+                // If no schema version is present, create a default scope.
+                this.mScope = new ProtoLayoutScope();
+            }
         }
 
         /**

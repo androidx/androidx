@@ -17,6 +17,7 @@
 
 package androidx.lifecycle
 
+import androidx.annotation.EmptySuper
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewmodel.internal.ViewModelImpl
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +42,7 @@ public actual abstract class ViewModel {
         impl = ViewModelImpl(viewModelScope, *closeables)
     }
 
-    protected actual open fun onCleared() {}
+    @EmptySuper protected actual open fun onCleared() {}
 
     @MainThread
     internal actual fun clear() {

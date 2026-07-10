@@ -18,7 +18,12 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
+import androidx.camera.camera2.pipe.OutputStatus.Companion.UNAVAILABLE
+import androidx.camera.camera2.pipe.core.AutoCloseables
+import androidx.camera.camera2.pipe.core.AutoCloseables.useEachIndexedAsync
 import androidx.camera.camera2.pipe.media.OutputImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 
 /**
  * A [Frame] is a container for all of the data and outputs that are sent to, and produced from, a
@@ -94,7 +99,7 @@ public interface Frame : FrameReference, AutoCloseable {
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
      */
-    public suspend fun awaitImage(streamId: StreamId): OutputImage?
+    public suspend fun awaitImage(streamId: StreamId): OutputImage? = null
 
     /**
      * Return the [OutputImage] for this [streamId], if available.
@@ -104,7 +109,57 @@ public interface Frame : FrameReference, AutoCloseable {
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
      */
-    public fun getImage(streamId: StreamId): OutputImage?
+    public fun getImage(streamId: StreamId): OutputImage? = null
+
+    /**
+     * Return the [OutputImage] for this [outputId], if available or suspend until the output for
+     * stream has been resolved.
+     *
+     * Returns null if the image could not be produced for any reason, or if this frame is closed.
+     * If an image is not available, [imageStatus] can be used to understand the reason this image
+     * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
+     * closed to avoid memory leaks.
+     */
+    public suspend fun awaitImage(outputId: OutputId): OutputImage? {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Return the [OutputImage] for this [outputId], if available.
+     *
+     * Returns null if the image could not be produced for any reason, or if this frame is closed.
+     * If an image is not available, [imageStatus] can be used to understand the reason this image
+     * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
+     * closed to avoid memory leaks.
+     */
+    public fun getImage(outputId: OutputId): OutputImage? {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Returns the [OutputImage]s for this [streamId], if available or suspend until the output for
+     * this stream has been resolved.
+     *
+     * May return an empty list or a subset of available output images if some images could not be
+     * produced for any reason, or if this frame is closed. If an image is not available,
+     * [imageStatus] can be used to understand the reason a particular image was not produced by the
+     * camera. Each call produces unique [OutputImage]s that *must* be closed to avoid memory leaks.
+     */
+    public suspend fun awaitImages(streamId: StreamId): List<OutputImage> {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Returns the [OutputImage]s for this [streamId], if available.
+     *
+     * May return an empty list or a subset of available output images if some images could not be
+     * produced for any reason, or if this frame is closed. If an image is not available,
+     * [imageStatus] can be used to understand the reason a particular image was not produced by the
+     * camera. Each call produces unique [OutputImage]s that *must* be closed to avoid memory leaks.
+     */
+    public fun getImages(streamId: StreamId): List<OutputImage> {
+        TODO("Not yet implemented")
+    }
 
     /**
      * Listener for non-coroutine based applications that may need to be notified when the state of
@@ -126,8 +181,12 @@ public interface Frame : FrameReference, AutoCloseable {
         /** Invoked after [FrameInfo] is available, or has failed to be produced. */
         public fun onFrameInfoAvailable()
 
-        /** Invoked after the output for a given [StreamId] has been produced. */
-        public fun onImageAvailable(streamId: StreamId)
+        /**
+         * Invoked after the output for a given [StreamId] has been produced.
+         *
+         * TODO(b/474658963): Deprecate this API once the new await/get image APIs are implemented.
+         */
+        public fun onImageAvailable(streamId: StreamId) {}
 
         /**
          * Invoked after *all* outputs for this [Frame] have been produced. This method will be
@@ -149,6 +208,19 @@ public interface Frame : FrameReference, AutoCloseable {
 
         public fun FrameReference.isImageAvailable(streamId: StreamId): Boolean =
             this.imageStatus(streamId) == OutputStatus.AVAILABLE
+
+        public fun FrameReference.isImageAvailable(outputId: OutputId): Boolean =
+            this.imageStatus(outputId) == OutputStatus.AVAILABLE
+
+        /** Utility for safely using and closing each [Frame] in a list. */
+        public inline fun List<Frame>.useEach(action: (Frame) -> Unit) {
+            AutoCloseables.useEach(this, action)
+        }
+
+        /** Utility for safely using and closing each [Frame] in a list. */
+        public inline fun List<Frame>.useEachIndexed(action: (Int, Frame) -> Unit) {
+            AutoCloseables.useEachIndexed(this, action)
+        }
     }
 }
 
@@ -194,6 +266,19 @@ public value class OutputStatus internal constructor(public val value: Int) {
          * frames and/or images.
          */
         public val ERROR_OUTPUT_DROPPED: OutputStatus = OutputStatus(13)
+    }
+
+    override fun toString(): String {
+        return when (value) {
+            0 -> "PENDING"
+            1 -> "AVAILABLE"
+            2 -> "UNAVAILABLE"
+            10 -> "ERROR_OUTPUT_FAILED"
+            11 -> "ERROR_OUTPUT_ABORTED"
+            12 -> "ERROR_OUTPUT_MISSING"
+            13 -> "ERROR_OUTPUT_DROPPED"
+            else -> "OutputStatus(value=$value)"
+        }
     }
 }
 
@@ -259,6 +344,90 @@ public interface FrameCapture : AutoCloseable {
 
     /** Adds a [Frame.Listener] that will be invoked for each of the subsequent [Frame] events. */
     public fun addListener(listener: Frame.Listener)
+
+    public companion object {
+        /**
+         * Utility for safely calling the provided function for each [FrameCapture] in the list and
+         * ensuring each [FrameCapture] is closed after the function returns.
+         */
+        public inline fun List<FrameCapture>.useEach(action: (FrameCapture) -> Unit) {
+            AutoCloseables.useEach(this, action)
+        }
+
+        /**
+         * Utility for safely calling the provided function for each [FrameCapture] in the list and
+         * ensuring each [FrameCapture] is closed after the function returns.
+         */
+        public inline fun List<FrameCapture>.useEachIndexed(action: (Int, FrameCapture) -> Unit) {
+            AutoCloseables.useEachIndexed(this, action)
+        }
+
+        /**
+         * Utility for safely waiting for and closing a [FrameCapture] and the associated [Frame].
+         */
+        public suspend inline fun <R> FrameCapture.useFrame(action: (Frame?) -> R): R =
+            this.use { capture ->
+                capture.awaitFrame().use { frame ->
+                    capture.close() // close after Frame is acquired as an optimization.
+                    action(frame)
+                }
+            }
+
+        /**
+         * Utility for safely waiting for and closing each [FrameCapture] and the associated [Frame]
+         * from a list.
+         */
+        public suspend inline fun List<FrameCapture>.useEachFrame(action: (Frame?) -> Unit) {
+            this.useEach { capture ->
+                capture.awaitFrame().use { frame ->
+                    capture.close() // close after Frame is acquired as an optimization.
+                    action(frame)
+                }
+            }
+        }
+
+        /**
+         * Utility for safely waiting for and closing each [FrameCapture] and the associated [Frame]
+         * from a list.
+         */
+        public suspend inline fun List<FrameCapture>.useEachFrameIndexed(
+            action: (Int, Frame?) -> Unit
+        ) {
+            this.useEachIndexed { idx, capture ->
+                capture.awaitFrame().use { frame ->
+                    capture.close() // close after Frame is acquired as an optimization.
+                    action(idx, frame)
+                }
+            }
+        }
+
+        /**
+         * Utility for safely waiting for and closing each [FrameCapture] and the associated [Frame]
+         * from a list in parallel.
+         */
+        public suspend inline fun <R> List<FrameCapture>.useEachFrameAsync(
+            scope: CoroutineScope,
+            crossinline action: suspend CoroutineScope.(Frame?) -> R,
+        ): List<Deferred<R>> {
+            return useEachFrameIndexedAsync(scope) { _, frame -> action(frame) }
+        }
+
+        /**
+         * Utility for safely waiting for and closing each [FrameCapture] and the associated [Frame]
+         * from a list in parallel.
+         */
+        public suspend inline fun <R> List<FrameCapture>.useEachFrameIndexedAsync(
+            scope: CoroutineScope,
+            crossinline action: suspend CoroutineScope.(Int, Frame?) -> R,
+        ): List<Deferred<R>> {
+            return useEachIndexedAsync(scope, this) { idx, capture ->
+                capture.awaitFrame().use { frame ->
+                    capture.close() // close after Frame is acquired as an optimization.
+                    action(idx, frame)
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -293,6 +462,11 @@ public interface FrameReference {
 
     /** Get the current [OutputStatus] of the output for a given [streamId]. */
     public fun imageStatus(streamId: StreamId): OutputStatus
+
+    /** Get the current [OutputStatus] of the output for a given [outputId]. */
+    public fun imageStatus(outputId: OutputId): OutputStatus {
+        TODO("Not yet implemented")
+    }
 
     /**
      * [StreamId]'s that can be used to access [OutputImage]s from this [Frame] via [Frame.getImage]

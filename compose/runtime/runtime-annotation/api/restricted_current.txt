@@ -16,7 +16,7 @@ package androidx.compose.runtime.annotation {
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DoNotRetain {
     ctor @KotlinOnly public DoNotRetain(optional String explanation);
-    method public abstract String explanation() default "";
+    method @InaccessibleFromKotlin public abstract String explanation() default "";
     property public abstract String explanation;
   }
 

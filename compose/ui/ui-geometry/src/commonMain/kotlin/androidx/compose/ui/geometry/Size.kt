@@ -70,14 +70,18 @@ value class Size(val packedValue: Long) {
 
     companion object {
         /** An empty size, one with a zero width and a zero height. */
-        @Stable val Zero = Size(0x0L)
+        @Stable
+        val Zero
+            get() = Size(0x0L)
 
         /**
          * A size whose [width] and [height] are unspecified. This is a sentinel value used to
          * initialize a non-null parameter. Access to width or height on an unspecified size is not
          * allowed.
          */
-        @Stable val Unspecified = Size(UnspecifiedPackedFloats)
+        @Stable
+        val Unspecified
+            get() = Size(UnspecifiedPackedFloats)
     }
 
     /**

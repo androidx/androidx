@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <!-- Text to be displayed on the location button. [CHAR LIMIT=40] -->
+    <string name="location_button_precise_location">Precise location</string>
+    <!-- Text to be displayed on the location button. [CHAR LIMIT=40] -->
+    <string name="location_button_use_precise_location">Use precise location</string>
+    <!-- Text to be displayed on the location button. [CHAR LIMIT=40] -->
+    <string name="location_button_share_precise_location">Share precise location</string>
+    <!-- Text to be displayed on the location button. [CHAR LIMIT=40] -->
+    <string name="location_button_near_my_precise_location">Near my precise location</string>
+    <!-- Text to be displayed on the location button. [CHAR LIMIT=40] -->
+    <string name="location_button_near_your_precise_location">Near your precise location</string>
+</resources>

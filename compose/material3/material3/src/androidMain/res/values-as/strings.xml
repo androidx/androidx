@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"অধিক বিকল্প"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"ডায়ল’গ"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"বিস্তাৰ কৰা আছে"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"সংকোচন কৰা আছে"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"তলৰ শ্বীটখন বিস্তাৰ কৰক"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"টুলবাৰ সংকোচন কৰক"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"টুলবাৰ বিস্তাৰ কৰক"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"অধিক বিকল্প"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"টুলটিপ"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"টুলটিপ দেখুৱাওক"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -81,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"ঘড়ী ম’ডলৈ সলনি কৰক"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"সময় বাছনি কৰক"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"সময় দিয়ক"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"মিনিট ০–৫৯ হ’বই লাগিব"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"ঘণ্টা ১–১২ৰ ভিতৰত হ’বই লাগিব"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"ঘণ্টা ০–২৩ হ’বই লাগিব"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"ৰে’ল কৰক"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"নেভিগেশ্বন ৰে’ল"</string>
 </resources>

@@ -24,12 +24,22 @@ def findGradleKotlinDsl() {
      * getGradleVersion() is in a format of X.Y.Z-rc-1 / X.Y.Z. Kotlin dsl jar always drops the
      * "-rc-1" suffix of the version, thus we need additional substring logic.
      */
-    def dashIndex = project.gradle.getGradleVersion().indexOf("-")
-    def kotlinDslVersion = dashIndex == -1 ? project.gradle.getGradleVersion()
-            : project.gradle.getGradleVersion().substring(0, dashIndex)
-    def kotlinDsl = "" + project.gradle.getGradleHomeDir() + "/lib/gradle-kotlin-dsl-" +
-                    kotlinDslVersion + ".jar"
-    return project.files(kotlinDsl)
+    def gradleVersion = project.gradle.getGradleVersion()
+    def dashIndex = gradleVersion.indexOf("-")
+    def kotlinDslVersion = dashIndex == -1 ? gradleVersion : gradleVersion.substring(0, dashIndex)
+
+    def libDir = new File(project.gradle.getGradleHomeDir(), "lib")
+
+    def requiredModules = [
+        "gradle-kotlin-dsl",
+        "gradle-kotlin-dsl-shared-runtime",
+    ]
+
+    return project.fileTree(dir: libDir).matching {
+        requiredModules.each { moduleName ->
+            include "${moduleName}-${kotlinDslVersion}.jar"
+        }
+    }
 }
 
 ext.findGradleKotlinDsl = this.&findGradleKotlinDsl

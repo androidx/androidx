@@ -26,6 +26,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowForPagerEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -44,6 +45,7 @@ import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -63,6 +65,7 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtMost
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -455,7 +458,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
     val currentPageOffsetFraction: Float
-        get() = scrollPosition.currentPageOffsetFraction
+        @FrequentlyChangingValue get() = scrollPosition.currentPageOffsetFraction
 
     internal val prefetchState =
         LazyLayoutPrefetchState(prefetchScheduler) {
@@ -475,6 +478,31 @@ internal constructor(
 
             override fun Density.calculateBehindWindow(viewport: Int): Int = 0
         }
+
+    private val _scrollIndicatorState =
+        object : ScrollIndicatorState {
+            override val scrollOffset: Int
+                get() =
+                    if (layoutInfo.reverseLayout) {
+                        layoutInfo.calculateContentSize(pageCount) -
+                            layoutInfo.mainAxisViewportSize -
+                            calculateScrollOffset()
+                    } else {
+                        calculateScrollOffset()
+                    }
+
+            override val contentSize: Int
+                get() = layoutInfo.calculateContentSize(pageCount)
+
+            override val viewportSize: Int
+                get() = layoutInfo.mainAxisViewportSize
+        }
+
+    private fun calculateScrollOffset(): Int {
+        val totalScrollOffset =
+            (pageSizeWithSpacing * firstVisiblePage.toLong()) + firstVisiblePageOffset
+        return totalScrollOffset.fastCoerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+    }
 
     internal val cacheWindowLogic =
         PagerCacheWindowLogic(pagerCacheWindow, prefetchState) { pageCount }
@@ -658,7 +686,9 @@ internal constructor(
     }
 
     private suspend fun awaitScrollDependencies() {
-        awaitLayoutModifier.waitForFirstLayout()
+        if (pagerLayoutInfoState.value === EmptyLayoutInfo) {
+            awaitLayoutModifier.waitForFirstLayout()
+        }
     }
 
     override suspend fun scroll(
@@ -698,6 +728,9 @@ internal constructor(
     override val lastScrolledBackward: Boolean
         get() = isLastScrollBackwardState.value
 
+    override val scrollIndicatorState: ScrollIndicatorState?
+        get() = _scrollIndicatorState
+
     /** Updates the state with the new calculated scroll position and consumed scroll. */
     internal fun applyMeasureResult(
         result: PagerMeasureResult,
@@ -725,7 +758,7 @@ internal constructor(
             } else {
                 scrollPosition.updateFromMeasureResult(result)
                 if (isCacheWindowForPagerEnabled) {
-                    if (prefetchingEnabled && result.beyondViewportPageCount < pageCount) {
+                    if (prefetchingEnabled) {
                         cacheWindowLogic.onVisibleItemsChanged(result)
                     }
                 } else {
@@ -739,10 +772,9 @@ internal constructor(
             firstVisiblePageOffset = result.firstVisiblePageScrollOffset
             tryRunPrefetch(result)
             maxScrollOffset = result.calculateNewMaxScrollOffset(pageCount)
-            minScrollOffset = result.calculateNewMinScrollOffset(pageCount)
-            debugLog {
-                "Finished Applying Measure Result" + "\nNew maxScrollOffset=$maxScrollOffset"
-            }
+            minScrollOffset =
+                result.calculateNewMinScrollOffset(pageCount).coerceAtMost(maxScrollOffset)
+            debugLog { "Finished Applying Measure Result\nNew maxScrollOffset=$maxScrollOffset" }
         }
     }
 

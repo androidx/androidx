@@ -19,62 +19,52 @@ package androidx.xr.scenecore
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.testing.FakePerceptionRuntimeFactory
-import androidx.xr.scenecore.internal.ActivitySpace as RtActivitySpace
-import androidx.xr.scenecore.internal.JxrPlatformAdapter
+import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.scenecore.runtime.SceneRuntime
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class LaunchUtilsTest {
-    private val fakeRuntimeFactory = FakePerceptionRuntimeFactory()
     private val activityController = Robolectric.buildActivity(ComponentActivity::class.java)
     private val activity: ComponentActivity = activityController.create().start().get()
-    private val mockPlatformAdapter = mock<JxrPlatformAdapter>()
+    private lateinit var sceneRuntime: SceneRuntime
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
-        // A minimal setup is needed to create a Session instance.
-        // The session needs access to the mockPlatformAdapter.
-        val mockActivitySpace = mock<RtActivitySpace>()
-        whenever(mockPlatformAdapter.activitySpace).thenReturn(mockActivitySpace)
-        whenever(mockPlatformAdapter.activitySpaceRootImpl).thenReturn(mockActivitySpace)
-        whenever(mockPlatformAdapter.mainPanelEntity).thenReturn(mock())
-        whenever(mockPlatformAdapter.spatialEnvironment).thenReturn(mock())
-        whenever(mockPlatformAdapter.perceptionSpaceActivityPose).thenReturn(mock())
-        session =
-            Session(
-                activity,
-                runtimes = listOf(fakeRuntimeFactory.createRuntime(activity), mockPlatformAdapter),
-            )
+    fun setUp(): Unit = runBlocking {
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(context = activity, coroutineContext = testDispatcher)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
+        sceneRuntime = session.sceneRuntime
     }
 
     @Test
-    fun configureBundleForFullSpaceMode_Launch_callsThrough() {
+    fun configureBundleForFullSpaceLaunch_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
-        whenever(mockPlatformAdapter.setFullSpaceMode(any())).thenReturn(bundle)
-        @Suppress("UNUSED_VARIABLE")
-        val unused = createBundleForFullSpaceModeLaunch(session, bundle)
-        verify(mockPlatformAdapter).setFullSpaceMode(bundle)
+        @Suppress("UNUSED_VARIABLE") val result = createBundleForFullSpaceLaunch(session, bundle)
+
+        assertThat(result).isEqualTo(bundle)
     }
 
     @Test
-    fun configureBundleForFullSpaceModeLaunchWithEnvironmentInherited_callsThrough() {
+    fun configureBundleForFullSpaceLaunchWithEnvironmentInherited_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
-        whenever(mockPlatformAdapter.setFullSpaceModeWithEnvironmentInherited(any()))
-            .thenReturn(bundle)
         @Suppress("UNUSED_VARIABLE")
-        val unused = createBundleForFullSpaceModeLaunchWithEnvironmentInherited(session, bundle)
-        verify(mockPlatformAdapter).setFullSpaceModeWithEnvironmentInherited(bundle)
+        val result = createBundleForFullSpaceLaunchWithEnvironmentInherited(session, bundle)
+
+        assertThat(result).isEqualTo(bundle)
     }
 }

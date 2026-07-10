@@ -53,7 +53,7 @@ class InlineClassConverterTest {
 
         fun validate(caller: Group, parameterName: String, valueType: Class<*>) {
             val parameter = caller.parameters.single { it.name == parameterName }
-            val value = mapper.castParameterValue(parameter.inlineClass, parameter.value)
+            val value = mapper.castValue(parameter.inlineClass, parameter.value)
             assertThat(value).isInstanceOf(valueType)
         }
 

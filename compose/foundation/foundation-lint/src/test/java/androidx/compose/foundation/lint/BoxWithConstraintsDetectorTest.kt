@@ -33,25 +33,25 @@ private val ExternalModuleFunctionStub =
         checksum = 0xdc553c55,
         source =
             """
-        package bar.compose
+            package bar.compose
 
-        import androidx.compose.foundation.layout.BoxWithConstraints
-        import androidx.compose.foundation.layout.BoxWithConstraintsScope
-        import androidx.compose.runtime.Composable
+            import androidx.compose.foundation.layout.BoxWithConstraints
+            import androidx.compose.foundation.layout.BoxWithConstraintsScope
+            import androidx.compose.runtime.Composable
 
-        @Composable
-        fun BoxWithConstraintsScope.Other() {}
+            @Composable
+            fun BoxWithConstraintsScope.Other() {}
 
-        @Composable
-        fun UseThis(scope: BoxWithConstraintsScope) {}
+            @Composable
+            fun UseThis(scope: BoxWithConstraintsScope) {}
 
-        @Composable
-        fun Test() {
-            BoxWithConstraints {
-                UseThis(scope = this)
+            @Composable
+            fun Test() {
+                BoxWithConstraints {
+                    UseThis(scope = this)
+                }
             }
-        }
-    """
+            """
                 .trimIndent(),
         """
     META-INF/main.kotlin_module:
@@ -118,28 +118,28 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
             checksum = 0x12a1c0a0,
             source =
                 """
-            package androidx.compose.foundation.layout
+                package androidx.compose.foundation.layout
 
-            import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.Composable
 
-            interface Constraints {
-                val minWidth: Int
-            }
-            interface Dp {}
-            interface BoxWithConstraintsScope {
-                val constraints: Constraints
-                val minWidth: Dp
-                val maxWidth: Dp
-                val minHeight: Dp
-                val maxHeight: Dp
-            }
+                interface Constraints {
+                    val minWidth: Int
+                }
+                interface Dp {}
+                interface BoxWithConstraintsScope {
+                    val constraints: Constraints
+                    val minWidth: Dp
+                    val maxWidth: Dp
+                    val minHeight: Dp
+                    val maxHeight: Dp
+                }
 
-            @Composable
-            fun BoxWithConstraints(
-                propagateMinConstraints: Boolean = false,
-                content: @Composable BoxWithConstraintsScope.() -> Unit
-            ) {}
-        """
+                @Composable
+                fun BoxWithConstraints(
+                    propagateMinConstraints: Boolean = false,
+                    content: @Composable BoxWithConstraintsScope.() -> Unit
+                ) {}
+                """
                     .trimIndent(),
             """
         META-INF/main.kotlin_module:

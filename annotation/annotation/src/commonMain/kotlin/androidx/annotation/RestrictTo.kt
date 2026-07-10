@@ -39,6 +39,10 @@ import androidx.annotation.RestrictTo.Scope
  * @RestrictTo(Scope.SUBCLASSES)
  * public void onDrawForeground(Canvas canvas) { ...
  * ```
+ *
+ * Note, this enforcement is done via Android Lint RestrictedApi check. This check is automatically
+ * run for Android projects and can be optionally enabled on JVM projects using the com.android.lint
+ * Gradle plugin.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)

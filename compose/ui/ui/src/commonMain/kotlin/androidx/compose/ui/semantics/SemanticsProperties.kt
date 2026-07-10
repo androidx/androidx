@@ -75,6 +75,9 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.heading */
     val Heading = AccessibilityKey<Unit>("Heading")
 
+    /** @see SemanticsPropertyReceiver.textEntryKey */
+    val TextEntryKey = AccessibilityKey<Unit>("TextEntryKey")
+
     /** @see SemanticsPropertyReceiver.disabled */
     val Disabled = AccessibilityKey<Unit>("Disabled")
 
@@ -93,7 +96,7 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.isTraversalGroup */
     val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
-    /** @see SemanticsPropertyReceiver.IsSensitiveData */
+    /** @see isSensitiveData */
     val IsSensitiveData = SemanticsPropertyKey<Boolean>("IsSensitiveData")
 
     /** @see SemanticsPropertyReceiver.invisibleToUser */
@@ -154,6 +157,9 @@ object SemanticsProperties {
                 parentValue
             },
         )
+
+    /** @see SemanticsPropertyReceiver.hintText */
+    val HintText = AccessibilityKey<String>(name = "HintText")
 
     /** @see SemanticsPropertyReceiver.horizontalScrollAxisRange */
     val HorizontalScrollAxisRange = AccessibilityKey<ScrollAxisRange>("HorizontalScrollAxisRange")
@@ -243,6 +249,9 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.textSelectionRange */
     val TextSelectionRange = AccessibilityKey<TextRange>("TextSelectionRange")
 
+    /** @see SemanticsPropertyReceiver.textCompositionRange */
+    val TextCompositionRange = AccessibilityKey<TextRange?>("TextCompositionRange")
+
     /** @see SemanticsPropertyReceiver.onImeAction */
     val ImeAction = AccessibilityKey<ImeAction>("ImeAction")
 
@@ -251,6 +260,10 @@ object SemanticsProperties {
 
     /** @see SemanticsPropertyReceiver.toggleableState */
     val ToggleableState = AccessibilityKey<ToggleableState>("ToggleableState")
+
+    /** @see SemanticsPropertyReceiver.inputTextSuggestionState */
+    val InputTextSuggestionState =
+        AccessibilityKey<InputTextSuggestionState>("InputTextSuggestionState")
 
     /** @see SemanticsPropertyReceiver.password */
     val Password = AccessibilityKey<Unit>("Password")
@@ -307,7 +320,13 @@ object SemanticsActions {
     /** @see SemanticsPropertyReceiver.scrollToIndex */
     val ScrollToIndex = ActionPropertyKey<(Int) -> Boolean>("ScrollToIndex")
 
-    /** @see SemanticsPropertyReceiver.onAutofillText */
+    @Suppress("unused")
+    @Deprecated(
+        message = "Use `SemanticsActions.OnFillData` instead.",
+        replaceWith =
+            ReplaceWith("OnFillData", "androidx.compose.ui.semantics.SemanticsActions.OnFillData"),
+        level = DeprecationLevel.WARNING,
+    )
     val OnAutofillText = ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
 
     /** @see SemanticsPropertyReceiver.onFillData */
@@ -372,7 +391,11 @@ object SemanticsActions {
     val RequestFocus = ActionPropertyKey<() -> Boolean>("RequestFocus")
 
     /** @see SemanticsPropertyReceiver.customActions */
-    val CustomActions = AccessibilityKey<List<CustomAccessibilityAction>>("CustomActions")
+    val CustomActions =
+        AccessibilityKey<List<CustomAccessibilityAction>>(
+            name = "CustomActions",
+            mergePolicy = { parentValue, childValue -> parentValue.orEmpty() + childValue },
+        )
 
     /** @see SemanticsPropertyReceiver.pageUp */
     val PageUp = ActionPropertyKey<() -> Boolean>("PageUp")
@@ -627,7 +650,28 @@ class ProgressBarRangeInfo(
  * @param rowCount the number of rows in the collection, or -1 if unknown
  * @param columnCount the number of columns in the collection, or -1 if unknown
  */
-class CollectionInfo(val rowCount: Int, val columnCount: Int)
+class CollectionInfo(val rowCount: Int, val columnCount: Int) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CollectionInfo) return false
+
+        if (rowCount != other.rowCount) return false
+        if (columnCount != other.columnCount) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = rowCount.hashCode()
+        result = 31 * result + columnCount.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "CollectionInfo(rowCount=$rowCount, columnCount=$columnCount)"
+    }
+}
 
 /**
  * Information about the item of a collection.
@@ -668,6 +712,61 @@ class ScrollAxisRange(
 }
 
 /**
+ * The state of an input text when suggestions are shown. This property specifies the different
+ * available states the input text can be in when there are text suggestions available, typically
+ * shown as a dialog window and when a user inputs a transliteration language specifically Chinese,
+ * Japanese, Korean, and Vietnamese.
+ *
+ * On Android, this semantics property is only supported on SDK >= 37.
+ *
+ * @param isCommittedByInputMethodEditor whether the current text was committed by an input method
+ *   editor done by the user, will stay false if the committed text was done programmatically, e.g.
+ *   via Accessibility service.
+ * @param isTransliterationSuggestionSelected whether a replacement text suggestion is selected to
+ *   replace the transliterated text. If true, the text is from a transliteration language and is
+ *   currently displaying one or multiple text suggestion replacements and that one of the
+ *   suggestions is selected to replace the transliterated text. This does not indicate whether the
+ *   text replacement suggestion has been committed. Will stay false for non-transliteration
+ *   languages or if no suggestion is currently selected. If this were to be set to true for a
+ *   non-transliteration language, it may affect accessibility services from announcing events
+ *   correctly.
+ */
+class InputTextSuggestionState(
+    val isCommittedByInputMethodEditor: Boolean = false,
+    val isTransliterationSuggestionSelected: Boolean = false,
+) {
+    override fun toString(): String =
+        "InputTextSuggestionState(isCommittedByInputMethodEditor=$isCommittedByInputMethodEditor," +
+            " suggestionSelected=$isTransliterationSuggestionSelected)"
+
+    override fun hashCode(): Int {
+        var result = isCommittedByInputMethodEditor.hashCode()
+        result = 31 * result + isTransliterationSuggestionSelected.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is InputTextSuggestionState) return false
+
+        if (isCommittedByInputMethodEditor != other.isCommittedByInputMethodEditor) return false
+        if (isTransliterationSuggestionSelected != other.isTransliterationSuggestionSelected)
+            return false
+
+        return true
+    }
+
+    @Suppress("unused")
+    @Deprecated(
+        message = "Use the new constructor that accepts the [isSuggestionSelected] parameter",
+        level = DeprecationLevel.HIDDEN,
+    )
+    constructor(
+        isCommittedByInputMethodEditor: Boolean = false
+    ) : this(isCommittedByInputMethodEditor, false)
+}
+
+/**
  * The type of user interface element. Accessibility services might use this to describe the element
  * or do customizations. Most roles can be automatically resolved by the semantics properties of
  * this element. But some elements with subtle differences need an exact role. If an exact role is
@@ -682,7 +781,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * This element is a button control. Associated semantics properties for accessibility:
          * [SemanticsProperties.Disabled], [SemanticsActions.OnClick]
          */
-        val Button = Role(0)
+        val Button
+            get() = Role(0)
 
         /**
          * This element is a Checkbox which is a component that represents two states (checked /
@@ -690,7 +790,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val Checkbox = Role(1)
+        val Checkbox
+            get() = Role(1)
 
         /**
          * This element is a Switch which is a two state toggleable component that provides on/off
@@ -698,7 +799,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val Switch = Role(2)
+        val Switch
+            get() = Role(2)
 
         /**
          * This element is a RadioButton which is a component to represent two states, selected and
@@ -706,7 +808,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsProperties.StateDescription],
          * [SemanticsActions.OnClick]
          */
-        val RadioButton = Role(3)
+        val RadioButton
+            get() = Role(3)
 
         /**
          * This element is a Tab which represents a single page of content using a text label and/or
@@ -714,19 +817,22 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * properties for accessibility: [SemanticsProperties.Disabled],
          * [SemanticsProperties.StateDescription], [SemanticsActions.OnClick]
          */
-        val Tab = Role(4)
+        val Tab
+            get() = Role(4)
 
         /**
          * This element is an image. Associated semantics properties for accessibility:
          * [SemanticsProperties.ContentDescription]
          */
-        val Image = Role(5)
+        val Image
+            get() = Role(5)
 
         /**
          * This element is associated with a drop down menu. Associated semantics properties for
          * accessibility: [SemanticsActions.OnClick]
          */
-        val DropdownList = Role(6)
+        val DropdownList
+            get() = Role(6)
 
         /**
          * This element is a value picker. It should support the following accessibility actions to
@@ -741,7 +847,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * These actions allow accessibility services to interact with this node programmatically on
          * behalf of users, facilitating navigation within sets of selectable values.
          */
-        val ValuePicker = Role(7)
+        val ValuePicker
+            get() = Role(7)
 
         /**
          * This element is a Carousel. This means that even if Pager actions are added, this element
@@ -751,7 +858,8 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsActions.PageUp],[SemanticsActions.PageDown],[SemanticsActions.PageLeft],
          * [SemanticsActions.PageRight]
          */
-        val Carousel = Role(8)
+        val Carousel
+            get() = Role(8)
     }
 
     override fun toString() =
@@ -782,13 +890,15 @@ value class LiveRegionMode private constructor(@Suppress("unused") private val v
          * Live region mode specifying that accessibility services should announce changes to this
          * node.
          */
-        val Polite = LiveRegionMode(0)
+        val Polite
+            get() = LiveRegionMode(0)
 
         /**
          * Live region mode specifying that accessibility services should interrupt ongoing speech
          * to immediately announce changes to this node.
          */
-        val Assertive = LiveRegionMode(1)
+        val Assertive
+            get() = LiveRegionMode(1)
     }
 
     override fun toString() =
@@ -825,6 +935,14 @@ var SemanticsPropertyReceiver.contentDescription: String
     }
 
 /**
+ * The hint text for an editable text field. This is typically used to provide guidance to the user
+ * about what to enter in the text field.
+ *
+ * @sample androidx.compose.ui.samples.HintTextSample
+ */
+var SemanticsPropertyReceiver.hintText by SemanticsProperties.HintText
+
+/**
  * Developer-set state description of the semantics node.
  *
  * For example: on/off. If this not set, accessibility services will derive the state from other
@@ -846,6 +964,22 @@ var SemanticsPropertyReceiver.progressBarRangeInfo by SemanticsProperties.Progre
  */
 fun SemanticsPropertyReceiver.heading() {
     this[SemanticsProperties.Heading] = Unit
+}
+
+/**
+ * The node is marked as a text entry key for accessibility. This is used to indicate that this
+ * composable acts as a key within a text entry interface, such as a custom on-screen keyboard.
+ * Accessibility services can use this information to provide a better experience for users
+ * interacting with custom text input methods.
+ *
+ * See
+ * [AccessibilityNodeInfo.setTextEntryKey](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setTextEntryKey(boolean))
+ * for more details.
+ *
+ * @see SemanticsProperties.TextEntryKey
+ */
+fun SemanticsPropertyReceiver.textEntryKey() {
+    this[SemanticsProperties.TextEntryKey] = Unit
 }
 
 /**
@@ -1104,6 +1238,9 @@ var SemanticsPropertyReceiver.editableText by SemanticsProperties.EditableText
 /** Text selection range for the text field. */
 var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSelectionRange
 
+/** Text composition range for the text field. */
+var SemanticsPropertyReceiver.textCompositionRange by SemanticsProperties.TextCompositionRange
+
 /**
  * Contains the IME action provided by the node.
  *
@@ -1145,6 +1282,18 @@ var SemanticsPropertyReceiver.collectionItemInfo by SemanticsProperties.Collecti
  * The presence of this property indicates that the element is toggleable.
  */
 var SemanticsPropertyReceiver.toggleableState by SemanticsProperties.ToggleableState
+
+/**
+ * This semantics provides the state of a text that has active suggestions. Text with suggestions
+ * are typically associated with typing transliteration languages such as Chinese, Japanese, Korean
+ * where multiple text replacement suggestions appear.
+ *
+ * It is used by accessibility services to determine what speech feedback should be announced as the
+ * user is typing a transliteration text. For example, whether to announce that a replacement text
+ * is selected.
+ */
+var SemanticsPropertyReceiver.inputTextSuggestionState by
+    SemanticsProperties.InputTextSuggestionState
 
 /** Whether this semantics node is editable, e.g. an editable text field. */
 var SemanticsPropertyReceiver.isEditable by SemanticsProperties.IsEditable
@@ -1281,10 +1430,16 @@ fun SemanticsPropertyReceiver.scrollToIndex(label: String? = null, action: (Int)
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.OnAutofillText] is called.
  */
+@Deprecated(
+    message = "Use onFillData instead",
+    replaceWith = ReplaceWith("onFillData"),
+    level = DeprecationLevel.WARNING,
+)
 fun SemanticsPropertyReceiver.onAutofillText(
     label: String? = null,
     action: ((AnnotatedString) -> Boolean)?,
 ) {
+    @Suppress("DEPRECATION")
     this[SemanticsActions.OnAutofillText] = AccessibilityAction(label, action)
 }
 

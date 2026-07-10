@@ -16,10 +16,18 @@
 
 package androidx.pdf.view
 
+import android.graphics.Bitmap
+import android.graphics.Point
 import android.graphics.RectF
 import android.view.ViewGroup
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.pdf.R
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.KeyedPdfObject
+import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.ocr.FakeOcrProvider
+import androidx.pdf.ocr.FakeOcrResult
+import androidx.pdf.ocr.OcrText
 import androidx.pdf.view.PdfViewAccessibilityManager.Companion.FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET
 import androidx.pdf.view.fastscroll.getDimensions
 import androidx.test.core.app.ActivityScenario
@@ -27,15 +35,14 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlin.math.roundToInt
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -67,6 +74,7 @@ class PdfViewAccessibilityManagerTest {
                 requireNotNull(pdfView) { "PdfView must not be null." }
                 pdfView.isAccessibilityEnabled = true
                 pdfView.pdfDocument = pdfDocument
+                pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_HIDE
             }
     }
 
@@ -80,15 +88,55 @@ class PdfViewAccessibilityManagerTest {
     }
 
     @Test
-    fun getVirtualViewAt_returnsCorrectPageLinkAndFormWidgets() = runTest {
+    fun onPopulateNodeForVirtualView_withOcrText_combinesText() = runTest {
+        val ocrTextString = "OCR detected text"
+        val fakeOcrResult = FakeOcrResult(words = listOf(OcrText(ocrTextString, emptyList())))
+        val fakeOcrProvider = FakeOcrProvider(fakeResult = fakeOcrResult)
+
+        val imageBounds = RectF(0f, 0f, 100f, 100f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), imageBounds)
+        val keyedObject = KeyedPdfObject("image1", imageObject)
+
+        val docWithImage =
+            FakePdfDocument(
+                pages = listOf(Point(100, 200)),
+                textContents =
+                    listOf(PdfPageTextContent(listOf(RectF(0f, 0f, 100f, 10f)), "Native text")),
+                pageObjectsPerPage = mapOf(0 to listOf(keyedObject)),
+            )
+
+        activityScenario.onActivity {
+            pdfView.pdfDocument = docWithImage
+            pdfView.setOcrProvider(fakeOcrProvider)
+        }
+
+        docWithImage.waitForLayout(untilPage = 0)
+
         val pdfViewAccessibilityManager =
             requireNotNull(pdfView.pdfViewAccessibilityManager) {
                 "PdfViewAccessibilityManager must not be null."
             }
 
-        // Round to an integer before using in any test case, i.e. matching the logic that makes
-        // use of this value
-        val topPageMargin = pdfView.context.getDimensions(R.dimen.top_page_margin).roundToInt()
+        val node = AccessibilityNodeInfoCompat.obtain()
+        activityScenario.onActivity {
+            pdfViewAccessibilityManager.onPopulateNodeForVirtualView(0, node)
+        }
+
+        val description = node.contentDescription.toString()
+        assertThat(description).contains("Native text")
+        assertThat(description).contains(ocrTextString)
+        // Verify native text comes before OCR text
+        assertThat(description.indexOf("Native text"))
+            .isLessThan(description.indexOf(ocrTextString))
+    }
+
+    @Test
+    fun getVirtualViewAt_returnsCorrectPageLinkAndFormWidgets() = runTest {
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
 
         // Wait until layout completes for the required pages
         pdfDocument.waitForLayout(untilPage = 2)
@@ -98,7 +146,7 @@ class PdfViewAccessibilityManagerTest {
             listOf(
                 Triple(25f, 25f, 0), // Maps to page 0
                 Triple(25f, 250f, 1), // Maps to page 1
-                Triple(0f, topPageMargin.toFloat(), 0), // Maps to the very start of the first page
+                Triple(0f, 0f, 0), // Maps to the very start of the first page
                 Triple(0f, 100f, 0), // Edge of the first page
                 Triple(110f, 25f, -1), // Outside valid page bounds
                 Triple(-10f, -10f, -1), // Outside viewport
@@ -117,6 +165,7 @@ class PdfViewAccessibilityManagerTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35)
     @Test
     fun getVisibleVirtualViews_returnsCorrectPagesLinksAndFormWidgets() = runTest {
         val pdfViewAccessibilityManager =
@@ -171,16 +220,16 @@ class PdfViewAccessibilityManagerTest {
                 10 to "Go to page 5",
                 11 to "Link: www.example.com",
                 FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET to
-                    "Form widget Type: Radio Button. Title: Radio. Current value: false. Click will toggle value.",
+                    "Form widget Type: Radio button. Title: Radio. Current value: false. Click will toggle value.",
                 FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET + 1 to
-                    "Form widget Type: Multi select List Box. Title: ListBox. Value: Banana. Widget is read only and cannot be changed.",
+                    "Form widget Type: Multi-select List box. Title: ListBox. Value: Banana. Widget is read only and cannot be changed.",
             )
         testCases.forEach { (virtualViewId, expectedDescription) ->
-            val node = mock(AccessibilityNodeInfoCompat::class.java)
+            val node = AccessibilityNodeInfoCompat.obtain()
             pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
 
-            verify(node).contentDescription = expectedDescription
-            verify(node).isFocusable = true
+            assertThat(node.contentDescription).isEqualTo(expectedDescription)
+            assertThat(node.isFocusable).isTrue()
         }
     }
 
@@ -191,8 +240,7 @@ class PdfViewAccessibilityManagerTest {
                 "PdfViewAccessibilityManager must not be null."
             }
 
-        val topPageMargin = pdfView.context.getDimensions(R.dimen.top_page_margin)
-        val pageSpacing = pdfView.context.getDimensions(R.dimen.page_spacing)
+        val pageSpacing = pdfView.context.getDimensions(R.dimen.pdf_vertical_page_spacing)
 
         // Wait until layout completes for the required pages
         pdfDocument.waitForLayout(untilPage = 5)
@@ -202,32 +250,39 @@ class PdfViewAccessibilityManagerTest {
 
         val testCases =
             listOf(
-                0 to RectF(0f, topPageMargin, 100f, 200f + topPageMargin),
-                10 to RectF(25f, 30f + topPageMargin, 75f, 50f + topPageMargin),
-                11 to RectF(25f, 60f + topPageMargin, 75f, 80f + topPageMargin),
-                FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET to
-                    RectF(50f, 500f + topPageMargin, 100f, 600f + topPageMargin),
+                0 to RectF(0f, 0f, 100f, 200f),
+                10 to RectF(25f, 30f, 75f, 50f),
+                11 to RectF(25f, 60f, 75f, 80f),
+                FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET to RectF(50f, 500f, 100f, 600f),
                 FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET + 1 to
                     RectF(
                         50f,
-                        400f + topPageMargin + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
+                        400f + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
                         100f,
-                        550f + topPageMargin + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
+                        550f + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
                     ),
             )
 
         testCases.forEach { (virtualViewId, boundsInParent) ->
-            val node = mock(AccessibilityNodeInfoCompat::class.java)
+            val node = AccessibilityNodeInfoCompat.obtain()
             val expectedBounds =
                 pdfViewAccessibilityManager.scalePageBounds(boundsInParent, pdfView.zoom)
 
             pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-            verify(node).let {
-                pdfViewAccessibilityManager.setBoundsInScreenFromBoundsInParent(
-                    node,
-                    expectedBounds,
-                )
-            }
+
+            val actualRect = android.graphics.Rect()
+            node.getBoundsInScreen(actualRect)
+
+            val expectedNode = AccessibilityNodeInfoCompat.obtain()
+            pdfViewAccessibilityManager.setBoundsInScreenFromBoundsInParent(
+                expectedNode,
+                expectedBounds,
+            )
+
+            val expectedRect = android.graphics.Rect()
+            expectedNode.getBoundsInScreen(expectedRect)
+
+            assertThat(actualRect).isEqualTo(expectedRect)
         }
     }
 
@@ -241,19 +296,19 @@ class PdfViewAccessibilityManagerTest {
         // Wait until layout completes for the required pages
         pdfDocument.waitForLayout(untilPage = 1)
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         var virtualViewId = 0 // Page 1
 
-        pdfViewAccessibilityManager.onPageTextReady(virtualViewId)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // Verify content description is set as expected for Page 1
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-        verify(node).contentDescription = "Page 1: Sample text for page 1"
+        assertThat(node.contentDescription).isEqualTo("Page 1: Sample text for page 1")
 
         // Verify default content description for non-visible page
         virtualViewId = 7 // Page 8
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-        verify(node).contentDescription = "Page 8" // Default value
+        assertThat(node.contentDescription).isEqualTo("Page 8") // Default value
     }
 
     @Test
@@ -270,11 +325,11 @@ class PdfViewAccessibilityManagerTest {
         pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
         pdfView.lastFastScrollerVisibility = true
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         val thumbVirtualId = PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 1
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(thumbVirtualId, node)
-        verify(node).contentDescription = "Scroll Bar"
-        verify(node).isFocusable = true
+        assertThat(node.contentDescription).isEqualTo("Scroll bar")
+        assertThat(node.isFocusable).isTrue()
     }
 
     @Test
@@ -291,10 +346,10 @@ class PdfViewAccessibilityManagerTest {
         pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
         pdfView.lastFastScrollerVisibility = true
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         val pageIndicatorVirtualId = PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 2
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(pageIndicatorVirtualId, node)
-        verify(node).isFocusable = true
+        assertThat(node.isFocusable).isTrue()
     }
 
     @Test
@@ -318,6 +373,79 @@ class PdfViewAccessibilityManagerTest {
 
         assertThat(visibleViews).contains(PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 1)
         assertThat(visibleViews).contains(PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 2)
+    }
+
+    @Test
+    fun onPerformActionForVirtualView_clickGotoLink_triggersScroll() = runTest {
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
+
+        pdfDocument.waitForLayout(untilPage = 4)
+
+        // (50f, 40f) corresponds to a GoTo link in the FakePdfDocument setup
+        val adjustedX = PdfView.toViewCoord(50f, pdfView.zoom, pdfView.scrollX)
+        val adjustedY = PdfView.toViewCoord(40f, pdfView.zoom, pdfView.scrollY)
+
+        val virtualViewId = pdfViewAccessibilityManager.getVirtualViewAt(adjustedX, adjustedY)
+        assertThat(virtualViewId).isEqualTo(10)
+
+        // Use onActivity to perform the action on the Main Thread
+        activityScenario.onActivity {
+            val result =
+                pdfViewAccessibilityManager.onPerformActionForVirtualView(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    null,
+                )
+            assertThat(result).isTrue()
+            assert(pdfView.firstVisiblePage <= 4)
+            assert(pdfView.firstVisiblePage + pdfView.visiblePagesCount >= 4)
+        }
+    }
+
+    @Test
+    fun onPerformActionForVirtualView_clickUrlLink_triggersOpenLink() = runTest {
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
+
+        // Wait for layout to ensure links are populated
+        pdfDocument.waitForLayout(untilPage = 4)
+
+        // (50f, 70f) corresponds to an external URL link in the FakePdfDocument setup
+        val adjustedX = PdfView.toViewCoord(50f, pdfView.zoom, pdfView.scrollX)
+        val adjustedY = PdfView.toViewCoord(70f, pdfView.zoom, pdfView.scrollY)
+
+        val virtualViewId = pdfViewAccessibilityManager.getVirtualViewAt(adjustedX, adjustedY)
+        assertThat(virtualViewId).isEqualTo(11)
+
+        // Use onActivity to perform the click action on the Main Thread
+        activityScenario.onActivity {
+            val result =
+                pdfViewAccessibilityManager.onPerformActionForVirtualView(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    null,
+                )
+            assertThat(result).isTrue()
+        }
+    }
+
+    @Test
+    fun isAccessibilityEnabled_updatesFastScrollVisibility() {
+        activityScenario.onActivity {
+            pdfView.isAccessibilityEnabled = false
+            assertThat(pdfView.fastScrollVisibility)
+                .isEqualTo(PdfView.FastScrollVisibility.AUTO_HIDE)
+
+            pdfView.isAccessibilityEnabled = true
+            assertThat(pdfView.fastScrollVisibility)
+                .isEqualTo(PdfView.FastScrollVisibility.ALWAYS_SHOW)
+            assertThat(pdfView.lastFastScrollerVisibility).isTrue()
+        }
     }
 }
 

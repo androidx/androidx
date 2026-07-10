@@ -15,18 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
@@ -37,6 +34,10 @@ plugins {
 androidXMultiplatform {
     // HACK: We consume the artifacts from this target in :collection:collection-benchmark-android
     jvm()
+    androidLibrary {
+        namespace = "androidx.collection.benchmark.kmp"
+        minSdk { version = release(24) }
+    }
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
@@ -44,8 +45,6 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
             export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
@@ -55,14 +54,12 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
             }
         }
 
         commonTest {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -87,12 +84,6 @@ androidXMultiplatform {
                     compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }
             }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
         }
     }
 }

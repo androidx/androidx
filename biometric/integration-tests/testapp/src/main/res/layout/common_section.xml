@@ -108,6 +108,17 @@
         android:text="@string/authenticate_button_label" />
 
     <Button
+        android:id="@+id/second_authenticate_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/second_authenticate_button_label" />
+    <Button
+        android:id="@+id/third_authenticate_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/third_authenticate_button_label" />
+
+    <Button
         android:id="@+id/clear_log_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

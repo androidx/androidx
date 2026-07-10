@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.arcore.apps.whitebox.mobile.common
 
 import android.app.Activity
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.xr.arcore.AugmentedObject
 import androidx.xr.arcore.Plane
+import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.Trackable
 
 @Composable
@@ -76,18 +76,18 @@ fun AugmentedObjectStateInfo(state: AugmentedObject.State) {
 
 @Composable
 fun PlaneStateInfo(state: Plane.State) {
-    Text(text = "Plane Label: ${state.label}", color = convertPlaneLabelToColor(state.label))
+    Text(text = "Plane PlaneLabel: ${state.label}", color = convertPlaneLabelToColor(state.label))
     Text(text = "Plane Center Pose: ${state.centerPose}")
     Text(text = "Plane Extents: ${state.extents}")
     Text(text = "Subsumed by Plane: ${state.subsumedBy}")
     Text(text = "Plane Vertices: ${state.vertices}")
 }
 
-private fun convertPlaneLabelToColor(label: Plane.Label): Color =
+private fun convertPlaneLabelToColor(label: PlaneLabel): Color =
     when (label) {
-        Plane.Label.WALL -> Color.Green
-        Plane.Label.FLOOR -> Color.Blue
-        Plane.Label.CEILING -> Color.Yellow
-        Plane.Label.TABLE -> Color.Magenta
+        PlaneLabel.WALL -> Color.Green
+        PlaneLabel.FLOOR -> Color.Blue
+        PlaneLabel.CEILING -> Color.Yellow
+        PlaneLabel.TABLE -> Color.Magenta
         else -> Color.Red
     }

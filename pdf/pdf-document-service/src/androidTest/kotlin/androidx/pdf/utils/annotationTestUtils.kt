@@ -17,12 +17,10 @@
 package androidx.pdf.utils
 
 import android.graphics.RectF
-import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfAnnotationData
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.StampAnnotation
 import com.google.common.truth.Truth.assertThat
-import java.util.UUID
 import kotlin.Float.Companion.MAX_VALUE
 import kotlin.Float.Companion.MIN_VALUE
 import kotlin.math.abs
@@ -36,11 +34,11 @@ private fun getSamplePathObject(): PathPdfObject {
         255,
         10f,
         listOf(
-            PathPdfObject.PathInput(10f, 10f),
-            PathPdfObject.PathInput(20f, 20f),
-            PathPdfObject.PathInput(30f, 30f),
-            PathPdfObject.PathInput(40f, 40f),
-            PathPdfObject.PathInput(50f, 50f),
+            PathInput(10f, 10f, PathInput.MOVE_TO),
+            PathInput(20f, 20f, PathInput.LINE_TO),
+            PathInput(30f, 30f, PathInput.LINE_TO),
+            PathInput(40f, 40f, PathInput.LINE_TO),
+            PathInput(50f, 50f, PathInput.LINE_TO),
         ),
     )
 }
@@ -52,7 +50,7 @@ private fun getSamplePathObject(): PathPdfObject {
  * @param bounds The bounds of the annotation.
  * @return A sample [StampAnnotation].
  */
-fun getSampleStampAnnotation(
+internal fun getSampleStampAnnotation(
     pageNum: Int,
     bounds: RectF = RectF(0f, 0f, 100f, 100f),
 ): StampAnnotation {
@@ -65,7 +63,7 @@ fun getSampleStampAnnotation(
  * @param expectedAnnotation The expected [StampAnnotation].
  * @param actualAnnotation The actual [StampAnnotation].
  */
-fun assertStampAnnotationEquals(
+internal fun assertStampAnnotationEquals(
     expectedAnnotation: StampAnnotation,
     actualAnnotation: StampAnnotation,
 ) {
@@ -91,29 +89,7 @@ fun assertStampAnnotationEquals(
     }
 }
 
-fun createPdfAnnotationDataList(
-    numAnnots: Int,
-    pathLength: Int,
-    invalidRatio: Float = 0f,
-): List<PdfAnnotationData> {
-    require(invalidRatio >= 0 && invalidRatio <= 1) { "Ratio should be between 0 and 1" }
-
-    val invalidCount = (numAnnots * invalidRatio).toInt()
-    return List(numAnnots) { index ->
-        val isInvalid = index < invalidCount
-        val pageNum = if (isInvalid) -1 else 0
-
-        createPdfAnnotationData(pageNum, pathLength)
-    }
-}
-
-fun createPdfAnnotationData(pageNum: Int, pathLength: Int): PdfAnnotationData =
-    PdfAnnotationData(
-        editId = EditId(pageNum, value = UUID.randomUUID().toString()),
-        annotation = createStampAnnotationWithPath(pageNum, pathLength),
-    )
-
-fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation {
+internal fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation {
     val randomPathInputs = createPathPdfObjectList(pathSize)
     return StampAnnotation(
         pageNum,
@@ -122,22 +98,24 @@ fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation 
     )
 }
 
-fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
+internal fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
     return IntArray(size).map { randomizePathPdfObject(pathLength = 10) }
 }
 
-fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
+internal fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
     PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = randomizePathInputs(pathLength))
 
-fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
-    IntArray(pathLength).map {
-        PathPdfObject.PathInput(
+internal fun randomizePathInputs(pathLength: Int): List<PathInput> =
+    IntArray(pathLength).mapIndexed { index, _ ->
+        val command = if (index == 0) PathInput.MOVE_TO else PathInput.LINE_TO
+        PathInput(
             x = abs(Random.nextInt(100, 1000).toFloat()),
             y = abs(Random.nextInt(100, 1000).toFloat()),
+            command = command,
         )
     }
 
-fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
+internal fun List<PathInput>.computeBounds(): RectF {
     val left = this.fold(MAX_VALUE) { acc, input -> min(acc, input.x) }
     val top = this.fold(MAX_VALUE) { acc, input -> min(acc, input.y) }
     val right = this.fold(MIN_VALUE) { acc, input -> max(acc, input.x) }
@@ -145,12 +123,12 @@ fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
     return RectF(left, top, right, bottom)
 }
 
-fun List<PathPdfObject>.computeBoundsForPath(): RectF {
+internal fun List<PathPdfObject>.computeBoundsForPath(): RectF {
     val emptyRect = RectF(MAX_VALUE, MAX_VALUE, MIN_VALUE, MIN_VALUE)
     return this.fold(emptyRect) { acc, pathObject -> acc.merge(pathObject.inputs.computeBounds()) }
 }
 
-fun RectF.merge(other: RectF): RectF =
+internal fun RectF.merge(other: RectF): RectF =
     RectF(
         /* left = */ min(this.left, other.left),
         /* top = */ min(this.top, other.top),

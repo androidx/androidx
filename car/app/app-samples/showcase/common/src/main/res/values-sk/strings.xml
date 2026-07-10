@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tu patrí správa.\nViac textu v druhom riadku."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo šablóny krátkej správy"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo šablóny položky v sekcii"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Ukážka zhustenej položky"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Ukážka s povolenou funkciou AlphaJump pre položky v sekciách"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sekcia s prepínačmi"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sekcia prepínača"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Sekcia s mnohými riadkami"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sekcia položky mriežky"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Ukážka sekcií zoznamu položiek"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"1. zoznam"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"2. zoznam"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtext pod každým zoznamom"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Ukončiť demo obrázka a akcií"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Demo čipu"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Ukážka ukazovateľa priebehu"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Ukážka hlavičky sekcie"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Ukážka sekcie Rýchle tipy"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Šablóna panela – demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Šablóna zoznamu miest – demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Prehliadanie miest"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Ukážka šablóny karty"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Karta správ"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Karta panela"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Karta položky v sekcii"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Karta zoznamu"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Karta mriežky s dlhým názvom karty"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhľadávania"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Môžete vybrať aj daný riadok"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Bola vybraná sekundárna akcia"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Bola vybraná primárna akcia riadka"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Ukážka sekcií zoznamu položiek"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"1. zoznam"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"2. zoznam"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtext pod každým zoznamom"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Ukážka obrázka a akcií na konci riadka"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Prázdny zoznam – demo"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Zoznam je prázdny"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Rôzne šablóny – demá"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demá máp s obsahom"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mapy so šablónou správy"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mapy so šablónou mriežky"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

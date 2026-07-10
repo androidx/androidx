@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * A post-processing request and its callback.
  */
-class ProcessingRequest {
+public class ProcessingRequest {
     private static final String TAG = "ProcessingRequest";
     private final int mRequestId;
     @NonNull TakePictureRequest mTakePictureRequest;

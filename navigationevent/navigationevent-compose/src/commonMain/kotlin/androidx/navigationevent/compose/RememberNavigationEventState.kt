@@ -17,52 +17,37 @@
 package androidx.navigationevent.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventState
-import kotlinx.coroutines.CoroutineScope
 
 /**
- * Remembers and returns the current [NavigationEventState] for a specific [NavigationEventInfo]
- * type.
+ * Remembers and returns a [NavigationEventState] instance.
  *
- * This is a convenience wrapper around [NavigationEventDispatcher.getState]. It:
- * - Reads the dispatcher from [LocalNavigationEventDispatcherOwner].
- * - Creates a [CoroutineScope] via [rememberCoroutineScope].
- * - Subscribes to the dispatcher state for `T` and exposes it as Compose state via
- *   [collectAsState].
+ * This composable creates and remembers a [NavigationEventState] object, which holds a
+ * [NavigationEventHandler] internally. This is the state object that can be passed to
+ * [NavigationEventHandler] (the composable) to "hoist" the state.
  *
- * Use this when a composable needs to observe navigation events of a single info type `T` (for
- * example, to react to a predictive back gesture). The returned value participates in
- * recomposition: the composable will recompose whenever the underlying state for `T` changes.
+ * The state's handler info (currentInfo, backInfo, forwardInfo) is kept in sync with the provided
+ * parameters via a [SideEffect].
  *
- * The initial value is `Idle(initialInfo)`, and filtering is type-based (only states whose
- * `currentInfo` is of type `T` are observed).
- *
- * @param T the [NavigationEventInfo] subtype to observe.
- * @param initialInfo the initial `T` used to seed the observation (provides the initial `Idle`
- *   value).
- * @return the current [NavigationEventState] for `T`.
- * @throws IllegalStateException if no [NavigationEventDispatcherOwner] is provided via
- *   [LocalNavigationEventDispatcherOwner].
- * @see NavigationEventDispatcher.getState
- * @see LocalNavigationEventDispatcherOwner
+ * @param T The type of [NavigationEventInfo] this state will manage.
+ * @param currentInfo The object representing the current destination.
+ * @param backInfo A list of destinations the user may navigate back to (nearest-first).
+ * @param forwardInfo A list of destinations the user may navigate forward to (nearest-first).
+ * @return A stable, remembered [NavigationEventState] instance.
  */
 @Composable
-public inline fun <reified T : NavigationEventInfo> rememberNavigationEventState(
-    initialInfo: T
+public fun <T : NavigationEventInfo> rememberNavigationEventState(
+    currentInfo: T,
+    backInfo: List<T> = emptyList(),
+    forwardInfo: List<T> = emptyList(),
 ): NavigationEventState<T> {
-    val dispatcher =
-        checkNotNull(LocalNavigationEventDispatcherOwner.current) {
-                "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
-            }
-            .navigationEventDispatcher
-
-    val scope = rememberCoroutineScope()
-    val state by remember { dispatcher.getState(scope, initialInfo) }.collectAsState()
+    val state = remember { NavigationEventState(currentInfo, backInfo, forwardInfo) }
+    SideEffect {
+        state.currentInfo = currentInfo
+        state.backInfo = backInfo
+        state.forwardInfo = forwardInfo
+    }
     return state
 }

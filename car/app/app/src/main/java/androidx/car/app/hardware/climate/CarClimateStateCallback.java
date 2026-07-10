@@ -17,7 +17,6 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
@@ -29,7 +28,6 @@ import org.jspecify.annotations.NonNull;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public interface CarClimateStateCallback {
     /**
      * Notifies that the climate state for

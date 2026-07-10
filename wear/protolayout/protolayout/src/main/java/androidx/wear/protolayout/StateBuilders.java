@@ -153,9 +153,9 @@ public final class StateBuilders {
 
             /**
              * Sets the mapping for any shared state between the provider and renderer. This method
-             * replaces the current state map with the entries from {@code map}.Any previous entries
-             * added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will be
-             * overwritten.
+             * replaces the current state map with the entries from {@code map}. Any previous
+             * entries added using this {@link #setStateMap(DynamicDataMap)} or {@link
+             * #addKeyToValueMapping} will be overwritten.
              *
              * @throws IllegalArgumentException if the size of {@code map} is larger than the
              *     allowed limit ({@link #getMaxStateEntryCount()}).
@@ -186,14 +186,14 @@ public final class StateBuilders {
             /**
              * Sets the mapping for any shared state between the provider and renderer. This method
              * replaces the current state map with the entries from {@code map}. Any previous
-             * entries added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will
-             * be overwritten.
+             * entries added using this {@link #setStateMap(DynamicDataPair[])} or {@link
+             * #addKeyToValueMapping} will be overwritten.
              *
              * @throws IllegalArgumentException if the size of {@code map} is larger than the
              *     allowed limit ({@link #getMaxStateEntryCount()}).
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
-            public @NonNull Builder setStateMap(@NonNull DynamicDataPair<?>... pairs) {
+            public @NonNull Builder setStateMap(@NonNull DynamicDataPair<?> @NonNull ... pairs) {
                 return setStateMap(dynamicDataMapOf(pairs));
             }
 
@@ -205,7 +205,8 @@ public final class StateBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addToStateMap(@NonNull DynamicDataPair<?>... entries) {
+            public @NonNull Builder addToStateMap(
+                    @NonNull DynamicDataPair<?> @NonNull ... entries) {
                 if (mImpl.getIdToValueMap().size() + entries.length > getMaxStateEntryCount()) {
                     throw new IllegalArgumentException(
                             String.format(

@@ -17,6 +17,7 @@
 package androidx.pdf
 
 import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
@@ -46,12 +47,18 @@ internal object FragmentUtils {
         // Load the document in the fragment
         scenario.onFragment { fragment ->
             // Increment pdf load idling resource to wait for background task to complete.
-            if (fragment is TestPdfViewerFragmentV1) {
+            if (fragment is TestPdfViewerFragment) {
                 fragment.pdfLoadingIdlingResource.increment()
                 fragment.documentUri = TestUtils.saveStream(inputStream, fragment.requireContext())
-            } else if (fragment is TestPdfViewerFragment) {
-                fragment.pdfLoadingIdlingResource.increment()
-                fragment.documentUri = TestUtils.saveStream(inputStream, fragment.requireContext())
+            } else if (fragment is TestEditablePdfViewerFragment) {
+                if (
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 18
+                ) {
+                    fragment.pdfLoadingIdlingResource.increment()
+                    fragment.documentUri =
+                        TestUtils.saveStream(inputStream, fragment.requireContext())
+                }
             }
         }
 

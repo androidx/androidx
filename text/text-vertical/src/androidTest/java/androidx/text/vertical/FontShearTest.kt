@@ -17,15 +17,18 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
+import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class FontShearTest {
 
     private val TEXT = "Hello"
@@ -45,7 +48,7 @@ class FontShearTest {
     }
 
     @Test
-    fun `FontShearRunTest Upright Case`() {
+    fun fontShearRun_UprightCase() {
         UprightLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
             it.draw(
                 MockCanvas { x, y ->
@@ -72,7 +75,7 @@ class FontShearTest {
     }
 
     @Test
-    fun `FontShearRunTest Rotate Case`() {
+    fun fontShearRun_RotateCase() {
         RotateLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
             it.draw(
                 MockCanvas { x, y ->
@@ -99,7 +102,7 @@ class FontShearTest {
     }
 
     @Test
-    fun `FontShearRunTest TateChuYoko Case`() {
+    fun fontShearRun_TateChuYokoCase() {
         TateChuYokoLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
             it.draw(
                 MockCanvas { x, y ->

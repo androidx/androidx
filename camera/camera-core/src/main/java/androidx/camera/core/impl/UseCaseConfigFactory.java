@@ -68,11 +68,14 @@ public interface UseCaseConfigFactory {
         /**
          * Creates a new, initialized instance of a UseCaseConfigFactory.
          *
-         * @param context the android context
+         * @param context                          the android context
+         * @param isPreviewResolutionBypassEnabled whether preview resolution restriction is
+         *                                         bypassed
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
          */
-        @NonNull UseCaseConfigFactory newInstance(@NonNull Context context)
+        @NonNull UseCaseConfigFactory newInstance(@NonNull Context context,
+                boolean isPreviewResolutionBypassEnabled)
                 throws InitializationException;
     }
 

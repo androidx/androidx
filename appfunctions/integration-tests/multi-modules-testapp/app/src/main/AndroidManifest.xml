@@ -13,6 +13,92 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <application
+        android:name=".TestApplication"
+        android:supportsRtl="true">
+        <property
+            android:name="android.app.appfunctions.v2"
+            android:value="manual_app_level_definitions.xml" />
+        <provider
+            android:name=".TestContentProvider"
+            android:authorities="androidx.appfunctions.integration.testapp.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+        <service
+            android:name=".SimpleAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:enabled="@bool/is_at_least_sdk_37"
+            android:exported="true"
+            tools:targetApi="36">
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="simple_app_function_service.xml" />
+
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service android:name=".CustomAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:enabled="@bool/is_at_least_sdk_37"
+            android:exported="true"
+            tools:targetApi="36">
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="custom_app_function.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="androidx.appfunctions.PlatformAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:exported="true"
+            android:enabled="@bool/enablePlatformAppFunctionService"
+            tools:targetApi="36">
+            <property
+                android:name="android.app.appfunctions"
+                android:value="app_functions.xml" />
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="app_functions_v2.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="androidx.appfunctions.ExtensionAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:exported="true"
+            android:enabled="@bool/enableExtensionAppFunctionService">
+            <property
+                android:name="android.app.appfunctions"
+                android:value="app_functions.xml" />
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="app_functions_v2.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".DynamicRegistrationService"
+            android:exported="true"
+            tools:targetApi="37" />
+    </application>
 </manifest>

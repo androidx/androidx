@@ -106,6 +106,15 @@ class CallEndpointCompatTest {
 
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
+    fun testAudioDevice_A2DP_NotSupported() {
+        assertEquals(
+            TYPE_UNKNOWN,
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP),
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @Test
     fun testAudioDeviceInfoTypeToCallEndpointTypeRemapping() {
         assertEquals(
             TYPE_EARPIECE,

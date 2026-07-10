@@ -124,6 +124,12 @@ public final class SettingsActivity extends AppCompatActivity {
                     startActivity(new Intent(this, RouteListingPreferenceActivity.class));
                 });
 
+        Button goToDeviceSuggestionsButton = findViewById(R.id.go_to_device_suggestions_button);
+        goToDeviceSuggestionsButton.setOnClickListener(
+                unusedView -> {
+                    startActivity(new Intent(this, DeviceSuggestionsActivity.class));
+                });
+
         RecyclerView routeList = findViewById(R.id.routes_recycler_view);
         routeList.setLayoutManager(new LinearLayoutManager(/* context= */ this));
         mRoutesAdapter = new RoutesAdapter(mRoutesManager.getRouteItems(), routeItemListener);

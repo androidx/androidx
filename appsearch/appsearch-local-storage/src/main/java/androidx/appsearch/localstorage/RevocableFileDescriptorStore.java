@@ -18,12 +18,11 @@ package androidx.appsearch.localstorage;
 
 import android.os.ParcelFileDescriptor;
 
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -58,11 +57,9 @@ import java.util.Set;
  *
  * <p> This class stores {@link AppSearchRevocableFileDescriptor} for reading in a list. There is no
  * use case to look up and invoke a single {@link AppSearchRevocableFileDescriptor} for reading.
- *
- * @exportToFramework:hide
  */
+@HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalAppSearchApi
 public abstract class RevocableFileDescriptorStore {
 
     private final Object mLock  = new Object();

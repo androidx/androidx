@@ -16,7 +16,6 @@
 
 package androidx.aab
 
-import androidx.aab.cli.VERBOSE
 import java.io.InputStream
 import java.lang.Byte
 import java.nio.charset.StandardCharsets
@@ -183,22 +182,27 @@ data class ProfInfo(val profDexInfoList: List<ProfDexInfo>) {
                 dataStream.readUncompressedBody(numberOfDexFiles)
             }
 
-        val CSV_TITLES =
-            if (VERBOSE) listOf("prof_present", "prof_dexSortedChecksumsCrc32") else emptyList()
-
-        fun ProfInfo?.csvEntries(): List<String> {
-            return if (VERBOSE) {
-                listOf(
-                    (this != null).toString(),
-                    (this?.profDexInfoList
-                            ?.map { it.checksumCrc32 }
-                            ?.sorted()
-                            ?.joinToString(INTERNAL_CSV_SEPARATOR))
-                        .toString(),
-                )
-            } else {
-                emptyList()
-            }
-        }
+        val CSV_COLUMNS =
+            listOf(
+                CsvColumn<ProfInfo?>(
+                    "prof_present",
+                    description = "Whether baseline profile is present",
+                    calculate = { (it != null).toString() },
+                ),
+                CsvColumn<ProfInfo?>(
+                    "prof_dexSortedChecksumsCrc32",
+                    description =
+                        "Sorted list of dex crc checksums from baseline profile - any of these that are missing from dex indicate profile corruption",
+                    requiresVerbose = true,
+                    calculate = { profInfo ->
+                        (profInfo
+                                ?.profDexInfoList
+                                ?.map { it.checksumCrc32 }
+                                ?.sorted()
+                                ?.joinToString(INTERNAL_CSV_SEPARATOR))
+                            .toString()
+                    },
+                ),
+            )
     }
 }

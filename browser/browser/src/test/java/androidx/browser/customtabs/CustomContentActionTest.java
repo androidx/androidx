@@ -27,10 +27,12 @@ import android.os.Bundle;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CustomContentActionTest {
 
@@ -123,29 +125,39 @@ public class CustomContentActionTest {
     }
 
     @Test
-    public void testFromBundle_missingId_returnsNull() {
+    public void testFromBundle_missingId_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putString(CustomContentAction.KEY_LABEL, "Label");
         bundle.putParcelable(CustomContentAction.KEY_PENDING_INTENT,
                 TestUtil.makeMockPendingIntent());
         bundle.putInt(CustomContentAction.KEY_TARGET_TYPE,
                 CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE);
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for missing id");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
-    public void testFromBundle_missingLabel_returnsNull() {
+    public void testFromBundle_missingLabel_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomContentAction.KEY_ID, 1);
         bundle.putParcelable(CustomContentAction.KEY_PENDING_INTENT,
                 TestUtil.makeMockPendingIntent());
         bundle.putInt(CustomContentAction.KEY_TARGET_TYPE,
                 CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE);
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for missing label");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
-    public void testFromBundle_emptyLabel_returnsNull() {
+    public void testFromBundle_emptyLabel_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomContentAction.KEY_ID, 1);
         bundle.putString(CustomContentAction.KEY_LABEL, "");
@@ -153,38 +165,58 @@ public class CustomContentActionTest {
                 TestUtil.makeMockPendingIntent());
         bundle.putInt(CustomContentAction.KEY_TARGET_TYPE,
                 CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE);
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for empty label");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
-    public void testFromBundle_missingPendingIntent_returnsNull() {
+    public void testFromBundle_missingPendingIntent_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomContentAction.KEY_ID, 1);
         bundle.putString(CustomContentAction.KEY_LABEL, "Label");
         bundle.putInt(CustomContentAction.KEY_TARGET_TYPE,
                 CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE);
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for missing intent");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
-    public void testFromBundle_missingTargetType_returnsNull() {
+    public void testFromBundle_missingTargetType_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomContentAction.KEY_ID, 1);
         bundle.putString(CustomContentAction.KEY_LABEL, "Label");
         bundle.putParcelable(CustomContentAction.KEY_PENDING_INTENT,
                 TestUtil.makeMockPendingIntent());
         // KEY_TARGET_TYPE not set, defaults to 0 in getInt, which is invalid.
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for missing target type");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
-    public void testFromBundle_invalidTargetTypeInBundle_returnsNull() {
+    public void testFromBundle_invalidTargetTypeInBundle_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomContentAction.KEY_ID, 1);
         bundle.putString(CustomContentAction.KEY_LABEL, "Label");
         bundle.putParcelable(CustomContentAction.KEY_PENDING_INTENT,
                 TestUtil.makeMockPendingIntent());
         bundle.putInt(CustomContentAction.KEY_TARGET_TYPE, 99); // Invalid value
-        assertNull(CustomContentAction.fromBundle(bundle));
+        try {
+            CustomContentAction.fromBundle(bundle);
+            fail("Expected IllegalArgumentException for invalid target type");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 }

@@ -1,21 +1,25 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #0:
-    Invalid nullability on parameter `context` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onAppWidgetOptionsChanged`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #1:
-    Invalid nullability on parameter `appWidgetManager` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.appwidget.AppWidgetManager in parameter `appWidgetManager` in method `onAppWidgetOptionsChanged`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #3:
-    Invalid nullability on parameter `newOptions` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.os.Bundle in parameter `newOptions` in method `onAppWidgetOptionsChanged`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onDeleted(android.content.Context, int[]) parameter #0:
-    Invalid nullability on parameter `context` in method `onDeleted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onDeleted`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onDeleted(android.content.Context, int[]) parameter #1:
-    Invalid nullability on parameter `appWidgetIds` in method `onDeleted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type int[] in parameter `appWidgetIds` in method `onDeleted`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
-    Invalid nullability on parameter `context` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onReceive`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onReceive(android.content.Context, android.content.Intent) parameter #1:
-    Invalid nullability on parameter `intent` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Intent in parameter `intent` in method `onReceive`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #0:
-    Invalid nullability on parameter `context` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onUpdate`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #1:
-    Invalid nullability on parameter `appWidgetManager` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.appwidget.AppWidgetManager in parameter `appWidgetManager` in method `onUpdate`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #2:
-    Invalid nullability on parameter `appWidgetIds` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type int[] in parameter `appWidgetIds` in method `onUpdate`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
+
+
+TypeParameterName: androidx.glance.appwidget.GlanceAppWidgetKt#updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context, kotlin.jvm.functions.Function1<State,java.lang.Boolean>, kotlin.coroutines.Continuation<? super java.lang.Void>):
+    Invalid type parameter name "State". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

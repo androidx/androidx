@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -27,11 +26,9 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":health:connect:connect-client"))
     implementation(project(":health:connect:connect-client-proto"))
 
@@ -43,11 +40,11 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.health.connect.testing"
     testOptions.unitTests.includeAndroidResources = true
-    compileSdk = 36
+    compileSdk { version = release(37)}
 }
 
 androidx {
@@ -58,4 +55,3 @@ androidx {
     description = "Test utils for Health Connect. This library should be added as a test dependency when writing unit tests that call HealthConnect APIs."
     samples(project(":health:connect:connect-testing-samples"))
 }
-

@@ -23,6 +23,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.internal.Strings
 import androidx.compose.material3.adaptive.layout.internal.delegableSemantics
 import androidx.compose.material3.adaptive.layout.internal.getString
@@ -56,6 +58,20 @@ import kotlinx.coroutines.launch
  * composable element via dragging. The state is saved and restored across recompositions and
  * configuration changes using [rememberSaveable].
  *
+ * To support the drag-to-resize behavior, provide [DragToResizeState] objects when creating
+ * [AdaptStrategy.Levitate] instances and provide a drag handle to the [AnimatedPane] composable,
+ * which will show the drag handle and associate it with the state object when it's levitated, so
+ * the pane will act like a modal sheet, and users can drag or click the drag handle to resize the
+ * pane.
+ *
+ * Note that with the default implementation, clicking the drag handle will make the associated pane
+ * go through three states: collapsed, partially expanded, and expanded. When in the expanded state,
+ * the pane will be displayed in its maximum possible size, bounded by the scaffold's size and the
+ * maximum size set via [rememberDragToResizeState]. When in the collapsed state, the associated
+ * pane will be displayed in its minimum size set via [rememberDragToResizeState]. And in the
+ * partially expanded size, the pane will be displayed in its default size or the size set by user
+ * with dragging.
+ *
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  * @param dockedEdge The edge to which the element is docked. This determines the orientation of the
  *   resizing operation (horizontal or vertical) and the direction of the size change when dragging.
@@ -65,6 +81,7 @@ import kotlinx.coroutines.launch
  *   [Dp.Unspecified]. Note that the dragged size cannot be larger than the scaffold's size, even if
  *   the max size set here is larger than the scaffold's size.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberDragToResizeState(
     dockedEdge: DockedEdge,
@@ -89,6 +106,7 @@ fun rememberDragToResizeState(
         }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun DragToResizeState(
     dockedEdge: DockedEdge,
     layoutDirection: LayoutDirection,
@@ -119,8 +137,11 @@ private fun DragToResizeState(
  * This state object is primarily designed for internal use within pane scaffolds.
  *
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
- * @see androidx.compose.material3.adaptive.layout.PaneScaffoldScope.dragToResize
+ * @see androidx.compose.material3.adaptive.layout.rememberDragToResizeState
+ * @see androidx.compose.material3.adaptive.layout.AdaptStrategy.Levitate
+ * @see androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Levitated
  */
+@ExperimentalMaterial3AdaptiveApi
 @Stable
 abstract class DragToResizeState private constructor() : DraggableState {
     // TODO(conradchen): To figure out a better way to expose this in the relevant APIs
@@ -327,12 +348,13 @@ abstract class DragToResizeState private constructor() : DraggableState {
  * For example if the edge is [DockedEdge.Top], the top edge of the pane won't move and the bottom
  * edge will be moveable to resize the pane.
  *
- * Note that [PaneScaffoldScope.dragToResize] and [DragToResizeState] only supports resizing along
- * one orientation according to their [DockedEdge]. For example if [DockedEdge.Top] or
- * [DockedEdge.Bottom] has been set, the resizing can only happen along the vertical axis.
+ * Note that [DragToResizeState] only supports resizing along one orientation according to their
+ * [DockedEdge]. For example if [DockedEdge.Top] or [DockedEdge.Bottom] has been set, the resizing
+ * can only happen along the vertical axis.
  *
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  */
+@ExperimentalMaterial3AdaptiveApi
 enum class DockedEdge {
     /** The top edge of the pane is fixed, and resizing happens by moving the bottom edge. */
     Top,
@@ -345,24 +367,47 @@ enum class DockedEdge {
 }
 
 /**
+ * A [Modifier] that enables dragging to resize a pane. Note that this modifier will only take
+ * effect when a pane is [PaneAdaptedValue.Levitated].
+ *
+ * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
+ * @param state The [DragToResizeState] which controls the resizing behavior.
+ */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal fun Modifier.dragToResize(
+    state: DragToResizeState,
+    showIndication: Boolean = true,
+): Modifier =
+    this.draggable(state = state, orientation = state.orientation)
+        .clickToResize(state, showIndication)
+
+/**
  * Apply this modifier to the clickable delegate of the drag-to-resize behavior to provide the
  * alternative input method of dragging to resize under the accessibility context. This modifier
  * will enable the associated composable to be clickable and switch through 3 states of
  * [DragToResizeState]: expanded, collapsed, and partially expanded in order.
  *
  * When in the expanded state, the pane associated with the [DragToResizeState] via
- * [PaneScaffoldScope.dragToResize] will be displayed in its maximum possible size, bounded by the
- * scaffold's size and the maximum size set in the [PaneScaffoldScope.dragToResize] modifier. When
- * in the collapsed state, the associated pane will be displayed in its minimum size set in the
- * [PaneScaffoldScope.dragToResize] modifier. And in the partially expanded size, the pane will be
- * displayed in its default size or the size set by user with dragging.
+ * [PaneAdaptedValue.Levitated] will be displayed in its maximum possible size, bounded by the
+ * scaffold's size and the maximum size set via [rememberDragToResizeState]. When in the collapsed
+ * state, the associated pane will be displayed in its minimum size set via
+ * [rememberDragToResizeState]. And in the partially expanded size, the pane will be displayed in
+ * its default size or the size set by user with dragging.
  *
- * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  * @param state the associated [DragToResizeState] that this modifier will operate on.
  */
 // TODO(conradchen): Figure out if we should publish it and the right API shape
-internal fun Modifier.clickToResize(state: DragToResizeState) =
-    this.clickable { state.animateTo(state.nextState) }
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal fun Modifier.clickToResize(state: DragToResizeState, showIndication: Boolean = true) =
+    this.then(
+            if (showIndication) {
+                Modifier.clickable { state.animateTo(state.nextState) }
+            } else {
+                Modifier.clickable(indication = null, interactionSource = null) {
+                    state.animateTo(state.nextState)
+                }
+            }
+        )
         .delegableSemantics {
             val nextState = state.nextState
             onClick(
@@ -391,6 +436,7 @@ internal fun Modifier.clickToResize(state: DragToResizeState) =
                 )
         }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val DragToResizeState.nextState
     get() =
         when (state) {

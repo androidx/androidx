@@ -18,12 +18,14 @@ package androidx.navigation.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.NavHostController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.NavigationActivityWithFragmentTag
 import androidx.navigation.fragment.test.NavigationBaseActivity
 import androidx.navigation.fragment.test.R
+import androidx.navigation.plusAssign
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
@@ -135,6 +137,48 @@ class NavHostFragmentTest(private val activityClass: Class<NavigationBaseActivit
                 .isFalse()
 
             assertThat(restoredNavController.currentDestination?.id).isEqualTo(R.id.start_fragment)
+        }
+    }
+
+    @Test
+    fun testProgrammaticNavGraphRecreation() {
+        with(ActivityScenario.launch(activityClass)) {
+            val navHostFragment = withActivity {
+                supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
+            }
+            val navController = navHostFragment.navController
+            withActivity { navController.setGraph(R.navigation.nav_simple) }
+            // Save state and restore it (simulate Recreation 1)
+            val savedState = navController.saveState()
+            assertThat(savedState).isNotNull()
+
+            // Create a new NavController and restore state, but save again before setGraph
+            // (simulate Recreation 2)
+            val restoredNavController = NavHostController(navHostFragment.requireContext())
+            restoredNavController.navigatorProvider +=
+                DialogFragmentNavigator(
+                    navHostFragment.requireContext(),
+                    navHostFragment.childFragmentManager,
+                )
+
+            restoredNavController.navigatorProvider +=
+                FragmentNavigator(
+                    navHostFragment.requireContext(),
+                    navHostFragment.childFragmentManager,
+                    R.id.nav_host,
+                )
+
+            restoredNavController.restoreState(savedState)
+
+            // Save state BEFORE setGraph is called
+            val secondSavedState = restoredNavController.saveState()
+            assertThat(secondSavedState).isNotNull()
+
+            val hasBackStack =
+                secondSavedState?.containsKey("android-support-nav:controller:backStack") == true
+            assertWithMessage("Saved state should preserve back stack before setGraph is called")
+                .that(hasBackStack)
+                .isTrue()
         }
     }
 }

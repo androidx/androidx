@@ -17,7 +17,6 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -26,7 +25,7 @@ android {
             minifyEnabled = true
         }
     }
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
@@ -45,8 +44,8 @@ android {
 
 dependencies {
     api(libs.jspecify)
-    annotationProcessor(project(":room:room-compiler"))
-    implementation(project(":room:room-runtime"))
+    annotationProcessor("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-runtime:2.7.2")
 
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.constraintLayout)

@@ -25,7 +25,7 @@ import java.io.File
  * Helper class to parse the settings.gradle file from the main build and extract a list of
  * projects.
  *
- * This is used by Playground projects too, so if it is changed please run `cd room && ./gradlew
+ * This is used by Playground projects too, so if it is changed please run `cd room3 && ./gradlew
  * tasks`
  */
 object SettingsParser {

@@ -33,24 +33,21 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import androidx.paging.compose.samples.util.TestBackend
 import kotlinx.coroutines.flow.Flow
 
-private val DATA = (0..60).toList().map { "[Item $it is from backend]" }
+private val DATA = (0..60).toList().map { it }
 
 @Sampled
 @Composable
 fun PagingBackendSample() {
-    val myBackend = remember { TestBackend(DATA) }
+    val myBackend = remember { TestBackend(DATA, transform = { "[Item $it is from backend]" }) }
 
     val pager = remember {
         Pager(
-            PagingConfig(
-                pageSize = myBackend.DataBatchSize,
-                enablePlaceholders = true,
-                maxSize = 200,
-            )
+            PagingConfig(pageSize = myBackend.pageSize, enablePlaceholders = true, maxSize = 200)
         ) {
-            myBackend.getAllData()
+            myBackend.getPagingSource()
         }
     }
 

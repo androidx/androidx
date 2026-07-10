@@ -17,15 +17,20 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_FONT_HEIGHT;
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_MONOSPACE_WIDTH;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.operations.Utils.floatToString;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -33,13 +38,16 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to Measure Text data */
-public class BitmapTextMeasure extends PaintOperation {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BitmapTextMeasure extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.BITMAP_TEXT_MEASURE;
     private static final String CLASS_NAME = "BitmapTextMeasure";
     private final int mBitmapFontId;
     public int mId;
     public int mTextId;
     public int mType;
+    float mGlyphSpacing;
+    float mOutGlyphSpacing;
 
     public static final int MEASURE_WIDTH = 0;
     public static final int MEASURE_HEIGHT = 1;
@@ -53,21 +61,50 @@ public class BitmapTextMeasure extends PaintOperation {
 
     public static final int MEASURE_MAX_HEIGHT_FLAG = TEXT_MEASURE_FONT_HEIGHT << 8;
 
-    public BitmapTextMeasure(int id, int textId, int bitmapFontId, int type) {
+    public BitmapTextMeasure(int id, int textId, int bitmapFontId, int type, float glyphSpacing) {
+        if (id < 0) {
+            throw new IllegalArgumentException("id must not be negative");
+        }
         mId = id;
         mTextId = textId;
         mBitmapFontId = bitmapFontId;
         mType = type;
+        mOutGlyphSpacing = mGlyphSpacing = glyphSpacing;
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
+        if (Float.isNaN(mGlyphSpacing)) {
+            context.listensTo(Utils.idFromNan(mGlyphSpacing), this);
+        }
     }
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mTextId, mBitmapFontId, mType);
+        apply(buffer, mId, mTextId, mBitmapFontId, mType, mGlyphSpacing);
     }
 
     @Override
     public @NonNull String toString() {
-        return "FloatConstant[" + mId + "] = " + mTextId + " " + mBitmapFontId + " " + mType;
+        return "FloatConstant["
+                + mId
+                + "] = "
+                + mTextId
+                + " "
+                + mBitmapFontId
+                + " "
+                + mType
+                + ", "
+                + floatToString(mGlyphSpacing, mOutGlyphSpacing);
     }
 
     /**
@@ -96,11 +133,24 @@ public class BitmapTextMeasure extends PaintOperation {
      * @param textId the id
      * @param bitmapFontId the id of the bitmap font
      * @param type the value of the float
+     * @param glyphSpacing spacing between glyphs in pixels
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int id, int textId, int bitmapFontId, int type) {
+            @NonNull WireBuffer buffer,
+            int id,
+            int textId,
+            int bitmapFontId,
+            int type,
+            float glyphSpacing) {
         buffer.start(OP_CODE);
-        buffer.writeInt(id);
+
+        // Negative id is used to signal the presence of glyphSpacing in the wire format.
+        if (glyphSpacing == 0f) {
+            buffer.writeInt(id);
+        } else {
+            buffer.writeInt(id | 0x80000000);
+            buffer.writeFloat(glyphSpacing);
+        }
         buffer.writeInt(textId);
         buffer.writeInt(bitmapFontId);
         buffer.writeInt(type);
@@ -114,10 +164,26 @@ public class BitmapTextMeasure extends PaintOperation {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readInt();
-        int textId = buffer.readInt();
-        int bitmapFontId = buffer.readInt();
+        float glyphSpacing;
+        if ((id & 0x80000000) != 0) {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                id = ((LoomWireBuffer) buffer).getRemapContext().resolveId(id & 0x7FFFFFFF);
+            } else {
+                id = id & 0x7FFFFFFF;
+            }
+            glyphSpacing = buffer.readNanId();
+        } else {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                id = ((LoomWireBuffer) buffer).getRemapContext().resolveId(id);
+            }
+            glyphSpacing = 0f;
+        }
+        int textId = buffer.readId();
+        int bitmapFontId = buffer.readId();
         int type = buffer.readInt();
-        operations.add(new BitmapTextMeasure(id, textId, bitmapFontId, type));
+        operations.add(new BitmapTextMeasure(id, textId, bitmapFontId, type, glyphSpacing));
     }
 
     /**
@@ -126,12 +192,17 @@ public class BitmapTextMeasure extends PaintOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Measure text")
-                .field(INT, "id", "id of float result of the measure")
-                .field(INT, "textId", "id of text")
-                .field(INT, "bitmapFontId", "id of bitmapFont")
-                .field(INT, "type", "type: measure 0=width,1=height");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Measure text dimensions specifically for bitmap fonts")
+                .field(INT, "id", "The ID of the float variable to store the result")
+                .field(INT, "textId", "The ID of the text to measure")
+                .field(INT, "bitmapFontId", "The ID of the bitmap font")
+                .field(INT, "type", "The type of measurement (WIDTH, HEIGHT, etc.)")
+                .field(
+                        FLOAT,
+                        "glyphSpacing",
+                        "Horizontal spacing adjustment between glyphs in pixels");
     }
 
     @NonNull
@@ -163,8 +234,13 @@ public class BitmapTextMeasure extends PaintOperation {
                 prevGlyph = "";
                 continue;
             }
-
-            pos += glyph.mChars.length();
+            int cLen = glyph.mChars.length();
+            if (cLen == 0) {
+                pos++;
+                prevGlyph = "";
+                continue;
+            }
+            pos += cLen;
             xPos += glyph.mMarginLeft + glyph.mMarginRight;
             if (glyph.mBitmapId != -1) {
                 // Space is represented by a glyph of -1.
@@ -180,6 +256,8 @@ public class BitmapTextMeasure extends PaintOperation {
             yMax = Math.max(yMax, glyph.mBitmapHeight + glyph.mMarginTop + glyph.mMarginBottom);
             yMin = Math.min(yMin, glyph.mMarginTop);
             prevGlyph = glyph.mChars;
+
+            xPos += mOutGlyphSpacing;
         }
 
         mBounds[0] = xMin;
@@ -223,7 +301,8 @@ public class BitmapTextMeasure extends PaintOperation {
                 .add("id", mId)
                 .add("textId", mTextId)
                 .add("bitmapFontId", mBitmapFontId)
-                .add("measureType", typeToString());
+                .add("measureType", typeToString())
+                .add("mGlyphSpacing", mGlyphSpacing);
     }
 
     private String typeToString() {

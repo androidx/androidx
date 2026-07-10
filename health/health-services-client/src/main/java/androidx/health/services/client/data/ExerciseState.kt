@@ -66,7 +66,6 @@ public class ExerciseState private constructor(public val id: Int, public val na
 
     override fun hashCode(): Int = id
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): DataProto.ExerciseState =
         DataProto.ExerciseState.forNumber(id) ?: DataProto.ExerciseState.EXERCISE_STATE_UNKNOWN
 

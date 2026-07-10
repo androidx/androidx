@@ -232,6 +232,9 @@ abstract class ComposeBenchmarkBase {
     }
 }
 
+// This is a benchmarking API only available on Android, so we don't need to use the result of
+// runTest, which will always be Unit.
+@Suppress("KotlinRunTestUncheckedResult")
 @ExperimentalCoroutinesApi
 @ExperimentalTestApi
 fun runBlockingTestWithFrameClock(

@@ -19,23 +19,22 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(37) }
     defaultConfig {
         applicationId = "androidx.wear.compose.integration.demos"
-        minSdk = 25
-        versionCode = 86
-        versionName = "1.86"
+        minSdk { version = release(25) }
+        versionCode = 111
+        versionName = "1.111"
     }
 
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            optimization {
+                enable = true
+            }
         }
     }
     buildFeatures {
@@ -66,6 +65,8 @@ dependencies {
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-navigation"))
     implementation(project(":wear:compose:compose-navigation-samples"))
+    implementation(project(":wear:compose:compose-navigation3"))
+    implementation(project(":wear:compose:compose-navigation3-samples"))
     implementation(project(":wear:compose:integration-tests:demos:common"))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 

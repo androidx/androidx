@@ -52,9 +52,10 @@ internal data class SwitchColorsImpl(
  * @param checked whether the switch is checked
  * @param onCheckedChange the action to be run when the switch is clicked. The current value of
  *   checked is provided to this action in its ActionParameters, and can be retrieved using the
- *   [ToggleableStateKey]. If this action launches an activity, the current value of checked will be
- *   passed as an intent extra with the name [RemoteViews.EXTRA_CHECKED]. In order to allow the
- *   Launcher to provide this extra on Android version S and later, we use a mutable PendingIntent
+ *   [androidx.glance.appwidget.action.ToggleableStateKey]. If this action launches an activity, the
+ *   current value of checked will be passed as an intent extra with the name
+ *   [android.widget.RemoteViews.EXTRA_CHECKED]. In order to allow the Launcher to provide this
+ *   extra on Android version S and later, we use a mutable PendingIntent
  *   ([android.app.PendingIntent.FLAG_MUTABLE]) when this action is not a lambda. Before S, and for
  *   lambda actions, this will be an immutable PendingIntent.
  * @param modifier the modifier to apply to the switch

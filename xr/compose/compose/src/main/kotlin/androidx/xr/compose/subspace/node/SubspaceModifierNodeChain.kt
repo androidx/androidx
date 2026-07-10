@@ -19,15 +19,18 @@ package androidx.xr.compose.subspace.node
 import androidx.xr.compose.subspace.layout.CombinedSubspaceModifier
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.SubspacePlaceable
-import androidx.xr.compose.subspace.layout.findInstance
-import androidx.xr.compose.subspace.layout.traverseSelfThenAncestors
-import androidx.xr.compose.subspace.layout.traverseSelfThenDescendants
+import androidx.xr.compose.subspace.layout.requireCoordinator
 import androidx.xr.compose.unit.VolumeConstraints
 
 private val SentinelHead =
     object : SubspaceModifier.Node() {
         override fun toString() = "<Head>"
     }
+
+// Phase values passed to autoInvalidateNode.
+private const val Insert = 0
+private const val Update = 1
+private const val Remove = 2
 
 /** See [androidx.compose.ui.node.NodeChain] */
 internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: SubspaceLayoutNode) {
@@ -36,6 +39,9 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
     internal val tail: SubspaceModifier.Node = subspaceLayoutNode.measurableLayout.tail
     internal var head: SubspaceModifier.Node = tail
     private var inMeasurePass: Boolean = false
+
+    private val logger: Logger?
+        get() = subspaceLayoutNode.owner?.logger
 
     private fun padChain(): SubspaceModifier.Node {
         val currentHead = head
@@ -64,13 +70,14 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             while (i < after.size) {
                 val next = after[i]
                 val parent = node
-                node = createAndInsertNodeAsChild(next, parent)
+                node = createAndInsertNodeAsChild(next, parent, i)
                 i++
             }
         } else if (after.size == 0) {
             // Common case where we are removing all the modifiers.
             var node = paddedHead.child
             while (node != null && i < beforeSize) {
+                logger?.nodeRemoved(node, subspaceLayoutNode, i)
                 node = removeNode(node).child
                 i++
             }
@@ -83,6 +90,7 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             while (i < beforeSize && i < after.size && before[i]::class == after[i]::class) {
                 node = checkNotNull(node.child) { "child should not be null" }
                 if (before[i] != after[i]) {
+                    logger?.nodeUpdated(node, subspaceLayoutNode, i)
                     updateNode(node, after[i])
                 }
                 i++
@@ -106,10 +114,72 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         // Clear the before vector to allow old modifiers to be Garbage Collected.
         buffer = before?.also { it.clear() }
         head = trimChain()
+        syncAggregateChildKindSet()
+    }
+
+    /** Finds the first node of the given [SubspaceNodeKind] in the chain (closest to the head). */
+    internal inline fun <reified T> firstOf(type: SubspaceNodeKind<T>): T? {
+        if (head.aggregateChildKindSet and type.mask == 0) return null
+
+        var node: SubspaceModifier.Node? = head
+        while (node != null) {
+            if (node.kindSet and type.mask != 0) {
+                if (node is T) return node
+            }
+            node = node.child
+        }
+        return null
+    }
+
+    /** Finds the last node of the given [SubspaceNodeKind] in the chain (closest to the tail). */
+    internal inline fun <reified T> lastOf(type: SubspaceNodeKind<T>): T? {
+        if (head.aggregateChildKindSet and type.mask == 0) return null
+
+        // Start from tail and walk up
+        var node: SubspaceModifier.Node? = tail
+        while (node != null) {
+            if (node.kindSet and type.mask != 0) {
+                if (node is T) return node
+            }
+            node = node.parent
+        }
+        return null
+    }
+
+    /** Iterates nodes of the given [SubspaceNodeKind] from Head to Tail. */
+    internal inline fun <reified T> forEachOf(type: SubspaceNodeKind<T>, block: (T) -> Unit) {
+        if (head.aggregateChildKindSet and type.mask == 0) return
+
+        var node: SubspaceModifier.Node? = head
+        while (node != null) {
+            if (node.kindSet and type.mask != 0) {
+                if (node is T) block(node)
+            }
+            node = node.child
+        }
+    }
+
+    /** Executes [block] for every modifier in the chain starting at the head. */
+    internal inline fun headToTail(block: (SubspaceModifier.Node) -> Unit) {
+        var node: SubspaceModifier.Node? = head
+        while (node != null) {
+            block(node)
+            node = node.child
+        }
+    }
+
+    /** Executes [block] for every modifier in the chain starting at the tail. */
+    internal inline fun tailToHead(block: (SubspaceModifier.Node) -> Unit) {
+        var node: SubspaceModifier.Node? = tail
+        while (node != null) {
+            block(node)
+            node = node.parent
+        }
     }
 
     /**
-     * Marks all nodes in the chain as attached to a [SubspaceLayout].
+     * Marks all nodes in the chain as attached to a
+     * [androidx.xr.compose.subspace.layout.SubspaceLayout].
      *
      * This should be called *before* [runOnAttach] is called. We check that the node is not already
      * attached as this method may be called more than necessary to ensure proper state.
@@ -119,7 +189,8 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
     internal fun runOnAttach() = headToTail { if (it.isAttached) it.onAttach() }
 
     /**
-     * Marks all nodes in the chain as detached from a [SubspaceLayout].
+     * Marks all nodes in the chain as detached from a
+     * [androidx.xr.compose.subspace.layout.SubspaceLayout].
      *
      * This should be called *after* [runOnDetach] is called. We check that the node is attached as
      * this method may be called more than necessary to ensure proper state.
@@ -128,47 +199,32 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
 
     internal fun runOnDetach() = tailToHead { if (it.isAttached) it.onDetach() }
 
-    internal fun measureChain(
-        constraints: VolumeConstraints,
-        wrappedMeasureBlock: (VolumeConstraints) -> SubspacePlaceable,
-    ): SubspacePlaceable {
-        val layoutNode = getAll<SubspaceLayoutModifierNode>().firstOrNull()
+    internal fun measureChain(constraints: VolumeConstraints): SubspacePlaceable? {
+        val layoutNode = firstOf(SubspaceNodes.Layout)
         if (layoutNode == null || inMeasurePass) {
             inMeasurePass = false
-            return wrappedMeasureBlock(constraints)
+            return null
         }
-        inMeasurePass = true
-        val placeable = layoutNode.requireCoordinator().measure(constraints)
-        inMeasurePass = false
-        return placeable
+        try {
+            inMeasurePass = true
+            return layoutNode.requireCoordinator().measure(constraints)
+        } finally {
+            inMeasurePass = false
+        }
     }
 
-    /** Executes [block] for each modifier in the chain starting at the head. */
-    internal inline fun headToTail(block: (SubspaceModifier.Node) -> Unit) =
-        head.traverseSelfThenDescendants().forEach(block)
-
-    /** Executes [block] for each modifier in the chain starting at the tail. */
-    internal inline fun tailToHead(block: (SubspaceModifier.Node) -> Unit) =
-        tail.traverseSelfThenAncestors().forEach(block)
-
-    /** Returns all nodes of the given type in the chain in the declared modifier order. */
-    internal inline fun <reified T> getAll(): Sequence<T> =
-        head.traverseSelfThenDescendants().filterIsInstance<T>()
-
-    /**
-     * Returns the last node of the given type in the chain if it exists, null otherwise.
-     *
-     * When considering only one instance of a modifier type, prefer the last instance.
-     */
-    internal inline fun <reified T> getLast(): T? =
-        tail.traverseSelfThenAncestors().findInstance<T>()
+    internal fun invalidateCompositionLocals() {
+        forEachOf(SubspaceNodes.Locals) { autoInvalidateNode(it as SubspaceModifier.Node, Update) }
+    }
 
     private fun createAndInsertNodeAsChild(
         element: SubspaceModifier,
         parent: SubspaceModifier.Node,
+        index: Int,
     ): SubspaceModifier.Node {
         val node = (element as SubspaceModifierNodeElement<*>).create()
         node.layoutNode = subspaceLayoutNode
+        logger?.nodeInserted(node, subspaceLayoutNode, index)
         return insertChild(node, parent)
     }
 
@@ -187,11 +243,13 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             node.markAsAttached()
             node.onAttach()
         }
+        autoInvalidateNode(node, Insert)
         return node
     }
 
     private fun updateNode(node: SubspaceModifier.Node, modifier: SubspaceModifier) {
         (modifier as SubspaceModifierNodeElement<*>).updateUnsafe(node)
+        autoInvalidateNode(node, Update)
     }
 
     private fun removeNode(node: SubspaceModifier.Node): SubspaceModifier.Node {
@@ -205,11 +263,73 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             parent.child = child
             node.parent = null
         }
+        autoInvalidateNode(node, Remove)
         if (node.isAttached) {
             node.onDetach()
             node.markAsDetached()
         }
         return parent!!
+    }
+
+    private fun autoInvalidateNode(node: SubspaceModifier.Node, phase: Int) {
+        if (!node.isAttached) return
+        if (phase == Update && !node.shouldAutoInvalidate) return
+
+        val selfKindSet = calculateSubspaceNodeKindSetFrom(node)
+
+        if (SubspaceNodes.Layout in selfKindSet) {
+            if (phase == Update) {
+                subspaceLayoutNode.requestMeasure()
+            } else {
+                subspaceLayoutNode.parent?.requestMeasure()
+            }
+        }
+
+        if (SubspaceNodes.ParentData in selfKindSet) {
+            subspaceLayoutNode.parent?.requestMeasure()
+        }
+
+        if (SubspaceNodes.CoreEntity in selfKindSet) {
+            subspaceLayoutNode.requestEntityUpdate()
+        }
+
+        if (SubspaceNodes.LayoutAware in selfKindSet) {
+            if (phase != Remove) {
+                // TODO(mrw): Don't do a full relayout, just dispatch the callbacks.
+                subspaceLayoutNode.requestLayout()
+            }
+        }
+
+        // MeasuredSizeAware isn't causing remeasures. We simply ensure that the
+        // callback is invoked. If it's already measured, we can just invoke it.
+        if (SubspaceNodes.MeasuredSizeAware in selfKindSet) {
+            if (phase != Remove) {
+                subspaceLayoutNode.dispatchMeasuredSizeTo(
+                    node as SubspaceMeasuredSizeAwareModifierNode
+                )
+            }
+        }
+
+        if (SubspaceNodes.Semantics in selfKindSet) {
+            subspaceLayoutNode.measurableLayout.invalidateSemantics()
+        }
+    }
+
+    private fun syncAggregateChildKindSet() {
+        var node: SubspaceModifier.Node? = tail.parent
+
+        while (node != null) {
+            val newAggregate = node.kindSet or (node.child?.aggregateChildKindSet ?: 0)
+
+            // If this node's aggregate type has not changed, we do not
+            // need to continue updating its parent's aggregate types.
+            if (newAggregate == node.aggregateChildKindSet) {
+                break
+            }
+
+            node.aggregateChildKindSet = newAggregate
+            node = node.parent
+        }
     }
 
     /**
@@ -265,10 +385,11 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         }
 
         override fun insert(newIndex: Int) {
-            node = createAndInsertNodeAsChild(after[offset + newIndex], node)
+            node = createAndInsertNodeAsChild(after[offset + newIndex], node, offset + newIndex)
         }
 
         override fun remove(atIndex: Int, oldIndex: Int) {
+            logger?.nodeRemoved(node, subspaceLayoutNode, atIndex)
             node = removeNode(node.child!!)
         }
 
@@ -276,7 +397,11 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             node = node.child!!
             val prev = before[offset + oldIndex]
             val next = after[offset + newIndex]
+            if (oldIndex != newIndex) {
+                logger?.nodeMoved(node, subspaceLayoutNode, oldIndex, newIndex)
+            }
             if (prev != next) {
+                logger?.nodeUpdated(node, subspaceLayoutNode, newIndex)
                 updateNode(node, next)
             }
         }

@@ -19,7 +19,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -28,11 +27,13 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
 }
 
 android {
     namespace = "androidx.benchmark.integration.dryrun.benchmark"
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 }
 
 androidx {

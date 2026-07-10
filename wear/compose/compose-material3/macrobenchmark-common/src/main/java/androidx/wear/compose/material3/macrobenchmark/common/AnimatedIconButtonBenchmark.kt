@@ -50,7 +50,7 @@ object AnimatedIconButtonBenchmark : ButtonBenchmarkBase {
                         onClick = {},
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_favorite_rounded),
+                            painter = painterResource(R.drawable.icon_favorite_rounded),
                             contentDescription = null,
                             modifier = Modifier.size(IconButtonDefaults.DefaultIconSize),
                         )

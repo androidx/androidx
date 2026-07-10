@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.GraphicsContext
@@ -26,6 +27,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -195,9 +197,9 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         assertThat(result.visibleItems.map { it.offset })
             .isEqualTo(
                 listOf(
-                    -screenHeight / 4 + tinyOffset,
-                    screenHeight / 4 + tinyOffset,
-                    screenHeight * 3 / 4 + tinyOffset,
+                    -screenHeight / 4 - tinyOffset,
+                    screenHeight / 4 - tinyOffset,
+                    screenHeight * 3 / 4 - tinyOffset,
                 )
             )
     }
@@ -426,7 +428,11 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
 
         val itemSize = screenHeight / 4
 
-        val result = strategy.measure(listOf(itemSize, itemSize))
+        val result =
+            strategy.measure(
+                itemHeights = listOf(itemSize, itemSize),
+                lastMeasuredAnchorItemHeight = itemSize,
+            )
         assertThat(result.visibleItems.size).isEqualTo(2)
     }
 
@@ -548,6 +554,764 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         assertThat(finalResult.visibleItems.map { it.key }).isEqualTo(listOf("B", "D", "E"))
     }
 
+    @Test
+    fun initialLayout_normalLayout_hasCorrectLogicalOffset() {
+        val topPadding = 10.dp
+        val strategy = measurementStrategy(PaddingValues(top = topPadding), reverseLayout = false)
+
+        val result = strategy.measure(listOf(screenHeight / 2))
+
+        // For a normal layout, the logical offset of the first item should be the top padding.
+        val item = result.visibleItems.first()
+        assertThat(item.offset).isEqualTo(with(density) { topPadding.roundToPx() })
+    }
+
+    @Test
+    fun initialLayout_reverseLayout_hasCorrectLogicalOffset() {
+        val bottomPadding = 15.dp
+        val strategy =
+            measurementStrategy(PaddingValues(bottom = bottomPadding), reverseLayout = true)
+
+        val result =
+            strategy.measure(
+                itemHeights = listOf(screenHeight / 2),
+                verticalArrangement = Arrangement.Bottom,
+            )
+
+        // For a reverse layout, the logical offset of the first item should still be the
+        // `beforeContentPadding`, which is the bottom padding in this case.
+        val item = result.visibleItems.first()
+        assertThat(item.offset).isEqualTo(with(density) { bottomPadding.roundToPx() })
+    }
+
+    @Test
+    fun contentPadding_reverseLayout_isAppliedCorrectly() {
+        val topPadding = 5.dp
+        val bottomPadding = 10.dp
+        val topPaddingPx = with(density) { topPadding.roundToPx() }
+        val bottomPaddingPx = with(density) { bottomPadding.roundToPx() }
+        val strategyWithPadding =
+            measurementStrategy(
+                PaddingValues(top = topPadding, bottom = bottomPadding),
+                reverseLayout = true,
+            )
+
+        val result = strategyWithPadding.measure(listOf(screenHeight / 2, screenHeight / 2))
+
+        // In reverseLayout, 'before' padding is at the bottom, 'after' is at the top.
+        assertThat(result.beforeContentPadding).isEqualTo(bottomPaddingPx)
+        assertThat(result.afterContentPadding).isEqualTo(topPaddingPx)
+    }
+
+    @Test
+    fun scrolling_reverseLayout_reportsCorrectCanScrollFlags() {
+        val result =
+            measurementStrategy(reverseLayout = true)
+                .measure(listOf(screenHeight, screenHeight, screenHeight))
+
+        // At the start of a reversed list (bottom), we can scroll forward (up) but not backward
+        // (down).
+        assertThat(result.canScrollForward).isTrue()
+        assertThat(result.canScrollBackward).isFalse()
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_firstItemVisible_overridesInitialPadding() {
+        val initialTop = 10.dp
+        val requiredTop = 50.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(top = initialTop))
+
+        val result =
+            strategy.measure(
+                itemHeights = listOf(screenHeight / 2, screenHeight / 2),
+                minimumVerticalContentPaddings =
+                    listOf(MinimumVerticalContentPadding(top = requiredTop, bottom = 0.dp), null),
+                anchorItemScrollOffset = -25,
+            )
+
+        assertThat(result.visibleItems.first().offset).isEqualTo(requiredTopPx)
+        assertThat(result.beforeContentPadding).isEqualTo(requiredTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_scrollPositionInMiddle_returnsInitialPadding() {
+        val initialPadding = 10.dp
+        val initialPaddingPx = with(density) { initialPadding.roundToPx() }
+        val requiredPadding = 50.dp
+        val strategy = measurementStrategy(PaddingValues(initialPadding)) // 10.dp all around
+
+        val result =
+            strategy.measure(
+                itemHeights = List(5) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(requiredPadding),
+                        null,
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(requiredPadding),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(initialPaddingPx)
+        assertThat(result.afterContentPadding).isEqualTo(initialPaddingPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_firstItemVisibleWithLargeInitialPadding_returnsInitialPadding() {
+        val initialTop = 100.dp
+        val initialTopPx = with(density) { initialTop.roundToPx() }
+        val requiredTop = 10.dp
+
+        val strategy = measurementStrategy(PaddingValues(top = initialTop))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(top = requiredTop, bottom = 0.dp),
+                        null,
+                        null,
+                    ),
+                anchorItemIndex = 0,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(initialTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_lastItemVisible_overridesInitialPadding() {
+        val initialBottom = 10.dp
+        val requiredBottom = 50.dp
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+
+        val strategy = measurementStrategy(PaddingValues(bottom = initialBottom))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = 0.dp, bottom = requiredBottom),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(requiredBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_lastItemVisibleWithLargeInitialPadding_returnsInitialPadding() {
+        val initialBottom = 100.dp
+        val initialBottomPx = with(density) { initialBottom.roundToPx() }
+        val requiredBottom = 10.dp
+
+        val strategy = measurementStrategy(PaddingValues(bottom = initialBottom))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = 0.dp, bottom = requiredBottom),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(initialBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_reverseLayoutAndFirstItemVisible_usesBottomPadding() {
+        val requiredBottom = 50.dp
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp), reverseLayout = true)
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(top = 10.dp, bottom = requiredBottom),
+                        null,
+                        null,
+                    ),
+                anchorItemIndex = 0,
+                reverseLayout = true,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(requiredBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_reverseLayoutAndLastItemVisible_usesTopPadding() {
+        val requiredTop = 50.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp), reverseLayout = true)
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = requiredTop, bottom = 10.dp),
+                    ),
+                anchorItemIndex = 2,
+                reverseLayout = true,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(requiredTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_singleItem_calculatesBothPaddings() {
+        val requiredTop = 13.dp
+        val requiredBottom = 23.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp))
+
+        val result =
+            strategy.measure(
+                itemHeights = listOf(screenHeight / 4),
+                minimumVerticalContentPaddings =
+                    listOf(MinimumVerticalContentPadding(requiredTop, requiredBottom)),
+                verticalArrangement = Arrangement.Top,
+                anchorItemIndex = 0,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(requiredTopPx)
+        assertThat(result.afterContentPadding).isEqualTo(requiredBottomPx)
+        assertThat(result.visibleItems.first().offset).isEqualTo(requiredTopPx)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_enabled_restoresItemAtOffset() {
+        val itemSize = screenHeight / 2
+        val items = listOf("A", "B", "C")
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "B",
+                index = 1,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(itemHeights = List(items.size) { itemSize }, keys = items)
+
+        // Verify index 1 was used as first layout item and placed at offset 20
+        assertThat(result.anchorItemIndex).isEqualTo(1)
+        val itemB = result.visibleItems.first { it.key == "B" }
+        assertThat(itemB.offset).isEqualTo(20)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_keyExists_prioritizesKeyOverIndex() {
+        val itemSize = screenHeight / 2
+        val items = listOf("A", "B", "C") // B is at index 1
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "B", // Key is B (which exists in list at index 1)
+                index = 0, // Returned index is 0
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(itemHeights = List(items.size) { itemSize }, keys = items)
+
+        // Reconciled index should be 1 (prioritized key B) instead of 0
+        assertThat(result.anchorItemIndex).isEqualTo(1)
+        val itemB = result.visibleItems.first { it.key == "B" }
+        assertThat(itemB.offset).isEqualTo(20)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_keyDoesNotExist_fallsBackToIndex() {
+        val itemSize = screenHeight / 2
+        val items = listOf("A", "B", "C")
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "X", // Non-existent key
+                index = 1, // Fallback index
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(itemHeights = List(items.size) { itemSize }, keys = items)
+
+        // Reconciles to index 1 (fallback) since key X was not found in map
+        assertThat(result.anchorItemIndex).isEqualTo(1)
+        val itemB = result.visibleItems.first { it.key == "B" }
+        assertThat(itemB.offset).isEqualTo(20)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_keyIsNull_fallsBackToIndex() {
+        val itemSize = screenHeight / 2
+        val items = listOf("A", "B", "C")
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = null,
+                index = 1,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(itemHeights = List(items.size) { itemSize }, keys = items)
+
+        assertThat(result.anchorItemIndex).isEqualTo(1)
+        val itemB = result.visibleItems.first { it.key == "B" }
+        assertThat(itemB.offset).isEqualTo(20)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_topAlignmentBelowCenter_placesItemAtTargetOffset() {
+        // Center is at 50. Top offset at 60 is strictly below the center (forces fast-path
+        // downward).
+        val offset = 60
+        val targetIndex = 5
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = offset,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(
+                itemHeights =
+                    List(10) {
+                        40
+                    }, // Using 10 items to prevent 'fitsScreen()' forced top-alignment
+                transformedHeight = { h, _ -> h / 2 },
+            )
+
+        val targetItem = result.visibleItems.first { it.index == targetIndex }
+        assertThat(targetItem.offset).isEqualTo(offset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_bottomAlignmentAboveCenter_placesItemAtTargetOffset() {
+        // Center is at 50. Bottom offset at 40 is strictly above the center (forces fast-path
+        // upward).
+        val bottomOffset = 40
+        val targetIndex = 5
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
+                offset = bottomOffset,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(itemHeights = List(10) { 40 }, transformedHeight = { h, _ -> h / 2 })
+
+        val targetItem = result.visibleItems.first { it.index == targetIndex }
+        assertThat(targetItem.offset + targetItem.transformedHeight).isEqualTo(bottomOffset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_topAlignmentAboveCenter_placesItemAtTargetOffset() {
+        // Center is at 50. Top offset at 20 is strictly above the center (forces binary search).
+        val offset = 20
+        val targetIndex = 5
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = offset,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(
+                itemHeights = List(10) { 40 },
+                transformedHeight = { measuredHeight, progress ->
+                    // Dynamic height based on offset makes the item resize dynamically
+                    val ratio = progress.topOffsetFraction
+                    (measuredHeight * (0.2f + ratio)).toInt().coerceIn(5, measuredHeight)
+                },
+            )
+
+        val targetItem = result.visibleItems.first { it.index == targetIndex }
+        assertThat(targetItem.offset).isEqualTo(offset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_bottomAlignmentBelowCenter_placesItemAtTargetOffset() {
+        // Center is at 50. Bottom offset at 80 is strictly below the center (forces binary search).
+        val bottomOffset = 80
+        val targetIndex = 5
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
+                offset = bottomOffset,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(
+                itemHeights = List(10) { 40 },
+                transformedHeight = { measuredHeight, progress ->
+                    val ratio = progress.bottomOffsetFraction
+                    (measuredHeight * (0.2f + ratio)).toInt().coerceIn(5, measuredHeight)
+                },
+            )
+
+        val targetItem = result.visibleItems.first { it.index == targetIndex }
+        assertThat(targetItem.offset + targetItem.transformedHeight).isEqualTo(bottomOffset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_downwardCascadeCrossesCenter_alignsAdjacentItemsSeamlessly() {
+        // Pin item 2's TOP to 5.
+        // Item 3 will be laid out below it, and its top will still be above the center (< 50).
+        val targetIndex = 2
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 5,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(
+                itemHeights = List(10) { 40 },
+                transformedHeight = { measuredHeight, progress ->
+                    val ratio = progress.topOffsetFraction
+                    (measuredHeight * (0.2f + ratio)).toInt().coerceIn(5, measuredHeight)
+                },
+            )
+
+        val layoutItem = result.visibleItems.first { it.index == targetIndex }
+        val itemNext = result.visibleItems.first { it.index == targetIndex + 1 }
+
+        assertThat(layoutItem.offset).isEqualTo(5)
+        // Item Next top offset should perfectly align with layout item bottom
+        assertThat(itemNext.offset).isEqualTo(layoutItem.offset + layoutItem.transformedHeight)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_upwardCascadeCrossesCenter_alignsAdjacentItemsSeamlessly() {
+        // Pin item 7's BOTTOM to 95.
+        // Item 6 will be laid out above it, and its bottom will still be below the center (> 50).
+        val targetIndex = 7
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
+                offset = 95,
+            )
+        }
+        val strategy = measurementStrategy(firstLayoutItemProvider = provider)
+        val result =
+            strategy.measure(
+                itemHeights = List(10) { 40 },
+                transformedHeight = { measuredHeight, progress ->
+                    val ratio = progress.bottomOffsetFraction
+                    (measuredHeight * (0.2f + ratio)).toInt().coerceIn(5, measuredHeight)
+                },
+            )
+
+        val layoutItem = result.visibleItems.first { it.index == targetIndex }
+        val itemPrevious = result.visibleItems.first { it.index == targetIndex - 1 }
+
+        assertThat(layoutItem.offset + layoutItem.transformedHeight).isEqualTo(95)
+        // Item Previous bottom offset should perfectly align with layout item top
+        assertThat(itemPrevious.offset + itemPrevious.transformedHeight)
+            .isEqualTo(layoutItem.offset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_returnsDefaultItem_fallsBackToNormalMeasurement() {
+        val provider = TransformingLazyColumnFirstLayoutItemProvider { current -> current }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = provider)
+        val strategyWithoutProvider = measurementStrategy()
+        // Use 10 items to ensure the screen is fully filled and overscroll correction is bypassed
+        val itemHeights = List(10) { screenHeight / 2 }
+
+        val resultWith = strategyWithProvider.measure(itemHeights, anchorItemIndex = 5)
+        val resultWithout = strategyWithoutProvider.measure(itemHeights, anchorItemIndex = 5)
+
+        assertThat(resultWith.anchorItemIndex).isEqualTo(resultWithout.anchorItemIndex)
+        assertThat(resultWith.visibleItems.map { it.offset })
+            .isEqualTo(resultWithout.visibleItems.map { it.offset })
+    }
+
+    @Test
+    fun firstLayoutItemProvider_withReverseLayout_resolvesCorrectOffsets() {
+        val itemSize = 40
+        val items = List(10) { "item_$it" } // 10 items to prevent fitsScreen/overscroll pinning
+        val targetIndex = 5
+        val targetOffset = 30
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "item_$targetIndex",
+                index = targetIndex,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = targetOffset,
+            )
+        }
+        val strategyWithProvider =
+            measurementStrategy(reverseLayout = true, firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(
+                itemHeights = List(items.size) { itemSize },
+                keys = items,
+                anchorItemIndex = targetIndex,
+                anchorItemScrollOffset = 0,
+                reverseLayout = true, // Pass to helper to fix the internal item mismatch!
+            )
+
+        val targetItem = result.visibleItems.first { it.key == "item_$targetIndex" }
+        assertThat(targetItem.offset).isEqualTo(targetOffset)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_outOfBoundsIndex_coercesIndexToLastIndex() {
+        val itemSize = 60
+        val items = listOf("A", "B", "C")
+        // Custom provider returns index = 5 (which is out of bounds for list size 3)
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = null,
+                index = 5,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(
+                itemHeights = List(items.size) { itemSize },
+                keys = items,
+                anchorItemIndex = 1,
+                anchorItemScrollOffset = 0,
+            )
+
+        // Verifies index 5 is coerced to index 2 ("C")
+        assertThat(result.anchorItemIndex).isEqualTo(2)
+        val itemC = result.visibleItems.first { it.key == "C" }
+        assertThat(itemC.offset).isEqualTo(40)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_outOfBoundsIndex_coercesIndexToZero() {
+        val itemSize = 60
+        val items = listOf("A", "B", "C")
+        // Custom provider returns index = -5 (which is out of bounds for list size 3)
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = null,
+                index = -5,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 20,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(
+                itemHeights = List(items.size) { itemSize },
+                keys = items,
+                anchorItemIndex = 1,
+                anchorItemScrollOffset = 0,
+            )
+
+        // Verifies index -5 is coerced to index 0 ("A")
+        assertThat(result.anchorItemIndex).isEqualTo(0)
+        val itemA = result.visibleItems.first { it.key == "A" }
+        assertThat(itemA.offset).isEqualTo(0)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_extremeOffScreenOffsetTop_doesNotThrowAndRecoversLayout() {
+        val itemSize = screenHeight / 4 // 25px
+        val items = listOf("A", "B", "C") // Total height 75px
+        // B (index 1) is anchored at 10_000 (completely off-screen bottom)
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "B",
+                index = 1,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = 10_000,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(
+                itemHeights = List(items.size) { itemSize },
+                keys = items,
+                anchorItemIndex = 1,
+                anchorItemScrollOffset = 0,
+            )
+
+        // Verify that the layout was recovered and the items are placed on-screen.
+        assertThat(result.visibleItems).isNotEmpty()
+        assertThat(result.visibleItems.first().index).isEqualTo(0)
+        assertThat(result.visibleItems.first().offset).isEqualTo(0)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_extremeOffScreenOffsetBottom_doesNotThrowAndRecoversLayout() {
+        val itemSize = screenHeight / 4 // 25px
+        val items = listOf("A", "B", "C") // Total height 75px
+        // B (index 1) is bottom-anchored at -10_000 (completely off-screen top)
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "B",
+                index = 1,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
+                offset = -10_000,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+
+        val result =
+            strategyWithProvider.measure(
+                itemHeights = List(items.size) { itemSize },
+                keys = items,
+                anchorItemIndex = 1,
+                anchorItemScrollOffset = 0,
+            )
+
+        // Verify recovery
+        assertThat(result.visibleItems).isNotEmpty()
+        assertThat(result.visibleItems.first().index).isEqualTo(0)
+        assertThat(result.visibleItems.first().offset).isEqualTo(0)
+    }
+
+    @Test
+    fun firstLayoutItemProvider_scaledItemReturnedDuringScroll_appliesScrollToAnchorItem() {
+        val itemSize = 20
+        val spacing = 0
+        val items = listOf("0", "1", "2", "3", "4", "5")
+        // Custom provider always returns index 0 at its previous offset (-10)
+        val customProvider = TransformingLazyColumnFirstLayoutItemProvider { _ ->
+            TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                key = "0",
+                index = 0,
+                itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                offset = -10,
+            )
+        }
+        val strategyWithProvider = measurementStrategy(firstLayoutItemProvider = customProvider)
+        // Custom measured item provider that scales only index 0
+        val customMeasuredItemProvider =
+            MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+                val transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? =
+                    if (index == 0) {
+                        { height, progress ->
+                            if (progress.isSpecified) {
+                                if (progress.topOffsetFraction <= -0.08f) {
+                                    15 // Scaled to 15px (instead of 10px)
+                                } else {
+                                    height // 20px (unscaled)
+                                }
+                            } else {
+                                height
+                            }
+                        }
+                    } else {
+                        null
+                    }
+                TransformingLazyColumnMeasuredItem(
+                    index = index,
+                    offset = offset,
+                    placeable =
+                        EmptyPlaceable(
+                            width = screenWidth,
+                            height = itemSize,
+                            transformedHeight = transformedHeight,
+                            minimumTopContentPadding = null,
+                            minimumBottomContentPadding = null,
+                        ),
+                    containerConstraints = containerConstraints,
+                    spacing = spacing,
+                    leftPadding = 0,
+                    rightPadding = 0,
+                    measureScrollProgress = progressProvider(itemSize),
+                    measurementDirection = measurementDirection,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    layoutDirection = LayoutDirection.Ltr,
+                    key = items[index],
+                    contentType = null,
+                    reverseLayout = false,
+                )
+            }
+
+        val result =
+            strategyWithProvider.measure(
+                itemsCount = items.size,
+                measuredItemProvider = customMeasuredItemProvider,
+                keyIndexMap =
+                    object : LazyLayoutKeyIndexMap {
+                        override fun getIndex(key: Any): Int = items.indexOf(key)
+
+                        override fun getKey(index: Int): Any? = items[index]
+                    },
+                verticalArrangement = Arrangement.Top,
+                containerConstraints = containerConstraints,
+                anchorItemKey = "2",
+                anchorItemIndex = 2,
+                anchorItemScrollOffset = 0,
+                lastMeasuredAnchorItemHeight = 20,
+                scrollToBeConsumed = 10f, // Scroll by 10px
+                coroutineScope = CoroutineScope(EmptyCoroutineContext),
+                density = density,
+                layout = { width, height, _ ->
+                    object : MeasureResult {
+                        override val width = width
+                        override val height = height
+                        override val alignmentLines
+                            get() = TODO("Not yet implemented")
+
+                        override fun placeChildren() {}
+                    }
+                },
+            )
+
+        // Verify that the scroll delta of 10px was applied to the center item (which resolves to
+        // index 3 covering the center 50px, moving from 45px to 55px).
+        // Item 2 moves from 25px to 35px (delta 10px).
+        // Item 1 moves from 5px to 15px (delta 10px).
+        // Item 0 moves from -10px to -5px (delta 5px, as it expands from 15px to 20px).
+        val item2 = result.visibleItems.first { it.index == 2 }
+        assertThat(item2.offset).isEqualTo(35)
+        val item1 = result.visibleItems.first { it.index == 1 }
+        val item0 = result.visibleItems.first { it.index == 0 }
+        assertThat(item1.offset).isEqualTo(15)
+        assertThat(item0.offset).isEqualTo(-5)
+    }
+
     private val mockGraphicContext =
         object : GraphicsContext {
             override fun createGraphicsLayer(): GraphicsLayer {
@@ -561,13 +1325,20 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
 
     private val mockItemAnimator = LazyLayoutItemAnimator<TransformingLazyColumnMeasuredItem>()
 
-    private fun measurementStrategy(contentPadding: PaddingValues) =
+    private fun measurementStrategy(
+        contentPadding: PaddingValues = PaddingValues(),
+        reverseLayout: Boolean = false,
+        firstLayoutItemProvider: TransformingLazyColumnFirstLayoutItemProvider? = null,
+    ) =
         TransformingLazyColumnContentPaddingMeasurementStrategy(
             contentPadding,
             density = density,
             layoutDirection = LayoutDirection.Ltr,
             mockGraphicContext,
             mockItemAnimator,
+            isScrollInProgress = { false },
+            reverseLayout = reverseLayout,
+            firstLayoutItemProvider = { firstLayoutItemProvider },
         )
 
     private val strategy = measurementStrategy(PaddingValues())
@@ -576,23 +1347,32 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         itemHeights: List<Int>,
         keys: List<Any> = List(itemHeights.size) { it },
         transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? = null,
-        itemSpacing: Int = 0,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Top,
         anchorItemKey: Any = Any(),
         anchorItemIndex: Int = 0,
         anchorItemScrollOffset: Int = 0,
         lastMeasuredAnchorItemHeight: Int = Int.MIN_VALUE,
         scrollToBeConsumed: Float = 0f,
+        reverseLayout: Boolean = false,
+        minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
     ): TransformingLazyColumnMeasureResult =
         measure(
             itemsCount = itemHeights.size,
-            measuredItemProvider = makeMeasuredItemProvider(itemHeights, keys, transformedHeight),
+            measuredItemProvider =
+                makeMeasuredItemProvider(
+                    itemHeights,
+                    keys,
+                    transformedHeight,
+                    reverseLayout,
+                    minimumVerticalContentPaddings,
+                ),
             keyIndexMap =
                 object : LazyLayoutKeyIndexMap {
                     override fun getIndex(key: Any): Int = keys.indexOf(key)
 
                     override fun getKey(index: Int): Any? = keys[index]
                 },
-            itemSpacing = itemSpacing,
+            verticalArrangement = verticalArrangement,
             containerConstraints = containerConstraints,
             anchorItemKey = anchorItemKey,
             anchorItemIndex = anchorItemIndex,
@@ -617,6 +1397,8 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         width: Int,
         height: Int,
         val transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)?,
+        val minimumTopContentPadding: Dp?,
+        val minimumBottomContentPadding: Dp?,
     ) : Placeable() {
         init {
             measuredSize = IntSize(width, height)
@@ -631,14 +1413,30 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         ) {}
 
         override val parentData: Any?
-            get() = transformedHeight?.let { TransformingLazyColumnParentData(it) }
+            get() =
+                if (
+                    transformedHeight != null ||
+                        minimumTopContentPadding != null ||
+                        minimumBottomContentPadding != null
+                ) {
+                    TransformingLazyColumnParentData(
+                        heightProvider = transformedHeight,
+                        minimumTopContentPadding = minimumTopContentPadding,
+                        minimumBottomContentPadding = minimumBottomContentPadding,
+                    )
+                } else {
+                    null
+                }
     }
 
     private fun makeMeasuredItemProvider(
         itemHeights: List<Int>,
         keys: List<Any>,
         transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? = null,
+        reverseLayout: Boolean = false,
+        minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
     ) = MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+        val minimumVerticalContentPaddings = minimumVerticalContentPaddings?.getOrNull(index)
         TransformingLazyColumnMeasuredItem(
             index = index,
             offset = offset,
@@ -647,6 +1445,8 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
                     width = screenWidth,
                     height = itemHeights[index],
                     transformedHeight = transformedHeight,
+                    minimumTopContentPadding = minimumVerticalContentPaddings?.top,
+                    minimumBottomContentPadding = minimumVerticalContentPaddings?.bottom,
                 ),
             containerConstraints = containerConstraints,
             spacing = 8,
@@ -658,6 +1458,9 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
             layoutDirection = LayoutDirection.Ltr,
             key = keys[index],
             contentType = null,
+            reverseLayout = reverseLayout,
         )
     }
+
+    private data class MinimumVerticalContentPadding(val top: Dp, val bottom: Dp = top)
 }

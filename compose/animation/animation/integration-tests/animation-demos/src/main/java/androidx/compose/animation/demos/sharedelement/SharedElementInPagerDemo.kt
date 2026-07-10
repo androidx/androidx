@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun SharedElementInPagerDemo() {
@@ -72,8 +71,7 @@ fun SharedElementInPagerDemo() {
                         modifier = Modifier.onPlaced { coords = it },
                         isEnabled = {
                             coords?.let {
-                                val scopeCoords =
-                                    it.lookaheadScopeCoordinates(this@SharedTransitionLayout)
+                                val scopeCoords = lookaheadScopeCoordinates(it)
                                 val (w, h) = scopeCoords.size
                                 val positionInScope = scopeCoords.localPositionOf(it)
                                 positionInScope.x >= 0 &&

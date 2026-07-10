@@ -1,11 +1,14 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
+import org.gradle.work.DisableCachingByDefault
+
+import javax.inject.Inject
 
 plugins {
     id("AndroidXPlugin")
@@ -17,23 +20,26 @@ ext {
 }
 
 android {
-    sourceSets {
-        main {
-            assets.srcDirs new File(fontDir, "font").getAbsolutePath()
-            resources {
-                srcDirs += [fontDir.getAbsolutePath()]
-                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
-            }
-        }
-
-        androidTest {
-            assets {
-                srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
-            }
-        }
-    }
     namespace = "androidx.emoji2.bundled"
+}
 
+def copyFontLicenses = tasks.register("copyFontLicenses", LicenseCopyTask) { task ->
+    task.description = "Copies specific font license files for inclusion in resources"
+    task.inputDir.set(fontDir)
+    task.outputDir.set(layout.buildDirectory.dir("generated/resources/font-licenses"))
+}
+
+androidComponents {
+    def fontAssetsPath = new File(fontDir, "font").getAbsolutePath()
+    def emojiAssetsPath = new File(fontDir, "supported-emojis").getAbsolutePath()
+
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(fontAssetsPath)
+        variant.sources.resources.addGeneratedSourceDirectory(copyFontLicenses) { task ->
+            task.outputDir
+        }
+        (variant as HasAndroidTest).androidTest.sources.assets.addStaticSourceDirectory(emojiAssetsPath)
+    }
 }
 
 dependencies {
@@ -68,5 +74,26 @@ androidx {
     extraLicense {
         name = "Unicode, Inc. License"
         url = "http://www.unicode.org/copyright.html#License"
+    }
+}
+
+@DisableCachingByDefault(because = "Primarily filesystem operations")
+abstract class LicenseCopyTask extends DefaultTask {
+    @InputDirectory
+    abstract DirectoryProperty getInputDir()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations()
+
+    @TaskAction
+    void taskAction() {
+        getFileSystemOperations().copy {
+            from(inputDir)
+            include("LICENSE_UNICODE", "LICENSE_OFL")
+            into(outputDir)
+        }
     }
 }

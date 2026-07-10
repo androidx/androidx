@@ -19,11 +19,17 @@ package androidx.security.state
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.security.state.SecurityPatchState.DateBasedSecurityPatchLevel
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SUPPLEMENTAL_PATCHES
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SUPPLEMENTAL_PATCHES
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -34,8 +40,24 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SecurityStateManagerCompatTest {
 
+    private companion object {
+        private const val TAG = "SecurityStateManagerCompatTest"
+    }
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var securityStateManagerCompat: SecurityStateManagerCompat
+
+    private val SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES =
+        arrayOf(
+            "/system/etc/security/supplemental_security_patches.xml",
+            "/system_ext/etc/security/supplemental_security_patches.xml",
+            "/product/etc/security/supplemental_security_patches.xml",
+        )
+    private val VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES =
+        arrayOf(
+            "/vendor/etc/security/supplemental_security_patches.xml",
+            "/odm/etc/security/supplemental_security_patches.xml",
+        )
 
     @Before
     fun setup() {
@@ -82,6 +104,59 @@ class SecurityStateManagerCompatTest {
         return bundle.keySet().any { it.contains("modulemetadata") }
     }
 
+    @Throws(Exception::class)
+    private fun matchesCveIdsFormat(
+        bundle: Bundle,
+        key: String,
+        configFilePaths: Array<String>,
+    ): Boolean {
+        val expectedCveIds = getExpectedCveIdsFromFiles(configFilePaths)
+
+        val actualCveIds = bundle.getStringArray(key) ?: emptyArray()
+        expectedCveIds.sort()
+        actualCveIds.sort()
+
+        return expectedCveIds.contentEquals(actualCveIds)
+    }
+
+    private fun getExpectedCveIdsFromFiles(filePaths: Array<String>): Array<String> {
+        return filePaths
+            .flatMap { path -> getExpectedCveIds(path).toList() }
+            .distinct()
+            .toTypedArray()
+    }
+
+    private fun getExpectedCveIds(configFilePath: String): Array<String> {
+        val configFile = File(configFilePath)
+        // skip the test if supplemental_security_patches.xml is not present.
+        if (!configFile.exists()) {
+            return emptyArray()
+        }
+
+        return try {
+            FileInputStream(configFile).use { inputStream ->
+                // Call the static read method. Handle potential null return.
+                val securityPatches: SecurityPatchesXmlParser? =
+                    SecurityPatchesXmlParser.read(inputStream)
+
+                if (securityPatches != null) {
+                    // Use the getPatch() method, not property access
+                    val patches = securityPatches.getPatch()
+                    patches.mapNotNull { patch -> patch.id }.toTypedArray()
+                } else {
+                    Log.e(TAG, "Failed to parse XML, read returned null for: $configFilePath")
+                    emptyArray()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to read supplemental security patch file: $configFilePath", e)
+            emptyArray()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse supplemental security patch file: $configFilePath", e)
+            emptyArray()
+        }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testGetGlobalSecurityState_sdkAbove29() {
@@ -90,6 +165,20 @@ class SecurityStateManagerCompatTest {
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertTrue(containsModuleMetadataPackage(bundle))
         assertTrue(containsWebViewPackage(bundle))
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_SYSTEM_SUPPLEMENTAL_PATCHES,
+                SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_VENDOR_SUPPLEMENTAL_PATCHES,
+                VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.P)
@@ -100,6 +189,20 @@ class SecurityStateManagerCompatTest {
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertTrue(containsWebViewPackage(bundle))
         assertFalse(containsModuleMetadataPackage(bundle))
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_SYSTEM_SUPPLEMENTAL_PATCHES,
+                SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_VENDOR_SUPPLEMENTAL_PATCHES,
+                VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
     }
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
@@ -110,6 +213,20 @@ class SecurityStateManagerCompatTest {
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertFalse(containsModuleMetadataPackage(bundle))
         assertFalse(containsWebViewPackage(bundle))
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_SYSTEM_SUPPLEMENTAL_PATCHES,
+                SYSTEM_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
+        assertTrue(
+            matchesCveIdsFormat(
+                bundle,
+                KEY_VENDOR_SUPPLEMENTAL_PATCHES,
+                VENDOR_SUPPLEMENTAL_PATCH_CONFIG_FILES,
+            )
+        )
     }
 
     @Test

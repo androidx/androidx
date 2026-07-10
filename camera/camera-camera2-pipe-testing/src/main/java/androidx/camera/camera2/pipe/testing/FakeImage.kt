@@ -16,40 +16,90 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.media.ImagePlane
+import android.graphics.Rect
+import android.hardware.HardwareBuffer
+import android.hardware.SyncFence
 import androidx.camera.camera2.pipe.media.ImageWrapper
-import kotlin.reflect.KClass
-import kotlinx.atomicfu.atomic
+import androidx.camera.common.ImageDataSpace
+import androidx.camera.common.ImagePlane
+import androidx.camera.common.MutableImageWrapper
+import androidx.camera.common.testing.FakeImage as CommonFakeImage
+import java.lang.Class
 
 /** FakeImage that can be used for testing classes that accept [ImageWrapper]. */
 public class FakeImage(
     override val width: Int,
     override val height: Int,
     override val format: Int,
-    override val timestamp: Long,
-) : ImageWrapper {
-    private val debugId = debugIds.incrementAndGet()
-    private val closed = atomic(false)
+    timestamp: Long,
+    // TODO(b/516888993): Remove providedHardwareBuffer once Google3 tests are migrated.
+    providedHardwareBuffer: HardwareBuffer? = null,
+    cropRect: Rect = Rect(0, 0, width, height),
+    hardwareBuffer: HardwareBuffer? = null,
+) : ImageWrapper, MutableImageWrapper {
+
+    private val delegate =
+        CommonFakeImage(
+            width = width,
+            height = height,
+            format = format,
+            timestamp = timestamp,
+            hardwareBuffer = providedHardwareBuffer ?: hardwareBuffer,
+            cropRect = cropRect,
+        )
+
+    override val hardwareBuffer: HardwareBuffer?
+        get() = delegate.hardwareBuffer
+
+    override var timestamp: Long
+        get() = delegate.timestamp
+        set(value) {
+            delegate.timestamp = value
+        }
+
+    override var cropRect: Rect
+        get() = delegate.cropRect
+        set(value) {
+            delegate.cropRect = value
+        }
+
+    override var syncFence: SyncFence?
+        get() = delegate.syncFence
+        set(value) {
+            delegate.syncFence = value
+        }
+
+    @get:ImageDataSpace
+    @setparam:ImageDataSpace
+    override var dataSpace: Int
+        get() = delegate.dataSpace
+        set(value) {
+            delegate.dataSpace = value
+        }
+
+    public val numberOfTimesClosed: Int
+        get() = delegate.closeCount
+
     public val isClosed: Boolean
-        get() = closed.value
+        get() = delegate.isClosed
 
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when {
+            type.isInstance(this) -> this as T
+            else -> delegate.unwrapAs(type)
+        }
+
+    @get:Deprecated("Use imagePlanes instead", ReplaceWith("imagePlanes"))
     override val planes: List<ImagePlane>
-        get() = throw UnsupportedOperationException("FakeImage does not support planes.")
+        get() = imagePlanes
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        // FakeImage cannot be unwrapped
-        return null
-    }
+    override val imagePlanes: List<ImagePlane>
+        get() = delegate.imagePlanes
 
     override fun close() {
-        if (closed.compareAndSet(expect = false, update = true)) {
-            // FakeImage close is a NoOp
-        }
+        delegate.close()
     }
 
-    override fun toString(): String = "FakeImage-$debugId"
-
-    public companion object {
-        private val debugIds = atomic(0)
-    }
+    override fun toString(): String = delegate.toString()
 }

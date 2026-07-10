@@ -31,6 +31,7 @@ import androidx.test.annotation.UiThreadTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
@@ -38,6 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(sdk = {Config.ALL_SDKS})
 public class PreviewViewMeteringPointFactoryTest {
 
     private static final int WIDTH = 800;

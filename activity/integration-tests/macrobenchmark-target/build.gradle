@@ -1,22 +1,19 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-   compileSdk = 36
+    compileSdk { version = release(37) }
    namespace = "androidx.activity.integration.macrobenchmark.target"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":activity:activity"))
 }

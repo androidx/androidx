@@ -28,9 +28,10 @@ package androidx.fragment.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements androidx.activity.result.ActivityResultCaller android.content.ComponentCallbacks androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
+  public class Fragment implements androidx.activity.result.ActivityResultCaller android.content.ComponentCallbacks androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     ctor @ContentView public Fragment(@LayoutRes int);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method public final boolean equals(Object?);
     method public final androidx.fragment.app.FragmentActivity? getActivity();
@@ -115,11 +116,13 @@ package androidx.fragment.app {
     method @CallSuper @MainThread public void onStop();
     method @MainThread public void onViewCreated(android.view.View, android.os.Bundle?);
     method @CallSuper @MainThread public void onViewStateRestored(android.os.Bundle?);
+    method public android.content.Context? peekAvailableContext();
     method public void postponeEnterTransition();
     method public final void postponeEnterTransition(long, java.util.concurrent.TimeUnit);
-    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultCallback<O>);
+    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O>);
     method public void registerForContextMenu(android.view.View);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method @Deprecated public final void requestPermissions(String![], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
     method public final android.os.Bundle requireArguments();
@@ -196,6 +199,7 @@ package androidx.fragment.app {
     ctor public FragmentContainerView(android.content.Context context);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor @BytecodeOnly public FragmentContainerView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public <F extends androidx.fragment.app.Fragment> F getFragment();
   }
 
@@ -266,6 +270,13 @@ package androidx.fragment.app {
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle? options);
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment fragment, android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags, android.os.Bundle? options) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
+  }
+
+  public final class FragmentKt {
+    method public static void clearFragmentResult(androidx.fragment.app.Fragment, String requestKey);
+    method public static void clearFragmentResultListener(androidx.fragment.app.Fragment, String requestKey);
+    method public static void setFragmentResult(androidx.fragment.app.Fragment, String requestKey, android.os.Bundle result);
+    method public static void setFragmentResultListener(androidx.fragment.app.Fragment, String requestKey, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
   }
 
   public abstract class FragmentManager implements androidx.fragment.app.FragmentResultOwner {
@@ -348,6 +359,15 @@ package androidx.fragment.app {
     method @MainThread public default void onBackStackChangeProgressed(androidx.activity.BackEventCompat);
     method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
+  }
+
+  public final class FragmentManagerKt {
+    method public static inline void commit(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @BytecodeOnly public static void commit$default(androidx.fragment.app.FragmentManager!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    method @MainThread public static inline void commitNow(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @BytecodeOnly @MainThread public static void commitNow$default(androidx.fragment.app.FragmentManager!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, optional boolean now, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @BytecodeOnly @Deprecated public static void transaction$default(androidx.fragment.app.FragmentManager!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @Deprecated public class FragmentManagerNonConfig {
@@ -447,6 +467,21 @@ package androidx.fragment.app {
     field public static final int TRANSIT_UNSET = -1; // 0xffffffff
   }
 
+  public final class FragmentTransactionKt {
+    method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
+    method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, String tag, optional android.os.Bundle? args);
+    method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction replace(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
+  }
+
+  public final class FragmentViewModelLazyKt {
+    method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> activityViewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @BytecodeOnly @Deprecated @MainThread public static kotlin.Lazy! createViewModelLazy(androidx.fragment.app.Fragment!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!);
+    method @MainThread public static <VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @BytecodeOnly @Deprecated @MainThread public static kotlin.Lazy! createViewModelLazy$default(androidx.fragment.app.Fragment!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @MainThread public static kotlin.Lazy! createViewModelLazy$default(androidx.fragment.app.Fragment!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelStoreOwner> ownerProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+  }
+
   public class ListFragment extends androidx.fragment.app.Fragment {
     ctor public ListFragment();
     method public android.widget.ListAdapter? getListAdapter();
@@ -465,19 +500,23 @@ package androidx.fragment.app {
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface PredictiveBackControl {
   }
 
+  public final class ViewKt {
+    method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
+  }
+
 }
 
 package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
-    method public String getPreviousFragmentId();
+    method @InaccessibleFromKotlin public String getPreviousFragmentId();
     property public String previousFragmentId;
   }
 
   public final class FragmentStrictMode {
-    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method @InaccessibleFromKotlin public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
     method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
-    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
+    method @InaccessibleFromKotlin public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
     property public androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
     field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
   }
@@ -508,7 +547,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    method public android.view.ViewGroup? getParentContainer();
+    method @InaccessibleFromKotlin public android.view.ViewGroup? getParentContainer();
     property public android.view.ViewGroup? parentContainer;
   }
 
@@ -528,14 +567,14 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
-    method public int getRequestCode();
-    method public androidx.fragment.app.Fragment getTargetFragment();
+    method @InaccessibleFromKotlin public int getRequestCode();
+    method @InaccessibleFromKotlin public androidx.fragment.app.Fragment getTargetFragment();
     property public int requestCode;
     property public androidx.fragment.app.Fragment targetFragment;
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
-    method public boolean isVisibleToUser();
+    method @InaccessibleFromKotlin public boolean isVisibleToUser();
     property public boolean isVisibleToUser;
   }
 
@@ -543,18 +582,18 @@ package androidx.fragment.app.strictmode {
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
-    method public final androidx.fragment.app.Fragment getFragment();
+    method @InaccessibleFromKotlin public final androidx.fragment.app.Fragment getFragment();
     property public final androidx.fragment.app.Fragment fragment;
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
-    method public android.view.ViewGroup getContainer();
+    method @InaccessibleFromKotlin public android.view.ViewGroup getContainer();
     property public android.view.ViewGroup container;
   }
 
   public final class WrongNestedHierarchyViolation extends androidx.fragment.app.strictmode.Violation {
-    method public int getContainerId();
-    method public androidx.fragment.app.Fragment getExpectedParentFragment();
+    method @InaccessibleFromKotlin public int getContainerId();
+    method @InaccessibleFromKotlin public androidx.fragment.app.Fragment getExpectedParentFragment();
     property public int containerId;
     property public androidx.fragment.app.Fragment expectedParentFragment;
   }

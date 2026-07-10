@@ -41,6 +41,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.common.unwrapAs
 import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -169,7 +170,7 @@ constructor(
                                 null
                             },
                     )
-                    ?.unwrapAs(OutputConfiguration::class)
+                    ?.unwrapAs<OutputConfiguration>()
                     ?.let { outputConfigSet.add(it) }
             }
         }
@@ -193,7 +194,7 @@ constructor(
             }
 
             Log.debug { "Camera2Backend#shutdownAsync: Closing all cameras (if any)" }
-            camera2DeviceManager.closeAll().await()
+            camera2DeviceManager.closeAll(forceCancelOpen = true).await()
         }
     }
 

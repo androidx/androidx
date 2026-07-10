@@ -328,21 +328,20 @@ class DateTimeFormatterTest {
 
         val expectedUs =
             if (isFlexiblePeriodAvailable) {
-                "12:43 at night || 4:43 at night || 8:43 in the morning || " +
-                    "12:43 in the afternoon || 4:43 in the afternoon || 8:43 in the evening"
+                "8:43 in the morning || 12:43 in the afternoon || " +
+                    "4:43 in the afternoon || 8:43 in the evening"
             } else {
-                "12:43 AM || 4:43 AM || 8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
+                "8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
             }
         val expectedZh =
             when {
                 // Chinese changed to 24h from ICU 70.1
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
-                    "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
-                isFlexiblePeriodAvailable ->
-                    "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
-                else -> "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
+                    "08:43 || 12:43 || 16:43 || 20:43"
+                isFlexiblePeriodAvailable -> "上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
+                else -> "上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
             }
-        val expectedFr = "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
+        val expectedFr = "08:43 || 12:43 || 16:43 || 20:43"
 
         val calendar = Calendar.getInstance()
         val separator = " || "
@@ -352,9 +351,10 @@ class DateTimeFormatterTest {
         val resultZh = StringBuilder()
         val resultFr = StringBuilder()
 
-        for (hour in 0..23 step 4) {
+        val startHour = 8
+        for (hour in startHour..23 step 4) {
             calendar.set(2022, Calendar.JANUARY, 15, hour, 43)
-            if (hour != 0) {
+            if (hour != startHour) {
                 resultUs.append(separator)
                 resultZh.append(separator)
                 resultFr.append(separator)

@@ -19,11 +19,10 @@ import androidx.build.ApkCopyHelperKt
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.camera.integration.core"
@@ -61,7 +60,6 @@ dependencies {
     api(libs.jspecify)
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     debugImplementation(project(":camera:camera-mlkit-vision"))
@@ -70,7 +68,7 @@ dependencies {
     implementation(project(":camera:camera-extensions"))
 
     // Needed because AGP enforces same version between main and androidTest classpaths
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
 
     // Android Support Library
     api(libs.constraintLayout)
@@ -85,6 +83,10 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
+    implementation(project(":camera:media3:media3-effect"))
+    implementation("androidx.camera.viewfinder:viewfinder-core:1.5.1")
+    implementation(libs.media3Common)
+    implementation(libs.media3Effect)
 
     debugImplementation(libs.testCore)
     // explicitly add runner here to force consistency with androidTestImplementation
@@ -92,32 +94,34 @@ dependencies {
 
     // Testing framework
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(libs.espressoIdlingResource)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
 
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-lifecycle"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.palette:palette:1.0.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
+    androidTestImplementation("androidx.exifinterface:exifinterface:1.4.2")
+    androidTestImplementation("androidx.core:core-backported-fixes:1.0.0")
 
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.truth)
 
     // Transitive dependencies
@@ -135,9 +139,6 @@ dependencies {
     androidTestImplementation libs.junit
     androidTestImplementation libs.kotlinCoroutinesCore
     androidTestImplementation libs.testMonitor
-    testImplementation 'org.robolectric:annotations:4.14'
-    testImplementation 'org.robolectric:shadowapi:4.14'
-    testImplementation 'org.robolectric:shadows-framework:4.14'
     testImplementation libs.kotlinCoroutinesCore
     testImplementation libs.testCore
 }

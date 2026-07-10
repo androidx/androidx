@@ -15,14 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -75,10 +75,6 @@ androidXMultiplatform {
 
     androidLibrary {
         namespace = "androidx.datastore.core"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
         addNativeLibrariesToJniLibs(it, jniImplementation)
     }
     jvm()
@@ -87,6 +83,9 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    wasmJs()
+    js()
+
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -95,62 +94,44 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        jvmAndroidMain {
-            dependsOn(commonMain)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.okio)
+            implementation(project(":datastore:datastore-core-okio"))
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
         }
 
         androidMain {
-            dependsOn(jvmAndroidMain)
-        }
-
-        jvmMain {
-            dependsOn(jvmAndroidMain)
-        }
-
-        commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.okio)
-                implementation(project(":datastore:datastore-core-okio"))
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
+                api(project(":tracing:tracing"))
             }
         }
 
-        jvmAndroidTest {
-            dependsOn(commonTest)
+        create("nonWebCommonTest").dependsOn(commonTest)
+
+        jvmAndAndroidTest {
+            dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
             }
         }
         // tests that are run on AndroidUnit and instrumented targets.
-        // similar to jvmAndroidTest, except, they don't run on JVM outside Robolectric.
-        androidUnitAndInstrumentedTest {
-            dependsOn(jvmAndroidTest)
-        }
+        // similar to jvmAndAndroidTest, except, they don't run on JVM outside Robolectric.
+        androidUnitAndInstrumentedTest {}.dependsOn(jvmAndAndroidTest)
 
-        jvmTest {
-            dependsOn(jvmAndroidTest)
-        }
-
-        androidUnitTest {
-            dependsOn(jvmAndroidTest)
+        androidHostTest {
             dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.protobufLite)
@@ -161,8 +142,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
-            dependsOn(jvmAndroidTest)
+        androidDeviceTest {
             dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.truth)
@@ -171,32 +151,17 @@ androidXMultiplatform {
                 implementation(libs.testCore)
                 implementation("androidx.lifecycle:lifecycle-service:2.6.1")
                 implementation(libs.testExtJunit)
+                api(project(":tracing:tracing-wire"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
         }
-        nativeTest {
-            dependsOn(commonTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
-            }
-        }
+        nativeTest.dependsOn(nonWebCommonTest)
     }
 }
 
@@ -206,4 +171,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

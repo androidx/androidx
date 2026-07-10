@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.WireBuffer;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Set the min / max height dimension on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightInModifierOperation extends DimensionInModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_HEIGHT_IN;
     public static final String CLASS_NAME = "HeightInModifierOperation";
@@ -49,8 +51,8 @@ public class HeightInModifierOperation extends DimensionInModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float v1 = buffer.readFloat();
-        float v2 = buffer.readFloat();
+        float v1 = buffer.readNanId();
+        float v2 = buffer.readNanId();
         operations.add(new HeightInModifierOperation(v1, v2));
     }
 
@@ -79,7 +81,7 @@ public class HeightInModifierOperation extends DimensionInModifierOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "HeightInModifierOperation")
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("Add additional constraints to the height")
                 .field(DocumentedOperation.FLOAT, "min", "The minimum height, -1 if not applied")
                 .field(DocumentedOperation.FLOAT, "max", "The maximum height, -1 if not applied");

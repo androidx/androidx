@@ -26,23 +26,23 @@ internal val ACTIVITY_NAVIGATION_DESTINATION_BUILDER =
         "androidx/navigation",
         0x2a71d14,
         """
-package androidx.navigation
+        package androidx.navigation
 
-import kotlin.reflect.KClass
+        import kotlin.reflect.KClass
 
-public abstract class Navigator<D : NavDestination>
+        public abstract class Navigator<D : NavDestination>
 
-public open class ActivityNavigator : Navigator<ActivityNavigator.Destination>() {
-    public open class Destination: NavDestination()
-}
+        public open class ActivityNavigator : Navigator<ActivityNavigator.Destination>() {
+            public open class Destination: NavDestination()
+        }
 
-public class ActivityNavigatorDestinationBuilder :
-    NavDestinationBuilder<ActivityNavigator.Destination> {
-        public constructor(route: KClass<out Any>)
-    }
+        public class ActivityNavigatorDestinationBuilder :
+            NavDestinationBuilder<ActivityNavigator.Destination> {
+                public constructor(route: KClass<out Any>)
+            }
 
-public inline fun <reified T : Any> NavGraphBuilder.activity() {}
-            """
+        public inline fun <reified T : Any> NavGraphBuilder.activity() {}
+        """
             .trimIndent(),
         """
                 META-INF/main.kotlin_module:

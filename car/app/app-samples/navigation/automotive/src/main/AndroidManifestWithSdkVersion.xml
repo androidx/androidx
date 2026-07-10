@@ -66,12 +66,10 @@
 
     <meta-data
         android:name="com.android.automotive"
-        android:resource="@xml/automotive_app_desc"
-        tools:ignore="MetadataTagInsideApplicationTag" />
+        android:resource="@xml/automotive_app_desc"/>
 
     <meta-data android:name="androidx.car.app.minCarApiLevel"
-        android:value="1"
-        tools:ignore="MetadataTagInsideApplicationTag" />
+        android:value="1"/>
 
     <service
         android:name="androidx.car.app.sample.navigation.common.car.NavigationCarAppService"

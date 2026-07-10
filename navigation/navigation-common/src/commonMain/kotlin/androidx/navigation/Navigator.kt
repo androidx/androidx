@@ -22,9 +22,10 @@ import androidx.savedstate.SavedState
 /**
  * Navigator defines a mechanism for navigating within an app.
  *
- * Each Navigator sets the policy for a specific type of navigation, e.g. [ActivityNavigator] knows
- * how to launch into [destinations][NavDestination] backed by activities using
- * [startActivity][Context.startActivity].
+ * Each Navigator sets the policy for a specific type of navigation, e.g.
+ * [ActivityNavigator](https://developer.android.com/reference/androidx/navigation/ActivityNavigator)
+ * knows how to launch into [destinations][NavDestination] backed by activities using
+ * [startActivity](https://developer.android.com/reference/android/content/Context#startActivity(android.content.Intent)).
  *
  * Navigators should be able to manage their own back stack when navigating between two destinations
  * that belong to that navigator. The [NavController] manages a back stack of navigators
@@ -32,8 +33,9 @@ import androidx.savedstate.SavedState
  *
  * Each Navigator should add the [Navigator.Name annotation][Name] to their class. Any custom
  * attributes used by the associated [destination][NavDestination] subclass should have a name
- * corresponding with the name of the Navigator, e.g., [ActivityNavigator] uses `<declare-styleable
- * name="ActivityNavigator">`
+ * corresponding with the name of the Navigator, e.g.,
+ * [ActivityNavigator](https://developer.android.com/reference/androidx/navigation/ActivityNavigator)
+ * uses `<declare-styleable name="ActivityNavigator">`
  *
  * @param D the subclass of [NavDestination] used with this Navigator which can be used to hold any
  *   special data that will be needed to navigate to that destination. Examples include information

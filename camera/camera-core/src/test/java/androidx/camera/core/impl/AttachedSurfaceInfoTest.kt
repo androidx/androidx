@@ -28,10 +28,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class AttachedSurfaceInfoTest {
     private var attachedSurfaceInfo: AttachedSurfaceInfo? = null
     private val surfaceConfig =
@@ -44,6 +46,7 @@ class AttachedSurfaceInfoTest {
     private val sessionType = SESSION_TYPE_REGULAR
     private val targetFrameRate = Range(10, 20)
     private val isStrictFrameRateRequired = true
+    private val customMaxFrameRate = 60
     private val config =
         FakeUseCaseConfig.Builder(CaptureType.PREVIEW, inputFormat).useCaseConfig.config
 
@@ -60,6 +63,7 @@ class AttachedSurfaceInfoTest {
                 sessionType,
                 targetFrameRate,
                 isStrictFrameRateRequired,
+                customMaxFrameRate,
             )
     }
 
@@ -124,6 +128,11 @@ class AttachedSurfaceInfoTest {
     }
 
     @Test
+    fun canGetCustomMaxFrameRate() {
+        Truth.assertThat(attachedSurfaceInfo!!.customMaxFrameRate).isEqualTo(customMaxFrameRate)
+    }
+
+    @Test
     fun defaultSessionTypeAndFrameRate() {
         val attachedSurfaceInfo2 =
             AttachedSurfaceInfo.create(
@@ -136,6 +145,7 @@ class AttachedSurfaceInfoTest {
                 sessionType,
                 FRAME_RATE_RANGE_UNSPECIFIED,
                 isStrictFrameRateRequired,
+                customMaxFrameRate,
             )
         Truth.assertThat(attachedSurfaceInfo2.sessionType).isEqualTo(SESSION_TYPE_REGULAR)
         Truth.assertThat(attachedSurfaceInfo2.targetFrameRate)

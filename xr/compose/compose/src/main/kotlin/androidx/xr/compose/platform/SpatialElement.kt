@@ -99,6 +99,8 @@ internal open class SpatialElement {
      * state to [SpatialComposeScene] changes.
      *
      * Use [removeOnAttachStateChangeListener] to unregister the [listener].
+     *
+     * @param listener The listener to be registered.
      */
     @Suppress("ExecutorRegistration")
     public fun addOnAttachStateChangeListener(listener: OnAttachStateChangeListener) {
@@ -135,6 +137,8 @@ internal open class SpatialElement {
      *
      * The [listener] will no longer receive any further notification whenever [spatialComposeScene]
      * attachment changes.
+     *
+     * @param listener The listener to be removed.
      */
     public fun removeOnAttachStateChangeListener(listener: OnAttachStateChangeListener) {
         onAttachStateChangeListeners?.remove(listener)

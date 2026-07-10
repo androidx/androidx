@@ -77,6 +77,7 @@ import org.robolectric.versioning.AndroidVersions
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 @OptIn(ExperimentalCoroutinesApi::class)
 class CameraXInitRetryTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -689,9 +690,17 @@ class CameraXInitRetryTest {
             .setCameraFactoryProvider(cameraFactoryProvider)
             .apply {
                 surfaceManager?.let {
-                    setDeviceSurfaceManagerProvider { _: Context?, _: Any?, _: Set<String?>? -> it }
+                    setDeviceSurfaceManagerProvider {
+                        _: Context?,
+                        _: Any?,
+                        _: Set<String?>?,
+                        _: String? ->
+                        it
+                    }
                 }
-                useCaseConfigFactory?.let { setUseCaseConfigFactoryProvider { _: Context? -> it } }
+                useCaseConfigFactory?.let {
+                    setUseCaseConfigFactoryProvider { _: Context?, _: Boolean -> it }
+                }
             }
             .build()
     }

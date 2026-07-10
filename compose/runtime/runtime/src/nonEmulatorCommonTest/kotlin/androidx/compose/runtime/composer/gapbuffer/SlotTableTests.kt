@@ -16,14 +16,14 @@
 package androidx.compose.runtime.composer.gapbuffer
 
 import androidx.compose.runtime.Composer
+import androidx.compose.runtime.GapRememberObserverHolder
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.expectError
+import androidx.compose.runtime.isAfterFirstChild
 import androidx.compose.runtime.reuseKey
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
-import kotlin.collections.iterator
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -808,7 +808,7 @@ class SlotTableTests {
             reader.beginEmpty()
             reader.startGroup()
             assertEquals(true, reader.inEmpty)
-            assertEquals(Composer.Companion.Empty, reader.next())
+            assertEquals(Composer.Empty, reader.next())
             reader.endGroup()
             reader.endEmpty()
         }
@@ -1837,7 +1837,7 @@ class SlotTableTests {
         slots.write { writer ->
             assertEquals(object1, writer.groupAux(object1Index))
             assertEquals(object2, writer.groupAux(object2Index))
-            assertEquals(Composer.Companion.Empty, writer.groupAux(emptyIndex))
+            assertEquals(Composer.Empty, writer.groupAux(emptyIndex))
         }
     }
 
@@ -5439,21 +5439,32 @@ private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit 
 private fun SlotWriter.rememberValue(value: Any) {
     val valueToSave =
         if (value is RememberObserver) {
-            val anchor =
-                if (isAfterFirstChild) {
-                    var group = currentGroup - 1
-                    var groupParent = parent(group)
-                    while (groupParent != parent && groupParent >= 0) {
-                        group = groupParent
-                        groupParent = parent(group)
-                    }
-                    anchor(group)
-                } else null
-
-            RememberObserverHolder(value, anchor)
+            GapRememberObserverHolder(value, rememberIndexOfCurrent())
         } else value
     update(valueToSave)
 }
+
+private fun SlotWriter.rememberIndexOfCurrent() =
+    if (isAfterFirstChild) {
+        var group = currentGroup - 1
+        var groupParent = parent(group)
+        while (groupParent != parent && groupParent >= 0) {
+            group = groupParent
+            groupParent = parent(group)
+        }
+        var currentChild = groupParent + 1
+        val end = parent + groupSize(groupParent)
+        var index = 0
+        while (currentChild != group && currentChild < end) {
+            if (groupObjectKey(currentChild) == null) {
+                index++
+            }
+            currentChild += groupSize(currentChild)
+        }
+        index
+    } else {
+        -1
+    }
 
 private const val treeRoot = -1
 private const val elementKey = 100
@@ -5620,7 +5631,7 @@ private fun SlotReader.expectStrictGroup(key: Int, block: () -> Unit = {}) {
     assertEquals(key, groupKey)
     startGroup()
     block()
-    expectData(Composer.Companion.Empty)
+    expectData(Composer.Empty)
     endGroup()
 }
 
@@ -5650,6 +5661,20 @@ private fun <T> Iterator<T>.toList(): List<T> {
         list.add(next())
     }
     return list
+}
+
+internal fun expectError(message: String, block: () -> Unit) {
+    var exceptionThrown = false
+    try {
+        block()
+    } catch (e: Throwable) {
+        exceptionThrown = true
+        assertTrue(
+            e.message?.contains(message) == true,
+            "Expected \"${e.message}\" to contain \"$message\"",
+        )
+    }
+    assertTrue(exceptionThrown, "Expected test to throw an exception containing \"$message\"")
 }
 
 data class SourceGroup(

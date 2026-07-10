@@ -128,7 +128,7 @@ fun AssetFont(weight: Int, italic: Boolean) {
                         context.assets,
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
                                 FontVariation.italic(if (italic) 1f else 0f),
                             ),
@@ -160,7 +160,7 @@ fun FileFont(weight: Int, italic: Boolean) {
                         File(actualPath),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
                                 FontVariation.italic(if (italic) 1f else 0f),
                             ),
@@ -193,7 +193,7 @@ fun ParcelFileDescriptorFont(weight: Int, italic: Boolean) {
                         File(actualPath).toParcelFileDescriptor(context),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
                                 FontVariation.italic(if (italic) 1f else 0f),
                             ),
@@ -220,7 +220,7 @@ fun DeviceNamedFontFamilyFont(weight: Int, italic: Boolean) {
                         DeviceFontFamilyName("sans-serif"),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
                                 FontVariation.italic(if (italic) 1f else 0f),
                             ),
@@ -266,7 +266,7 @@ fun ResourceFont(weight: Int, italic: Boolean) {
                         R.font.variable_font,
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
                                 FontVariation.italic(if (italic) 1f else 0f),
                             ),

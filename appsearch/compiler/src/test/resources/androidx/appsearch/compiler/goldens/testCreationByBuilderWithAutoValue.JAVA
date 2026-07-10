@@ -51,8 +51,12 @@ public final class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory
     String namespaceConv = genericDoc.getNamespace();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     GiftBuilder builder = Gift.getBuilder();
-    builder.setId(idConv);
-    builder.setNamespace(namespaceConv);
+    if (idConv != null) {
+      builder.setId(idConv);
+    }
+    if (namespaceConv != null) {
+      builder.setNamespace(namespaceConv);
+    }
     builder.setPrice(priceConv);
     return builder.build();
   }

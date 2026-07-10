@@ -35,7 +35,6 @@ include ":imports:inspection-gradle-plugin"
 include ":imports:room-gradle-plugin"
 include ":imports:glance-layout-generator"
 include ":imports:stableaidl-gradle-plugin"
-include ":imports:privacysandbox-gradle-plugin"
 
 dependencyResolutionManagement {
     versionCatalogs {

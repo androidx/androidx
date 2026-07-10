@@ -2,13 +2,9 @@
 
 # UI Team
 mount@google.com
-ralu@google.com
-tianliu@google.com
-jewalker@google.com
-mnuzen@google.com
+include /MOLECULE_UI_OWNERS
 
 # For Material related files
-andreykulikov@google.com
 soboleva@google.com
 
 # SubcomposeLayout + exception handling related

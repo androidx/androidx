@@ -15,43 +15,45 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":benchmark:benchmark-traceprocessor"))
-    implementation(project(":tracing:tracing-perfetto-binary"))
-    implementation(libs.kotlinStdlib)
     implementation(project(":test:uiautomator:uiautomator"))
     implementation(project(":test:uiautomator:uiautomator-shell"))
+    implementation(libs.testExtJunit)
 
-    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
 }
 
 android {
-    sourceSets {
-        androidTest.assets.srcDirs += new File(
-                androidx.build.AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/testdata"
-        )
+    defaultConfig {
+        minSdk { version = release(24) }
     }
     namespace = "androidx.testutils.macrobenchmark"
+}
+
+androidComponents {
+    def testDataPath = new File(
+            AndroidXConfig.getPrebuiltsRoot(project),
+            "androidx/traceprocessor/testdata").absolutePath
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(testDataPath)
+    }
 }
 
 androidx {

@@ -75,15 +75,17 @@ public interface ScrollInfoProvider {
 /**
  * Function for creating a [ScrollInfoProvider] from a [ScalingLazyListState], for use with
  * [ScalingLazyColumn] - used to coordinate between scrollable content and scaffold content such as
- * [TimeText] which is scrolled away at the top of the screen and [EdgeButton] which is scaled.
+ * [androidx.wear.compose.material.TimeText] which is scrolled away at the top of the screen and
+ * [androidx.wear.compose.material3.EdgeButton] which is scaled.
  */
 public fun ScrollInfoProvider(state: ScalingLazyListState): ScrollInfoProvider =
     ScalingLazyListStateScrollInfoProvider(state)
 
 /**
  * Function for creating a [ScrollInfoProvider] from a [LazyListState], for use with [LazyColumn] -
- * used to coordinate between scrollable content and scaffold content such as [TimeText] which is
- * scrolled away at the top of the screen and [EdgeButton] which is scaled.
+ * used to coordinate between scrollable content and scaffold content such as
+ * [androidx.wear.compose.material.TimeText] which is scrolled away at the top of the screen and
+ * [androidx.wear.compose.material3.EdgeButton] which is scaled.
  */
 public fun ScrollInfoProvider(state: LazyListState): ScrollInfoProvider =
     LazyListStateScrollInfoProvider(state)
@@ -91,16 +93,17 @@ public fun ScrollInfoProvider(state: LazyListState): ScrollInfoProvider =
 /**
  * Function for creating a [ScrollInfoProvider] from a [TransformingLazyColumnState], for use with
  * [TransformingLazyColumn] - used to coordinate between scrollable content and scaffold content
- * such as [TimeText] which is scrolled away at the top of the screen and [EdgeButton] which is
- * scaled.
+ * such as [androidx.wear.compose.material.TimeText] which is scrolled away at the top of the screen
+ * and [androidx.wear.compose.material3.EdgeButton] which is scaled.
  */
 public fun ScrollInfoProvider(state: TransformingLazyColumnState): ScrollInfoProvider =
     TransformingLazyColumnStateScrollInfoProvider(state)
 
 /**
  * Function for creating a [ScrollInfoProvider] from a [ScrollState], for use with [Column] - used
- * to coordinate between scrollable content and scaffold content such as [TimeText] which is
- * scrolled away at the top of the screen and [EdgeButton] which is scaled.
+ * to coordinate between scrollable content and scaffold content such as
+ * [androidx.wear.compose.material.TimeText] which is scrolled away at the top of the screen and
+ * [androidx.wear.compose.material3.EdgeButton] which is scaled.
  *
  * @param state the [ScrollState] to use as the base for creating the [ScrollInfoProvider]
  */
@@ -110,8 +113,9 @@ public fun ScrollInfoProvider(state: ScrollState): ScrollInfoProvider =
 /**
  * Function for creating a [ScrollInfoProvider] from a [PagerState], for use with [HorizontalPager]
  * and [VerticalPager]
- * - used to coordinate when to fade out the PageIndicator and [TimeText]. The PageIndicator fades
- *   out when when scrolling is finished and the screen is in an idle state.
+ * - used to coordinate when to fade out the PageIndicator and
+ *   [androidx.wear.compose.material.TimeText]. The PageIndicator fades out when when scrolling is
+ *   finished and the screen is in an idle state.
  *
  * @param state the [PagerState] to use as the base for creating the [ScrollInfoProvider]
  */
@@ -296,7 +300,7 @@ private class TransformingLazyColumnStateScrollInfoProvider(
                     return@let Float.NaN
                 }
                 val newOffset = item.offset.toFloat()
-                if (initialStartOffset.isNaN()) {
+                if (initialStartOffset.isNaN() || newOffset > initialStartOffset) {
                     initialStartOffset = newOffset
                 }
                 initialStartOffset - newOffset
@@ -308,36 +312,52 @@ private class TransformingLazyColumnStateScrollInfoProvider(
         get() {
             val layoutInfo = state.layoutInfo
             val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItems.lastOrNull()?.let { lastItem ->
-                if (lastItem.index != layoutInfo.totalItemsCount - 1) {
-                    previousLastItemKey = null
-                    return@let 0f
+            val reverseLayout = layoutInfo.reverseLayout
+
+            val lastItem =
+                if (reverseLayout) {
+                    layoutInfo.visibleItems.firstOrNull()?.let { if (it.index == 0) it else null }
+                } else {
+                    layoutInfo.visibleItems.lastOrNull()?.let {
+                        if (it.index == layoutInfo.totalItemsCount - 1) it else null
+                    }
                 }
 
-                val animation =
-                    if (!state.isScrollInProgress) {
-                        state.animator.getAnimation(lastItem.key)
-                    } else {
-                        null
-                    }
+            if (lastItem == null) {
+                previousLastItemKey = null
+                return 0f
+            }
 
-                val offset =
-                    if (
-                        animation?.isPlacementAnimationInProgress == true &&
-                            previousLastItemKey == lastItem.key &&
-                            animation.animatedScrollProgress.isSpecified
-                    ) {
-                        animation.finalOffset.y
-                    } else {
-                        lastItem.offset
-                    }
-
-                if (animation?.isPlacementAnimationInProgress != true) {
-                    previousLastItemKey = lastItem.key
+            val animation =
+                if (!state.isScrollInProgress) {
+                    state.animator.getAnimation(lastItem.key)
+                } else {
+                    null
                 }
 
-                (screenHeightPx - offset - lastItem.transformedHeight).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+            // The logical offset is always top-down.
+            val logicalOffset =
+                if (
+                    animation?.isPlacementAnimationInProgress == true &&
+                        previousLastItemKey == lastItem.key &&
+                        animation.animatedScrollProgress.isSpecified
+                ) {
+                    animation.logicalOffset.y
+                } else {
+                    lastItem.offset
+                }
+
+            if (animation?.isPlacementAnimationInProgress != true) {
+                previousLastItemKey = lastItem.key
+            }
+
+            return if (reverseLayout) {
+                    logicalOffset
+                } else {
+                    screenHeightPx - logicalOffset - lastItem.transformedHeight
+                }
+                .toFloat()
+                .coerceAtLeast(0f)
         }
 
     override fun toString(): String {

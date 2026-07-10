@@ -51,7 +51,7 @@ internal constructor(
 
         internal val NOOP_HINT_RECEIVER =
             object : HintReceiver {
-                override fun accessHint(viewportHint: ViewportHint) {}
+                override fun processHint(viewportHint: ViewportHint) {}
             }
 
         /**

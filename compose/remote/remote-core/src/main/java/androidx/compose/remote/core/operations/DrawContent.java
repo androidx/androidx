@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -31,10 +32,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** The DrawContent command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawContent extends PaintOperation implements Serializable {
     private static final int OP_CODE = Operations.DRAW_CONTENT;
     private static final String CLASS_NAME = "DrawContent";
     private @Nullable LayoutComponent mComponent;
+
+    boolean mInProcessing = false;
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
@@ -101,14 +105,18 @@ public class DrawContent extends PaintOperation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
                 .description("Draw the component content");
     }
 
     @Override
     public void paint(@NonNull PaintContext context) {
         if (mComponent != null) {
-            mComponent.drawContent(context);
+            if (!mInProcessing) {
+                mInProcessing = true;
+                mComponent.drawContent(context);
+                mInProcessing = false;
+            }
         }
     }
 

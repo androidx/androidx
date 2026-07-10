@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -133,6 +134,10 @@ class MultiProcessTests {
 
     @Test
     fun list() = runBlocking {
+        assumeFalse(
+            "Test fails on cuttlefish b/460513394",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         setContent { LazyColumn { items(10, { it.toLong() }) { Text("$it") } } }
 
         val list = bindWidget().waitForChildren().findByType<ListView>()
@@ -166,6 +171,10 @@ class MultiProcessTests {
     @Test
     fun runAction() =
         runBlocking<Unit> {
+            assumeFalse(
+                "Test fails on cuttlefish b/460513394",
+                Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+            )
             val state = app.actionFlow.apply { value = 0 }
             setContent {
                 Text(

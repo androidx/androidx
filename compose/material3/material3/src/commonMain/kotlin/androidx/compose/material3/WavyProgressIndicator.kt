@@ -92,7 +92,6 @@ import androidx.compose.ui.util.fastCoerceIn
  *
  * @sample androidx.compose.material3.samples.LinearThickWavyProgressIndicatorSample
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LinearWavyProgressIndicator(
     progress: () -> Float,
@@ -163,7 +162,6 @@ fun LinearWavyProgressIndicator(
  *   render an animation that moves the wave by one wave length per second.
  * @sample androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LinearWavyProgressIndicator(
     modifier: Modifier = Modifier,
@@ -273,7 +271,6 @@ fun LinearWavyProgressIndicator(
  *
  * @sample androidx.compose.material3.samples.CircularThickWavyProgressIndicatorSample
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun CircularWavyProgressIndicator(
     progress: () -> Float,
@@ -344,7 +341,6 @@ fun CircularWavyProgressIndicator(
  *   wave shape.
  * @sample androidx.compose.material3.samples.IndeterminateCircularWavyProgressIndicatorSample
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun CircularWavyProgressIndicator(
     modifier: Modifier = Modifier,
@@ -357,7 +353,12 @@ fun CircularWavyProgressIndicator(
     wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength,
     waveSpeed: Dp = wavelength, // Match to 1 wavelength per second
 ) {
-    Box(modifier = modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize)) {
+    Box(
+        // Due to issue where Talkback produces jarring noises on focus (b/347736702) we keep the
+        // progressSemantics modifier in a separate wrapping box from the Spacer.
+        modifier =
+            modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize).progressSemantics()
+    ) {
         Spacer(
             Modifier.fillMaxSize()
                 .circularWavyProgressIndicator(
@@ -371,14 +372,10 @@ fun CircularWavyProgressIndicator(
                     waveSpeed = waveSpeed,
                 )
         )
-        // To overcome b/347736702 we are separating the progressSemantics() call to an independent
-        // spacer, and wrap the spacer with the indicator content and this spacer in a Box.
-        Spacer(modifier = Modifier.fillMaxSize().progressSemantics())
     }
 }
 
 /** Contains the default values used for wavy progress indicators */
-@ExperimentalMaterial3ExpressiveApi
 object WavyProgressIndicatorDefaults {
 
     /**

@@ -17,16 +17,19 @@
 package androidx.xr.arcore
 
 import android.annotation.SuppressLint
-import androidx.xr.arcore.internal.ArDevice as RuntimeArDevice
-import androidx.xr.arcore.internal.AugmentedObject as RuntimeObject
-import androidx.xr.arcore.internal.DepthMap as RuntimeDepthMap
-import androidx.xr.arcore.internal.Earth as RuntimeEarth
-import androidx.xr.arcore.internal.Face as RuntimeFace
-import androidx.xr.arcore.internal.Hand as RuntimeHand
-import androidx.xr.arcore.internal.Plane as RuntimePlane
-import androidx.xr.arcore.internal.RenderViewpoint as RuntimeRenderViewpoint
-import androidx.xr.arcore.internal.Trackable as RuntimeTrackable
-import androidx.xr.runtime.internal.LifecycleManager
+import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
+import androidx.xr.arcore.runtime.AugmentedImage as RuntimeImage
+import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
+import androidx.xr.arcore.runtime.Depth as RuntimeDepth
+import androidx.xr.arcore.runtime.Eye as RuntimeEye
+import androidx.xr.arcore.runtime.Face as RuntimeFace
+import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
+import androidx.xr.arcore.runtime.Hand as RuntimeHand
+import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.arcore.runtime.Plane as RuntimePlane
+import androidx.xr.arcore.runtime.QrCode as RuntimeQrCode
+import androidx.xr.arcore.runtime.RenderViewpoint as RuntimeRenderViewpoint
+import androidx.xr.arcore.runtime.Trackable as RuntimeTrackable
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
@@ -34,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 /** Manages all XR resources that are used by the ARCore for XR API. */
 internal class XrResourcesManager {
 
-    internal lateinit var lifecycleManager: LifecycleManager
+    internal lateinit var perceptionRuntime: PerceptionRuntime
 
     /** List of [Updatable]s that are updated every frame. */
     private val _updatables = CopyOnWriteArrayList<Updatable>()
@@ -49,6 +52,12 @@ internal class XrResourcesManager {
     private val _trackablesMap =
         java.util.concurrent.ConcurrentHashMap<RuntimeTrackable, Trackable<Trackable.State>>()
     val trackablesMap: Map<RuntimeTrackable, Trackable<Trackable.State>> = _trackablesMap
+
+    /** The data of eyes */
+    private var _leftRuntimeEye: RuntimeEye? = null
+    private var _rightRuntimeEye: RuntimeEye? = null
+    val leftEye: Eye? by lazy { _leftRuntimeEye?.let { Eye(it) } }
+    val rightEye: Eye? by lazy { _rightRuntimeEye?.let { Eye(it) } }
 
     /** The data of hands */
     private var _leftRuntimeHand: RuntimeHand? = null
@@ -72,22 +81,30 @@ internal class XrResourcesManager {
 
     /** The data of the user's face */
     private var _userFace: RuntimeFace? = null
-    val userFace: Face? by lazy { _userFace?.let { Face(it) } }
+    val userFace: Face? by lazy { _userFace?.let { Face(it, this) } }
 
     /** Geospatial data */
-    private var _earth: Earth? = null
-    val earth: Earth
-        get() = checkNotNull(_earth)
+    internal var _geospatial: Geospatial? = null
+    val geospatial: Geospatial
+        get() = checkNotNull(_geospatial)
 
     /** The depth map data */
-    lateinit var _depthMaps: List<DepthMap>
+    var leftDepth: Depth? = null
         private set
 
-    val depthMaps: List<DepthMap>
-        get() = if (::_depthMaps.isInitialized) _depthMaps else emptyList()
+    var rightDepth: Depth? = null
+        private set
 
-    internal fun initiateEarth(runtimeEarth: RuntimeEarth) {
-        _earth = Earth(runtimeEarth, this)
+    var monoDepth: Depth? = null
+        private set
+
+    internal fun initiateGeospatial(runtimeGeospatial: RuntimeGeospatial) {
+        _geospatial = Geospatial(runtimeGeospatial, this)
+    }
+
+    internal fun initiateEyes(leftRuntimeEye: RuntimeEye?, rightRuntimeEye: RuntimeEye?) {
+        _leftRuntimeEye = leftRuntimeEye
+        _rightRuntimeEye = rightRuntimeEye
     }
 
     internal fun initiateHands(leftRuntimeHand: RuntimeHand?, rightRuntimeHand: RuntimeHand?) {
@@ -113,8 +130,14 @@ internal class XrResourcesManager {
         }
     }
 
-    internal fun initiateDepthMaps(runtimeDepthMaps: List<RuntimeDepthMap>) {
-        _depthMaps = runtimeDepthMaps.map { DepthMap(it) }
+    internal fun initiateDepths(
+        runtimeLeftDepth: RuntimeDepth?,
+        runtimeRightDepth: RuntimeDepth?,
+        runtimeMonoDepth: RuntimeDepth?,
+    ) {
+        runtimeLeftDepth?.let { leftDepth = Depth(it) }
+        runtimeRightDepth?.let { rightDepth = Depth(it) }
+        runtimeMonoDepth?.let { monoDepth = Depth(it) }
     }
 
     internal fun initiateFace(userFace: RuntimeFace?) {
@@ -142,15 +165,10 @@ internal class XrResourcesManager {
             updatable.update()
         }
 
-        // Earth should always be initialized if a runtime is present. This check should only fail
-        // in
-        // unit tests.
-        if (_earth != null) {
-            earth.update()
-        }
-
-        for (depthMap in depthMaps) {
-            depthMap.update()
+        // Geospatial should always be initialized if a runtime is present. This check should only
+        // fail in unit tests.
+        if (_geospatial != null) {
+            geospatial.update()
         }
     }
 
@@ -184,6 +202,11 @@ internal class XrResourcesManager {
             when (runtimeTrackable) {
                 is RuntimePlane -> Plane(runtimeTrackable, this)
                 is RuntimeObject -> AugmentedObject(runtimeTrackable, this)
+                is RuntimeImage -> AugmentedImage(runtimeTrackable)
+                is RuntimeQrCode -> QrCode(runtimeTrackable)
+                is RuntimeFace -> Face(runtimeTrackable, this)
+                is RuntimeEye -> Eye(runtimeTrackable)
+                is RuntimeHand -> Hand(runtimeTrackable)
                 else ->
                     throw IllegalArgumentException(
                         "Unsupported trackable type: ${runtimeTrackable.javaClass}"

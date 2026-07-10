@@ -38,6 +38,7 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceStreamSpecQueryResult;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.VideoStabilization;
 import androidx.camera.core.streamsharing.StreamSharingConfig;
 import androidx.camera.video.impl.VideoCaptureConfig;
 
@@ -98,7 +99,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn,
+            @NonNull VideoStabilization videoStabilization,
             boolean hasVideoCapture, boolean isFeatureComboInvocation,
             boolean findMaxSupportedFrameRate) {
         List<UseCaseConfig<?>> newUseCaseConfigs =

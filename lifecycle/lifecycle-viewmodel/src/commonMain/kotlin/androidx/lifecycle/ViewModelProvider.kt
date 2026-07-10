@@ -17,10 +17,8 @@
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.internal.DefaultViewModelProviderFactory
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 
 /**
@@ -72,11 +70,6 @@ public expect class ViewModelProvider {
         public open fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open class OnRequeryFactory {
-        public open fun onRequery(viewModel: ViewModel)
-    }
-
     public companion object {
         /**
          * Creates a [ViewModelProvider]. This provider generates [ViewModel] instances using the
@@ -90,8 +83,8 @@ public expect class ViewModelProvider {
          */
         public fun create(
             owner: ViewModelStoreOwner,
-            factory: Factory = ViewModelProviders.getDefaultFactory(owner),
-            extras: CreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+            factory: Factory = owner.defaultViewModelProviderFactory,
+            extras: CreationExtras = owner.defaultViewModelCreationExtras,
         ): ViewModelProvider
 
         /**

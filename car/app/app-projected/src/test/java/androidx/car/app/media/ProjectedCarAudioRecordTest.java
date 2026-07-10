@@ -31,12 +31,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.io.ByteArrayInputStream;
 
 /** Tests for {@link CarAudioRecord}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ProjectedCarAudioRecordTest {
     private final TestCarContext mCarContext =

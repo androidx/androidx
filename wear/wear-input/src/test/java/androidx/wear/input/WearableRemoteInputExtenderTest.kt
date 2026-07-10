@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(WearInputTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class WearableRemoteInputExtenderTest {
     @Test
     fun testDisallowEmoji() {

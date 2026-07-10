@@ -38,7 +38,7 @@ import kotlin.test.assertTrue
 // object-to-object is ScatterMap.kt, which doesn't have a template.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-@Suppress("RemoveRedundantCallsOfConversionMethods")
+@Suppress("RemoveRedundantCallsOfConversionMethods", "REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class ObjectIntTest {
     @Test
     fun objectIntMap() {

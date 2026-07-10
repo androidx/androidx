@@ -93,6 +93,20 @@ class Vector2Test {
     }
 
     @Test
+    fun normalized_zeroVector_returnsZero() {
+        // A zero-length vector has no direction; it must return Zero rather than NaN components.
+        assertThat(Vector2.Zero.toNormalized()).isEqualTo(Vector2.Zero)
+    }
+
+    @Test
+    fun normalized_smallVector_returnsNormalizedVector() {
+        // A vector with length smaller than 1e-3f (e.g. 1e-4f) but larger than 1e-15f
+        // should be successfully normalized instead of returning Zero.
+        val smallVector = Vector2(0.0001f, 0f)
+        assertThat(smallVector.toNormalized()).isEqualTo(Vector2(1f, 0f))
+    }
+
+    @Test
     fun multiply_returnsVectorScaledByScalar() {
         assertThat(Vector2(3f, 4f) * 2f).isEqualTo(Vector2(6f, 8f))
         assertThat(Vector2(1f, 1f) * 0.5f).isEqualTo(Vector2(0.5f, 0.5f))

@@ -5,7 +5,6 @@ dagger.android.internal
 dagger.android.support
 dagger.assisted
 dagger.grpc.server
-dagger.grpc.server.processor
 dagger.hilt
 dagger.hilt.android
 dagger.hilt.android.components
@@ -16,6 +15,7 @@ dagger.hilt.android.internal.managers
 dagger.hilt.android.internal.migration
 dagger.hilt.android.internal.modules
 dagger.hilt.android.internal.testing
+dagger.hilt.android.internal.uninstallmodules
 dagger.hilt.android.lifecycle
 dagger.hilt.android.migration
 dagger.hilt.android.qualifiers
@@ -27,6 +27,7 @@ dagger.hilt.internal.aliasof
 dagger.hilt.internal.definecomponent
 dagger.hilt.internal.generatesrootinput
 dagger.hilt.migration
+dagger.hilt.processor.internal.aggregateddeps
 dagger.hilt.testing
 dagger.model
 dagger.multibindings

@@ -19,9 +19,11 @@ package androidx.biometric.internal
 import android.app.KeyguardManager
 import android.content.Context
 import android.util.Log
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.R
+import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.ErrorUtils
 import java.util.concurrent.Executor
 
@@ -39,14 +41,14 @@ private const val TAG = "AuthResultDispatcher"
  * methods.
  *
  * @param context The application context.
- * @param viewModel The [BiometricViewModel] to manage the state of the authentication prompt.
+ * @param viewModel The [AuthenticationViewModel] to manage the state of the authentication prompt.
  * @param clientExecutor The [Executor] on which to run the client's callback methods.
  * @param clientAuthenticationCallback The client's original [AuthenticationCallback] to be invoked.
  * @param dismiss A lambda function to dismiss the authentication prompt UI.
  */
 internal abstract class AuthenticationResultDispatcher(
     val context: Context,
-    val viewModel: BiometricViewModel,
+    val viewModel: AuthenticationViewModel,
     val clientExecutor: Executor,
     val clientAuthenticationCallback: AuthenticationCallback,
     val confirmCredentialActivityLauncher: Runnable,
@@ -107,17 +109,12 @@ internal abstract class AuthenticationResultDispatcher(
 
     /** Sends an unrecoverable error result to the client callback. */
     fun sendErrorToClient(errorCode: Int, errorString: CharSequence) {
-        if (viewModel.isConfirmingDeviceCredential) {
-            Log.v(TAG, "Error not sent to client. User is confirming their device credential.")
-            return
-        }
-
         if (!viewModel.isAwaitingResult) {
             Log.w(TAG, "Error not sent to client. Client is not awaiting a result.")
             return
         }
 
-        viewModel.setAwaitingResult(false)
+        viewModel.isAwaitingResult = false
         clientExecutor.execute {
             clientAuthenticationCallback.onAuthenticationError(errorCode, errorString)
         }
@@ -136,7 +133,7 @@ internal abstract class AuthenticationResultDispatcher(
             return
         }
 
-        viewModel.setAwaitingResult(false)
+        viewModel.isAwaitingResult = false
         clientExecutor.execute { clientAuthenticationCallback.onAuthenticationSucceeded(result) }
     }
 
@@ -148,5 +145,29 @@ internal abstract class AuthenticationResultDispatcher(
         }
 
         clientExecutor.execute { clientAuthenticationCallback.onAuthenticationFailed() }
+    }
+
+    /**
+     * Sends an unrecoverable fallback option result with [fallback] to the client and dismisses the
+     * prompt.
+     *
+     * @param fallback The selected fallback option
+     */
+    fun sendFallbackOptionAndDismiss(
+        fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) {
+        sendFallbackOption(fallback)
+        dismiss()
+    }
+
+    /** Sends an unrecoverable fallback option result to the client. */
+    fun sendFallbackOption(fallback: AuthenticationRequest.Biometric.Fallback.CustomOption) {
+        if (!viewModel.isAwaitingResult) {
+            Log.w(TAG, "Error not sent to client. Client is not awaiting a result.")
+            return
+        }
+
+        viewModel.isAwaitingResult = false
+        clientExecutor.execute { clientAuthenticationCallback.onFallbackSelected(fallback) }
     }
 }

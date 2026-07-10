@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Skew the matrix command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixSkew extends DrawBase2 {
     private static final int OP_CODE = Operations.MATRIX_SKEW;
     private static final String CLASS_NAME = "MatrixSkew";
@@ -74,7 +76,8 @@ public class MatrixSkew extends DrawBase2 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_skew")
                 .description("Current matrix with the specified skew.")
                 .field(FLOAT, "skewX", "The amount to skew in X")
                 .field(FLOAT, "skewY", "The amount to skew in Y");

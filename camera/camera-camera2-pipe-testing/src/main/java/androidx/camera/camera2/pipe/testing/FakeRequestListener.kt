@@ -20,6 +20,7 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -119,9 +120,14 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId,
+        streamId: StreamId,
+        outputId: OutputId,
     ): Unit =
-        check(_onBufferLostFlow.tryEmit(OnBufferLost(requestMetadata, frameNumber, stream))) {
+        check(
+            _onBufferLostFlow.tryEmit(
+                OnBufferLost(requestMetadata, frameNumber, streamId, outputId)
+            )
+        ) {
             "Failed to emit OnBufferLost event! The size of the replay buffer" +
                 "($replayBuffer) may need to be increased."
         }
@@ -169,6 +175,7 @@ public class OnBufferLost(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
     public val streamId: StreamId,
+    public val outputId: OutputId,
 ) : RequestListenerEvent()
 
 public class OnFailed(

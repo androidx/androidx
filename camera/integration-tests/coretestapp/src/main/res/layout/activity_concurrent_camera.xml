@@ -28,12 +28,12 @@
         android:layout_height="match_parent">
 
         <FrameLayout
-            android:visibility="gone"
             android:id="@+id/layout_pip"
-            android:orientation="vertical"
-            android:clipToPadding="false"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <FrameLayout
                 android:id="@+id/camera_front_pip"
@@ -42,7 +42,7 @@
                 android:layout_centerInParent="false"
                 android:background="#000"
                 android:contentDescription="@string/preview_front"
-                android:importantForAccessibility="no"/>
+                android:importantForAccessibility="no" />
 
             <FrameLayout
                 android:id="@+id/camera_back_pip"
@@ -50,109 +50,211 @@
                 android:layout_height="200dp"
                 android:layout_centerInParent="false"
                 android:layout_gravity="bottom|right"
-                android:elevation="30dp"
                 android:layout_marginBottom="30dp"
                 android:layout_marginRight="30dp"
                 android:contentDescription="@string/preview_back"
-                android:importantForAccessibility="no"/>
+                android:elevation="30dp"
+                android:importantForAccessibility="no" />
         </FrameLayout>
 
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/layout_side_by_side"
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <FrameLayout
                 android:id="@+id/camera_front_side_by_side"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                app:implementationMode="compatible"
                 android:layout_centerInParent="false"
+                android:layout_weight="1"
                 android:background="#000"
                 android:contentDescription="@string/preview_front"
-                android:importantForAccessibility="no"/>
+                android:importantForAccessibility="no"
+                app:implementationMode="compatible" />
 
             <FrameLayout
                 android:id="@+id/camera_back_side_by_side"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                app:implementationMode="compatible"
                 android:layout_centerInParent="false"
+                android:layout_weight="1"
                 android:background="#000"
                 android:contentDescription="@string/preview_back"
-                android:importantForAccessibility="no"/>
+                android:importantForAccessibility="no"
+                app:implementationMode="compatible" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/top_controls"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ToggleButton
-                android:id="@+id/mode_button"
-                android:layout_width="100dp"
-                android:layout_height="70dp"
-                android:layout_gravity="top|left"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
-                android:textOff="@string/switch_mode"
-                android:textOn="@string/switch_mode" />
-
-            <ToggleButton
-                android:id="@+id/layout_button"
-                android:layout_width="100dp"
-                android:layout_height="70dp"
-                android:layout_gravity="top|left"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
-                android:textOff="@string/change_layout"
-                android:textOn="@string/change_layout" />
-
-            <ToggleButton
-                android:id="@+id/toggle_button"
-                android:layout_width="100dp"
-                android:layout_height="70dp"
-                android:layout_gravity="top|left"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
-                android:textOff="@string/toggle_camera"
-                android:textOn="@string/toggle_camera" />
-
-            <ToggleButton
-                android:id="@+id/dual_selfie"
-                android:layout_width="46dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
-                android:background="@drawable/round_toggle_button"
-                android:checked="false"
-                android:scaleType="fitXY"
-                android:textColor="#EEEEEE"
-                android:textOff="@string/dual_selfie_off"
-                android:textOn="@string/dual_selfie_on"
-                android:textSize="10dp"
-                android:visibility="gone" />
+                android:orientation="horizontal">
 
-            <ToggleButton
-                android:id="@+id/dual_record"
-                android:layout_width="46dp"
+                <ToggleButton
+                    android:id="@+id/mode_button"
+                    android:layout_width="100dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="top|left"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:textOff="@string/switch_mode"
+                    android:textOn="@string/switch_mode" />
+
+                <ToggleButton
+                    android:id="@+id/layout_button"
+                    android:layout_width="100dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="top|left"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:textOff="@string/change_layout"
+                    android:textOn="@string/change_layout" />
+
+                <ToggleButton
+                    android:id="@+id/toggle_button"
+                    android:layout_width="100dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="top|left"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:textOff="@string/toggle_camera"
+                    android:textOn="@string/toggle_camera" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
-                android:background="@drawable/round_toggle_button"
-                android:checked="false"
-                android:scaleType="fitXY"
-                android:textColor="#EEEEEE"
-                android:textOff="@string/dual_recording_off"
-                android:textOn="@string/dual_recording_on"
-                android:textSize="10dp" />
+                android:orientation="horizontal">
+
+                <ToggleButton
+                    android:id="@+id/dual_selfie"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/dual_selfie_off"
+                    android:textOn="@string/dual_selfie_on"
+                    android:textSize="10dp"
+                    android:visibility="gone" />
+
+                <ToggleButton
+                    android:id="@+id/dual_record"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/dual_recording_off"
+                    android:textOn="@string/dual_recording_on"
+                    android:textSize="10dp" />
+
+                <ToggleButton
+                    android:id="@+id/toggle_effect"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/effect_off"
+                    android:textOn="@string/effect_on"
+                    android:textSize="10dp" />
+
+                <ToggleButton
+                    android:id="@+id/toggle_preview_mirror"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/preview_mirror_off"
+                    android:textOn="@string/preview_mirror_on"
+                    android:textSize="10dp" />
+
+                <ToggleButton
+                    android:id="@+id/toggle_videocapture_mirror"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/video_mirror_off"
+                    android:textOn="@string/video_mirror_on"
+                    android:textSize="10dp" />
+                <ToggleButton
+                    android:id="@+id/toggle_previewview_fit"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/previewview_fit_off"
+                    android:textOn="@string/previewview_fit_on"
+                    android:textSize="10dp" />
+                <ToggleButton
+                    android:id="@+id/toggle_viewport"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_toggle_button"
+                    android:checked="false"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:textOff="@string/viewport_off"
+                    android:textOn="@string/viewport_on"
+                    android:textSize="10dp" />
+
+                <Button
+                    android:id="@+id/swap_button"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/round_button"
+                    android:scaleType="fitXY"
+                    android:textColor="#EEEEEE"
+                    android:text="Swap"
+                    android:textSize="10dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+
         </LinearLayout>
     </FrameLayout>
     <androidx.constraintlayout.widget.Guideline

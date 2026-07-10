@@ -20,6 +20,7 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
 import androidx.pdf.PdfPoint
+import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.CoordinatesProvider
@@ -52,15 +53,27 @@ fun clickOnPdfPoint(
  */
 private class PdfCoordinatesProvider(private val pdfPoint: PdfPoint) : CoordinatesProvider {
     override fun calculateCoordinates(view: View): FloatArray {
+        var pdfView = view
+        if (view is PdfContentLayout) {
+            pdfView = view.pdfView
+        }
+
         // Truth makes nice, readable exceptions. Require makes smart casts happy.
-        Truth.assertThat(view).isInstanceOf(PdfView::class.java)
-        require(view is PdfView)
-        val viewPoint = view.pdfToViewPoint(pdfPoint)
+        Truth.assertThat(pdfView).isInstanceOf(PdfView::class.java)
+        require(pdfView is PdfView)
+        val viewPoint = pdfView.pdfToViewPoint(pdfPoint)
 
         // Truth makes nice, readable exceptions. Check makes smart casts happy.
         Truth.assertThat(viewPoint).isNotNull()
         checkNotNull(viewPoint)
 
-        return floatArrayOf(viewPoint.x, viewPoint.y)
+        // The co-ordinates obtained above are w.r.t. the View itself, since espresso taps on
+        // the screen co-ordinates, we must adjust it to get absolute co-ordinates on the screen.
+        val screenPos = IntArray(2)
+        view.getLocationOnScreen(screenPos)
+        val screenX = (screenPos[0] + viewPoint.x)
+        val screenY = (screenPos[1] + viewPoint.y)
+
+        return floatArrayOf(screenX, screenY)
     }
 }

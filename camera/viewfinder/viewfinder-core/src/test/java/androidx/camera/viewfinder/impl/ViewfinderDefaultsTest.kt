@@ -33,6 +33,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument // Needed for Robolectric to correctly instrument classes in the same module
+@Config(sdk = [Config.ALL_SDKS])
 class ViewfinderDefaultsTest {
     private lateinit var originalManufacturer: String
     private lateinit var originalDevice: String

@@ -1,0 +1,1295 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.foundation
+
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.SCROLL_FACTOR
+import androidx.compose.foundation.gestures.TransformableState
+import androidx.compose.foundation.gestures.animateBy
+import androidx.compose.foundation.gestures.animatePanBy
+import androidx.compose.foundation.gestures.animateRotateBy
+import androidx.compose.foundation.gestures.animateZoomBy
+import androidx.compose.foundation.gestures.panBy
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.rotateBy
+import androidx.compose.foundation.gestures.stopTransformation
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.zoomBy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ScrollWheel
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.pan
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performMultiModalInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.test.pinch
+import androidx.compose.ui.test.scale
+import androidx.compose.ui.test.withKeysDown
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Fact
+import com.google.common.truth.FailureMetadata
+import com.google.common.truth.Subject
+import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertNotNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+private const val TEST_TAG = "transformableTag"
+
+private const val EDGE_FUZZ_FACTOR = 0.2f
+
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+class TransformableTest {
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+
+    private lateinit var scope: CoroutineScope
+
+    @Before
+    fun before() {
+        isDebugInspectorInfoEnabled = true
+    }
+
+    @After
+    fun after() {
+        isDebugInspectorInfoEnabled = false
+    }
+
+    private fun ComposeContentTestRule.setContentAndGetScope(content: @Composable () -> Unit) {
+        setContent {
+            val actualScope = rememberCoroutineScope()
+            SideEffect { scope = actualScope }
+            content()
+        }
+    }
+
+    @Test
+    fun transformable_zoomIn() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            centerOffset = center
+            val leftStartX = center.x - 10
+            val leftEndX = visibleSize.toSize().width * EDGE_FUZZ_FACTOR
+            val rightStartX = center.x + 10
+            val rightEndX = visibleSize.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y),
+            )
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_pan() {
+        var cumulativePan = Offset.Zero
+        var touchSlop = 0f
+
+        setTransformableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(
+                state = rememberTransformableState { _, _, pan, _ -> cumulativePan += pan }
+            )
+        }
+
+        val expected = Offset(50f + touchSlop, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            down(2, center + Offset(10f, 10f))
+            moveBy(1, expected)
+            moveBy(2, expected)
+            up(1)
+            up(2)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned 20/10").that(cumulativePan).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun transformable_panWithOneFinger() {
+        var cumulativePan = Offset.Zero
+        var touchSlop = 0f
+
+        setTransformableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(
+                state = rememberTransformableState { _, _, pan, _ -> cumulativePan += pan }
+            )
+        }
+
+        val expected = Offset(50f + touchSlop, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned 20/10").that(cumulativePan).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun transformable_pan_disallowed() {
+        var cumulativePan = Offset.Zero
+        var touchSlop = 0f
+        val canStartPanState = mutableStateOf(false)
+        val state = TransformableState { _, _, pan, _ -> cumulativePan += pan }
+
+        setTransformableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(state = state, canPan = { canStartPanState.value })
+        }
+
+        val expected = Offset(50f + touchSlop, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            // we disallow just pan,
+            assertThat(state.isTransformInProgress).isFalse()
+            assertWithMessage("just pan is disallowed").that(cumulativePan).isEqualTo(Offset.Zero)
+            canStartPanState.value = true
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned the amount equal to finger move")
+                .that(cumulativePan)
+                .isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun transformable_panTrackpad() {
+        var cumulativePan = Offset.Zero
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { _, _, pan, _ -> cumulativePan += pan }
+            )
+        }
+
+        val expected = Offset(40f, 50f)
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            moveTo(center)
+            pan(expected)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned").that(cumulativePan).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_pan_disallowed_parentScrolls() {
+        var touchSlop = 0f
+        val scrollState = ScrollState(0)
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Column(Modifier.size(100.dp).testTag(TEST_TAG).verticalScroll(scrollState)) {
+                repeat(3) {
+                    Box(
+                        Modifier.size(100.dp)
+                            .transformable(
+                                state =
+                                    rememberTransformableState { _, _, _, _ ->
+                                        // no-op
+                                    },
+                                canPan = { false },
+                            )
+                    )
+                }
+            }
+        }
+
+        val expected = Offset(0f, -50f - touchSlop)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            advanceEventTime(3000L) // Prevent fling gesture.
+            up(1)
+        }
+
+        rule.runOnIdle { assertThat(scrollState.value).isEqualTo(50) }
+    }
+
+    @Test
+    fun transformableInsideScroll_canPan_offsetProvided() {
+        var lastCanPanOffset = Offset.Zero
+
+        rule.setContent {
+            Column(Modifier.size(100.dp).testTag(TEST_TAG)) {
+                repeat(3) {
+                    Box(
+                        Modifier.size(100.dp)
+                            .transformable(
+                                state =
+                                    rememberTransformableState { _, _, _, _ ->
+                                        // no-op
+                                    },
+                                canPan = { offset ->
+                                    lastCanPanOffset = offset
+                                    false
+                                },
+                            )
+                    )
+                }
+            }
+        }
+
+        val expected = Offset(0f, -50f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+        }
+
+        rule.runOnIdle { assertThat(lastCanPanOffset).isEqualTo(expected) }
+
+        val expected2 = Offset(30f, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { moveBy(1, expected2) }
+
+        rule.runOnIdle { assertThat(lastCanPanOffset).isEqualTo(expected2) }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { up(1) }
+    }
+
+    @Test
+    fun transformable_rotate() {
+        var cumulativeRotation = 0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { _, _, _, rotation ->
+                        cumulativeRotation += rotation
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            down(2, center + Offset(0f, 50f))
+            moveBy(2, Offset(50f, -50f))
+            up(1)
+            up(2)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have rotated -90").that(cumulativeRotation).isEqualTo(-90f)
+        }
+    }
+
+    @Test
+    fun transformable_rotationLock() {
+        var cumulativeRotation = 0f
+        val rotationLock = mutableStateOf(false)
+        var touchSlop = 0f
+
+        setTransformableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(
+                lockRotationOnZoomPan = rotationLock.value,
+                state =
+                    rememberTransformableState { _, _, _, rotation ->
+                        cumulativeRotation += rotation
+                    },
+            )
+        }
+
+        val panShift = Offset(touchSlop, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            down(2, center + Offset(0f, 50f))
+            // first pan a bit
+            moveBy(1, panShift)
+            moveBy(2, panShift)
+            // pan a bit more
+            moveBy(1, panShift)
+            moveBy(2, panShift)
+            // then rotate
+            moveBy(2, Offset(50f, -50f))
+            up(1)
+            up(2)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have rotated -90").that(cumulativeRotation).isEqualTo(-90f)
+            cumulativeRotation = 0f
+        }
+        rotationLock.value = !rotationLock.value
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            down(2, center + Offset(0f, 50f))
+            // first pan a bit
+            moveBy(1, panShift)
+            moveBy(2, panShift)
+            // pan a bit more
+            moveBy(1, panShift)
+            moveBy(2, panShift)
+            // then rotate
+            moveBy(2, Offset(50f, -50f))
+            up(1)
+            up(2)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Rotation should be locked").that(cumulativeRotation).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun transformable_zoomOut() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            centerOffset = center
+            val leftStartX = visibleSize.toSize().width * EDGE_FUZZ_FACTOR
+            val leftEndX = center.x - 10
+            val rightStartX = visibleSize.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightEndX = center.x + 10
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y),
+            )
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 4x")
+                .that(cumulativeScale)
+                .isAtMost(0.25f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_zoomOut_trackpad() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            centerOffset = center
+            moveTo(center)
+            scale(scaleFactor = 0.5f)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down by exactly 2x")
+                .that(cumulativeScale)
+                .isEqualTo(0.5f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_zoomIn_trackpad() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            centerOffset = center
+            moveTo(center)
+            scale(scaleFactor = 2f)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled up by exactly 2x")
+                .that(cumulativeScale)
+                .isEqualTo(2f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_startStop_notify() {
+        var cumulativeScale = 1.0f
+        val state = TransformableState { _, zoom, _, _ -> cumulativeScale *= zoom }
+        var slop: Float = 0f
+
+        setTransformableContent {
+            slop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(state = state)
+        }
+
+        rule.runOnIdle { assertThat(state.isTransformInProgress).isEqualTo(false) }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(pointerId = 1, center)
+            down(pointerId = 2, center + Offset(10f, 10f))
+            moveBy(2, Offset(slop * 2, slop * 2))
+        }
+
+        assertThat(state.isTransformInProgress).isEqualTo(true)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            up(pointerId = 1)
+            up(pointerId = 2)
+        }
+
+        rule.runOnIdle { assertThat(state.isTransformInProgress).isEqualTo(false) }
+    }
+
+    @Test
+    fun transformable_disabledWontCallLambda() {
+        val enabled = mutableStateOf(true)
+        var cumulativeScale = 1.0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                enabled = enabled.value,
+                state = rememberTransformableState { _, zoom, _, _ -> cumulativeScale *= zoom },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            val leftStartX = center.x - 10
+            val leftEndX = visibleSize.toSize().width * EDGE_FUZZ_FACTOR
+            val rightStartX = center.x + 10
+            val rightEndX = visibleSize.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y),
+            )
+        }
+
+        val prevScale =
+            rule.runOnIdle {
+                assertWithMessage("Should have scaled at least 4x")
+                    .that(cumulativeScale)
+                    .isAtLeast(4f)
+                cumulativeScale
+            }
+        enabled.value = false
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            val leftStartX = visibleSize.toSize().width * EDGE_FUZZ_FACTOR
+            val leftEndX = center.x - 10
+            val rightStartX = visibleSize.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightEndX = center.x + 10
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y),
+            )
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("When enabled = false, scale should stay the same")
+                .that(cumulativeScale)
+                .isEqualTo(prevScale)
+        }
+    }
+
+    @Test
+    fun transformable_animateTo_zoom() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var cumulativeScale = 1.0f
+            var callbackCount = 0
+            val state = TransformableState { _, zoom, _, _ ->
+                cumulativeScale *= zoom
+                callbackCount += 1
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            state.animateZoomBy(4f)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Zoom should have been smooth").that(callbackCount).isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Zoom should have been smooth").that(callbackCount).isAtLeast(2)
+            }
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Zoom should have been smooth").that(callbackCount).isAtLeast(3)
+                // Include a bit of tolerance for floating point discrepancies.
+                assertWithMessage("Should have scaled ~4x").that(cumulativeScale).isAtLeast(3.9f)
+            }
+        }
+
+    @Test
+    fun transformable_animateTo_rotate() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var totalRotation = 0f
+            var callbackCount = 0
+            val state = TransformableState { _, _, _, rotation ->
+                totalRotation += rotation
+                callbackCount += 1
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            state.animateRotateBy(180f)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Rotation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Rotation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(2)
+            }
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Rotation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(3)
+                // Include a bit of tolerance for floating point discrepancies.
+                assertWithMessage("Should have rotated 180").that(totalRotation).isAtLeast(179f)
+            }
+        }
+
+    @Test
+    fun transformable_animateTo_pan() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var totalPan = Offset.Zero
+            var callbackCount = 0
+            val state = TransformableState { _, _, pan, _ ->
+                totalPan += pan
+                callbackCount += 1
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            val expected = Offset(100f, 80f)
+            state.animatePanBy(expected)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Panning should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Panning should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(2)
+            }
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Panning should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(3)
+                // Include a bit of tolerance for floating point discrepancies.
+                assertWithMessage("Should have panned to 100 / 80")
+                    .that(totalPan)
+                    .isEqualTo(expected)
+            }
+        }
+
+    @Test
+    fun transformable_animateTo_all() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var cumulativeScale = 1.0f
+            var totalPan = Offset.Zero
+            var totalRotation = 0f
+            var callbackCount = 0
+            val state = TransformableState { _, zoom, pan, rotation ->
+                cumulativeScale *= zoom
+                totalPan += pan
+                totalRotation += rotation
+                callbackCount++
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            val expectedOffset = Offset(100f, 80f)
+            state.animateBy(4f, expectedOffset, 180f)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(2)
+            }
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(3)
+                // Include a bit of tolerance for floating point discrepancies.
+                assertWithMessage("Should have scaled ~4x").that(cumulativeScale).isAtLeast(3.9f)
+                assertWithMessage("Should have panned to 100 / 80")
+                    .that(totalPan)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("Should have rotated 180").that(totalRotation).isAtLeast(179f)
+            }
+        }
+
+    @Test
+    fun transformable_snapTo_zoom() = runBlocking {
+        var cumulativeScale = 1.0f
+        var callbackCount = 0
+        val state = TransformableState { _, zoom, _, _ ->
+            cumulativeScale *= zoom
+            callbackCount += 1
+        }
+        setTransformableContent { Modifier.transformable(state) }
+
+        state.zoomBy(4f)
+
+        assertWithMessage("Zoom should have been smooth").that(callbackCount).isEqualTo(1)
+        // Include a bit of tolerance for floating point discrepancies.
+        assertWithMessage("Should have scaled ~4x").that(cumulativeScale).isAtLeast(3.9f)
+    }
+
+    @Test
+    fun transformable_snapTo_rotate() = runBlocking {
+        var totalRotation = 0f
+        var callbackCount = 0
+        val state = TransformableState { _, _, _, rotation ->
+            totalRotation += rotation
+            callbackCount += 1
+        }
+        setTransformableContent { Modifier.transformable(state) }
+
+        state.rotateBy(180f)
+
+        assertWithMessage("Rotation should have been smooth").that(callbackCount).isEqualTo(1)
+        // Include a bit of tolerance for floating point discrepancies.
+        assertWithMessage("Should have rotated 180").that(totalRotation).isAtLeast(179f)
+    }
+
+    @Test
+    fun transformable_snapTo_pan() = runBlocking {
+        var totalPan = Offset.Zero
+        var callbackCount = 0
+        val state = TransformableState { _, _, pan, _ ->
+            totalPan += pan
+            callbackCount += 1
+        }
+        setTransformableContent { Modifier.transformable(state) }
+
+        val expected = Offset(100f, 80f)
+        state.panBy(expected)
+
+        assertWithMessage("Panning should have been smooth").that(callbackCount).isAtLeast(1)
+        // Include a bit of tolerance for floating point discrepancies.
+        assertWithMessage("Should have panned to 100 / 80").that(totalPan).isEqualTo(expected)
+    }
+
+    @Test
+    fun transformable_stopTransformations() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var totalRotation = 0f
+            var callbackCount = 0
+            val state = TransformableState { _, _, _, rotation ->
+                totalRotation += rotation
+                callbackCount += 1
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            state.animateRotateBy(180f)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Rotation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            val lastCallbackCount =
+                rule.runOnIdle {
+                    assertWithMessage("Rotation should have been smooth")
+                        .that(callbackCount)
+                        .isAtLeast(2)
+                    callbackCount
+                }
+
+            state.stopTransformation()
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Rotation should have been stopped")
+                    .that(callbackCount)
+                    .isEqualTo(lastCallbackCount)
+            }
+        }
+
+    @Test
+    fun transformable_animateCancelledUpdatesIsTransformInProgress() {
+        rule.mainClock.autoAdvance = false
+        val state = TransformableState { _, _, _, _ -> }
+        setTransformableContent { Modifier.transformable(state) }
+
+        lateinit var animateJob: Job
+
+        rule.runOnIdle {
+            assertThat(state.isTransformInProgress).isFalse()
+            animateJob = scope.launch { state.animateZoomBy(4f, tween(1000)) }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+
+        rule.runOnIdle { assertThat(state.isTransformInProgress).isTrue() }
+
+        animateJob.cancel()
+
+        rule.runOnIdle { assertThat(state.isTransformInProgress).isFalse() }
+    }
+
+    @Test
+    fun testInspectorValue() {
+        rule.setContent {
+            val state = rememberTransformableState { _, _, _, _ -> }
+            val modifier = Modifier.transformable(state) as InspectableValue
+            assertThat(modifier.nameFallback).isEqualTo("transformable")
+            assertThat(modifier.valueOverride).isNull()
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+                .containsExactly("state", "lockRotationOnZoomPan", "enabled", "canPan")
+        }
+    }
+
+    @Test
+    fun transformable_ctrlAndMouseScrollUp_doesZoomIn() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse {
+                        moveTo(Offset(20f, 30f))
+                        scroll(scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 2x")
+                .that(cumulativeScale)
+                .isAtLeast(2f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_ctrlAndMouseScrollDown_doesZoomOut() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse {
+                        moveTo(Offset(20f, 30f))
+                        scroll(-scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformable_ctrlAndTrackpadScrollUp_doesZoomIn() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        pan(Offset(0f, SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 2x")
+                .that(cumulativeScale)
+                .isAtLeast(2f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformable_ctrlAndTrackpadScrollDown_doesZoomOut() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        pan(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_ctrlAndMouseScroll_doesZoomNoScroll() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { centroid, zoom, _, _ ->
+                                    centroids.add(centroid)
+                                    cumulativeScale *= zoom
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse {
+                        moveTo(Offset(20f, 30f))
+                        scroll(-scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformableInsideScroll_ctrlAndTrackpadScroll_doesZoomNoScroll_withFlags() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { centroid, zoom, _, _ ->
+                                    centroids.add(centroid)
+                                    cumulativeScale *= zoom
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        pan(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_mouseScrollOnly_doesScrollNoZoom() {
+        var cumulativeScale = 1.0f
+        val scrollState = ScrollState(0)
+        val scrolledDelta = 1f
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { _, zoom, _, _ ->
+                                    cumulativeScale *= zoom
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMouseInput {
+            scroll(scrolledDelta, scrollWheel = ScrollWheel.Vertical)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
+
+            assertWithMessage("Should have scrolled").that(scrollState.value).isGreaterThan(0)
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_trackpadScrollOnly_doesPanNoScroll() {
+        var cumulativeScale = 1.0f
+        var cumulativePan = Offset.Zero
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { _, zoom, pan, _ ->
+                                    cumulativeScale *= zoom
+                                    cumulativePan += pan
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput { pan(Offset(0f, 100f)) }
+
+        rule.runOnIdle {
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+            assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
+            assertWithMessage("Should have panned").that(cumulativePan).isEqualTo(Offset(0f, 100f))
+        }
+    }
+
+    @Test
+    fun transformable_mouseScrollOnly_noZoom() {
+        var cumulativeScale = 1.0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { _, zoom, _, _ -> cumulativeScale *= zoom }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMouseInput {
+            scroll(scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
+        }
+    }
+
+    private fun setTransformableContent(getModifier: @Composable () -> Modifier) {
+        rule.setContentAndGetScope {
+            Box(Modifier.size(600.dp).testTag(TEST_TAG).then(getModifier()))
+        }
+    }
+
+    // The scrollDelta equal to 1f is converted to -64.dp of scroll distance.
+    // This is defined inAndroidScrollable.android.kt
+    // And zoom factor is computed by 2^(scrolled pixels / SCROLL_FACTOR).
+    private val Density.scrollDeltaFor2xZoom: Float
+        get() = SCROLL_FACTOR / -64.dp.toPx()
+}
+
+internal fun assertThatOffset(actual: Offset): OffsetSubject =
+    Truth.assertAbout(OffsetSubject.INSTANCE).that(actual)
+
+internal class OffsetSubject(failureMetadata: FailureMetadata?, private val subject: Offset) :
+    Subject(failureMetadata, subject) {
+
+    companion object {
+        val INSTANCE: Factory<OffsetSubject, Offset> = Factory { failureMetadata, subject ->
+            OffsetSubject(failureMetadata, subject)
+        }
+    }
+
+    fun equalsWithTolerance(expected: Offset, tolerance: Float = 0.001f) {
+        try {
+            assertThat(subject.x).isWithin(tolerance).of(expected.x)
+            assertThat(subject.y).isWithin(tolerance).of(expected.y)
+        } catch (e: AssertionError) {
+            failWithActual(
+                Fact.simpleFact("Unequal Offsets"),
+                Fact.fact("expected", expected.toString()),
+                Fact.fact("with tolerance", tolerance),
+            )
+        }
+    }
+}

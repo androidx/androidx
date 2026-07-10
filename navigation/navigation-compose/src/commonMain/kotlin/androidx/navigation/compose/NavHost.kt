@@ -27,22 +27,19 @@ import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
@@ -53,10 +50,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.Navigator
-import androidx.navigation.compose.internal.PredictiveBackHandler
 import androidx.navigation.createGraph
 import androidx.navigation.get
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -130,16 +125,14 @@ public fun NavHost(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     route: String? = null,
-    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) = {
-        fadeIn(animationSpec = tween(700))
-    },
-    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) = {
-        fadeOut(animationSpec = tween(700))
-    },
+    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
     popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     builder: NavGraphBuilder.() -> Unit,
 ) {
     NavHost(
@@ -177,6 +170,11 @@ public fun NavHost(
  * @param sizeTransform callback to define the size transform for destinations in this host
  * @param builder the builder used to construct the graph
  */
+@Deprecated(
+    message =
+        "Deprecated in favor of NavHost that supports predictivePopEnterTransition and predictivePopExitTransition",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -187,27 +185,100 @@ public fun NavHost(
     enterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        {
-            fadeIn(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.enterTransition,
     exitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        {
-            fadeOut(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.exitTransition,
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
-        null,
+        DefaultNavTransitions.sizeTransform,
+    builder: NavGraphBuilder.() -> Unit,
+) {
+    NavHost(
+        navController,
+        startDestination,
+        modifier,
+        contentAlignment,
+        route,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        sizeTransform = sizeTransform,
+        builder = builder,
+    )
+}
+
+/**
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route for the graph
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param predictivePopEnterTransition callback to define predictivePopEnter transitions for
+ *   destination in this host
+ * @param predictivePopExitTransition callback to define predictivePopExit transitions for
+ *   destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: String,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    route: String? = null,
+    enterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
+    popEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.popEnterTransition(enterTransition),
+    popExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.popExitTransition(exitTransition),
+    predictivePopEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
+        DefaultNavTransitions.predictivePopEnterTransition,
+    predictivePopExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition) =
+        DefaultNavTransitions.predictivePopExitTransition,
+    sizeTransform:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        DefaultNavTransitions.sizeTransform,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     NavHost(
@@ -221,6 +292,8 @@ public fun NavHost(
         exitTransition,
         popEnterTransition,
         popExitTransition,
+        predictivePopEnterTransition,
+        predictivePopExitTransition,
         sizeTransform,
     )
 }
@@ -248,6 +321,11 @@ public fun NavHost(
  * @param sizeTransform callback to define the size transform for destinations in this host
  * @param builder the builder used to construct the graph
  */
+@Deprecated(
+    message =
+        "Deprecated in favor of NavHost that supports predictivePopEnterTransition and predictivePopExitTransition",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -259,27 +337,106 @@ public fun NavHost(
     enterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        {
-            fadeIn(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.enterTransition,
     exitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        {
-            fadeOut(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.exitTransition,
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
-        null,
+        DefaultNavTransitions.sizeTransform,
+    builder: NavGraphBuilder.() -> Unit,
+) {
+    NavHost(
+        navController,
+        startDestination,
+        modifier,
+        contentAlignment,
+        route,
+        typeMap,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        DefaultNavTransitions.predictivePopEnterTransition,
+        DefaultNavTransitions.predictivePopExitTransition,
+        sizeTransform,
+        builder,
+    )
+}
+
+/**
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route from a [KClass] for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route from a [KClass] for the graph
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ *   [NavType]. May be empty if [route] does not use custom NavTypes.
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param predictivePopEnterTransition callback to define predictivePopEnter transitions for
+ *   destination in this host
+ * @param predictivePopExitTransition callback to define predictivePopExit transitions for
+ *   destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: KClass<*>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    enterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
+    popEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.popEnterTransition(enterTransition),
+    popExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.popExitTransition(exitTransition),
+    predictivePopEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
+        DefaultNavTransitions.predictivePopEnterTransition,
+    predictivePopExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition) =
+        DefaultNavTransitions.predictivePopExitTransition,
+    sizeTransform:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        DefaultNavTransitions.sizeTransform,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     NavHost(
@@ -293,6 +450,8 @@ public fun NavHost(
         exitTransition,
         popEnterTransition,
         popExitTransition,
+        predictivePopEnterTransition,
+        predictivePopExitTransition,
         sizeTransform,
     )
 }
@@ -320,6 +479,11 @@ public fun NavHost(
  * @param sizeTransform callback to define the size transform for destinations in this host
  * @param builder the builder used to construct the graph
  */
+@Deprecated(
+    message =
+        "Deprecated in favor of NavHost that supports predictivePopEnterTransition and predictivePopExitTransition",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -331,27 +495,106 @@ public fun NavHost(
     enterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        {
-            fadeIn(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.enterTransition,
     exitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        {
-            fadeOut(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.exitTransition,
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
-        null,
+        DefaultNavTransitions.sizeTransform,
+    builder: NavGraphBuilder.() -> Unit,
+) {
+    NavHost(
+        navController,
+        startDestination,
+        modifier,
+        contentAlignment,
+        route,
+        typeMap,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        DefaultNavTransitions.predictivePopEnterTransition,
+        DefaultNavTransitions.predictivePopExitTransition,
+        sizeTransform,
+        builder,
+    )
+}
+
+/**
+ * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route from a an Object for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route from a [KClass] for the graph
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ *   [NavType]. May be empty if [route] does not use custom NavTypes.
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param predictivePopEnterTransition callback to define predictivePopEnter transitions for
+ *   destination in this host
+ * @param predictivePopExitTransition callback to define predictivePopExit transitions for
+ *   destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: Any,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    enterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
+    popEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.popEnterTransition(enterTransition),
+    popExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.popExitTransition(exitTransition),
+    predictivePopEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
+        DefaultNavTransitions.predictivePopEnterTransition,
+    predictivePopExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition) =
+        DefaultNavTransitions.predictivePopExitTransition,
+    sizeTransform:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        DefaultNavTransitions.sizeTransform,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     NavHost(
@@ -365,6 +608,8 @@ public fun NavHost(
         exitTransition,
         popEnterTransition,
         popExitTransition,
+        predictivePopEnterTransition,
+        predictivePopExitTransition,
         sizeTransform,
     )
 }
@@ -418,16 +663,14 @@ public fun NavHost(
     graph: NavGraph,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) = {
-        fadeIn(animationSpec = tween(700))
-    },
-    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) = {
-        fadeOut(animationSpec = tween(700))
-    },
+    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
     popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
 ) {
     NavHost(
         navController,
@@ -438,6 +681,7 @@ public fun NavHost(
         exitTransition,
         popEnterTransition,
         popExitTransition,
+        sizeTransform = null, // sizeTransform
     )
 }
 
@@ -457,6 +701,11 @@ public fun NavHost(
  * @param popExitTransition callback to define popExit transitions for destination in this host
  * @param sizeTransform callback to define the size transform for destinations in this host
  */
+@Deprecated(
+    message =
+        "Deprecated in favor of NavHost that supports predictivePopEnterTransition and predictivePopExitTransition",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -466,27 +715,93 @@ public fun NavHost(
     enterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        {
-            fadeIn(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.enterTransition,
     exitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        {
-            fadeOut(animationSpec = tween(700))
-        },
+        DefaultNavTransitions.exitTransition,
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
-        null,
+        DefaultNavTransitions.sizeTransform,
+) {
+    NavHost(
+        navController,
+        graph,
+        modifier,
+        contentAlignment,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        DefaultNavTransitions.predictivePopEnterTransition,
+        DefaultNavTransitions.predictivePopExitTransition,
+        sizeTransform,
+    )
+}
+
+/**
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * @param navController the navController for this host
+ * @param graph the graph for this host
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param predictivePopEnterTransition callback to define predictivePopEnter transitions for
+ *   destination in this host
+ * @param predictivePopExitTransition callback to define predictivePopExit transitions for
+ *   destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    graph: NavGraph,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    enterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.enterTransition,
+    exitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.exitTransition,
+    popEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        DefaultNavTransitions.popEnterTransition(enterTransition),
+    popExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        DefaultNavTransitions.popExitTransition(exitTransition),
+    predictivePopEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
+        DefaultNavTransitions.predictivePopEnterTransition,
+    predictivePopExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition) =
+        DefaultNavTransitions.predictivePopExitTransition,
+    sizeTransform:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        DefaultNavTransitions.sizeTransform,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -508,53 +823,27 @@ public fun NavHost(
 
     val currentBackStack by composeNavigator.backStack.collectAsState()
 
-    var progress by remember { mutableFloatStateOf(0f) }
-    var inPredictiveBack by remember { mutableStateOf(false) }
-    PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
-        // This block handles the three phases of a predictive back gesture:
-        // 1. OnStarted: When the gesture begins.
-        // 2. OnProgressed: As the user drags their finger.
-        // 3. OnCompleted or OnCancelled: When the gesture finishes or is cancelled.
-        //
-        // Always guard with `currentBackStack.size > 1`:
-        // If `enabled` becomes stale (set false mid-frame while a gesture is in-flight),
-        // these checks prevent IndexOutOfBounds when accessing the stack.
-
-        var currentBackStackEntry: NavBackStackEntry? = null
-
-        // --- OnStarted ---
-        if (currentBackStack.size > 1) {
-            progress = 0f
-            currentBackStackEntry = currentBackStack.lastOrNull()
-            composeNavigator.prepareForTransition(currentBackStackEntry!!)
-            val previousEntry = currentBackStack[currentBackStack.size - 2]
-            composeNavigator.prepareForTransition(previousEntry)
-        }
-        try {
-            backEvent.collect {
-                // --- OnProgressed ---
-                if (currentBackStack.size > 1) {
-                    inPredictiveBack = true
-                    progress = it.progress
-                }
-            }
-            // --- OnCompleted ---
-            if (currentBackStack.size > 1) {
-                inPredictiveBack = false
-                composeNavigator.popBackStack(currentBackStackEntry!!, false)
-            }
-        } catch (_: CancellationException) {
-            // --- OnCancelled ---
-            if (currentBackStack.size > 1) {
-                inPredictiveBack = false
-            }
-        }
-    }
+    val backHandler =
+        rememberNavHostEventHandler(composeNavigator, enabled = currentBackStack.size > 1)
+    val inPredictiveBack = backHandler.inPredictiveBack
+    val progress = backHandler.progress
+    val swipeEdge = backHandler.swipeEdge
 
     DisposableEffect(lifecycleOwner) {
         // Setup the navController with proper owners
         navController.setLifecycleOwner(lifecycleOwner)
         onDispose {}
+    }
+
+    SideEffect {
+        backHandler.isBackEnabled = currentBackStack.size > 1
+        backHandler.setInfo(
+            currentInfo = NavBackStackEntryInfo(currentBackStack.lastOrNull()),
+            backInfo =
+                currentBackStack.dropLast(1).reversed().fastMap { entry ->
+                    NavBackStackEntryInfo(entry)
+                },
+        )
     }
 
     val saveableStateHolder = rememberSaveableStateHolder()
@@ -578,7 +867,11 @@ public fun NavHost(
         val finalEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
             val targetDestination = targetState.destination as ComposeNavigator.Destination
 
-            if (composeNavigator.isPop.value || inPredictiveBack) {
+            if (inPredictiveBack) {
+                targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    destination.createPredictivePopEnterTransition(this, swipeEdge)
+                } ?: predictivePopEnterTransition.invoke(this, swipeEdge)
+            } else if (composeNavigator.isPop.value) {
                 targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
                     destination.createPopEnterTransition(this)
                 } ?: popEnterTransition.invoke(this)
@@ -592,7 +885,11 @@ public fun NavHost(
         val finalExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
             val initialDestination = initialState.destination as ComposeNavigator.Destination
 
-            if (composeNavigator.isPop.value || inPredictiveBack) {
+            if (inPredictiveBack) {
+                initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    destination.createPredictivePopExitTransition(this, swipeEdge)
+                } ?: predictivePopExitTransition.invoke(this, swipeEdge)
+            } else if (composeNavigator.isPop.value) {
                 initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
                     destination.createPopExitTransition(this)
                 } ?: popExitTransition.invoke(this)
@@ -780,6 +1077,30 @@ private fun NavDestination.createPopExitTransition(
     when (this) {
         is ComposeNavigator.Destination -> this.popExitTransition?.invoke(scope)
         is ComposeNavGraphNavigator.ComposeNavGraph -> this.popExitTransition?.invoke(scope)
+        else -> null
+    }
+
+private fun NavDestination.createPredictivePopEnterTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>,
+    swipeEdge: Int,
+): EnterTransition? =
+    when (this) {
+        is ComposeNavigator.Destination ->
+            this.predictivePopEnterTransition?.invoke(scope, swipeEdge)
+        is ComposeNavGraphNavigator.ComposeNavGraph ->
+            this.predictivePopEnterTransition?.invoke(scope, swipeEdge)
+        else -> null
+    }
+
+private fun NavDestination.createPredictivePopExitTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>,
+    swipeEdge: Int,
+): ExitTransition? =
+    when (this) {
+        is ComposeNavigator.Destination ->
+            this.predictivePopExitTransition?.invoke(scope, swipeEdge)
+        is ComposeNavGraphNavigator.ComposeNavGraph ->
+            this.predictivePopExitTransition?.invoke(scope, swipeEdge)
         else -> null
     }
 

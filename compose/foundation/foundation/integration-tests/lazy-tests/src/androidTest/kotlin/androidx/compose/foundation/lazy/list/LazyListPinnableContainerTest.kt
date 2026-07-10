@@ -16,9 +16,11 @@
 
 package androidx.compose.foundation.lazy.list
 
+import android.widget.EditText
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -48,15 +50,19 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.random.Random
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -72,7 +78,7 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         fun params() = arrayOf(true, false)
     }
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var pinnableContainer: PinnableContainer? = null
 
@@ -99,8 +105,8 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
     }
 
     @Composable
-    fun Item(index: Int) {
-        Box(Modifier.size(itemSize).testTag("$index"))
+    fun Item(index: Int, modifier: Modifier = Modifier) {
+        Box(modifier.size(itemSize).testTag("$index"))
         DisposableEffect(index) {
             composed.add(index)
             onDispose { composed.remove(index) }
@@ -691,6 +697,172 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         }
 
         rule.runOnIdle { assertTrue { focused[9]!! } }
+    }
+
+    @Test
+    fun focusedFocusableItemIsComposedAndPlacedWhenScrolledOut() {
+        val focusRequesters = List(100) { FocusRequester() }
+        val state = LazyListState()
+        // Arrange.
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 2), state = state) {
+                items(100) { index ->
+                    Item(
+                        index,
+                        modifier = Modifier.focusRequester(focusRequesters[index]).focusable(),
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[1].requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(composed).contains(1)
+            runBlocking { state.scrollToItem(3) }
+        }
+
+        rule.waitUntil {
+            // not visible items were disposed
+            !composed.contains(0)
+        }
+
+        rule.runOnIdle {
+            // item 1 is still pinned
+            assertThat(composed).contains(1)
+        }
+
+        rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
+    }
+
+    @Test
+    fun focusedAndroidViewItemIsComposedAndPlacedWhenScrolledOut() {
+        val focusRequesters = List(100) { FocusRequester() }
+        val state = LazyListState()
+        // Arrange.
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 2), state = state) {
+                items(100) { index ->
+                    AndroidView(
+                        factory = ::EditText,
+                        modifier =
+                            Modifier.size(itemSize)
+                                .focusRequester(focusRequesters[index])
+                                .testTag("$index"),
+                    )
+                    DisposableEffect(index) {
+                        composed.add(index)
+                        onDispose { composed.remove(index) }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[1].requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(composed).contains(1)
+            runBlocking { state.scrollToItem(3) }
+        }
+
+        rule.waitUntil {
+            // not visible items were disposed
+            !composed.contains(0)
+        }
+
+        rule.runOnIdle {
+            // item 1 is still pinned
+            assertThat(composed).contains(1)
+        }
+
+        rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
+    }
+
+    @Test
+    fun pinnedItemsAreLaidOutInOrderWhenScrolledOut() {
+        val state = LazyListState()
+        val pinnableContainerByIndex = mutableMapOf<Int, PinnableContainer>()
+        val pinHandlesByIndex = mutableMapOf<Int, PinnedHandle>()
+        val shuffelSeed = 0xCAFEBABE
+
+        val listSize = 20
+        val topPinRange = 0 until listSize / 2
+        val bottomPinRange = listSize / 2 until listSize
+
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 10), state = state) {
+                items(listSize) { index ->
+                    pinnableContainerByIndex[index] = LocalPinnableContainer.current!!
+                    Item(index)
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        fun validateLayoutOrder(pinRange: IntRange) {
+            var prevTop: Float? = null
+            for (i in pinRange) {
+                val top = rule.onNodeWithTag("$i").fetchSemanticsNode().positionInRoot.y
+                if (prevTop != null) {
+                    assertThat(top).isGreaterThan(prevTop)
+                }
+                prevTop = top
+            }
+        }
+
+        topPinRange
+            .toMutableList()
+            .apply { shuffle(Random(shuffelSeed)) }
+            .forEach { i -> pinHandlesByIndex[i] = pinnableContainerByIndex[i]!!.pin() }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(listSize - 1) } }
+        rule.waitForIdle()
+        validateLayoutOrder(topPinRange)
+
+        topPinRange.forEach { i -> pinHandlesByIndex[i]!!.release() }
+
+        pinHandlesByIndex.clear()
+
+        bottomPinRange
+            .toMutableList()
+            .apply { shuffle(Random(shuffelSeed)) }
+            .forEach { i -> pinHandlesByIndex[i] = pinnableContainerByIndex[i]!!.pin() }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(0) } }
+        rule.waitForIdle()
+        validateLayoutOrder(bottomPinRange)
+    }
+
+    @Test
+    fun noDuplicatePinnedItemsInPinnedItemsListDuringLayout() {
+        val data = mutableStateOf(List(0) { it })
+        val state = LazyListState()
+        var flag = false
+        rule.setContentParameterized {
+            LazyColumn(Modifier.height(700.dp), state = state) {
+                items(data.value) { index ->
+                    val container = LocalPinnableContainer.current
+                    Item(index = index, modifier = Modifier.height(300.dp))
+                    if (index == 19) {
+                        DisposableEffect(Unit) {
+                            flag = true
+                            container?.pin()
+                            onDispose { flag = false }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Repeating to ensure an element with the index of 19 is added to the pinned items list
+        // twice allowing us ot validate that there are no duplicates in the pinned item list.
+        repeat(2) { _ ->
+            rule.runOnIdle { data.value = List(20) { it } }
+            rule.runOnIdle { runBlocking { state.scrollToItem(19) } }
+            rule.runOnIdle { data.value = List(2) { it } }
+            rule.runOnIdle { assertFalse(flag) }
+        }
     }
 }
 

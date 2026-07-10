@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Width modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifier implements RecordingModifier.Element {
 
     DimensionModifierOperation.@NonNull Type mType;

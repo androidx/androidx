@@ -87,6 +87,7 @@ public interface SessionManagerScope {
 @get:RestrictTo(LIBRARY_GROUP)
 public val GlanceSessionManager: SessionManager = SessionManagerImpl(SessionWorker::class.java)
 
+@Suppress("TypealiasDefinition")
 public typealias InputDataFactory = SessionManagerImpl.(Session) -> Data
 
 @RestrictTo(LIBRARY_GROUP)

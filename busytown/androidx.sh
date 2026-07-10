@@ -16,6 +16,8 @@ EXIT_VALUE=0
 # Validate translation exports, if present
 if ! busytown/impl/check_translations.sh; then
   EXIT_VALUE=1
+elif ! busytown/impl/verify-gradle-signature.sh; then
+  EXIT_VALUE=1
 else
   # Run Gradle
   # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
@@ -26,10 +28,6 @@ else
     # Run merge-kzips only if Gradle succeeds. Script merges kzips outputted by bOS task
     busytown/impl/merge-kzips.sh || EXIT_VALUE=1
   fi
-
-  # Parse performance profile reports (generated with the --profile option) and re-export
-  # the metrics in an easily machine-readable format for tracking
-  busytown/impl/parse_profile_data.sh
 fi
 
 echo "Completing $0 at $(date) with exit value $EXIT_VALUE"

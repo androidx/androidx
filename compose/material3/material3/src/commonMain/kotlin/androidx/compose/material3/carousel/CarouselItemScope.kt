@@ -19,7 +19,6 @@ package androidx.compose.material3.carousel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,7 +30,6 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.platform.LocalDensity
 
 /** Receiver scope for [Carousel] item content. */
-@ExperimentalMaterial3Api
 sealed interface CarouselItemScope {
     /**
      * Information regarding the carousel item, such as its minimum and maximum size.
@@ -72,7 +70,6 @@ sealed interface CarouselItemScope {
     @Composable fun rememberMaskShape(shape: Shape): GenericShape
 }
 
-@ExperimentalMaterial3Api
 internal class CarouselItemScopeImpl(private val itemInfo: CarouselItemDrawInfo) :
     CarouselItemScope {
     override val carouselItemDrawInfo: CarouselItemDrawInfo

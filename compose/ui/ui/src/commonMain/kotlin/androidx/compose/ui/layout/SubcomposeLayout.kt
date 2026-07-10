@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -598,7 +597,9 @@ internal class LayoutNodeSubcompositionsState(
                 val precomposed = precomposeMap.remove(slotId)
                 if (precomposed != null) {
                     val nodeState = nodeToNodeState[precomposed]
-                    nodeState?.record(SLOperation.TookFromPrecomposeMap)
+                    if (ExtraLoggingEnabled) {
+                        nodeState?.record(SLOperation.TookFromPrecomposeMap)
+                    }
                     @Suppress("ExceptionMessage") checkPrecondition(precomposedCount > 0)
                     precomposedCount--
                     precomposed
@@ -660,12 +661,7 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     private val outOfFrameExecutor: OutOfFrameExecutor?
-        get() =
-            if (ComposeUiFlags.isOutOfFrameDeactivationEnabled) {
-                root.requireOwner().outOfFrameExecutor
-            } else {
-                null
-            }
+        get() = root.requireOwner().outOfFrameExecutor
 
     private fun subcompose(node: LayoutNode, nodeState: NodeState, pausable: Boolean) {
         requirePrecondition(nodeState.pausedComposition == null) {
@@ -679,14 +675,16 @@ internal class LayoutNodeSubcompositionsState(
                         ?: throwIllegalStateExceptionForNullCheck(
                             "parent composition reference not set"
                         )
-                nodeState.record(
-                    if (existing == null) SLOperation.SubcomposeNew else SLOperation.Subcompose
-                )
-                if (pausable) {
-                    nodeState.record(SLOperation.SubcomposePausable)
-                }
-                if (nodeState.forceReuse) {
-                    nodeState.record(SLOperation.SubcomposeForceReuse)
+                if (ExtraLoggingEnabled) {
+                    nodeState.record(
+                        if (existing == null) SLOperation.SubcomposeNew else SLOperation.Subcompose
+                    )
+                    if (pausable) {
+                        nodeState.record(SLOperation.SubcomposePausable)
+                    }
+                    if (nodeState.forceReuse) {
+                        nodeState.record(SLOperation.SubcomposeForceReuse)
+                    }
                 }
                 val composition =
                     if (existing == null || existing.isDisposed) {
@@ -788,10 +786,14 @@ internal class LayoutNodeSubcompositionsState(
     private fun NodeState.deactivateOutOfFrame(executor: OutOfFrameExecutor) {
         executor.schedule {
             if (!active) {
-                record(SLOperation.DeactivateOutOfFrame)
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.DeactivateOutOfFrame)
+                }
                 composition?.deactivate()
             } else {
-                record(SLOperation.DeactivateOutOfFrameCancelled)
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.DeactivateOutOfFrameCancelled)
+                }
             }
         }
     }
@@ -812,10 +814,12 @@ internal class LayoutNodeSubcompositionsState(
                         node.resetLayoutState()
                         nodeState.reuseComposition(forceDeactivate = deactivate)
                         nodeState.slotId = ReusedSlotId
-                        if (deactivate) {
-                            nodeState.record(SLOperation.SlotToReusedFromOnDeactivate)
-                        } else {
-                            nodeState.record(SLOperation.SlotToReusedFromOnReuse)
+                        if (ExtraLoggingEnabled) {
+                            if (deactivate) {
+                                nodeState.record(SLOperation.SlotToReusedFromOnDeactivate)
+                            } else {
+                                nodeState.record(SLOperation.SlotToReusedFromOnReuse)
+                            }
                         }
                     }
                 }
@@ -912,7 +916,9 @@ internal class LayoutNodeSubcompositionsState(
             val node = foldedChildren[reusableNodesSectionStart]
             val nodeState = nodeToNodeState[node]!!
             // create a new instance to avoid change notifications
-            nodeState.record(SLOperation.Reused)
+            if (ExtraLoggingEnabled) {
+                nodeState.record(SLOperation.Reused)
+            }
             nodeState.activeState = mutableStateOf(true)
             nodeState.forceReuse = true
             nodeState.forceRecompose = true
@@ -1048,18 +1054,24 @@ internal class LayoutNodeSubcompositionsState(
             // Cancelling disposes composition, so no additional work is needed.
             cancelPausedPrecomposition()
         } else if (forceDeactivate) {
-            record(SLOperation.ReuseForceSyncDeactivation)
+            if (ExtraLoggingEnabled) {
+                record(SLOperation.ReuseForceSyncDeactivation)
+            }
             composition?.deactivate()
         } else {
             val outOfFrameExecutor = outOfFrameExecutor
             if (outOfFrameExecutor != null) {
-                record(SLOperation.ReuseScheduleOutOfFrameDeactivation)
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.ReuseScheduleOutOfFrameDeactivation)
+                }
                 deactivateOutOfFrame(outOfFrameExecutor)
             } else {
                 if (!composedWithReusableContentHost) {
-                    record(SLOperation.ReuseSyncDeactivation)
+                    if (ExtraLoggingEnabled) {
+                        record(SLOperation.ReuseSyncDeactivation)
+                    }
                     composition?.deactivate()
-                } else {
+                } else if (ExtraLoggingEnabled) {
                     record(SLOperation.ReuseDeactivationViaHost)
                 }
             }
@@ -1072,7 +1084,9 @@ internal class LayoutNodeSubcompositionsState(
             pausedComposition = null
             composition?.dispose()
             composition = null
-            record(SLOperation.CancelPausedPrecomposition)
+            if (ExtraLoggingEnabled) {
+                record(SLOperation.CancelPausedPrecomposition)
+            }
         }
     }
 
@@ -1143,7 +1157,10 @@ internal class LayoutNodeSubcompositionsState(
                 key: Any?,
                 block: (TraversableNode) -> TraverseDescendantsAction,
             ) {
-                precomposeMap[slotId]?.nodes?.head?.traverseDescendants(key, block)
+                val headNode = precomposeMap[slotId]?.nodes?.head
+                if (headNode != null && headNode.isAttached) {
+                    headNode.traverseDescendants(key, block)
+                }
             }
 
             override fun getSize(index: Int): IntSize {
@@ -1196,22 +1213,27 @@ internal class LayoutNodeSubcompositionsState(
                 val nodeState = nodeState
                 val pausedComposition = nodeState?.pausedComposition
                 return if (pausedComposition != null && !pausedComposition.isComplete) {
-                    nodeState.record(SLOperation.ResumePaused)
+                    if (ExtraLoggingEnabled) {
+                        nodeState.record(SLOperation.ResumePaused)
+                    }
                     val isComplete =
                         Snapshot.withoutReadObservation {
-                            ignoreRemeasureRequests {
-                                try {
-                                    pausedComposition.resume(shouldPause)
-                                } catch (e: Throwable) {
+                            try {
+                                pausedComposition.resume(shouldPause)
+                            } catch (e: Throwable) {
+                                val operations = nodeState.operations
+                                if (operations != null) {
                                     throw SubcomposeLayoutPausableCompositionException(
                                         nodeState.operations,
                                         slotId,
                                         e,
                                     )
+                                } else {
+                                    throw e
                                 }
                             }
                         }
-                    if (!isComplete) {
+                    if (ExtraLoggingEnabled && !isComplete) {
                         nodeState.record(SLOperation.PausePaused)
                     }
                     isComplete
@@ -1273,7 +1295,16 @@ internal class LayoutNodeSubcompositionsState(
                         }
                         pausedComposition.apply()
                     } catch (e: Throwable) {
-                        throw SubcomposeLayoutPausableCompositionException(operations, slotId, e)
+                        val operations = operations
+                        if (operations != null) {
+                            throw SubcomposeLayoutPausableCompositionException(
+                                operations,
+                                slotId,
+                                e,
+                            )
+                        } else {
+                            throw e
+                        }
                     }
                     this.pausedComposition = null
                 }
@@ -1297,9 +1328,10 @@ internal class LayoutNodeSubcompositionsState(
                 activeState.value = value
             }
 
-        val operations = mutableIntListOf()
+        val operations = if (ExtraLoggingEnabled) mutableIntListOf() else null
 
         fun record(op: SLOperation) {
+            val operations = operations ?: return
             operations.add(op.value)
             if (operations.size >= 50) {
                 operations.removeRange(0, 10)
@@ -1425,6 +1457,11 @@ internal class LayoutNodeSubcompositionsState(
             if (nodeState?.forceRecompose == true) {
                 subcompose(node, slotId, pausable = false, content)
             }
+
+            // Finish pausable composition if it has not been completed yet
+            if (nodeState?.pausedComposition != null) {
+                nodeState.applyPausedPrecomposition(shouldComplete = true)
+            }
         }
 
         return precomposeMap[slotId]?.run {
@@ -1467,24 +1504,59 @@ private val UnspecifiedSlotId = Any()
 @JvmInline
 private value class SLOperation(val value: Int) {
     companion object {
-        val CancelPausedPrecomposition = SLOperation(0)
-        val ReuseForceSyncDeactivation = SLOperation(1)
-        val ReuseScheduleOutOfFrameDeactivation = SLOperation(2)
-        val ReuseSyncDeactivation = SLOperation(3)
-        val ReuseDeactivationViaHost = SLOperation(4)
-        val TookFromPrecomposeMap = SLOperation(5)
-        val Subcompose = SLOperation(6)
-        val SubcomposeNew = SLOperation(7)
-        val SubcomposePausable = SLOperation(8)
-        val SubcomposeForceReuse = SLOperation(9)
-        val DeactivateOutOfFrame = SLOperation(10)
-        val DeactivateOutOfFrameCancelled = SLOperation(11)
-        val SlotToReusedFromOnDeactivate = SLOperation(12)
-        val SlotToReusedFromOnReuse = SLOperation(13)
-        val Reused = SLOperation(14)
-        val ResumePaused = SLOperation(15)
-        val PausePaused = SLOperation(16)
-        val ApplyPaused = SLOperation(17)
+        val CancelPausedPrecomposition
+            get() = SLOperation(0)
+
+        val ReuseForceSyncDeactivation
+            get() = SLOperation(1)
+
+        val ReuseScheduleOutOfFrameDeactivation
+            get() = SLOperation(2)
+
+        val ReuseSyncDeactivation
+            get() = SLOperation(3)
+
+        val ReuseDeactivationViaHost
+            get() = SLOperation(4)
+
+        val TookFromPrecomposeMap
+            get() = SLOperation(5)
+
+        val Subcompose
+            get() = SLOperation(6)
+
+        val SubcomposeNew
+            get() = SLOperation(7)
+
+        val SubcomposePausable
+            get() = SLOperation(8)
+
+        val SubcomposeForceReuse
+            get() = SLOperation(9)
+
+        val DeactivateOutOfFrame
+            get() = SLOperation(10)
+
+        val DeactivateOutOfFrameCancelled
+            get() = SLOperation(11)
+
+        val SlotToReusedFromOnDeactivate
+            get() = SLOperation(12)
+
+        val SlotToReusedFromOnReuse
+            get() = SLOperation(13)
+
+        val Reused
+            get() = SLOperation(14)
+
+        val ResumePaused
+            get() = SLOperation(15)
+
+        val PausePaused
+            get() = SLOperation(16)
+
+        val ApplyPaused
+            get() = SLOperation(17)
     }
 }
 
@@ -1535,3 +1607,5 @@ private class SubcomposeLayoutPausableCompositionException(
             """
                 .trimMargin()
 }
+
+private const val ExtraLoggingEnabled = false

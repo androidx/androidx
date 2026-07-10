@@ -156,7 +156,7 @@ public actual class SavedStateHandle {
             "Can't put value with type ${value!!::class.java} into saved state"
         }
         @Suppress("UNCHECKED_CAST") val mutableLiveData = liveDatas[key] as? MutableLiveData<T?>?
-        mutableLiveData?.setValue(value)
+        mutableLiveData?.value = value
         impl[key] = value
     }
 

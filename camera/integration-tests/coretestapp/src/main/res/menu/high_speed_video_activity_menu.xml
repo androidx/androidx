@@ -29,10 +29,6 @@
                     android:checked="true"
                     android:title="Camera2"
                     app:showAsAction="never" />
-                <item
-                    android:id="@+id/camera_config_camera_pipe"
-                    android:title="Camera Pipe"
-                    app:showAsAction="never" />
             </group>
         </menu>
     </item>
@@ -85,4 +81,9 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/auto_rotation"
+        android:checkable="true"
+        android:title="@string/enable_auto_rotation"
+        app:showAsAction="never" />
 </menu>

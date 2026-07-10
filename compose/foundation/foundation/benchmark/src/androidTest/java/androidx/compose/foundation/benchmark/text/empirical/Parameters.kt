@@ -118,6 +118,6 @@ internal fun String.annotateWithInlineContent(): AnnotatedString {
 }
 
 /** ([1,2,3] X [A, B]) -> [[1, A], [1, B], [2, A], ... */
-private fun Array<Any>.cartesian(rhs: Array<Any>): List<Array<Any>> = flatMap { lhs ->
+internal fun Array<Any>.cartesian(rhs: Array<Any>): List<Array<Any>> = flatMap { lhs ->
     rhs.map { arrayOf(lhs, it) }
 }

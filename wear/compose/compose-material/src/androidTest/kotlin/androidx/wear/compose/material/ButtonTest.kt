@@ -44,7 +44,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -53,12 +53,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 public class ButtonBehaviourTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun supports_testtag_on_button_for_image() {
@@ -310,7 +311,7 @@ public class ButtonBehaviourTest {
 }
 
 public class ButtonSizeTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_compactbutton_correct_tapsize() {
@@ -342,7 +343,7 @@ public class ButtonSizeTest {
 }
 
 public class ButtonShapeTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun default_button_shape_is_circle() {
@@ -402,7 +403,7 @@ public class ButtonShapeTest {
 }
 
 public class ButtonColorTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_enabled_button_primary_colors() =
@@ -785,7 +786,7 @@ public class ButtonColorTest {
 }
 
 public class ButtonTextStyleTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_button_correct_font() {

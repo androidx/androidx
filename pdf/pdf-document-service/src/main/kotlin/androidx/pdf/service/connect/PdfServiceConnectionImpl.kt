@@ -21,17 +21,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.service.PdfDocumentServiceImpl
 import java.util.Queue
+import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfServiceConnectionImpl(override val context: Context) : PdfServiceConnection {
     private val _eventStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(Disconnected)
 
@@ -64,14 +63,24 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
         if (!isProcessing) disconnect()
     }
 
-    override suspend fun connect(uri: Uri) {
-        val intent =
-            Intent(context, PdfDocumentServiceImpl::class.java).apply {
-                // Providing a different Intent to the Service per document is required to obtain a
-                // different IBinder channel per document. The data here serves no other purpose.
-                // See b/380140417
-                data = uri
+    private fun createIntentForService(uri: Uri): Intent {
+        return Intent(context, PdfDocumentServiceImpl::class.java).apply {
+            val uniqueId = createUniqueId(uri)
+
+            // Providing a different Intent to the Service per document is required to obtain a
+            // different IBinder channel per document.
+            // See b/380140417
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                identifier = uniqueId
+            } else {
+                // set a unique Data URI for android version older than api 29
+                data = Uri.parse("id://$uniqueId")
             }
+        }
+    }
+
+    override suspend fun connect(uri: Uri) {
+        val intent = createIntentForService(uri)
         context.bindService(intent, /* conn= */ this, /* flags= */ Context.BIND_AUTO_CREATE)
         _eventStateFlow.first { it is Connected }
     }
@@ -88,4 +97,12 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
             context.unbindService(this)
         }
     }
+
+    /**
+     * Creates a unique identifier for the [Intent] used to bind to the [PdfDocumentServiceImpl].
+     *
+     * @param uri The [Uri] of the document being opened.
+     * @return A unique string combining the URI and a random UUID.
+     */
+    private fun createUniqueId(uri: Uri) = "${uri}_${UUID.randomUUID()}"
 }

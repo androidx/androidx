@@ -23,13 +23,18 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.providerevents.ProviderEventsApiProvider
+import androidx.credentials.providerevents.exception.ClearExportException
+import androidx.credentials.providerevents.exception.ClearExportUnknownErrorException
 import androidx.credentials.providerevents.exception.ImportCredentialsException
 import androidx.credentials.providerevents.exception.RegisterExportException
 import androidx.credentials.providerevents.exception.RegisterExportUnknownErrorException
 import androidx.credentials.providerevents.playservices.controller.ImportCredentialsController
+import androidx.credentials.providerevents.transfer.ClearExportRequest
+import androidx.credentials.providerevents.transfer.ClearExportResponse
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
 import androidx.credentials.providerevents.transfer.ProviderImportCredentialsResponse
 import androidx.credentials.providerevents.transfer.RegisterExportRequest
+import androidx.credentials.providerevents.transfer.RegisterExportResponse
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
@@ -76,9 +81,8 @@ public class ProviderEventsApiProviderPlayServices(private val context: Context)
 
     override fun onRegisterExport(
         request: RegisterExportRequest,
-        cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Boolean, RegisterExportException>,
+        callback: CredentialManagerCallback<RegisterExportResponse, RegisterExportException>,
     ) {
         val gmsRequest =
             com.google.android.gms.identitycredentials.RegisterExportRequest(
@@ -89,16 +93,33 @@ public class ProviderEventsApiProviderPlayServices(private val context: Context)
         val client = IdentityCredentialManager.getClient(context)
         client
             .registerExport(gmsRequest)
-            .addOnSuccessListener { callback.onResult(true) }
+            .addOnSuccessListener { callback.onResult(RegisterExportResponse()) }
             .addOnFailureListener {
                 callback.onError(RegisterExportUnknownErrorException(it.message))
             }
     }
 
+    override fun onClearExport(
+        request: ClearExportRequest,
+        executor: Executor,
+        callback: CredentialManagerCallback<ClearExportResponse, ClearExportException>,
+    ) {
+        val gmsRequest =
+            com.google.android.gms.identitycredentials.ClearExportRequest(
+                deleteAll = false,
+                registryIds = listOf(REGISTRY_ID),
+            )
+        val client = IdentityCredentialManager.getClient(context)
+        client
+            .clearExport(gmsRequest)
+            .addOnSuccessListener { callback.onResult(ClearExportResponse(it.isDeleted)) }
+            .addOnFailureListener { callback.onError(ClearExportUnknownErrorException(it.message)) }
+    }
+
     private companion object {
         const val TAG = "ProviderEventsApi"
         // TODO(b/436712597): Bump this version when the UX is ready
-        const val MIN_GMS_APK_VERSION = 250900000
+        const val MIN_GMS_APK_VERSION = 253800000
         const val REGISTRY_ID = "credential_transfer"
     }
 }

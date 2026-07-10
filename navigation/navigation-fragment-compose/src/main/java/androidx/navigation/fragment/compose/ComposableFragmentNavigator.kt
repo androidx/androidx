@@ -55,16 +55,18 @@ public class ComposableFragmentNavigator(private val fragmentNavigator: Fragment
     @NavDestination.ClassType(Composable::class)
     internal class Destination(fragmentNavigator: Navigator<out FragmentNavigator.Destination>) :
         FragmentNavigator.Destination(fragmentNavigator) {
+        internal lateinit var composableFqn: String
+
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
             // The className that was parsed out is actually the fully
             // qualified name of the Composable Function to run, so extract
             // that and add it as a default argument on the destination
-            val fullyQualifiedName = className
+            composableFqn = className
             val navArgument =
                 NavArgument.Builder()
                     .setType(NavType.StringType)
-                    .setDefaultValue(fullyQualifiedName)
+                    .setDefaultValue(composableFqn)
                     .build()
             addArgument(ComposableFragment.FULLY_QUALIFIED_NAME, navArgument)
             // And then ensure that the actual Fragment that is constructed

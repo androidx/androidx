@@ -64,7 +64,9 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
-    document.setFrom(fromConv);
+    if (fromConv != null) {
+      document.setFrom(fromConv);
+    }
     return document;
   }
 }

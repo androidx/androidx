@@ -18,7 +18,6 @@ package androidx.webkit.internal;
 
 import android.webkit.ServiceWorkerWebSettings;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
@@ -27,6 +26,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -59,7 +59,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
                 ServiceWorkerWebSettingsBoundaryInterface.class, invocationHandler);
     }
 
-    @RequiresApi(24)
     private ServiceWorkerWebSettings getFrameworksImpl() {
         if (mFrameworksImpl == null) {
             mFrameworksImpl =
@@ -183,26 +182,23 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
+    /**
+     * @deprecated See {@link ServiceWorkerWebSettingsCompat}
+     */
     @Override
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("removal")
     public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        final ApiFeature.NoFramework feature =
-                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
-        if (feature.isSupportedByWebView()) {
-            return getBoundaryInterface().getRequestedWithHeaderOriginAllowList();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
+        return Collections.emptySet();
     }
 
+    /**
+     * @deprecated See {@link ServiceWorkerWebSettingsCompat}
+     */
     @Override
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("removal")
     public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-        final ApiFeature.NoFramework feature =
-                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
-        if (feature.isSupportedByWebView()) {
-            getBoundaryInterface().setRequestedWithHeaderOriginAllowList(allowList);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
     }
 
     @Override

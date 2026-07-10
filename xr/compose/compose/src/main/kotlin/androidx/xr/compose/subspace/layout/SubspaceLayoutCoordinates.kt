@@ -19,32 +19,48 @@ package androidx.xr.compose.subspace.layout
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 
-/**
- * A holder of the measured bounds.
- *
- * Based on [androidx.compose.ui.layout.LayoutCoordinates].
- */
+/** A holder of the measured bounds. */
 public interface SubspaceLayoutCoordinates {
     /** The pose of this layout in the local coordinates space, with translation in pixels. */
     public val pose: Pose
 
     /**
-     * The pose of this layout relative to the root entity of the Compose hierarchy, with
-     * translation in pixels.
+     * The pose of this layout relative to its parent in the Compose hierarchy, with translation in
+     * pixels.
+     */
+    public val poseInParent: Pose
+
+    /**
+     * The pose of this layout relative to the root of the Compose for XR's hierarchy with
+     * translation values in pixels.
      */
     public val poseInRoot: Pose
 
     /**
-     * The pose of this layout relative to its parent entity in the Compose hierarchy, with
-     * translation in pixels.
+     * The coordinates of the immediate parent in the layout hierarchy.
+     *
+     * For a layout, this is its parent layout. For a modifier, this is the modifier that preceded
+     * it, or the layout it is attached to if it is the first in the chain.
+     *
+     * Returns `null` only for the root of the hierarchy.
      */
-    public val poseInParentEntity: Pose
+    public val parentCoordinates: SubspaceLayoutCoordinates?
+
+    /**
+     * The coordinates of the nearest parent layout, skipping any intermediate modifiers.
+     *
+     * This is useful for positioning relative to the containing layout composable, irrespective of
+     * any modifiers applied to it.
+     *
+     * Returns `null` only for the root of the hierarchy.
+     */
+    public val parentLayoutCoordinates: SubspaceLayoutCoordinates?
 
     /**
      * The size of this layout in the local coordinates space.
      *
-     * This is also useful for providing the size of the node to the
-     * [OnGloballyPositionedModifier][androidx.xr.compose.subspace.layout.OnGloballyPositionedNode].
+     * This is also useful for providing the size of the node to the [onGloballyPositioned] subspace
+     * modifier.
      */
     public val size: IntVolumeSize
 }
@@ -52,6 +68,6 @@ public interface SubspaceLayoutCoordinates {
 /** Returns information on pose, position and size. */
 internal fun SubspaceLayoutCoordinates.toDebugString(): String = buildString {
     appendLine("pose: $pose")
-    appendLine("poseInParentEntity: $poseInParentEntity")
+    appendLine("poseInParent: $poseInParent")
     appendLine("size: $size")
 }

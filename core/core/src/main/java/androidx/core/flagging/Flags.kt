@@ -21,6 +21,7 @@ package androidx.core.flagging
 import android.os.Build.VERSION.SDK_INT
 import android.os.flagging.AconfigPackage
 import android.os.flagging.AconfigStorageReadException
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
@@ -63,6 +64,7 @@ public class Flags {
          * @param defaultValue The value to return if the flag is not found.
          * @return The boolean value of the flag, or `defaultValue` if the flag is not found.
          */
+        @ChecksSdkIntAtLeast(10000)
         @Suppress("MemberExtensionConflict") // b/406991279 fixed in AGP 8.11.0-alpha05
         @JvmOverloads
         @JvmStatic

@@ -31,19 +31,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.GravityAlignedSubspace
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.SpatialElevation
 import androidx.xr.compose.spatial.SpatialElevationLevel
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.ui.components.CommonTestPanel
@@ -55,6 +55,7 @@ import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.scene
+import kotlinx.coroutines.launch
 
 class ModeChange : ComponentActivity() {
 
@@ -63,28 +64,28 @@ class ModeChange : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setContent {
-            val renderingSession = remember {
-                (Session.create(
-                        activity = this@ModeChange,
-                        unscaledGravityAlignedActivitySpace = true,
-                    ) as SessionCreateSuccess)
-                    .session
-            }
-            IntegrationTestsAppTheme {
-                if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                    FullSpaceMainPanel(renderingSession)
-                } else {
-                    HomeSpaceMainPanel(renderingSession)
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@ModeChange)
+            if (sessionResult is SessionCreateSuccess) {
+                val renderingSession = sessionResult.session
+                setContent {
+                    IntegrationTestsAppTheme {
+                        if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                            FullSpaceMainPanel(renderingSession)
+                        } else {
+                            HomeSpaceMainPanel(renderingSession)
+                        }
+                    }
                 }
+            } else {
+                finish()
             }
         }
     }
 
     @Composable
     private fun FullSpaceMainPanel(renderingSession: Session) {
-
-        GravityAlignedSubspace {
+        Subspace {
             SpatialRow {
                 CommonTestPanel(
                     size = DpVolumeSize(320.dp, 240.dp, 0.dp),
@@ -102,7 +103,7 @@ class ModeChange : ComponentActivity() {
                     onClickRecreate = { this@ModeChange.recreate() },
                 ) { padding ->
                     PanelContent(padding, "FullSpace Mode", "Transition to HomeSpace Mode") {
-                        renderingSession.scene.requestHomeSpaceMode()
+                        renderingSession.scene.requestHomeSpace()
                     }
                 }
 
@@ -127,7 +128,7 @@ class ModeChange : ComponentActivity() {
             onClickRecreate = { this@ModeChange.recreate() },
         ) { padding ->
             PanelContent(padding, "HomeSpace Mode", "Transition to FullSpace Mode") {
-                renderingSession!!.scene.requestFullSpaceMode()
+                renderingSession!!.scene.requestFullSpace()
             }
         }
     }
@@ -144,6 +145,7 @@ class ModeChange : ComponentActivity() {
             contentAlignment = Alignment.Center,
         ) {
             Column {
+                @Suppress("DEPRECATION")
                 Orbiter(position = ContentEdge.Top, offset = 5.dp) {
                     Text(
                         text = orbiterText,

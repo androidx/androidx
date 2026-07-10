@@ -27,5 +27,7 @@ GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollBack
     Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollForward():
     Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.foundation.text.KeyboardOptions#autoCorrect:
-    Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+TypeParameterName: androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent:
+    Invalid type parameter name "Interval". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

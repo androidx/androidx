@@ -67,10 +67,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * WorkManager is restarted after an app was force stopped.
- * Alarms and Jobs get cancelled when an application is force-stopped. To reschedule, we
- * create a pending alarm that will not survive force stops.
- *
+ * WorkManager is restarted after an app was force stopped. Alarms and Jobs get cancelled when an
+ * application is force-stopped. To reschedule, we create a pending alarm that will not survive
+ * force stops.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForceStopRunnable implements Runnable {
@@ -79,8 +78,8 @@ public class ForceStopRunnable implements Runnable {
 
     @VisibleForTesting
     static final String ACTION_FORCE_STOP_RESCHEDULE = "ACTION_FORCE_STOP_RESCHEDULE";
-    @VisibleForTesting
-    static final int MAX_ATTEMPTS = 3;
+
+    @VisibleForTesting static final int MAX_ATTEMPTS = 3;
 
     // All our alarms are use request codes which are > 0.
     private static final int ALARM_ID = -1;
@@ -105,6 +104,25 @@ public class ForceStopRunnable implements Runnable {
             if (!multiProcessChecks()) {
                 return;
             }
+            if (!UserManagerCompat.isUserUnlocked(mContext)) {
+                String message =
+                        "WorkManager can't be accessed from direct boot, because "
+                                + "credential encrypted storage isn't accessible.\n"
+                                + "Don't access or initialize WorkManager from directBootAware "
+                                + "components. See "
+                                + "https://developer.android.com/training/articles/direct-boot";
+                Logger.get().error(TAG, message);
+                IllegalStateException exception = new IllegalStateException(message);
+                Consumer<Throwable> exceptionHandler =
+                        mWorkManager.getConfiguration().getInitializationExceptionHandler();
+                if (exceptionHandler != null) {
+                    exceptionHandler.accept(exception);
+                    return;
+                } else {
+                    throw exception;
+                }
+            }
+
             while (true) {
 
                 try {
@@ -135,51 +153,44 @@ public class ForceStopRunnable implements Runnable {
                 try {
                     forceStopRunnable();
                     break;
-                } catch (SQLiteAccessPermException
-                         | SQLiteCantOpenDatabaseException
-                         | SQLiteConstraintException
-                         | SQLiteDatabaseCorruptException
-                         | SQLiteDatabaseLockedException
-                         | SQLiteDiskIOException
-                         | SQLiteFullException
-                         | SQLiteTableLockedException exception) {
+                } catch (SQLiteException exception) {
                     mRetryCount++;
                     if (mRetryCount >= MAX_ATTEMPTS) {
-                        // ForceStopRunnable is usually the first thing that accesses a database
-                        // (or an app's internal data directory). This means that weird
-                        // PackageManager bugs are attributed to ForceStopRunnable, which is
-                        // unfortunate. This gives the developer a better error
-                        // message.
-                        String message;
-                        if (UserManagerCompat.isUserUnlocked(mContext)) {
-                            message = "The file system on the device is in a bad state. "
-                                    + "WorkManager cannot access the app's internal data store.";
+                        if (isActionableException(exception)) {
+                            // ForceStopRunnable is usually the first thing that accesses a database
+                            // (or an app's internal data directory). This means that weird
+                            // PackageManager bugs are attributed to ForceStopRunnable, which is
+                            // unfortunate. This gives the developer a better error
+                            // message.
+                            String message =
+                                    "The file system on the device is in a bad state. "
+                                            + "WorkManager cannot access the app's internal data "
+                                            + "store.";
+                            Logger.get().error(TAG, message, exception);
+                            IllegalStateException throwable =
+                                    new IllegalStateException(message, exception);
+                            Consumer<Throwable> exceptionHandler =
+                                    mWorkManager
+                                            .getConfiguration()
+                                            .getInitializationExceptionHandler();
+                            if (exceptionHandler != null) {
+                                Logger.get()
+                                        .debug(
+                                                TAG,
+                                                "Routing exception to the specified exception"
+                                                        + " handler",
+                                                throwable);
+                                exceptionHandler.accept(throwable);
+                                break;
+                            } else {
+                                throw throwable;
+                            }
                         } else {
-                            message = "WorkManager can't be accessed from direct boot, because "
-                                    + "credential encrypted storage isn't accessible.\n"
-                                    + "Don't access or initialise WorkManager from directAware "
-                                    + "components. See "
-                                    + "https://developer.android.com/training/articles/direct-boot";
-                        }
-                        Logger.get().error(TAG, message, exception);
-                        IllegalStateException throwable = new IllegalStateException(message,
-                                exception);
-                        Consumer<Throwable> exceptionHandler =
-                                mWorkManager.getConfiguration().getInitializationExceptionHandler();
-                        if (exceptionHandler != null) {
-                            Logger.get().debug(TAG,
-                                    "Routing exception to the specified exception handler",
-                                    throwable);
-                            exceptionHandler.accept(throwable);
-                            break;
-                        } else {
-                            throw throwable;
+                            throw exception;
                         }
                     } else {
                         long duration = mRetryCount * BACKOFF_DURATION_MS;
-                        Logger.get()
-                                .debug(TAG, "Retrying after " + duration,
-                                        exception);
+                        Logger.get().debug(TAG, "Retrying after " + duration, exception);
                         sleep(mRetryCount * BACKOFF_DURATION_MS);
                     }
                 }
@@ -187,6 +198,21 @@ public class ForceStopRunnable implements Runnable {
         } finally {
             mWorkManager.onForceStopRunnableCompleted();
         }
+    }
+
+    /**
+     * @return {@code true} if the exception is a {@link SQLiteException} that is expected to be
+     *     actionable by the app.
+     */
+    private static boolean isActionableException(SQLiteException exception) {
+        return exception instanceof SQLiteAccessPermException
+                || exception instanceof SQLiteCantOpenDatabaseException
+                || exception instanceof SQLiteConstraintException
+                || exception instanceof SQLiteDatabaseCorruptException
+                || exception instanceof SQLiteDatabaseLockedException
+                || exception instanceof SQLiteDiskIOException
+                || exception instanceof SQLiteFullException
+                || exception instanceof SQLiteTableLockedException;
     }
 
     /**
@@ -216,7 +242,7 @@ public class ForceStopRunnable implements Runnable {
                                 null /* match caller uid */,
                                 0, // ignore
                                 0 // ignore
-                        );
+                                );
 
                 if (exitInfoList != null && !exitInfoList.isEmpty()) {
                     long timestamp = mPreferenceUtils.getLastForceStopEventMillis();
@@ -245,9 +271,7 @@ public class ForceStopRunnable implements Runnable {
         }
     }
 
-    /**
-     * Performs all the necessary steps to initialize {@link androidx.work.WorkManager}/
-     */
+    /** Performs all the necessary steps to initialize {@link androidx.work.WorkManager} */
     @VisibleForTesting
     public void forceStopRunnable() {
         boolean needsScheduling = cleanUp();
@@ -272,10 +296,12 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
-     * Performs cleanup operations like
+     * Performs cleanup operations like:
      *
-     * * Cancel invalid JobScheduler jobs.
-     * * Reschedule previously RUNNING jobs.
+     * <ul>
+     *   <li>Cancel invalid JobScheduler jobs.
+     *   <li>Reschedule previously RUNNING jobs.
+     * </ul>
      *
      * @return {@code true} if there are WorkSpecs that need rescheduling.
      */
@@ -285,8 +311,8 @@ public class ForceStopRunnable implements Runnable {
         // Mitigation for faulty implementations of JobScheduler (b/134058261) and
         // Mitigation for a platform bug, which causes jobs to get dropped when binding to
         // SystemJobService fails.
-        boolean needsReconciling = SystemJobScheduler.reconcileJobs(mContext,
-                mWorkManager.getWorkDatabase());
+        boolean needsReconciling =
+                SystemJobScheduler.reconcileJobs(mContext, mWorkManager.getWorkDatabase());
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
@@ -398,10 +424,9 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
-     * A {@link android.content.BroadcastReceiver} which takes care of recreating the
-     * long lived alarm which helps track force stops for an application.  This is the target of the
-     * alarm set by ForceStopRunnable in {@link #setAlarm(Context)}.
-     *
+     * A {@link android.content.BroadcastReceiver} which takes care of recreating the long lived
+     * alarm which helps track force stops for an application. This is the target of the alarm set
+     * by ForceStopRunnable in {@link #setAlarm(Context)}.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class BroadcastReceiver extends android.content.BroadcastReceiver {
@@ -414,9 +439,8 @@ public class ForceStopRunnable implements Runnable {
             if (intent != null) {
                 String action = intent.getAction();
                 if (ACTION_FORCE_STOP_RESCHEDULE.equals(action)) {
-                    Logger.get().verbose(
-                            TAG,
-                            "Rescheduling alarm that keeps track of force-stops.");
+                    Logger.get()
+                            .verbose(TAG, "Rescheduling alarm that keeps track of force-stops.");
                     ForceStopRunnable.setAlarm(context);
                 }
             }

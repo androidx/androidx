@@ -77,12 +77,28 @@ public interface WindowMetricsCalculator {
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
+     * @throws IllegalArgumentException if the [Context] is not a [UiContext].
      * @see [computeCurrentWindowMetrics]
      */
     public fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeCurrentWindowMetrics(context) and" + " provide an implementation."
         )
+    }
+
+    /**
+     * Returns the current [WindowMetrics] or `null` if [computeCurrentWindowMetrics] fails.
+     *
+     * @see computeCurrentWindowMetrics
+     */
+    public fun computeCurrentWindowMetricsOrNull(@UiContext context: Context): WindowMetrics? {
+        return try {
+            computeCurrentWindowMetrics(context)
+        } catch (_: IllegalArgumentException) {
+            null
+        } catch (_: NullPointerException) {
+            null
+        }
     }
 
     /**
@@ -112,12 +128,28 @@ public interface WindowMetricsCalculator {
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
+     * @throws IllegalArgumentException if the [Context] is not a [UiContext].
      * @see [computeMaximumWindowMetrics]
      */
     public fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeMaximumWindowMetrics(context) and" + " provide an implementation."
         )
+    }
+
+    /**
+     * Returns the maximum [WindowMetrics] or `null` if [computeMaximumWindowMetrics] fails.
+     *
+     * @see computeMaximumWindowMetrics
+     */
+    public fun computeMaximumWindowMetricsOrNull(@UiContext context: Context): WindowMetrics? {
+        return try {
+            computeMaximumWindowMetrics(context)
+        } catch (_: IllegalAccessException) {
+            null
+        } catch (_: NullPointerException) {
+            null
+        }
     }
 
     public companion object {

@@ -74,6 +74,7 @@ import androidx.constraintlayout.compose.MotionScene
  * When the Column is at the start the MotionLayout sits on top of the Spacer. As the user scrolls
  * up the MotionLayout shrinks with the scrolling Spacer then, stops.
  */
+@Suppress("FrequentlyChangingValue")
 @Preview(group = "scroll", device = "spec:width=480dp,height=800dp,dpi=440")
 @Composable
 fun ToolBarDslDemo() {

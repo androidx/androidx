@@ -25,9 +25,9 @@ import java.io.Closeable
  *
  * In order to render to the [Framebuffer], use [SampleRender.draw(Mesh, Shader, Framebuffer)].
  *
- * @param render The [SampleRender] instance to which this buffer belongs.
- * @param width The initial width of the framebuffer.
- * @param height The initial height of the framebuffer.
+ * @param render the [SampleRender] instance to which this buffer belongs
+ * @param width the initial width of the framebuffer
+ * @param height the initial height of the framebuffer
  */
 class Framebuffer(val render: SampleRender, width: Int, height: Int) : Closeable {
 
@@ -128,7 +128,7 @@ class Framebuffer(val render: SampleRender, width: Int, height: Int) : Closeable
     override fun close() {
         if (framebufferId[0] != 0) {
             GLES30.glDeleteFramebuffers(1, framebufferId, 0)
-            maybeLogGLError(Log.WARN, TAG, "Failed to free framebuffer", "glDeleteFramebuffers")
+            maybeLogGLError(Log.WARN, "Failed to free framebuffer", "glDeleteFramebuffers")
             framebufferId[0] = 0
         }
         colorTexture.close()

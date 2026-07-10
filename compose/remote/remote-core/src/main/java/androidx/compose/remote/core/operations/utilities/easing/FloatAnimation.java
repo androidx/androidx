@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -22,6 +23,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Support Animation of the FloatExpression */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatAnimation extends Easing implements Serializable {
     float[] mSpec;
     // mSpec[0] = duration

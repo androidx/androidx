@@ -19,6 +19,9 @@ package androidx.navigationevent
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.compose.runtime.Immutable
+import androidx.navigationevent.NavigationEvent.Companion.EDGE_NONE
+import kotlin.jvm.JvmOverloads
 
 /**
  * Represents a system navigation event, such as a predictive back gesture or a back button press.
@@ -29,20 +32,19 @@ import androidx.annotation.RestrictTo
  *
  * Note that not all parameters apply to every type of navigation event. For example, [touchX] and
  * [touchY] are only relevant for gesture-based navigation.
+ *
+ * @see NavigationEventHandler
+ * @see NavigationEventDispatcher
  */
-public class NavigationEvent(
+@Immutable
+public class NavigationEvent
+@JvmOverloads
+public constructor(
     /**
-     * The absolute X coordinate of the touch point for this event, in pixels, in the coordinate
-     * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
-     * will be `0.0F`.
+     * Indicates which screen edge a swipe-based navigation gesture originates from. For non-swipe
+     * events, this will be [EDGE_NONE].
      */
-    @FloatRange(from = 0.0) public val touchX: Float = 0.0F,
-    /**
-     * The absolute Y coordinate of the touch point for this event, in pixels, in the coordinate
-     * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
-     * will be `0.0F`.
-     */
-    @FloatRange(from = 0.0) public val touchY: Float = 0.0F,
+    @param:SwipeEdge @get:SwipeEdge public val swipeEdge: Int = EDGE_NONE,
     /**
      * A normalized value from `0.0F` to `1.0F` indicating how far the navigation action has
      * progressed.
@@ -51,39 +53,27 @@ public class NavigationEvent(
      * actions like a button press, a single event with `progress` of `0.0F` may be sent when the
      * action starts, followed by a completion signal.
      */
-    @FloatRange(from = 0.0, to = 1.0) public val progress: Float = 0.0F,
+    @param:FloatRange(from = 0.0, to = 1.0)
+    @get:FloatRange(from = 0.0, to = 1.0)
+    public val progress: Float = 0.0F,
     /**
-     * Indicates which screen edge a swipe-based navigation gesture originates from. For non-swipe
-     * events, this will be [EDGE_NONE].
+     * The absolute X coordinate of the touch point for this event, in pixels, in the coordinate
+     * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
+     * will be `0.0F`.
      */
-    public val swipeEdge: @SwipeEdge Int = EDGE_NONE,
+    @param:FloatRange(from = 0.0) @get:FloatRange(from = 0.0) public val touchX: Float = 0.0F,
+    /**
+     * The absolute Y coordinate of the touch point for this event, in pixels, in the coordinate
+     * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
+     * will be `0.0F`.
+     */
+    @param:FloatRange(from = 0.0) @get:FloatRange(from = 0.0) public val touchY: Float = 0.0F,
     /**
      * The timestamp in milliseconds when this navigation event occurred. This is useful for
      * synchronizing animations or for debugging event sequences.
      */
     public val frameTimeMillis: Long = 0,
 ) {
-
-    /** Defines the possible screen edges from which a swipe gesture can originate. */
-    @Target(AnnotationTarget.TYPE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(EDGE_LEFT, EDGE_RIGHT, EDGE_NONE)
-    public annotation class SwipeEdge
-
-    public companion object {
-        /** Indicates the navigation gesture originates from the left edge of the screen. */
-        public const val EDGE_LEFT: Int = 0
-
-        /** Indicates the navigation gesture originates from the right edge of the screen. */
-        public const val EDGE_RIGHT: Int = 1
-
-        /**
-         * Indicates the navigation event was not caused by an edge swipe. This applies to actions
-         * like a 3-button navigation press or a hardware back button event.
-         */
-        public const val EDGE_NONE: Int = 2
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -104,7 +94,7 @@ public class NavigationEvent(
         var result = touchX.hashCode()
         result = 31 * result + touchY.hashCode()
         result = 31 * result + progress.hashCode()
-        result = 31 * result + swipeEdge
+        result = 31 * result + swipeEdge.hashCode()
         result = 31 * result + frameTimeMillis.hashCode()
         return result
     }
@@ -112,5 +102,39 @@ public class NavigationEvent(
     override fun toString(): String {
         return "NavigationEvent(touchX=$touchX, touchY=$touchY, progress=$progress, " +
             "swipeEdge=$swipeEdge, frameTimeMillis=$frameTimeMillis)"
+    }
+
+    /** Defines the swipe edge of a [NavigationEvent]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @Target(
+        AnnotationTarget.CLASS,
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.FIELD,
+        AnnotationTarget.LOCAL_VARIABLE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.CONSTRUCTOR,
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER,
+        // Adding this so we can use the annotation on a type, e.g. `(@SwipeEdge Int) -> Unit`.
+        // Note that Android Lint doesn't yet check this: b/444159275.
+        AnnotationTarget.TYPE,
+    )
+    @IntDef(EDGE_LEFT, EDGE_RIGHT, EDGE_NONE)
+    public annotation class SwipeEdge
+
+    public companion object {
+        /** Indicates the navigation gesture originates from the left edge of the screen. */
+        public const val EDGE_LEFT: Int = 0
+
+        /** Indicates the navigation gesture originates from the right edge of the screen. */
+        public const val EDGE_RIGHT: Int = 1
+
+        /**
+         * Indicates the navigation event was not caused by an edge swipe. This applies to actions
+         * like a 3-button navigation press or a hardware back button event.
+         */
+        public const val EDGE_NONE: Int = 2
     }
 }

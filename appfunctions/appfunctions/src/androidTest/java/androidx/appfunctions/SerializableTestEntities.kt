@@ -16,15 +16,90 @@
 
 package androidx.appfunctions
 
+import android.app.PendingIntent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.Attachment.Companion.ATTACHMENT_OBJECT_TYPE_METADATA
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
+import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParcelableTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 
 class MissingFactoryClass(val item: String)
 
-data class Attachment(val uri: String)
+data class Attachment(val uri: String) {
+    internal companion object {
+        val ATTACHMENT_OBJECT_TYPE_METADATA: AppFunctionObjectTypeMetadata =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("uri" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("uri"),
+                qualifiedName = "androidx.appfunctions.Attachment",
+                isNullable = true,
+            )
+    }
+}
 
-data class Note(val title: String, val attachment: Attachment)
+data class Note(val title: String, val attachment: Attachment) {
+    internal companion object {
+
+        val NOTE_OBJECT_TYPE_METADATA: AppFunctionObjectTypeMetadata =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "title" to AppFunctionStringTypeMetadata(isNullable = false),
+                        "attachment" to ATTACHMENT_OBJECT_TYPE_METADATA,
+                    ),
+                required = listOf("title", "attachment"),
+                qualifiedName = "androidx.appfunctions.Note",
+                isNullable = true,
+            )
+    }
+}
+
+data class OpenableNote(
+    val title: String,
+    val attachment: Attachment,
+    val intentToOpen: PendingIntent,
+) {
+    companion object {
+        val OPENABLE_NOTE_ALL_OF_TYPE_METADATA: AppFunctionAllOfTypeMetadata =
+            AppFunctionAllOfTypeMetadata(
+                qualifiedName = checkNotNull(OpenableNote::class.java.canonicalName),
+                isNullable = true,
+                matchAll =
+                    listOf(
+                        Note.NOTE_OBJECT_TYPE_METADATA,
+                        AppFunctionReferenceTypeMetadata(
+                            referenceDataType = "com.example.AppFunctionOpenable",
+                            isNullable = false,
+                        ),
+                    ),
+            )
+
+        val COMPONENT_METADATA: AppFunctionComponentsMetadata =
+            AppFunctionComponentsMetadata(
+                mapOf(
+                    "com.example.AppFunctionOpenable" to
+                        AppFunctionObjectTypeMetadata(
+                            properties =
+                                mapOf(
+                                    "intentToOpen" to
+                                        AppFunctionParcelableTypeMetadata(
+                                            qualifiedName = "android.app.PendingIntent",
+                                            isNullable = false,
+                                        )
+                                ),
+                            required = listOf("intentToOpen"),
+                            qualifiedName = "com.example.AppFunctionOpenable",
+                            isNullable = true,
+                        )
+                )
+            )
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class `$AttachmentFactory` : AppFunctionSerializableFactory<Attachment> {
@@ -33,7 +108,7 @@ class `$AttachmentFactory` : AppFunctionSerializableFactory<Attachment> {
     }
 
     override fun toAppFunctionData(appFunctionSerializable: Attachment): AppFunctionData {
-        return AppFunctionData.Builder("androidx.appfunctions.Attachment")
+        return getAppFunctionDataBuilder("androidx.appfunctions.Attachment")
             .setString("uri", appFunctionSerializable.uri)
             .build()
     }
@@ -51,7 +126,7 @@ class `$NoteFactory` : AppFunctionSerializableFactory<Note> {
     }
 
     override fun toAppFunctionData(appFunctionSerializable: Note): AppFunctionData {
-        return AppFunctionData.Builder("androidx.appfunctions.Note")
+        return getAppFunctionDataBuilder("androidx.appfunctions.Note")
             .setString("title", appFunctionSerializable.title)
             .setAppFunctionData(
                 "attachment",
@@ -60,6 +135,33 @@ class `$NoteFactory` : AppFunctionSerializableFactory<Note> {
                     Attachment::class.java,
                 ),
             )
+            .build()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+class `$OpenableNoteFactory` : AppFunctionSerializableFactory<OpenableNote> {
+    override fun fromAppFunctionData(appFunctionData: AppFunctionData): OpenableNote {
+        return OpenableNote(
+            title = checkNotNull(appFunctionData.getString("title")),
+            attachment =
+                checkNotNull(appFunctionData.getAppFunctionData("attachment"))
+                    .deserialize(Attachment::class.java),
+            intentToOpen = checkNotNull(appFunctionData.getParcelable("intentToOpen")),
+        )
+    }
+
+    override fun toAppFunctionData(appFunctionSerializable: OpenableNote): AppFunctionData {
+        return getAppFunctionDataBuilder("androidx.appfunctions.OpenableNote")
+            .setString("title", appFunctionSerializable.title)
+            .setAppFunctionData(
+                "attachment",
+                AppFunctionData.serialize(
+                    appFunctionSerializable.attachment,
+                    Attachment::class.java,
+                ),
+            )
+            .setParcelable("intentToOpen", appFunctionSerializable.intentToOpen)
             .build()
     }
 }

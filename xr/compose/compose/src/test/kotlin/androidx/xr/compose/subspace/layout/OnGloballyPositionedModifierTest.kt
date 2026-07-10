@@ -23,8 +23,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
-import androidx.xr.compose.testing.toDp
 import androidx.xr.compose.unit.IntVolumeSize
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -35,12 +33,18 @@ import org.junit.runner.RunWith
 /** Tests for [onGloballyPositioned] modifier. */
 @RunWith(AndroidJUnit4::class)
 class OnGloballyPositionedModifierTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
     fun onGloballyPositioned_coordinates_positionIsSet() {
         var coordinates: SubspaceLayoutCoordinates? = null
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.offset(20.dp, 20.dp, 20.dp).onGloballyPositioned {
@@ -53,16 +57,26 @@ class OnGloballyPositionedModifierTest {
         }
 
         composeTestRule.waitForIdle()
-        assertNotNull(coordinates)
-        assertThat(coordinates.poseInRoot.translation.x.toDp()).isEqualTo(20.dp)
-        assertThat(coordinates.poseInRoot.translation.y.toDp()).isEqualTo(20.dp)
-        assertThat(coordinates.poseInRoot.translation.z.toDp()).isEqualTo(20.dp)
+
+        val finalCoordinates = assertNotNull(coordinates)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.x.toDp() }
+            )
+            .isEqualTo(20.dp)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.y.toDp() }
+            )
+            .isEqualTo(20.dp)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.z.toDp() }
+            )
+            .isEqualTo(20.dp)
     }
 
     @Test
     fun onGloballyPositioned_coordinates_sizeIsSet() {
         var coordinates: SubspaceLayoutCoordinates? = null
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.size(100.dp).onGloballyPositioned { coordinates = it }

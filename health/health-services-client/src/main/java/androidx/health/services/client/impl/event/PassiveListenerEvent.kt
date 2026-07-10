@@ -17,7 +17,6 @@
 package androidx.health.services.client.impl.event
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.ProtoParcelable
@@ -28,7 +27,6 @@ import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent as
 import androidx.health.services.client.proto.ResponsesProto.PermissionLostResponse
 
 /** An event representing a [PassiveListenerCallback] or [PassiveListenerService] invocation. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PassiveListenerEvent(public override val proto: EventProto) :
     ProtoParcelable<EventProto>() {
 

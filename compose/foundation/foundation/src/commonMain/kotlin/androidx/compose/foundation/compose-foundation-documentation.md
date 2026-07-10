@@ -38,7 +38,7 @@ If you're looking for guidance instead, check out the
 # Package androidx.compose.foundation.text
 
 In this page, you'll find documentation for types, properties, and functions available in the
-`androidx.compose.foundation.text` package such as [BasicText], [BasicTextFiled], [KeyboardActions],
+`androidx.compose.foundation.text` package such as [BasicText], [BasicTextField], [KeyboardActions],
 and [KeyboardOptions].
 
 If you're looking for guidance instead, check out the

@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+MissingJvmstatic: androidx.dynamicanimation.animation.DynamicAnimationKt#springAnimationOf(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>, kotlin.jvm.functions.Function0<java.lang.Float>, float):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ALPHA:
     Missing nullability on field `ALPHA` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#ROTATION:

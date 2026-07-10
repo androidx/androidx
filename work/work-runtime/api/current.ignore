@@ -1,31 +1,13 @@
 // Baseline format: 1.0
-RemovedFromBytecode: androidx.work.DataKt#hasKeyWithValueOfType(androidx.work.Data, String):
-    Binary breaking change: method androidx.work.DataKt.hasKeyWithValueOfType(androidx.work.Data,String) has been removed from bytecode
-RemovedFromBytecode: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
-    Binary breaking change: method androidx.work.OneTimeWorkRequestKt.OneTimeWorkRequestBuilder() has been removed from bytecode
-RemovedFromBytecode: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
-    Binary breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration) has been removed from bytecode
-RemovedFromBytecode: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
-    Binary breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration,java.time.Duration) has been removed from bytecode
-RemovedFromBytecode: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
-    Binary breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit) has been removed from bytecode
-RemovedFromBytecode: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
-    Binary breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit,long,java.util.concurrent.TimeUnit) has been removed from bytecode
-RemovedFromBytecode: androidx.work.WorkerParametersExtensions#usingRemoteService(androidx.work.WorkerParameters, android.content.ComponentName):
-    Binary breaking change: method androidx.work.WorkerParametersExtensions.usingRemoteService(androidx.work.WorkerParameters,android.content.ComponentName) has been removed from bytecode
-
-
-RemovedFromJava: androidx.work.DataKt#hasKeyWithValueOfType(androidx.work.Data, String):
-    Source breaking change: method androidx.work.DataKt.hasKeyWithValueOfType(androidx.work.Data,String) can no longer be resolved from Java source
-RemovedFromJava: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
-    Source breaking change: method androidx.work.OneTimeWorkRequestKt.OneTimeWorkRequestBuilder() can no longer be resolved from Java source
-RemovedFromJava: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
-    Source breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration) can no longer be resolved from Java source
-RemovedFromJava: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
-    Source breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration,java.time.Duration) can no longer be resolved from Java source
-RemovedFromJava: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
-    Source breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit) can no longer be resolved from Java source
-RemovedFromJava: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
-    Source breaking change: method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit,long,java.util.concurrent.TimeUnit) can no longer be resolved from Java source
-RemovedFromJava: androidx.work.WorkerParametersExtensions#usingRemoteService(androidx.work.WorkerParameters, android.content.ComponentName):
-    Source breaking change: method androidx.work.WorkerParametersExtensions.usingRemoteService(androidx.work.WorkerParameters,android.content.ComponentName) can no longer be resolved from Java source
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, boolean, long, long, java.util.Set, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,boolean,long,long,java.util.Set,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.impl.utils.NetworkRequestCompat, androidx.work.NetworkType, boolean, boolean, boolean, boolean, long, long, java.util.Set, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.impl.utils.NetworkRequestCompat,androidx.work.NetworkType,boolean,boolean,boolean,boolean,long,long,java.util.Set,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.WorkInfo#WorkInfo(java.util.UUID, androidx.work.WorkInfo.State, java.util.Set, androidx.work.Data, androidx.work.Data, int, int, androidx.work.Constraints, long, androidx.work.WorkInfo.PeriodicityInfo, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.WorkInfo(java.util.UUID,androidx.work.WorkInfo.State,java.util.Set,androidx.work.Data,androidx.work.Data,int,int,androidx.work.Constraints,long,androidx.work.WorkInfo.PeriodicityInfo,long,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.WorkQuery#WorkQuery(java.util.List, java.util.List, java.util.List, java.util.List, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.WorkQuery(java.util.List,java.util.List,java.util.List,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker)

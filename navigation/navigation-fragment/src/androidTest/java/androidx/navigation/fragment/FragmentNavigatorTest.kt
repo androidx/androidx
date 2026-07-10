@@ -1751,6 +1751,94 @@ class FragmentNavigatorTest {
         assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
+    @UiThreadTest
+    @Test
+    fun testNavigatePopNavigateRapidly() {
+        val entry = createBackStackEntry()
+
+        // Push initial fragment
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        fragmentManager.executePendingTransactions()
+
+        val factory = TrackingFragmentFactory()
+        fragmentManager.fragmentFactory = factory
+
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT, TrackingFragment::class)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+
+        // Monitor committed fragments
+        val committedFragments = mutableListOf<Pair<Fragment, Boolean>>()
+        val listener =
+            object : OnBackStackChangedListener {
+                override fun onBackStackChanged() {}
+
+                override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                    committedFragments.add(fragment to pop)
+                }
+            }
+        fragmentManager.addOnBackStackChangedListener(listener)
+
+        // Navigate to second
+        fragmentNavigator.navigate(listOf(secondEntry), null, null)
+        // Pop second
+        fragmentNavigator.popBackStack(secondEntry, false)
+        // Navigate to third
+        fragmentNavigator.navigate(listOf(thirdEntry), null, null)
+
+        // Execute all pending. This should trigger optimization in FragmentManager
+        // if reordering is allowed.
+        fragmentManager.executePendingTransactions()
+
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertThat(fragment).isInstanceOf(EmptyFragment::class.java)
+        // The current fragment should be third
+        assertThat(navigatorState.backStack.value).containsExactly(entry, thirdEntry).inOrder()
+
+        val secondFragment = factory.createdFragment
+        assertWithMessage("secondFragment should have been instantiated")
+            .that(secondFragment)
+            .isNotNull()
+        assertWithMessage("secondFragment should NOT have had onCreateView called (optimized away)")
+            .that(secondFragment?.onCreateViewCalled)
+            .isFalse()
+        assertWithMessage("secondFragment should NOT have had onCreate called (optimized away)")
+            .that(secondFragment?.onCreateCalled)
+            .isFalse()
+
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
+
+        fragmentManager.removeOnBackStackChangedListener(listener)
+        // Reset factory
+        fragmentManager.fragmentFactory = FragmentFactory()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigatePopNavigatePopRapidly() {
+        val entry = createBackStackEntry()
+
+        // Push initial fragment
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        fragmentManager.executePendingTransactions()
+
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+
+        // Navigate to second
+        fragmentNavigator.navigate(listOf(secondEntry), null, null)
+        // Pop second
+        fragmentNavigator.popBackStack(secondEntry, false)
+        // Navigate to third
+        fragmentNavigator.navigate(listOf(thirdEntry), null, null)
+        // Pop third
+        fragmentNavigator.popBackStack(thirdEntry, false)
+
+        fragmentManager.executePendingTransactions()
+
+        assertThat(navigatorState.backStack.value).containsExactly(entry)
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
+    }
+
     @LargeTest
     @Test
     @Suppress("DEPRECATION")
@@ -2323,4 +2411,35 @@ class NonEmptyFragmentFactory : FragmentFactory() {
         } else {
             super.instantiate(classLoader, className)
         }
+}
+
+class TrackingFragment : Fragment() {
+    var onCreateCalled = false
+    var onCreateViewCalled = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onCreateCalled = true
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        onCreateViewCalled = true
+        return View(context)
+    }
+}
+
+class TrackingFragmentFactory : FragmentFactory() {
+    var createdFragment: TrackingFragment? = null
+
+    override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+        val fragment = super.instantiate(classLoader, className)
+        if (fragment is TrackingFragment) {
+            createdFragment = fragment
+        }
+        return fragment
+    }
 }

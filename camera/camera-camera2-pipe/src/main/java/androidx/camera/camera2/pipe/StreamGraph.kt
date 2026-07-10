@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraExtensionSession
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.media.ImageSource
 
 /**
  * This defines a fixed set of inputs and outputs for a single [CameraGraph] instance.
@@ -45,6 +46,9 @@ public interface StreamGraph {
      * correctly or if the Android version is under 34 for extensions.
      */
     public fun getOutputLatency(streamId: StreamId, outputId: OutputId? = null): OutputLatency?
+
+    /** Get the [ImageSource] that was created for the given [StreamId]. */
+    public fun getImageSource(streamId: StreamId): ImageSource?
 
     /** Wrapper class for [CameraExtensionSession.StillCaptureLatency] object. */
     public data class OutputLatency(

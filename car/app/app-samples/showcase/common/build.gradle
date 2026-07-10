@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,7 +25,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -38,7 +36,6 @@ dependencies {
     implementation(project(":car:app:app"))
     debugImplementation(libs.leakcanary)
 
-    implementation(libs.kotlinStdlibCommon)
-    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.core:core:1.9.0")
     implementation(project(":annotation:annotation-experimental"))
 }

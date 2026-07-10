@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -27,14 +26,12 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.benchmark")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     androidTestImplementation(project(":datastore:datastore-core"))
     androidTestImplementation(project(":datastore:datastore-guava"))
     androidTestImplementation(project(":internal-testutils-datastore"))
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
@@ -47,6 +44,9 @@ dependencies {
 
 android {
     namespace = "androidx.datastore.benchmark"
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 }
 
 androidx {

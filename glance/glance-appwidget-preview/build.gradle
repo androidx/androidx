@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,13 +25,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
 dependencies {
 
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
@@ -50,7 +47,7 @@ dependencies {
 
 android {
     namespace = "androidx.glance.appwidget.preview"
-    compileSdk = 35
+    compileSdk { version = release(37) }
 }
 
 androidx {

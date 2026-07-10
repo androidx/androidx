@@ -67,9 +67,9 @@ fun ToggleButtons() {
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
                 if (singularButton1Enabled) {
-                    DemoIcon(R.drawable.ic_volume_up_24px)
+                    DemoIcon(R.drawable.icon_volume_up_24px)
                 } else {
-                    DemoIcon(R.drawable.ic_volume_off_24px)
+                    DemoIcon(R.drawable.icon_volume_off_24px)
                 }
             }
             Spacer(modifier = Modifier.size(4.dp))
@@ -83,7 +83,7 @@ fun ToggleButtons() {
                     ),
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
-                DemoIcon(R.drawable.ic_airplanemode_active_24px)
+                DemoIcon(R.drawable.icon_airplanemode_active_24px)
             }
             Spacer(modifier = Modifier.size(4.dp))
             ToggleButton(
@@ -97,7 +97,7 @@ fun ToggleButtons() {
                 modifier = Modifier,
                 shape = CutCornerShape(4.dp),
             ) {
-                DemoIcon(R.drawable.ic_airplanemode_active_24px)
+                DemoIcon(R.drawable.icon_airplanemode_active_24px)
             }
         }
         Spacer(modifier = Modifier.size(4.dp))
@@ -116,7 +116,7 @@ fun ToggleButtons() {
                 onCheckedChange = { toggleButtonsEnabled = it },
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
-                DemoIcon(R.drawable.ic_check_24px)
+                DemoIcon(R.drawable.icon_check_24px)
             }
         }
     }

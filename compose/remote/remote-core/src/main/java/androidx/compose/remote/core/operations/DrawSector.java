@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -27,6 +28,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawSector extends DrawBase6 {
     private static final int OP_CODE = Operations.DRAW_SECTOR;
     private static final String CLASS_NAME = "DrawSector";
@@ -98,6 +100,7 @@ public class DrawSector extends DrawBase6 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_sector")
                 .description(
                         "Draw the specified sector (pie shape)"
                                 + "which will be scaled to fit inside the specified oval")

@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Xabar shu yerga boradi.\nBoshqa matn ikkinchi qatorda."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Qisqa xabar andozasi demosi"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Boʻlimli roʻyxat andozasi"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Ixcham element demosi"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Boʻlimli roʻyxat AlphaJump yoqilgan andoza"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Tanlash tugmali boʻlim"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Almashinuv tugmali boʻlim"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Koʻp qatorli boʻlim"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Katak elementi rukni"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Boʻlimlarga ajratilgan elementlar roʻyxati namoyishi"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Roʻyxat 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Roʻyxat 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Har bir roʻyxat ostida quyi matn"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Rasm va harakatlar andozasini tugatish"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"Chip demosi"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Rivoj indikatori demosi"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Boʻlim sarlavhasi demosi"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Diqqat markazida boʻlimi demosi"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Panel andozasi namoyishi"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Joy roʻyxati andozasi namoyishi"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Joylarga razm solish"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"Varaq andozasi demo versiyasi"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"Xabar varagʻi"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"Panel varagʻi"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"Ajratilgan obyekt varagʻi"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"Roʻyxat varagʻi"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Uzun varaq nomi bilan katakli varaq"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Qidiruv varagʻi"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Qator ham tanlanishi mumkin"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Ikkilamchi amal tanlandi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Asosiy amal qatori tanlandi"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Boʻlimlarga ajratilgan elementlar roʻyxati namoyishi"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Roʻyxat 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Roʻyxat 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Har bir roʻyxat ostida quyi matn"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Qator oxiridagi rasm va amallar demosi"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boʻsh roʻyxat demosi"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Roʻyxat boʻsh"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Aralash andozalar demolari"</string>
@@ -368,11 +377,13 @@
     <string name="vector_toggle_details" msgid="1301305340033556819">"Rang kiritish/olib tashlash tugmasi"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Almashinuv tugmali xarita andozasi"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Pulli yoʻllardan tashqari"</string>
-    <string name="route_options_demo_title" msgid="4599699012716426514">"Marshrut parametrlari"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Marshrut variantlari"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Magistral yoʻllardan tashqari"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Paromlardan tashqari"</string>
     <string name="map_demos_title" msgid="2169766615521476592">"Demo xaritalar"</string>
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo kontenti mavjud xarita"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Xabar andozasi demosi mavjud xarita"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Katakli andoza demosi mavjud xarita"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

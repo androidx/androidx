@@ -40,29 +40,29 @@ class FrameStatsResultTest {
             ),
             FrameStatsResult.parse(
                 """
-                    com.pkg/com.pkg.MyActivity1/android.view.ViewRootImpl@ade24ea (visibility=8)
-                    Window: com.pkg/com.pkg.MyActivity1
-                    ---PROFILEDATA---
-                    Flags,IntendedVsync,Vsync,
-                    1,3211995467212,3212028800544,
-                    0,4211995467212,2212028800544,
-                    ---PROFILEDATA---
+                com.pkg/com.pkg.MyActivity1/android.view.ViewRootImpl@ade24ea (visibility=8)
+                Window: com.pkg/com.pkg.MyActivity1
+                ---PROFILEDATA---
+                Flags,IntendedVsync,Vsync,
+                1,3211995467212,3212028800544,
+                0,4211995467212,2212028800544,
+                ---PROFILEDATA---
 
-                    // this should be ignored
-                    1,9999999999999,9999999999999,
-                    
-                    com.pkg/com.pkg.MyActivity2/android.view.ViewRootImpl@e8a2229b (visibility=8)
-                    Window: com.pkg/com.pkg.MyActivity2
+                // this should be ignored
+                1,9999999999999,9999999999999,
 
-                    ---PROFILEDATA---
-                    Flags,IntendedVsync,Vsync,
-                    1,5117484488193,5117484488194,
-                    0,6117484488193,5117484488194,
-                    ---PROFILEDATA---
+                com.pkg/com.pkg.MyActivity2/android.view.ViewRootImpl@e8a2229b (visibility=8)
+                Window: com.pkg/com.pkg.MyActivity2
 
-                    // this should be ignored too
-                    com.pkg/com.pkg.MyActivity3/android.view.ViewRootImpl@8a8ebbbc (visibility=8)
-                    Window: com.pkg/com.pkg.MyActivity3
+                ---PROFILEDATA---
+                Flags,IntendedVsync,Vsync,
+                1,5117484488193,5117484488194,
+                0,6117484488193,5117484488194,
+                ---PROFILEDATA---
+
+                // this should be ignored too
+                com.pkg/com.pkg.MyActivity3/android.view.ViewRootImpl@8a8ebbbc (visibility=8)
+                Window: com.pkg/com.pkg.MyActivity3
                 """
                     .trimIndent()
             ),

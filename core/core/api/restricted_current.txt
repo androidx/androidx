@@ -35,6 +35,23 @@ package androidx.core.accessibilityservice {
 
 }
 
+package androidx.core.animation {
+
+  public final class AnimatorKt {
+    method public static inline android.animation.Animator.AnimatorListener addListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onEnd, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onStart, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onCancel, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onRepeat);
+    method @BytecodeOnly public static android.animation.Animator.AnimatorListener! addListener$default(android.animation.Animator!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause);
+    method @BytecodeOnly public static android.animation.Animator.AnimatorPauseListener! addPauseListener$default(android.animation.Animator!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline android.animation.Animator.AnimatorListener doOnCancel(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method public static inline android.animation.Animator.AnimatorListener doOnEnd(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method public static android.animation.Animator.AnimatorPauseListener doOnPause(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method public static inline android.animation.Animator.AnimatorListener doOnRepeat(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method public static android.animation.Animator.AnimatorPauseListener doOnResume(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method public static inline android.animation.Animator.AnimatorListener doOnStart(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+  }
+
+}
+
 package androidx.core.app {
 
   public class ActivityCompat extends androidx.core.content.ContextCompat {
@@ -65,7 +82,7 @@ package androidx.core.app {
   }
 
   public static interface ActivityCompat.PermissionCompatDelegate {
-    method public boolean onActivityResult(android.app.Activity, @IntRange(from=0) int, int, android.content.Intent?);
+    method @Deprecated public boolean onActivityResult(android.app.Activity, @IntRange(from=0) int, int, android.content.Intent?);
     method public boolean requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
   }
 
@@ -154,7 +171,7 @@ package androidx.core.app {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ComponentActivity extends android.app.Activity implements androidx.core.view.KeyEventDispatcher.Component androidx.lifecycle.LifecycleOwner {
     ctor public ComponentActivity();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T? getExtraData(Class<T> extraDataClass);
-    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle getLifecycle();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData extraData);
     method protected final boolean shouldDumpInternalState(String[]? args);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent event);
@@ -237,8 +254,8 @@ package androidx.core.app {
   public final class MultiWindowModeChangedInfo {
     ctor public MultiWindowModeChangedInfo(boolean isInMultiWindowMode);
     ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean isInMultiWindowMode, android.content.res.Configuration newConfig);
-    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
-    method public boolean isInMultiWindowMode();
+    method @InaccessibleFromKotlin @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method @InaccessibleFromKotlin public boolean isInMultiWindowMode();
     property public boolean isInMultiWindowMode;
     property @RequiresApi(26) public android.content.res.Configuration newConfig;
   }
@@ -316,6 +333,7 @@ package androidx.core.app {
 
   public class NotificationCompat {
     ctor @Deprecated public NotificationCompat();
+    method public static android.text.ParcelableSpan createSemanticStyleAnnotation(@androidx.core.app.NotificationCompat.SemanticStyle int);
     method public static androidx.core.app.NotificationCompat.Action? getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
     method public static boolean getAllowSystemGeneratedContextualActions(android.app.Notification);
@@ -415,6 +433,7 @@ package androidx.core.app {
     field public static final String EXTRA_PICTURE = "android.picture";
     field public static final String EXTRA_PICTURE_CONTENT_DESCRIPTION = "android.pictureContentDescription";
     field public static final String EXTRA_PICTURE_ICON = "android.pictureIcon";
+    field public static final String EXTRA_PREFER_SMALL_ICON = "android.app.preferSmallIcon";
     field public static final String EXTRA_PROGRESS = "android.progress";
     field public static final String EXTRA_PROGRESS_END_ICON = "android.progressEndIcon";
     field public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
@@ -467,6 +486,11 @@ package androidx.core.app {
     field public static final int PRIORITY_LOW = -1; // 0xffffffff
     field public static final int PRIORITY_MAX = 2; // 0x2
     field public static final int PRIORITY_MIN = -2; // 0xfffffffe
+    field public static final int SEMANTIC_STYLE_CAUTION = 3; // 0x3
+    field public static final int SEMANTIC_STYLE_DANGER = 4; // 0x4
+    field public static final int SEMANTIC_STYLE_INFO = 1; // 0x1
+    field public static final int SEMANTIC_STYLE_SAFE = 2; // 0x2
+    field public static final int SEMANTIC_STYLE_UNSPECIFIED = 0; // 0x0
     field public static final int STREAM_DEFAULT = -1; // 0xffffffff
     field public static final int VISIBILITY_PRIVATE = 0; // 0x0
     field public static final int VISIBILITY_PUBLIC = 1; // 0x1
@@ -479,15 +503,20 @@ package androidx.core.app {
     method public android.app.PendingIntent? getActionIntent();
     method public boolean getAllowGeneratedReplies();
     method public androidx.core.app.RemoteInput![]? getDataOnlyRemoteInputs();
+    method @androidx.core.app.NotificationCompat.Action.Emphasis public int getEmphasisHint();
     method public android.os.Bundle getExtras();
     method @Deprecated public int getIcon();
     method public androidx.core.graphics.drawable.IconCompat? getIconCompat();
     method public androidx.core.app.RemoteInput![]? getRemoteInputs();
     method @androidx.core.app.NotificationCompat.Action.SemanticAction public int getSemanticAction();
     method public boolean getShowsUserInterface();
+    method @androidx.core.app.NotificationCompat.Action.Style public int getStyleHint();
     method public CharSequence? getTitle();
     method public boolean isAuthenticationRequired();
     method public boolean isContextual();
+    field public static final int EMPHASIS_AUTO = 0; // 0x0
+    field public static final int EMPHASIS_PRIMARY = 1; // 0x1
+    field public static final int EMPHASIS_SECONDARY = 2; // 0x2
     field public static final int SEMANTIC_ACTION_ARCHIVE = 5; // 0x5
     field public static final int SEMANTIC_ACTION_CALL = 10; // 0xa
     field public static final int SEMANTIC_ACTION_DELETE = 4; // 0x4
@@ -495,10 +524,17 @@ package androidx.core.app {
     field public static final int SEMANTIC_ACTION_MARK_AS_UNREAD = 3; // 0x3
     field public static final int SEMANTIC_ACTION_MUTE = 6; // 0x6
     field public static final int SEMANTIC_ACTION_NONE = 0; // 0x0
+    field public static final int SEMANTIC_ACTION_PAUSE = 14; // 0xe
+    field public static final int SEMANTIC_ACTION_PLAY = 13; // 0xd
     field public static final int SEMANTIC_ACTION_REPLY = 1; // 0x1
+    field public static final int SEMANTIC_ACTION_STOP = 15; // 0xf
     field public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9; // 0x9
     field public static final int SEMANTIC_ACTION_THUMBS_UP = 8; // 0x8
     field public static final int SEMANTIC_ACTION_UNMUTE = 7; // 0x7
+    field public static final int STYLE_AUTO = 0; // 0x0
+    field public static final int STYLE_ICON_AND_TEXT = 2; // 0x2
+    field public static final int STYLE_ICON_ONLY = 3; // 0x3
+    field public static final int STYLE_TEXT_ONLY = 1; // 0x1
     field public android.app.PendingIntent? actionIntent;
     field @Deprecated public int icon;
     field public CharSequence? title;
@@ -517,15 +553,23 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setAuthenticationRequired(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setContextual(boolean);
+    method public androidx.core.app.NotificationCompat.Action.Builder setEmphasisHint(@androidx.core.app.NotificationCompat.Action.Emphasis int);
     method public androidx.core.app.NotificationCompat.Action.Builder setSemanticAction(@androidx.core.app.NotificationCompat.Action.SemanticAction int);
     method public androidx.core.app.NotificationCompat.Action.Builder setShowsUserInterface(boolean);
+    method public androidx.core.app.NotificationCompat.Action.Builder setStyleHint(@androidx.core.app.NotificationCompat.Action.Style int);
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.Action.EMPHASIS_AUTO, androidx.core.app.NotificationCompat.Action.EMPHASIS_PRIMARY, androidx.core.app.NotificationCompat.Action.EMPHASIS_SECONDARY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Action.Emphasis {
   }
 
   public static interface NotificationCompat.Action.Extender {
     method public androidx.core.app.NotificationCompat.Action.Builder extend(androidx.core.app.NotificationCompat.Action.Builder);
   }
 
-  @IntDef({androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_NONE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_REPLY, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_UNREAD, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_DELETE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_ARCHIVE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MUTE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_UNMUTE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_THUMBS_UP, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_THUMBS_DOWN, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_CALL}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Action.SemanticAction {
+  @IntDef({androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_NONE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_REPLY, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_UNREAD, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_DELETE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_ARCHIVE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_MUTE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_UNMUTE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_THUMBS_UP, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_THUMBS_DOWN, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_CALL, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_PLAY, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_PAUSE, androidx.core.app.NotificationCompat.Action.SEMANTIC_ACTION_STOP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Action.SemanticAction {
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.Action.STYLE_AUTO, androidx.core.app.NotificationCompat.Action.STYLE_TEXT_ONLY, androidx.core.app.NotificationCompat.Action.STYLE_ICON_AND_TEXT, androidx.core.app.NotificationCompat.Action.STYLE_ICON_ONLY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Action.Style {
   }
 
   public static final class NotificationCompat.Action.WearableExtender implements androidx.core.app.NotificationCompat.Action.Extender {
@@ -801,6 +845,89 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.MessagingStyle.Message setData(String?, android.net.Uri?);
   }
 
+  @RequiresApi(26) public static final class NotificationCompat.Metric {
+    ctor public NotificationCompat.Metric(androidx.core.app.NotificationCompat.Metric.MetricValue, CharSequence);
+    ctor public NotificationCompat.Metric(androidx.core.app.NotificationCompat.Metric.MetricValue, CharSequence, @androidx.core.app.NotificationCompat.SemanticStyle int);
+    method public CharSequence getLabel();
+    method @androidx.core.app.NotificationCompat.SemanticStyle public int getSemanticStyle();
+    method public androidx.core.app.NotificationCompat.Metric.MetricValue getValue();
+  }
+
+  public static final class NotificationCompat.Metric.FixedDate extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    ctor public NotificationCompat.Metric.FixedDate(java.time.LocalDate);
+    ctor public NotificationCompat.Metric.FixedDate(java.time.LocalDate, @androidx.core.app.NotificationCompat.Metric.FixedDate.Format int);
+    method @androidx.core.app.NotificationCompat.Metric.FixedDate.Format public int getFormat();
+    method public java.time.LocalDate getValue();
+    field public static final int FORMAT_AUTOMATIC = 0; // 0x0
+    field public static final int FORMAT_LONG_DATE = 1; // 0x1
+    field public static final int FORMAT_SHORT_DATE = 2; // 0x2
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.Metric.FixedDate.FORMAT_AUTOMATIC, androidx.core.app.NotificationCompat.Metric.FixedDate.FORMAT_LONG_DATE, androidx.core.app.NotificationCompat.Metric.FixedDate.FORMAT_SHORT_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Metric.FixedDate.Format {
+  }
+
+  public static final class NotificationCompat.Metric.FixedFloat extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    ctor public NotificationCompat.Metric.FixedFloat(float);
+    ctor public NotificationCompat.Metric.FixedFloat(float, CharSequence?);
+    ctor public NotificationCompat.Metric.FixedFloat(float, CharSequence?, @IntRange(from=0x0, to=0x6) int, @IntRange(from=0x0, to=0x6) int);
+    method @IntRange(from=0x0, to=0x6) public int getMaxFractionDigits();
+    method @IntRange(from=0x0, to=0x6) public int getMinFractionDigits();
+    method public CharSequence? getUnit();
+    method public float getValue();
+  }
+
+  public static final class NotificationCompat.Metric.FixedInt extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    ctor public NotificationCompat.Metric.FixedInt(int);
+    ctor public NotificationCompat.Metric.FixedInt(int, CharSequence?);
+    method public CharSequence? getUnit();
+    method public int getValue();
+  }
+
+  public static final class NotificationCompat.Metric.FixedText extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    ctor public NotificationCompat.Metric.FixedText(CharSequence);
+    ctor public NotificationCompat.Metric.FixedText(CharSequence, CharSequence?);
+    method public CharSequence? getUnit();
+    method public CharSequence getValue();
+  }
+
+  public static final class NotificationCompat.Metric.FixedTime extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    ctor public NotificationCompat.Metric.FixedTime(java.time.LocalTime);
+    method public java.time.LocalTime getValue();
+  }
+
+  public abstract static class NotificationCompat.Metric.MetricValue {
+  }
+
+  public static final class NotificationCompat.Metric.TimeDifference extends androidx.core.app.NotificationCompat.Metric.MetricValue {
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forPausedStopwatch(java.time.Duration, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forPausedTimer(java.time.Duration, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forStopwatch(java.time.Instant, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forStopwatch(long, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forTimer(java.time.Instant, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @RequiresApi(37) public static androidx.core.app.NotificationCompat.Metric.TimeDifference forTimer(long, @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format int);
+    method @androidx.core.app.NotificationCompat.Metric.TimeDifference.Format public int getFormat();
+    method public java.time.Duration? getPausedDuration();
+    method public Long? getZeroElapsedRealtime();
+    method public java.time.Instant? getZeroTime();
+    method public boolean isStopwatch();
+    method public boolean isTimer();
+    field public static final int FORMAT_ADAPTIVE = 1; // 0x1
+    field public static final int FORMAT_CHRONOMETER = 2; // 0x2
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.Metric.TimeDifference.FORMAT_ADAPTIVE, androidx.core.app.NotificationCompat.Metric.TimeDifference.FORMAT_CHRONOMETER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.Metric.TimeDifference.Format {
+  }
+
+  @RequiresApi(26) public static final class NotificationCompat.MetricStyle extends androidx.core.app.NotificationCompat.Style {
+    ctor @RequiresApi(37) public NotificationCompat.MetricStyle();
+    method public androidx.core.app.NotificationCompat.MetricStyle addMetric(androidx.core.app.NotificationCompat.Metric);
+    method public androidx.core.app.NotificationCompat.Metric? getCriticalMetric();
+    method public java.util.List<androidx.core.app.NotificationCompat.Metric!> getMetrics();
+    method public androidx.core.app.NotificationCompat.MetricStyle setCriticalMetric(int);
+    method public androidx.core.app.NotificationCompat.MetricStyle setMetrics(java.util.List<androidx.core.app.NotificationCompat.Metric!>);
+    field public static final int METRIC_INDEX_NONE = -1; // 0xffffffff
+  }
+
   @IntDef({androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC, androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE, androidx.core.app.NotificationCompat.VISIBILITY_SECRET}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.NotificationVisibility {
   }
 
@@ -832,8 +959,10 @@ package androidx.core.app {
     method @ColorInt public int getColor();
     method public int getId();
     method @IntRange(from=1) public int getPosition();
+    method @androidx.core.app.NotificationCompat.SemanticStyle public int getSemanticStyle();
     method public androidx.core.app.NotificationCompat.ProgressStyle.Point setColor(@ColorInt int);
     method public androidx.core.app.NotificationCompat.ProgressStyle.Point setId(int);
+    method public androidx.core.app.NotificationCompat.ProgressStyle.Point setSemanticStyle(@androidx.core.app.NotificationCompat.SemanticStyle int);
   }
 
   public static final class NotificationCompat.ProgressStyle.Segment {
@@ -841,8 +970,21 @@ package androidx.core.app {
     method @ColorInt public int getColor();
     method public int getId();
     method @IntRange(from=1) public int getLength();
+    method @androidx.core.app.NotificationCompat.SemanticStyle public int getSemanticStyle();
     method public androidx.core.app.NotificationCompat.ProgressStyle.Segment setColor(@ColorInt int);
     method public androidx.core.app.NotificationCompat.ProgressStyle.Segment setId(int);
+    method public androidx.core.app.NotificationCompat.ProgressStyle.Segment setSemanticStyle(@androidx.core.app.NotificationCompat.SemanticStyle int);
+  }
+
+  public static final class NotificationCompat.ProjectedExtender implements androidx.core.app.NotificationCompat.Extender {
+    ctor public NotificationCompat.ProjectedExtender();
+    ctor public NotificationCompat.ProjectedExtender(android.app.Notification);
+    method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
+    method public android.app.PendingIntent? getContentIntent();
+    method public androidx.core.app.NotificationCompat.ProjectedExtender setContentIntent(android.app.PendingIntent?);
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.SEMANTIC_STYLE_UNSPECIFIED, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_INFO, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_SAFE, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_CAUTION, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_DANGER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.SemanticStyle {
   }
 
   @IntDef({androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFAULT, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.ServiceNotificationBehavior {
@@ -1038,6 +1180,11 @@ package androidx.core.app {
     method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
   }
 
+  public interface OnPictureInPictureUiStateChangedProvider {
+    method public void addOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
+    method public void removeOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
+  }
+
   public interface OnUserLeaveHintProvider {
     method public void addOnUserLeaveHintListener(Runnable listener);
     method public void removeOnUserLeaveHintListener(Runnable listener);
@@ -1087,10 +1234,68 @@ package androidx.core.app {
   public final class PictureInPictureModeChangedInfo {
     ctor public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode);
     ctor @RequiresApi(26) public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode, android.content.res.Configuration newConfig);
-    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
-    method public boolean isInPictureInPictureMode();
+    method @InaccessibleFromKotlin @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method @InaccessibleFromKotlin public boolean isInPictureInPictureMode();
     property public boolean isInPictureInPictureMode;
     property @RequiresApi(26) public android.content.res.Configuration newConfig;
+  }
+
+  public final class PictureInPictureParamsCompat {
+    ctor public PictureInPictureParamsCompat();
+    ctor @BytecodeOnly public PictureInPictureParamsCompat(boolean, android.util.Rational!, java.util.List!, android.graphics.Rect!, boolean, android.app.RemoteAction!, android.util.Rational!, CharSequence!, CharSequence!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public PictureInPictureParamsCompat(optional boolean isEnabled, optional android.util.Rational? aspectRatio, optional java.util.List<android.app.RemoteAction> actions, optional android.graphics.Rect? sourceRectHint, optional boolean isSeamlessResizeEnabled, optional android.app.RemoteAction? closeAction, optional android.util.Rational? expandedAspectRatio, optional CharSequence? title, optional CharSequence? subTitle);
+    method @InaccessibleFromKotlin public java.util.List<android.app.RemoteAction> getActions();
+    method @InaccessibleFromKotlin public android.util.Rational? getAspectRatio();
+    method @InaccessibleFromKotlin public android.app.RemoteAction? getCloseAction();
+    method @InaccessibleFromKotlin public android.util.Rational? getExpandedAspectRatio();
+    method @InaccessibleFromKotlin public android.graphics.Rect? getSourceRectHint();
+    method @InaccessibleFromKotlin public CharSequence? getSubTitle();
+    method @InaccessibleFromKotlin public CharSequence? getTitle();
+    method @InaccessibleFromKotlin public boolean isEnabled();
+    method @InaccessibleFromKotlin public boolean isSeamlessResizeEnabled();
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.PictureInPictureParams toPictureInPictureParams();
+    property public java.util.List<android.app.RemoteAction> actions;
+    property public android.util.Rational? aspectRatio;
+    property public android.app.RemoteAction? closeAction;
+    property public android.util.Rational? expandedAspectRatio;
+    property public boolean isEnabled;
+    property public boolean isSeamlessResizeEnabled;
+    property public android.graphics.Rect? sourceRectHint;
+    property public CharSequence? subTitle;
+    property public CharSequence? title;
+  }
+
+  public static final class PictureInPictureParamsCompat.Builder {
+    ctor public PictureInPictureParamsCompat.Builder();
+    method public androidx.core.app.PictureInPictureParamsCompat build();
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setActions(java.util.List<android.app.RemoteAction> actions);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setAspectRatio(android.util.Rational? aspectRatio);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setCloseAction(android.app.RemoteAction? closeAction);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setEnabled(boolean enabled);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setExpandedAspectRatio(android.util.Rational? expandedAspectRatio);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setSeamlessResizeEnabled(boolean seamlessResizeEnabled);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setSourceRectHint(android.graphics.Rect? sourceRectHint);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setSubTitle(CharSequence? subTitle);
+    method public androidx.core.app.PictureInPictureParamsCompat.Builder setTitle(CharSequence? title);
+  }
+
+  public interface PictureInPictureProvider extends androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.app.OnPictureInPictureUiStateChangedProvider androidx.core.app.OnUserLeaveHintProvider {
+    method public void enterPictureInPictureMode(androidx.core.app.PictureInPictureParamsCompat params);
+    method public void setPictureInPictureParams(androidx.core.app.PictureInPictureParamsCompat params);
+  }
+
+  public final class PictureInPictureUiStateCompat {
+    ctor public PictureInPictureUiStateCompat(boolean isStashed, boolean isTransitioningToPip);
+    method public static androidx.core.app.PictureInPictureUiStateCompat fromPictureInPictureUiState(android.app.PictureInPictureUiState uiState);
+    method @InaccessibleFromKotlin public boolean isStashed();
+    method @InaccessibleFromKotlin public boolean isTransitioningToPip();
+    property public boolean isStashed;
+    property public boolean isTransitioningToPip;
+    field public static final androidx.core.app.PictureInPictureUiStateCompat.Companion Companion;
+  }
+
+  public static final class PictureInPictureUiStateCompat.Companion {
+    method public androidx.core.app.PictureInPictureUiStateCompat fromPictureInPictureUiState(android.app.PictureInPictureUiState uiState);
   }
 
   @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.app.RemoteActionCompat") public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
@@ -1197,6 +1402,7 @@ package androidx.core.app {
     method public androidx.core.app.ShareCompat.IntentBuilder setEmailCc(String![]?);
     method public androidx.core.app.ShareCompat.IntentBuilder setEmailTo(String![]?);
     method public androidx.core.app.ShareCompat.IntentBuilder setHtmlText(String?);
+    method public androidx.core.app.ShareCompat.IntentBuilder setIntentSender(android.content.IntentSender?);
     method public androidx.core.app.ShareCompat.IntentBuilder setStream(android.net.Uri?);
     method public androidx.core.app.ShareCompat.IntentBuilder setSubject(String?);
     method public androidx.core.app.ShareCompat.IntentBuilder setText(CharSequence?);
@@ -1281,6 +1487,10 @@ package androidx.core.content {
     method @Deprecated public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
   }
 
+  public final class ContentValuesKt {
+    method public static android.content.ContentValues contentValuesOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
+  }
+
   public class ContextCompat {
     ctor protected ContextCompat();
     method public static int checkSelfPermission(android.content.Context, String);
@@ -1300,7 +1510,7 @@ package androidx.core.content {
     method public static java.io.File? getNoBackupFilesDir(android.content.Context);
     method @Deprecated public static java.io.File![] getObbDirs(android.content.Context);
     method public static String getString(android.content.Context, int);
-    method public static <T> T? getSystemService(android.content.Context, Class<T!>);
+    method public static <T> T? getSystemService(android.content.Context, Class<T>);
     method public static String? getSystemServiceName(android.content.Context, Class<? extends java.lang.Object!>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, int);
@@ -1312,6 +1522,17 @@ package androidx.core.content {
     field public static final int RECEIVER_EXPORTED = 2; // 0x2
     field public static final int RECEIVER_NOT_EXPORTED = 4; // 0x4
     field public static final int RECEIVER_VISIBLE_TO_INSTANT_APPS = 1; // 0x1
+  }
+
+  public final class ContextKt {
+    method @KotlinOnly public static inline <reified T> T? getSystemService(android.content.Context);
+    method public static suspend Object? receiveBroadcasts(android.content.Context, android.content.IntentFilter filter, int flags, optional String? broadcastPermission, optional android.os.Handler? scheduler, kotlin.jvm.functions.Function2<? super android.content.BroadcastReceiver,? super android.content.Intent?,kotlin.Unit> onReceive, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @BytecodeOnly public static Object! receiveBroadcasts$default(android.content.Context!, android.content.IntentFilter!, int, String!, android.os.Handler!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+    method public static suspend Object? receiveBroadcastsAsync(android.content.Context, android.content.IntentFilter filter, int flags, optional String? broadcastPermission, optional android.os.Handler? scheduler, kotlin.jvm.functions.Function3<? super android.content.BroadcastReceiver.PendingResult,? super android.content.Intent?,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onReceive, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @BytecodeOnly public static Object! receiveBroadcastsAsync$default(android.content.Context!, android.content.IntentFilter!, int, String!, android.os.Handler!, kotlin.jvm.functions.Function3!, kotlin.coroutines.Continuation!, int, Object!);
+    method public static inline void withStyledAttributes(android.content.Context, optional android.util.AttributeSet? set, int[] attrs, optional @AttrRes int defStyleAttr, optional @StyleRes int defStyleRes, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
+    method public static inline void withStyledAttributes(android.content.Context, @StyleRes int resourceId, int[] attrs, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
+    method @BytecodeOnly public static void withStyledAttributes$default(android.content.Context!, android.util.AttributeSet!, int[]!, int, int, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public class FileProvider extends android.content.ContentProvider {
@@ -1330,9 +1551,9 @@ package androidx.core.content {
   public final class IntentCompat {
     method public static android.content.Intent createManageUnusedAppRestrictionsIntent(android.content.Context, String);
     method public static android.os.Parcelable![]? getParcelableArrayExtra(android.content.Intent, String?, Class<? extends android.os.Parcelable!>);
-    method public static <T> java.util.ArrayList<T!>? getParcelableArrayListExtra(android.content.Intent, String?, Class<? extends T!>);
-    method public static <T> T? getParcelableExtra(android.content.Intent, String?, Class<T!>);
-    method public static <T extends java.io.Serializable> T? getSerializableExtra(android.content.Intent, String?, Class<T!>);
+    method public static <T> java.util.ArrayList<T>? getParcelableArrayListExtra(android.content.Intent, String?, Class<? extends T>);
+    method public static <T> T? getParcelableExtra(android.content.Intent, String?, Class<T>);
+    method public static <T extends java.io.Serializable> T? getSerializableExtra(android.content.Intent, String?, Class<T>);
     method public static android.content.Intent makeMainSelectorActivity(String, String);
     field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
@@ -1365,7 +1586,7 @@ package androidx.core.content {
     method public androidx.core.content.IntentSanitizer.Builder allowDataWithAuthority(String);
     method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, androidx.core.util.Predicate<java.lang.Object!>);
     method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<? extends java.lang.Object!>);
-    method public <T> androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<T!>, androidx.core.util.Predicate<T!>);
+    method public <T> androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<T>, androidx.core.util.Predicate<T>);
     method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(androidx.core.util.Predicate<android.net.Uri!>);
     method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(String);
     method public androidx.core.content.IntentSanitizer.Builder allowExtraStream(androidx.core.util.Predicate<android.net.Uri!>);
@@ -1431,6 +1652,11 @@ package androidx.core.content {
   @Deprecated public static final class SharedPreferencesCompat.EditorCompat {
     method @Deprecated public void apply(android.content.SharedPreferences.Editor);
     method @Deprecated public static androidx.core.content.SharedPreferencesCompat.EditorCompat! getInstance();
+  }
+
+  public final class SharedPreferencesKt {
+    method public static inline void edit(android.content.SharedPreferences, optional boolean commit, kotlin.jvm.functions.Function1<? super android.content.SharedPreferences.Editor,kotlin.Unit> action);
+    method @BytecodeOnly public static void edit$default(android.content.SharedPreferences!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public class UnusedAppRestrictionsBackportCallback {
@@ -1550,10 +1776,10 @@ package androidx.core.content.pm {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
     ctor public ShortcutInfoCompatSaver();
-    method @AnyThread public abstract T! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
+    method @AnyThread public abstract T addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
     method @WorkerThread public java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>! getShortcuts() throws java.lang.Exception;
-    method @AnyThread public abstract T! removeAllShortcuts();
-    method @AnyThread public abstract T! removeShortcuts(java.util.List<java.lang.String!>!);
+    method @AnyThread public abstract T removeAllShortcuts();
+    method @AnyThread public abstract T removeShortcuts(java.util.List<java.lang.String!>!);
   }
 
   public class ShortcutManagerCompat {
@@ -1684,6 +1910,25 @@ package androidx.core.content.res {
     method public static void rebase(android.content.res.Resources.Theme);
   }
 
+  public final class TypedArrayKt {
+    method public static boolean getBooleanOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method @ColorInt public static int getColorOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static android.content.res.ColorStateList getColorStateListOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static float getDimensionOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method @Dimension public static int getDimensionPixelOffsetOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method @Dimension public static int getDimensionPixelSizeOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static android.graphics.drawable.Drawable getDrawableOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static float getFloatOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method @RequiresApi(26) public static android.graphics.Typeface getFontOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static int getIntOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static int getIntegerOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method @AnyRes public static int getResourceIdOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static String getStringOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static CharSequence[] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static CharSequence getTextOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static inline <R> R use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R> block);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypedArrayUtils {
     method public static int getAttr(android.content.Context, int, int);
     method public static boolean getBoolean(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, boolean);
@@ -1710,6 +1955,16 @@ package androidx.core.content.res {
 
 package androidx.core.database {
 
+  public final class CursorKt {
+    method public static inline byte[]? getBlobOrNull(android.database.Cursor, int index);
+    method public static inline Double? getDoubleOrNull(android.database.Cursor, int index);
+    method public static inline Float? getFloatOrNull(android.database.Cursor, int index);
+    method public static inline Integer? getIntOrNull(android.database.Cursor, int index);
+    method public static inline Long? getLongOrNull(android.database.Cursor, int index);
+    method public static inline Short? getShortOrNull(android.database.Cursor, int index);
+    method public static inline String? getStringOrNull(android.database.Cursor, int index);
+  }
+
   public final class CursorWindowCompat {
     method public static android.database.CursorWindow create(String?, long);
   }
@@ -1725,6 +1980,11 @@ package androidx.core.database.sqlite {
 
   public final class SQLiteCursorCompat {
     method public static void setFillWindowForwardOnly(android.database.sqlite.SQLiteCursor, boolean);
+  }
+
+  public final class SQLiteDatabaseKt {
+    method public static inline <T> T transaction(android.database.sqlite.SQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T> body);
+    method @BytecodeOnly public static Object! transaction$default(android.database.sqlite.SQLiteDatabase!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
 }
@@ -1743,14 +2003,15 @@ package androidx.core.flagging {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Flags {
     ctor public Flags();
-    method public static boolean getBooleanFlagValue(String packageName, String flagName);
-    method public static boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue(String packageName, String flagName);
+    method @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
     field public static final androidx.core.flagging.Flags.Companion Companion;
   }
 
   public static final class Flags.Companion {
-    method public boolean getBooleanFlagValue(String packageName, String flagName);
-    method public boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @ChecksSdkIntAtLeast(api=10000) public boolean getBooleanFlagValue(String packageName, String flagName);
+    method @ChecksSdkIntAtLeast(api=10000) public boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @BytecodeOnly @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue$default(androidx.core.flagging.Flags.Companion!, String!, String!, boolean, int, Object!);
   }
 
 }
@@ -1762,6 +2023,20 @@ package androidx.core.graphics {
     method @Deprecated public static int getAllocationByteCount(android.graphics.Bitmap);
     method @Deprecated public static boolean hasMipMap(android.graphics.Bitmap);
     method @Deprecated public static void setHasMipMap(android.graphics.Bitmap, boolean);
+  }
+
+  public final class BitmapKt {
+    method public static inline android.graphics.Bitmap applyCanvas(android.graphics.Bitmap, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline operator boolean contains(android.graphics.Bitmap, android.graphics.Point p);
+    method public static inline operator boolean contains(android.graphics.Bitmap, android.graphics.PointF p);
+    method public static inline android.graphics.Bitmap createBitmap(int width, int height, optional android.graphics.Bitmap.Config config);
+    method @RequiresApi(26) public static inline android.graphics.Bitmap createBitmap(int width, int height, optional android.graphics.Bitmap.Config config, optional boolean hasAlpha, optional android.graphics.ColorSpace colorSpace);
+    method @BytecodeOnly @RequiresApi(26) public static android.graphics.Bitmap! createBitmap$default(int, int, android.graphics.Bitmap.Config!, boolean, android.graphics.ColorSpace!, int, Object!);
+    method @BytecodeOnly public static android.graphics.Bitmap! createBitmap$default(int, int, android.graphics.Bitmap.Config!, int, Object!);
+    method public static inline operator int get(android.graphics.Bitmap, int x, int y);
+    method public static inline android.graphics.Bitmap scale(android.graphics.Bitmap, int width, int height, optional boolean filter);
+    method @BytecodeOnly public static android.graphics.Bitmap! scale$default(android.graphics.Bitmap!, int, int, boolean, int, Object!);
+    method public static inline operator void set(android.graphics.Bitmap, int x, int y, @ColorInt int color);
   }
 
   public class BlendModeColorFilterCompat {
@@ -1800,6 +2075,78 @@ package androidx.core.graphics {
     enum_constant public static final androidx.core.graphics.BlendModeCompat XOR;
   }
 
+  public final class CanvasKt {
+    method public static inline void withClip(android.graphics.Canvas, android.graphics.Path clipPath, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withClip(android.graphics.Canvas, android.graphics.Rect clipRect, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withClip(android.graphics.Canvas, android.graphics.RectF clipRect, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withClip(android.graphics.Canvas, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withClip(android.graphics.Canvas, int left, int top, int right, int bottom, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withMatrix(android.graphics.Canvas, optional android.graphics.Matrix matrix, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly public static void withMatrix$default(android.graphics.Canvas!, android.graphics.Matrix!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline void withRotation(android.graphics.Canvas, optional float degrees, optional float pivotX, optional float pivotY, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly public static void withRotation$default(android.graphics.Canvas!, float, float, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline void withSave(android.graphics.Canvas, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withScale(android.graphics.Canvas, optional float x, optional float y, optional float pivotX, optional float pivotY, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly public static void withScale$default(android.graphics.Canvas!, float, float, float, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline void withSkew(android.graphics.Canvas, optional float x, optional float y, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly public static void withSkew$default(android.graphics.Canvas!, float, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline void withTranslation(android.graphics.Canvas, optional float x, optional float y, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly public static void withTranslation$default(android.graphics.Canvas!, float, float, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class ColorKt {
+    method @RequiresApi(26) public static inline operator float component1(android.graphics.Color);
+    method public static inline operator int component1(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component1(@ColorLong long);
+    method @RequiresApi(26) public static inline operator float component2(android.graphics.Color);
+    method public static inline operator int component2(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component2(@ColorLong long);
+    method @RequiresApi(26) public static inline operator float component3(android.graphics.Color);
+    method public static inline operator int component3(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component3(@ColorLong long);
+    method @RequiresApi(26) public static inline operator float component4(android.graphics.Color);
+    method public static inline operator int component4(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component4(@ColorLong long);
+    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
+    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace.Named colorSpace);
+    method @InaccessibleFromKotlin public static inline int getAlpha(@ColorInt int);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getAlpha(@ColorLong long);
+    method @InaccessibleFromKotlin public static inline int getBlue(@ColorInt int);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getBlue(@ColorLong long);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline android.graphics.ColorSpace getColorSpace(@ColorLong long);
+    method @InaccessibleFromKotlin public static inline int getGreen(@ColorInt int);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getGreen(@ColorLong long);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getLuminance(@ColorInt int);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getLuminance(@ColorLong long);
+    method @InaccessibleFromKotlin public static inline int getRed(@ColorInt int);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline float getRed(@ColorLong long);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline boolean isSrgb(@ColorLong long);
+    method @InaccessibleFromKotlin @RequiresApi(26) public static inline boolean isWideGamut(@ColorLong long);
+    method @RequiresApi(26) public static operator android.graphics.Color plus(android.graphics.Color, android.graphics.Color c);
+    method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorInt int);
+    method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorLong long);
+    method @ColorInt public static inline int toColorInt(String);
+    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
+    method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
+    property public static inline int int.alpha;
+    property @RequiresApi(26) public static inline float long.alpha;
+    property public static inline int int.blue;
+    property @RequiresApi(26) public static inline float long.blue;
+    property @RequiresApi(26) public static inline android.graphics.ColorSpace long.colorSpace;
+    property public static inline int int.green;
+    property @RequiresApi(26) public static inline float long.green;
+    property @RequiresApi(26) public static inline boolean long.isSrgb;
+    property @RequiresApi(26) public static inline boolean long.isWideGamut;
+    property @RequiresApi(26) public static inline float int.luminance;
+    property @RequiresApi(26) public static inline float long.luminance;
+    property public static inline int int.red;
+    property @RequiresApi(26) public static inline float long.red;
+  }
+
   public final class ColorUtils {
     method @ColorInt public static int HSLToColor(float[]);
     method @ColorInt public static int LABToColor(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double);
@@ -1826,6 +2173,11 @@ package androidx.core.graphics {
     method @ColorInt public static int setAlphaComponent(@ColorInt int, @IntRange(from=0, to=255) int);
   }
 
+  public final class ImageDecoderKt {
+    method @RequiresApi(28) public static inline android.graphics.Bitmap decodeBitmap(android.graphics.ImageDecoder.Source, kotlin.jvm.functions.Function3<? super android.graphics.ImageDecoder,? super android.graphics.ImageDecoder.ImageInfo,? super android.graphics.ImageDecoder.Source,kotlin.Unit> action);
+    method @RequiresApi(28) public static inline android.graphics.drawable.Drawable decodeDrawable(android.graphics.ImageDecoder.Source, kotlin.jvm.functions.Function3<? super android.graphics.ImageDecoder,? super android.graphics.ImageDecoder.ImageInfo,? super android.graphics.ImageDecoder.Source,kotlin.Unit> action);
+  }
+
   public final class Insets {
     method public static androidx.core.graphics.Insets add(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method public static androidx.core.graphics.Insets max(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
@@ -1843,9 +2195,34 @@ package androidx.core.graphics {
     field public final int top;
   }
 
+  public final class MatrixKt {
+    method public static android.graphics.Matrix rotationMatrix(float degrees, optional float px, optional float py);
+    method @BytecodeOnly public static android.graphics.Matrix! rotationMatrix$default(float, float, float, int, Object!);
+    method public static android.graphics.Matrix scaleMatrix(optional float sx, optional float sy);
+    method @BytecodeOnly public static android.graphics.Matrix! scaleMatrix$default(float, float, int, Object!);
+    method public static inline operator android.graphics.Matrix times(android.graphics.Matrix, android.graphics.Matrix m);
+    method public static android.graphics.Matrix translationMatrix(optional float tx, optional float ty);
+    method @BytecodeOnly public static android.graphics.Matrix! translationMatrix$default(float, float, int, Object!);
+    method public static inline float[] values(android.graphics.Matrix);
+  }
+
   public final class PaintCompat {
     method public static boolean hasGlyph(android.graphics.Paint, String);
     method public static boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
+  }
+
+  public final class PaintKt {
+    method public static inline boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat? blendModeCompat);
+  }
+
+  public final class PathKt {
+    method public static inline infix android.graphics.Path and(android.graphics.Path, android.graphics.Path p);
+    method @RequiresApi(26) public static Iterable<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, optional float error);
+    method @BytecodeOnly @RequiresApi(26) public static Iterable! flatten$default(android.graphics.Path!, float, int, Object!);
+    method public static inline operator android.graphics.Path minus(android.graphics.Path, android.graphics.Path p);
+    method public static inline infix android.graphics.Path or(android.graphics.Path, android.graphics.Path p);
+    method public static inline operator android.graphics.Path plus(android.graphics.Path, android.graphics.Path p);
+    method public static inline infix android.graphics.Path xor(android.graphics.Path, android.graphics.Path p);
   }
 
   public final class PathParser {
@@ -1877,6 +2254,99 @@ package androidx.core.graphics {
   public final class PathUtils {
     method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment!> flatten(android.graphics.Path);
     method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment!> flatten(android.graphics.Path, @FloatRange(from=0) float);
+  }
+
+  public final class PictureKt {
+    method public static inline android.graphics.Picture record(android.graphics.Picture, int width, int height, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+  }
+
+  public final class PointKt {
+    method public static inline operator int component1(android.graphics.Point);
+    method public static inline operator float component1(android.graphics.PointF);
+    method public static inline operator int component2(android.graphics.Point);
+    method public static inline operator float component2(android.graphics.PointF);
+    method public static inline operator android.graphics.Point div(android.graphics.Point, float scalar);
+    method public static inline operator android.graphics.PointF div(android.graphics.PointF, float scalar);
+    method public static inline operator android.graphics.Point minus(android.graphics.Point, android.graphics.Point p);
+    method public static inline operator android.graphics.Point minus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
+    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, float xy);
+    method public static inline operator android.graphics.Point plus(android.graphics.Point, android.graphics.Point p);
+    method public static inline operator android.graphics.Point plus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
+    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, float xy);
+    method public static inline operator android.graphics.Point times(android.graphics.Point, float scalar);
+    method public static inline operator android.graphics.PointF times(android.graphics.PointF, float scalar);
+    method public static inline android.graphics.Point toPoint(android.graphics.PointF);
+    method public static inline android.graphics.PointF toPointF(android.graphics.Point);
+    method public static inline operator android.graphics.Point unaryMinus(android.graphics.Point);
+    method public static inline operator android.graphics.PointF unaryMinus(android.graphics.PointF);
+  }
+
+  public final class PorterDuffKt {
+    method public static inline android.graphics.PorterDuffColorFilter toColorFilter(android.graphics.PorterDuff.Mode, int color);
+    method public static inline android.graphics.PorterDuffXfermode toXfermode(android.graphics.PorterDuff.Mode);
+  }
+
+  public final class RectKt {
+    method public static inline infix android.graphics.Rect and(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline infix android.graphics.RectF and(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator int component1(android.graphics.Rect);
+    method public static inline operator float component1(android.graphics.RectF);
+    method public static inline operator int component2(android.graphics.Rect);
+    method public static inline operator float component2(android.graphics.RectF);
+    method public static inline operator int component3(android.graphics.Rect);
+    method public static inline operator float component3(android.graphics.RectF);
+    method public static inline operator int component4(android.graphics.Rect);
+    method public static inline operator float component4(android.graphics.RectF);
+    method public static inline operator boolean contains(android.graphics.Rect, android.graphics.Point p);
+    method public static inline operator boolean contains(android.graphics.RectF, android.graphics.PointF p);
+    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, int xy);
+    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, float xy);
+    method public static inline infix android.graphics.Rect or(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline infix android.graphics.RectF or(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, int xy);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
+    method public static inline operator android.graphics.Rect times(android.graphics.Rect, int factor);
+    method public static inline operator android.graphics.RectF times(android.graphics.RectF, float factor);
+    method public static inline operator android.graphics.RectF times(android.graphics.RectF, int factor);
+    method public static inline android.graphics.Rect toRect(android.graphics.RectF);
+    method public static inline android.graphics.RectF toRectF(android.graphics.Rect);
+    method public static inline android.graphics.Region toRegion(android.graphics.Rect);
+    method public static inline android.graphics.Region toRegion(android.graphics.RectF);
+    method public static inline android.graphics.RectF transform(android.graphics.RectF, android.graphics.Matrix m);
+    method public static inline infix android.graphics.Region xor(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline infix android.graphics.Region xor(android.graphics.RectF, android.graphics.RectF r);
+  }
+
+  public final class RegionKt {
+    method public static inline infix android.graphics.Region and(android.graphics.Region, android.graphics.Rect r);
+    method public static inline infix android.graphics.Region and(android.graphics.Region, android.graphics.Region r);
+    method public static inline operator boolean contains(android.graphics.Region, android.graphics.Point p);
+    method public static inline void forEach(android.graphics.Region, kotlin.jvm.functions.Function1<? super android.graphics.Rect,kotlin.Unit> action);
+    method public static operator java.util.Iterator<android.graphics.Rect> iterator(android.graphics.Region);
+    method public static inline operator android.graphics.Region minus(android.graphics.Region, android.graphics.Rect r);
+    method public static inline operator android.graphics.Region minus(android.graphics.Region, android.graphics.Region r);
+    method public static inline operator android.graphics.Region not(android.graphics.Region);
+    method public static inline infix android.graphics.Region or(android.graphics.Region, android.graphics.Rect r);
+    method public static inline infix android.graphics.Region or(android.graphics.Region, android.graphics.Region r);
+    method public static inline operator android.graphics.Region plus(android.graphics.Region, android.graphics.Rect r);
+    method public static inline operator android.graphics.Region plus(android.graphics.Region, android.graphics.Region r);
+    method public static inline operator android.graphics.Region unaryMinus(android.graphics.Region);
+    method public static inline infix android.graphics.Region xor(android.graphics.Region, android.graphics.Rect r);
+    method public static inline infix android.graphics.Region xor(android.graphics.Region, android.graphics.Region r);
+  }
+
+  public final class ShaderKt {
+    method public static inline void transform(android.graphics.Shader, kotlin.jvm.functions.Function1<? super android.graphics.Matrix,kotlin.Unit> block);
   }
 
   public class TypefaceCompat {
@@ -1939,6 +2409,15 @@ package androidx.core.graphics {
 
 package androidx.core.graphics.drawable {
 
+  public final class BitmapDrawableKt {
+    method public static inline android.graphics.drawable.BitmapDrawable toDrawable(android.graphics.Bitmap, android.content.res.Resources resources);
+  }
+
+  public final class ColorDrawableKt {
+    method @RequiresApi(26) public static inline android.graphics.drawable.ColorDrawable toDrawable(android.graphics.Color);
+    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
+  }
+
   public final class DrawableCompat {
     method public static void applyTheme(android.graphics.drawable.Drawable, android.content.res.Resources.Theme);
     method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
@@ -1956,8 +2435,17 @@ package androidx.core.graphics.drawable {
     method public static void setTint(android.graphics.drawable.Drawable, @ColorInt int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode?);
-    method public static <T extends android.graphics.drawable.Drawable> T! unwrap(android.graphics.drawable.Drawable);
+    method public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
+  }
+
+  public final class DrawableKt {
+    method public static android.graphics.Bitmap toBitmap(android.graphics.drawable.Drawable, optional @Px int width, optional @Px int height, optional android.graphics.Bitmap.Config? config);
+    method @BytecodeOnly public static android.graphics.Bitmap! toBitmap$default(android.graphics.drawable.Drawable!, int, int, android.graphics.Bitmap.Config!, int, Object!);
+    method public static android.graphics.Bitmap? toBitmapOrNull(android.graphics.drawable.Drawable, optional @Px int width, optional @Px int height, optional android.graphics.Bitmap.Config? config);
+    method @BytecodeOnly public static android.graphics.Bitmap! toBitmapOrNull$default(android.graphics.drawable.Drawable!, int, int, android.graphics.Bitmap.Config!, int, Object!);
+    method public static void updateBounds(android.graphics.drawable.Drawable, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
+    method @BytecodeOnly public static void updateBounds$default(android.graphics.drawable.Drawable!, int, int, int, int, int, Object!);
   }
 
   @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
@@ -1997,6 +2485,13 @@ package androidx.core.graphics.drawable {
     field public static final int TYPE_URI = 4; // 0x4
     field public static final int TYPE_URI_ADAPTIVE_BITMAP = 6; // 0x6
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(value=1, defaultValue="androidx.core.graphics.drawable.IconCompat.TYPE_UNKNOWN") public int mType;
+  }
+
+  public final class IconKt {
+    method @RequiresApi(26) public static inline android.graphics.drawable.Icon toAdaptiveIcon(android.graphics.Bitmap);
+    method @RequiresApi(26) public static inline android.graphics.drawable.Icon toIcon(android.graphics.Bitmap);
+    method @RequiresApi(26) public static inline android.graphics.drawable.Icon toIcon(android.net.Uri);
+    method @RequiresApi(26) public static inline android.graphics.drawable.Icon toIcon(byte[]);
   }
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
@@ -2202,6 +2697,11 @@ package androidx.core.location {
     field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
   }
 
+  public final class LocationKt {
+    method public static inline operator double component1(android.location.Location);
+    method public static inline operator double component2(android.location.Location);
+  }
+
   public interface LocationListenerCompat extends android.location.LocationListener {
     method public default void onStatusChanged(String, int, android.os.Bundle?);
   }
@@ -2328,11 +2828,17 @@ package androidx.core.net {
     method public static String toSafeString(android.net.Uri);
   }
 
+  public final class UriKt {
+    method public static java.io.File toFile(android.net.Uri);
+    method public static inline android.net.Uri toUri(java.io.File);
+    method public static inline android.net.Uri toUri(String);
+  }
+
 }
 
 package androidx.core.os {
 
-  @RequiresApi(api=35) public abstract sealed class BufferFillPolicy {
+  @RequiresApi(api=35) public abstract sealed nonexhaustive class BufferFillPolicy {
     field public static final androidx.core.os.BufferFillPolicy.Companion Companion;
     field public static final androidx.core.os.BufferFillPolicy DISCARD;
     field public static final androidx.core.os.BufferFillPolicy RING_BUFFER;
@@ -2344,7 +2850,8 @@ package androidx.core.os {
   }
 
   public final class BuildCompat {
-    method @ChecksSdkIntAtLeast(api=36, codename="Baklava") public static boolean isAtLeastB();
+    method @Deprecated @ChecksSdkIntAtLeast(api=36, codename="Baklava") public static boolean isAtLeastB();
+    method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public static boolean isAtLeastB_1();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N) public static boolean isAtLeastN();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N_MR1) public static boolean isAtLeastNMR1();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.O) public static boolean isAtLeastO();
@@ -2373,12 +2880,17 @@ package androidx.core.os {
 
   public final class BundleCompat {
     method @Deprecated public static android.os.IBinder? getBinder(android.os.Bundle, String?);
-    method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T!>);
+    method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T>);
     method public static android.os.Parcelable![]? getParcelableArray(android.os.Bundle, String?, Class<? extends android.os.Parcelable!>);
-    method public static <T> java.util.ArrayList<T!>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T!>);
-    method public static <T extends java.io.Serializable> T? getSerializable(android.os.Bundle, String?, Class<T!>);
-    method public static <T> android.util.SparseArray<T!>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T!>);
+    method public static <T> java.util.ArrayList<T>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T>);
+    method public static <T extends java.io.Serializable> T? getSerializable(android.os.Bundle, String?, Class<T>);
+    method public static <T> android.util.SparseArray<T>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T>);
     method @Deprecated public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
+  }
+
+  public final class BundleKt {
+    method public static android.os.Bundle bundleOf();
+    method @Deprecated public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
   @Deprecated public final class CancellationSignal {
@@ -2415,11 +2927,15 @@ package androidx.core.os {
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
   }
 
+  public final class HandlerKt {
+    method public static inline Runnable postAtTime(android.os.Handler, long uptimeMillis, optional Object? token, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method @BytecodeOnly public static Runnable! postAtTime$default(android.os.Handler!, long, Object!, kotlin.jvm.functions.Function0!, int, Object!);
+    method public static inline Runnable postDelayed(android.os.Handler, long delayInMillis, optional Object? token, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method @BytecodeOnly public static Runnable! postDelayed$default(android.os.Handler!, long, Object!, kotlin.jvm.functions.Function0!, int, Object!);
+  }
+
   @RequiresApi(api=35) public final class HeapProfileRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.HeapProfileRequestBuilder> {
     ctor public HeapProfileRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.HeapProfileRequestBuilder getThis();
     method public androidx.core.os.HeapProfileRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.HeapProfileRequestBuilder setDurationMs(int durationMs);
     method public androidx.core.os.HeapProfileRequestBuilder setSamplingIntervalBytes(long samplingIntervalBytes);
@@ -2428,9 +2944,6 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public final class JavaHeapDumpRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.JavaHeapDumpRequestBuilder> {
     ctor public JavaHeapDumpRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.JavaHeapDumpRequestBuilder getThis();
     method public androidx.core.os.JavaHeapDumpRequestBuilder setBufferSizeKb(int bufferSizeKb);
   }
 
@@ -2464,33 +2977,47 @@ package androidx.core.os {
 
   public interface OutcomeReceiverCompat<R, E extends java.lang.Throwable> {
     method public default void onError(E);
-    method public void onResult(R!);
+    method public void onResult(R);
+  }
+
+  @RequiresApi(31) public final class OutcomeReceiverKt {
+    method @RequiresApi(31) public static <R, E extends java.lang.Throwable> android.os.OutcomeReceiver<R,E> asOutcomeReceiver(kotlin.coroutines.Continuation<? super R>);
   }
 
   public final class ParcelCompat {
-    method public static <T> Object![]? readArray(android.os.Parcel, ClassLoader?, Class<T!>);
-    method public static <T> java.util.ArrayList<T!>? readArrayList(android.os.Parcel, ClassLoader?, Class<? extends T!>);
+    method public static <T> Object![]? readArray(android.os.Parcel, ClassLoader?, Class<T>);
+    method public static <T> java.util.ArrayList<T>? readArrayList(android.os.Parcel, ClassLoader?, Class<? extends T>);
     method public static boolean readBoolean(android.os.Parcel);
-    method public static <K, V> java.util.HashMap<K!,V!>? readHashMap(android.os.Parcel, ClassLoader?, Class<? extends K!>, Class<? extends V!>);
-    method public static <T> void readList(android.os.Parcel, java.util.List<? super T!>, ClassLoader?, Class<T!>);
-    method public static <K, V> void readMap(android.os.Parcel, java.util.Map<? super K!,? super V!>, ClassLoader?, Class<K!>, Class<V!>);
-    method public static <T extends android.os.Parcelable> T? readParcelable(android.os.Parcel, ClassLoader?, Class<T!>);
-    method @Deprecated public static <T> T![]? readParcelableArray(android.os.Parcel, ClassLoader?, Class<T!>);
-    method public static <T> android.os.Parcelable![]? readParcelableArrayTyped(android.os.Parcel, ClassLoader?, Class<T!>);
-    method @RequiresApi(30) public static <T> android.os.Parcelable.Creator<T!>? readParcelableCreator(android.os.Parcel, ClassLoader?, Class<T!>);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public static <T> java.util.List<T!> readParcelableList(android.os.Parcel, java.util.List<T!>, ClassLoader?, Class<T!>);
-    method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T!>);
-    method public static <T> android.util.SparseArray<T!>? readSparseArray(android.os.Parcel, ClassLoader?, Class<? extends T!>);
+    method public static <K, V> java.util.HashMap<K,V>? readHashMap(android.os.Parcel, ClassLoader?, Class<? extends K>, Class<? extends V>);
+    method public static <T> void readList(android.os.Parcel, java.util.List<? super T>, ClassLoader?, Class<T>);
+    method public static <K, V> void readMap(android.os.Parcel, java.util.Map<? super K,? super V>, ClassLoader?, Class<K>, Class<V>);
+    method public static <T extends android.os.Parcelable> T? readParcelable(android.os.Parcel, ClassLoader?, Class<T>);
+    method @Deprecated public static <T> T[]? readParcelableArray(android.os.Parcel, ClassLoader?, Class<T>);
+    method public static <T> android.os.Parcelable![]? readParcelableArrayTyped(android.os.Parcel, ClassLoader?, Class<T>);
+    method @RequiresApi(30) public static <T> android.os.Parcelable.Creator<T>? readParcelableCreator(android.os.Parcel, ClassLoader?, Class<T>);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public static <T> java.util.List<T> readParcelableList(android.os.Parcel, java.util.List<T>, ClassLoader?, Class<T>);
+    method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T>);
+    method public static <T> android.util.SparseArray<T>? readSparseArray(android.os.Parcel, ClassLoader?, Class<? extends T>);
     method public static void writeBoolean(android.os.Parcel, boolean);
   }
 
+  public final class ParcelKt {
+    method public static inline <T> T use(android.os.Parcel, kotlin.jvm.functions.Function1<? super android.os.Parcel,? extends T> block);
+  }
+
   @Deprecated public final class ParcelableCompat {
-    method @Deprecated public static <T> android.os.Parcelable.Creator<T!>! newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T!>!);
+    method @Deprecated public static <T> android.os.Parcelable.Creator<T>! newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>!);
   }
 
   @Deprecated public interface ParcelableCompatCreatorCallbacks<T> {
-    method @Deprecated public T! createFromParcel(android.os.Parcel!, ClassLoader!);
-    method @Deprecated public T![]! newArray(int);
+    method @Deprecated public T createFromParcel(android.os.Parcel!, ClassLoader!);
+    method @Deprecated public T[]! newArray(int);
+  }
+
+  public final class PersistableBundleKt {
+    method public static android.os.PersistableBundle persistableBundleOf();
+    method @Deprecated public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
+    method public static android.os.PersistableBundle toPersistableBundle(java.util.Map<java.lang.String,? extends java.lang.Object?>);
   }
 
   public final class ProcessCompat {
@@ -2505,10 +3032,10 @@ package androidx.core.os {
   }
 
   @RequiresApi(api=35) public final class ProfilingRequest {
-    method public android.os.CancellationSignal? getCancellationSignal();
-    method public android.os.Bundle getParams();
-    method public int getProfilingType();
-    method public String? getTag();
+    method @InaccessibleFromKotlin public android.os.CancellationSignal? getCancellationSignal();
+    method @InaccessibleFromKotlin public android.os.Bundle getParams();
+    method @InaccessibleFromKotlin public int getProfilingType();
+    method @InaccessibleFromKotlin public String? getTag();
     property public android.os.CancellationSignal? cancellationSignal;
     property public android.os.Bundle params;
     property public int profilingType;
@@ -2517,18 +3044,12 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public abstract class ProfilingRequestBuilder<T extends androidx.core.os.ProfilingRequestBuilder<T>> {
     method public final androidx.core.os.ProfilingRequest build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected abstract T getThis();
     method public final T setCancellationSignal(android.os.CancellationSignal cancellationSignal);
     method public final T setTag(String tag);
   }
 
   @RequiresApi(api=35) public final class StackSamplingRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.StackSamplingRequestBuilder> {
     ctor public StackSamplingRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.StackSamplingRequestBuilder getThis();
     method public androidx.core.os.StackSamplingRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.StackSamplingRequestBuilder setDurationMs(int durationMs);
     method public androidx.core.os.StackSamplingRequestBuilder setSamplingFrequencyHz(int samplingFrequencyHz);
@@ -2536,9 +3057,6 @@ package androidx.core.os {
 
   @RequiresApi(api=35) public final class SystemTraceRequestBuilder extends androidx.core.os.ProfilingRequestBuilder<androidx.core.os.SystemTraceRequestBuilder> {
     ctor public SystemTraceRequestBuilder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected android.os.Bundle getParams();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected int getProfilingType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) protected androidx.core.os.SystemTraceRequestBuilder getThis();
     method public androidx.core.os.SystemTraceRequestBuilder setBufferFillPolicy(androidx.core.os.BufferFillPolicy bufferFillPolicy);
     method public androidx.core.os.SystemTraceRequestBuilder setBufferSizeKb(int bufferSizeKb);
     method public androidx.core.os.SystemTraceRequestBuilder setDurationMs(int durationMs);
@@ -2551,6 +3069,10 @@ package androidx.core.os {
     method @Deprecated public static void endSection();
     method @Deprecated public static boolean isEnabled();
     method @Deprecated public static void setCounter(String, int);
+  }
+
+  public final class TraceKt {
+    method @Deprecated public static inline <T> T trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
   }
 
   public class UserHandleCompat {
@@ -2586,7 +3108,9 @@ package androidx.core.provider {
 
   public final class FontRequest {
     ctor public FontRequest(String, String, String, @ArrayRes int);
+    ctor public FontRequest(String, String, String, @ArrayRes int, String?);
     ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>);
+    ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>, String?);
     method public java.util.List<java.util.List<byte[]!>!>? getCertificates();
     method @ArrayRes public int getCertificatesArrayResId();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getIdentifier();
@@ -2663,12 +3187,12 @@ package androidx.core.provider {
     ctor @Deprecated public SelfDestructiveThread(String!, int, int);
     method @Deprecated @VisibleForTesting public int getGeneration();
     method @Deprecated @VisibleForTesting public boolean isRunning();
-    method @Deprecated public <T> void postAndReply(java.util.concurrent.Callable<T!>!, androidx.core.provider.SelfDestructiveThread.ReplyCallback<T!>!);
-    method @Deprecated public <T> T! postAndWait(java.util.concurrent.Callable<T!>!, int) throws java.lang.InterruptedException;
+    method @Deprecated public <T> void postAndReply(java.util.concurrent.Callable<T>!, androidx.core.provider.SelfDestructiveThread.ReplyCallback<T>!);
+    method @Deprecated public <T> T postAndWait(java.util.concurrent.Callable<T>!, int) throws java.lang.InterruptedException;
   }
 
   @Deprecated public static interface SelfDestructiveThread.ReplyCallback<T> {
-    method @Deprecated public void onReply(T!);
+    method @Deprecated public void onReply(T);
   }
 
 }
@@ -2743,6 +3267,11 @@ package androidx.core.text {
     method public androidx.core.text.BidiFormatter.Builder! stereoReset(boolean);
   }
 
+  public final class CharSequenceKt {
+    method public static inline boolean isDigitsOnly(CharSequence);
+    method public static inline int trimmedLength(CharSequence);
+  }
+
   public final class HtmlCompat {
     method public static android.text.Spanned fromHtml(String, int);
     method public static android.text.Spanned fromHtml(String, int, android.text.Html.ImageGetter?, android.text.Html.TagHandler?);
@@ -2760,8 +3289,20 @@ package androidx.core.text {
     field public static final int TO_HTML_PARAGRAPH_LINES_INDIVIDUAL = 1; // 0x1
   }
 
+  public final class HtmlKt {
+    method public static inline android.text.Spanned parseAsHtml(String, optional int flags, optional android.text.Html.ImageGetter? imageGetter, optional android.text.Html.TagHandler? tagHandler);
+    method @BytecodeOnly public static android.text.Spanned! parseAsHtml$default(String!, int, android.text.Html.ImageGetter!, android.text.Html.TagHandler!, int, Object!);
+    method public static inline String toHtml(android.text.Spanned, optional int option);
+    method @BytecodeOnly public static String! toHtml$default(android.text.Spanned!, int, int, Object!);
+  }
+
   public final class ICUCompat {
     method public static String? maximizeAndGetScript(java.util.Locale);
+  }
+
+  public final class LocaleKt {
+    method @InaccessibleFromKotlin public static inline int getLayoutDirection(java.util.Locale);
+    property public static inline int java.util.Locale.layoutDirection;
   }
 
   public class PrecomputedTextCompat implements android.text.Spannable {
@@ -2775,7 +3316,7 @@ package androidx.core.text {
     method public int getSpanEnd(Object!);
     method public int getSpanFlags(Object!);
     method public int getSpanStart(Object!);
-    method public <T> T![]! getSpans(int, int, Class<T!>!);
+    method public <T> T[]! getSpans(int, int, Class<T>!);
     method @UiThread public static java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat!>! getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor?);
     method public int length();
     method public int nextSpanTransition(int, int, Class!);
@@ -2799,6 +3340,37 @@ package androidx.core.text {
     method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setBreakStrategy(int);
     method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setHyphenationFrequency(int);
     method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setTextDirection(android.text.TextDirectionHeuristic);
+  }
+
+  public final class SpannableStringBuilderKt {
+    method public static inline android.text.SpannableStringBuilder backgroundColor(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder bold(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannedString buildSpannedString(kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder color(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object span, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object[] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder italic(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder scale(android.text.SpannableStringBuilder, float proportion, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder strikeThrough(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder subscript(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder superscript(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder underline(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+  }
+
+  public final class SpannableStringKt {
+    method public static inline void clearSpans(android.text.Spannable);
+    method public static inline operator void set(android.text.Spannable, int start, int end, Object span);
+    method public static inline operator void set(android.text.Spannable, kotlin.ranges.IntRange range, Object span);
+    method public static inline android.text.Spannable toSpannable(CharSequence);
+  }
+
+  public final class SpannedStringKt {
+    method @KotlinOnly public static inline <reified T> T[] getSpans(android.text.Spanned, optional int start, optional int end);
+    method public static inline android.text.Spanned toSpanned(CharSequence);
+  }
+
+  public final class StringKt {
+    method public static inline String htmlEncode(String);
   }
 
   public interface TextDirectionHeuristicCompat {
@@ -2908,7 +3480,25 @@ package androidx.core.text.util {
 
 }
 
+package androidx.core.transition {
+
+  public final class TransitionKt {
+    method public static inline android.transition.Transition.TransitionListener addListener(android.transition.Transition, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onEnd, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onStart, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onCancel, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onPause);
+    method @BytecodeOnly public static android.transition.Transition.TransitionListener! addListener$default(android.transition.Transition!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline android.transition.Transition.TransitionListener doOnCancel(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method public static inline android.transition.Transition.TransitionListener doOnEnd(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method public static inline android.transition.Transition.TransitionListener doOnPause(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method public static inline android.transition.Transition.TransitionListener doOnResume(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+    method public static inline android.transition.Transition.TransitionListener doOnStart(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
+  }
+
+}
+
 package androidx.core.util {
+
+  public final class AndroidXConsumerKt {
+    method public static <T> androidx.core.util.Consumer<T> asAndroidXConsumer(kotlin.coroutines.Continuation<? super T>);
+  }
 
   public class AtomicFile {
     ctor public AtomicFile(java.io.File);
@@ -2921,8 +3511,22 @@ package androidx.core.util {
     method public java.io.FileOutputStream startWrite() throws java.io.IOException;
   }
 
+  public final class AtomicFileKt {
+    method public static inline byte[] readBytes(android.util.AtomicFile);
+    method public static String readText(android.util.AtomicFile, optional java.nio.charset.Charset charset);
+    method @BytecodeOnly public static String! readText$default(android.util.AtomicFile!, java.nio.charset.Charset!, int, Object!);
+    method public static inline void tryWrite(android.util.AtomicFile, kotlin.jvm.functions.Function1<? super java.io.FileOutputStream,kotlin.Unit> block);
+    method public static void writeBytes(android.util.AtomicFile, byte[] array);
+    method public static void writeText(android.util.AtomicFile, String text, optional java.nio.charset.Charset charset);
+    method @BytecodeOnly public static void writeText$default(android.util.AtomicFile!, String!, java.nio.charset.Charset!, int, Object!);
+  }
+
   public fun interface Consumer<T> {
     method public void accept(T value);
+  }
+
+  @RequiresApi(24) public final class ConsumerKt {
+    method @RequiresApi(24) public static <T> java.util.function.Consumer<T> asConsumer(kotlin.coroutines.Continuation<? super T>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DebugUtils {
@@ -2933,11 +3537,42 @@ package androidx.core.util {
     method public R apply(T value);
   }
 
+  public final class HalfKt {
+    method @RequiresApi(26) public static inline android.util.Half toHalf(double);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(float);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(String);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
+  }
+
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
     ctor @Deprecated public LogWriter(String!);
     method @Deprecated public void close();
     method @Deprecated public void flush();
     method @Deprecated public void write(char[]!, int, int);
+  }
+
+  public final class LongSparseArrayKt {
+    method public static inline operator <T> boolean contains(android.util.LongSparseArray<T>, long key);
+    method public static inline <T> boolean containsKey(android.util.LongSparseArray<T>, long key);
+    method public static inline <T> boolean containsValue(android.util.LongSparseArray<T>, T value);
+    method public static inline <T> void forEach(android.util.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
+    method public static inline <T> T getOrDefault(android.util.LongSparseArray<T>, long key, T defaultValue);
+    method public static inline <T> T getOrElse(android.util.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @InaccessibleFromKotlin public static inline <T> int getSize(android.util.LongSparseArray<T>);
+    method public static inline <T> boolean isEmpty(android.util.LongSparseArray<T>);
+    method public static inline <T> boolean isNotEmpty(android.util.LongSparseArray<T>);
+    method public static <T> kotlin.collections.LongIterator keyIterator(android.util.LongSparseArray<T>);
+    method public static operator <T> android.util.LongSparseArray<T> plus(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
+    method public static <T> void putAll(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
+    method public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T value);
+    method public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T value);
+    method public static <T> java.util.Iterator<T> valueIterator(android.util.LongSparseArray<T>);
+    property public static inline <T> int android.util.LongSparseArray<T>.size;
+  }
+
+  public final class LruCacheKt {
+    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
+    method @BytecodeOnly public static android.util.LruCache! lruCache$default(int, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   public class ObjectsCompat {
@@ -2950,10 +3585,21 @@ package androidx.core.util {
   }
 
   public class Pair<F, S> {
-    ctor public Pair(F!, S!);
-    method public static <A, B> androidx.core.util.Pair<A!,B!> create(A!, B!);
-    field public final F! first;
-    field public final S! second;
+    ctor public Pair(F, S);
+    method public static <A, B> androidx.core.util.Pair<A,B> create(A, B);
+    field public final F first;
+    field public final S second;
+  }
+
+  public final class PairKt {
+    method public static inline operator <F, S> F component1(android.util.Pair<F,S>);
+    method public static inline operator <F, S> F component1(androidx.core.util.Pair<F,S>);
+    method public static inline operator <F, S> S component2(android.util.Pair<F,S>);
+    method public static inline operator <F, S> S component2(androidx.core.util.Pair<F,S>);
+    method public static inline <F, S> android.util.Pair<F,S> toAndroidPair(kotlin.Pair<? extends F,? extends S>);
+    method public static inline <F, S> androidx.core.util.Pair<F,S> toAndroidXPair(kotlin.Pair<? extends F,? extends S>);
+    method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(android.util.Pair<F,S>);
+    method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(androidx.core.util.Pair<F,S>);
   }
 
   public final class PatternsCompat {
@@ -3005,12 +3651,25 @@ package androidx.core.util {
   }
 
   public interface Predicate<T> {
-    method public default androidx.core.util.Predicate<T!>! and(androidx.core.util.Predicate<? super T!>!);
-    method public static <T> androidx.core.util.Predicate<T!>! isEqual(Object!);
-    method public default androidx.core.util.Predicate<T!>! negate();
-    method public static <T> androidx.core.util.Predicate<T!>! not(androidx.core.util.Predicate<? super T!>!);
-    method public default androidx.core.util.Predicate<T!>! or(androidx.core.util.Predicate<? super T!>!);
-    method public boolean test(T!);
+    method public default androidx.core.util.Predicate<T>! and(androidx.core.util.Predicate<? super T>!);
+    method public static <T> androidx.core.util.Predicate<T>! isEqual(Object!);
+    method public default androidx.core.util.Predicate<T>! negate();
+    method public static <T> androidx.core.util.Predicate<T>! not(androidx.core.util.Predicate<? super T>!);
+    method public default androidx.core.util.Predicate<T>! or(androidx.core.util.Predicate<? super T>!);
+    method public boolean test(T);
+  }
+
+  public final class RangeKt {
+    method public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> and(android.util.Range<T>, android.util.Range<T> other);
+    method public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, android.util.Range<T> other);
+    method public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, T value);
+    method public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> rangeTo(T, T that);
+    method public static <T extends java.lang.Comparable<? super T>> kotlin.ranges.ClosedRange<T> toClosedRange(android.util.Range<T>);
+    method public static <T extends java.lang.Comparable<? super T>> android.util.Range<T> toRange(kotlin.ranges.ClosedRange<T>);
+  }
+
+  public final class RunnableKt {
+    method public static Runnable asRunnable(kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class SizeFCompat {
@@ -3019,6 +3678,91 @@ package androidx.core.util {
     method public float getWidth();
     method public android.util.SizeF toSizeF();
     method public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
+  }
+
+  public final class SizeKt {
+    method public static inline operator int component1(android.util.Size);
+    method public static inline operator float component1(android.util.SizeF);
+    method public static inline operator float component1(androidx.core.util.SizeFCompat);
+    method public static inline operator int component2(android.util.Size);
+    method public static inline operator float component2(android.util.SizeF);
+    method public static inline operator float component2(androidx.core.util.SizeFCompat);
+  }
+
+  public final class SparseArrayKt {
+    method public static inline operator <T> boolean contains(android.util.SparseArray<T>, int key);
+    method public static inline <T> boolean containsKey(android.util.SparseArray<T>, int key);
+    method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T value);
+    method public static inline <T> void forEach(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
+    method public static inline <T> T getOrDefault(android.util.SparseArray<T>, int key, T defaultValue);
+    method public static inline <T> T getOrElse(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @InaccessibleFromKotlin public static inline <T> int getSize(android.util.SparseArray<T>);
+    method public static inline <T> boolean isEmpty(android.util.SparseArray<T>);
+    method public static inline <T> boolean isNotEmpty(android.util.SparseArray<T>);
+    method public static <T> kotlin.collections.IntIterator keyIterator(android.util.SparseArray<T>);
+    method public static operator <T> android.util.SparseArray<T> plus(android.util.SparseArray<T>, android.util.SparseArray<T> other);
+    method public static <T> void putAll(android.util.SparseArray<T>, android.util.SparseArray<T> other);
+    method public static <T> boolean remove(android.util.SparseArray<T>, int key, T value);
+    method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T value);
+    method public static <T> java.util.Iterator<T> valueIterator(android.util.SparseArray<T>);
+    property public static inline <T> int android.util.SparseArray<T>.size;
+  }
+
+  public final class SparseBooleanArrayKt {
+    method public static inline operator boolean contains(android.util.SparseBooleanArray, int key);
+    method public static inline boolean containsKey(android.util.SparseBooleanArray, int key);
+    method public static inline boolean containsValue(android.util.SparseBooleanArray, boolean value);
+    method public static inline void forEach(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> action);
+    method public static inline boolean getOrDefault(android.util.SparseBooleanArray, int key, boolean defaultValue);
+    method public static inline boolean getOrElse(android.util.SparseBooleanArray, int key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
+    method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseBooleanArray);
+    method public static inline boolean isEmpty(android.util.SparseBooleanArray);
+    method public static inline boolean isNotEmpty(android.util.SparseBooleanArray);
+    method public static kotlin.collections.IntIterator keyIterator(android.util.SparseBooleanArray);
+    method public static operator android.util.SparseBooleanArray plus(android.util.SparseBooleanArray, android.util.SparseBooleanArray other);
+    method public static void putAll(android.util.SparseBooleanArray, android.util.SparseBooleanArray other);
+    method public static boolean remove(android.util.SparseBooleanArray, int key, boolean value);
+    method public static inline operator void set(android.util.SparseBooleanArray, int key, boolean value);
+    method public static kotlin.collections.BooleanIterator valueIterator(android.util.SparseBooleanArray);
+    property public static inline int android.util.SparseBooleanArray.size;
+  }
+
+  public final class SparseIntArrayKt {
+    method public static inline operator boolean contains(android.util.SparseIntArray, int key);
+    method public static inline boolean containsKey(android.util.SparseIntArray, int key);
+    method public static inline boolean containsValue(android.util.SparseIntArray, int value);
+    method public static inline void forEach(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
+    method public static inline int getOrDefault(android.util.SparseIntArray, int key, int defaultValue);
+    method public static inline int getOrElse(android.util.SparseIntArray, int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseIntArray);
+    method public static inline boolean isEmpty(android.util.SparseIntArray);
+    method public static inline boolean isNotEmpty(android.util.SparseIntArray);
+    method public static kotlin.collections.IntIterator keyIterator(android.util.SparseIntArray);
+    method public static operator android.util.SparseIntArray plus(android.util.SparseIntArray, android.util.SparseIntArray other);
+    method public static void putAll(android.util.SparseIntArray, android.util.SparseIntArray other);
+    method public static boolean remove(android.util.SparseIntArray, int key, int value);
+    method public static inline operator void set(android.util.SparseIntArray, int key, int value);
+    method public static kotlin.collections.IntIterator valueIterator(android.util.SparseIntArray);
+    property public static inline int android.util.SparseIntArray.size;
+  }
+
+  public final class SparseLongArrayKt {
+    method public static inline operator boolean contains(android.util.SparseLongArray, int key);
+    method public static inline boolean containsKey(android.util.SparseLongArray, int key);
+    method public static inline boolean containsValue(android.util.SparseLongArray, long value);
+    method public static inline void forEach(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> action);
+    method public static inline long getOrDefault(android.util.SparseLongArray, int key, long defaultValue);
+    method public static inline long getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseLongArray);
+    method public static inline boolean isEmpty(android.util.SparseLongArray);
+    method public static inline boolean isNotEmpty(android.util.SparseLongArray);
+    method public static kotlin.collections.IntIterator keyIterator(android.util.SparseLongArray);
+    method public static operator android.util.SparseLongArray plus(android.util.SparseLongArray, android.util.SparseLongArray other);
+    method public static void putAll(android.util.SparseLongArray, android.util.SparseLongArray other);
+    method public static boolean remove(android.util.SparseLongArray, int key, long value);
+    method public static inline operator void set(android.util.SparseLongArray, int key, long value);
+    method public static kotlin.collections.LongIterator valueIterator(android.util.SparseLongArray);
+    property public static inline int android.util.SparseLongArray.size;
   }
 
   public fun interface Supplier<T> {
@@ -3135,6 +3879,7 @@ package androidx.core.view {
   public final class DisplayCompat {
     method public static androidx.core.view.DisplayCompat.ModeCompat getMode(android.content.Context, android.view.Display);
     method public static androidx.core.view.RoundedCornerCompat? getRoundedCorner(android.view.Display, @androidx.core.view.RoundedCornerCompat.Position int);
+    method public static androidx.core.view.DisplayShapeCompat getShape(android.content.Context, android.view.Display);
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
   }
 
@@ -3156,6 +3901,12 @@ package androidx.core.view {
     method public int getSafeInsetRight();
     method public int getSafeInsetTop();
     method public androidx.core.graphics.Insets getWaterfallInsets();
+  }
+
+  public final class DisplayShapeCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.core.view.DisplayShapeCompat create(int, int, boolean, int, int, int, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.core.view.DisplayShapeCompat create(String, float, int, int);
+    method public android.graphics.Path getPath();
   }
 
   public final class DragAndDropPermissionsCompat {
@@ -3334,6 +4085,22 @@ package androidx.core.view {
   @Deprecated public static interface MenuItemCompat.OnActionExpandListener {
     method @Deprecated public boolean onMenuItemActionCollapse(android.view.MenuItem!);
     method @Deprecated public boolean onMenuItemActionExpand(android.view.MenuItem!);
+  }
+
+  public final class MenuKt {
+    method public static operator boolean contains(android.view.Menu, android.view.MenuItem item);
+    method public static inline void forEach(android.view.Menu, kotlin.jvm.functions.Function1<? super android.view.MenuItem,kotlin.Unit> action);
+    method public static inline void forEachIndexed(android.view.Menu, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super android.view.MenuItem,kotlin.Unit> action);
+    method public static inline operator android.view.MenuItem get(android.view.Menu, int index);
+    method @InaccessibleFromKotlin public static kotlin.sequences.Sequence<android.view.MenuItem> getChildren(android.view.Menu);
+    method @InaccessibleFromKotlin public static inline int getSize(android.view.Menu);
+    method public static inline boolean isEmpty(android.view.Menu);
+    method public static inline boolean isNotEmpty(android.view.Menu);
+    method public static operator java.util.Iterator<android.view.MenuItem> iterator(android.view.Menu);
+    method public static inline operator void minusAssign(android.view.Menu, android.view.MenuItem item);
+    method public static inline void removeItemAt(android.view.Menu, int index);
+    property public static kotlin.sequences.Sequence<android.view.MenuItem> android.view.Menu.children;
+    property public static inline int android.view.Menu.size;
   }
 
   public interface MenuProvider {
@@ -3875,6 +4642,75 @@ package androidx.core.view {
     field public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1; // 0x1
   }
 
+  public final class ViewGroupKt {
+    method public static inline operator boolean contains(android.view.ViewGroup, android.view.View view);
+    method public static inline void forEach(android.view.ViewGroup, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static inline void forEachIndexed(android.view.ViewGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super android.view.View,kotlin.Unit> action);
+    method public static operator android.view.View get(android.view.ViewGroup, int index);
+    method @InaccessibleFromKotlin public static kotlin.sequences.Sequence<android.view.View> getChildren(android.view.ViewGroup);
+    method @InaccessibleFromKotlin public static kotlin.sequences.Sequence<android.view.View> getDescendants(android.view.ViewGroup);
+    method @InaccessibleFromKotlin public static inline kotlin.ranges.IntRange getIndices(android.view.ViewGroup);
+    method @InaccessibleFromKotlin public static inline int getSize(android.view.ViewGroup);
+    method public static inline boolean isEmpty(android.view.ViewGroup);
+    method public static inline boolean isNotEmpty(android.view.ViewGroup);
+    method public static operator java.util.Iterator<android.view.View> iterator(android.view.ViewGroup);
+    method public static inline operator void minusAssign(android.view.ViewGroup, android.view.View view);
+    method public static inline operator void plusAssign(android.view.ViewGroup, android.view.View view);
+    method public static inline void setMargins(android.view.ViewGroup.MarginLayoutParams, @Px int size);
+    method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
+    method @BytecodeOnly public static void updateMargins$default(android.view.ViewGroup.MarginLayoutParams!, int, int, int, int, int, Object!);
+    method public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    method @BytecodeOnly public static void updateMarginsRelative$default(android.view.ViewGroup.MarginLayoutParams!, int, int, int, int, int, Object!);
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.ViewGroup.children;
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.ViewGroup.descendants;
+    property public static inline kotlin.ranges.IntRange android.view.ViewGroup.indices;
+    property public static inline int android.view.ViewGroup.size;
+  }
+
+  public final class ViewKt {
+    method public static inline void doOnAttach(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static inline void doOnDetach(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static inline void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static inline void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static inline androidx.core.view.OneShotPreDrawListener doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+    method public static android.graphics.Bitmap drawToBitmap(android.view.View, optional android.graphics.Bitmap.Config config);
+    method @BytecodeOnly public static android.graphics.Bitmap! drawToBitmap$default(android.view.View!, android.graphics.Bitmap.Config!, int, Object!);
+    method @InaccessibleFromKotlin public static kotlin.sequences.Sequence<android.view.View> getAllViews(android.view.View);
+    method @InaccessibleFromKotlin public static kotlin.sequences.Sequence<android.view.ViewParent> getAncestors(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginBottom(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginEnd(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginLeft(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginRight(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginStart(android.view.View);
+    method @InaccessibleFromKotlin public static inline int getMarginTop(android.view.View);
+    method @InaccessibleFromKotlin public static inline boolean isGone(android.view.View);
+    method @InaccessibleFromKotlin public static inline boolean isInvisible(android.view.View);
+    method @InaccessibleFromKotlin public static inline boolean isVisible(android.view.View);
+    method public static inline Runnable postDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public static Runnable postOnAnimationDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method @InaccessibleFromKotlin public static inline void setGone(android.view.View, boolean);
+    method @InaccessibleFromKotlin public static inline void setInvisible(android.view.View, boolean);
+    method public static inline void setPadding(android.view.View, @Px int size);
+    method @InaccessibleFromKotlin public static inline void setVisible(android.view.View, boolean);
+    method public static inline void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
+    method @KotlinOnly public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<T,kotlin.Unit> block);
+    method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
+    method @BytecodeOnly public static void updatePadding$default(android.view.View!, int, int, int, int, int, Object!);
+    method public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    method @BytecodeOnly public static void updatePaddingRelative$default(android.view.View!, int, int, int, int, int, Object!);
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.View.allViews;
+    property public static kotlin.sequences.Sequence<android.view.ViewParent> android.view.View.ancestors;
+    property public static inline boolean android.view.View.isGone;
+    property public static inline boolean android.view.View.isInvisible;
+    property public static inline boolean android.view.View.isVisible;
+    property public static inline int android.view.View.marginBottom;
+    property public static inline int android.view.View.marginEnd;
+    property public static inline int android.view.View.marginLeft;
+    property public static inline int android.view.View.marginRight;
+    property public static inline int android.view.View.marginStart;
+    property public static inline int android.view.View.marginTop;
+  }
+
   public final class ViewParentCompat {
     method @Deprecated public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
@@ -4029,7 +4865,10 @@ package androidx.core.view {
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeStableInsets();
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method public java.util.List<android.graphics.Rect!> getBoundingRects(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
+    method public java.util.List<android.graphics.Rect!> getBoundingRectsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
+    method public androidx.core.view.DisplayShapeCompat? getDisplayShape();
     method public androidx.core.graphics.Insets getInsets(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
     method public androidx.core.graphics.Insets getInsetsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
     method @Deprecated public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
@@ -4067,7 +4906,10 @@ package androidx.core.view {
     ctor public WindowInsetsCompat.Builder();
     ctor public WindowInsetsCompat.Builder(androidx.core.view.WindowInsetsCompat);
     method public androidx.core.view.WindowInsetsCompat build();
+    method public androidx.core.view.WindowInsetsCompat.Builder setBoundingRects(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, java.util.List<android.graphics.Rect!>);
+    method public androidx.core.view.WindowInsetsCompat.Builder setBoundingRectsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, java.util.List<android.graphics.Rect!>);
     method public androidx.core.view.WindowInsetsCompat.Builder setDisplayCutout(androidx.core.view.DisplayCutoutCompat?);
+    method public androidx.core.view.WindowInsetsCompat.Builder setDisplayShape(androidx.core.view.DisplayShapeCompat);
     method public androidx.core.view.WindowInsetsCompat.Builder setInsets(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, androidx.core.graphics.Insets);
     method public androidx.core.view.WindowInsetsCompat.Builder setInsetsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, androidx.core.graphics.Insets);
     method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setMandatorySystemGestureInsets(androidx.core.graphics.Insets);
@@ -4154,6 +4996,7 @@ package androidx.core.view.accessibility {
     method @Deprecated public static void setAction(android.view.accessibility.AccessibilityEvent, int);
     method @Deprecated public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, @androidx.core.view.accessibility.AccessibilityEventCompat.ContentChangeType int);
     method @Deprecated public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
+    field public static final int CONTENT_CHANGE_TYPE_CHECKED = 8192; // 0x2000
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_INVALID = 1024; // 0x400
     field public static final int CONTENT_CHANGE_TYPE_DRAG_CANCELLED = 512; // 0x200
@@ -4161,11 +5004,14 @@ package androidx.core.view.accessibility {
     field public static final int CONTENT_CHANGE_TYPE_DRAG_STARTED = 128; // 0x80
     field public static final int CONTENT_CHANGE_TYPE_ENABLED = 4096; // 0x1000
     field public static final int CONTENT_CHANGE_TYPE_ERROR = 2048; // 0x800
+    field public static final int CONTENT_CHANGE_TYPE_EXPANDED = 16384; // 0x4000
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
     field public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 8; // 0x8
+    field public static final int CONTENT_CHANGE_TYPE_SORT_DIRECTION = 65536; // 0x10000
     field public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 64; // 0x40
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
+    field public static final int CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION = 32768; // 0x8000
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
     field public static final int TYPES_ALL_MASK = -1; // 0xffffffff
@@ -4190,7 +5036,7 @@ package androidx.core.view.accessibility {
     field @Deprecated public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
   }
 
-  @IntDef(flag=true, value={androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_STARTED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_DROPPED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_CANCELLED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_INVALID, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ERROR, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityEventCompat.ContentChangeType {
+  @IntDef(flag=true, value={androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_STARTED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_DROPPED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_DRAG_CANCELLED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_INVALID, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ERROR, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ENABLED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CHECKED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_EXPANDED, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SORT_DIRECTION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityEventCompat.ContentChangeType {
   }
 
   public final class AccessibilityManagerCompat {
@@ -4236,7 +5082,7 @@ package androidx.core.view.accessibility {
     method @Deprecated public void getBoundsInParent(android.graphics.Rect!);
     method public void getBoundsInScreen(android.graphics.Rect!);
     method public void getBoundsInWindow(android.graphics.Rect);
-    method public int getChecked();
+    method @androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CheckedState public int getChecked();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getChild(int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getChild(int, int);
     method public int getChildCount();
@@ -4248,7 +5094,7 @@ package androidx.core.view.accessibility {
     method public CharSequence! getContentDescription();
     method public int getDrawingOrder();
     method public CharSequence! getError();
-    method public int getExpandedState();
+    method @androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ExpandedState public int getExpandedState();
     method public android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo? getExtraRenderingInfo();
     method public android.os.Bundle! getExtras();
     method public CharSequence? getHintText();
@@ -4267,7 +5113,9 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getParent(int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat! getRangeInfo();
     method public CharSequence? getRoleDescription();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat? getSelection();
     method public CharSequence? getStateDescription();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat? getStructuredDataInfo();
     method public CharSequence? getSupplementalDescription();
     method public CharSequence! getText();
     method public int getTextSelectionEnd();
@@ -4329,7 +5177,7 @@ package androidx.core.view.accessibility {
     method public void setCanOpenPopup(boolean);
     method public void setCheckable(boolean);
     method @Deprecated public void setChecked(boolean);
-    method public void setChecked(int);
+    method public void setChecked(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CheckedState int);
     method public void setClassName(CharSequence!);
     method public void setClickable(boolean);
     method public void setCollectionInfo(Object!);
@@ -4343,7 +5191,7 @@ package androidx.core.view.accessibility {
     method public void setEditable(boolean);
     method public void setEnabled(boolean);
     method public void setError(CharSequence!);
-    method public void setExpandedState(int);
+    method public void setExpandedState(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ExpandedState int);
     method public void setFieldRequired(boolean);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
@@ -4374,10 +5222,12 @@ package androidx.core.view.accessibility {
     method public void setScreenReaderFocusable(boolean);
     method public void setScrollable(boolean);
     method public void setSelected(boolean);
+    method public void setSelection(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat?);
     method public void setShowingHintText(boolean);
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setStateDescription(CharSequence?);
+    method public void setStructuredDataInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat?);
     method public void setSupplementalDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
@@ -4407,6 +5257,7 @@ package androidx.core.view.accessibility {
     field public static final String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
     field public static final String ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT = "androidx.core.view.accessibility.action.ARGUMENT_SCROLL_AMOUNT_FLOAT";
     field public static final String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
+    field public static final String ACTION_ARGUMENT_SELECTION_PARCELABLE = "android.view.accessibility.action.ARGUMENT_SELECTION_PARCELABLE";
     field public static final String ACTION_ARGUMENT_SELECTION_START_INT = "ACTION_ARGUMENT_SELECTION_START_INT";
     field public static final String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
     field public static final int ACTION_CLEAR_ACCESSIBILITY_FOCUS = 128; // 0x80
@@ -4430,6 +5281,13 @@ package androidx.core.view.accessibility {
     field public static final int ACTION_SELECT = 4; // 0x4
     field public static final int ACTION_SET_SELECTION = 131072; // 0x20000
     field public static final int ACTION_SET_TEXT = 2097152; // 0x200000
+    field public static final int CHECKED_STATE_FALSE = 0; // 0x0
+    field public static final int CHECKED_STATE_PARTIAL = 2; // 0x2
+    field public static final int CHECKED_STATE_TRUE = 1; // 0x1
+    field public static final int EXPANDED_STATE_COLLAPSED = 1; // 0x1
+    field public static final int EXPANDED_STATE_FULL = 3; // 0x3
+    field public static final int EXPANDED_STATE_PARTIAL = 2; // 0x2
+    field public static final int EXPANDED_STATE_UNDEFINED = 0; // 0x0
     field public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH = "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH";
     field public static final int EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_MAX_LENGTH = 20000; // 0x4e20
     field public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX = "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX";
@@ -4497,6 +5355,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_TO_POSITION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_UP;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SELECT;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_EXTENDED_SELECTION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SET_PROGRESS;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SET_SELECTION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SET_TEXT;
@@ -4504,6 +5363,9 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SHOW_TEXT_SUGGESTIONS;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SHOW_TOOLTIP;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final androidx.core.view.accessibility.AccessibilityViewCommand! mCommand;
+  }
+
+  @IntDef(flag=false, value={androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CHECKED_STATE_FALSE, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CHECKED_STATE_TRUE, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CHECKED_STATE_PARTIAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.CheckedState {
   }
 
   public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {
@@ -4539,10 +5401,15 @@ package androidx.core.view.accessibility {
     method public int getRowIndex();
     method public int getRowSpan();
     method public String? getRowTitle();
+    method @androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SortDirection public int getSortDirection();
     method @Deprecated public boolean isHeading();
     method public boolean isSelected();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat! obtain(int, int, int, int, boolean);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat! obtain(int, int, int, int, boolean, boolean);
+    field public static final int SORT_DIRECTION_ASCENDING = 1; // 0x1
+    field public static final int SORT_DIRECTION_DESCENDING = 2; // 0x2
+    field public static final int SORT_DIRECTION_NONE = 0; // 0x0
+    field public static final int SORT_DIRECTION_OTHER = 3; // 0x3
   }
 
   public static final class AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder {
@@ -4556,6 +5423,48 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder setRowSpan(int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder setRowTitle(String?);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder setSelected(boolean);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder setSortDirection(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SortDirection int);
+  }
+
+  @IntDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SORT_DIRECTION_NONE, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SORT_DIRECTION_ASCENDING, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SORT_DIRECTION_DESCENDING, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SORT_DIRECTION_OTHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.CollectionItemInfoCompat.SortDirection {
+  }
+
+  @IntDef(flag=false, value={androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_UNDEFINED, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_COLLAPSED, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_PARTIAL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_FULL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.ExpandedState {
+  }
+
+  public static class AccessibilityNodeInfoCompat.MathInfoCompat extends androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
+    ctor public AccessibilityNodeInfoCompat.MathInfoCompat(android.view.accessibility.AccessibilityNodeInfo.MathInfo?);
+    ctor public AccessibilityNodeInfoCompat.MathInfoCompat(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MathTag String);
+    field public static final String MATH_ATTRIBUTE_ARG = "arg";
+    field public static final String MATH_ATTRIBUTE_INTENT = "intent";
+    field public static final String MATH_TAG_FRACTION = "mfrac";
+    field public static final String MATH_TAG_IDENTIFIER = "mi";
+    field public static final String MATH_TAG_MATH = "math";
+    field public static final String MATH_TAG_MULTISCRIPTS = "mmultiscripts";
+    field public static final String MATH_TAG_NONE_SCRIPT = "none";
+    field public static final String MATH_TAG_NUMBER = "mn";
+    field public static final String MATH_TAG_OPERATOR = "mo";
+    field public static final String MATH_TAG_OVER = "mover";
+    field public static final String MATH_TAG_PRESCRIPT_DELIMITER = "mprescripts";
+    field public static final String MATH_TAG_ROOT = "mroot";
+    field public static final String MATH_TAG_ROW = "mrow";
+    field public static final String MATH_TAG_SQUARE_ROOT = "msqrt";
+    field public static final String MATH_TAG_STRING_LITERAL = "ms";
+    field public static final String MATH_TAG_SUB = "msub";
+    field public static final String MATH_TAG_SUB_SUP = "msubsup";
+    field public static final String MATH_TAG_SUP = "msup";
+    field public static final String MATH_TAG_TABLE = "mtable";
+    field public static final String MATH_TAG_TABLE_CELL = "mtd";
+    field public static final String MATH_TAG_TABLE_ROW = "mtr";
+    field public static final String MATH_TAG_TEXT = "mtext";
+    field public static final String MATH_TAG_UNDER = "munder";
+    field public static final String MATH_TAG_UNDER_OVER = "munderover";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_ATTRIBUTE_INTENT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_ATTRIBUTE_ARG}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.MathInfoCompat.MathAttribute {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_MATH, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_FRACTION, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_IDENTIFIER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_MULTISCRIPTS, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_NONE_SCRIPT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_NUMBER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_OPERATOR, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_OVER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_PRESCRIPT_DELIMITER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_ROOT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_ROW, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SQUARE_ROOT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_STRING_LITERAL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUB, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUB_SUP, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUP, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE_CELL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE_ROW, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TEXT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_UNDER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_UNDER_OVER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.MathInfoCompat.MathTag {
   }
 
   public static class AccessibilityNodeInfoCompat.RangeInfoCompat {
@@ -4568,6 +5477,50 @@ package androidx.core.view.accessibility {
     field public static final int RANGE_TYPE_FLOAT = 1; // 0x1
     field public static final int RANGE_TYPE_INT = 0; // 0x0
     field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
+  }
+
+  public static final class AccessibilityNodeInfoCompat.SelectionCompat {
+    ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.os.Bundle);
+    ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.view.accessibility.AccessibilityNodeInfo.Selection?);
+    ctor public AccessibilityNodeInfoCompat.SelectionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getEnd();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getStart();
+    method public android.os.Bundle toActionArguments();
+    method public android.view.accessibility.AccessibilityNodeInfo.Selection? unwrap();
+  }
+
+  public static final class AccessibilityNodeInfoCompat.SelectionPositionCompat {
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(android.view.accessibility.AccessibilityNodeInfo.SelectionPosition);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(android.view.View, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(android.view.View, int, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getNode();
+    method public int getOffset();
+    method @SuppressCompatibility @androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType @androidx.core.view.accessibility.PreviewAccessibilityApi public int getOffsetType();
+    method public android.view.View? getView();
+    method public int getVirtualDescendantId();
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_CHILD = 1; // 0x1
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_TEXT = 0; // 0x0
+  }
+
+  @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final class AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder {
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat build();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder setOffsetType(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType int);
+  }
+
+  @SuppressCompatibility @IntDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OFFSET_TYPE_TEXT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OFFSET_TYPE_CHILD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.core.view.accessibility.PreviewAccessibilityApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType {
+  }
+
+  public abstract static class AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
+    ctor protected AccessibilityNodeInfoCompat.StructuredDataInfoCompat(android.view.accessibility.AccessibilityNodeInfo.StructuredDataInfo?);
+    method public String? getAttribute(String);
+    method public java.util.Map<java.lang.String!,java.lang.String!> getAttributes();
+    method public String? getTag();
+    method public void putAttribute(String, String);
+    method public void removeAttribute(String);
   }
 
   public static final class AccessibilityNodeInfoCompat.TouchDelegateInfoCompat {
@@ -4728,6 +5681,9 @@ package androidx.core.view.accessibility {
     field public static final int TYPE_SYSTEM = 3; // 0x3
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is a preview accessibility API. It may be changed or removed in future releases.") @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.FIELD}) public @interface PreviewAccessibilityApi {
+  }
+
 }
 
 package androidx.core.view.animation {
@@ -4801,6 +5757,22 @@ package androidx.core.view.inputmethod {
     method public void requestPermission();
     method public Object? unwrap();
     method public static androidx.core.view.inputmethod.InputContentInfoCompat? wrap(Object?);
+  }
+
+  public final class TextAttributeCompat {
+    method public android.os.PersistableBundle getExtras();
+    method public java.util.List<java.lang.String!> getTextConversionSuggestions();
+    method public boolean isTextSuggestionSelected();
+    method public Object? unwrap();
+    method public static androidx.core.view.inputmethod.TextAttributeCompat? wrap(Object?);
+  }
+
+  public static final class TextAttributeCompat.Builder {
+    ctor public TextAttributeCompat.Builder();
+    method public androidx.core.view.inputmethod.TextAttributeCompat build();
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setExtras(android.os.PersistableBundle);
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setTextConversionSuggestions(java.util.List<java.lang.String!>);
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setTextSuggestionSelected(boolean);
   }
 
 }
@@ -4972,17 +5944,20 @@ package androidx.core.widget {
     method public int getMaxScrollAmount();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isFillViewport();
+    method public boolean isScrollToTopEnabled();
     method public boolean isSmoothScrollingEnabled();
     method public void onAttachedToWindow();
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onScrollToTop(int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
     method public boolean pageScroll(int);
     method public void setFillViewport(boolean);
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener?);
+    method public void setScrollToTopEnabled(boolean);
     method public void setSmoothScrollingEnabled(boolean);
     method public final void smoothScrollBy(int, int);
     method public final void smoothScrollBy(int, int, int);
@@ -5066,6 +6041,14 @@ package androidx.core.widget {
   }
 
   @IntDef({androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE, androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TextViewCompat.AutoSizeTextType {
+  }
+
+  public final class TextViewKt {
+    method public static inline android.text.TextWatcher addTextChangedListener(android.widget.TextView, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> beforeTextChanged, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> onTextChanged, optional kotlin.jvm.functions.Function1<? super android.text.Editable?,kotlin.Unit> afterTextChanged);
+    method @BytecodeOnly public static android.text.TextWatcher! addTextChangedListener$default(android.widget.TextView!, kotlin.jvm.functions.Function4!, kotlin.jvm.functions.Function4!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static inline android.text.TextWatcher doAfterTextChanged(android.widget.TextView, kotlin.jvm.functions.Function1<? super android.text.Editable?,kotlin.Unit> action);
+    method public static inline android.text.TextWatcher doBeforeTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
+    method public static inline android.text.TextWatcher doOnTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TextViewOnReceiveContentListener implements androidx.core.view.OnReceiveContentListener {

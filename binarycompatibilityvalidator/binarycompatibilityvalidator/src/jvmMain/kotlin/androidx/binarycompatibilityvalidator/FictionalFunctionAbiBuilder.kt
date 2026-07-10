@@ -18,6 +18,7 @@ package androidx.binarycompatibilityvalidator
 
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbi
+import org.jetbrains.kotlin.library.abi.parser.KlibDumpParser
 
 /**
  * Because FunctionN interfaces are provided by the compiler and not actually part of the stdlib, we
@@ -31,7 +32,7 @@ object FictionalFunctionAbiBuilder {
 
     fun build(): LibraryAbi {
         val dumpText = createFictionalFunctionAbiDump()
-        return KlibDumpParser(dumpText).parse().values.single()
+        return KlibDumpParser(dumpText).parse()
     }
 
     // build from dump file to avoid accessing internal symbols
@@ -40,6 +41,7 @@ object FictionalFunctionAbiBuilder {
         builder.append(metadata)
         builder.append("\n")
         builder.append("abstract interface <#A: out kotlin/Any?> kotlin/Function\n")
+        builder.append("abstract interface <#A: out kotlin/Any?> kotlin/Function0\n")
         repeat(NUM_FUNCTIONS_TO_CREATE) { num ->
             val outTag = tags[num]
             val typeParams = (0..num).joinToString(", ") { idx -> "#${tags[idx]}: in kotlin/Any?" }
@@ -67,12 +69,11 @@ object FictionalFunctionAbiBuilder {
     private val metadata =
         """
         // KLib ABI Dump
-        // Targets: [stub]
         // Rendering settings:
         // - Signature version: 2
         // - Show manifest properties: true
         // - Show declarations: true
         // Library unique name: <stub:stub>
-    """
+        """
             .trimIndent()
 }

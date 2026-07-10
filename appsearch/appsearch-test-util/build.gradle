@@ -23,9 +23,11 @@ plugins {
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.4.1")
 
     implementation(project(":appsearch:appsearch"))
     implementation(project(":appsearch:appsearch-local-storage"))
+    implementation(project(":appsearch:appsearch-platform-storage"))
     implementation("androidx.collection:collection:1.4.2")
     implementation(libs.truth)
 
@@ -43,6 +45,6 @@ androidx {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.appsearch.testutil"
 }

@@ -31,6 +31,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @RunWith(TilesTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class TimelineCheckerTest {
     @Test
     fun doCheck_callsAllCheckersOnSuccess() {

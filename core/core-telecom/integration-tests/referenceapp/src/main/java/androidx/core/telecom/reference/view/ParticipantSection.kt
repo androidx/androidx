@@ -38,10 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.telecom.reference.model.ParticipantState
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.collections.forEach
 
-@OptIn(ExperimentalAppActions::class)
 @Composable
 fun ParticipantSection(
     participants: List<ParticipantState>,
@@ -83,7 +81,6 @@ fun ParticipantSection(
 
 @Preview(showBackground = true, name = "Participant Dialog")
 @Composable
-@OptIn(ExperimentalAppActions::class)
 fun ParticipantDialogPreview() {
     MaterialTheme {
         ParticipantSection(

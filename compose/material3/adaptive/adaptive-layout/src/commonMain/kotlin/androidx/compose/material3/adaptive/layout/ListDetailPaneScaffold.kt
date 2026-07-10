@@ -52,7 +52,7 @@ import androidx.compose.ui.Modifier
  *
  * The following code gives a sample of how to integrate with the Compose Navigation library:
  *
- * @sample androidx.compose.material3.adaptive.samples.NavigableListDetailPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailWithNavigation2Sample
  * @param directive The top-level directives about how the scaffold should arrange its panes.
  * @param value The current adapted value of the scaffold, which indicates how each pane of the
  *   scaffold is adapted.
@@ -139,7 +139,7 @@ fun ListDetailPaneScaffold(
  *
  * The following code gives a sample of how to integrate with the Compose Navigation library:
  *
- * @sample androidx.compose.material3.adaptive.samples.NavigableListDetailPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailWithNavigation2Sample
  * @param directive The top-level directives about how the scaffold should arrange its panes.
  * @param scaffoldState The current state of the scaffold, containing information about the adapted
  *   value of each pane of the scaffold and the transitions/animations in progress.

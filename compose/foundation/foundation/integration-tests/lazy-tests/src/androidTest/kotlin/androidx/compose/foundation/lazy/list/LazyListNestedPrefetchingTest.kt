@@ -76,7 +76,7 @@ class LazyListNestedPrefetchingTest(val config: Config) :
     @OptIn(ExperimentalFoundationApi::class)
     private val strategy =
         object : LazyListPrefetchStrategy by LazyListPrefetchStrategy() {
-            override val prefetchScheduler: PrefetchScheduler = scheduler
+            @Deprecated("override") override val prefetchScheduler: PrefetchScheduler = scheduler
         }
 
     @OptIn(ExperimentalFoundationApi::class)

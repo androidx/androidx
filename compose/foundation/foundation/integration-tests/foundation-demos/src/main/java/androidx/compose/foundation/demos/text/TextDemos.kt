@@ -19,6 +19,7 @@ package androidx.compose.foundation.demos.text
 import androidx.compose.foundation.demos.text2.BasicSecureTextFieldDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldCustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldDemos
+import androidx.compose.foundation.demos.text2.BasicTextFieldFormattedTextDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldInScrollableDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldInputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
@@ -208,6 +209,7 @@ val TextDemos =
                     ComposableDemo("Long text") { BasicTextFieldLongTextDemo() },
                     ComposableDemo("Cursor") { TextFieldCursorNotBlinkingInUnfocusedWindowDemo() },
                     ComposableDemo("Handwriting detector") { HandwritingDetectorSample() },
+                    ComposableDemo("Formatted TextField") { BasicTextFieldFormattedTextDemos() },
                 ),
             ),
             DemoCategory(
@@ -224,6 +226,16 @@ val TextDemos =
                     },
                     ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
                     ComposableDemo("Selection in Popup") { SelectionPopupDemo() },
+                    ComposableDemo("Nested Selection") { NestedSelectionContainerDemo() },
+                    ComposableDemo("Select All Button") { SelectAllButtonDemo() },
+                    ComposableDemo("Extend Selection By Word Button") {
+                        ExtendSelectionButtonDemo()
+                    },
+                    ComposableDemo("Selection Translation") { SelectionTranslationDemo() },
+                    ComposableDemo("Share Selection") { ShareSelectionDemo() },
+                    ComposableDemo("Selected Character Count") { SelectionCharacterCountDemo() },
+                    ComposableDemo("Selection Query Programmatically") { SelectQueryDemo() },
+                    ComposableDemo("Select Third Text Programmatically") { SelectThirdTextDemo() },
                 ),
             ),
             DemoCategory(

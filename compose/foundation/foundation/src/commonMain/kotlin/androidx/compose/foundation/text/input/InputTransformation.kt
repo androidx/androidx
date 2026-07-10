@@ -130,6 +130,13 @@ fun InputTransformation.allCaps(locale: Locale): InputTransformation =
 /**
  * Returns [InputTransformation] that rejects input which causes the total length of the text field
  * to be more than [maxLength] characters.
+ *
+ * This transformation also sets the maximum text length for accessibility services. When using an
+ * [OutputTransformation] that adds decorating characters, the announced maximum length may need to
+ * be adjusted to account for those characters. See the linked sample for an example of a custom
+ * `maxLength` filter that does this.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationMaxLengthCustom
  */
 @Stable
 fun InputTransformation.maxLength(maxLength: Int): InputTransformation =

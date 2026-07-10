@@ -228,4 +228,78 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
             .run()
             .expectClean()
     }
+
+    @Test
+    fun nestedAndInternalModifierIsSupported() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+
+                object Scope {
+                    @Composable
+                    internal fun button() {}
+                    @Composable
+                    internal fun GetInt(): Int { return 5 }
+                }
+            """
+                ),
+                Stubs.Composable,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/Scope.kt:8: Warning: Composable functions that return Unit should start with an uppercase letter [ComposableNaming]
+                    internal fun button() {}
+                                 ~~~~~~
+src/androidx/compose/runtime/foo/Scope.kt:10: Warning: Composable functions with a return type should start with a lowercase letter [ComposableNaming]
+                    internal fun GetInt(): Int { return 5 }
+                                 ~~~~~~
+0 errors, 2 warnings
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/Scope.kt line 8: Change to Button:
+@@ -8 +8 @@
+-                    internal fun button() {}
++                    internal fun Button() {}
+Autofix for src/androidx/compose/runtime/foo/Scope.kt line 10: Change to getInt:
+@@ -10 +10 @@
+-                    internal fun GetInt(): Int { return 5 }
++                    internal fun getInt(): Int { return 5 }
+                """
+            )
+    }
+
+    /**
+     * Verifies that overrides are reliably ignored even when the superclass/interface cannot be
+     * resolved on the classpath (partial resolution/compilation errors). This tests the structural
+     * fallback check for the Kotlin 'override' keyword, which handles cases where semantic
+     * resolution (`findSuperMethods()`) fails.
+     */
+    @Test
+    fun overrideWithMissingSuperclass_ignored() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+
+                class MyImpl : MyComposer {
+                    @Composable
+                    override fun button() {} // OK: ignored (override)
+                }
+            """
+                ),
+                Stubs.Composable,
+            )
+            .run()
+            .expectClean()
+    }
 }

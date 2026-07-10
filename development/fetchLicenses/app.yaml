@@ -1,2 +1,2 @@
-runtime: nodejs20
+runtime: nodejs24
 instance_class: F4_1G

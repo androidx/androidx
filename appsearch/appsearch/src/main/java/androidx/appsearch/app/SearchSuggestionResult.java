@@ -34,7 +34,8 @@ import androidx.core.util.Preconditions;
  * The result class of the {@link AppSearchSession#searchSuggestionAsync}.
  */
 @SafeParcelable.Class(creator = "SearchSuggestionResultCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class SearchSuggestionResult extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

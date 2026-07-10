@@ -70,7 +70,6 @@ import androidx.compose.runtime.composer.gapbuffer.changelist.Operation.Ups
 import androidx.compose.runtime.composer.gapbuffer.changelist.Operation.UseCurrentNode
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
-import androidx.compose.runtime.tooling.OperationErrorContext
 
 internal class ChangeList : Changes() {
 
@@ -91,9 +90,13 @@ internal class ChangeList : Changes() {
         rememberManager: RememberManager,
         errorContext: CompositionErrorContextImpl?,
     ) {
-        val slotTable = slotStorage.asGapBufferSlotTable()
-        slotTable.write { slots ->
-            executeAndFlushAllPendingChanges(applier, slots, rememberManager, errorContext)
+        slotStorage.asGapBufferSlotTable().write { slotWriter ->
+            executeAndFlushAllPendingChanges(
+                applier = applier,
+                slots = slotWriter,
+                rememberManager = rememberManager,
+                errorContext = errorContext,
+            )
         }
     }
 

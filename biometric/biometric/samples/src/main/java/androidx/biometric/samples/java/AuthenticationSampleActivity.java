@@ -29,6 +29,7 @@ import androidx.biometric.PromptContentItemBulletedText;
 import androidx.fragment.app.FragmentActivity;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,20 +55,23 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                                                 + " "
                                                 + result.error().getErrString()
                                 );
+                            } else if (result.isCustomFallbackSelected()) {
+                                Log.i(TAG, "fallback is selected, text:"
+                                        + result.customFallbackSelected().getFallback().getText());
                             }
                         }
 
                         // Handle intermediate authentication failure, this is optional and
                         // not needed in most cases
                         @Override
-                        public void onAuthFailure() {
+                        public void onAuthAttemptFailed() {
                             Log.i(TAG, "onAuthenticationFailed, try again");
                         }
                     }
             );
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String title = "Title";
         String subtitle = "Subtitle";
@@ -79,11 +83,10 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                                         new PromptContentItemBulletedText("test item2")))
 
                 );
-        Biometric.Fallback fallback = new Biometric.Fallback.NegativeButton("Cancel button");
         Biometric.Strength minStrength = Biometric.Strength.Class2.INSTANCE;
 
         AuthenticationRequest authRequest =
-                new Biometric.Builder(title, fallback)
+                new Biometric.Builder(title, new Biometric.Fallback.CustomOption("Cancel button"))
                         .setMinStrength(minStrength)
                         .setSubtitle(subtitle)
                         .setContent(bodyContent)

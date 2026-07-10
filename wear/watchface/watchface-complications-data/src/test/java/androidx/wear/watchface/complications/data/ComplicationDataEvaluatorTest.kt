@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.content.ComponentName
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO_DATA
 import android.support.wearable.complications.ComplicationData.Companion.TYPE_SHORT_TEXT
@@ -35,6 +36,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -53,6 +55,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ComplicationDataEvaluatorTest {
     @get:Rule val expect = Expect.create()
 
@@ -424,6 +427,7 @@ class ComplicationDataEvaluatorTest {
             WireComplicationData.Builder(TYPE_SHORT_TEXT)
                 .setShortText(WireComplicationText(DynamicString.from(AppDataKey("missing_key"))))
                 .setPlaceholder(constantData("Placeholder"))
+                .setDataSource(ComponentName("pkg", "cls"))
                 .build()
         val evaluator = ComplicationDataEvaluator(keepDynamicValues = true)
 
@@ -433,6 +437,7 @@ class ComplicationDataEvaluatorTest {
                     .setInvalidatedData(expressed)
                     // Keeps the placeholder too.
                     .setPlaceholder(evaluatedWithConstantData("Placeholder"))
+                    .setDataSource(ComponentName("pkg", "cls"))
                     .build()
             )
     }
@@ -440,6 +445,34 @@ class ComplicationDataEvaluatorTest {
     private fun advanceUntilIdle() {
         @OptIn(ExperimentalCoroutinesApi::class) // StandardTestDispatcher no longer experimental.
         (dispatcher as TestDispatcher).scheduler.advanceUntilIdle()
+    }
+
+    private class CrashingPlatformDataProvider : PlatformDataProvider {
+        override fun setReceiver(
+            executor: java.util.concurrent.Executor,
+            receiver: androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver,
+        ) {
+            throw RuntimeException("Bind-phase provider crash!")
+        }
+
+        override fun clearReceiver() {}
+    }
+
+    @Test
+    fun evaluate_crashingPlatformSource_isInvalidatedSafely() {
+        val badProvider = CrashingPlatformDataProvider()
+        val badKey = PlatformHealthSources.Keys.HEART_RATE_BPM
+        val customEvaluator =
+            ComplicationDataEvaluator(platformDataProviders = mapOf(badProvider to setOf(badKey)))
+
+        val malformedData =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicFloat.from(badKey).format()))
+                .build()
+
+        // Bind-phase exception is safely caught, emitting null and invalidating the data.
+        val result = runBlocking { customEvaluator.evaluate(malformedData).first() }
+        assertThat(result.type).isEqualTo(TYPE_NO_DATA)
     }
 
     private companion object {

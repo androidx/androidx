@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /** Utility class for testing code that depends on [RequestFailure] with reasonable defaults. */
 public class FakeRequestFailure(
@@ -28,8 +28,5 @@ public class FakeRequestFailure(
     override val reason: Int = 0,
     override val wasImageCaptured: Boolean = false,
 ) : RequestFailure {
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        // Fake objects cannot be unwrapped.
-        return null
-    }
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 }

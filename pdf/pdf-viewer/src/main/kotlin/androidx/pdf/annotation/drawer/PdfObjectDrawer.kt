@@ -19,7 +19,7 @@ package androidx.pdf.annotation.drawer
 import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.PdfObject
 
 /**
  * Interface for drawing [PdfObject] instances onto a [Canvas].

@@ -19,13 +19,13 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="back_caps_action_title" msgid="6392829425035919422">"برگشتن"</string>
     <string name="home_caps_action_title" msgid="4853167242566949502">"خانه"</string>
-    <string name="exit_action_title" msgid="9086586388884500731">"خروج"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"خارج شدن"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"بازآوری"</string>
     <string name="close_action_title" msgid="2661907510124308560">"بستن"</string>
     <string name="grant_access_action_title" msgid="4033140828804350723">"اعطای دسترسی"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"فعال کردن مکان"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"لغو"</string>
-    <string name="stop_action_title" msgid="1187619482795416314">"توقف"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"ایست"</string>
     <string name="more_action_title" msgid="1039516575011403837">"بیشتر"</string>
     <string name="call_action_title" msgid="6218977436905001611">"تماس"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"اصلی"</string>
@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"پیام اینجا می‌رود.\nنوشتار بیشتر در خط دوم."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"نسخه نمونه الگوی پیام کوتاه"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"نسخه نمایشی الگوی مورد بخش‌بندی‌شده"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"نسخه نمایشی مورد فشرده"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏نسخه نمایشی فعالسازی AlphaJump برای مورد بخش‌بندی‌شده"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"بخش دکمه رادیویی"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"بخش دکمه مبدل"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"بخش ردیف‌های بسیار زیاد"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"بخش مورد شبکه"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"نمونه فهرست موارد بخش‌بندی‌شده"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"فهرست ۱"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فهرست ۲"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نوشتار فرعی زیر هر فهرست"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"پایان دادن به نسخه نمایشی تصویر و کنش‌ها"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"نسخه نمایشی تراشه"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"نسخه نمایشی نوار پیشرفت"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"نسخه نمایشی عنوان بخش"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"نسخه نمایشی بخش «لحظات برجسته»"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"الگوی قاب نمونه"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"نمونه الگوی فهرست مکان"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مرور مکان‌ها"</string>
@@ -262,16 +273,17 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"به سیستم وارد شدید!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ورود به سیستم تکمیل شد"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"الگوی ورود به سیستم نمونه"</string>
-    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"نمونه‌های الگوی برگه"</string>
-    <string name="tab_template_demo_title" msgid="7587839101813629975">"نمونه الگوی برگه"</string>
-    <string name="tab_title_message" msgid="5266710951630087246">"برگه پیام"</string>
-    <string name="tab_title_pane" msgid="2520606145526537263">"برگه قاب"</string>
-    <string name="tab_title_list" msgid="5104962518489668123">"برگه فهرست"</string>
-    <string name="tab_title_grid" msgid="5268168907976325154">"برگه جدول با عنوان برگه طولانی"</string>
-    <string name="tab_title_search" msgid="1892925693146631173">"برگه جستجو"</string>
-    <string name="tab_title_loading" msgid="5385807479734490989">"درحال بار کردن «برگه»"</string>
-    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"نمونه بارگیری الگوی برگه"</string>
-    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"نمونه عدم وجود برگه الگوی برگه"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"نمونه‌های الگوی زبانه"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"نمونه الگوی زبانه"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"زبانه پیام"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"زبانه قاب"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"زبانه مورد بخش‌بندی‌شده"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"زبانه فهرست"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"زبانه جدول با عنوان زبانه طولانی"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"زبانه جستجو"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"درحال بار کردن «زبانه»"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"نمونه بارگیری الگوی زبانه"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"نمونه عدم وجود زبانه الگوی زبانه"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"به‌دلیل نامشخص بودن میزبان، تصویر نمایش داده نمی‌شود"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"نماد"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"نمونه نمادهای ارائه‌دهنده محتوا"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ردیف را هم می‌توان انتخاب کرد"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"کنش فرعی انتخاب شده است"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"کنش اصلی ردیف انتخاب شده است"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"نمونه فهرست موارد بخش‌بندی‌شده"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"فهرست ۱"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فهرست ۲"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نوشتار فرعی زیر هر فهرست"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"نسخه نمایشی تصویر و کنش‌های انتهای ردیف"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"نمونه فهرست خالی"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"فهرست خالی است"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"الگوهای متفرقه نمونه"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"نسخه‌های نمایشی نقشه با محتوا"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"نسخه نمایشی نقشه با الگوی پیام"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"نسخه نمایشی نقشه با الگوی جدولی"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

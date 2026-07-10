@@ -26,7 +26,6 @@ import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
@@ -90,10 +89,13 @@ public class Int32NodesTest {
     private static final PlatformDataValues STEPS_80 =
             PlatformDataValues.of(DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80));
 
-    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
-    @Mock private PlatformDataProvider mMockDataProvider;
+    @Mock
+    private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+    @Mock
+    private PlatformDataProvider mMockDataProvider;
 
     private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
@@ -112,22 +114,32 @@ public class Int32NodesTest {
 
     @Test
     public void testArithmeticOperation_unknownOp_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                1,
-                                1,
-                                ARITHMETIC_OP_TYPE_UNDEFINED.getNumber(),
-                                new AddToListCallback<>(new ArrayList<>())));
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                -1 /* UNRECOGNIZED */,
-                                new AddToListCallback<>(new ArrayList<>())));
+        List<Integer> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        evaluateArithmeticExpression(
+                1,
+                1,
+                ARITHMETIC_OP_TYPE_UNDEFINED.getNumber(),
+                new AddToListCallback<>(results, invalidList));
+
+        assertThat(results).isEmpty();
+        assertThat(invalidList).hasSize(1);
+    }
+
+    @Test
+    public void testArithmeticOperation_unrecognizedOp_throws() {
+        List<Integer> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        evaluateArithmeticExpression(
+                /* lhs= */ 1,
+                /* rhs= */ 1,
+                -1 /* UNRECOGNIZED */,
+                new AddToListCallback<>(results, invalidList));
+
+        assertThat(results).isEmpty();
+        assertThat(invalidList).hasSize(1);
     }
 
     @Test
@@ -164,15 +176,11 @@ public class Int32NodesTest {
     public void testGetDurationPartOpNode_unknownPart_throws() {
         Duration duration = Duration.ofSeconds(123456);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_UNDEFINED));
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> createGetDurationPartOpNodeAndGetPart(duration, -1 /* UNRECOGNIZED */));
+        assertThat(
+                createGetDurationPartOpNodeAndGetPartResults(
+                        duration, DurationPartType.DURATION_PART_TYPE_UNDEFINED)).isEmpty();
+        assertThat(createGetDurationPartOpNodeAndGetPartResults(duration,
+                -1 /* UNRECOGNIZED */)).isEmpty();
     }
 
     @Test
@@ -182,36 +190,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(123456);
     }
 
@@ -222,36 +230,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(-123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(-1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(-34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(-2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(-123456);
     }
 
@@ -260,13 +268,23 @@ public class Int32NodesTest {
     }
 
     private int createGetDurationPartOpNodeAndGetPart(Duration duration, int part) {
+        return createGetDurationPartOpNodeAndGetPartResults(duration, part).get(0);
+    }
+
+    private List<Integer> createGetDurationPartOpNodeAndGetPartResults(Duration duration,
+            DurationPartType part) {
+        return createGetDurationPartOpNodeAndGetPartResults(duration, part.getNumber());
+    }
+
+    private List<Integer> createGetDurationPartOpNodeAndGetPartResults(Duration duration,
+            int part) {
         List<Integer> results = new ArrayList<>();
         GetDurationPartOpNode node =
                 new GetDurationPartOpNode(
                         GetDurationPartOp.newBuilder().setDurationPartValue(part).build(),
                         new AddToListCallback<>(results));
         node.getIncomingCallback().onData(duration);
-        return results.get(0);
+        return results;
     }
 
     private int createGetZonedDateTimeOpNodeAndGetPart(
@@ -364,12 +382,12 @@ public class Int32NodesTest {
     @Test
     public void stateInt32Source_init_callsOnDataOnlyOnce() {
         doAnswer(
-                        (Answer<Void>)
-                                invocation -> {
-                                    ((PlatformDataReceiver) invocation.getArgument(1))
-                                            .onData(STEPS_70);
-                                    return null;
-                                })
+                (Answer<Void>)
+                        invocation -> {
+                            ((PlatformDataReceiver) invocation.getArgument(1))
+                                    .onData(STEPS_70);
+                            return null;
+                        })
                 .when(mMockDataProvider)
                 .setReceiver(any(), any());
         PlatformDataStore platformDataStore =
@@ -637,40 +655,40 @@ public class Int32NodesTest {
                         Instant.ofEpochSecond(123450000L), ZoneId.of("Asia/Katmandu"));
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_YEAR))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_YEAR))
                 .isEqualTo(1973);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MONTH))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MONTH))
                 .isEqualTo(11);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime,
-                                ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_MONTH))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime,
+                        ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_MONTH))
                 .isEqualTo(30);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime,
-                                ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_WEEK))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime,
+                        ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_WEEK))
                 .isEqualTo(5);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_HOUR_24H))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_HOUR_24H))
                 .isEqualTo(1);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MINUTE))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MINUTE))
                 .isEqualTo(10);
 
         assertThat(
-                        createGetZonedDateTimeOpNodeAndGetPart(
-                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_SECOND))
+                createGetZonedDateTimeOpNodeAndGetPart(
+                        zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_SECOND))
                 .isEqualTo(0);
     }
 
@@ -691,9 +709,7 @@ public class Int32NodesTest {
 
     @Test
     public void testFloatToInt32Node__unrecognizedRoundType_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateFloatToInt32Expression(12.34f, -1 /* UNRECOGNIZED */));
+        assertThat(evaluateFloatToInt32ExpressionResults(12.34f, -1 /* UNRECOGNIZED */)).isEmpty();
     }
 
     private static void evaluateArithmeticExpression(
@@ -721,6 +737,10 @@ public class Int32NodesTest {
     }
 
     private static int evaluateFloatToInt32Expression(float value, int roundMode) {
+        return evaluateFloatToInt32ExpressionResults(value, roundMode).get(0);
+    }
+
+    private static List<Integer> evaluateFloatToInt32ExpressionResults(float value, int roundMode) {
         List<Integer> results = new ArrayList<>();
         Int32Nodes.FloatToInt32Node node =
                 new Int32Nodes.FloatToInt32Node(
@@ -731,7 +751,7 @@ public class Int32NodesTest {
         node.getIncomingCallback().onPreUpdate();
         node.getIncomingCallback().onData(value);
 
-        return results.get(0);
+        return results;
     }
 
     private static int evaluateFloatToInt32Expression(float value) {

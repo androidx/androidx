@@ -16,13 +16,26 @@
 
 package androidx.core.view;
 
-import android.support.v4.BaseTestActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
 
-import androidx.core.test.R;
+public class WindowInsetsCompatActivity extends InsetsCompatActivity {
 
-public class WindowInsetsCompatActivity extends BaseTestActivity {
+    private WindowInsetsControllerCompat mPendingWindowInsetsControllerCompat;
+
     @Override
-    protected int getContentViewLayoutResId() {
-        return R.layout.insets_compat_activity;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final Window window = getWindow();
+        final View decor = window.getDecorView();
+        mPendingWindowInsetsControllerCompat = new WindowInsetsControllerCompat(window, decor);
+    }
+
+    /**
+     * @return {@link WindowInsetsControllerCompat} obtained before the window is attached.
+     */
+    WindowInsetsControllerCompat getPendingWindowInsetsController() {
+        return mPendingWindowInsetsControllerCompat;
     }
 }

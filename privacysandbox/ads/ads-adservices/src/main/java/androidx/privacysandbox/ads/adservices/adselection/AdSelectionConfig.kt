@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 
@@ -90,7 +89,6 @@ public constructor(
             "trustedScoringSignalsUri=$trustedScoringSignalsUri"
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertToAdServices(): android.adservices.adselection.AdSelectionConfig {
@@ -105,7 +103,6 @@ public constructor(
             .build()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     private fun List<AdTechIdentifier>.convertToAdServices():
@@ -117,7 +114,6 @@ public constructor(
         return ids
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     private fun Map<AdTechIdentifier, AdSelectionSignals>.convertToAdServices():
@@ -138,7 +134,6 @@ public constructor(
         return map
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal companion object {
         val EMPTY =
             AdSelectionConfig(

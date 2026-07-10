@@ -138,7 +138,7 @@ class ValidCasesTest {
             .generatesProGuardRule("bar.DifferentPackagesDerived2.pro")
     }
 
-    private fun <T> CompileTester.GeneratedPredicateClause<T>.generatesProGuardRule(
+    private fun <T : Any> CompileTester.GeneratedPredicateClause<T>.generatesProGuardRule(
         name: String
     ): CompileTester.SuccessfulFileClause<T> {
         return generatesFileNamed(StandardLocation.CLASS_OUTPUT, "", "META-INF/proguard/$name")

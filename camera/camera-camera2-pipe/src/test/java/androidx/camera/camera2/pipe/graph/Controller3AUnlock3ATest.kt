@@ -23,13 +23,16 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -39,22 +42,18 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.ALL_SDKS])
 internal class Controller3AUnlock3ATest {
     private val graphTestContext = GraphTestContext()
     private val graphState3A = GraphState3A()
     private val graphProcessor = graphTestContext.graphProcessor
     private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
     private val listener3A = Listener3A()
-    private val fakeMetadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-            )
-        )
+    private val fakeMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @After
@@ -93,7 +92,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -153,7 +152,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -217,7 +216,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -279,7 +278,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -329,11 +328,13 @@ internal class Controller3AUnlock3ATest {
     @Test
     fun testUnlockAfWhenAfNotSupported() = runTest {
         val fakeMetadata =
-            FakeCameraMetadata(
-                mapOf(
-                    CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
-                )
+            FakeCameraMetadata.fromTemplate(
+                template = EmulatorDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                            intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                    ),
             )
         val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
         val result = controller3A.unlock3A(af = true).await()
@@ -363,13 +364,13 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
         // Act. Unlock AE
         val result3ADeferred = controller3A.unlock3A(ae = true, frameLimit = frameLimit)
-        advanceTimeBy(FRAME_RATE_MS * frameLimit)
+        advanceTimeBy(FRAME_RATE * frameLimit)
         result3ADeferred.await()
 
         // Assert. Result of unlock3A call should be completed with timeout result.
@@ -405,7 +406,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -463,6 +464,6 @@ internal class Controller3AUnlock3ATest {
 
     companion object {
         // The time duration in milliseconds between two frame results.
-        private const val FRAME_RATE_MS = 33L
+        private val FRAME_RATE = 33.milliseconds
     }
 }

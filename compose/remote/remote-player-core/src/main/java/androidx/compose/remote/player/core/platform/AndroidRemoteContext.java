@@ -1,0 +1,664 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.player.core.platform;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.widget.EdgeEffect;
+
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.RemoteClock;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.ScrollingEdgeEffect;
+import androidx.compose.remote.core.SystemClock;
+import androidx.compose.remote.core.TouchListener;
+import androidx.compose.remote.core.VariableSupport;
+import androidx.compose.remote.core.operations.FloatExpression;
+import androidx.compose.remote.core.operations.ShaderData;
+import androidx.compose.remote.core.operations.utilities.ArrayAccess;
+import androidx.compose.remote.core.operations.utilities.DataMap;
+import androidx.compose.remote.core.types.LongConstant;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * An implementation of Context for Android.
+ *
+ * <p>This is used to play the RemoteCompose operations on Android.
+ */
+@RestrictTo(LIBRARY_GROUP)
+public class AndroidRemoteContext extends RemoteContext {
+
+    private Context mAndroidContext;
+
+    public void setAndroidContext(@Nullable Context context) {
+        mAndroidContext = context;
+    }
+
+    public @Nullable Context getAndroidContext() {
+        return mAndroidContext;
+    }
+
+    public @Nullable EdgeEffectBuilder mEdgeEffectBuilder;
+
+    private boolean mA11yAnimationEnabled = true;
+
+    @NonNull
+    private BitmapLoader mBitmapLoader = BitmapLoader.UNSUPPORTED;
+
+    private TypefaceResolver mTypefaceResolver;
+
+    /**
+     * Sets the TypefaceResolver to be used by the PaintContext.
+     *
+     * @param typefaceResolver The TypefaceResolver to be used.
+     */
+    public void setTypefaceResolver(@NonNull TypefaceResolver typefaceResolver) {
+        mTypefaceResolver = typefaceResolver;
+        if (mPaintContext != null) {
+            ((AndroidPaintContext) mPaintContext).setTypefaceResolver(typefaceResolver);
+        }
+    }
+
+    /**
+     * Gets the current TypefaceResolver.
+     *
+     * @return The current TypefaceResolver.
+     */
+    public @Nullable TypefaceResolver getTypefaceResolver() {
+        return mTypefaceResolver;
+    }
+
+    /** Default constructor, uses a {@link RemoteClock#SYSTEM} as the clock. */
+    public AndroidRemoteContext() {
+        this(RemoteClock.SYSTEM);
+    }
+
+    public AndroidRemoteContext(@NonNull Clock clock) {
+        super(new SystemClock(clock));
+        setBitmapLoader(new AndroidBitmapLoader());
+    }
+
+    public AndroidRemoteContext(@NonNull RemoteClock clock) {
+        super(clock);
+        setBitmapLoader(new AndroidBitmapLoader());
+    }
+
+    /**
+     * Sets the BitmapLoader to be used by the RemoteContext for loading bitmaps from URLs. This is
+     * useful when you want to provide a custom way of loading bitmaps, for example, from a network
+     * cache or a local file system.
+     *
+     * @param bitmapLoader The BitmapLoader to be used.
+     */
+    public void setBitmapLoader(@NonNull BitmapLoader bitmapLoader) {
+        mBitmapLoader = bitmapLoader;
+    }
+
+    /**
+     * Returns the BitmapLoader used by the RemoteContext.
+     *
+     * @return The BitmapLoader being used.
+     */
+    public @NonNull BitmapLoader getBitmapLoader() {
+        return mBitmapLoader;
+    }
+
+    /**
+     * Sets the Canvas to be used by the RemoteContext for drawing operations. Typically received in
+     * onDraw. If a PaintContext already exists, it will be reset and updated with the new Canvas.
+     * Otherwise, a new AndroidPaintContext will be created. The width and height of the context are
+     * also updated based on the new Canvas.
+     *
+     * @param canvas The Android Canvas to be used for drawing.
+     */
+    public void useCanvas(@NonNull Canvas canvas) {
+        if (mPaintContext == null) {
+            mPaintContext = new AndroidPaintContext(this, canvas);
+            if (mTypefaceResolver != null) {
+                ((AndroidPaintContext) mPaintContext).setTypefaceResolver(mTypefaceResolver);
+            }
+        } else {
+            // need to make sure to update the canvas for the current one
+            mPaintContext.reset();
+            ((AndroidPaintContext) mPaintContext).setCanvas(canvas);
+        }
+        mWidth = canvas.getWidth();
+        mHeight = canvas.getHeight();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Edge effect handling
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /** EdgeEffectBuilder interface */
+    public interface EdgeEffectBuilder {
+        /**
+         * Create a new EdgeEffect
+         *
+         * @return EdgeEffect
+         */
+        @NonNull EdgeEffect create();
+    }
+
+    /**
+     * Set a builder for EdgeEffects
+     *
+     * @param builder EdgeEffectBuilder
+     */
+    public void setEdgeEffectBuilder(@NonNull EdgeEffectBuilder builder) {
+        mEdgeEffectBuilder = builder;
+    }
+
+    @Override
+    public @Nullable ScrollingEdgeEffect createEdgeEffect(int direction) {
+        if (mEdgeEffectBuilder == null) {
+            return null;
+        }
+        return new AndroidEdgeEffect(mEdgeEffectBuilder.create(), direction);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Data handling
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {
+        mRemoteComposeState.putPathData(instanceId, floatPath);
+        mRemoteComposeState.putPathWinding(instanceId, winding);
+    }
+
+    @Override
+    public float @Nullable [] getPathData(int instanceId) {
+        return mRemoteComposeState.getPathData(instanceId);
+    }
+
+    static class VarName {
+        String mName;
+        int mId;
+        int mType;
+
+        VarName(String name, int id, int type) {
+            mName = name;
+            mId = id;
+            mType = type;
+        }
+    }
+
+    HashMap<String, ArrayList<VarName>> mVarNameHashMap = new HashMap<>();
+
+    /**
+     * Returns the id of a variable
+     *
+     * @param name name of variable
+     * @return id of variable
+     */
+    public int getVariableId(@NonNull String name) {
+        ArrayList<VarName> list = mVarNameHashMap.get(name);
+        if (list == null || list.isEmpty()) {
+            throw new java.util.NoSuchElementException("Variable " + name + " not found");
+        }
+        return list.get(0).mId;
+    }
+
+    /**
+     * Returns the content of a name variable
+     *
+     * @param name name of variable
+     * @return content of variable
+     */
+    public @Nullable String getStringVariableName(@NonNull String name) {
+        int id = getVariableId(name);
+        return getText(id);
+    }
+
+    @Override
+    public void loadVariableName(@NonNull String varName, int varId, int varType) {
+        ArrayList<VarName> list = mVarNameHashMap.get(varName);
+        if (list == null) {
+            list = new ArrayList<>();
+            mVarNameHashMap.put(varName, list);
+        }
+        // Avoid duplicates if re-initializing the same document
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).mId == varId) {
+                return;
+            }
+        }
+        list.add(new VarName(varName, varId, varType));
+    }
+
+    @Override
+    public void setNamedStringOverride(@NonNull String stringName, @NonNull String value) {
+        ArrayList<VarName> list = mVarNameHashMap.get(stringName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideText(var.mId, value);
+            }
+        }
+    }
+
+    @Override
+    public void clearNamedStringOverride(@NonNull String stringName) {
+        ArrayList<VarName> list = mVarNameHashMap.get(stringName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearDataOverride(var.mId);
+            }
+        }
+    }
+
+    @Override
+    public void setNamedBooleanOverride(@NonNull String booleanName, boolean value) {
+        setNamedIntegerOverride(booleanName, value ? 1 : 0);
+    }
+
+    @Override
+    public void clearNamedBooleanOverride(@NonNull String booleanName) {
+        clearNamedIntegerOverride(booleanName);
+    }
+
+    @Override
+    public void setNamedIntegerOverride(@NonNull String integerName, int value) {
+        ArrayList<VarName> list = mVarNameHashMap.get(integerName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideInt(var.mId, value);
+            }
+        }
+    }
+
+    @Override
+    public void clearNamedIntegerOverride(@NonNull String integerName) {
+        ArrayList<VarName> list = mVarNameHashMap.get(integerName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearIntegerOverride(var.mId);
+            }
+        }
+    }
+
+    @Override
+    public void setNamedFloatOverride(@NonNull String floatName, float value) {
+        ArrayList<VarName> list = mVarNameHashMap.get(floatName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideFloat(var.mId, value);
+            }
+        }
+    }
+
+    @Override
+    public void clearNamedFloatOverride(@NonNull String floatName) {
+        ArrayList<VarName> list = mVarNameHashMap.get(floatName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearFloatOverride(var.mId);
+            }
+        }
+    }
+
+    @Override
+    public void setNamedLong(@NonNull String name, long value) {
+        ArrayList<VarName> list = mVarNameHashMap.get(name);
+        if (list != null) {
+            for (VarName var : list) {
+                LongConstant longConstant = (LongConstant) mRemoteComposeState.getObject(var.mId);
+                longConstant.setValue(value);
+            }
+        }
+    }
+
+    @Override
+    public void setNamedDataOverride(@NonNull String dataName, @NonNull Object value) {
+        ArrayList<VarName> list = mVarNameHashMap.get(dataName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideData(var.mId, value);
+            }
+        }
+    }
+
+    @Override
+    public void clearNamedDataOverride(@NonNull String dataName) {
+        ArrayList<VarName> list = mVarNameHashMap.get(dataName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearDataOverride(var.mId);
+            }
+        }
+    }
+
+    /**
+     * Override a color to force it to be the color provided
+     *
+     * @param colorName name of color
+     */
+    @Override
+    public void setNamedColorOverride(@NonNull String colorName, int color) {
+        ArrayList<VarName> list = mVarNameHashMap.get(colorName);
+        if (list != null) {
+            for (VarName var : list) {
+                mRemoteComposeState.overrideColor(var.mId, color);
+            }
+        }
+    }
+
+    @Override
+    public void addCollection(int id, @NonNull ArrayAccess collection) {
+        mRemoteComposeState.addCollection(id, collection);
+    }
+
+    @Override
+    public void putDataMap(int id, @NonNull DataMap map) {
+        mRemoteComposeState.putDataMap(id, map);
+    }
+
+    @Override
+    @Nullable
+    public DataMap getDataMap(int id) {
+        return mRemoteComposeState.getDataMap(id);
+    }
+
+    @Override
+    public void runAction(int id, @NonNull String metadata) {
+        mDocument.performClick(this, id, metadata);
+    }
+
+    @Override
+    public void runNamedAction(int id, @Nullable Object value) {
+        String text = getText(id);
+        if (text != null) {
+            mDocument.runNamedAction(text, value);
+        }
+    }
+
+    /**
+     * Decode a byte array into an image and cache it using the given imageId
+     *
+     * @param imageId  the id of the image
+     * @param encoding how the data is encoded 0 = png, 1 = raw, 2 = url
+     * @param type     the type of the data 0 = RGBA 8888, 1 = 888, 2 = 8 gray
+     * @param width    with of image to be loaded largest dimension is 32767
+     * @param height   height of image to be loaded
+     * @param data     a byte array containing the image information
+     */
+    @Override
+    public void loadBitmap(
+            int imageId, short encoding, short type, int width, int height, byte @NonNull [] data) {
+        if (!mRemoteComposeState.containsId(imageId)) {
+            Bitmap image =
+                    RemoteBitmapDecoder.decodeBitmap(
+                            imageId, encoding, type, width, height, data, mBitmapLoader);
+            if (image != null) {
+                mRemoteComposeState.cacheData(imageId, image);
+            }
+        }
+    }
+
+    @Override
+    public void loadText(int id, @NonNull String text) {
+        if (!mRemoteComposeState.containsId(id)) {
+            mRemoteComposeState.cacheData(id, text);
+        } else {
+            mRemoteComposeState.updateData(id, text);
+        }
+    }
+
+    /**
+     * Overrides the text associated with a given ID.
+     *
+     * @param id   The ID of the text to override.
+     * @param text The new text value.
+     */
+    public void overrideText(int id, @NonNull String text) {
+        mRemoteComposeState.overrideData(id, text);
+    }
+
+    /**
+     * Overrides the integer value associated with a given ID.
+     *
+     * @param id    The ID of the integer to override.
+     * @param value The new integer value.
+     */
+    public void overrideInt(int id, int value) {
+        mRemoteComposeState.overrideInteger(id, value);
+    }
+
+    /**
+     * Overrides the data associated with a given ID.
+     *
+     * @param id    The ID of the data to override.
+     * @param value The new data value.
+     */
+    public void overrideData(int id, @NonNull Object value) {
+        mRemoteComposeState.overrideData(id, value);
+    }
+
+    /**
+     * Clears any data override for the given ID.
+     *
+     * @param id The ID for which to clear the data override.
+     */
+    public void clearDataOverride(int id) {
+        mRemoteComposeState.clearDataOverride(id);
+    }
+
+    /**
+     * Clears any integer override for the given ID.
+     *
+     * @param id The ID for which to clear the integer override.
+     */
+    public void clearIntegerOverride(int id) {
+        mRemoteComposeState.clearIntegerOverride(id);
+    }
+
+    /**
+     * Clears any float override for the given ID.
+     *
+     * @param id The ID for which to clear the float override.
+     */
+    public void clearFloatOverride(int id) {
+        mRemoteComposeState.clearFloatOverride(id);
+    }
+
+    @Override
+    @Nullable
+    public String getText(int id) {
+        return (String) mRemoteComposeState.getFromId(id);
+    }
+
+    @Override
+    public void loadFloat(int id, float value) {
+        mRemoteComposeState.updateFloat(id, value);
+    }
+
+    @Override
+    public void overrideFloat(int id, float value) {
+        mRemoteComposeState.overrideFloat(id, value);
+    }
+
+    @Override
+    public void loadInteger(int id, int value) {
+        mRemoteComposeState.updateInteger(id, value);
+    }
+
+    @Override
+    public void markVariableDirty(int id) {
+        mRemoteComposeState.markVariableDirty(id);
+    }
+
+    /**
+     * Overrides the integer value associated with a given ID.
+     *
+     * @param id    The ID of the integer to override.
+     * @param value The new integer value.
+     */
+    @Override
+    public void overrideInteger(int id, int value) {
+        mRemoteComposeState.overrideInteger(id, value);
+    }
+
+    /**
+     * Overrides the text associated with a given ID, using a text value from another ID.
+     *
+     * @param id      The ID of the text to override.
+     * @param valueId The ID of the text value to use for the override.
+     */
+    @Override
+    public void overrideText(int id, int valueId) {
+        String text = getText(valueId);
+        overrideText(id, text);
+    }
+
+    @Override
+    public void loadColor(int id, int color) {
+        mRemoteComposeState.updateColor(id, color);
+    }
+
+    @Override
+    public void loadAnimatedFloat(int id, @NonNull FloatExpression animatedFloat) {
+        mRemoteComposeState.cacheData(id, animatedFloat);
+    }
+
+    @Override
+    public void loadShader(int id, @NonNull ShaderData value) {
+        mRemoteComposeState.cacheData(id, value);
+    }
+
+    @Override
+    public float getFloat(int id) {
+        return (float) mRemoteComposeState.getFloat(id);
+    }
+
+    @Override
+    public void putObject(int id, @NonNull Object value) {
+        mRemoteComposeState.updateObject(id, value);
+    }
+
+    @Override
+    @Nullable
+    public Object getObject(int id) {
+        return mRemoteComposeState.getObject(id);
+    }
+
+    @Override
+    public int getInteger(int id) {
+        return mRemoteComposeState.getInteger(id);
+    }
+
+    @Override
+    public long getLong(int id) {
+        return ((LongConstant) mRemoteComposeState.getObject(id)).getValue();
+    }
+
+    @Override
+    public int getColor(int id) {
+        return mRemoteComposeState.getColor(id);
+    }
+
+    @Override
+    public void listensTo(int id, @NonNull VariableSupport variableSupport) {
+        mRemoteComposeState.listenToVar(id, variableSupport);
+    }
+
+    @Override
+    public @Nullable ArrayList<VariableSupport> getListeners(int id) {
+        return mRemoteComposeState.getListeners(id);
+    }
+
+    @Override
+    public int updateOps() {
+        return mRemoteComposeState.getOpsToUpdate(this, currentTime);
+    }
+
+    @Override
+    @Nullable
+    public ShaderData getShader(int id) {
+        return (ShaderData) mRemoteComposeState.getFromId(id);
+    }
+
+    @Override
+    public void addTouchListener(@NonNull TouchListener touchExpression) {
+        mDocument.addTouchListener(touchExpression);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Click handling
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void addClickArea(
+            int id,
+            int contentDescriptionId,
+            float left,
+            float top,
+            float right,
+            float bottom,
+            int metadataId) {
+        String contentDescription = (String) mRemoteComposeState.getFromId(contentDescriptionId);
+        String metadata = (String) mRemoteComposeState.getFromId(metadataId);
+        mDocument.addClickArea(id, contentDescription, left, top, right, bottom, metadata);
+    }
+
+    /**
+     * Vibrate the device
+     *
+     * @param type 0 = none, 1-21 ,see HapticFeedbackConstants
+     */
+    @Override
+    public void hapticEffect(int type) {
+        mDocument.haptic(type);
+    }
+
+    @Override
+    public void loadSound(int soundId, byte @NonNull [] data) {
+        mDocument.loadSound(soundId, data);
+    }
+
+    @Override
+    public void playSound(int soundId) {
+        mDocument.playSound(soundId);
+    }
+
+    /**
+     * Enable or disable animations for accessibility.
+     *
+     * @param animationEnabled true to enable animations, false to disable them.
+     */
+    public void setAccessibilityAnimationEnabled(boolean animationEnabled) {
+        this.mA11yAnimationEnabled = animationEnabled;
+    }
+
+    @Override
+    public boolean isAnimationEnabled() {
+        if (mA11yAnimationEnabled) {
+            return super.isAnimationEnabled();
+        } else {
+            return false;
+        }
+    }
+}

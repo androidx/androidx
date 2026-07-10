@@ -24,6 +24,19 @@ Submodule users can skip Workstation setup.
 
 ### Linux and MacOS {#setup-linux-mac}
 
+#### Git rename limit {#setup-linux-mac-rename-limit}
+
+To ensure `git` can detect diffs and renames across significant changes (namely,
+the `androidx.*` package rename), we recommend that you set the following `git
+config` properties:
+
+```shell
+git config --global merge.renameLimit 999999
+git config --global diff.renameLimit 999999
+```
+
+#### Repo {#setup-linux-mac-repo}
+
 First, download `repo` using `curl`.
 
 ```shell
@@ -43,8 +56,9 @@ export PATH=~/bin:$PATH
 > NOTE: When using quotes (`"~/bin"`), `~` does not expand and the path is
 > invalid. (Possibly `bash` only?)
 
-Next, add the following lines to `~/.zshrc` (or `~/.bash_profile` if using
-`bash`) aliasing the `repo` command to run with `python3`:
+Next, if your machine has multiple versions of Python installed then you will
+need to add the following lines to `~/.zshrc` (or `~/.bash_profile` if using
+`bash`) to force the `repo` command to run with `python3`:
 
 ```shell
 # Force repo to run with Python3
@@ -73,9 +87,10 @@ Finally, you will need to either start a new terminal session or run `source
 > ```
 >
 > Run the `Install Certificates.command` in the Python folder of Application
-> (e.g. `/Applications/Python\ 3.11/Install\ Certificates.command`). For more
-> information about SSL/TLS certificate validation, you can read the "Important
-> Information" displayed during Python installation.
+> (e.g. `/Applications/Python\ 3.11/Install\ Certificates.command`). You may
+> also need to install `certifi` via `python3 -m pip install certifi` to run
+> this command. For more information about SSL/TLS certificate validation, you
+> can read the "Important Information" displayed during Python installation.
 
 ### Windows {#setup-win}
 
@@ -107,8 +122,8 @@ possible. All feature development occurs in the public
 the
 [`frameworks/support` git repository](https://android.googlesource.com/platform/frameworks/support/+/androidx-main).
 
-As of 2024/10/10, you will need about XXX GB for a clean checkout or YYY GB for
-a fully-built checkout.
+As of 2025-08-18, you will need about 60 GB for a clean checkout or 160 GB for a
+fully-built checkout with history.
 
 ### Synchronize the branch {#source-checkout}
 
@@ -138,27 +153,6 @@ failed with exit status -6` with cause `md_enable: algorithm 10 not available`
 you may need to install a build of `gpg` that supports SHA512, such as the
 latest version available from [Homebrew](https://brew.sh/) using `brew install
 gpg`.
-
-### Increase Git rename limit {#source-config}
-
-To ensure `git` can detect diffs and renames across significant changes (namely,
-the `androidx.*` package rename), we recommend that you set the following `git
-config` properties:
-
-```shell
-git config --global merge.renameLimit 999999
-git config --global diff.renameLimit 999999
-```
-
-### Set up Git file exclusions {#source-exclude}
-
-Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
-avoid accidentally checking in local metadata files:
-
-```shell
-echo .DS_Store>>~/.gitignore
-git config --global core.excludesFile '~/.gitignore'
-```
 
 ### To check out older sources, use the superproject {#source-historical}
 
@@ -222,12 +216,12 @@ compatibility between various components of the development workflow.
 From the `frameworks/support` directory, you can use
 
 ```shell
-PROJECT_PREFIX=:core:,:work: ./gradlew :studio
+./studiow :core:,:work:
 ```
 
-where `PROJECT_PREFIX` is comma separated list of project prefixes for projects
-you want to work on. This will automatically download and run the correct
-version of Studio to work on the selected libraries.
+where the argument is comma separated list of project prefixes for projects you
+want to work on. This will automatically download and run the correct version of
+Studio to work on the selected libraries.
 
 If you want to open all projects, you can run
 
@@ -499,63 +493,8 @@ which is typically used for plugin and IDE development.
 
 ### Reference documentation {#docs}
 
-Our reference docs (Javadocs and KotlinDocs) are published to
-https://developer.android.com/reference/androidx/packages and may be built
-locally.
-
-#### Generate docs
-
-To build API reference docs for both Java and Kotlin source code using Dackka,
-run the Gradle task:
-
-```
-./gradlew docs
-```
-
-Location of generated refdocs:
-
-*   docs-public (what is published to DAC):
-    `{androidx-main}/out/androidx/docs-public/build/docs`
-*   docs-tip-of-tree: `{androidx-main}/out/androidx/docs-tip-of-tree/build/docs`
-
-The generated docs are plain HTML pages with links that do not work locally.
-These issues are fixed when the docs are published to DAC, but to preview a
-local version of the docs with functioning links and CSS, run:
-
-```
-python3 development/offlinifyDocs/offlinify_dackka_docs.py
-```
-
-You will need to have the `bs4` Python package installed. The CSS used is not
-the same as what will be used when the docs are published.
-
-By default, this command converts the tip-of-tree docs for all libraries. To see
-more options, run:
-
-```
-python3 development/offlinifyDocs/offlinify_dackka_docs.py --help
-```
-
-#### Release docs
-
-To build API reference docs for published artifacts formatted for use on
-[d.android.com](http://d.android.com), run the Gradle command:
-
-```
-./gradlew zipDocs
-```
-
-This will create the artifact `{androidx-main}/out/dist/docs-public-0.zip`. This
-command builds docs based on the version specified in
-`{androidx-main-checkout}/frameworks/support/docs-public/build.gradle` and uses
-the prebuilt checked into
-`{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
-colloquially refer to this two step process of (1) updating `docs-public` and
-(2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](/docs/releasing_prebuilts_dance.md#the-prebuilts-dance™).
-So, to build javadocs that will be published to
-https://developer.android.com/reference/androidx/packages, both of these steps
-need to be completed.
+See [Reference documentation](reference_documentation.md) for information on
+building API reference documentation.
 
 ### Updating public APIs {#updating-public-apis}
 
@@ -594,224 +533,132 @@ will always generate `current.txt` API files.
 
 Historical API surfaces are tracked for compatibility and docs generation
 purposes. For each version -- including `current` to represent the tip-of-tree
-version -- we record three different types of API surfaces.
+version -- we record two different types of API surfaces.
 
-*   `<version>.txt`: Public API surface, tracked for compatibility
+*   `<version>.txt`: Public API surface, tracked for compatibility. This file
+    includes `@RequiresOptIn` experimental API surfaces (see
+    [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
+    for API review, but experimental APIs are not checked for compatibility.
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
     [Restricted APIs](/docs/api_guidelines/index.md#restricted-api))
-*   `public_plus_experimental_<version>.txt`: Public API surface plus
-    `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
-    and API review
 
-NOTE: Experimental API tracking for KLib is enabled by default for KMP projects
-via parallel `updateAbi` and `checkAbi` tasks. If you have a problem with these
-tools,
+#### KMP API Tracking
+
+For a [KMP library](/docs/kmp), the API files described above
+track the API surface for the Android or JVM target of the library. If the
+library has separate Android and JVM targets, only the Android target API
+surface is included in the API files.
+
+Metalava runs API lint for the API surfaces of all targets.
+
+##### Native ABI Files
+
+The binary ABI surface for native targets is tracked via parallel `updateAbi`
+and `checkAbi` tasks. These ABI files are in a separate `bcv` directory. If you
+have a problem with these tools,
 [please file an issue](https://issuetracker.google.com/issues/new?component=1102332&template=1780493).
-As a workaround, you may opt-out by setting
-`enableBinaryCompatibilityValidator = false` under
-`AndroidxMultiplatformExtension` in your library's `build.gradle` file.
 
-### Release notes & the `Relnote:` tag {#relnote}
+##### Multiplatform API Files
 
-Prior to releasing, release notes are pre-populated using a script and placed
-into a Google Doc. The Google Doc is manually double checked by library owners
-before the release goes live. To auto-populate your release notes, you can use
-the semi-optional commit tag `Relnote:` in your commit, which will automatically
-include that message the commit in the pre-populated release notes.
+If a KMP library does not have an Android or JVM target, multiplatform API files
+are created instead of the API files described above. These API files track the
+source API surface of each source set (binary signatures are not included) for
+API review and source compatibility checks.
 
-The presence of a `Relnote:` tag is required for API changes in `androidx-main`.
+The multiplatform API files include
+[experimental APIs](/docs/api_guidelines/index.md#experimental-api)
+for API review but not compatibility tracking.
+[Restricted APIs](/docs/api_guidelines/index.md#restricted-api)
+are not included: these are only tracked in Android/JVM API files to maintain
+binary compatibility, but multiplatform API files are checked for source
+compatibility, not binary compatibility.
 
-#### How to use it?
+The signature files for the current multiplatform API surface are tracked under
+a `multiplatform-current` subdirectory of the `api` directory. Each source set
+API file is named based on the source set, e.g. `commonMain.txt`, `jsMain.txt`,
+etc.
 
-One-line release note:
+For each stable released API surface, there is an additional
+`multiplatform-<version>` subdirectory of the `api` directory containing the
+source set signature files for that version, e.g. a `1.0.0-beta01` subdirectory
+with `commonMain.txt`, `jsMain.txt`, etc.
 
-``` {.good}
-Relnote: Fixed a critical bug
+The signature file for the `commonMain` source set of a project lists all common
+APIs. For each other source set, the signature file is a delta from
+`commonMain`, which means it contains any APIs present in the source set which
+are not present in `commonMain`, as well as any APIs which are present in both
+source sets but are different between the source sets.
+
+###### Sample Multiplatform API
+
+`commonMain` source:
+
+```
+package test.pkg
+class Common
+expect class ExpectActualWithAdditionalMember()
+expect class ExpectActualWithChange()
+expect class ExpectActualWithNoChange()
 ```
 
-``` {.good}
-Relnote: "Fixed a critical bug"
+`jsMain` source:
+
+```
+package test.pkg
+annotation class JsAnno
+actual class ExpectActualWithAdditionalMember {
+    fun jsFun() = Unit
+}
+@JsAnno actual class ExpectActualWithChange
+actual class ExpectActualWithNoChange
 ```
 
-``` {.good}
-Relnote: Added the following string function: `myFoo(\"bar\")`
+`commonMain.txt` API file:
+
+```
+package test.pkg {
+  public final class Common extends kotlin.Any {
+    ctor public Common();
+  }
+  public final class ExpectActualWithAdditionalMember extends kotlin.Any {
+    ctor public ExpectActualWithAdditionalMember();
+  }
+  public final class ExpectActualWithChange extends kotlin.Any {
+    ctor public ExpectActualWithChange();
+  }
+  public final class ExpectActualWithNoChange extends kotlin.Any {
+    ctor public ExpectActualWithNoChange();
+  }
+}
 ```
 
-Multi-line release note:
+This API file includes all APIs from the `commonMain` source.
 
-Note: If the following lines do not contain an indent, you may hit b/165570183.
+`jsMain.txt`:
 
-``` {.good}
-Relnote: "We're launching this awesome new feature!  It solves a whole list of
-    problems that require a lot of explaining! "
+```
+package test.pkg {
+  public final class ExpectActualWithAdditionalMember extends kotlin.Any {
+    method public void jsFun();
+  }
+  @test.pkg.JsAnno public final class ExpectActualWithChange extends kotlin.Any {
+  }
+  public @interface JsAnno {
+    ctor public JsAnno();
+  }
+}
 ```
 
-``` {.good}
-Relnote: """Added the following string function: `myFoo("bar")`
-    It will fix cases where you have to call `myFoo("baz").myBar("bar")`
-    """
-```
+This API file contains the API delta of the `jsMain` source from `commonMain`:
 
-Opt out of the Relnote tag:
-
-``` {.good}
-Relnote: N/A
-```
-
-``` {.good}
-Relnote: NA
-```
-
-NOT VALID:
-
-``` {.bad}
-Relnote: This is an INVALID multi-line release note.  Our current scripts won't
-include anything beyond the first line.  The script has no way of knowing when
-the release note actually stops.
-```
-
-``` {.bad}
-Relnote: This is an INVALID multi-line release note.  "Quotes" need to be
-  escaped in order for them to be parsed properly.
-```
-
-### Common build errors
-
-#### Diagnosing build failures
-
-If you've encountered a build failure and you're not sure what is triggering it,
-then please run
-`./development/diagnose-build-failure/diagnose-build-failure.sh`.
-
-This script can categorize your build failure into one of the following
-categories:
-
-*   The Gradle Daemon is saving state in memory and triggering a failure
-*   Your source files have been changed and/or incompatible git commits have
-    been checked out
-*   Some file in the out/ dir is triggering an error
-    *   If this happens, diagnose-build-failure.sh should also identify which
-        file(s) specifically
-*   The build is nondeterministic and/or affected by timestamps
-*   The build via gradlew actually passes and this build failure is specific to
-    Android Studio
-
-Some more-specific build failures are listed below in this page.
-
-#### Out-of-date platform prebuilts
-
-Like a normal Android library developed in Android Studio, libraries within
-`androidx` are built against prebuilts of the platform SDK. These are checked in
-to the `prebuilts/fullsdk-darwin/platforms/<android-version>` directory.
-
-If you are developing against pre-release platform APIs in the internal
-`androidx-platform-dev` branch, you may need to update these prebuilts to obtain
-the latest API changes.
-
-#### Missing external dependency
-
-If Gradle cannot resolve a dependency listed in your `build.gradle`:
-
-*   You will probably want to import the missing artifact via
-    [importMaven.sh](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md)
-
-    *   We store artifacts in the prebuilts repositories under
-        `prebuilts/androidx` to facilitate reproducible builds even if remote
-        artifacts are changed.
-
-*   You may need to [establish trust for](#dependency-verification) the new
-    artifact
-
-##### Importing dependencies in `libs.versions.toml`
-
-Libraries typically reference dependencies using constants defined in
-[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
-Update this file to include a constant for the version of the library that you
-want to depend on. You will reference this constant in your library's
-`build.gradle` dependencies.
-
-**After** you update the `libs.versions.toml` file with new dependencies, you
-can download them by running:
-
-```shell
-cd frameworks/support &&\
-development/importMaven/importMaven.sh import-toml
-```
-
-This command will resolve everything declared in the `libs.versions.toml` file
-and download missing artifacts into `prebuilts/androidx/external` or
-`prebuilts/androidx/internal`.
-
-Make sure to upload these changes before or concurrently (ex. in the same Gerrit
-topic) with the dependent library code.
-
-##### Downloading a dependency without changing `libs.versions.toml`
-
-You can also download a dependency without changing `libs.versions.toml` file by
-directly invoking:
-
-```shell
-cd frameworks/support &&\
-./development/importMaven/importMaven.sh someGroupId:someArtifactId:someVersion
-```
-
-##### Missing konan dependencies
-
-Kotlin Multiplatform projects need prebuilts to compile native code, which are
-located under `prebuilts/androidx/konan`. **After** you update the kotlin
-version of AndroidX, you should also download necessary prebuilts via:
-
-```shell
-cd frameworks/support &&\
-development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version <new-kotlin-version>
-```
-
-Please remember to commit changes in the `prebuilts/androidx/konan` repository.
-
-#### Dependency verification
-
-If you import a new dependency that is either unsigned or is signed with a new,
-unrecognized key, then you will need to add new dependency verification metadata
-to indicate to Gradle that this new dependency is trusted. See the instructions
-[here](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
-
-#### Updating an existing dependency
-
-If an older version of a dependency prebuilt was already checked in, please
-manually remove it within the same CL that adds the new prebuilt. You will also
-need to update `Dependencies.kt` to reflect the version change.
-
-#### My gradle build fails with "Cannot invoke method getURLs() on null object"
-
-You're using Java 9's javac, possibly because you ran envsetup.sh from the
-platform build or specified Java 9 as the global default Java compiler. For the
-former, you can simply open a new shell and avoid running envsetup.sh. For the
-latter, we recommend you set Java 8 as the default compiler using sudo
-update-java-alternatives; however, if you must use Java 9 as the default then
-you may alternatively set JAVA_HOME to the location of the Java 8 SDK.
-
-#### My gradle build fails with "error: cannot find symbol" after making framework-dependent changes.
-
-You probably need to update the prebuilt SDK used by the gradle build. If you
-are referencing new framework APIs, you will need to wait for the framework
-changes to land in an SDK build (or build it yourself) and then land in both
-prebuilts/fullsdk and prebuilts/sdk. See
-[Updating SDK prebuilts](/docs/playbook.md#prebuilts-fullsdk)
-for more information.
-
-#### How do I handle refactoring a framework API referenced from a library?
-
-Because AndroidX must compile against both the current framework and the latest
-SDK prebuilt, and because compiling the SDK prebuilt depends on AndroidX, you
-will need to refactor in stages:
-
-1.  Remove references to the target APIs from AndroidX
-2.  Perform the refactoring in the framework
-3.  Update the framework prebuilt SDK to incorporate changes in (2)
-4.  Add references to the refactored APIs in AndroidX
-5.  Update AndroidX prebuilts to incorporate changes in (4)
+*   APIs which are not present in `commonMain` (`JsAnno` and
+    `ExpectActualWithAdditionalMember.jsFun`)
+*   APIs with a different signature from `commonMain` (`ExpectActualWithChange`,
+    which has an additional annotation)
+*   Classes with additional members compared to `commonMain`
+    (`ExpectActualWithAdditionalMember`, which must be listed to include
+    `jsFun`)
 
 ## Testing {#testing}
 
@@ -872,206 +719,9 @@ ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
 
 ## Library snapshots {#snapshots}
 
-### Quick how-to
-
-Add the following snippet to your build.gradle file, replacing `buildId` with a
-snapshot build ID.
-
-```groovy {highlight=context:[buildId]}
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven { url 'https://androidx.dev/snapshots/builds/[buildId]/artifacts/repository' }
-    }
-}
-```
-
-You must define dependencies on artifacts using the `SNAPSHOT` version suffix,
-for example:
-
-```groovy {highlight=context:SNAPSHOT}
-dependencies {
-    implementation "androidx.core:core:1.2.0-SNAPSHOT"
-}
-```
-
-### Where to find snapshots
-
-If you want to use unreleased `SNAPSHOT` versions of `androidx` artifacts, you
-can find them on either our public-facing build server:
-
-`https://ci.android.com/builds/submitted/<build_id>/androidx_snapshot/latest`
-
-or on our slightly-more-convenient [androidx.dev](https://androidx.dev) site:
-
-`https://androidx.dev/snapshots/builds/<build-id>/artifacts` for a specific
-build ID
-
-`https://androidx.dev/snapshots/latest/artifacts` for tip-of-tree snapshots
-
-### Obtaining a build ID
-
-To browse build IDs, you can visit either
-[androidx-main](https://ci.android.com/builds/branches/aosp-androidx-main/grid?)
-on ci.android.com or [Snapshots](https://androidx.dev/snapshots/builds) on the
-androidx.dev site.
-
-Note that if you are using androidx.dev, you may substitute `latest` for a build
-ID to use the last known good build.
-
-To manually find the last known good `build-id`, you have several options.
-
-#### Snapshots on androidx.dev
-
-[Snapshots](https://androidx.dev/snapshots/builds) on androidx.dev only lists
-usable builds.
-
-#### Programmatically via `jq`
-
-Install `jq`:
-
-```shell
-sudo apt-get install jq
-```
-
-```shell
-ID=`curl -s "https://ci.android.com/builds/branches/aosp-androidx-main/status.json" | jq ".targets[] | select(.ID==\"aosp-androidx-main.androidx_snapshot\") | .last_known_good_build"` \
-  && echo https://ci.android.com/builds/submitted/"${ID:1:-1}"/androidx_snapshot/latest/raw/repository/
-```
-
-#### Android build server
-
-Go to
-[androidx-main](https://ci.android.com/builds/branches/aosp-androidx-main/grid?)
-on ci.android.com.
-
-For `androidx-snapshot` target, wait for the green "last known good build"
-button to load and then click it to follow it to the build artifact URL.
-
-### Using in a Gradle build
-
-To make these artifacts visible to Gradle, you need to add it as a repository:
-
-```groovy
-allprojects {
-    repositories {
-        google()
-        maven {
-          // For all Jetpack libraries (including Compose)
-          url 'https://androidx.dev/snapshots/builds/<build-id>/artifacts/repository'
-        }
-    }
-}
-```
-
-Note that the above requires you to know the `build-id` of the snapshots you
-want.
-
-#### Specifying dependencies
-
-All artifacts in the snapshot repository are versioned as `x.y.z-SNAPSHOT`. So
-to use a snapshot artifact, the version in your `build.gradle` will need to be
-updated to `androidx.<groupId>:<artifactId>:X.Y.Z-SNAPSHOT`
-
-For example, to use the `core:core:1.2.0-SNAPSHOT` snapshot, you would add the
-following to your `build.gradle`:
-
-```
-dependencies {
-    ...
-    implementation("androidx.core:core:1.2.0-SNAPSHOT")
-    ...
-}
-```
+See [Library snapshots](library_snapshots.md) for information on using snapshot
+builds.
 
 ## FAQ {#faq}
 
-### How do I test my change in a separate Android Studio project? {#faq-test-change-studio}
-
-If you're working on a new feature or bug fix in AndroidX, you may want to test
-your changes against another project to verify that the change makes sense in a
-real-world context or that a bug's specific repro case has been fixed.
-
-If you need to be absolutely sure that your test will exactly emulate the
-developer's experience, you can repeatedly build the AndroidX archive and
-rebuild your application. In this case, you will need to create a local build of
-AndroidX's local Maven repository artifact and install it in your Android SDK
-path.
-
-First, use the `createArchive` Gradle task to generate the local Maven
-repository artifact:
-
-```shell
-# Creates <path-to-checkout>/out/repository/
-./gradlew createArchive
-```
-
-Using your alternate (non-AndroidX) version of Android Studio open the project's
-`settings.gradle.kts` and add the following within
-`dependencyResolutionManagement` to make your project look for binaries in the
-newly built repository:
-
-```kotlin
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        // Add this
-        maven {
-            setUrl("<absolute-path-to-checkout>/out/repository/")
-        }
-    }
-}
-```
-
-NOTE Gradle resolves dependencies in the order that the repositories are defined
-(if 2 repositories can resolve the same dependency, the first listed will do so
-and the second will not). Therefore, if the library you are testing has the same
-group, artifact, and version as one already published, you will want to list
-your custom maven repo first.
-
-Finally, in the dependencies section of your standalone project's `build.gradle`
-file, add or update the `implementation` entries to reflect the AndroidX modules
-that you would like to test. Example:
-
-```
-dependencies {
-    ...
-    implementation "androidx.appcompat:appcompat:1.0.0-alpha02"
-}
-```
-
-If you are testing your changes in the Android Platform code, you can replace
-the module you are testing
-`YOUR_ANDROID_PATH/prebuilts/sdk/current/androidx/m2repository` with your own
-module. We recommend only replacing the module you are modifying instead of the
-full m2repository to avoid version issues of other modules. You can either take
-the unzipped directory from
-`<path-to-checkout>/out/dist/top-of-tree-m2repository-##.zip`, or from
-`<path-to-checkout>/out/repository/` after building `androidx`. Here is an
-example of replacing the RecyclerView module:
-
-```shell
-$TARGET=YOUR_ANDROID_PATH/prebuilts/sdk/current/androidx/m2repository/androidx/recyclerview/recyclerview/1.1.0-alpha07;
-rm -rf $TARGET;
-cp -a <path-to-sdk>/extras/m2repository/androidx/recyclerview/recyclerview/1.1.0-alpha07 $TARGET
-```
-
-Make sure the library versions are the same before and after replacement. Then
-you can build the Android platform code with the new `androidx` code.
-
-### How do I add content to a library's Overview reference doc page?
-
-Put content in a markdown file that ends with `-documentation.md` in the
-directory that corresponds to the Overview page that you'd like to document.
-
-For example, the `androidx.compose.runtime`
-[Overview page](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary)
-includes content from
-[compose-runtime-documentation.md](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/compose-runtime-documentation.md).
-
-### How do I enable MultiDex for my library?
-
-It is enabled automatically as androidx minSdkVersion is API >=21.
+See [FAQ](faq.md) for answers to frequently asked questions.

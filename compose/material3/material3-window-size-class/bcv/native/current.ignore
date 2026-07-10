@@ -1,0 +1,2 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration calculateFromSize(androidx.compose.ui.unit/DpSize, kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowWidthSizeClass>, kotlin.collections/Set<androidx.compose.material3.windowsizeclass/WindowHeightSizeClass>) from androidx.compose.material3.windowsizeclass/WindowSizeClass.Companion

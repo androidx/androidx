@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.camera2.internal
 
 import android.hardware.camera2.CameraCharacteristics
@@ -23,14 +24,16 @@ import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES
 import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
 import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
 import android.os.Build
+import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.impl.Camera2ImplConfig.STREAM_USE_CASE_OPTION
+import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
-import androidx.camera.camera2.internal.TemplateTypeUtil.getSessionConfigTemplateType
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ExperimentalZeroShutterLag
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CaptureMode
-import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.Config
@@ -43,17 +46,13 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.streamsharing.StreamSharingConfig
-import androidx.core.util.Preconditions.checkNotNull
 import androidx.core.util.Preconditions.checkState
 
-/** A class that contains utility methods for stream use case. */
 public object StreamUseCaseUtil {
-    private const val TAG = "StreamUseCaseUtil"
 
-    @JvmField
+    @VisibleForTesting
     public val STREAM_USE_CASE_STREAM_SPEC_OPTION: Config.Option<Long> =
         Config.Option.create("camera2.streamSpec.streamUseCase", Long::class.javaPrimitiveType!!)
-
     private val STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP: Map<Long, Set<CaptureType>> =
         buildMap {
             if (Build.VERSION.SDK_INT >= 33) {
@@ -106,7 +105,6 @@ public object StreamUseCaseUtil {
      * @param sessionConfigs collection of all session configs for this capture session
      * @param streamUseCaseMap the mapping between surfaces and Stream Use Case flag
      */
-    @JvmStatic
     public fun populateSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
         useCaseConfigs: Collection<UseCaseConfig<*>>,
@@ -121,14 +119,11 @@ public object StreamUseCaseUtil {
                     STREAM_USE_CASE_STREAM_SPEC_OPTION
                 ) && sessionConfig.surfaces.size != 1
             ) {
-                Logger.e(
-                    TAG,
-                    String.format(
-                        "SessionConfig has stream use case but also contains " +
-                            "%d surfaces, abort populateSurfaceToStreamUseCaseMapping().",
-                        sessionConfig.getSurfaces().size,
-                    ),
-                )
+                Camera2Logger.error {
+                    "StreamUseCaseUtil: SessionConfig has stream use case but also contains " +
+                        "${sessionConfig.surfaces.size} surfaces, " +
+                        "abort populateSurfaceToStreamUseCaseMapping()."
+                }
                 return
             }
             if (
@@ -140,9 +135,8 @@ public object StreamUseCaseUtil {
                 break
             }
         }
-
         if (hasStreamUseCase) {
-            for (sessionConfig in sessionConfigs) {
+            for (sessionConfig: SessionConfig in sessionConfigs) {
                 if (
                     (useCaseConfigArrayList[position].captureType == CaptureType.METERING_REPEATING)
                 ) {
@@ -170,25 +164,23 @@ public object StreamUseCaseUtil {
                 position++
             }
         }
-        Logger.d(
-            TAG,
-            "populateSurfaceToStreamUseCaseMapping() - streamUseCaseMap = $streamUseCaseMap",
-        )
+        Camera2Logger.debug {
+            "populateSurfaceToStreamUseCaseMapping() - streamUseCaseMap = $streamUseCaseMap"
+        }
     }
 
     /**
      * Populate all implementation options needed to determine the StreamUseCase option in the
      * StreamSpec for this UseCaseConfig
      */
-    @JvmStatic
     public fun getStreamSpecImplementationOptions(
         useCaseConfig: UseCaseConfig<*>
     ): Camera2ImplConfig {
         val optionsBundle = MutableOptionsBundle.create()
-        if (useCaseConfig.containsOption(STREAM_USE_CASE_OPTION)) {
+        if (useCaseConfig.containsOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
             optionsBundle.insertOption(
-                STREAM_USE_CASE_OPTION,
-                useCaseConfig.retrieveOption(STREAM_USE_CASE_OPTION),
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                useCaseConfig.retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION),
             )
         }
         if (useCaseConfig.containsOption(UseCaseConfig.OPTION_ZSL_DISABLED)) {
@@ -213,20 +205,16 @@ public object StreamUseCaseUtil {
     }
 
     /** Return true if the given camera characteristics support stream use case */
-    @JvmStatic
-    public fun isStreamUseCaseSupported(
-        characteristicsCompat: CameraCharacteristicsCompat
-    ): Boolean {
+    public fun isStreamUseCaseSupported(cameraMetadata: CameraMetadata): Boolean {
         if (Build.VERSION.SDK_INT < 33) {
             return false
         }
         val availableStreamUseCases: LongArray? =
-            characteristicsCompat.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
+            cameraMetadata[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
         return !(availableStreamUseCases == null || availableStreamUseCases.isEmpty())
     }
 
     /** Return true if the given feature settings is appropriate for stream use case usage. */
-    @JvmStatic
     public fun shouldUseStreamUseCase(
         featureSettings: SupportedSurfaceCombination.FeatureSettings
     ): Boolean {
@@ -242,25 +230,24 @@ public object StreamUseCaseUtil {
      * will be used to set the StreamUseCase flag via
      * [android.hardware.camera2.params.OutputConfiguration.setStreamUseCase]
      *
-     * @param characteristicsCompat the camera characteristics of the device
+     * @param cameraMetadata the camera characteristics of the device
      * @param attachedSurfaces surface info of the already attached use cases
      * @param suggestedStreamSpecMap the UseCaseConfig-to-StreamSpec map for new use cases
      * @param attachedSurfaceStreamSpecMap the SurfaceInfo-to-StreamSpec map for attached use cases
      *   whose StreamSpecs needs to be updated
      * @return true if StreamSpec options are populated. False if not.
      */
-    @JvmStatic
     public fun populateStreamUseCaseStreamSpecOptionWithInteropOverride(
-        characteristicsCompat: CameraCharacteristicsCompat,
-        attachedSurfaces: MutableList<AttachedSurfaceInfo>,
+        cameraMetadata: CameraMetadata,
+        attachedSurfaces: List<AttachedSurfaceInfo>,
         suggestedStreamSpecMap: MutableMap<UseCaseConfig<*>, StreamSpec>,
         attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec>,
     ): Boolean {
         if (Build.VERSION.SDK_INT < 33) {
             return false
         }
-        val newUseCaseConfigs: MutableList<UseCaseConfig<*>> =
-            ArrayList(suggestedStreamSpecMap.keys)
+        val newUseCaseConfigs: List<UseCaseConfig<*>> =
+            java.util.ArrayList(suggestedStreamSpecMap.keys)
         // All AttachedSurfaceInfo should have implementation options
         for (attachedSurfaceInfo in attachedSurfaces) {
             checkNotNull(attachedSurfaceInfo.implementationOptions)
@@ -270,7 +257,7 @@ public object StreamUseCaseUtil {
             checkNotNull(checkNotNull(suggestedStreamSpecMap[useCaseConfig]).implementationOptions)
         }
         val availableStreamUseCases: LongArray? =
-            characteristicsCompat.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
+            cameraMetadata[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
         if (availableStreamUseCases == null || availableStreamUseCases.isEmpty()) {
             return false
         }
@@ -289,7 +276,9 @@ public object StreamUseCaseUtil {
                 val oldImplementationOptions = attachedSurfaceInfo.implementationOptions
                 getUpdatedImplementationOptionsWithUseCaseStreamSpecOption(
                         oldImplementationOptions!!,
-                        oldImplementationOptions.retrieveOption(STREAM_USE_CASE_OPTION),
+                        oldImplementationOptions.retrieveOption(
+                            Camera2ImplConfig.STREAM_USE_CASE_OPTION
+                        ),
                     )
                     ?.also {
                         attachedSurfaceStreamSpecMap[attachedSurfaceInfo] =
@@ -301,7 +290,9 @@ public object StreamUseCaseUtil {
                 val oldImplementationOptions = oldStreamSpec!!.implementationOptions
                 getUpdatedImplementationOptionsWithUseCaseStreamSpecOption(
                         oldImplementationOptions!!,
-                        oldImplementationOptions.retrieveOption(STREAM_USE_CASE_OPTION),
+                        oldImplementationOptions.retrieveOption(
+                            Camera2ImplConfig.STREAM_USE_CASE_OPTION
+                        ),
                     )
                     ?.also {
                         suggestedStreamSpecMap[newUseCaseConfig] =
@@ -317,20 +308,19 @@ public object StreamUseCaseUtil {
      * Return true if the stream use cases in the given surface configurations are available for the
      * device.
      */
-    @JvmStatic
     public fun areStreamUseCasesAvailableForSurfaceConfigs(
-        characteristicsCompat: CameraCharacteristicsCompat,
-        surfaceConfigs: MutableList<SurfaceConfig>,
+        cameraMetadata: CameraMetadata,
+        surfaceConfigs: List<SurfaceConfig>,
     ): Boolean {
         if (Build.VERSION.SDK_INT < 33) {
             return false
         }
         val availableStreamUseCases: LongArray? =
-            characteristicsCompat.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
+            cameraMetadata[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
         if (availableStreamUseCases == null || availableStreamUseCases.isEmpty()) {
             return false
         }
-        val availableStreamUseCaseSet: MutableSet<Long?> = HashSet()
+        val availableStreamUseCaseSet: MutableSet<Long> = java.util.HashSet()
         for (availableStreamUseCase in availableStreamUseCases) {
             availableStreamUseCaseSet.add(availableStreamUseCase)
         }
@@ -363,7 +353,7 @@ public object StreamUseCaseUtil {
             ) {
                 return false
             }
-            val captureTypes =
+            val captureTypes: Set<CaptureType> =
                 STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP[streamUseCase]!!
             if (streamSharingTypes.size != captureTypes.size) {
                 return false
@@ -387,13 +377,11 @@ public object StreamUseCaseUtil {
      *
      * @param surfaceConfigIndexAttachedSurfaceInfoMap mapping between an surfaceConfig's index in
      *   the list and the attachedSurfaceInfo it is constructed from
-     * @param surfaceConfigIndexUseCaseConfigMap mapping between an surfaceConfig's index
-     * * in the list and the useCaseConfig it is constructed from
-     *
+     * @param surfaceConfigIndexUseCaseConfigMap mapping between an surfaceConfig's index in the
+     *   list and the useCaseConfig it is constructed from
      * @param surfaceConfigsWithStreamUseCase the supported surfaceConfigs that contains accurate
      *   streamUseCases
      */
-    @JvmStatic
     public fun areCaptureTypesEligible(
         surfaceConfigIndexAttachedSurfaceInfoMap: Map<Int, AttachedSurfaceInfo?>,
         surfaceConfigIndexUseCaseConfigMap: Map<Int, UseCaseConfig<*>>,
@@ -406,7 +394,7 @@ public object StreamUseCaseUtil {
                 val attachedSurfaceInfo = surfaceConfigIndexAttachedSurfaceInfoMap[i]
                 if (
                     !isEligibleCaptureType(
-                        if (attachedSurfaceInfo!!.getCaptureTypes().size == 1)
+                        if (attachedSurfaceInfo!!.captureTypes.size == 1)
                             attachedSurfaceInfo.captureTypes[0]
                         else CaptureType.STREAM_SHARING,
                         streamUseCase,
@@ -446,7 +434,6 @@ public object StreamUseCaseUtil {
      * @param surfaceConfigsWithStreamUseCase the supported surfaceConfigs that contains accurate
      *   streamUseCases
      */
-    @JvmStatic
     public fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs(
         suggestedStreamSpecMap: MutableMap<UseCaseConfig<*>, StreamSpec>,
         attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec>,
@@ -513,11 +500,24 @@ public object StreamUseCaseUtil {
     }
 
     /** Return true if any one of the existing or new UseCases is ZSL. */
-    @JvmStatic
     public fun containsZslUseCase(
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>,
     ): Boolean {
+        val isZslDisabledByUseCase =
+            attachedSurfaces.any {
+                it.implementationOptions?.retrieveOption(
+                    UseCaseConfig.OPTION_ZSL_DISABLED,
+                    false,
+                ) == true
+            } ||
+                newUseCaseConfigs.any {
+                    it.retrieveOption(UseCaseConfig.OPTION_ZSL_DISABLED, false) == true
+                }
+        if (isZslDisabledByUseCase) {
+            return false
+        }
+
         for (attachedSurfaceInfo: AttachedSurfaceInfo in attachedSurfaces) {
             val captureTypes = attachedSurfaceInfo.captureTypes
             val captureType = captureTypes[0]
@@ -525,7 +525,7 @@ public object StreamUseCaseUtil {
                 return true
             }
         }
-        for (useCaseConfig in newUseCaseConfigs) {
+        for (useCaseConfig: UseCaseConfig<*> in newUseCaseConfigs) {
             if (isZslUseCase(useCaseConfig, useCaseConfig.captureType)) {
                 return true
             }
@@ -582,14 +582,16 @@ public object StreamUseCaseUtil {
         var hasDefaultOrNullStreamUseCase = false
         for (attachedSurfaceInfo: AttachedSurfaceInfo in attachedSurfaces) {
             if (
-                !attachedSurfaceInfo.implementationOptions!!.containsOption(STREAM_USE_CASE_OPTION)
+                !attachedSurfaceInfo.implementationOptions!!.containsOption(
+                    Camera2ImplConfig.STREAM_USE_CASE_OPTION
+                )
             ) {
                 hasDefaultOrNullStreamUseCase = true
                 break
             }
             val streamUseCaseOverride: Long =
                 (attachedSurfaceInfo.implementationOptions!!.retrieveOption(
-                    STREAM_USE_CASE_OPTION
+                    Camera2ImplConfig.STREAM_USE_CASE_OPTION
                 ))!!
             if ((streamUseCaseOverride == SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong())) {
                 hasDefaultOrNullStreamUseCase = true
@@ -599,14 +601,14 @@ public object StreamUseCaseUtil {
             break
         }
         for (useCaseConfig: UseCaseConfig<*> in newUseCaseConfigs) {
-            if (!useCaseConfig.containsOption(STREAM_USE_CASE_OPTION)) {
+            if (!useCaseConfig.containsOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
                 hasDefaultOrNullStreamUseCase = true
                 if (hasNonDefaultStreamUseCase) {
                     throwInvalidCamera2InteropOverrideException()
                 }
             } else {
                 val streamUseCaseOverride: Long =
-                    useCaseConfig.retrieveOption(STREAM_USE_CASE_OPTION)!!
+                    useCaseConfig.retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)!!
                 if ((streamUseCaseOverride == SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong())) {
                     hasDefaultOrNullStreamUseCase = true
                     if (hasNonDefaultStreamUseCase) {
@@ -623,5 +625,23 @@ public object StreamUseCaseUtil {
         }
         return !hasDefaultOrNullStreamUseCase &&
             areStreamUseCasesAvailable(availableStreamUseCases, streamUseCases)
+    }
+
+    @androidx.annotation.OptIn(markerClass = [ExperimentalZeroShutterLag::class])
+    private fun getSessionConfigTemplateType(
+        captureType: CaptureType,
+        @CaptureMode captureMode: Int,
+    ): Int {
+        return when (captureType) {
+            CaptureType.IMAGE_CAPTURE ->
+                if (captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG)
+                    CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                else CameraDevice.TEMPLATE_PREVIEW
+            CaptureType.VIDEO_CAPTURE,
+            CaptureType.STREAM_SHARING -> CameraDevice.TEMPLATE_RECORD
+            CaptureType.PREVIEW,
+            CaptureType.IMAGE_ANALYSIS -> CameraDevice.TEMPLATE_PREVIEW
+            else -> CameraDevice.TEMPLATE_PREVIEW
+        }
     }
 }

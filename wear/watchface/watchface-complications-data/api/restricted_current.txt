@@ -3,25 +3,25 @@ package androidx.wear.watchface.complications.data {
 
   public final class ColorRamp {
     ctor public ColorRamp(@ColorInt int[] colors, boolean interpolated);
-    method public int[] getColors();
-    method public boolean isInterpolated();
+    method @InaccessibleFromKotlin public int[] getColors();
+    method @InaccessibleFromKotlin public boolean isInterpolated();
     property public int[] colors;
     property public boolean interpolated;
   }
 
-  public abstract sealed class ComplicationData {
-    method public final android.content.ComponentName? getDataSource();
-    method public final int getDisplayPolicy();
-    method public final androidx.wear.watchface.complications.data.ComplicationData? getDynamicValueInvalidationFallback();
-    method public final android.os.PersistableBundle getExtras();
+  public abstract sealed exhaustive class ComplicationData {
+    method @InaccessibleFromKotlin public final android.content.ComponentName? getDataSource();
+    method @InaccessibleFromKotlin public final int getDisplayPolicy();
+    method @InaccessibleFromKotlin public final androidx.wear.watchface.complications.data.ComplicationData? getDynamicValueInvalidationFallback();
+    method @InaccessibleFromKotlin public final android.os.PersistableBundle getExtras();
     method public java.time.Instant getNextChangeInstant(java.time.Instant afterInstant);
-    method public final int getPersistencePolicy();
-    method public final android.app.PendingIntent? getTapAction();
-    method public final androidx.wear.watchface.complications.data.ComplicationType getType();
-    method public final androidx.wear.watchface.complications.data.TimeRange getValidTimeRange();
+    method @InaccessibleFromKotlin public final int getPersistencePolicy();
+    method @InaccessibleFromKotlin public final android.app.PendingIntent? getTapAction();
+    method @InaccessibleFromKotlin public final androidx.wear.watchface.complications.data.ComplicationType getType();
+    method @InaccessibleFromKotlin public final androidx.wear.watchface.complications.data.TimeRange getValidTimeRange();
     method public boolean hasPlaceholderFields();
-    method public final boolean isTapActionLostDueToSerialization();
-    method public final void setTapActionLostDueToSerialization(boolean);
+    method @InaccessibleFromKotlin public final boolean isTapActionLostDueToSerialization();
+    method @InaccessibleFromKotlin public final void setTapActionLostDueToSerialization(boolean);
     property public final android.content.ComponentName? dataSource;
     property public final int displayPolicy;
     property public final androidx.wear.watchface.complications.data.ComplicationData? dynamicValueInvalidationFallback;
@@ -88,21 +88,21 @@ package androidx.wear.watchface.complications.data {
 
   public final class CountDownTimeReference {
     ctor public CountDownTimeReference(java.time.Instant instant);
-    method public java.time.Instant getInstant();
+    method @InaccessibleFromKotlin public java.time.Instant getInstant();
     property public java.time.Instant instant;
   }
 
   public final class CountUpTimeReference {
     ctor public CountUpTimeReference(java.time.Instant instant);
-    method public java.time.Instant getInstant();
+    method @InaccessibleFromKotlin public java.time.Instant getInstant();
     property public java.time.Instant instant;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DynamicComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
     ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue);
     ctor public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue, CharSequence fallbackValue);
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString getDynamicValue();
-    method public CharSequence getFallbackValue();
+    method @InaccessibleFromKotlin public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString getDynamicValue();
+    method @InaccessibleFromKotlin public CharSequence getFallbackValue();
     method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
     method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     method public boolean isAlwaysEmpty();
@@ -122,15 +122,15 @@ package androidx.wear.watchface.complications.data {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GoalProgressComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public float getTargetValue();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
-    method public float getValue();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public float getTargetValue();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public float getValue();
     property public androidx.wear.watchface.complications.data.ColorRamp? colorRamp;
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? dynamicValue;
@@ -170,11 +170,11 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class LongTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public androidx.wear.watchface.complications.data.ComplicationText getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
     property public androidx.wear.watchface.complications.data.SmallImage? smallImage;
@@ -204,8 +204,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class MonochromaticImage {
-    method public android.graphics.drawable.Icon? getAmbientImage();
-    method public android.graphics.drawable.Icon getImage();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon? getAmbientImage();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon getImage();
     property public android.graphics.drawable.Icon? ambientImage;
     property public android.graphics.drawable.Icon image;
     field public static final androidx.wear.watchface.complications.data.MonochromaticImage.Companion Companion;
@@ -223,8 +223,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class MonochromaticImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage getMonochromaticImage();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public androidx.wear.watchface.complications.data.MonochromaticImage monochromaticImage;
     field public static final androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Companion Companion;
@@ -250,9 +250,9 @@ package androidx.wear.watchface.complications.data {
   public final class NoDataComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public NoDataComplicationData();
     ctor public NoDataComplicationData(androidx.wear.watchface.complications.data.ComplicationData placeholder);
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.watchface.complications.data.ComplicationData? getInvalidatedData();
-    method public androidx.wear.watchface.complications.data.ComplicationData? getPlaceholder();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationData? getInvalidatedData();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationData? getPlaceholder();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public androidx.wear.watchface.complications.data.ComplicationData? invalidatedData;
     property public androidx.wear.watchface.complications.data.ComplicationData? placeholder;
@@ -265,10 +265,10 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class NoPermissionComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
     property public androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public androidx.wear.watchface.complications.data.ComplicationText? text;
@@ -306,8 +306,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class PhotoImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public android.graphics.drawable.Icon getPhotoImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon getPhotoImage();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public android.graphics.drawable.Icon photoImage;
     field public static final androidx.wear.watchface.complications.data.PhotoImageComplicationData.Companion Companion;
@@ -345,17 +345,17 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class RangedValueComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
-    method public float getMax();
-    method public float getMin();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
-    method public float getValue();
-    method public int getValueType();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
+    method @InaccessibleFromKotlin public float getMax();
+    method @InaccessibleFromKotlin public float getMin();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public float getValue();
+    method @InaccessibleFromKotlin public int getValueType();
     property public androidx.wear.watchface.complications.data.ColorRamp? colorRamp;
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? dynamicValue;
@@ -404,11 +404,11 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class ShortTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public androidx.wear.watchface.complications.data.ComplicationText getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
     property public androidx.wear.watchface.complications.data.SmallImage? smallImage;
@@ -440,9 +440,9 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class SmallImage {
-    method public android.graphics.drawable.Icon? getAmbientImage();
-    method public android.graphics.drawable.Icon getImage();
-    method public androidx.wear.watchface.complications.data.SmallImageType getType();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon? getAmbientImage();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon getImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImageType getType();
     property public android.graphics.drawable.Icon? ambientImage;
     property public android.graphics.drawable.Icon image;
     property public androidx.wear.watchface.complications.data.SmallImageType type;
@@ -461,8 +461,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class SmallImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.watchface.complications.data.SmallImage getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage getSmallImage();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public androidx.wear.watchface.complications.data.SmallImage smallImage;
     field public static final androidx.wear.watchface.complications.data.SmallImageComplicationData.Companion Companion;
@@ -541,8 +541,8 @@ package androidx.wear.watchface.complications.data {
     method public static androidx.wear.watchface.complications.data.TimeRange before(java.time.Instant endInstant);
     method public static androidx.wear.watchface.complications.data.TimeRange between(java.time.Instant startInstant, java.time.Instant endInstant);
     method public operator boolean contains(java.time.Instant dateTimeMillis);
-    method public java.time.Instant getEndDateTimeMillis();
-    method public java.time.Instant getStartDateTimeMillis();
+    method @InaccessibleFromKotlin public java.time.Instant getEndDateTimeMillis();
+    method @InaccessibleFromKotlin public java.time.Instant getStartDateTimeMillis();
     property public java.time.Instant endDateTimeMillis;
     property public java.time.Instant startDateTimeMillis;
     field public static final androidx.wear.watchface.complications.data.TimeRange ALWAYS;
@@ -557,14 +557,14 @@ package androidx.wear.watchface.complications.data {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WeightedElementsComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
-    method public int getElementBackgroundColor();
-    method public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> getElements();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @InaccessibleFromKotlin public int getElementBackgroundColor();
+    method @InaccessibleFromKotlin public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> getElements();
     method public static int getMaxElements();
-    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
-    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getText();
-    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getText();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public int elementBackgroundColor;
     property public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> elements;
@@ -602,10 +602,53 @@ package androidx.wear.watchface.complications.data {
 
   public static final class WeightedElementsComplicationData.Element {
     ctor public WeightedElementsComplicationData.Element(@FloatRange(from=0.0, fromInclusive=false) float weight, @ColorInt int color);
-    method public int getColor();
-    method public float getWeight();
+    method @InaccessibleFromKotlin public int getColor();
+    method @InaccessibleFromKotlin public float getWeight();
     property public int color;
     property public float weight;
+  }
+
+}
+
+package androidx.wear.watchface.complications.data.formatting {
+
+  public final class ComplicationTextFormatting {
+    ctor public ComplicationTextFormatting(java.util.Locale locale);
+    method public String? getBestShortTextDateFormat(String[] skeletons, String? fallback);
+    method public String? getFormattedDayOfWeekForShortText(long timeInMillis, android.icu.util.TimeZone? timeZone);
+    method public String? getFormattedTimeForShortText(long timeInMillis, android.icu.util.TimeZone? timeZone, boolean use24Hour);
+    method @InaccessibleFromKotlin public String getFullTextDayOfWeekFormat();
+    method @InaccessibleFromKotlin public String? getShortTextDayMonthFormat();
+    method @InaccessibleFromKotlin public String? getShortTextDayOfMonthFormat();
+    method @InaccessibleFromKotlin public String? getShortTextDayOfWeekFormat();
+    method @InaccessibleFromKotlin public String? getShortTextMonthFormat();
+    method @InaccessibleFromKotlin public String? getShortTextTimeFormat12Hour();
+    method @InaccessibleFromKotlin public String? getShortTextTimeFormat12HourWithoutAmPmShortening();
+    method @InaccessibleFromKotlin public String? getShortTextTimeFormat24Hour();
+    method @InaccessibleFromKotlin public String? getShortTextTimeFormat24HourWithoutAmPmShortening();
+    property public String fullTextDayOfWeekFormat;
+    property public String? shortTextDayMonthFormat;
+    property public String? shortTextDayOfMonthFormat;
+    property public String? shortTextDayOfWeekFormat;
+    property public String? shortTextMonthFormat;
+    property public String? shortTextTimeFormat12Hour;
+    property public String? shortTextTimeFormat12HourWithoutAmPmShortening;
+    property public String? shortTextTimeFormat24Hour;
+    property public String? shortTextTimeFormat24HourWithoutAmPmShortening;
+  }
+
+}
+
+package androidx.wear.watchface.complications.data.parser {
+
+  public final class PreviewData {
+    method public operator androidx.wear.watchface.complications.data.ComplicationData? get(androidx.wear.watchface.complications.data.ComplicationType type);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS") @kotlin.jvm.Throws(exceptionClasses={XmlPullParserException::class, IOException::class}) public static androidx.wear.watchface.complications.data.parser.PreviewData inflate(android.content.Context providerContext, android.content.res.XmlResourceParser parser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+  public final class StaticPreviewDataParser {
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS") public static androidx.wear.watchface.complications.data.parser.PreviewData? parsePreviewData(android.content.Context context, android.content.ComponentName providerComponent);
+    field public static final androidx.wear.watchface.complications.data.parser.StaticPreviewDataParser INSTANCE;
   }
 
 }

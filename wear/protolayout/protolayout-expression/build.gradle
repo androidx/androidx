@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -26,7 +25,6 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -34,7 +32,6 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.8.1")
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.collection:collection:1.4.2")
     implementation(project(":wear:protolayout:protolayout-proto"))
@@ -43,20 +40,17 @@ dependencies {
     lintPublish(project(":wear:protolayout:protolayout-lint"))
 
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
     testImplementation(project(":wear:protolayout:protolayout-expression-pipeline"))
 }
 
 android {
     namespace = "androidx.wear.protolayout.expression"
-
     defaultConfig {
-        minSdk = 26
-    }
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
+        minSdk { version = release(26) }
     }
 }
 

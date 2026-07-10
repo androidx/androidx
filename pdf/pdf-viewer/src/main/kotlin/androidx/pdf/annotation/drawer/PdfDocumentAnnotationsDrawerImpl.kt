@@ -20,7 +20,7 @@ import android.graphics.Canvas
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 
 /**
  * A [PdfDocumentAnnotationsDrawer] that is responsible for drawing a collection of PDF annotations
@@ -42,7 +42,10 @@ internal class PdfDocumentAnnotationsDrawerImpl(
      */
     override fun draw(pagesAnnotationData: SparseArray<PageAnnotationsData>, canvas: Canvas) {
         pagesAnnotationData.forEach { _, pageAnnotationData ->
-            pageAnnotationData.annotations.forEach { annotation ->
+            pageAnnotationData.keyedAnnotations.forEach { keyedAnnotation ->
+                val annotation = keyedAnnotation.annotation
+
+                @Suppress("UNCHECKED_CAST")
                 val drawer =
                     annotationDrawerFactory.create(annotation) as PdfAnnotationDrawer<PdfAnnotation>
                 drawer.draw(annotation, canvas, pageAnnotationData.transform)

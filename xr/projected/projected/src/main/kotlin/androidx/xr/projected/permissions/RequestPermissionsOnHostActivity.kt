@@ -16,7 +16,6 @@
 
 package androidx.xr.projected.permissions
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -45,13 +44,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.projected.R
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
 /**
  * An Activity to display rationale and request permissions on the host display. See
  * [ProjectedPermissionsResultContract] for details.
  */
-@Suppress("ForbiddenSuperClass")
+@Suppress("ForbiddenSuperClass", "DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalProjectedApi::class)
 public class RequestPermissionsOnHostActivity : AppCompatActivity() {
 
     private data class PermissionRequest(
@@ -290,16 +291,6 @@ public class RequestPermissionsOnHostActivity : AppCompatActivity() {
             }
         } else {
             for (i in 0 until permissions.size) {
-                if (
-                    permissions[i] in DEVICE_SCOPED_PERMISSIONS &&
-                        !permissionResults.getBoolean(permissions[i], true)
-                ) {
-                    // We will receive two results for device-scoped permissions, one for the host
-                    // device and one for the Projected device. If any of these two is denied, we
-                    // should report denied. This `continue` prevents the second result from
-                    // overwriting a denied first result.
-                    continue
-                }
                 permissionResults.putBoolean(
                     permissions[i],
                     grantResults[i] == PackageManager.PERMISSION_GRANTED,
@@ -329,11 +320,11 @@ public class RequestPermissionsOnHostActivity : AppCompatActivity() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Button(onClick = onContinueClick, modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.continue_button))
+                    Text(text = stringResource(R.string.projected_continue_button))
                 }
 
                 Button(onClick = onCancelClick, modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.cancel_button))
+                    Text(text = stringResource(R.string.projected_cancel_button))
                 }
             }
 
@@ -350,22 +341,15 @@ public class RequestPermissionsOnHostActivity : AppCompatActivity() {
         private const val INSTANCE_STATE_NEXT_REQUEST_INDEX_KEY = "nextRequestIndex"
         private const val INSTANCE_STATE_PERMISSION_RESULTS_KEY = "permissionResults"
         private const val INSTANCE_STATE_PENDING_USER_ACTION_KEY = "pendingUserAction"
-        private val DEVICE_SCOPED_PERMISSIONS =
-            setOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
 
-        /**
-         * Preprocesses the request data bundles into a list of {@code PermissionRequest}s.
-         * Device-scoped permissions are split into separate requests for the host device and the
-         * Projected device because they are both required in Android V. We expect this behavior to
-         * change in a future Android release.
-         */
+        /** Preprocesses the request data bundles into a list of {@code PermissionRequest}s. */
         private fun preprocessRequestDataBundles(
             requestDataBundles: Array<Bundle>,
             deviceId: Int,
         ): List<PermissionRequest> {
             val requests = mutableListOf<PermissionRequest>()
             for (requestDataBundle in requestDataBundles) {
-                var rationale =
+                val rationale =
                     requestDataBundle.getString(
                         ProjectedPermissionsResultContract.BUNDLE_KEY_RATIONALE
                     )
@@ -376,36 +360,7 @@ public class RequestPermissionsOnHostActivity : AppCompatActivity() {
                 if (permissions == null || permissions.isEmpty()) {
                     continue
                 }
-                val permissionsForNextRequest = mutableListOf<String>()
-                for (permission in permissions) {
-                    permissionsForNextRequest.add(permission)
-                    if (!DEVICE_SCOPED_PERMISSIONS.contains(permission)) {
-                        continue
-                    }
-                    requests.add(
-                        PermissionRequest(
-                            permissionsForNextRequest.toList(),
-                            rationale,
-                            DEVICE_ID_DEFAULT,
-                        )
-                    )
-                    permissionsForNextRequest.clear()
-                    // Only the first request from the same requestDataBundle needs a rationale.
-                    // Otherwise, the user will be presented with the same rationale multiple times.
-                    rationale = null
-                    // Create request from the current permission with the virtual device's ID.
-                    requests.add(PermissionRequest(listOf(permission), rationale, deviceId))
-                }
-                if (permissionsForNextRequest.isNotEmpty()) {
-                    // Any non-device-scoped permissions can only be requested for the host device.
-                    requests.add(
-                        PermissionRequest(
-                            permissionsForNextRequest.toList(),
-                            rationale,
-                            DEVICE_ID_DEFAULT,
-                        )
-                    )
-                }
+                requests.add(PermissionRequest(permissions, rationale, deviceId))
             }
             return requests
         }

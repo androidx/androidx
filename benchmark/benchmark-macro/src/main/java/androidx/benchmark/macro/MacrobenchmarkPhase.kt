@@ -16,8 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build
-import android.util.Log
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
@@ -27,14 +25,11 @@ import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.traceprocessor.Insight
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.StartupInsights
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.tracing.trace
-import java.io.File
 
 /** A Profiler being used during a Macro Benchmark Phase. */
 internal interface PhaseProfiler {
@@ -75,7 +70,7 @@ internal fun TraceProcessor.runPhase(
     profiler: PhaseProfiler?,
     metrics: List<Metric>,
     experimentalConfig: ExperimentalConfig?,
-    perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
+    tracingLibraryConfig: PerfettoCapture.TracingLibraryConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit,
 ): List<IterationResult> {
@@ -110,25 +105,10 @@ internal fun TraceProcessor.runPhase(
                     config =
                         experimentalConfig?.perfettoConfig
                             ?: PerfettoConfig.Benchmark(
-                                /**
-                                 * Prior to API 24, every package name was joined into a single
-                                 * setprop which can overflow, and disable *ALL* app level tracing.
-                                 *
-                                 * For safety here, we only trace the macrobench package on newer
-                                 * platforms, and use reflection in the macrobench test process to
-                                 * trace important sections
-                                 *
-                                 * @see androidx.benchmark.macro.perfetto.ForceTracing
-                                 */
-                                appTagPackages =
-                                    if (Build.VERSION.SDK_INT >= 24) {
-                                        listOf(packageName, macrobenchmarkPackageName)
-                                    } else {
-                                        listOf(packageName)
-                                    },
+                                appTagPackages = listOf(packageName, macrobenchmarkPackageName),
                                 useStackSamplingConfig = true,
                             ),
-                    perfettoSdkConfig = perfettoSdkConfig,
+                    tracingLibraryConfig = tracingLibraryConfig,
                     // Macrobench avoids in-memory tracing, as it doesn't want to either the parsing
                     // errors from out of order events, or risk the memory cost of full ordering
                     // during
@@ -151,12 +131,6 @@ internal fun TraceProcessor.runPhase(
                     }
                 }!!
 
-            // Append UI state to trace, so tools opening trace will highlight relevant
-            // parts in UI.
-            val uiState = UiState(highlightPackage = packageName)
-            Log.d(TAG, "Iteration $iteration captured $uiState")
-            File(tracePath).apply { appendUiState(uiState) }
-
             // Accumulate measurements
             loadTrace(PerfettoTrace(tracePath)) {
                 IterationResult(
@@ -168,8 +142,7 @@ internal fun TraceProcessor.runPhase(
                                 // capture list of Measurements
                                 .map { it.getMeasurements(captureInfo, this) }
                                 // merge together
-                                .reduceOrNull() { sum, element -> sum.merge(element) }
-                                ?: emptyList()
+                                .reduceOrNull { sum, element -> sum.merge(element) } ?: emptyList()
                         },
                     insights =
                         if (experimentalConfig?.startupInsightsConfig?.isEnabled == true) {

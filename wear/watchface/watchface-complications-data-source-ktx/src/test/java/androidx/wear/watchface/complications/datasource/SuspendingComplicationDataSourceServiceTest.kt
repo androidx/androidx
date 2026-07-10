@@ -94,6 +94,7 @@ class ComplicationsTestRunner(clazz: Class<*>?) : RobolectricTestRunner(clazz) {
 
 /** Tests for {@link ComplicationDataSourceService}. */
 @RunWith(ComplicationsTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @DoNotInstrument
 public class SuspendingComplicationDataSourceServiceTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources

@@ -16,13 +16,22 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +39,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidInstrumentedMovableContentTests {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun boxWithConstraintsAndIndirectContent() {
@@ -67,6 +76,82 @@ class AndroidInstrumentedMovableContentTests {
         rule.runOnIdle { InvalidationLocation.togglePage() }
 
         rule.runOnIdle { InvalidationLocation.togglePage() }
+    }
+
+    @Test
+    fun moveToDialog_elidedRememberObserver() {
+        var moveToDialog by mutableStateOf(true)
+        rule.setContent {
+            ElidedDialog.ModalContent(moveToDialog) {
+                ElidedDialog.RememberObserverAfterReplaceGroupInElidedGroup(true)
+            }
+        }
+
+        moveToDialog = false
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun moveOutOfSubcompositionWithLargeSlotTable() {
+        var move by mutableStateOf(false)
+        rule.setContent {
+            val movableContent = remember {
+                movableContentOf {
+                    Box(
+                        modifier =
+                            Modifier.size(32.dp).background(if (move) Color.Red else Color.Black)
+                    )
+                }
+            }
+
+            Box(Modifier.fillMaxSize()) {
+                if (move) movableContent()
+
+                SubcomposeLayout {
+                    val measurable =
+                        subcompose(null) { Box { if (!move) movableContent() } }.single()
+
+                    layout(it.maxWidth, it.maxHeight) { measurable.measure(it).place(0, 0) }
+                }
+
+                repeat(1000) { Box {} }
+            }
+        }
+
+        move = true
+        rule.waitForIdle()
+        move = false
+        rule.waitForIdle()
+    }
+}
+
+private object ElidedDialog {
+    @Composable
+    fun RememberObserverAfterReplaceGroupInElidedGroup(cond: Boolean) {
+        if (cond) remember { Any() } else Unit
+
+        remember {
+            object : RememberObserver {
+                override fun onRemembered() {}
+
+                override fun onForgotten() {}
+
+                override fun onAbandoned() {}
+
+                override fun toString() = "Monitored RememberObserver"
+            }
+        }
+    }
+
+    @Composable
+    fun ModalContent(moveToDialog: Boolean, content: @Composable () -> Unit) {
+        val movableContent = remember(content) { movableContentOf(content) }
+
+        if (!moveToDialog) {
+            movableContent()
+        } else {
+            Dialog(onDismissRequest = {}) { movableContent() }
+        }
     }
 }
 

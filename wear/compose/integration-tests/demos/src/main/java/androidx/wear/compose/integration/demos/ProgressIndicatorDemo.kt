@@ -123,7 +123,7 @@ public fun ProgressWithMedia() {
                     colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_skip_previous),
+                        painter = painterResource(id = R.drawable.icon_skip_previous),
                         contentDescription = "Previous",
                         modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                     )
@@ -156,8 +156,8 @@ public fun ProgressWithMedia() {
                         Icon(
                             painter =
                                 painterResource(
-                                    if (status == Status.Playing) R.drawable.ic_pause
-                                    else R.drawable.ic_play
+                                    if (status == Status.Playing) R.drawable.icon_pause
+                                    else R.drawable.icon_play
                                 ),
                             contentDescription = "Play",
                             modifier =
@@ -193,7 +193,7 @@ public fun ProgressWithMedia() {
                     colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_skip_next),
+                        painter = painterResource(id = R.drawable.icon_skip_next),
                         contentDescription = "Next",
                         modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                     )
@@ -228,7 +228,7 @@ public fun TransformingCustomProgressIndicator() {
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_play),
+                            painter = painterResource(R.drawable.icon_play),
                             contentDescription = "Play",
                             modifier =
                                 Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
@@ -254,7 +254,7 @@ public fun TransformingCustomProgressIndicator() {
                     colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_skip_next),
+                        painter = painterResource(id = R.drawable.icon_skip_next),
                         contentDescription = "Next",
                         modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                     )

@@ -16,6 +16,7 @@
 package androidx.wear.watchfacepush
 
 import android.content.Context
+import android.os.Build
 import android.os.OutcomeReceiver
 import android.os.ParcelFileDescriptor
 import androidx.annotation.IntDef
@@ -738,9 +739,32 @@ public interface WatchFacePushManager {
 
 public object WatchFacePushManagerFactory {
 
+    /**
+     * Creates a [WatchFacePushManager] instance, which acts as the entry point for the Watch Face
+     * Push APIs.
+     *
+     * @param context the current Android context.
+     * @return a new [WatchFacePushManager] implementation.
+     * @throws UnsupportedOperationException if the Watch Face Push feature is not supported on this
+     *   device. Check [isSupported] before calling this method.
+     */
     @JvmStatic
     public fun createWatchFacePushManager(context: Context): WatchFacePushManager =
-        WatchFacePushManagerImpl(context)
+        if (isSupported()) {
+            WatchFacePushManagerImpl(context)
+        } else {
+            throw UnsupportedOperationException(
+                "Watch Face Push feature is supported starting from API level ${Build.VERSION_CODES.BAKLAVA}."
+            )
+        }
+
+    /**
+     * Determines if the Watch Face Push feature is supported on this device.
+     *
+     * @return true if the Watch Face Push API can be used, false otherwise.
+     */
+    @JvmStatic
+    public fun isSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
 }
 
 /** @param context The application context. */

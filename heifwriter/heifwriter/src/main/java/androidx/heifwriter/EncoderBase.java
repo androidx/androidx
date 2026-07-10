@@ -26,6 +26,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Handler;
@@ -58,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
  * Callback#onOutputFormatChanged(MediaCodec, MediaFormat)} and {@link
- * Callback#onDrainOutputBuffer(MediaCodec, ByteBuffer)}. If the client
+ * Callback#onDrainOutputBuffer(EncoderBase, ByteBuffer)}. If the client
  * requests to use grid, each tile will be sent back individually.
  *
  *
@@ -74,11 +75,11 @@ public class EncoderBase implements AutoCloseable,
     private static final boolean DEBUG = false;
 
     private String MIME;
-    private int GRID_WIDTH;
-    private int GRID_HEIGHT;
-    private int ENCODING_BLOCK_SIZE;
-    private double MAX_COMPRESS_RATIO;
-    private int INPUT_BUFFER_POOL_SIZE = 2;
+    private static int GRID_WIDTH;
+    private static int GRID_HEIGHT;
+    private static int ENCODING_BLOCK_SIZE;
+    private static double MAX_COMPRESS_RATIO;
+    private static int INPUT_BUFFER_POOL_SIZE = 2;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
         MediaCodec mEncoder;
@@ -181,6 +182,73 @@ public class EncoderBase implements AutoCloseable,
         public abstract void onError(@NonNull EncoderBase encoder, @NonNull CodecException e);
     }
 
+    private static @Nullable String findVideoEncoderFallback(@NonNull String mimeType,
+            @NonNull EncoderPreference preference) {
+        String encoder = null; // first encoder
+        String encoderHw = null; // first hardware encoder
+        String encoderSw = null; // first software encoder
+        final MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        boolean hwOk = (preference.getEncoderType() ==
+            EncoderPreference.HARDWARE_ENCODER_ONLY ||
+            preference.getEncoderType() == EncoderPreference.HARDWARE_ENCODER_PREFERRED ||
+            preference.getEncoderType() == EncoderPreference.NO_ENCODER_PREFERENCE);
+        boolean swOk = (preference.getEncoderType() ==
+            EncoderPreference.SOFTWARE_ENCODER_ONLY ||
+            preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_PREFERRED ||
+            preference.getEncoderType() == EncoderPreference.NO_ENCODER_PREFERENCE);
+
+        for (MediaCodecInfo info : list.getCodecInfos()) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(mimeType);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
+                continue;
+            }
+            boolean isHw = info.isHardwareAccelerated();
+            boolean isSw = !isHw;
+            if (isSw && preference.getEncoderType() ==
+                    EncoderPreference.HARDWARE_ENCODER_ONLY) {
+                continue;
+            }
+            if (isHw && preference.getEncoderType() ==
+                    EncoderPreference.SOFTWARE_ENCODER_ONLY) {
+                continue;
+            }
+            if (caps.getEncoderCapabilities().isBitrateModeSupported(
+                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                // Encoder that supports CQ mode is preferred over others,
+                // return the first encoder that supports CQ mode if the
+                // hw/sw preference check is OK, cache otherwise
+                if ((isHw && hwOk) || (isSw && swOk)) {
+                    return info.getName();
+                }
+            } else if (preference.getBitrateMode() ==
+                EncoderPreference.CONSTANT_QUALITY_MODE_ONLY) {
+                // Skip if CQ mode is enforced.
+                continue;
+            }
+            if (encoder == null) { encoder = info.getName(); }
+            if (isHw && encoderHw == null) { encoderHw = info.getName(); }
+            if (isSw && encoderSw == null) { encoderSw = info.getName(); }
+        }
+        // If no encoders support CQ, return the first encoder that meets the preference
+        // (nullable if no encoder meets the preference).
+        if (preference.getEncoderType() == EncoderPreference.HARDWARE_ENCODER_PREFERRED) {
+            return encoderHw != null ? encoderHw : encoder;
+        }
+        if (preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_PREFERRED) {
+            return encoderSw != null ? encoderSw : encoder;
+        }
+        return encoder;
+    }
+
     /**
      * Configure the encoder. Should only be called once.
      *
@@ -197,7 +265,7 @@ public class EncoderBase implements AutoCloseable,
      * @param cb The callback to receive various messages from the heif encoder.
      */
     protected EncoderBase(@NonNull String mimeType, int width, int height, boolean useGrid,
-        int quality, @InputMode int inputMode,
+        int quality, @InputMode int inputMode, @NonNull EncoderPreference preference,
         @Nullable Handler handler, @NonNull Callback cb,
         boolean useBitDepth10) throws IOException {
         if (DEBUG)
@@ -231,9 +299,18 @@ public class EncoderBase implements AutoCloseable,
 
         boolean useHeicEncoder = false;
         MediaCodecInfo.CodecCapabilities caps = null;
+        String encoder = null;
         switch (MIME) {
             case "HEIC":
                 try {
+                    // Skic HEIC encoder if software encoder is enforced
+                    if (preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_ONLY
+                            || preference.getEncoderType() ==
+                            EncoderPreference.SOFTWARE_ENCODER_PREFERRED) {
+                        mEncoder.release();
+                        mEncoder = null;
+                        throw new Exception();
+                    }
                     mEncoder = MediaCodec.createEncoderByType(
                         MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
                     caps = mEncoder.getCodecInfo().getCapabilitiesForType(
@@ -246,7 +323,13 @@ public class EncoderBase implements AutoCloseable,
                     }
                     useHeicEncoder = true;
                 } catch (Exception e) {
-                    mEncoder = MediaCodec.createByCodecName(HeifEncoder.findHevcFallback());
+                    encoder = findVideoEncoderFallback(
+                            MediaFormat.MIMETYPE_VIDEO_HEVC, preference);
+                    if (encoder == null) {
+                        throw new IllegalArgumentException("Cannot find capable "
+                            + "encoder with the current encoder preference: " + preference);
+                    }
+                    mEncoder = MediaCodec.createByCodecName(encoder);
                     caps = mEncoder.getCodecInfo()
                         .getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
                     // Disable grid if the image is too small
@@ -256,7 +339,13 @@ public class EncoderBase implements AutoCloseable,
                 }
                 break;
             case "AVIF":
-                mEncoder = MediaCodec.createByCodecName(AvifEncoder.findAv1Fallback());
+                encoder = findVideoEncoderFallback(MediaFormat.MIMETYPE_VIDEO_AV1, preference);
+                if (encoder == null) {
+                    throw new IllegalArgumentException("Cannot find capable"
+                        + "encoder with the current encoder preference: " + preference);
+                }
+
+                mEncoder = MediaCodec.createByCodecName(encoder);
                 caps = mEncoder.getCodecInfo()
                     .getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1);
                 // Disable grid if the image is too small
@@ -309,12 +398,15 @@ public class EncoderBase implements AutoCloseable,
         }
 
         MediaFormat codecFormat;
+        // Choose image encoder if useHeicEncoder is true, otherwise fall back to
+        // video encoder (HEVC or AV1)
         if (useHeicEncoder) {
             codecFormat = MediaFormat.createVideoFormat(
                 MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC, mWidth, mHeight);
         } else {
-            codecFormat = MediaFormat.createVideoFormat(
-                MediaFormat.MIMETYPE_VIDEO_HEVC, gridWidth, gridHeight);
+            String mime = MIME.equals("AVIF") ?
+                MediaFormat.MIMETYPE_VIDEO_AV1 : MediaFormat.MIMETYPE_VIDEO_HEVC;
+            codecFormat = MediaFormat.createVideoFormat(mime, gridWidth, gridHeight);
         }
 
         if (useGrid) {
@@ -436,8 +528,15 @@ public class EncoderBase implements AutoCloseable,
                 mInputSurface = mEncoderSurface;
             }
         } else {
+            // Use long to prevent integer overflow for large dimensions
+            long size = mUseBitDepth10 ? (long) mWidth * mHeight * 3 :
+                    (long) mWidth * mHeight * 3 / 2;
+            if (size > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException(
+                        "Image dimensions too large for buffer allocation");
+            }
+            int bufferSize = (int) size;
             for (int i = 0; i < INPUT_BUFFER_POOL_SIZE; i++) {
-                int bufferSize = mUseBitDepth10 ? mWidth * mHeight * 3 : mWidth * mHeight * 3 / 2;
                 mEmptyBuffers.add(ByteBuffer.allocateDirect(bufferSize));
             }
         }
@@ -542,9 +641,10 @@ public class EncoderBase implements AutoCloseable,
                 || (!mUseBitDepth10 && format != ImageFormat.YUV_420_888)) {
             throw new IllegalStateException("Wrong color format.");
         }
-        if (data == null
-                || (mUseBitDepth10 && data.length != mWidth * mHeight * 3)
-                || (!mUseBitDepth10 && data.length != mWidth * mHeight * 3 / 2)) {
+        // Use long to prevent integer overflow during validation
+        long expectedSize = mUseBitDepth10 ? (long) mWidth * mHeight * 3 :
+                (long) mWidth * mHeight * 3 / 2;
+        if (data == null || data.length != expectedSize) {
             throw new IllegalArgumentException("invalid data");
         }
         addYuvBufferInternal(data);
@@ -722,24 +822,36 @@ public class EncoderBase implements AutoCloseable,
                 int copyWidth = Math.min(srcRect.width(), srcWidth - srcRect.left);
                 int copyHeight = Math.min(srcRect.height(), srcHeight - srcRect.top);
                 int srcPlanePos = 0, div = 1;
+                int srcPixelStride = 2; // Y is 2 bytes per pixel
                 if (n > 0) {
                     div = 2;
-                    srcPlanePos = srcWidth * srcHeight;
+                    // P010 uses 2 bytes per pixel, adjust offset for Y plane size
+                    srcPlanePos = srcWidth * srcHeight * 2;
+                    srcPixelStride = 4; // UV is interleaved, 4 bytes per pair
                     if (n == 2) {
-                        srcPlanePos += colStride / 2;
+                        srcPlanePos += 2; // V channel offset
                     }
                 }
                 for (int i = 0; i < copyHeight / div; i++) {
-                    srcBuffer.position(srcPlanePos +
-                        (i + srcRect.top / div) * srcWidth + srcRect.left / div);
+                    // Multiply row index by bytes per row, and column index by bytes per pixel
+                    srcBuffer.position(srcPlanePos
+                            + (i + srcRect.top / div) * (srcWidth * 2)
+                            + (srcRect.left / div) * srcPixelStride);
                     dstBuffer.position((i + dstRect.top / div) * planes[n].getRowStride()
                         + dstRect.left * colStride / div);
 
                     for (int j = 0; j < copyWidth / div; j++) {
                         dstBuffer.put(srcBuffer.get());
                         dstBuffer.put(srcBuffer.get());
-                        if (colStride > 2 /*pixel step*/ && j != copyWidth / div - 1) {
-                            dstBuffer.position(dstBuffer.position() + colStride / 2);
+                        if (j != copyWidth / div - 1) {
+                            if (colStride > 2 /*pixel step*/) {
+                                // Advance destination buffer correctly based on stride
+                                dstBuffer.position(dstBuffer.position() + colStride - 2);
+                            }
+                            if (srcPixelStride > 2) {
+                                // Advance source buffer to skip interleaved channels
+                                srcBuffer.position(srcBuffer.position() + srcPixelStride - 2);
+                            }
                         }
                     }
                 }

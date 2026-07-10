@@ -74,10 +74,12 @@ import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BundleCompat;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -122,8 +124,8 @@ class MediaRouter2Utils {
 
     private MediaRouter2Utils() {}
 
-    @Nullable
-    public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
+    public static @Nullable MediaRoute2Info toFwkMediaRoute2Info(
+            @Nullable MediaRouteDescriptor descriptor) {
         if (descriptor == null) {
             return null;
         } else if (TextUtils.isEmpty(descriptor.getId())
@@ -150,6 +152,11 @@ class MediaRouter2Utils {
             Api34Impl.copyDescriptorVisibilityToBuilder(builder, descriptor);
             Api34Impl.setDeviceType(
                     builder, androidXDeviceTypeToFwkDeviceType(descriptor.getDeviceType()));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            Api36Impl.copyRequiredPermissionsToBuilder(builder,
+                    descriptor);
         }
 
         switch (descriptor.getDeviceType()) {
@@ -189,8 +196,7 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
-    @Nullable
-    public static MediaRouteDescriptor toMediaRouteDescriptor(
+    public static @Nullable MediaRouteDescriptor toMediaRouteDescriptor(
             @Nullable MediaRoute2Info fwkMediaRoute2Info) {
         if (fwkMediaRoute2Info == null) {
             return null;
@@ -211,6 +217,11 @@ class MediaRouter2Utils {
             builder.setDeduplicationIds(Api34Impl.getDeduplicationIds(fwkMediaRoute2Info));
             deviceTypeInRouteInfo =
                     fwkDeviceTypeToAndroidXDeviceType(Api34Impl.getType(fwkMediaRoute2Info));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            Api36Impl.copyFwkRequiredPermissionsToBuilder(builder,
+                    fwkMediaRoute2Info);
         }
 
         CharSequence description = fwkMediaRoute2Info.getDescription();
@@ -238,7 +249,9 @@ class MediaRouter2Utils {
                         : extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
         builder.setPlaybackType(extras.getInt(KEY_PLAYBACK_TYPE, RouteInfo.PLAYBACK_TYPE_REMOTE));
 
-        List<IntentFilter> controlFilters = extras.getParcelableArrayList(KEY_CONTROL_FILTERS);
+        List<IntentFilter> controlFilters =
+                BundleCompat.getParcelableArrayList(
+                        extras, KEY_CONTROL_FILTERS, IntentFilter.class);
         if (controlFilters != null) {
             builder.addControlFilters(controlFilters);
         }
@@ -270,8 +283,7 @@ class MediaRouter2Utils {
         return features;
     }
 
-    @NonNull
-    static List<IntentFilter> toControlFilters(@Nullable Collection<String> features) {
+    static @NonNull List<IntentFilter> toControlFilters(@Nullable Collection<String> features) {
         if (features == null) {
             return new ArrayList<>();
         }
@@ -297,8 +309,7 @@ class MediaRouter2Utils {
         return controlFilters;
     }
 
-    @NonNull
-    static List<String> getRouteIds(@Nullable List<MediaRoute2Info> routes) {
+    static @NonNull List<String> getRouteIds(@Nullable List<MediaRoute2Info> routes) {
         if (routes == null) {
             return new ArrayList<>();
         }
@@ -313,9 +324,8 @@ class MediaRouter2Utils {
         return routeIds;
     }
 
-    @NonNull
-    static MediaRouteDiscoveryRequest toMediaRouteDiscoveryRequest(
-            @NonNull RouteDiscoveryPreference preference) {
+    static @NonNull MediaRouteDiscoveryRequest toMediaRouteDiscoveryRequest(
+            @NonNull RouteDiscoveryPreference preference, boolean shouldScanWithScreenOff) {
         List<String> controlCategories = new ArrayList<>();
         for (String feature : preference.getPreferredFeatures()) {
             controlCategories.add(MediaRouter2Utils.toControlCategory(feature));
@@ -324,11 +334,11 @@ class MediaRouter2Utils {
                 .addControlCategories(controlCategories)
                 .build();
 
-        return new MediaRouteDiscoveryRequest(selector, preference.shouldPerformActiveScan());
+        return new MediaRouteDiscoveryRequest(
+                selector, preference.shouldPerformActiveScan(), shouldScanWithScreenOff);
     }
 
-    @NonNull
-    static RouteDiscoveryPreference toDiscoveryPreference(
+    static @NonNull RouteDiscoveryPreference toDiscoveryPreference(
             @Nullable MediaRouteDiscoveryRequest discoveryRequest) {
         if (discoveryRequest == null || !discoveryRequest.isValid()) {
             return new RouteDiscoveryPreference.Builder(new ArrayList<>(), false).build();
@@ -513,6 +523,41 @@ class MediaRouter2Utils {
 
         public static int getType(MediaRoute2Info fwkMediaRoute2Info) {
             return fwkMediaRoute2Info.getType();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    static final class Api36Impl {
+        private Api36Impl() {}
+
+        static android.media.@NonNull SuggestedDeviceInfo toFwkSuggestedDeviceInfo(
+                @NonNull SuggestedDeviceInfo suggestedDeviceInfo) {
+            return new android.media.SuggestedDeviceInfo.Builder(
+                            suggestedDeviceInfo.getDeviceDisplayName(),
+                            suggestedDeviceInfo.getRouteId(),
+                            androidXDeviceTypeToFwkDeviceType(suggestedDeviceInfo.getType()))
+                    .setExtras(suggestedDeviceInfo.getExtras())
+                    .build();
+        }
+
+        static @NonNull SuggestedDeviceInfo toAndroidXSuggestedDeviceInfo(
+                android.media.@NonNull SuggestedDeviceInfo suggestedDeviceInfo) {
+            return new SuggestedDeviceInfo.Builder(
+                            suggestedDeviceInfo.getDeviceDisplayName(),
+                            suggestedDeviceInfo.getRouteId(),
+                            fwkDeviceTypeToAndroidXDeviceType(suggestedDeviceInfo.getType()))
+                    .setExtras(suggestedDeviceInfo.getExtras())
+                    .build();
+        }
+
+        static void copyRequiredPermissionsToBuilder(MediaRoute2Info.Builder builder,
+                MediaRouteDescriptor descriptor) {
+            builder.setRequiredPermissions(descriptor.getRequiredPermissions());
+        }
+
+        static void copyFwkRequiredPermissionsToBuilder(MediaRouteDescriptor.Builder builder,
+                MediaRoute2Info info) {
+            builder.setRequiredPermissions(info.getRequiredPermissions());
         }
     }
 }

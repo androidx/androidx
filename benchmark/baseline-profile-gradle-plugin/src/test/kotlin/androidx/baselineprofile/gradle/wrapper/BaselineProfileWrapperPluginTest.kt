@@ -149,9 +149,9 @@ private const val CLASS_PRODUCER_PLUGIN =
 
 private val taskPrintPlugins =
     """
-tasks.register("printPlugins", PrintTask) { t ->
-    def pluginsList = project.plugins.collect { it.class.toString() }.join("\n")
-    t.text.set(pluginsList)
-}
-"""
+    tasks.register("printPlugins", PrintTask) { t ->
+        def pluginsList = project.plugins.collect { it.class.toString() }.join("\n")
+        t.text.set(pluginsList)
+    }
+    """
         .trimIndent()

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -30,63 +29,41 @@ plugins {
 }
 
 androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64
   jvm()
+
   androidLibrary {
     namespace = "androidx.ink.brush"
     androidResources.enable = true
   }
 
+  ios()
+
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {}
-
-    commonTest {}
-
-    jvmAndroidMain {
-      dependsOn(commonMain)
-      dependencies {
-        api(libs.androidx.annotation)
-        implementation(libs.kotlinStdlib)
-        implementation("androidx.collection:collection:1.4.3")
-        implementation(project(":ink:ink-geometry"))
-        implementation(project(":ink:ink-nativeloader"))
-      }
+    commonMain.dependencies {
+      api(libs.androidx.annotation)
+      implementation("androidx.collection:collection:1.4.3")
+      implementation(project(":ink:ink-nativeloader"))
+      implementation(project(":ink:ink-geometry"))
     }
 
-    jvmAndroidTest {
-      dependsOn(commonTest)
-      dependencies {
-        implementation(libs.junit)
-        implementation(libs.kotlinTest)
-        implementation(libs.truth)
-      }
+    commonTest.dependencies {
+      implementation(libs.kotlinTest)
+      implementation(project(":kruth:kruth"))
     }
 
-    androidMain {
-      dependsOn(jvmAndroidMain)
+    jvmAndAndroidTest.dependencies {
+      implementation(libs.junit)
+      implementation(libs.truth)
     }
 
-    androidInstrumentedTest {
-      dependsOn(jvmAndroidTest)
-      dependencies {
-        implementation(libs.testExtJunit)
-        implementation(libs.testRules)
-        implementation(libs.testRunner)
-        implementation(libs.espressoCore)
-        implementation(libs.junit)
-        implementation(libs.truth)
-      }
-    }
-
-    jvmMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    jvmTest {
-      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
-      //   in a JVM environment in addition to on Android emulators, once the
-      //   mysterious SIGSEGV is resolved.
+    androidDeviceTest.dependencies {
+      implementation(libs.espressoCore)
+      implementation(libs.testExtJunit)
+      implementation(libs.testRules)
+      implementation(libs.testRunner)
     }
   }
 }
@@ -96,4 +73,13 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
+    samples(project(":ink:ink-brush:ink-brush-samples"))
+    usePlatformSpecificCacheForJvmTests = true
+}
+
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

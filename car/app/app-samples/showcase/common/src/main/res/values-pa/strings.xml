@@ -232,10 +232,21 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ਸੁਨੇਹਾ ਇੱਥੇ ਜਾਂਦਾ ਹੈ।\nਦੂਜੀ ਲਾਈਨ ਵਿੱਚ ਹੋਰ ਲਿਖਤ।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ਛੋਟੇ ਸੁਨੇਹੇ ਦੇ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਦੇ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"ਸੰਖਿਪਤ ਆਈਟਮ ਦਾ ਡੈਮੋ"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ AlphaJump ਨੂੰ ਚਾਲੂ ਕਰਨ ਦਾ ਡੈਮੋ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ਰੇਡੀਓ ਬਟਨ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ਟੌਗਲ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ਕਈ ਕਤਾਰਾਂ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
     <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ਗਰਿੱਡ ਆਈਟਮ ਸੈਕਸ਼ਨ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਦੀ ਸੂਚੀ ਦਾ ਡੈਮੋ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ਸੂਚੀ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ਸੂਚੀ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ਹਰੇਕ ਸੂਚੀ ਦੇ ਹੇਠਾਂ ਸਬਟੈਕਸਟ"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ਚਿੱਤਰ ਅਤੇ ਕਾਰਵਾਈਆਂ ਦਾ ਡੈਮੋ ਸਮਾਪਤ ਕਰੋ"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"ਚਿੱਪ ਡੈਮੋ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"ਪ੍ਰਗਤੀ ਪੱਟੀ ਦਾ ਡੈਮੋ"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"ਸੈਕਸ਼ਨ ਸਿਰਲੇਖ ਦਾ ਡੈਮੋ"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ਸਪੌਟਲਾਈਟ ਸੈਕਸ਼ਨ ਡੈਮੋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ਪੂਰਵ-ਝਲਕ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ਥਾਂ ਸੰਬੰਧੀ ਸੂਚੀ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ਥਾਵਾਂ ਬ੍ਰਾਊਜ਼ ਕਰੋ"</string>
@@ -266,6 +277,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"ਟੈਬ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"ਸੁਨੇਹਾ ਟੈਬ"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"ਪੂਰਵ-ਝਲਕ ਟੈਬ"</string>
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਟੈਬ"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"ਸੂਚੀ ਟੈਬ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ਲੰਮੇ ਟੈਬ ਸਿਰਲੇਖ ਵਾਲੇ ਗਰਿੱਡ ਟੈਬ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ਖੋਜੋ ਟੈਬ"</string>
@@ -330,10 +342,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ਕਤਾਰ ਨੂੰ ਵੀ ਚੁਣਿਆ ਜਾ ਸਕਦਾ ਹੈ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ਸੈਕੰਡਰੀ ਕਾਰਵਾਈ ਚੁਣੀ ਗਈ ਹੈ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ਕਤਾਰ ਨਾਲ ਸੰਬੰਧਿਤ ਪ੍ਰਾਇਮਰੀ ਕਾਰਵਾਈ ਚੁਣੀ ਗਈ ਹੈ"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਦੀ ਸੂਚੀ ਦਾ ਡੈਮੋ"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ਸੂਚੀ 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ਸੂਚੀ 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ਹਰੇਕ ਸੂਚੀ ਦੇ ਹੇਠਾਂ ਸਬਟੈਕਸਟ"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"ਕਤਾਰ ਦੇ ਅੰਤ ਵਿੱਚ ਚਿੱਤਰ ਅਤੇ ਕਾਰਵਾਈਆਂ ਦਾ ਡੈਮੋ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ਖਾਲੀ ਸੂਚੀ ਡੈਮੋ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ਇਹ ਸੂਚੀ ਖਾਲੀ ਹੈ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ਫੁਟਕਲ ਟੈਮਪਲੇਟਾਂ ਦੇ ਡੈਮੋ"</string>
@@ -375,4 +384,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ਸਮੱਗਰੀ ਸੰਬੰਧੀ ਡੈਮੋਆਂ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ਸੁਨੇਹਾ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ਗਰਿੱਡ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
+    <!-- no translation found for banner_demo_title (6740573531391394513) -->
+    <skip />
 </resources>

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 
 /**
@@ -23,6 +24,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperatio
  * <p>This is needed since `AccessibilityModifier` is generally an open set and designed to be
  * extended.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AccessibilityModifier extends ModifierOperation, AccessibleComponent {
     /**
      * This method retrieves the operation code.

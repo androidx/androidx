@@ -1,0 +1,31 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.HeapProfileRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.HeapProfileRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.JavaHeapDumpRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.JavaHeapDumpRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.ProfilingRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.ProfilingRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.StackSamplingRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.StackSamplingRequestBuilder.getThis()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getParams():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getParams()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getProfilingType():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getProfilingType()
+RemovedMethod: androidx.core.os.SystemTraceRequestBuilder#getThis():
+    Binary breaking change: Removed method androidx.core.os.SystemTraceRequestBuilder.getThis()

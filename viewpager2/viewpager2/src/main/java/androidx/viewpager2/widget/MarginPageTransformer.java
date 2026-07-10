@@ -19,10 +19,11 @@ package androidx.viewpager2.widget;
 import android.view.View;
 import android.view.ViewParent;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Px;
 import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Adds space between pages via the {@link ViewPager2.PageTransformer} API.

@@ -1,0 +1,86 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:JvmName("TraceSinks") // Provide a reasonable name for Java users.
+
+package androidx.tracing.wire
+
+import android.content.Context
+import java.io.File
+import java.io.OutputStream
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import okio.appendingSink
+import okio.buffer
+import okio.sink
+
+/**
+ * Creates a [androidx.tracing.wire.TraceSink] that writes trace events to the provided
+ * [outputStream].
+ *
+ * @see [androidx.tracing.wire.TraceSink]
+ */
+@JvmOverloads
+public fun TraceSink(
+    outputProvider: () -> OutputStream,
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
+): TraceSink =
+    TraceSink(
+        sequenceId = sequenceId,
+        coroutineContext = coroutineContext,
+        sinkProvider = { outputProvider().sink().buffer() },
+    )
+
+/**
+ * Creates a [androidx.tracing.wire.TraceSink] that writes trace events to the provided
+ * [fileProvider].
+ *
+ * @see [androidx.tracing.wire.TraceSink]
+ */
+@JvmOverloads
+public fun TraceSink(
+    context: Context,
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
+    fileProvider: () -> File = { context.createPerfettoFile() },
+): TraceSink {
+    val sink =
+        TraceSink(
+            sequenceId = sequenceId,
+            sinkProvider = { fileProvider().appendingSink().buffer() },
+            coroutineContext = coroutineContext,
+        )
+    return sink
+}
+
+// The designated directory for all traces on Android.
+// Makes it easy for Profilers to pull the traces.
+private const val TRACES_DIRECTORY = "perfetto_traces"
+
+internal fun Context.getOrCreateTracesDirectory(): File {
+    val directory = File(noBackupFilesDir, TRACES_DIRECTORY)
+    if (!directory.exists()) {
+        directory.mkdirs()
+    }
+    return directory
+}
+
+private fun Context.createPerfettoFile(): File {
+    val directory = getOrCreateTracesDirectory()
+    return directory.createPerfettoFile()
+}

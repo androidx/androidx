@@ -62,13 +62,12 @@ abstract class FilteredAnchorTask : DefaultTask() {
  * match the requested path prefix and task name.
  */
 internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) {
-    if (
-        providers.gradleProperty(PROP_PATH_PREFIX).isPresent &&
-            providers.gradleProperty(PROP_TASK_NAME).isPresent
-    ) {
-        val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(",")
+    val propPathPrefix = providers.gradleProperty(PROP_PATH_PREFIX)
+    val propTaskName = providers.gradleProperty(PROP_TASK_NAME)
+    if (propPathPrefix.isPresent && propTaskName.isPresent) {
+        val pathPrefixes = propPathPrefix.get().split(",")
         if (pathPrefixes.any { pathPrefix -> relativePathForFiltering().startsWith(pathPrefix) }) {
-            val taskName = properties[PROP_TASK_NAME] as String
+            val taskName = propTaskName.get()
             taskProviders
                 .find { taskProvider -> taskName == taskProvider?.name }
                 ?.let { taskProvider ->
@@ -87,13 +86,12 @@ internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) 
  * -Pandroidx.taskName=checkApi -Pandroidx.pathPrefix=core/core/
  */
 internal fun Project.maybeRegisterFilterableTask() {
-    if (
-        providers.gradleProperty(PROP_TASK_NAME).isPresent &&
-            providers.gradleProperty(PROP_PATH_PREFIX).isPresent
-    ) {
+    val propPathPrefix = providers.gradleProperty(PROP_PATH_PREFIX)
+    val propTaskName = providers.gradleProperty(PROP_TASK_NAME)
+    if (propPathPrefix.isPresent && propTaskName.isPresent) {
         tasks.register(GLOBAL_TASK_NAME, FilteredAnchorTask::class.java) { task ->
-            task.pathPrefix = properties[PROP_PATH_PREFIX] as String
-            task.taskName = properties[PROP_TASK_NAME] as String
+            task.pathPrefix = propPathPrefix.get()
+            task.taskName = propTaskName.get()
         }
     }
 }

@@ -52,10 +52,10 @@ class ModifierNodeInspectablePropertiesDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/test/Element.kt:8: Hint: Element does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read Element's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
-                class Element : ModifierNodeElement<Modifier.Node>() {
-                      ~~~~~~~
-0 errors, 0 warnings, 1 hint
+                src/test/Element.kt:8: Hint: Element does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read Element's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+                                class Element : ModifierNodeElement<Modifier.Node>() {
+                                      ~~~~~~~
+                0 errors, 0 warnings, 1 hint
                 """
                     .trimIndent()
             )
@@ -109,13 +109,13 @@ src/test/Element.kt:8: Hint: Element does not override inspectableProperties(). 
             .run()
             .expect(
                 """
-src/test/ElementWithExtraParam.kt:9: Hint: ElementWithExtraParam does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithExtraParam's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
-                class ElementWithExtraParam : ModifierNodeElement<Modifier.Node>() {
-                      ~~~~~~~~~~~~~~~~~~~~~
-src/test/ElementWithoutReceiver.kt:9: Hint: ElementWithoutReceiver does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithoutReceiver's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
-                class ElementWithoutReceiver : ModifierNodeElement<Modifier.Node>() {
-                      ~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 2 hints
+                src/test/ElementWithExtraParam.kt:9: Hint: ElementWithExtraParam does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithExtraParam's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+                                class ElementWithExtraParam : ModifierNodeElement<Modifier.Node>() {
+                                      ~~~~~~~~~~~~~~~~~~~~~
+                src/test/ElementWithoutReceiver.kt:9: Hint: ElementWithoutReceiver does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithoutReceiver's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+                                class ElementWithoutReceiver : ModifierNodeElement<Modifier.Node>() {
+                                      ~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 0 warnings, 2 hints
                 """
                     .trimIndent()
             )

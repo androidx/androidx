@@ -17,8 +17,10 @@ package androidx.mediarouter.media;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Describes the kinds of routes that the media router would like to discover
@@ -32,6 +34,7 @@ public final class MediaRouteDiscoveryRequest {
     private static final String KEY_ACTIVE_SCAN = "activeScan";
 
     private final Bundle mBundle;
+    private final Boolean mShouldScanWithScreenOff;
     private MediaRouteSelector mSelector;
 
     /**
@@ -41,25 +44,48 @@ public final class MediaRouteDiscoveryRequest {
      * @param activeScan True if active scanning should be performed.
      */
     public MediaRouteDiscoveryRequest(@NonNull MediaRouteSelector selector, boolean activeScan) {
+        this(selector, activeScan, /* shouldScanWithScreenOff= */ false);
+    }
+
+    /**
+     * Creates a media route discovery request.
+     *
+     * @param selector The route selector that specifies the kinds of routes to discover.
+     * @param activeScan True if active scanning should be performed.
+     * @param shouldScanWithScreenOff True if the scanning should be performed even when the screen
+     *                                is off. Apps are refrained from setting this variable. This
+     *                                can not be true when activeScan is false.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    MediaRouteDiscoveryRequest(@NonNull MediaRouteSelector selector, boolean activeScan,
+            boolean shouldScanWithScreenOff) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
+        }
+        if (!activeScan && shouldScanWithScreenOff) {
+            throw new IllegalArgumentException("shouldScanWithScreenOff can not be true when"
+                    + " activeScan is false");
         }
 
         mBundle = new Bundle();
         mSelector = selector;
+        mShouldScanWithScreenOff = shouldScanWithScreenOff;
         mBundle.putBundle(KEY_SELECTOR, selector.asBundle());
         mBundle.putBoolean(KEY_ACTIVE_SCAN, activeScan);
     }
 
     private MediaRouteDiscoveryRequest(Bundle bundle) {
         mBundle = bundle;
+        // Scan with screen off is intentionally not bundled to prevent service clients from
+        // requesting screen off scanning. Only MR2 requests are allowed to scan while the screen is
+        // off.
+        mShouldScanWithScreenOff = false;
     }
 
     /**
      * Gets the route selector that specifies the kinds of routes to discover.
      */
-    @NonNull
-    public MediaRouteSelector getSelector() {
+    public @NonNull MediaRouteSelector getSelector() {
         ensureSelector();
         return mSelector;
     }
@@ -83,6 +109,14 @@ public final class MediaRouteDiscoveryRequest {
     }
 
     /**
+     * Returns true if scanning should be performed even when the screen is off.
+     * This can only be true if {@link #isActiveScan()} is true.
+     */
+    public boolean shouldScanWithScreenOff() {
+        return mShouldScanWithScreenOff;
+    }
+
+    /**
      * Returns true if the discovery request has all of the required fields.
      */
     public boolean isValid() {
@@ -95,22 +129,24 @@ public final class MediaRouteDiscoveryRequest {
         if (o instanceof MediaRouteDiscoveryRequest) {
             MediaRouteDiscoveryRequest other = (MediaRouteDiscoveryRequest)o;
             return getSelector().equals(other.getSelector())
-                    && isActiveScan() == other.isActiveScan();
+                    && isActiveScan() == other.isActiveScan()
+                    && shouldScanWithScreenOff() == other.shouldScanWithScreenOff();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return getSelector().hashCode() ^ (isActiveScan() ? 1 : 0);
+        return getSelector().hashCode() ^ (isActiveScan() ? 1 : 0)
+                ^ (shouldScanWithScreenOff() ? 1 : 0);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "DiscoveryRequest{ selector=" + getSelector()
                 + ", activeScan=" + isActiveScan()
                 + ", isValid=" + isValid()
+                + ", shouldScanWithScreenOff= " + shouldScanWithScreenOff()
                 + " }";
     }
 
@@ -119,8 +155,7 @@ public final class MediaRouteDiscoveryRequest {
      *
      * @return The contents of the object represented as a bundle.
      */
-    @NonNull
-    public Bundle asBundle() {
+    public @NonNull Bundle asBundle() {
         return mBundle;
     }
 
@@ -130,8 +165,7 @@ public final class MediaRouteDiscoveryRequest {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    @Nullable
-    public static MediaRouteDiscoveryRequest fromBundle(@Nullable Bundle bundle) {
+    public static @Nullable MediaRouteDiscoveryRequest fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaRouteDiscoveryRequest(bundle) : null;
     }
 }

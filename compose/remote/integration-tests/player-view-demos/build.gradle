@@ -1,0 +1,67 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("AndroidXComposePlugin")
+}
+
+android {
+    compileSdk { version = release(37) }
+    namespace = "androidx.compose.remote.integration.view.demos"
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
+}
+
+androidx {
+    name = "Remote Compose experiments"
+    inceptionYear = "2025"
+    description = "Demo app for the Remote Compose players and Frontend APIs."
+}
+
+dependencies {
+
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":compose:remote:remote-creation-core"))
+    implementation(project(":compose:remote:remote-player-compose"))
+    implementation(project(":compose:remote:remote-player-view"))
+    implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-tooling-preview"))
+    implementation("androidx.activity:activity-compose:1.5.0")
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:material3:material3"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.savedstate:savedstate-compose:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    testImplementation("org.json:json:20231013")
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.10.0")
+}

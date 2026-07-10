@@ -292,32 +292,73 @@ public class ResolutionsMerger {
         return false;
     }
 
+    /**
+     * Checks if all children use cases prefer a fallback aspect ratio resolution.
+     *
+     * <p>This is used to decide whether to prioritize fallback resolutions over the sensor's
+     * default aspect ratio when selecting a resolution for the parent {@link StreamSharing}
+     * use case.
+     *
+     * <p>This method returns true if for every child use case, its list of supported
+     * resolutions (sorted by preference) meets the following condition: all
+     * fallback-aspect-ratio sizes are put ahead of all the other non-fallback-aspect-ratio sizes.
+     */
+    private boolean shouldPrioritizeFallbackAspectRatio() {
+        if (mChildrenConfigs.isEmpty()) {
+            return false;
+        }
+
+        for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
+            List<Size> sortedChildSizes = getSortedChildSizes(childConfig);
+            boolean nonFallbackAspectRatioSizeFound = false;
+            boolean fallbackAspectRatioSizeFound = false;
+            for (Size size : sortedChildSizes) {
+                boolean isFallbackAspectRatio = hasMatchingAspectRatio(size, mFallbackAspectRatio);
+                if (isFallbackAspectRatio) {
+                    fallbackAspectRatioSizeFound = true;
+                }
+                if (nonFallbackAspectRatioSizeFound && isFallbackAspectRatio) {
+                    // This child has a fallback aspect ratio size after a non-fallback one,
+                    // so it does not meet the criteria.
+                    return false;
+                }
+                if (!isFallbackAspectRatio) {
+                    nonFallbackAspectRatioSizeFound = true;
+                }
+            }
+            if (!fallbackAspectRatioSizeFound) {
+                // This child has no fallback aspect ratio sizes, so it does not prefer them.
+                return false;
+            }
+        }
+
+        // If all children satisfy the condition.
+        return true;
+    }
+
     private @NonNull List<Size> selectParentResolutions(
             @NonNull List<Size> candidateParentResolutions) {
-        // The following sequence of parent resolution selection is used to prevent double-cropping
-        // from happening:
-        // 1. Add sensor aspect-ratio resolutions, which do not result in double-cropping with any
-        // aspect-ratio of child resolution. This is to provide parent resolution that can be
-        // accepted by children in general cases.
-        // 2. Add fallback aspect-ratio (the one between 4:3 and 16:9 that is not sensor
-        // aspect-ratio) resolutions, that can crop/downscale to at least one child size for
-        // each child.
-        // 3. Add other aspect-ratio resolutions, that can crop/downscale to at least one child
-        // size for each child.
-        // The parent sizes added in step 2 and step 3 will only be used to crop to child sizes
-        // that do not result in double-cropping. For example, if childRatio < parentRatio <
-        // sensorRatio or childRatio > parentRatio > sensorRatio, then there is no double-cropping.
+        // The parent resolution is selected by the following sequence to prevent double-cropping.
+        // The default sequence is: 1. Sensor aspect-ratio, 2. Fallback aspect-ratio, and then
+        // 3. Other aspect ratios.
+        // If all children prefer fallback aspect-ratio resolutions (see
+        // shouldPrioritizeFallbackAspectRatio()), the order of the first two steps is swapped.
+        // The parent sizes will only be used to crop to child sizes that do not result in
+        // double-cropping. For example, if childRatio < parentRatio < sensorRatio or
+        // childRatio > parentRatio > sensorRatio, then there is no double-cropping.
         List<Size> result = new ArrayList<>();
 
-        // Add resolutions for sensor aspect-ratio.
+        // Add sensor aspect-ratio resolutions.
         if (needToAddSensorResolutions()) {
             result.addAll(selectParentResolutionsByAspectRatio(mSensorAspectRatio,
                     candidateParentResolutions, false));
         }
 
-        // Add resolutions for fallback aspect-ratio.
-        result.addAll(selectParentResolutionsByAspectRatio(mFallbackAspectRatio,
-                candidateParentResolutions, false));
+        // Add the fallback aspect-ratio according to whether it should be prioritized or not.
+        int currentSize = result.size();
+        result.addAll(shouldPrioritizeFallbackAspectRatio() ? 0 : currentSize,
+                selectParentResolutionsByAspectRatio(mFallbackAspectRatio,
+                        candidateParentResolutions, false));
 
         // Add other aspect-ratio resolutions. Resolutions with larger FOV will be added first.
         result.addAll(selectOtherAspectRatioParentResolutionsWithFovPriority(

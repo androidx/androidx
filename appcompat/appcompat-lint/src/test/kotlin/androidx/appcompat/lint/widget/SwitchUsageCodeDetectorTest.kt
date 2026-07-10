@@ -49,10 +49,10 @@ class SwitchUsageCodeDetectorTest {
             .run()
             .expect(
                 """
-src/com/example/CustomSwitch.kt:6: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
-class CustomSwitch(context: Context): Switch(context)
-                                      ~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomSwitch.kt:6: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
+                class CustomSwitch(context: Context): Switch(context)
+                                                      ~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )
@@ -89,10 +89,10 @@ class CustomSwitch(context: Context): Switch(context)
             .run()
             .expect(
                 """
-src/com/example/CustomActivity.kt:9: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
-        val mySwitch = Switch(this)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                src/com/example/CustomActivity.kt:9: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
+                        val mySwitch = Switch(this)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )

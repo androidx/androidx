@@ -21,6 +21,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.pdf.service.connect.FakePdfServiceConnection
 import androidx.pdf.utils.TestUtils
+import androidx.pdf.utils.areCorePdfApisAvailableInSdk
+import androidx.pdf.utils.isLinearizationStatusAvailable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -44,7 +46,11 @@ class SandboxedPdfLoaderTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val loader = SandboxedPdfLoader(context, Dispatchers.Main)
         loader.testingConnection =
-            FakePdfServiceConnection(context, isConnected = false) { isServiceConnected = true }
+            FakePdfServiceConnection(
+                context,
+                isConnected = false,
+                onServiceConnected = { isServiceConnected = true },
+            )
         val uri = TestUtils.openFile(context, PDF_DOCUMENT)
 
         val document = loader.openDocument(uri)
@@ -53,7 +59,15 @@ class SandboxedPdfLoaderTest {
         assertThat(isServiceConnected).isTrue()
         assertThat(document.uri == uri).isTrue()
         assertThat(document.pageCount == expectedPageCount).isTrue()
-        assertThat(!document.isLinearized).isTrue()
+
+        val expectedLinearizationStatus =
+            if (isLinearizationStatusAvailable()) {
+                PdfDocument.LINEARIZATION_STATUS_NOT_LINEARIZED
+            } else {
+                PdfDocument.LINEARIZATION_STATUS_UNKNOWN
+            }
+        assertThat(document.linearizationStatus).isEqualTo(expectedLinearizationStatus)
+
         document.close()
     }
 
@@ -63,7 +77,11 @@ class SandboxedPdfLoaderTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val loader = SandboxedPdfLoader(context, Dispatchers.Main)
         loader.testingConnection =
-            FakePdfServiceConnection(context, isConnected = false) { isServiceConnected = true }
+            FakePdfServiceConnection(
+                context,
+                isConnected = false,
+                onServiceConnected = { isServiceConnected = true },
+            )
         val pfd = TestUtils.openFileDescriptor(context, PDF_DOCUMENT)
 
         val document = loader.openDocument(FAKE_URI_1, pfd)
@@ -72,7 +90,15 @@ class SandboxedPdfLoaderTest {
         assertThat(isServiceConnected).isTrue()
         assertThat(document.uri == FAKE_URI_1).isTrue()
         assertThat(document.pageCount == expectedPageCount).isTrue()
-        assertThat(!document.isLinearized).isTrue()
+
+        val expectedLinearizationStatus =
+            if (isLinearizationStatusAvailable()) {
+                PdfDocument.LINEARIZATION_STATUS_NOT_LINEARIZED
+            } else {
+                PdfDocument.LINEARIZATION_STATUS_UNKNOWN
+            }
+        assertThat(document.linearizationStatus).isEqualTo(expectedLinearizationStatus)
+
         document.close()
     }
 
@@ -203,6 +229,7 @@ class SandboxedPdfLoaderTest {
 
     @Test
     fun openTwoDocumentsFd_sharedLoader() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
         val context = ApplicationProvider.getApplicationContext<Context>()
         val pfd1 = TestUtils.openFileDescriptor(context, "sample.pdf")
         val pfd2 = TestUtils.openFileDescriptor(context, "alt_text.pdf")
@@ -223,6 +250,41 @@ class SandboxedPdfLoaderTest {
         assertThat(document1.getPageContent(0)?.textContents?.get(0)?.text).isEqualTo(doc1Page1Text)
         assertThat(document1.getPageInfo(2).height).isEqualTo(doc1Page3Info.height)
         assertThat(document1.getPageInfo(2).width).isEqualTo(doc1Page3Info.width)
+    }
+
+    @Test
+    fun openDocumentWithUri_assertDefaultRenderParams() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val uri = TestUtils.openFile(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val document = sharedLoader.openDocument(uri)
+        assertThat(document.renderParams)
+            .isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
+    }
+
+    @Test
+    fun openDocumentWithPfd_assertDefaultRenderParams() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pfd = TestUtils.openFileDescriptor(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val document = sharedLoader.openDocument(FAKE_URI_1, pfd)
+        assertThat(document.renderParams)
+            .isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
+    }
+
+    @Test
+    fun openDocumentWithPfd_assertRenderParamsOnDocument() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pfd = TestUtils.openFileDescriptor(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val customRenderParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_PRINT,
+                renderFlags = RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+            )
+        val document = sharedLoader.openDocument(FAKE_URI_1, pfd, renderParams = customRenderParams)
+        assertThat(document.renderParams).isEqualTo(customRenderParams)
     }
 
     companion object {

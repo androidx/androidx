@@ -33,12 +33,14 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.KotlinBaseApiPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 
 internal fun Project.validateKotlinModuleFiles(variantName: String, aar: Provider<RegularFile>) {
     if (
-        !project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java) &&
+        (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java) ||
+            !project.plugins.hasPlugin(KotlinBaseApiPlugin::class.java)) &&
             !project.plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)
     ) {
         return

@@ -26,7 +26,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(37) }
         namespace = "androidx.navigation.compose"
         androidResources.enable = true
     }
@@ -36,117 +36,71 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":navigation:navigation-runtime"))
-                api(project(":navigation:navigation-common"))
-                implementation("androidx.annotation:annotation:1.8.0")
-                api("androidx.compose.runtime:runtime:1.7.2")
-                api("androidx.compose.ui:ui:1.7.2")
-                api("androidx.compose.animation:animation:1.7.2")
-                api("androidx.compose.runtime:runtime-saveable:1.7.2")
-                implementation("androidx.compose.animation:animation-core:1.7.2")
-                implementation("androidx.compose.foundation:foundation-layout:1.7.2")
-                implementation("androidx.collection:collection:1.4.5")
-                implementation("androidx.lifecycle:lifecycle-common:2.9.1")
-                implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
-                implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
-                implementation("androidx.lifecycle:lifecycle-viewmodel:2.9.1")
-                implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
-                implementation("androidx.savedstate:savedstate:1.3.0")
-                implementation("androidx.savedstate:savedstate-compose:1.3.0")
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.kotlinSerializationCore)
-            }
+        commonMain.dependencies {
+            api(project(":navigation:navigation-runtime"))
+            api(project(":navigation:navigation-common"))
+            implementation("androidx.annotation:annotation:1.8.0")
+            api("androidx.compose.runtime:runtime:1.10.5")
+            api("androidx.compose.ui:ui:1.10.5")
+            api("androidx.compose.animation:animation:1.10.5")
+            api("androidx.compose.runtime:runtime-saveable:1.10.5")
+            implementation("androidx.compose.animation:animation-core:1.10.5")
+            implementation("androidx.compose.foundation:foundation-layout:1.10.5")
+            implementation("androidx.collection:collection:1.4.5")
+            implementation("androidx.lifecycle:lifecycle-common:2.9.1")
+            implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.9.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+            implementation("androidx.savedstate:savedstate:1.3.0")
+            implementation("androidx.savedstate:savedstate-compose:1.3.0")
+            implementation("androidx.navigationevent:navigationevent-compose:1.1.2")
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinSerializationCore)
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":navigationevent:navigationevent-testing"))
         }
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-        jvmCommonMain {
-            dependsOn(commonMain)
-        }
-        jvmCommonTest {
-            dependsOn(commonTest)
-        }
-        jvmStubsMain {
-            dependsOn(jvmCommonMain)
-            dependsOn(nonAndroidMain)
-        }
-        jvmStubsTest {
-            dependsOn(jvmCommonTest)
-            dependsOn(nonAndroidTest)
-        }
-        androidMain {
-            dependsOn(jvmCommonMain)
-            dependencies {
-                api("androidx.activity:activity-compose:1.8.0")
-                api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
-                implementation("androidx.activity:activity:1.8.0")
-            }
-        }
-        androidUnitTest {
-            dependsOn(jvmCommonTest)
-        }
-        androidInstrumentedTest {
-            dependsOn(jvmCommonTest)
-            dependencies {
-                implementation("androidx.activity:activity:1.9.2")
-                implementation("androidx.core:core-ktx:1.13.0")
-                implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.2")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.8.2")
-                implementation("androidx.lifecycle:lifecycle-common:2.8.2")
-                implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
-                implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.2")
-                implementation("androidx.savedstate:savedstate:1.2.1")
-                implementation(project(":navigation:navigation-testing"))
-                implementation(libs.testExtJunit)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-navigation"))
 
-                // Compose test dependencies
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:animation:animation-core"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:runtime:runtime-saveable"))
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":compose:ui:ui-graphics"))
-                implementation(project(":compose:ui:ui-test"))
-                implementation(project(":compose:ui:ui-text"))
-                implementation(project(":compose:ui:ui-tooling-preview"))
-                implementation(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:material:material"))
-                implementation(project(":compose:test-utils"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-tooling"))
-                implementation(project(":internal-testutils-navigation"))
-            }
+        androidMain.dependencies {
+            api("androidx.activity:activity-compose:1.13.0")
+            api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
+            implementation("androidx.activity:activity:1.8.0")
         }
-        nonJvmCommonMain {
-            dependsOn(nonAndroidMain)
+        androidDeviceTest.dependencies {
+            implementation("androidx.core:core-ktx:1.13.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-common:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.2")
+            implementation("androidx.savedstate:savedstate:1.2.1")
+            implementation(project(":navigation:navigation-testing"))
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":internal-testutils-navigation"))
+
+            // Compose test dependencies
+            implementation(project(":compose:animation:animation"))
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:runtime:runtime-saveable"))
+            implementation(project(":compose:ui:ui"))
+            implementation(project(":compose:ui:ui-graphics"))
+            implementation(project(":compose:ui:ui-test"))
+            implementation(project(":compose:ui:ui-text"))
+            implementation(project(":compose:ui:ui-tooling-preview"))
+            implementation(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:material:material"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:ui:ui-tooling"))
+            implementation(project(":internal-testutils-navigation"))
         }
-        nonJvmCommonTest {
-            dependsOn(nonAndroidTest)
-        }
-        nativeMain {
-            dependsOn(nonJvmCommonMain)
-        }
-        nativeTest {
-            dependsOn(nonJvmCommonTest)
-        }
-        linuxx64StubsMain.dependsOn(nativeMain)
-        linuxx64StubsTest.dependsOn(nativeTest)
     }
 }
 

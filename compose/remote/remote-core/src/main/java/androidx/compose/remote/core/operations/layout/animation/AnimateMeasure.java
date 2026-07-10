@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.animation;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
@@ -27,37 +28,39 @@ import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation;
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic interpolation manager between two ComponentMeasures
  *
  * <p>Handles position, size and visibility
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimateMeasure {
-    private final long mStartTime;
-    private final @NonNull Component mComponent;
-    private final @NonNull ComponentMeasure mOriginal;
-    private final @NonNull ComponentMeasure mTarget;
-    private float mDuration;
-    private float mDurationVisibilityChange = mDuration;
-    private AnimationSpec.@NonNull ANIMATION mEnterAnimation = AnimationSpec.ANIMATION.FADE_IN;
-    private AnimationSpec.@NonNull ANIMATION mExitAnimation = AnimationSpec.ANIMATION.FADE_OUT;
-    private int mMotionEasingType = GeneralEasing.CUBIC_STANDARD;
-    private int mVisibilityEasingType = GeneralEasing.CUBIC_ACCELERATE;
+    protected long mStartTime;
+    protected final @NonNull Component mComponent;
+    protected final @NonNull ComponentMeasure mOriginal;
+    protected final @NonNull ComponentMeasure mTarget;
+    protected float mDuration;
+    protected float mDurationVisibilityChange = mDuration;
+    protected AnimationSpec.@NonNull ANIMATION mEnterAnimation = AnimationSpec.ANIMATION.FADE_IN;
+    protected AnimationSpec.@NonNull ANIMATION mExitAnimation = AnimationSpec.ANIMATION.FADE_OUT;
+    protected int mMotionEasingType = GeneralEasing.CUBIC_STANDARD;
+    protected int mVisibilityEasingType = GeneralEasing.CUBIC_ACCELERATE;
 
-    private float mP = 0f;
-    private float mVp = 0f;
+    protected float mP = 0f;
+    protected float mVp = 0f;
 
     @NonNull
-    private FloatAnimation mMotionEasing =
+    protected FloatAnimation mMotionEasing =
             new FloatAnimation(mMotionEasingType, mDuration / 1000f, null, 0f, Float.NaN);
 
     @NonNull
-    private FloatAnimation mVisibilityEasing =
+    protected FloatAnimation mVisibilityEasing =
             new FloatAnimation(
                     mVisibilityEasingType, mDurationVisibilityChange / 1000f, null, 0f, Float.NaN);
 
-    private ParticleAnimation mParticleAnimation;
+    @Nullable protected ParticleAnimation mParticleAnimation;
 
     public AnimateMeasure(
             long startTime,
@@ -109,11 +112,7 @@ public class AnimateMeasure {
 
     @NonNull public PaintBundle paint = new PaintBundle();
 
-    /**
-     * Apply the layout portion of the animation if any
-     *
-     * @param context
-     */
+    /** Apply the layout portion of the animation if any */
     public void apply(@NonNull RemoteContext context) {
         update(context.currentTime);
         mComponent.setX(getX());
@@ -136,11 +135,7 @@ public class AnimateMeasure {
         }
     }
 
-    /**
-     * Paint the transition animation for the component owned
-     *
-     * @param context
-     */
+    /** Paint the transition animation for the component owned */
     public void paint(@NonNull PaintContext context) {
         if (mOriginal.getVisibility() != mTarget.getVisibility()) {
             if (mTarget.isGone()) {
@@ -369,29 +364,37 @@ public class AnimateMeasure {
     /**
      * Set the target values from the given measure
      *
+     * @param context the current context
      * @param measure the target measure
      * @param currentTime the current time
      */
-    public void updateTarget(@NonNull ComponentMeasure measure, long currentTime) {
-        mOriginal.setX(getX());
-        mOriginal.setY(getY());
-        mOriginal.setW(getWidth());
-        mOriginal.setH(getHeight());
-        float targetX = mTarget.getX();
-        float targetY = mTarget.getY();
-        float targetW = mTarget.getW();
-        float targetH = mTarget.getH();
-        int targetVisibility = mTarget.getVisibility();
-        if (targetX != measure.getX()
-                || targetY != measure.getY()
-                || targetW != measure.getW()
-                || targetH != measure.getH()
-                || targetVisibility != measure.getVisibility()) {
-            mTarget.setX(measure.getX());
-            mTarget.setY(measure.getY());
-            mTarget.setW(measure.getW());
-            mTarget.setH(measure.getH());
-            mTarget.setVisibility(measure.getVisibility());
+    public void updateTarget(
+            @NonNull RemoteContext context, @NonNull ComponentMeasure measure, long currentTime) {
+        float currentX = getX();
+        float currentY = getY();
+        float currentW = getWidth();
+        float currentH = getHeight();
+
+        mOriginal.setX(currentX);
+        mOriginal.setY(currentY);
+        mOriginal.setW(currentW);
+        mOriginal.setH(currentH);
+
+        float targetX = measure.getX();
+        float targetY = measure.getY();
+        float targetW = measure.getW();
+        float targetH = measure.getH();
+        int targetVisibility = measure.getVisibility();
+        if (mTarget.getX() != targetX
+                || mTarget.getY() != targetY
+                || mTarget.getW() != targetW
+                || mTarget.getH() != targetH
+                || mTarget.getVisibility() != targetVisibility) {
+            mTarget.setX(targetX);
+            mTarget.setY(targetY);
+            mTarget.setW(targetW);
+            mTarget.setH(targetH);
+            mTarget.setVisibility(targetVisibility);
             // We shouldn't reset the leftover animation time here
             // 1/ if we are eg fading out a component, and an updateTarget comes on, we don't want
             //    to restart the full animation time
@@ -400,5 +403,13 @@ public class AnimateMeasure {
             //    time to wrap up
             // mStartTime = currentTime;
         }
+    }
+
+    public @NonNull ComponentMeasure getOriginal() {
+        return mOriginal;
+    }
+
+    public @NonNull ComponentMeasure getTarget() {
+        return mTarget;
     }
 }

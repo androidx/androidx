@@ -16,10 +16,14 @@
 
 package androidx.build.metalava
 
+import androidx.build.checkapi.SourceSetInputs
 import java.io.File
 import java.io.StringWriter
 import org.dom4j.DocumentHelper
 import org.dom4j.Element
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -50,17 +54,16 @@ class ProjectXmlTest {
                 emptyList(),
                 emptyList(),
                 emptyList(),
-                compiledSources,
+                null,
+                setOf(KotlinPlatformType.androidJvm),
             )
 
         checkElementXml(
             element,
             """
-                <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]"/>
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -72,17 +75,16 @@ class ProjectXmlTest {
                 emptyList(),
                 emptyList(),
                 emptyList(),
-                compiledSources,
+                null,
+                setOf(KotlinPlatformType.common, KotlinPlatformType.jvm),
             )
 
         checkElementXml(
             element,
             """
-                <module name="commonMain" kotlinPlatforms="JVM [1.8]">
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="commonMain" kotlinPlatforms="JVM [1.8]"/>
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -95,33 +97,63 @@ class ProjectXmlTest {
                 listOf(
                     File(sourceDir, "Foo.kt"),
                     File(sourceDir, "Bar.kt"),
-                    File(sourceDir, "Baz.java")
+                    File(sourceDir, "Baz.java"),
                 ),
                 listOf(
                     File(classpathDir, "jarDependency.jar"),
                     File(classpathDir, "androidDependency.aar"),
                     File(classpathDir, "klibDependency.klib"),
-                    File(classpathDir, "directoryDependency")
+                    File(classpathDir, "directoryDependency"),
                 ),
                 compiledSources,
+                setOf(KotlinPlatformType.androidJvm),
             )
         checkElementXml(
             element,
             """
-                <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
-                  <dep module="commonMain" kind="dependsOn"/>
-                  <dep module="jvmMain" kind="dependsOn"/>
-                  <src file="/fake/path/root/sources/Foo.kt"/>
-                  <src file="/fake/path/root/sources/Bar.kt"/>
-                  <src file="/fake/path/root/sources/Baz.java"/>
-                  <classpath jar="/fake/path/root/classpath/jarDependency.jar"/>
-                  <classpath aar="/fake/path/root/classpath/androidDependency.aar"/>
-                  <klib file="/fake/path/root/classpath/klibDependency.klib"/>
-                  <classpath dir="/fake/path/root/classpath/directoryDependency"/>
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
+              <dep module="commonMain" kind="dependsOn"/>
+              <dep module="jvmMain" kind="dependsOn"/>
+              <src file="/fake/path/root/sources/Foo.kt"/>
+              <src file="/fake/path/root/sources/Bar.kt"/>
+              <src file="/fake/path/root/sources/Baz.java"/>
+              <classpath jar="/fake/path/root/classpath/jarDependency.jar"/>
+              <classpath aar="/fake/path/root/classpath/androidDependency.aar"/>
+              <klib file="/fake/path/root/classpath/klibDependency.klib"/>
+              <classpath dir="/fake/path/root/classpath/directoryDependency"/>
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
             """
-                .trimIndent()
+                .trimIndent(),
+        )
+    }
+
+    @Test
+    fun testKotlinPlatformTypes() {
+        val element =
+            ProjectXml.createSourceSetElement(
+                "commonMain",
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                compiledSources,
+                setOf(
+                    KotlinPlatformType.common,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.native,
+                    KotlinPlatformType.wasm,
+                    KotlinPlatformType.js,
+                ),
+            )
+        checkElementXml(
+            element,
+            """
+            <module name="commonMain" kotlinPlatforms="JVM [1.8]/Native []/Native [general]/Wasm [general]/JS []">
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
+            """
+                .trimIndent(),
         )
     }
 
@@ -131,11 +163,11 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <project>
-                  <root dir="."/>
-                </project>
+            <project>
+              <root dir="."/>
+            </project>
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -145,19 +177,122 @@ class ProjectXmlTest {
             ProjectXml.createProjectElement(
                 listOf(
                     DocumentHelper.createElement("someElement"),
-                    DocumentHelper.createElement("anotherElement")
+                    DocumentHelper.createElement("anotherElement"),
                 )
             )
         checkElementXml(
             element,
             """
-                <project>
-                  <root dir="."/>
-                  <someElement/>
-                  <anotherElement/>
-                </project>
+            <project>
+              <root dir="."/>
+              <someElement/>
+              <anotherElement/>
+            </project>
             """
-                .trimIndent()
+                .trimIndent(),
+        )
+    }
+
+    private fun fakeSourceSetInputs(
+        sourceSetName: String,
+        dependsOnSourceSets: List<String>,
+        project: Project,
+    ): SourceSetInputs {
+        return SourceSetInputs(
+            sourceSetName = sourceSetName,
+            dependsOnSourceSets = dependsOnSourceSets,
+            sourcePaths = project.files(),
+            dependencyClasspath = project.files(),
+            kotlinPlatforms = emptySet(),
+        )
+    }
+
+    @Test
+    fun testFilterSourceSets() {
+        val project = ProjectBuilder.builder().build()
+        val initialSourceSets =
+            listOf(
+                fakeSourceSetInputs("commonMain", emptyList(), project),
+                fakeSourceSetInputs("jvmAndAndroidMain", listOf("commonMain"), project),
+                fakeSourceSetInputs("androidMain", listOf("jvmAndAndroidMain"), project),
+                fakeSourceSetInputs("jvmMain", listOf("jvmAndAndroidMain"), project),
+                fakeSourceSetInputs("nonJvmMain", listOf("commonMain"), project),
+                fakeSourceSetInputs("webMain", listOf("nonJvmMain"), project),
+                fakeSourceSetInputs("jsMain", listOf("webMain"), project),
+                fakeSourceSetInputs("wasmMain", listOf("webMain"), project),
+                fakeSourceSetInputs("nativeMain", listOf("nonJvmMain"), project),
+                fakeSourceSetInputs("linuxMain", listOf("nativeMain"), project),
+                fakeSourceSetInputs("appleMain", listOf("nativeMain"), project),
+                fakeSourceSetInputs("iosMain", listOf("appleMain"), project),
+                fakeSourceSetInputs("watchosMain", listOf("appleMain"), project),
+            )
+
+        val updatedSourceSets = ProjectXml.updateDependsOn(initialSourceSets)
+        assertEquals(
+            updatedSourceSets.map { it.sourceSetName to it.dependsOnSourceSets },
+            listOf(
+                "commonMain" to emptyList<String>(),
+                "jvmAndAndroidMain" to listOf("commonMain"),
+                "androidMain" to listOf("jvmAndAndroidMain", "commonMain"),
+                "jvmMain" to listOf("jvmAndAndroidMain", "commonMain"),
+                "nonJvmMain" to listOf("commonMain"),
+                "webMain" to listOf("nonJvmMain", "commonMain"),
+                "jsMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "wasmMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "nativeMain" to listOf("nonJvmMain", "commonMain"),
+                "linuxMain" to listOf("nativeMain", "nonJvmMain", "commonMain"),
+                "appleMain" to listOf("nativeMain", "nonJvmMain", "commonMain"),
+                "iosMain" to listOf("appleMain", "nativeMain", "nonJvmMain", "commonMain"),
+                "watchosMain" to listOf("appleMain", "nativeMain", "nonJvmMain", "commonMain"),
+            ),
+        )
+
+        val filteredSourceSets =
+            ProjectXml.filterSourceSets(
+                updatedSourceSets,
+                mapOf(
+                    "commonMain" to listOf(File("fake.kt")),
+                    // Will be filtered, needs to be removed from androidMain dependsOn list
+                    "jvmAndAndroidMain" to emptyList(),
+                    "androidMain" to listOf(File("fake.kt")),
+                    // Will be filtered
+                    "jvmMain" to emptyList(),
+                    "nonJvmMain" to listOf(File("fake.kt")),
+                    "webMain" to listOf(File("fake.kt")),
+                    "jsMain" to listOf(File("fake.kt")),
+                    "wasmMain" to listOf(File("fake.kt")),
+                    "nativeMain" to listOf(File("fake.kt")),
+                    // Will be filtered
+                    "linuxMain" to emptyList(),
+                    // Will be filtered (first iosMain and watchosMain, and then appleMain)
+                    "appleMain" to emptyList(),
+                    "iosMain" to emptyList(),
+                    "watchosMain" to emptyList(),
+                ),
+            )
+        assertEquals(
+            filteredSourceSets.map { it.sourceSetName },
+            listOf(
+                "commonMain",
+                "androidMain",
+                "nonJvmMain",
+                "webMain",
+                "jsMain",
+                "wasmMain",
+                "nativeMain",
+            ),
+        )
+        assertEquals(
+            filteredSourceSets.map { it.sourceSetName to it.dependsOnSourceSets },
+            listOf(
+                "commonMain" to emptyList<String>(),
+                "androidMain" to listOf("commonMain"),
+                "nonJvmMain" to listOf("commonMain"),
+                "webMain" to listOf("nonJvmMain", "commonMain"),
+                "jsMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "wasmMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "nativeMain" to listOf("nonJvmMain", "commonMain"),
+            ),
         )
     }
 }

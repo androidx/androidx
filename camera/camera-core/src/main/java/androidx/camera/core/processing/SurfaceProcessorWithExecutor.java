@@ -35,6 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A wrapper of a pair of {@link SurfaceProcessor} and {@link Executor}.
@@ -69,26 +70,34 @@ public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
 
     @Override
     public void onInputSurface(@NonNull SurfaceRequest request) {
-        mExecutor.execute(() -> {
-            try {
-                mSurfaceProcessor.onInputSurface(request);
-            } catch (ProcessingException e) {
-                Logger.e(TAG, "Failed to setup SurfaceProcessor input.", e);
-                mErrorListener.accept(e);
-            }
-        });
+        try {
+            mExecutor.execute(() -> {
+                try {
+                    mSurfaceProcessor.onInputSurface(request);
+                } catch (ProcessingException e) {
+                    Logger.e(TAG, "Failed to setup SurfaceProcessor input.", e);
+                    mErrorListener.accept(e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            Logger.e(TAG, "SurfaceProcessor failed due to executor shutdown");
+        }
     }
 
     @Override
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
-        mExecutor.execute(() -> {
-            try {
-                mSurfaceProcessor.onOutputSurface(surfaceOutput);
-            } catch (ProcessingException e) {
-                Logger.e(TAG, "Failed to setup SurfaceProcessor output.", e);
-                mErrorListener.accept(e);
-            }
-        });
+        try {
+            mExecutor.execute(() -> {
+                try {
+                    mSurfaceProcessor.onOutputSurface(surfaceOutput);
+                } catch (ProcessingException e) {
+                    Logger.e(TAG, "Failed to setup SurfaceProcessor output.", e);
+                    mErrorListener.accept(e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            Logger.e(TAG, "SurfaceProcessor failed due to executor shutdown");
+        }
     }
 
     @Override
@@ -102,5 +111,10 @@ public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
     @Override
     public void release() {
         // No-op. External SurfaceProcessor should not be released by CameraX.
+    }
+
+    @Override
+    public @NonNull String toString() {
+        return "SurfaceProcessorWithExecutor(" + mSurfaceProcessor + ")";
     }
 }

@@ -1,0 +1,141 @@
+{
+  "header": {
+    "width": 380,
+    "height": 220,
+    "profiles": 512,
+    "contentDescription": "Crypto Dashboard Card with AGSL Plasma Shader"
+  },
+  "root": {
+    "type": "box",
+    "modifiers": [
+      {
+        "fillMaxSize": 1.0
+      },
+      {
+        "background": "#030712"
+      },
+      {
+        "padding": 16
+      },
+      {
+        "clipRect": 24
+      }
+    ],
+    "children": [
+      {
+        "type": "canvas",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          }
+        ],
+        "commands": [
+          {
+            "paint": {
+              "style": "fill",
+              "shader": {
+                "agsl": "uniform float2 iResolution;\nuniform float iTime;\nhalf4 main(float2 fragCoord) {\n    float2 uv = fragCoord / iResolution;\n    float t = iTime * 0.7;\n    float c1 = sin(uv.x * 5.0 + t) * 0.5 + 0.5;\n    float c2 = cos(uv.y * 6.0 - t * 0.9) * 0.5 + 0.5;\n    float3 colA = float3(0.06, 0.09, 0.25);\n    float3 colB = float3(0.35, 0.12, 0.55);\n    float3 colC = float3(0.05, 0.65, 0.75);\n    float3 mixCol = mix(colA, colB, c1);\n    mixCol = mix(mixCol, colC, c2 * 0.45);\n    return half4(mixCol, 1.0);\n}",
+                "uniforms": {
+                  "iResolution": [
+                    "componentWidth()",
+                    "componentHeight()"
+                  ],
+                  "iTime": "continuousSec()"
+                }
+              }
+            }
+          },
+          {
+            "drawRect": {
+              "left": 0,
+              "top": 0,
+              "right": "componentWidth()",
+              "bottom": "componentHeight()"
+            }
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "modifiers": [
+          {
+            "fillMaxSize": 1.0
+          },
+          {
+            "padding": 16
+          }
+        ],
+        "verticalAlignment": "space_between",
+        "children": [
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "verticalAlignment": "center",
+            "children": [
+              {
+                "type": "column",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "PORTFOLIO BALANCE",
+                    "fontSize": 12,
+                    "fontWeight": 700,
+                    "color": "#A7F3D0"
+                  },
+                  {
+                    "type": "text",
+                    "value": "$124,850.40",
+                    "fontSize": 32,
+                    "fontWeight": 700,
+                    "color": "#FFFFFF"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": "+14.2% \ud83d\udcc8",
+                "fontSize": 14,
+                "fontWeight": 700,
+                "color": "#34D399"
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "modifiers": [
+              {
+                "fillMaxWidth": 1.0
+              }
+            ],
+            "horizontalAlignment": "space_between",
+            "children": [
+              {
+                "type": "text",
+                "value": "BTC: $64,210",
+                "fontSize": 12,
+                "color": "#E0E7FF"
+              },
+              {
+                "type": "text",
+                "value": "ETH: $3,450",
+                "fontSize": 12,
+                "color": "#E0E7FF"
+              },
+              {
+                "type": "text",
+                "value": "SOL: $145",
+                "fontSize": 12,
+                "color": "#E0E7FF"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
